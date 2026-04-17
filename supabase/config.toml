@@ -1,0 +1,14 @@
+# Supabase CLI config — used for `supabase functions deploy` etc.
+# Run `supabase link --project-ref <your-project-ref>` once to connect this folder
+# to the same Supabase project the extension uses.
+
+project_id = "resale-bot-web"
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = true
+
+[functions.create-portal-session]
+verify_jwt = true

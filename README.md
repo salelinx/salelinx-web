@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# resale-bot-web
 
-## Getting Started
+Marketing site, pricing page, auth, and subscription management for the Resale Bot Chrome extension.
 
-First, run the development server:
+Companion to the extension repo at `../muiltiplatform-seller-bot`. Both share a single Supabase project so users are one pool.
+
+## Stack
+
+- Next.js 16 (App Router) + React 19 + TypeScript strict
+- Tailwind CSS 4
+- Supabase Auth (email + password) + Supabase Postgres
+- Stripe Checkout + Customer Portal
+- Vercel (hosting)
+- Resend (transactional email — configure before launch)
+
+## First-time setup
 
 ```bash
+npm install
+cp .env.example .env.local    # fill in the values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase config required
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Configure these in the Supabase dashboard before signup/login will work end-to-end.
 
-## Learn More
+### URL configuration (Authentication → URL Configuration)
 
-To learn more about Next.js, take a look at the following resources:
+| Setting       | Value                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| Site URL      | `http://localhost:3000` (dev) or your production domain                                                 |
+| Redirect URLs | `http://localhost:3000/auth/callback` + `http://localhost:3000/auth/callback?next=/auth/reset-password` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Email provider (Authentication → Providers → Email)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Setting                | Recommended |
+| ---------------------- | ----------- |
+| Enable Email provider  | ON          |
+| Confirm email          | ON          |
+| Secure email change    | ON          |
+| Secure password change | ON          |
 
-## Deploy on Vercel
+### Password requirements (Authentication → Policies)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Raise minimum length to **8 characters** to match the client-side validation.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### SMTP (Authentication → Emails → SMTP)
+
+Before launch: connect Resend (or Postmark / SendGrid). The default Supabase SMTP is rate-limited to 2 emails/hour.
+
+### Migrations
+
+Run `011_tier_limits_and_usage_counters.sql` from the **extension repo** (`../muiltiplatform-seller-bot/supabase/migrations/`). All DB schema lives there — this repo only reads.
+
+## Directory layout
+
+```
+app/
+├── page.tsx                 Landing
+├── pricing/                 Tiers rendered from Supabase tier_limits
+├── lifetime/                Launch LTD page
+├── auth/
+│   ├── login/               Password login
+│   ├── signup/              Password signup
+│   ├── forgot-password/     Email entry for reset
+│   ├── reset-password/      New password entry
+│   ├── callback/            OAuth code exchange
+│   └── signout/             POST handler → sign out + redirect
+├── account/                 Protected dashboard
+└── legal/                   ToS + Privacy
+
+components/
+├── Header.tsx               Nav bar with auth state
+└── VerifyEmailBanner.tsx    Shown to unverified users on /account
+
+lib/
+├── supabase/{client,server,tier-config}.ts
+├── stripe.ts                Stripe server SDK init
+└── types/tiers.ts           Shared with extension — copy-paste sync
+
+supabase/
+├── config.toml              Supabase CLI config for deploying functions
+└── functions/
+    ├── stripe-webhook/
+    ├── create-checkout-session/
+    └── create-portal-session/
+
+proxy.ts                     Next.js 16 middleware — refreshes auth cookies
+```
+
+## Commands
+
+| Command         | What it does                                                |
+| --------------- | ----------------------------------------------------------- |
+| `npm run dev`   | Local dev server (Turbopack)                                |
+| `npm run build` | Production build — run before committing to catch TS errors |
+| `npm run lint`  | ESLint                                                      |
+
+## Supabase Edge Functions
+
+Deployed via the Supabase CLI:
+
+```bash
+supabase link --project-ref <your-project-ref>
+supabase functions deploy stripe-webhook
+supabase functions deploy create-checkout-session
+supabase functions deploy create-portal-session
+```
+
+Set function secrets:
+
+```bash
+supabase secrets set STRIPE_SECRET_KEY=sk_...
+supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+See `docs/EDGE-FUNCTIONS.md` for more.
+
+## Docs
+
+| File                                               | Topic                                                   |
+| -------------------------------------------------- | ------------------------------------------------------- |
+| [`docs/OVERVIEW.md`](docs/OVERVIEW.md)             | Stack, request lifecycle, folder layout, env vars       |
+| [`docs/AUTH.md`](docs/AUTH.md)                     | Signup / login / reset / verify flows                   |
+| [`docs/ENTITLEMENTS.md`](docs/ENTITLEMENTS.md)     | `tier_limits` + `usage_counters` system                 |
+| [`docs/STRIPE.md`](docs/STRIPE.md)                 | Checkout, webhooks, Customer Portal                     |
+| [`docs/EDGE-FUNCTIONS.md`](docs/EDGE-FUNCTIONS.md) | Deno functions, deploy, secrets                         |
+| [`CLAUDE.md`](CLAUDE.md)                           | AI assistant guide — architecture constraints + gotchas |
