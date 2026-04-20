@@ -99,14 +99,15 @@ All defined in `.env.example`. Public-only by design — the website has no serv
 
 Relevant tables:
 
-| Table            | Purpose                                       |
-| ---------------- | --------------------------------------------- |
-| `auth.users`     | Supabase-managed; one row per user            |
-| `tier_limits`    | Tier definitions, data-driven caps            |
-| `usage_counters` | Per-user, per-feature, per-period counters    |
-| `subscriptions`  | (not shipped yet) — Stripe sub state per user |
-| `listings`       | Extension-owned, not relevant here            |
+| Table            | Purpose                                                               |
+| ---------------- | --------------------------------------------------------------------- |
+| `auth.users`     | Supabase-managed; one row per user                                    |
+| `tier_limits`    | Tier definitions, data-driven caps                                    |
+| `usage_counters` | Per-user, per-feature, per-period counters (written via RPC only)     |
+| `subscriptions`  | Stripe sub state per user — written by `stripe-webhook` Edge Function |
+| `listings`       | Extension-owned, not relevant here                                    |
 
+See `docs/ARCHITECTURE.md` for a full table-ownership map including extension-only tables.
 See `docs/ENTITLEMENTS.md` for how `tier_limits` and `usage_counters` are used.
 
 ## Deployment

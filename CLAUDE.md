@@ -13,9 +13,12 @@ Do not guess at how things work — read the code first.
 
 ### Docs
 
+Read `docs/ARCHITECTURE.md` first — it's the whole-system context (both repos, shared Supabase, data ownership, user journey). Then the narrower docs as needed:
+
 ```
 docs/
-├── OVERVIEW.md         Stack, request lifecycle, folder layout, env vars
+├── ARCHITECTURE.md     Big-picture: extension + web + Supabase, who owns what
+├── OVERVIEW.md         Web-repo stack, request lifecycle, folder layout, env vars
 ├── AUTH.md             Signup / login / reset / verify flows, session handling
 ├── ENTITLEMENTS.md     tier_limits + usage_counters, config-driven gating
 ├── STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
