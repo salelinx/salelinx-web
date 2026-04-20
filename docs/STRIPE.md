@@ -4,20 +4,15 @@ Subscription billing via Stripe Checkout + Customer Portal. Zero custom payment 
 
 ## Product structure
 
-One Stripe Product per tier, with two Prices per product (monthly + annual).
+One Stripe Product per tier, each with a single monthly Price. (Annual pricing not offered yet — can be added later by creating a second Price per product with `billing_cycle: 'annual'` metadata.)
 
-| Tier     | Monthly                  | Annual                  |
-| -------- | ------------------------ | ----------------------- |
-| Starter  | `price_starter_monthly`  | `price_starter_annual`  |
-| Pro      | `price_pro_monthly`      | `price_pro_annual`      |
-| Business | `price_business_monthly` | `price_business_annual` |
+| Tier     | Monthly                  |
+| -------- | ------------------------ |
+| Starter  | `price_starter_monthly`  |
+| Pro      | `price_pro_monthly`      |
+| Business | `price_business_monthly` |
 
-Plus a one-time:
-| | Price |
-|---|---|
-| Lifetime Pro | `price_lifetime_pro` (one-time) |
-
-**Metadata on each Stripe Price:** `tier_id: 'pro'` and `billing_cycle: 'monthly' | 'annual' | 'lifetime'`. The webhook uses this metadata to map Stripe → `subscriptions.tier_id` without a separate lookup table.
+**Metadata on each Stripe Price:** `tier_id: 'pro'` and `billing_cycle: 'monthly'`. The webhook uses this metadata to map Stripe → `subscriptions.tier_id` without a separate lookup table.
 
 ## Checkout flow
 
@@ -66,16 +61,19 @@ No custom UI needed.
 
 All in `supabase/functions/stripe-webhook/index.ts`. Priority:
 
-| Event                                       | What to do                                                                                                 |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `customer.subscription.created`             | Insert row in `subscriptions` keyed on `client_reference_id` (user_id). Set `tier_id` from price metadata. |
-| `customer.subscription.updated`             | Update `tier_id`, `status`, `current_period_end`. Handles plan changes + renewals.                         |
-| `customer.subscription.deleted`             | Set `status = 'canceled'`. Don't delete the row — keep history.                                            |
-| `invoice.payment_failed`                    | Set `status = 'past_due'`. Trigger payment-failed email via Resend.                                        |
-| `invoice.payment_succeeded`                 | Reset `status = 'active'` if it was `past_due`.                                                            |
-| `checkout.session.completed` (for lifetime) | Insert `subscriptions` row with `tier_id = 'pro_lifetime'`, no `current_period_end`.                       |
+| Event                                                | What to do                                                                                                                                                                           |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `checkout.session.completed` (mode: `subscription`)  | Initial insert. `client_reference_id` → `user_id`. Retrieve the subscription (expand `items.data.price`) and read `tier_id` from price metadata. Upsert on `stripe_subscription_id`. |
+| `customer.subscription.updated`                      | Update `tier_id`, `status`, `current_period_end` on the row matched by `stripe_subscription_id`. Handles plan changes + renewals.                                                    |
+| `customer.subscription.deleted`                      | Set `status = 'canceled'`. Don't delete the row — keep history.                                                                                                                      |
+| `invoice.payment_failed`                             | Set `status = 'past_due'`. Trigger payment-failed email via Resend.                                                                                                                  |
+| `invoice.payment_succeeded`                          | Reset `status = 'active'` only if it was `past_due` (otherwise no-op).                                                                                                               |
 
 Any event not listed → respond 200 silently, don't 500.
+
+**Why not `customer.subscription.created`?** `client_reference_id` only lives on the Checkout Session, not the Subscription object — so `checkout.session.completed` is the only event that carries the mapping back to our `user_id`. We use it for the initial insert and rely on `customer.subscription.updated` for subsequent lifecycle changes.
+
+**Error handling:** the handler throws on missing metadata / missing user mapping. Non-200 responses tell Stripe to retry with exponential backoff, which is what we want — silently swallowing a failed insert would leave the user paid-up but un-provisioned.
 
 ## Test mode vs live
 
@@ -101,21 +99,6 @@ Workflow to raise Pro from £14.99 to £17.99:
 2. Update pricing page to use the new price ID for new signups
 3. Existing subs on v1 keep paying £14.99 (by design — grandfathered)
 4. (Optional) Later, migrate existing subs to v2 with a Stripe subscription update
-
-## Annual discount
-
-Annual = 17% off (2 months free). Stripe Price for annual is set at `£<monthly> × 10` — configured manually when creating the Price, not calculated at runtime.
-
-## Lifetime deal
-
-Separate one-time Price. After purchase, webhook inserts `subscriptions` with:
-
-- `tier_id = 'pro_lifetime'` (or similar custom tier ID)
-- `status = 'active'`
-- `current_period_end = null`
-- `stripe_subscription_id = null` (it's a one-time payment, not a sub)
-
-Cap at 100 sales via a feature flag or a counter checked before checkout session creation.
 
 ## Gotchas
 

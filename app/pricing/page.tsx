@@ -1,9 +1,17 @@
+import Link from "next/link";
+import { SubscribeButton } from "@/components/SubscribeButton";
 import { getTierConfigs } from "@/lib/supabase/tier-config";
 import type { TierId } from "@/lib/types/tiers";
 
 export const revalidate = 60;
 
 const TIER_ORDER: TierId[] = ["free", "starter", "pro", "business"];
+
+const PRICE_IDS: Partial<Record<TierId, string | undefined>> = {
+  starter: process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER,
+  pro: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO,
+  business: process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS,
+};
 
 const TIER_META: Record<
   TierId,
@@ -125,16 +133,32 @@ export default async function PricingPage() {
                 </span>
               </p>
 
-              <button
-                type="button"
-                className={`mt-6 w-full rounded-full py-2.5 text-sm font-medium ${
-                  meta.highlight
-                    ? "bg-black text-white dark:bg-white dark:text-black"
-                    : "border border-black/10 dark:border-white/20"
-                }`}
-              >
-                {tier.tier_id === "free" ? "Install extension" : "Subscribe"}
-              </button>
+              {tier.tier_id === "free" ? (
+                <Link
+                  href="/auth/signup"
+                  className={`mt-6 block w-full rounded-full py-2.5 text-center text-sm font-medium ${
+                    meta.highlight
+                      ? "bg-black text-white dark:bg-white dark:text-black"
+                      : "border border-black/10 dark:border-white/20"
+                  }`}
+                >
+                  Install extension
+                </Link>
+              ) : PRICE_IDS[tier.tier_id] ? (
+                <SubscribeButton
+                  priceId={PRICE_IDS[tier.tier_id]!}
+                  label="Subscribe"
+                  highlight={meta.highlight}
+                />
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-6 w-full rounded-full border border-black/10 py-2.5 text-sm font-medium opacity-60 dark:border-white/20"
+                >
+                  Coming soon
+                </button>
+              )}
 
               <ul className="mt-6 space-y-2 text-sm">
                 {LIMIT_ORDER.filter((k) => tier.limits[k] !== undefined).map(

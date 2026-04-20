@@ -9,11 +9,13 @@ Three Supabase Edge Functions live in `supabase/functions/`. They run on Supabas
 
 ## The three functions
 
-| Function                  | `verify_jwt` | Purpose                                                           |
-| ------------------------- | ------------ | ----------------------------------------------------------------- |
-| `stripe-webhook`          | false        | Stripe POSTs here; we verify with `STRIPE_WEBHOOK_SECRET` instead |
-| `create-checkout-session` | true         | Authed user requests a Stripe Checkout URL                        |
-| `create-portal-session`   | true         | Authed user requests a Stripe Customer Portal URL                 |
+| Function                  | `verify_jwt` | Purpose                                                                    |
+| ------------------------- | ------------ | -------------------------------------------------------------------------- |
+| `stripe-webhook`          | false        | Stripe POSTs here; we verify with `STRIPE_WEBHOOK_SECRET` instead          |
+| `create-checkout-session` | false*       | Authed user requests a Stripe Checkout URL. Auth enforced by `getUser()`.  |
+| `create-portal-session`   | false*       | Authed user requests a Stripe Customer Portal URL. Same pattern.           |
+
+\*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null — Supabase's user endpoint validates ES256 correctly, so auth is still enforced.
 
 All three import Stripe + Supabase clients from `esm.sh`. Deno uses URL imports, not `node_modules`.
 

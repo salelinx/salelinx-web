@@ -39,7 +39,6 @@ React stream ──▶ browser
 app/
 ├── page.tsx                 Landing
 ├── pricing/                 Tiers rendered from tier_limits
-├── lifetime/                LTD landing
 ├── auth/
 │   ├── login/               Password login
 │   ├── signup/              Password signup
@@ -70,17 +69,29 @@ middleware.ts                (Deprecated in Next 16 — don't recreate this file
 
 ## Environment variables
 
-All defined in `.env.example`:
+### Website (`.env.local`)
 
-| Var                                  | Used by                 | Notes                                                      |
-| ------------------------------------ | ----------------------- | ---------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`           | client + server         | Same as the extension's Supabase project                   |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | client + server         | Anon key, not service role                                 |
-| `SUPABASE_SERVICE_ROLE_KEY`          | server only             | Never exposed to browser. Used by Edge Functions.          |
-| `STRIPE_SECRET_KEY`                  | server + Edge Functions | `sk_test_...` or `sk_live_...`                             |
-| `STRIPE_WEBHOOK_SECRET`              | Edge Function only      | From Stripe Dashboard → webhooks endpoint                  |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | client                  | For Stripe.js if we add inline card fields later           |
-| `NEXT_PUBLIC_EXTENSION_ID`           | client                  | Chrome extension deep-link target (leave blank pre-launch) |
+All defined in `.env.example`. Public-only by design — the website has no server-side Stripe calls; all Stripe work lives in Edge Functions.
+
+| Var                                  | Used by         | Notes                                                            |
+| ------------------------------------ | --------------- | ---------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | client + server | Same as the extension's Supabase project                         |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | client + server | Anon key, not service role                                       |
+| `NEXT_PUBLIC_STRIPE_PRICE_STARTER`   | client          | `price_...` for Starter monthly. Swap test↔live without redeploy |
+| `NEXT_PUBLIC_STRIPE_PRICE_PRO`       | client          | `price_...` for Pro monthly                                      |
+| `NEXT_PUBLIC_STRIPE_PRICE_BUSINESS`  | client          | `price_...` for Business monthly                                 |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | client          | Unused today, kept for future Stripe Elements                    |
+| `NEXT_PUBLIC_EXTENSION_ID`           | client          | Chrome extension deep-link target (blank pre-launch)             |
+
+### Edge Functions (set via `supabase secrets set`, NOT in `.env.local`)
+
+| Var                         | Source                                             |
+| --------------------------- | -------------------------------------------------- |
+| `STRIPE_SECRET_KEY`         | https://dashboard.stripe.com/test/apikeys          |
+| `STRIPE_WEBHOOK_SECRET`     | `stripe listen` output or Stripe webhook dashboard |
+| `SUPABASE_URL`              | Auto-injected                                      |
+| `SUPABASE_ANON_KEY`         | Auto-injected                                      |
+| `SUPABASE_SERVICE_ROLE_KEY` | Auto-injected                                      |
 
 ## Database schema ownership
 
