@@ -53,7 +53,7 @@ Before launch: connect Resend (or Postmark / SendGrid). The default Supabase SMT
 
 ### Migrations
 
-Run `011_tier_limits_and_usage_counters.sql` from the **extension repo** (`../muiltiplatform-seller-bot/supabase/migrations/`). All DB schema lives there — this repo only reads.
+Run `011_billing.sql` from the **extension repo** (`../muiltiplatform-seller-bot/supabase/migrations/`). All DB schema lives there — this repo only reads.
 
 ## Directory layout
 
@@ -61,7 +61,6 @@ Run `011_tier_limits_and_usage_counters.sql` from the **extension repo** (`../mu
 app/
 ├── page.tsx                 Landing
 ├── pricing/                 Tiers rendered from Supabase tier_limits
-├── lifetime/                Launch LTD page
 ├── auth/
 │   ├── login/               Password login
 │   ├── signup/              Password signup

@@ -4,11 +4,17 @@
 
 project_id = "resale-bot-web"
 
+# All three functions have verify_jwt = false. The Supabase gateway's built-in
+# JWT verify only supports HS256, but our project issues ES256 tokens.
+# Auth is still enforced: `create-checkout-session` and `create-portal-session`
+# call supabase.auth.getUser() inside the handler and return 401 if null.
+# `stripe-webhook` is signed by Stripe, not by user JWT.
+
 [functions.stripe-webhook]
 verify_jwt = false
 
 [functions.create-checkout-session]
-verify_jwt = true
+verify_jwt = false
 
 [functions.create-portal-session]
-verify_jwt = true
+verify_jwt = false

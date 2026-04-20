@@ -79,25 +79,29 @@ Always derived from the user's local date at the moment of the check. Periods re
 
 ## Seed data (v1)
 
-See migration `011_tier_limits_and_usage_counters.sql` in the extension repo. Summary:
+See migration `011_billing.sql` in the extension repo (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1). Summary:
 
-|                 | Free | Starter | Pro       | Business  |
-| --------------- | ---- | ------- | --------- | --------- |
-| Crosslists / mo | 25   | 150     | 3,500     | Unlimited |
-| Relists / mo    | 25   | 150     | 3,500     | Unlimited |
-| Refreshes / day | 50   | 100     | Unlimited | Unlimited |
-| Follows / day   | 100  | 500     | Unlimited | Unlimited |
-| Linked shops    | 1    | 1       | 1         | 3         |
-| Cloud storage   | —    | —       | 1 GB      | 5 GB      |
-| Auto-refresh    | ✗    | ✗       | ✓         | ✓         |
-| Cloud sync      | ✗    | ✗       | ✓         | ✓         |
-| Auto-offers     | ✗    | ✗       | ✓         | ✓         |
-| Shipping labels | ✗    | ✗       | ✓         | ✓         |
-| Messages        | ✗    | ✗       | ✓         | ✓         |
-| Restocker       | ✗    | ✗       | ✗         | ✓         |
-| Shop Designer   | ✗    | ✗       | ✗         | ✓         |
-| Dead Stock      | ✗    | ✗       | ✗         | ✓         |
-| Support         | 1-7d | 1-5d    | 48h       | 24h       |
+| Label                      | JSON key                  | Free | Starter | Pro       | Business  |
+| -------------------------- | ------------------------- | ---- | ------- | --------- | --------- |
+| Crosslists / mo            | `crosslists_per_month`    | 25   | 150     | 3,500     | Unlimited |
+| Relists / mo               | `relists_per_month`       | 25   | 150     | 3,500     | Unlimited |
+| Refreshes / day            | `refreshes_per_day`       | 50   | 100     | Unlimited | Unlimited |
+| Follows / day              | `follows_per_day`         | 100  | 500     | Unlimited | Unlimited |
+| Unfollows / day            | `unfollows_per_day`       | 100  | 500     | Unlimited | Unlimited |
+| Linked shops               | `linked_shops`            | 1    | 1       | 1         | 3         |
+| Cloud storage              | `cloud_storage_bytes`     | —    | —       | 1 GB      | 5 GB      |
+| Support response (days)    | `support_response_days`   | 7    | 5       | —         | —         |
+| Support response (hours)   | `support_response_hours`  | —    | —       | 48        | 24        |
+| Auto-refresh               | `auto_refresh`            | ✗    | ✗       | ✓         | ✓         |
+| Cloud sync                 | `cloud_sync`              | ✗    | ✗       | ✓         | ✓         |
+| Auto-offers                | `auto_offer`              | ✗    | ✗       | ✓         | ✓         |
+| Shipping labels            | `shipping_labels`         | ✗    | ✗       | ✓         | ✓         |
+| Messages                   | `messages`                | ✗    | ✗       | ✓         | ✓         |
+| Restocker                  | `restocker`               | ✗    | ✗       | ✗         | ✓         |
+| Shop Designer              | `shop_designer`           | ✗    | ✗       | ✗         | ✓         |
+| Dead Stock                 | `dead_stock`              | ✗    | ✗       | ✗         | ✓         |
+
+**Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading — typos silently fail as "feature absent" = disabled.
 
 ## Changing caps without a deploy
 
