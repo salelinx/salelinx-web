@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SubscribeButton } from "@/components/SubscribeButton";
+import { Icon, type IconName } from "@/components/Icon";
 import { getTierConfigs } from "@/lib/supabase/tier-config";
 import type { TierId } from "@/lib/types/tiers";
 
@@ -55,6 +56,17 @@ const FEATURE_LABELS: Record<string, string> = {
   messages: "Messages",
 };
 
+const FEATURE_ICONS: Record<string, IconName> = {
+  auto_refresh: "clock",
+  cloud_sync: "lock",
+  shop_designer: "layout",
+  dead_stock: "search",
+  restocker: "rotate",
+  auto_offer: "zap",
+  shipping_labels: "box",
+  messages: "message",
+};
+
 const LIMIT_ORDER = [
   "crosslists_per_month",
   "relists_per_month",
@@ -70,7 +82,6 @@ const FEATURE_ORDER = [
   "shipping_labels",
   "auto_offer",
   "auto_refresh",
-  "cloud_sync",
   "restocker",
   "dead_stock",
   "shop_designer",
@@ -161,26 +172,71 @@ export default async function PricingPage() {
               )}
 
               <ul className="mt-6 space-y-2 text-sm">
-                {LIMIT_ORDER.filter((k) => tier.limits[k] !== undefined).map(
-                  (key) => (
-                    <li key={key} className="flex justify-between gap-2">
-                      <span className="text-zinc-600 dark:text-zinc-400">
-                        {LIMIT_LABELS[key] ?? key}
-                      </span>
-                      <span className="font-medium">
-                        {formatLimit(key, tier.limits[key])}
-                      </span>
-                    </li>
-                  ),
-                )}
-                {FEATURE_ORDER.filter((k) => tier.features[k]).map((key) => (
-                  <li key={key} className="flex items-center gap-2">
-                    <span className="text-emerald-600 dark:text-emerald-400">
-                      ✓
+                {LIMIT_ORDER.filter(
+                  (k) =>
+                    k !== "cloud_storage_bytes" &&
+                    tier.limits[k] !== undefined,
+                ).map((key) => (
+                  <li key={key} className="flex justify-between gap-2">
+                    <span className="text-zinc-600 dark:text-zinc-400">
+                      {LIMIT_LABELS[key] ?? key}
                     </span>
-                    <span>{FEATURE_LABELS[key] ?? key}</span>
+                    <span className="font-medium">
+                      {formatLimit(key, tier.limits[key])}
+                    </span>
                   </li>
                 ))}
+
+                {(() => {
+                  const storage = tier.limits.cloud_storage_bytes;
+                  const included =
+                    storage !== undefined && (storage === null || storage > 0);
+                  return (
+                    <li
+                      className={`flex items-center gap-2 ${
+                        included ? "" : "text-zinc-400 dark:text-zinc-600"
+                      }`}
+                    >
+                      <Icon name="cloud" className="h-4 w-4 shrink-0" />
+                      <span
+                        className={`flex-1 ${included ? "" : "line-through decoration-zinc-300 dark:decoration-zinc-700"}`}
+                      >
+                        Cloud storage
+                      </span>
+                      {included && storage !== undefined && (
+                        <span className="font-medium">
+                          {formatLimit("cloud_storage_bytes", storage)}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })()}
+
+                {FEATURE_ORDER.map((key) => {
+                  const included = Boolean(tier.features[key]);
+                  return (
+                    <li
+                      key={key}
+                      className={`flex items-center gap-2 ${
+                        included ? "" : "text-zinc-400 dark:text-zinc-600"
+                      }`}
+                    >
+                      <Icon
+                        name={FEATURE_ICONS[key]}
+                        className="h-4 w-4 shrink-0"
+                      />
+                      <span
+                        className={
+                          included
+                            ? ""
+                            : "line-through decoration-zinc-300 dark:decoration-zinc-700"
+                        }
+                      >
+                        {FEATURE_LABELS[key] ?? key}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           );

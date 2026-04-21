@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase/server";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export async function Header() {
   const supabase = await createServerClient();
@@ -15,6 +16,9 @@ export async function Header() {
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
+          <Link href="/features" className="hover:underline">
+            Features
+          </Link>
           <Link href="/pricing" className="hover:underline">
             Pricing
           </Link>
@@ -46,6 +50,7 @@ export async function Header() {
               </Link>
             </>
           )}
+          <ThemeToggle />
         </nav>
       </div>
     </header>

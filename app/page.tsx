@@ -7,8 +7,8 @@ export default function Home() {
         One tool for every Depop & Vinted seller.
       </h1>
       <p className="max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
-        Crosslist, relist, refresh, restock, and answer buyers — across both
-        platforms — from a single panel.
+        Crosslist, relist, refresh, restock, and answer buyers - across both
+        platforms - from a single panel.
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link

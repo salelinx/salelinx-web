@@ -31,7 +31,7 @@ redirect to /account
 user.email_confirmed_at now set → banner hidden
 ```
 
-**If Supabase "Confirm email" is OFF** — signup returns a session immediately and the user lands on `/account` without the email step. The signup page handles both.
+**If Supabase "Confirm email" is OFF** - signup returns a session immediately and the user lands on `/account` without the email step. The signup page handles both.
 
 ## Login flow
 
@@ -107,25 +107,37 @@ Without this, access tokens silently expire and users get unexpectedly logged ou
 
 ## Email verification banner
 
-`components/VerifyEmailBanner.tsx` — appears on `/account` when `user.email_confirmed_at` is null. Has a "Resend link" button that calls `supabase.auth.resend({ type: 'signup' })`.
+`components/VerifyEmailBanner.tsx` - appears on `/account` when `user.email_confirmed_at` is null. Has a "Resend link" button that calls `supabase.auth.resend({ type: 'signup' })`.
 
 ## Header state
 
-`components/Header.tsx` is a **Server Component** — it reads the user on every request. Means:
+`components/Header.tsx` is a **Server Component** - it reads the user on every request. Means:
 
 - Signed-in and signed-out states render correctly without client-side JS
 - No flash of wrong UI on page load
 - Pages become dynamic (server-rendered on demand) instead of static, which is fine
 
+## Email delivery (Send Email Hook → Resend)
+
+Auth emails do **not** go through Supabase's SMTP. Supabase Auth is configured to POST every email to the `send-auth-email` Edge Function (Authentication → Hooks → Send email hook), which verifies the Standard Webhooks signature, renders an HTML template, and calls Resend.
+
+- Templates live in `supabase/functions/send-auth-email/templates.ts` - one per `email_action_type` (signup, recovery, magiclink, invite, email_change, reauthentication).
+- The link in every email points at `${SUPABASE_URL}/auth/v1/verify?token=<token_hash>&type=<action>&redirect_to=<redirect_to>`, which Supabase verifies and then redirects to our `/auth/callback`. The client-visible flow (code exchange, session cookies) is unchanged - we just own the visual layer of the email.
+- For `email_change` with "Secure email change" ON, Supabase fires the hook twice: once to the old address (`email_change_current`, using `old_email` as the recipient) and once to the new address (`email_change_new`, using `token_hash_new` to build the link).
+- A non-200 response from the hook causes the underlying auth action to fail with a user-visible error, so the function is a critical path - keep `RESEND_API_KEY`, `RESEND_FROM`, and `SEND_EMAIL_HOOK_SECRET` current.
+
+Full deploy / secret instructions are in `docs/EDGE-FUNCTIONS.md`.
+
 ## Supabase config needed
 
-See `README.md` and the **"Supabase config needed"** checklist — Site URL, Redirect URLs, Confirm email, password min length, SMTP.
+See `README.md` and the **"Supabase config needed"** checklist - Site URL, Redirect URLs, Confirm email, password min length, and the Send Email Hook registration.
 
 ## Gotchas
 
-- **`proxy.ts` must export `proxy`, not `middleware`** — Next 16 renamed the convention.
-- **`setAll` cookie callbacks need an explicit `CookieEntry[]` type** — otherwise TS strict mode flags implicit `any`.
-- **Server Components can't set cookies directly** — the `try/catch` in `lib/supabase/server.ts` swallows that error because `proxy.ts` handles refresh instead.
-- **`router.refresh()` after password login** — without it, the Header still shows the signed-out state until the user navigates.
-- **`email_confirmed_at` only updates after the user clicks the link** — checking it right after `signUp()` will always be null.
-- **Supabase default SMTP has a 2 emails/hour rate limit** — configure Resend before any real testing.
+- **`proxy.ts` must export `proxy`, not `middleware`** - Next 16 renamed the convention.
+- **`setAll` cookie callbacks need an explicit `CookieEntry[]` type** - otherwise TS strict mode flags implicit `any`.
+- **Server Components can't set cookies directly** - the `try/catch` in `lib/supabase/server.ts` swallows that error because `proxy.ts` handles refresh instead.
+- **`router.refresh()` after password login** - without it, the Header still shows the signed-out state until the user navigates.
+- **`email_confirmed_at` only updates after the user clicks the link** - checking it right after `signUp()` will always be null.
+- **Auth emails go through the Send Email Hook (`send-auth-email` Edge Function), not Supabase SMTP** - Supabase's SMTP panel is irrelevant once the hook is enabled.
+- **A broken `send-auth-email` function breaks signup and password reset** - if Resend is down or the hook returns non-200, the user sees a generic "failed to send" error. Watch function logs when changing templates.
