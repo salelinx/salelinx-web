@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Resale Bot - Sell across Depop & Vinted",
+  title: "SaleLinx - Sell across Depop & Vinted",
   description:
     "Crosslist, relist, refresh, and restock across Depop and Vinted from one place.",
 };

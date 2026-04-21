@@ -1,13 +1,13 @@
 # System architecture
 
-High-level map of the whole Resale Bot system. Read this first if you're
+High-level map of the whole SaleLinx system. Read this first if you're
 new to the project or starting a cross-cutting task.
 
 For deeper dives, each section links to a subordinate doc.
 
 ## The product
 
-Resale Bot is a **Chrome extension that automates listing workflows on
+SaleLinx is a **Chrome extension that automates listing workflows on
 Depop and Vinted** - crosslisting, relisting, refreshing, following,
 auto-offers, and restocking. Users install it from the Chrome Web Store,
 sign in, link their Depop / Vinted shop, and the bot runs actions from

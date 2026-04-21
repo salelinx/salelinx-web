@@ -27,7 +27,7 @@ export type RenderedEmail = {
 };
 
 const brand = {
-  name: "Resale Bot",
+  name: "SaleLinx",
   accent: "#1f8a4c",
 };
 
