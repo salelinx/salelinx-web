@@ -4,6 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { getCurrentSubscription } from "@/lib/supabase/subscription";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
+import { AccountSecurityCard } from "@/components/AccountSecurityCard";
 
 const TIER_LABEL: Record<string, string> = {
   free: "Free",
@@ -145,20 +146,21 @@ export default async function AccountPage({ searchParams }: Props) {
                   any time before then via Manage subscription.
                 </p>
               )}
+
+            {subscription.stripe_customer_id && (
+              <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/10">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Update your plan, change your payment method, download
+                  invoices, or cancel in Stripe's billing portal.
+                </p>
+                <ManageSubscriptionButton />
+              </div>
+            )}
           </>
         )}
       </section>
 
-      {subscription?.stripe_customer_id && (
-        <section className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10">
-          <h2 className="text-xl font-semibold">Manage subscription</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Update your plan, change your payment method, download invoices, or
-            cancel in Stripe's billing portal.
-          </p>
-          <ManageSubscriptionButton />
-        </section>
-      )}
+      {user.email && <AccountSecurityCard email={user.email} />}
     </main>
   );
 }

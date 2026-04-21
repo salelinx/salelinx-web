@@ -42,14 +42,6 @@ export const ROADMAP_COLUMNS: RoadmapColumn[] = [
 
 export const ROADMAP_ITEMS: RoadmapItem[] = [
   {
-    id: 'poshmark-crosslist',
-    status: 'exploring',
-    title: 'Poshmark crosslisting',
-    description: 'Two-way crosslisting between Poshmark and your existing marketplaces.',
-    marketplaces: ['poshmark'],
-    meta: 'Scoping',
-  },
-  {
     id: 'csv-bulk-import',
     status: 'exploring',
     title: 'Bulk CSV import',
@@ -74,22 +66,6 @@ export const ROADMAP_ITEMS: RoadmapItem[] = [
     meta: 'Scoping',
   },
 
-  {
-    id: 'ebay-crosslist',
-    status: 'building',
-    title: 'eBay crosslisting',
-    description: 'Post from Depop or Vinted to eBay with auto-mapped categories and conditions.',
-    marketplaces: ['ebay'],
-    meta: 'Target Q2 2026',
-  },
-  {
-    id: 'mercari-crosslist',
-    status: 'building',
-    title: 'Mercari crosslisting',
-    description: 'US-focused listing flow with Mercari shipping label integration.',
-    marketplaces: ['mercari'],
-    meta: 'Target Q2 2026',
-  },
   {
     id: 'analytics-dashboard',
     status: 'building',

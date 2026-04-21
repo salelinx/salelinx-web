@@ -82,7 +82,7 @@ export default function DocsHomePage() {
         <WhatsNewStrip />
       </section>
 
-      <section className="border-t border-black/10 py-16 dark:border-white/10">
+      <section className="border-t border-black/10 py-8 dark:border-white/10">
         <DocsFAQLink />
       </section>
     </main>

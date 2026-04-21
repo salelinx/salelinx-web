@@ -10,31 +10,45 @@ export async function Header() {
 
   return (
     <header className="border-b border-black/10 dark:border-white/10">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-base font-semibold tracking-tight">
-          SaleLinx
-        </Link>
+      <div className="flex w-full items-center px-6 py-4">
+        <div className="flex-1">
+          <Link href="/" className="text-base font-semibold tracking-tight">
+            SaleLinx
+          </Link>
+        </div>
 
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/features" className="hover:underline">
+        <nav className="flex flex-1 items-center justify-center gap-8 text-[0.9375rem] font-medium tracking-tight">
+          <Link
+            href="/features"
+            className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
+          >
             Features
           </Link>
-          <Link href="/docs" className="hover:underline">
-            Docs
+          <Link
+            href="/pricing"
+            className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
+          >
+            Pricing
           </Link>
-          <Link href="/faq" className="hover:underline">
-            FAQ
-          </Link>
-          <Link href="/roadmap" className="hover:underline">
+          <Link
+            href="/roadmap"
+            className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
+          >
             Roadmap
           </Link>
-          <Link href="/pricing" className="hover:underline">
-            Pricing
+        </nav>
+
+        <nav className="flex flex-1 items-center justify-end gap-4 text-sm text-zinc-600 dark:text-zinc-400">
+          <Link href="/faq" className="hover:text-black hover:underline dark:hover:text-white">
+            FAQ
+          </Link>
+          <Link href="/docs" className="hover:text-black hover:underline dark:hover:text-white">
+            Docs
           </Link>
 
           {user ? (
             <>
-              <Link href="/account" className="hover:underline">
+              <Link href="/account" className="hover:text-black hover:underline dark:hover:text-white">
                 Account
               </Link>
               <form action="/auth/signout" method="post">
@@ -48,7 +62,7 @@ export async function Header() {
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="hover:underline">
+              <Link href="/auth/login" className="hover:text-black hover:underline dark:hover:text-white">
                 Sign in
               </Link>
               <Link

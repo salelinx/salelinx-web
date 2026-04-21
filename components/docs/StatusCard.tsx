@@ -46,7 +46,7 @@ export async function StatusCard() {
           className="mt-1 h-5 w-5 shrink-0 text-zinc-400 transition group-hover:text-black dark:group-hover:text-white"
         />
       </div>
-      <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
+      <ul className="mt-5 flex flex-col gap-y-2 text-sm">
         {statuses.map((s) => {
           const sm = STATE_META[s.state];
           return (
