@@ -47,15 +47,29 @@ app/
 │   ├── callback/            OAuth code exchange (route handler, not a page)
 │   └── signout/             POST → sign out + redirect
 ├── account/                 Protected dashboard
+├── docs/                    Product docs (MDX) - learning-oriented guides
+│   ├── page.tsx             Landing: search, task pills, category grid, status, What's new, FAQ cross-link
+│   ├── [category]/          Category index
+│   ├── [category]/[slug]/   Article route
+│   ├── status/              Marketplace status page
+│   └── changelog/           Release notes
+├── faq/                     Frequently asked questions - accordion Q&A
 └── legal/                   ToS + Privacy
 
 components/                  Shared React components (Header, VerifyEmailBanner, …)
+components/docs/             Docs-only components (Sidebar, CategoryCard, DocsSearch, MDX widgets)
+
+content/docs/                MDX article source, filed by <category>/<slug>.mdx
+content/changelog/           MDX release notes, filed by <date>-<slug>.mdx
+
+scripts/build-docs-index.mjs Builds public/docs/search-index.json (predev + prebuild)
 
 lib/
 ├── supabase/
 │   ├── client.ts            Browser client
 │   ├── server.ts            Server Component client
 │   └── tier-config.ts       Reads tier_limits rows
+├── docs/                    Article manifest, helpers, marketplace status, changelog
 ├── stripe.ts                Stripe server SDK init
 └── types/tiers.ts           TierConfig / GateResult (synced with extension)
 
