@@ -1,6 +1,6 @@
 # resale-bot-web
 
-Marketing site, pricing page, auth, and subscription management for the Resale Bot Chrome extension.
+Marketing site, pricing page, auth, and subscription management for the SaleLinx Chrome extension.
 
 Companion to the extension repo at `../muiltiplatform-seller-bot`. Both share a single Supabase project so users are one pool.
 
@@ -59,7 +59,7 @@ One-time setup:
    ```bash
    supabase functions deploy send-auth-email
    supabase secrets set RESEND_API_KEY=re_...
-   supabase secrets set RESEND_FROM='Resale Bot <no-reply@yourdomain.com>'
+   supabase secrets set RESEND_FROM='SaleLinx <no-reply@yourdomain.com>'
    supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
    ```
 4. In the dashboard: Authentication → Hooks → **Send email hook** → HTTPS → point at `https://<project-ref>.supabase.co/functions/v1/send-auth-email`. Copy the revealed signing secret into `SEND_EMAIL_HOOK_SECRET` above.
@@ -132,7 +132,7 @@ Set function secrets:
 supabase secrets set STRIPE_SECRET_KEY=sk_...
 supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
 supabase secrets set RESEND_API_KEY=re_...
-supabase secrets set RESEND_FROM='Resale Bot <no-reply@yourdomain.com>'
+supabase secrets set RESEND_FROM='SaleLinx <no-reply@yourdomain.com>'
 supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
 ```
 

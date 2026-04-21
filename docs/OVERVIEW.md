@@ -1,6 +1,6 @@
 # Overview
 
-Marketing site, auth, and subscription management for the Resale Bot Chrome extension.
+Marketing site, auth, and subscription management for the SaleLinx Chrome extension.
 
 Companion to the extension repo at `../muiltiplatform-seller-bot`. Both share a **single Supabase project** so users are one pool.
 

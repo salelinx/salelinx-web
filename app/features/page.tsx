@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { Icon, type IconName } from '@/components/Icon';
 
 export const metadata = {
-  title: 'Features - Resale Bot',
+  title: 'Features - SaleLinx',
   description:
-    'Every capability in the Resale Bot Chrome extension: crosslisting, relisting, refresh, follow bots, offers, messages, shipping labels, and more - across Depop and Vinted.',
+    'Every capability in the SaleLinx Chrome extension: crosslisting, relisting, refresh, follow bots, offers, messages, shipping labels, and more - across Depop and Vinted.',
 };
 
 type Marketplace = 'depop' | 'vinted' | 'both';

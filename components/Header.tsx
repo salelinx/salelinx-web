@@ -12,7 +12,7 @@ export async function Header() {
     <header className="border-b border-black/10 dark:border-white/10">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="text-base font-semibold tracking-tight">
-          Resale Bot
+          SaleLinx
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
