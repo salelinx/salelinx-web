@@ -76,7 +76,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets.
 ## Code style
 
 - 2-space indent, single quotes, trailing commas (Prettier defaults)
-- No default exports - named exports only
+- No default exports - named exports only. **Exception:** MDX files under `content/` default-export their page component by design; this is the single allowed exception.
 - Tailwind utility classes; no CSS modules unless truly needed
 - No emojis in code or user-visible strings (ASCII check-marks like `✓` are fine in limited UI spots)
 
@@ -97,6 +97,11 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets.
 - **Standard Webhooks signing secret needs the `v1,whsec_` prefix stripped** before passing to `new Webhook(...)` - store the full value including prefix in `SEND_EMAIL_HOOK_SECRET`.
 - **Edge Function secrets are separate from `.env.local`** - set via `supabase secrets set`.
 - **Changing a tier cap is a `UPDATE tier_limits SET limits = jsonb_set(...)` - never overwrite the whole jsonb column** or you wipe other keys.
+- **MDX article metadata is a named `export const metadata = {...}`**, not YAML frontmatter. Adding a new article requires three things: create the `.mdx` file under `content/docs/<category>/`, import it in `lib/docs/manifest.ts`, and run `npm run build:docs-index` (or any `npm run dev`/`build`) to rebuild the search index.
+- **`public/docs/search-index.json` is generated, not committed.** It's rebuilt by `scripts/build-docs-index.mjs` via `predev`/`prebuild`. Don't edit it by hand.
+- **`mdx-components.tsx` must live at the repo root**, not under `app/`. `@next/mdx` only looks there.
+- **Marketplace status** is a hardcoded constant in `lib/docs/status.ts`. Migration path to Supabase is noted in the file; consumers call `getMarketplaceStatus()` so the swap is local.
+- **Docs vs FAQ split.** `/docs` is for step-by-step guides and walkthroughs (learning-oriented prose). `/faq` is for quick Q&A (troubleshooting, billing, one-offs) in `lib/faq/data.tsx`. Don't add troubleshooting or billing articles to `/docs`; add FAQ entries instead.
 
 ## Do NOT
 
