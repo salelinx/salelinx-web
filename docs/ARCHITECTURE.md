@@ -51,7 +51,8 @@ extension sees, and vice versa.
 
 ### Website (`resale-bot-web`) owns
 
-- Public marketing pages (`/`, `/pricing`, `/legal/*`)
+- Public marketing pages (`/`, `/features`, `/pricing`, `/legal/*`)
+- Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`, `/roadmap`)
 - Email/password auth UI (`/auth/*`) - Supabase Auth does the work
 - Account dashboard (`/account`) - current tier, manage subscription
 - **Stripe integration** - Checkout session, Customer Portal, webhook (all in `supabase/functions/`)

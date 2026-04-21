@@ -75,7 +75,14 @@ Run `011_billing.sql` from the **extension repo** (`../muiltiplatform-seller-bot
 ```
 app/
 ├── page.tsx                 Landing
+├── features/                Features overview
 ├── pricing/                 Tiers rendered from Supabase tier_limits
+├── docs/                    Product docs (MDX) - learning-oriented guides
+│   ├── [category]/[slug]/   Article route
+│   ├── status/              Marketplace status page
+│   └── changelog/           Release notes
+├── faq/                     Frequently asked questions (accordion Q&A)
+├── roadmap/                 Public roadmap (Exploring / Building / Shipped)
 ├── auth/
 │   ├── login/               Password login
 │   ├── signup/              Password signup
@@ -88,11 +95,26 @@ app/
 
 components/
 ├── Header.tsx               Nav bar with auth state
-└── VerifyEmailBanner.tsx    Shown to unverified users on /account
+├── VerifyEmailBanner.tsx    Shown to unverified users on /account
+├── docs/                    Docs-only components (sidebar, search, cards, MDX widgets)
+├── faq/                     FAQ accordion
+└── roadmap/                 Roadmap columns and cards
+
+content/
+├── docs/<category>/*.mdx    Docs article source
+└── changelog/*.mdx          Release notes
+
+scripts/
+└── build-docs-index.mjs     Generates public/docs/search-index.json (predev + prebuild)
+
+mdx-components.tsx           @next/mdx component registry (must live at repo root)
 
 lib/
 ├── supabase/{client,server,tier-config}.ts
 ├── stripe.ts                Stripe server SDK init
+├── docs/                    Article manifest, helpers, status, changelog
+├── faq/                     FAQ data
+├── roadmap/                 Roadmap data
 └── types/tiers.ts           Shared with extension - copy-paste sync
 
 supabase/
