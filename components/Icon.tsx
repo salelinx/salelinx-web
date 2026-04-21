@@ -24,7 +24,16 @@ export type IconName =
   | 'globe'
   | 'list'
   | 'cloud'
-  | 'x';
+  | 'x'
+  | 'book'
+  | 'play'
+  | 'hammer'
+  | 'credit-card'
+  | 'life-buoy'
+  | 'arrow-right'
+  | 'puzzle'
+  | 'sparkle'
+  | 'circle';
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
   grid: (
@@ -168,6 +177,51 @@ const ICON_PATHS: Record<IconName, ReactNode> = {
       <path d="m18 6-12 12" />
     </>
   ),
+  book: (
+    <>
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z" />
+      <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5A2.5 2.5 0 0 1 4 20.5Z" />
+    </>
+  ),
+  play: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10 8.5v7l6-3.5-6-3.5Z" />
+    </>
+  ),
+  hammer: (
+    <>
+      <path d="M14 4 9 9l-2-2-3 3 6 6 3-3-2-2 5-5Z" />
+      <path d="m13 11 7 7-2 2-7-7" />
+    </>
+  ),
+  'credit-card': (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3 10h18" />
+      <path d="M7 15h4" />
+    </>
+  ),
+  'life-buoy': (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="3.5" />
+      <path d="m4.9 4.9 4.7 4.7M14.4 14.4l4.7 4.7M19.1 4.9l-4.7 4.7M9.6 14.4l-4.7 4.7" />
+    </>
+  ),
+  'arrow-right': (
+    <>
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </>
+  ),
+  puzzle: (
+    <path d="M10 3a2 2 0 1 1 4 0v2h3a2 2 0 0 1 2 2v3h2a2 2 0 1 1 0 4h-2v3a2 2 0 0 1-2 2h-3v-2a2 2 0 1 0-4 0v2H7a2 2 0 0 1-2-2v-3H3a2 2 0 1 1 0-4h2V7a2 2 0 0 1 2-2h3Z" />
+  ),
+  sparkle: (
+    <path d="M12 3v6M12 15v6M3 12h6M15 12h6M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3" />
+  ),
+  circle: <circle cx="12" cy="12" r="4" />,
 };
 
 export function Icon({
