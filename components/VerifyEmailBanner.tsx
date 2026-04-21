@@ -52,7 +52,7 @@ export function VerifyEmailBanner({ email }: { email: string }) {
           {status === "sending"
             ? "Sending…"
             : status === "sent"
-              ? "Sent — check your inbox"
+              ? "Sent - check your inbox"
               : "Resend link"}
         </button>
       </div>

@@ -9,11 +9,11 @@ Companion to the extension repo at `../muiltiplatform-seller-bot`. Both share a 
 | Layer     | Tech                              | Why                                                           |
 | --------- | --------------------------------- | ------------------------------------------------------------- |
 | Framework | Next.js 16 App Router             | Server components, middleware (`proxy.ts`), built-in routing  |
-| UI        | React 19 + Tailwind 4             | No component library — utility CSS is enough for a small site |
+| UI        | React 19 + Tailwind 4             | No component library - utility CSS is enough for a small site |
 | Auth + DB | Supabase (`@supabase/ssr`)        | Same project as the extension; users are one pool             |
 | Billing   | Stripe Checkout + Customer Portal | Off-the-shelf subscription UX; webhooks sync to Supabase      |
 | Hosting   | Vercel                            | One repo → one project, automatic preview deploys             |
-| Email     | Resend                            | Transactional — magic links, receipts, cap warnings           |
+| Email     | Resend (via Supabase Send Email Hook) | Auth emails (signup, recovery, magic link, email change) rendered in `send-auth-email` Edge Function and delivered by Resend |
 
 ## Request lifecycle (signed-in user hitting `/account`)
 
@@ -63,15 +63,15 @@ supabase/
 ├── config.toml              CLI config
 └── functions/               Edge Functions (Deno, not Node)
 
-proxy.ts                     Next.js 16 middleware — refreshes auth cookies
-middleware.ts                (Deprecated in Next 16 — don't recreate this file)
+proxy.ts                     Next.js 16 middleware - refreshes auth cookies
+middleware.ts                (Deprecated in Next 16 - don't recreate this file)
 ```
 
 ## Environment variables
 
 ### Website (`.env.local`)
 
-All defined in `.env.example`. Public-only by design — the website has no server-side Stripe calls; all Stripe work lives in Edge Functions.
+All defined in `.env.example`. Public-only by design - the website has no server-side Stripe calls; all Stripe work lives in Edge Functions.
 
 | Var                                  | Used by         | Notes                                                            |
 | ------------------------------------ | --------------- | ---------------------------------------------------------------- |
@@ -104,7 +104,7 @@ Relevant tables:
 | `auth.users`     | Supabase-managed; one row per user                                    |
 | `tier_limits`    | Tier definitions, data-driven caps                                    |
 | `usage_counters` | Per-user, per-feature, per-period counters (written via RPC only)     |
-| `subscriptions`  | Stripe sub state per user — written by `stripe-webhook` Edge Function |
+| `subscriptions`  | Stripe sub state per user - written by `stripe-webhook` Edge Function |
 | `listings`       | Extension-owned, not relevant here                                    |
 
 See `docs/ARCHITECTURE.md` for a full table-ownership map including extension-only tables.
@@ -112,13 +112,13 @@ See `docs/ENTITLEMENTS.md` for how `tier_limits` and `usage_counters` are used.
 
 ## Deployment
 
-- **Website** — push to `main` → Vercel auto-deploys
-- **Edge Functions** — `supabase functions deploy <name>` from this repo
-- **Migrations** — run from the extension repo via Supabase CLI or Dashboard SQL editor
+- **Website** - push to `main` → Vercel auto-deploys
+- **Edge Functions** - `supabase functions deploy <name>` from this repo
+- **Migrations** - run from the extension repo via Supabase CLI or Dashboard SQL editor
 
 ## Related docs
 
-- `docs/AUTH.md` — signup / login / reset flows
-- `docs/ENTITLEMENTS.md` — tier system
-- `docs/STRIPE.md` — billing flow
-- `docs/EDGE-FUNCTIONS.md` — Deno functions deployed to Supabase
+- `docs/AUTH.md` - signup / login / reset flows
+- `docs/ENTITLEMENTS.md` - tier system
+- `docs/STRIPE.md` - billing flow
+- `docs/EDGE-FUNCTIONS.md` - Deno functions deployed to Supabase

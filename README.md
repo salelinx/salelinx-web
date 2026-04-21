@@ -11,7 +11,7 @@ Companion to the extension repo at `../muiltiplatform-seller-bot`. Both share a 
 - Supabase Auth (email + password) + Supabase Postgres
 - Stripe Checkout + Customer Portal
 - Vercel (hosting)
-- Resend (transactional email — configure before launch)
+- Resend (transactional email - configure before launch)
 
 ## First-time setup
 
@@ -47,13 +47,28 @@ Configure these in the Supabase dashboard before signup/login will work end-to-e
 
 Raise minimum length to **8 characters** to match the client-side validation.
 
-### SMTP (Authentication → Emails → SMTP)
+### Auth emails via Resend (Authentication → Hooks → Send email hook)
 
-Before launch: connect Resend (or Postmark / SendGrid). The default Supabase SMTP is rate-limited to 2 emails/hour.
+Auth emails (signup, recovery, magic link, email change) are sent through the `send-auth-email` Edge Function, which renders templates and hands them to Resend. This bypasses Supabase's built-in SMTP entirely (default SMTP is rate-limited to 2 emails/hour).
+
+One-time setup:
+
+1. Verify a sending domain in Resend (adds SPF/DKIM DNS records).
+2. Create a Resend API key with Sending access.
+3. Deploy the function and set secrets (see `docs/EDGE-FUNCTIONS.md`):
+   ```bash
+   supabase functions deploy send-auth-email
+   supabase secrets set RESEND_API_KEY=re_...
+   supabase secrets set RESEND_FROM='Resale Bot <no-reply@yourdomain.com>'
+   supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
+   ```
+4. In the dashboard: Authentication → Hooks → **Send email hook** → HTTPS → point at `https://<project-ref>.supabase.co/functions/v1/send-auth-email`. Copy the revealed signing secret into `SEND_EMAIL_HOOK_SECRET` above.
+
+Once the hook is enabled, the Supabase SMTP panel becomes irrelevant - the hook owns every auth email.
 
 ### Migrations
 
-Run `011_billing.sql` from the **extension repo** (`../muiltiplatform-seller-bot/supabase/migrations/`). All DB schema lives there — this repo only reads.
+Run `011_billing.sql` from the **extension repo** (`../muiltiplatform-seller-bot/supabase/migrations/`). All DB schema lives there - this repo only reads.
 
 ## Directory layout
 
@@ -78,16 +93,17 @@ components/
 lib/
 ├── supabase/{client,server,tier-config}.ts
 ├── stripe.ts                Stripe server SDK init
-└── types/tiers.ts           Shared with extension — copy-paste sync
+└── types/tiers.ts           Shared with extension - copy-paste sync
 
 supabase/
 ├── config.toml              Supabase CLI config for deploying functions
 └── functions/
     ├── stripe-webhook/
     ├── create-checkout-session/
-    └── create-portal-session/
+    ├── create-portal-session/
+    └── send-auth-email/     Supabase Auth "Send email hook" → Resend
 
-proxy.ts                     Next.js 16 middleware — refreshes auth cookies
+proxy.ts                     Next.js 16 middleware - refreshes auth cookies
 ```
 
 ## Commands
@@ -95,7 +111,7 @@ proxy.ts                     Next.js 16 middleware — refreshes auth cookies
 | Command         | What it does                                                |
 | --------------- | ----------------------------------------------------------- |
 | `npm run dev`   | Local dev server (Turbopack)                                |
-| `npm run build` | Production build — run before committing to catch TS errors |
+| `npm run build` | Production build - run before committing to catch TS errors |
 | `npm run lint`  | ESLint                                                      |
 
 ## Supabase Edge Functions
@@ -107,6 +123,7 @@ supabase link --project-ref <your-project-ref>
 supabase functions deploy stripe-webhook
 supabase functions deploy create-checkout-session
 supabase functions deploy create-portal-session
+supabase functions deploy send-auth-email
 ```
 
 Set function secrets:
@@ -114,6 +131,9 @@ Set function secrets:
 ```bash
 supabase secrets set STRIPE_SECRET_KEY=sk_...
 supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
+supabase secrets set RESEND_API_KEY=re_...
+supabase secrets set RESEND_FROM='Resale Bot <no-reply@yourdomain.com>'
+supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
 ```
 
 See `docs/EDGE-FUNCTIONS.md` for more.
@@ -127,4 +147,4 @@ See `docs/EDGE-FUNCTIONS.md` for more.
 | [`docs/ENTITLEMENTS.md`](docs/ENTITLEMENTS.md)     | `tier_limits` + `usage_counters` system                 |
 | [`docs/STRIPE.md`](docs/STRIPE.md)                 | Checkout, webhooks, Customer Portal                     |
 | [`docs/EDGE-FUNCTIONS.md`](docs/EDGE-FUNCTIONS.md) | Deno functions, deploy, secrets                         |
-| [`CLAUDE.md`](CLAUDE.md)                           | AI assistant guide — architecture constraints + gotchas |
+| [`CLAUDE.md`](CLAUDE.md)                           | AI assistant guide - architecture constraints + gotchas |

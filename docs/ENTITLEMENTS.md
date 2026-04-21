@@ -51,7 +51,7 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 -- returns: 42
 ```
 
-`SECURITY DEFINER` so it bypasses RLS during the insert/update — but it still scopes everything to `auth.uid()`, so users can't touch each other's counters.
+`SECURITY DEFINER` so it bypasses RLS during the insert/update - but it still scopes everything to `auth.uid()`, so users can't touch each other's counters.
 
 ## How the two sides use this
 
@@ -59,7 +59,7 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 
 - `/pricing` reads `tier_limits` and renders the tier grid
 - `/account` reads the user's current tier (from `subscriptions`) + their usage counters to render meters
-- Never increments — extensions do that
+- Never increments - extensions do that
 
 ### Extension
 
@@ -75,7 +75,7 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 | Monthly      | `YYYY-MM`         | `2026-04`    |
 | Daily        | `YYYY-MM-DD`      | `2026-04-17` |
 
-Always derived from the user's local date at the moment of the check. Periods reset implicitly — a new period key just means a new row.
+Always derived from the user's local date at the moment of the check. Periods reset implicitly - a new period key just means a new row.
 
 ## Seed data (v1)
 
@@ -89,9 +89,9 @@ See migration `011_billing.sql` in the extension repo (creates `subscriptions`, 
 | Follows / day              | `follows_per_day`         | 100  | 500     | Unlimited | Unlimited |
 | Unfollows / day            | `unfollows_per_day`       | 100  | 500     | Unlimited | Unlimited |
 | Linked shops               | `linked_shops`            | 1    | 1       | 1         | 3         |
-| Cloud storage              | `cloud_storage_bytes`     | —    | —       | 1 GB      | 5 GB      |
-| Support response (days)    | `support_response_days`   | 7    | 5       | —         | —         |
-| Support response (hours)   | `support_response_hours`  | —    | —       | 48        | 24        |
+| Cloud storage              | `cloud_storage_bytes`     | -    | -       | 1 GB      | 5 GB      |
+| Support response (days)    | `support_response_days`   | 7    | 5       | -         | -         |
+| Support response (hours)   | `support_response_hours`  | -    | -       | 48        | 24        |
 | Auto-refresh               | `auto_refresh`            | ✗    | ✗       | ✓         | ✓         |
 | Cloud sync                 | `cloud_sync`              | ✗    | ✗       | ✓         | ✓         |
 | Auto-offers                | `auto_offer`              | ✗    | ✗       | ✓         | ✓         |
@@ -101,7 +101,7 @@ See migration `011_billing.sql` in the extension repo (creates `subscriptions`, 
 | Shop Designer              | `shop_designer`           | ✗    | ✗       | ✗         | ✓         |
 | Dead Stock                 | `dead_stock`              | ✗    | ✗       | ✗         | ✓         |
 
-**Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading — typos silently fail as "feature absent" = disabled.
+**Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 
 ## Changing caps without a deploy
 
@@ -141,17 +141,17 @@ Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user. All the same
 
 `lib/types/tiers.ts` defines:
 
-- `TierId` — union of tier IDs (`free | starter | pro | business | ...`)
-- `TierConfig` — row shape
-- `GateResult` — return shape of `check()` / `tryConsume()` / `checkQuota()`
-- `FeatureKind` — `'boolean' | 'metered' | 'quota'`
+- `TierId` - union of tier IDs (`free | starter | pro | business | ...`)
+- `TierConfig` - row shape
+- `GateResult` - return shape of `check()` / `tryConsume()` / `checkQuota()`
+- `FeatureKind` - `'boolean' | 'metered' | 'quota'`
 
-When this repo's `tiers.ts` diverges from the extension's `src/entitlements/types.ts`, either copy-paste or publish as an npm package. No tooling enforces it yet — be disciplined.
+When this repo's `tiers.ts` diverges from the extension's `src/entitlements/types.ts`, either copy-paste or publish as an npm package. No tooling enforces it yet - be disciplined.
 
 ## Gotchas
 
-- **Period key must be derived at call time**, not cached — users crossing midnight or month boundaries need a fresh key
-- **Supabase `auth.uid()` returns null if called without a session** — the RPC raises `'not authenticated'` in that case
+- **Period key must be derived at call time**, not cached - users crossing midnight or month boundaries need a fresh key
+- **Supabase `auth.uid()` returns null if called without a session** - the RPC raises `'not authenticated'` in that case
 - **Adding a limit key to a live tier requires a jsonb_set**, not `UPDATE`, or you'll wipe the other keys
-- **Storage bytes are a number in the jsonb limit** — website formats as GB for display, extension compares as bytes
-- **Don't hardcode tier IDs in enforcement code** — always look up via `tier_limits`. Code should treat `pro_custom_acme` the same as `pro`.
+- **Storage bytes are a number in the jsonb limit** - website formats as GB for display, extension compares as bytes
+- **Don't hardcode tier IDs in enforcement code** - always look up via `tier_limits`. Code should treat `pro_custom_acme` the same as `pro`.
