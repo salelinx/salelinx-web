@@ -29,17 +29,17 @@ export function Footer() {
             <h3 className={MONO}>Product</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link href="/features" className={linkClass}>
+                <Link href="/features#features" className={linkClass}>
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className={linkClass}>
+                <Link href="/features#pricing" className={linkClass}>
                   Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/roadmap" className={linkClass}>
+                <Link href="/features#roadmap" className={linkClass}>
                   Roadmap
                 </Link>
               </li>

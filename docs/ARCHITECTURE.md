@@ -51,12 +51,14 @@ extension sees, and vice versa.
 
 ### Website (`resale-bot-web`) owns
 
-- Public marketing pages (`/`, `/features`, `/pricing`, `/legal/*`)
-- Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`, `/roadmap`)
+- Public marketing page (`/features` - one page that hosts features, pricing, and roadmap as scroll-linked sections)
+- Legal pages (`/legal/*`)
+- Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`)
+- Redirect stubs (`/pricing` -> `/features#pricing`, `/roadmap` -> `/features#roadmap`) so old links and Stripe `cancelUrl` keep working
 - Email/password auth UI (`/auth/*`) - Supabase Auth does the work
 - Account dashboard (`/account`) - current tier, manage subscription
 - **Stripe integration** - Checkout session, Customer Portal, webhook (all in `supabase/functions/`)
-- Server-rendered tier cards on `/pricing` (reads `tier_limits` from Supabase)
+- Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
 - Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`
 
 ### Extension (`muiltiplatform-seller-bot`) owns

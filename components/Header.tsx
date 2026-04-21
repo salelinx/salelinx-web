@@ -19,19 +19,19 @@ export async function Header() {
 
         <nav className="flex flex-1 items-center justify-center gap-8 text-[0.9375rem] font-medium tracking-tight">
           <Link
-            href="/features"
+            href="/features#features"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             Features
           </Link>
           <Link
-            href="/pricing"
+            href="/features#pricing"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             Pricing
           </Link>
           <Link
-            href="/roadmap"
+            href="/features#roadmap"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             Roadmap
