@@ -6,13 +6,7 @@ export type CategorySlug =
   | 'listings'
   | 'marketplaces';
 
-export type Marketplace =
-  | 'depop'
-  | 'vinted'
-  | 'ebay'
-  | 'mercari'
-  | 'poshmark'
-  | 'etsy';
+export type Marketplace = 'depop' | 'vinted';
 
 export type StatusState = 'ok' | 'degraded' | 'down';
 

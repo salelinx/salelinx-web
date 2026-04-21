@@ -105,7 +105,7 @@ export default async function PricingPage() {
   ).filter((t): t is NonNullable<typeof t> => Boolean(t));
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 py-16">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16">
       <div className="text-center">
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
           Pricing

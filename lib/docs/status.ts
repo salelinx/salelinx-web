@@ -11,28 +11,6 @@ const STATUS_SOURCE: MarketplaceStatus[] = [
     state: 'ok',
     updatedAt: '2026-04-21',
   },
-  {
-    marketplace: 'ebay',
-    state: 'degraded',
-    note: 'Category translation for eBay is in preview. Some listings may require manual review.',
-    updatedAt: '2026-04-19',
-  },
-  {
-    marketplace: 'mercari',
-    state: 'ok',
-    updatedAt: '2026-04-21',
-  },
-  {
-    marketplace: 'poshmark',
-    state: 'down',
-    note: 'Poshmark changed their listing form layout on 2026-04-18. A fix is being rolled out.',
-    updatedAt: '2026-04-20',
-  },
-  {
-    marketplace: 'etsy',
-    state: 'ok',
-    updatedAt: '2026-04-21',
-  },
 ];
 
 export async function getMarketplaceStatus(): Promise<MarketplaceStatus[]> {
@@ -73,8 +51,4 @@ export const STATE_META: Record<
 export const MARKETPLACE_LABELS: Record<Marketplace, string> = {
   depop: 'Depop',
   vinted: 'Vinted',
-  ebay: 'eBay',
-  mercari: 'Mercari',
-  poshmark: 'Poshmark',
-  etsy: 'Etsy',
 };
