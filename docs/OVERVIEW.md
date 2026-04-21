@@ -38,7 +38,9 @@ React stream ──▶ browser
 ```
 app/
 ├── page.tsx                 Landing
-├── pricing/                 Tiers rendered from tier_limits
+├── features/                Single page hosting Features + Pricing + Roadmap (tabs scroll to #features, #pricing, #roadmap). Tiers rendered from tier_limits.
+├── pricing/                 Redirect stub -> /features#pricing (keeps Stripe cancelUrl compatibility)
+├── roadmap/                 Redirect stub -> /features#roadmap
 ├── auth/
 │   ├── login/               Password login
 │   ├── signup/              Password signup
@@ -58,6 +60,7 @@ app/
 
 components/                  Shared React components (Header, VerifyEmailBanner, …)
 components/docs/             Docs-only components (Sidebar, CategoryCard, DocsSearch, MDX widgets)
+components/features/         SectionNav (sticky tabs) + FeaturesSection / PricingSection / RoadmapSection
 
 content/docs/                MDX article source, filed by <category>/<slug>.mdx
 content/changelog/           MDX release notes, filed by <date>-<slug>.mdx
