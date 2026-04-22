@@ -163,5 +163,256 @@
       "title": "Nutzungsbedingungen",
       "body": "TODO: vor dem Launch durch die endgültigen Bedingungen ersetzen."
     }
+  },
+  "Features": {
+    "metaTitle": "SaleLinx - Produkt, Preise, Roadmap",
+    "metaDescription": "Alles, was die SaleLinx Chrome-Erweiterung kann, was sie kostet und was als Nächstes kommt. Crossliste, poste erneut, aktualisiere und fülle auf Depop und Vinted von einem Panel aus auf.",
+    "hero": {
+      "eyebrow": "Das ganze Produkt, eine Seite",
+      "title": "Das Produkt, der Preis und die Roadmap.",
+      "description": "Scrolle für die Funktionen, springe zu den Preisen, wenn du bereit bist, oder überfliege die Roadmap, um zu sehen, was als Nächstes kommt. Die Tabs folgen dir die Seite hinunter.",
+      "installExtension": "Erweiterung installieren",
+      "seePricing": "Preise ansehen"
+    },
+    "sectionHeader": {
+      "eyebrow": "Abschnitt 01 / Funktionen",
+      "title": "Alles, was die Erweiterung kann, gruppiert danach, was du damit tatsächlich tust."
+    },
+    "marketplaceOnly": "Nur {marketplace}",
+    "sectionNavAria": "Seitenabschnitte",
+    "ctaSection": {
+      "eyebrow": "Wann immer du willst",
+      "title": "Starte im Browser, in dem du schon verkaufst.",
+      "getStarted": "Loslegen",
+      "seePricing": "Preise ansehen"
+    },
+    "chapter": {
+      "listings": {
+        "number": "01",
+        "title": "Inserate und Bestand",
+        "blurb": "Ein Dashboard zeigt jedes Inserat aus beiden Shops, zusammengeführt, sortierbar und gesichert. Verknüpfe deine Depop- und Vinted-Konten einmal und das Panel ist auf jeder Seite bereit.",
+        "items": {
+          "dashboard": {
+            "label": "Einheitliches Inserate-Dashboard",
+            "detail": "Beide Shops in einem Raster, nach Titel zusammengeführt, spaltenweise sortierbar."
+          },
+          "linkAccounts": {
+            "label": "Konten einmal verknüpfen",
+            "detail": "Sitzung wird automatisch aus dem Browser erkannt; nichts erneut eingeben."
+          },
+          "backup": {
+            "label": "Verschlüsseltes Cloud-Backup",
+            "detail": "Supabase-basierter Inserate-Speicher mit clientseitiger AES-Verschlüsselung der verknüpften Zugangsdaten."
+          },
+          "sync": {
+            "label": "Einstellungen geräteübergreifend synchronisieren",
+            "detail": "Wechsle zu einem zweiten Laptop und deine Konfiguration kommt mit."
+          },
+          "multilanguage": {
+            "label": "Mehrsprachige Oberfläche",
+            "detail": "Englisch, Französisch, Spanisch und Deutsch, mit hellem und dunklem Design."
+          }
+        }
+      },
+      "crosslisting": {
+        "number": "02",
+        "title": "Crosslisting",
+        "blurb": "Schreibe das Inserat einmal und poste es auf beiden Marktplätzen. Kategorien, Größen, Zustände und Marken werden für dich übersetzt, und das Depop-Shop-Layout-Tool lebt im selben Panel.",
+        "items": {
+          "bidirectional": {
+            "label": "Bidirektionaler Crosslister",
+            "detail": "Depop zu Vinted und Vinted zu Depop, mit automatischem Ausfüllen des Formulars auf dem Zielmarktplatz."
+          },
+          "autoMap": {
+            "label": "Automatisch zugeordnete Taxonomien",
+            "detail": "Kategorien, Größen, Zustände und Marken werden zwischen Plattformen übersetzt."
+          },
+          "csvImport": {
+            "label": "CSV-Bestandsimport",
+            "detail": "Bestehenden Bestand per Massenimport laden, mit automatischer Feldzuordnung."
+          },
+          "shopDesigner": {
+            "label": "Shop Designer",
+            "detail": "Drag-and-Drop-Layout-Tool für das Depop-Shop-Profil."
+          }
+        }
+      },
+      "visibility": {
+        "number": "03",
+        "title": "Sichtbarkeit und Reichweite",
+        "blurb": "Halte Inserate oben in der Suche und bringe passende Nutzer in deinen Shop. Die Aktualisierung läuft nach einem Zeitplan, den du festlegst; der Folge-Bot bietet fünf Möglichkeiten, die richtigen Konten anzusprechen.",
+        "items": {
+          "refresher": {
+            "label": "Inserate-Aktualisierer",
+            "detail": "Speichert Inserate von unten nach oben neu, damit die Shop-Reihenfolge erhalten bleibt."
+          },
+          "scheduler": {
+            "label": "Zeitplaner für automatische Aktualisierung",
+            "detail": "Läuft in 4-, 6-, 8-, 12- oder 24-Stunden-Intervallen über chrome.alarms."
+          },
+          "followBot": {
+            "label": "Folgen-/Entfolgen-Bot",
+            "detail": "Ziele auf die Follower eines Nutzers, dessen Abonnements, deine Käufer, Bewerter oder Likende."
+          },
+          "filters": {
+            "label": "Schwarze und weiße Liste",
+            "detail": "Groß- und Kleinschreibung ignorierender Abgleich, sodass bestimmte Konten immer übersprungen oder behalten werden."
+          },
+          "deadStock": {
+            "label": "Lagerhüter-Erkennung",
+            "detail": "Klassifiziert veraltete Inserate und schlägt Aktionen vor."
+          },
+          "activityLog": {
+            "label": "Echtzeit-Aktivitätsprotokoll",
+            "detail": "Nach Funktion oder Stufe filtern, jederzeit pausieren und stoppen, als JSON exportieren."
+          }
+        }
+      },
+      "sales": {
+        "number": "04",
+        "title": "Verkäufe und Messaging",
+        "blurb": "Angebote, Käufernachrichten und Versandetiketten in einem Posteingang für beide Marktplätze. Regeln übernehmen die sich wiederholenden Antworten, damit du nur die Gespräche berührst, die zählen.",
+        "items": {
+          "offersInbox": {
+            "label": "Einheitlicher Angebots-Posteingang",
+            "detail": "Angebote beider Marktplätze an einem Ort annehmen, ablehnen oder kontern."
+          },
+          "autoOffers": {
+            "label": "Automatische Angebote",
+            "detail": "Regelbasierte Kontern oder Annahme eingehender Angebote."
+          },
+          "messages": {
+            "label": "Einheitliche Nachrichten",
+            "detail": "Konversations-Posteingang, der Depop- und Vinted-Threads zusammenführt."
+          },
+          "shipping": {
+            "label": "Versandetiketten",
+            "detail": "Etiketten-PDFs für Batch-Versand herunterladen und zusammenführen."
+          },
+          "relister": {
+            "label": "Relister",
+            "detail": "Inserate mit angepassten Fotos und Titel neu erstellen und das Original löschen, um die Suchsichtbarkeit aufzufrischen."
+          }
+        }
+      }
+    }
+  },
+  "Pricing": {
+    "sectionHeader": {
+      "eyebrow": "Abschnitt 02 / Preise",
+      "title": "Wähle ein Paket. Wechsle jederzeit. Kündige jederzeit.",
+      "body": "Jedes Paket liefert dieselbe Erweiterung. Höhere Stufen erhöhen die monatlichen Limits und schalten die schwereren Automatisierungen wie automatische Angebote und den Restocker frei."
+    },
+    "popular": "Beliebt",
+    "installExtension": "Erweiterung installieren",
+    "comingSoon": "Bald verfügbar",
+    "perMonth": "/Mon.",
+    "unlimited": "Unbegrenzt",
+    "cloudStorage": "Cloud-Speicher",
+    "storageGb": "{value} GB",
+    "supportHours": "{value} Std.",
+    "supportDays": "{value} Tage",
+    "tier": {
+      "free": { "tagline": "Vor dem Kauf ausprobieren" },
+      "starter": { "tagline": "Hobby-Nutzer" },
+      "pro": { "tagline": "Aktive Wiederverkäufer" },
+      "business": { "tagline": "Power-Verkäufer und Multi-Shop" }
+    },
+    "limit": {
+      "crosslists_per_month": "Crosslistings / Monat",
+      "relists_per_month": "Reposts / Monat",
+      "refreshes_per_day": "Aktualisierungen / Tag",
+      "follows_per_day": "Folgen / Tag",
+      "unfollows_per_day": "Entfolgen / Tag",
+      "cloud_storage_bytes": "Cloud-Speicher",
+      "linked_shops": "Verknüpfte Shops",
+      "support_response_days": "Support-Antwort",
+      "support_response_hours": "Support-Antwort"
+    },
+    "feature": {
+      "auto_refresh": "Automatische Aktualisierung",
+      "cloud_sync": "Cloud-Synchronisation",
+      "shop_designer": "Shop Designer",
+      "dead_stock": "Analyse für Lagerhüter",
+      "restocker": "Restocker",
+      "auto_offer": "Automatische Angebote",
+      "shipping_labels": "Versandetiketten",
+      "messages": "Nachrichten"
+    }
+  },
+  "Roadmap": {
+    "sectionHeader": {
+      "eyebrow": "Abschnitt 03 / Roadmap",
+      "title": "Wohin SaleLinx sich entwickelt.",
+      "body": "Eine öffentliche Ansicht dessen, was in Planung ist, gebaut wird und bereits ausgeliefert wurde. Daten sind Ziele, keine Zusagen."
+    },
+    "empty": "Noch nichts hier.",
+    "columns": {
+      "exploring": {
+        "eyebrow": "01 / Später",
+        "title": "In Erkundung",
+        "blurb": "Ideen, die wir prüfen. Kein Zeitplan-Versprechen."
+      },
+      "building": {
+        "eyebrow": "02 / Als Nächstes",
+        "title": "Im Bau",
+        "blurb": "In aktiver Entwicklung. Bald verfügbar."
+      },
+      "shipped": {
+        "eyebrow": "03 / Erledigt",
+        "title": "Ausgeliefert",
+        "blurb": "In der aktuellen Version der Erweiterung verfügbar."
+      }
+    },
+    "tag": {
+      "inventory": "Bestand",
+      "automation": "Automatisierung",
+      "ai": "KI",
+      "insights": "Einblicke"
+    },
+    "meta": {
+      "scoping": "In Prüfung",
+      "targetQ2_2026": "Ziel Q2 2026",
+      "shippedApr_2026": "Ausgeliefert April 2026"
+    },
+    "items": {
+      "csv-bulk-import": {
+        "title": "CSV-Massenimport",
+        "description": "Lade eine CSV deines bestehenden Bestands hoch und lass SaleLinx Entwürfe für Inserate erstellen."
+      },
+      "scheduled-relisting": {
+        "title": "Geplantes Reposten",
+        "description": "Reposts nach einem Zeitplan in die Warteschlange stellen, nicht manuell."
+      },
+      "ai-description-polish": {
+        "title": "KI-Feinschliff für Beschreibungen",
+        "description": "Ein-Klick-Neufassung für Titel und Beschreibungen, die handgeschrieben wirken, nicht aus Vorlagen."
+      },
+      "analytics-dashboard": {
+        "title": "Analytics-Dashboard",
+        "description": "Verkaufsrate, Ansichten pro Inserat und marktplatzübergreifende Verkaufstrends."
+      },
+      "depop-vinted-crosslist": {
+        "title": "Depop- und Vinted-Crosslisting",
+        "description": "Bidirektionales Crosslisting mit automatisch zugeordneten Kategorien, Größen und Zuständen."
+      },
+      "shop-designer": {
+        "title": "Depop Shop Designer",
+        "description": "Drag-and-Drop-Layout-Tool für das Depop-Shop-Profil."
+      },
+      "auto-offers": {
+        "title": "Automatische Angebotsantworten",
+        "description": "Regelbasierte Annahme, Kontern oder Ablehnung eingehender Angebote auf beiden Marktplätzen."
+      },
+      "follow-bot": {
+        "title": "Folgen- und Entfolgen-Bot",
+        "description": "Ziele auf Follower, Abonnements, Käufer, Bewerter oder Likende mit menschlich wirkendem Tempo."
+      }
+    },
+    "request": {
+      "eyebrow": "Ein Wunsch?",
+      "body": "Fehlt ein Marktplatz oder eine Funktion? Sag uns, was du brauchst, und wir gewichten es in der nächsten Planungsrunde.",
+      "cta": "Schreibe an hello@salelinx.com"
+    }
   }
 }

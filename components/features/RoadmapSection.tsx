@@ -1,19 +1,21 @@
+import { getTranslations } from 'next-intl/server';
 import { RoadmapColumn } from '@/components/roadmap/RoadmapColumn';
 import { ROADMAP_COLUMNS, itemsByStatus } from '@/lib/roadmap/data';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-export function RoadmapSection() {
+export async function RoadmapSection() {
+  const t = await getTranslations('Roadmap');
+
   return (
     <section id="roadmap" className="scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10">
       <div className="pb-12">
-        <span className={`${MONO} text-zinc-500`}>Section 03 / Roadmap</span>
+        <span className={`${MONO} text-zinc-500`}>{t('sectionHeader.eyebrow')}</span>
         <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-          Where SaleLinx is going.
+          {t('sectionHeader.title')}
         </h2>
         <p className="mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
-          A public view of what&rsquo;s being scoped, built, and already
-          shipped. Dates are targets, not commitments.
+          {t('sectionHeader.body')}
         </p>
       </div>
 
@@ -29,17 +31,16 @@ export function RoadmapSection() {
 
       <div className="mt-16 flex flex-col items-start gap-4 border-t border-black/10 pt-10 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
         <div>
-          <span className={`${MONO} text-zinc-500`}>Have a request?</span>
+          <span className={`${MONO} text-zinc-500`}>{t('request.eyebrow')}</span>
           <p className="mt-2 max-w-xl text-zinc-600 dark:text-zinc-400">
-            Missing a marketplace or feature? Tell us what you need and
-            we&rsquo;ll weigh it in the next planning round.
+            {t('request.body')}
           </p>
         </div>
         <a
           href="mailto:hello@salelinx.com"
           className="shrink-0 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
         >
-          Email hello@salelinx.com
+          {t('request.cta')}
         </a>
       </div>
     </section>

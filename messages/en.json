@@ -163,5 +163,256 @@
       "title": "Terms of Service",
       "body": "TODO: replace with finalised terms before launch."
     }
+  },
+  "Features": {
+    "metaTitle": "SaleLinx - Product, pricing, roadmap",
+    "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist, relist, refresh, and restock across Depop and Vinted from one panel.",
+    "hero": {
+      "eyebrow": "The whole product, one page",
+      "title": "The product, the price, and the roadmap.",
+      "description": "Scroll for the features, jump to pricing when you're ready, or skim the roadmap to see what we're shipping next. The tabs follow you down the page.",
+      "installExtension": "Install extension",
+      "seePricing": "See pricing"
+    },
+    "sectionHeader": {
+      "eyebrow": "Section 01 / Features",
+      "title": "Everything the extension does, grouped by what you actually do with it."
+    },
+    "marketplaceOnly": "{marketplace} only",
+    "sectionNavAria": "Page sections",
+    "ctaSection": {
+      "eyebrow": "Ready when you are",
+      "title": "Start in the browser you already sell from.",
+      "getStarted": "Get started",
+      "seePricing": "See pricing"
+    },
+    "chapter": {
+      "listings": {
+        "number": "01",
+        "title": "Listings & inventory",
+        "blurb": "One dashboard shows every listing from both shops, merged, sortable, and backed up. Link your Depop and Vinted accounts once and the panel is ready on every page.",
+        "items": {
+          "dashboard": {
+            "label": "Unified listings dashboard",
+            "detail": "Both shops in one grid, merged by title, sortable across columns."
+          },
+          "linkAccounts": {
+            "label": "Link accounts once",
+            "detail": "Session auto-detected from the browser; nothing to re-enter."
+          },
+          "backup": {
+            "label": "Encrypted cloud backup",
+            "detail": "Supabase-backed listing store with client-side AES encryption on linked credentials."
+          },
+          "sync": {
+            "label": "Settings sync across devices",
+            "detail": "Move to a second laptop and your configuration follows."
+          },
+          "multilanguage": {
+            "label": "Multi-language UI",
+            "detail": "English, French, Spanish and German, with light and dark themes."
+          }
+        }
+      },
+      "crosslisting": {
+        "number": "02",
+        "title": "Crosslisting",
+        "blurb": "Write the listing once, post it to both marketplaces. Categories, sizes, conditions and brands are translated for you, and the Depop shop layout tool lives in the same panel.",
+        "items": {
+          "bidirectional": {
+            "label": "Bi-directional crosslister",
+            "detail": "Depop to Vinted and Vinted to Depop, with form auto-fill on the target marketplace."
+          },
+          "autoMap": {
+            "label": "Auto-mapped taxonomies",
+            "detail": "Categories, sizes, conditions and brands translated between platforms."
+          },
+          "csvImport": {
+            "label": "CSV inventory import",
+            "detail": "Bulk-load an existing inventory with automatic field mapping."
+          },
+          "shopDesigner": {
+            "label": "Shop Designer",
+            "detail": "Drag-and-drop layout tool for the Depop shop profile."
+          }
+        }
+      },
+      "visibility": {
+        "number": "03",
+        "title": "Visibility & audience",
+        "blurb": "Keep listings near the top of search and bring relevant users to your shop. Refresh runs on a schedule you set; the follow bot has five ways to target the right accounts.",
+        "items": {
+          "refresher": {
+            "label": "Listing refresher",
+            "detail": "Re-saves listings bottom-up so your shop order is preserved."
+          },
+          "scheduler": {
+            "label": "Auto-refresh scheduler",
+            "detail": "Runs on 4, 6, 8, 12 or 24-hour intervals via chrome.alarms."
+          },
+          "followBot": {
+            "label": "Follow / unfollow bot",
+            "detail": "Target a user's followers, following, your buyers, review-givers or likers."
+          },
+          "filters": {
+            "label": "Blacklist and whitelist",
+            "detail": "Case-insensitive matching so specific accounts are always skipped or always kept."
+          },
+          "deadStock": {
+            "label": "Dead-stock detector",
+            "detail": "Classifies stale listings and suggests actions."
+          },
+          "activityLog": {
+            "label": "Real-time activity log",
+            "detail": "Filter by feature or level, pause and stop at any time, export to JSON."
+          }
+        }
+      },
+      "sales": {
+        "number": "04",
+        "title": "Sales & messaging",
+        "blurb": "Offers, buyer messages and shipping labels in one inbox across both marketplaces. Rules handle the repetitive replies so you only touch the conversations that matter.",
+        "items": {
+          "offersInbox": {
+            "label": "Unified offers inbox",
+            "detail": "Accept, decline or counter offers from both marketplaces in one place."
+          },
+          "autoOffers": {
+            "label": "Auto-offers",
+            "detail": "Rule-based counter or accept replies on incoming offers."
+          },
+          "messages": {
+            "label": "Unified messages",
+            "detail": "Conversations inbox that merges Depop and Vinted threads."
+          },
+          "shipping": {
+            "label": "Shipping labels",
+            "detail": "Download and merge PDF labels for batched fulfilment."
+          },
+          "relister": {
+            "label": "Relister",
+            "detail": "Recreate listings with tweaked photos and title, then delete the original to refresh search visibility."
+          }
+        }
+      }
+    }
+  },
+  "Pricing": {
+    "sectionHeader": {
+      "eyebrow": "Section 02 / Pricing",
+      "title": "Pick a plan. Switch any time. Cancel any time.",
+      "body": "Every plan ships the same extension. Higher tiers raise monthly caps and unlock the heavier automations like auto-offers and restocker."
+    },
+    "popular": "Popular",
+    "installExtension": "Install extension",
+    "comingSoon": "Coming soon",
+    "perMonth": "/mo",
+    "unlimited": "Unlimited",
+    "cloudStorage": "Cloud storage",
+    "storageGb": "{value} GB",
+    "supportHours": "{value}h",
+    "supportDays": "{value} days",
+    "tier": {
+      "free": { "tagline": "Try before you buy" },
+      "starter": { "tagline": "Hobbyists" },
+      "pro": { "tagline": "Active resellers" },
+      "business": { "tagline": "Power sellers & multi-shop" }
+    },
+    "limit": {
+      "crosslists_per_month": "Crosslists / month",
+      "relists_per_month": "Relists / month",
+      "refreshes_per_day": "Refreshes / day",
+      "follows_per_day": "Follows / day",
+      "unfollows_per_day": "Unfollows / day",
+      "cloud_storage_bytes": "Cloud storage",
+      "linked_shops": "Linked shops",
+      "support_response_days": "Support response",
+      "support_response_hours": "Support response"
+    },
+    "feature": {
+      "auto_refresh": "Auto-refresh",
+      "cloud_sync": "Cloud sync",
+      "shop_designer": "Shop designer",
+      "dead_stock": "Dead stock analytics",
+      "restocker": "Restocker",
+      "auto_offer": "Auto-offers",
+      "shipping_labels": "Shipping labels",
+      "messages": "Messages"
+    }
+  },
+  "Roadmap": {
+    "sectionHeader": {
+      "eyebrow": "Section 03 / Roadmap",
+      "title": "Where SaleLinx is going.",
+      "body": "A public view of what's being scoped, built, and already shipped. Dates are targets, not commitments."
+    },
+    "empty": "Nothing here yet.",
+    "columns": {
+      "exploring": {
+        "eyebrow": "01 / Later",
+        "title": "Exploring",
+        "blurb": "Ideas we're scoping. No promises on timing."
+      },
+      "building": {
+        "eyebrow": "02 / Next",
+        "title": "Building",
+        "blurb": "Actively in development. Coming soon."
+      },
+      "shipped": {
+        "eyebrow": "03 / Done",
+        "title": "Shipped",
+        "blurb": "Available in the latest extension release."
+      }
+    },
+    "tag": {
+      "inventory": "Inventory",
+      "automation": "Automation",
+      "ai": "AI",
+      "insights": "Insights"
+    },
+    "meta": {
+      "scoping": "Scoping",
+      "targetQ2_2026": "Target Q2 2026",
+      "shippedApr_2026": "Shipped Apr 2026"
+    },
+    "items": {
+      "csv-bulk-import": {
+        "title": "Bulk CSV import",
+        "description": "Upload a CSV of existing inventory and have SaleLinx create draft listings."
+      },
+      "scheduled-relisting": {
+        "title": "Scheduled relisting",
+        "description": "Queue relists to run on a schedule you set, not manually."
+      },
+      "ai-description-polish": {
+        "title": "AI description polish",
+        "description": "One-click rewrite for titles and descriptions that look hand-written, not templated."
+      },
+      "analytics-dashboard": {
+        "title": "Analytics dashboard",
+        "description": "Sell-through rate, views per listing, and cross-marketplace sales trends."
+      },
+      "depop-vinted-crosslist": {
+        "title": "Depop and Vinted crosslisting",
+        "description": "Bi-directional crosslisting with auto-mapped categories, sizes, and conditions."
+      },
+      "shop-designer": {
+        "title": "Depop Shop Designer",
+        "description": "Drag-and-drop layout tool for the Depop shop profile."
+      },
+      "auto-offers": {
+        "title": "Auto-offer replies",
+        "description": "Rule-based accept, counter, or decline on incoming offers across both marketplaces."
+      },
+      "follow-bot": {
+        "title": "Follow and unfollow bot",
+        "description": "Target followers, following, buyers, review-givers, or likers with human-looking pacing."
+      }
+    },
+    "request": {
+      "eyebrow": "Have a request?",
+      "body": "Missing a marketplace or feature? Tell us what you need and we'll weigh it in the next planning round.",
+      "cta": "Email hello@salelinx.com"
+    }
   }
 }

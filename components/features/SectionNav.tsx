@@ -1,22 +1,25 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type TabId = 'features' | 'pricing' | 'roadmap';
 
 type Tab = {
   id: TabId;
   number: string;
-  label: string;
+  labelKey: 'navFeatures' | 'navPricing' | 'navRoadmap';
 };
 
 const TABS: Tab[] = [
-  { id: 'features', number: '01', label: 'Features' },
-  { id: 'pricing', number: '02', label: 'Pricing' },
-  { id: 'roadmap', number: '03', label: 'Roadmap' },
+  { id: 'features', number: '01', labelKey: 'navFeatures' },
+  { id: 'pricing', number: '02', labelKey: 'navPricing' },
+  { id: 'roadmap', number: '03', labelKey: 'navRoadmap' },
 ];
 
 export function SectionNav() {
+  const tHeader = useTranslations('Header');
+  const tFeatures = useTranslations('Features');
   const [active, setActive] = useState<TabId>('features');
   const [indicator, setIndicator] = useState({ left: 0, width: 0, ready: false });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -102,7 +105,7 @@ export function SectionNav() {
           ref={containerRef}
           className="relative flex items-center gap-8 overflow-x-auto"
           role="tablist"
-          aria-label="Page sections"
+          aria-label={tFeatures('sectionNavAria')}
         >
           {TABS.map((tab) => {
             const isActive = active === tab.id;
@@ -136,7 +139,7 @@ export function SectionNav() {
                   {tab.number}
                 </span>
                 <span className="text-[0.95rem] font-semibold tracking-tight">
-                  {tab.label}
+                  {tHeader(tab.labelKey)}
                 </span>
               </a>
             );
