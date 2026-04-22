@@ -1,4 +1,47 @@
 {
+  "Layout": {
+    "metaTitle": "SaleLinx - Vendez sur Depop et Vinted",
+    "metaDescription": "Crosslistez, republiez, actualisez et réapprovisionnez sur Depop et Vinted depuis un seul endroit."
+  },
+  "Header": {
+    "navFeatures": "Fonctionnalités",
+    "navPricing": "Tarifs",
+    "navRoadmap": "Feuille de route",
+    "navFaq": "FAQ",
+    "navDocs": "Docs",
+    "account": "Compte",
+    "signOut": "Déconnexion",
+    "signIn": "Connexion",
+    "getStarted": "Commencer"
+  },
+  "Footer": {
+    "tagline": "Vendez sur Depop et Vinted depuis un seul endroit.",
+    "sectionProduct": "Produit",
+    "sectionResources": "Ressources",
+    "sectionLegal": "Légal",
+    "linkFeatures": "Fonctionnalités",
+    "linkPricing": "Tarifs",
+    "linkRoadmap": "Feuille de route",
+    "linkDocs": "Docs",
+    "linkFaq": "FAQ",
+    "linkChangelog": "Changelog",
+    "linkStatus": "Statut des plateformes",
+    "linkPrivacy": "Confidentialité",
+    "linkTerms": "Conditions",
+    "copyright": "© {year} SaleLinx. Tous droits réservés.",
+    "builtFor": "Conçu pour les vendeurs Depop et Vinted."
+  },
+  "Home": {
+    "heroTitle": "Un outil pour chaque vendeur Depop & Vinted.",
+    "heroSubtitle": "Crosslistez, republiez, actualisez, réapprovisionnez et répondez aux acheteurs sur les deux plateformes depuis un seul panneau.",
+    "ctaSeePricing": "Voir les tarifs",
+    "ctaGetStarted": "Commencer",
+    "ctaSignIn": "Se connecter"
+  },
+  "ThemeToggle": {
+    "switchToLight": "Passer au mode clair",
+    "switchToDark": "Passer au mode sombre"
+  },
   "LanguageSwitcher": {
     "label": "Langue",
     "english": "English",

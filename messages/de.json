@@ -1,4 +1,47 @@
 {
+  "Layout": {
+    "metaTitle": "SaleLinx - Verkaufe auf Depop und Vinted",
+    "metaDescription": "Crossliste, poste erneut, aktualisiere und fülle deine Bestände auf Depop und Vinted von einem Ort aus auf."
+  },
+  "Header": {
+    "navFeatures": "Funktionen",
+    "navPricing": "Preise",
+    "navRoadmap": "Roadmap",
+    "navFaq": "FAQ",
+    "navDocs": "Docs",
+    "account": "Konto",
+    "signOut": "Abmelden",
+    "signIn": "Anmelden",
+    "getStarted": "Loslegen"
+  },
+  "Footer": {
+    "tagline": "Verkaufe auf Depop und Vinted von einem Ort aus.",
+    "sectionProduct": "Produkt",
+    "sectionResources": "Ressourcen",
+    "sectionLegal": "Rechtliches",
+    "linkFeatures": "Funktionen",
+    "linkPricing": "Preise",
+    "linkRoadmap": "Roadmap",
+    "linkDocs": "Docs",
+    "linkFaq": "FAQ",
+    "linkChangelog": "Changelog",
+    "linkStatus": "Marktplatz-Status",
+    "linkPrivacy": "Datenschutz",
+    "linkTerms": "Nutzungsbedingungen",
+    "copyright": "© {year} SaleLinx. Alle Rechte vorbehalten.",
+    "builtFor": "Entwickelt für Depop- und Vinted-Verkäufer."
+  },
+  "Home": {
+    "heroTitle": "Ein Tool für jeden Depop- & Vinted-Verkäufer.",
+    "heroSubtitle": "Crossliste, poste erneut, aktualisiere, fülle auf und beantworte Käuferfragen auf beiden Plattformen, alles über ein einziges Panel.",
+    "ctaSeePricing": "Preise ansehen",
+    "ctaGetStarted": "Loslegen",
+    "ctaSignIn": "Anmelden"
+  },
+  "ThemeToggle": {
+    "switchToLight": "Zu hellem Modus wechseln",
+    "switchToDark": "Zu dunklem Modus wechseln"
+  },
   "LanguageSwitcher": {
     "label": "Sprache",
     "english": "English",
