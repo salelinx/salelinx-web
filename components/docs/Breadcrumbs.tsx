@@ -1,12 +1,14 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Icon } from '@/components/Icon';
 
 export type Crumb = { label: string; href?: string };
 
-export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
+export async function Breadcrumbs({ trail }: { trail: Crumb[] }) {
+  const t = await getTranslations('Docs');
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label={t('breadcrumbAria')}
       className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400"
     >
       {trail.map((crumb, i) => {

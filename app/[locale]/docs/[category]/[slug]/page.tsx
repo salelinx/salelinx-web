@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import { DocsSidebar } from '@/components/docs/DocsSidebar';
 import { PrevNextPager } from '@/components/docs/PrevNextPager';
@@ -22,11 +23,14 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ category: string; slug: string }>;
+  params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
-  const { category, slug } = await params;
+  const { locale, category, slug } = await params;
   const article = getArticle(category as CategorySlug, slug);
-  if (!article) return { title: 'Docs - SaleLinx' };
+  if (!article) {
+    const t = await getTranslations({ locale, namespace: 'Docs' });
+    return { title: t('metaTitle') };
+  }
   return {
     title: `${article.metadata.title} - SaleLinx docs`,
     description: article.metadata.description,
@@ -36,15 +40,17 @@ export async function generateMetadata({
 export default async function ArticlePage({
   params,
 }: {
-  params: Promise<{ category: string; slug: string }>;
+  params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
   const { category, slug } = await params;
   const cat = getCategory(category);
   const article = getArticle(category as CategorySlug, slug);
   if (!cat || !article) notFound();
 
+  const t = await getTranslations('Docs');
   const MDX = article.default;
   const { prev, next } = getPrevNext(article.metadata);
+  const categoryTitle = t(`category.${cat.slug}.title`);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
@@ -56,15 +62,15 @@ export default async function ArticlePage({
         <article className="min-w-0 flex-1 lg:max-w-3xl">
           <Breadcrumbs
             trail={[
-              { label: 'Docs', href: '/docs' },
-              { label: cat.title, href: `/docs/${cat.slug}` },
+              { label: t('breadcrumbDocs'), href: '/docs' },
+              { label: categoryTitle, href: `/docs/${cat.slug}` },
               { label: article.metadata.title },
             ]}
           />
           <div className="mt-6 flex items-center gap-3">
-            <span className={`${MONO} text-zinc-500`}>{cat.title}</span>
+            <span className={`${MONO} text-zinc-500`}>{categoryTitle}</span>
             <span className={`${MONO} text-zinc-400`}>
-              Updated {article.metadata.updated}
+              {t('articleUpdated', { date: article.metadata.updated })}
             </span>
           </div>
           <div className="mt-2">

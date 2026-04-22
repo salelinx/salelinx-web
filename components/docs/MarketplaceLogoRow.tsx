@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { Marketplace } from '@/lib/docs/types';
 import { MARKETPLACE_LABELS } from '@/lib/docs/status';
 

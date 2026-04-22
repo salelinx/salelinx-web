@@ -340,6 +340,113 @@
       "messages": "Messages"
     }
   },
+  "Docs": {
+    "metaTitle": "Docs - SaleLinx",
+    "metaDescription": "Guides pas à pas et explications pour l'extension Chrome SaleLinx.",
+    "eyebrow": "Docs",
+    "heroTitle": "Apprendre SaleLinx.",
+    "heroBody": "Guides pas à pas et explications pour l'extension Chrome SaleLinx. Pour des réponses rapides aux questions courantes, consultez la <faq>FAQ</faq>.",
+    "browseByTopic": "Parcourir par thème",
+    "byMarketplaceEyebrow": "Par marketplace",
+    "byMarketplaceTitle": "Trouver de l'aide pour une plateforme précise",
+    "faqLinkPrompt": "Vous cherchez une réponse rapide ?",
+    "faqLinkCta": "Consulter la FAQ",
+    "category": {
+      "getting-started": {
+        "title": "Premiers pas",
+        "blurb": "Installez l'extension, connectez-vous et publiez votre première annonce."
+      },
+      "crosslisting": {
+        "title": "Crosslisting",
+        "blurb": "Publiez une fois, diffusez sur les deux marketplaces avec des champs traduits."
+      },
+      "listings": {
+        "title": "Annonces et inventaire",
+        "blurb": "Gérez votre catalogue, les modifications en masse, le rafraîchissement, la republication et les sauvegardes."
+      },
+      "marketplaces": {
+        "title": "Marketplaces",
+        "blurb": "Guides spécifiques pour Depop, Vinted et d'autres plateformes."
+      }
+    },
+    "task": {
+      "install": "Installer l'extension",
+      "connect": "Connecter une marketplace",
+      "crosslist": "Crosslistez votre premier article",
+      "manage": "Gérer votre inventaire"
+    },
+    "categoryPageEyebrow": "Catégorie",
+    "categoryCardBrowse": "Parcourir",
+    "articleCountOne": "{count} article",
+    "articleCountOther": "{count} articles",
+    "articleStub": "Ébauche",
+    "articleUpdated": "Mis à jour le {date}",
+    "sidebarAria": "Navigation des docs",
+    "search": {
+      "placeholder": "Rechercher dans les docs...",
+      "aria": "Rechercher dans les docs",
+      "noResults": "Aucun résultat pour « {query} »."
+    },
+    "breadcrumbAria": "Fil d'Ariane",
+    "breadcrumbDocs": "Docs",
+    "prevNext": {
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+    "status": {
+      "metaTitle": "Statut des plateformes - Docs SaleLinx",
+      "metaDescription": "Vue en temps réel des marketplaces sur lesquelles SaleLinx crosslist actuellement.",
+      "eyebrow": "Statut",
+      "title": "Statut des plateformes",
+      "body": "Les marketplaces sur lesquelles SaleLinx peut actuellement crosslister. Si vous voyez des erreurs et qu'une marketplace est signalée ici, l'équipe est déjà dessus.",
+      "updatedPrefix": "Mis à jour le {date}",
+      "footnote": "Le statut est vérifié par l'équipe SaleLinx et mis à jour lorsque le comportement de publication de l'extension est connu pour être impacté par un changement d'une marketplace.",
+      "breadcrumb": "Statut des plateformes",
+      "state": {
+        "ok": "Opérationnel",
+        "degraded": "Dégradé",
+        "down": "Panne"
+      },
+      "card": {
+        "eyebrow": "Statut des plateformes",
+        "allOk": "Toutes les marketplaces sont opérationnelles",
+        "someDegraded": "Certaines marketplaces sont dégradées",
+        "someDown": "Une ou plusieurs marketplaces en panne",
+        "body": "Vue en temps réel des marketplaces sur lesquelles SaleLinx publie actuellement."
+      }
+    },
+    "changelog": {
+      "metaTitle": "Changelog - Docs SaleLinx",
+      "metaDescription": "Les changements des dernières versions de l'extension SaleLinx.",
+      "eyebrow": "Changelog",
+      "title": "Quoi de neuf dans SaleLinx",
+      "body": "Notes de version de l'extension SaleLinx. L'entrée la plus récente est en haut.",
+      "breadcrumb": "Changelog"
+    },
+    "whatsNew": {
+      "eyebrow": "Quoi de neuf",
+      "title": "Changements récents",
+      "fullChangelog": "Changelog complet"
+    },
+    "support": {
+      "title": "Toujours bloqué ?",
+      "body": "Vous ne trouvez pas ce qu'il vous faut ? Contactez directement l'équipe et nous vous répondrons.",
+      "cta": "Contacter le support"
+    }
+  },
+  "Faq": {
+    "metaTitle": "FAQ - SaleLinx",
+    "metaDescription": "Réponses rapides aux questions courantes sur SaleLinx : facturation, compte, dépannage, confidentialité.",
+    "eyebrow": "FAQ",
+    "title": "Questions fréquentes.",
+    "body": "Réponses rapides aux questions que l'on nous pose le plus souvent. Vous cherchez un tutoriel complet ? <docs>Parcourir les docs</docs>.",
+    "search": {
+      "placeholder": "Rechercher dans la FAQ...",
+      "aria": "Rechercher dans la FAQ",
+      "noResults": "Aucune question ne correspond à « {query} ». Essayez un autre terme ou écrivez au support."
+    },
+    "docsLink": "Vous cherchez des guides pas à pas ? Parcourez les docs"
+  },
   "Roadmap": {
     "sectionHeader": {
       "eyebrow": "Section 03 / Feuille de route",

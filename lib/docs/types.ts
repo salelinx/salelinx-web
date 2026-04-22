@@ -12,8 +12,6 @@ export type StatusState = 'ok' | 'degraded' | 'down';
 
 export type DocCategory = {
   slug: CategorySlug;
-  title: string;
-  blurb: string;
   icon: IconName;
   order: number;
 };

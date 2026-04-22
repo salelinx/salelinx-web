@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import Fuse from 'fuse.js';
+import { Link } from '@/i18n/navigation';
 import { Icon } from '@/components/Icon';
 
 type SearchRecord = {
@@ -33,6 +34,7 @@ const FUSE_OPTIONS = {
 };
 
 export function DocsSearch() {
+  const t = useTranslations('Docs.search');
   const [records, setRecords] = useState<SearchRecord[] | null>(null);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -113,9 +115,9 @@ export function DocsSearch() {
           onChange={(e) => onChangeQuery(e.target.value)}
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          placeholder="Search the docs..."
+          placeholder={t('placeholder')}
           className="flex-1 bg-transparent text-base outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
-          aria-label="Search docs"
+          aria-label={t('aria')}
           aria-controls="docs-search-results"
         />
       </div>
@@ -158,7 +160,7 @@ export function DocsSearch() {
             </ul>
           ) : (
             <div className="px-5 py-6 text-sm text-zinc-500">
-              No results for &ldquo;{query}&rdquo;.
+              {t('noResults', { query })}
             </div>
           )}
         </div>

@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DocsSearch } from '@/components/docs/DocsSearch';
 import { TaskPill } from '@/components/docs/TaskPill';
 import { CategoryCard } from '@/components/docs/CategoryCard';
@@ -7,33 +9,58 @@ import { WhatsNewStrip } from '@/components/docs/WhatsNewStrip';
 import { DocsFAQLink } from '@/components/docs/DocsFAQLink';
 import { CATEGORIES } from '@/lib/docs/categories';
 import { getArticleCountByCategory } from '@/lib/docs/getArticle';
+import { Link } from '@/i18n/navigation';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-const TASK_PILLS = [
-  { label: 'Install the extension', href: '/docs/getting-started/install-the-extension' },
-  { label: 'Connect a marketplace', href: '/docs/getting-started/connect-your-first-marketplace' },
-  { label: 'Crosslist your first item', href: '/docs/crosslisting/crosslist-your-first-item' },
-  { label: 'Manage your inventory', href: '/docs/listings/manage-inventory' },
+const TASK_PILLS: Array<{
+  key: 'install' | 'connect' | 'crosslist' | 'manage';
+  href: string;
+}> = [
+  { key: 'install', href: '/docs/getting-started/install-the-extension' },
+  { key: 'connect', href: '/docs/getting-started/connect-your-first-marketplace' },
+  { key: 'crosslist', href: '/docs/crosslisting/crosslist-your-first-item' },
+  { key: 'manage', href: '/docs/listings/manage-inventory' },
 ];
 
-export default function DocsHomePage() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Docs' });
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  };
+}
+
+export default async function DocsHomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('Docs');
   const counts = getArticleCountByCategory();
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6">
       <section className="pt-20 pb-12 sm:pt-24">
-        <span className={`${MONO} text-zinc-500`}>Docs</span>
+        <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
-          Learn SaleLinx.
+          {t('heroTitle')}
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
-          Step-by-step guides and walkthroughs for the SaleLinx Chrome
-          extension. For quick answers to common questions, head to the{' '}
-          <a href="/faq" className="underline underline-offset-4">
-            FAQ
-          </a>
-          .
+          {t.rich('heroBody', {
+            faq: (chunks) => (
+              <Link href="/faq" className="underline underline-offset-4">
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
 
         <div className="mt-10 max-w-3xl">
@@ -42,7 +69,7 @@ export default function DocsHomePage() {
 
         <div className="mt-6 flex flex-wrap gap-2">
           {TASK_PILLS.map((pill) => (
-            <TaskPill key={pill.href} {...pill} />
+            <TaskPill key={pill.href} label={t(`task.${pill.key}`)} href={pill.href} />
           ))}
         </div>
       </section>
@@ -50,7 +77,7 @@ export default function DocsHomePage() {
       <section className="border-t border-black/10 py-16 dark:border-white/10">
         <div className="mb-10 flex items-baseline justify-between">
           <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Browse by topic
+            {t('browseByTopic')}
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -66,9 +93,9 @@ export default function DocsHomePage() {
 
       <section className="border-t border-black/10 py-16 dark:border-white/10">
         <div className="mb-6">
-          <span className={`${MONO} text-zinc-500`}>By marketplace</span>
+          <span className={`${MONO} text-zinc-500`}>{t('byMarketplaceEyebrow')}</span>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Find help for a specific platform
+            {t('byMarketplaceTitle')}
           </h2>
         </div>
         <MarketplaceLogoRow />

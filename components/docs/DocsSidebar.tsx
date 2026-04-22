@@ -1,15 +1,17 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { CATEGORIES } from '@/lib/docs/categories';
 import { listAllArticles } from '@/lib/docs/getArticle';
 import type { CategorySlug } from '@/lib/docs/types';
 
-export function DocsSidebar({
+export async function DocsSidebar({
   activeCategory,
   activeSlug,
 }: {
   activeCategory?: CategorySlug;
   activeSlug?: string;
 }) {
+  const t = await getTranslations('Docs');
   const all = listAllArticles();
   const byCat = new Map<CategorySlug, typeof all>();
   for (const m of all) {
@@ -19,7 +21,7 @@ export function DocsSidebar({
   }
 
   return (
-    <aside className="w-full shrink-0 lg:w-64">
+    <aside className="w-full shrink-0 lg:w-64" aria-label={t('sidebarAria')}>
       <nav className="flex flex-col gap-6 text-sm">
         {CATEGORIES.map((cat) => {
           const articles = byCat.get(cat.slug) ?? [];
@@ -33,7 +35,7 @@ export function DocsSidebar({
                     : 'text-zinc-500 hover:text-black dark:hover:text-white'
                 }`}
               >
-                {cat.title}
+                {t(`category.${cat.slug}.title`)}
               </Link>
               <ul className="mt-3 space-y-2 border-l border-black/10 pl-4 dark:border-white/10">
                 {articles.map((a) => {

@@ -1,10 +1,12 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Icon } from '@/components/Icon';
 import { formatChangelogDate, getRecentChangelog } from '@/lib/docs/changelog';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-export function WhatsNewStrip() {
+export async function WhatsNewStrip() {
+  const t = await getTranslations('Docs.whatsNew');
   const entries = getRecentChangelog(3);
   if (entries.length === 0) return null;
 
@@ -12,16 +14,16 @@ export function WhatsNewStrip() {
     <div>
       <div className="mb-6 flex items-baseline justify-between">
         <div>
-          <span className={`${MONO} text-zinc-500`}>What&rsquo;s new</span>
+          <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Recent changes
+            {t('title')}
           </h2>
         </div>
         <Link
           href="/docs/changelog"
           className="hidden items-center gap-1.5 text-sm text-zinc-700 hover:text-black sm:inline-flex dark:text-zinc-300 dark:hover:text-white"
         >
-          Full changelog
+          {t('fullChangelog')}
           <Icon name="arrow-right" className="h-4 w-4" />
         </Link>
       </div>
