@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("Auth");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -32,10 +34,12 @@ export default function ForgotPasswordPage() {
     return (
       <main className="mx-auto w-full max-w-sm px-6 py-20">
         <h1 className="text-3xl font-semibold tracking-tight">
-          Check your email
+          {t("checkEmailTitle")}
         </h1>
         <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-          We sent a password reset link to <strong>{email}</strong>.
+          {t.rich("forgotPassword.checkEmailBody", {
+            email: () => <strong>{email}</strong>,
+          })}
         </p>
       </main>
     );
@@ -43,9 +47,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="mx-auto w-full max-w-sm px-6 py-20">
-      <h1 className="text-3xl font-semibold tracking-tight">Reset password</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">
+        {t("forgotPassword.title")}
+      </h1>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        Enter your email and we&apos;ll send a reset link.
+        {t("forgotPassword.subtitle")}
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
@@ -54,7 +60,7 @@ export default function ForgotPasswordPage() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder={t("emailPlaceholder")}
           autoComplete="email"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -63,7 +69,9 @@ export default function ForgotPasswordPage() {
           disabled={status === "submitting"}
           className="w-full rounded-lg bg-black px-4 py-3 text-white disabled:opacity-50 dark:bg-white dark:text-black"
         >
-          {status === "submitting" ? "Sending…" : "Send reset link"}
+          {status === "submitting"
+            ? t("forgotPassword.submitSubmitting")
+            : t("forgotPassword.submitIdle")}
         </button>
       </form>
 
@@ -71,7 +79,7 @@ export default function ForgotPasswordPage() {
 
       <div className="mt-6 text-sm">
         <Link href="/auth/login" className="underline">
-          Back to sign in
+          {t("forgotPassword.backToSignIn")}
         </Link>
       </div>
     </main>

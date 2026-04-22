@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("Auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
@@ -35,7 +36,9 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto w-full max-w-sm px-6 py-20">
-      <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">
+        {t("login.title")}
+      </h1>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <input
@@ -43,7 +46,7 @@ export default function LoginPage() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder={t("emailPlaceholder")}
           autoComplete="email"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -52,7 +55,7 @@ export default function LoginPage() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder={t("passwordPlaceholder")}
           autoComplete="current-password"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -61,7 +64,9 @@ export default function LoginPage() {
           disabled={status === "submitting"}
           className="w-full rounded-lg bg-black px-4 py-3 text-white disabled:opacity-50 dark:bg-white dark:text-black"
         >
-          {status === "submitting" ? "Signing in…" : "Sign in"}
+          {status === "submitting"
+            ? t("login.submitSubmitting")
+            : t("login.submitIdle")}
         </button>
       </form>
 
@@ -69,10 +74,10 @@ export default function LoginPage() {
 
       <div className="mt-6 flex justify-between text-sm">
         <Link href="/auth/signup" className="underline">
-          Create account
+          {t("login.createAccount")}
         </Link>
         <Link href="/auth/forgot-password" className="underline">
-          Forgot password?
+          {t("login.forgotPassword")}
         </Link>
       </div>
     </main>

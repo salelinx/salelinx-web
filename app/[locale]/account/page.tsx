@@ -1,57 +1,67 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { getCurrentSubscription } from "@/lib/supabase/subscription";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
 
-const TIER_LABEL: Record<string, string> = {
-  free: "Free",
-  starter: "Starter",
-  pro: "Pro",
-  business: "Business",
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ checkout?: string }>;
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  active: "Active",
-  trialing: "Trialing",
-  past_due: "Payment failed",
-  canceled: "Canceled",
-  incomplete: "Incomplete",
-};
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "-";
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-type Props = { searchParams: Promise<{ checkout?: string }> };
-
-export default async function AccountPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const justCheckedOut = params.checkout === "success";
+export default async function AccountPage({ params, searchParams }: Props) {
+  const [{ locale }, qs] = await Promise.all([params, searchParams]);
+  const justCheckedOut = qs.checkout === "success";
+  const t = await getTranslations({ locale, namespace: "Account" });
 
   const supabase = await createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
 
-  if (!user) redirect("/auth/login");
+  if (!user) {
+    redirect({ href: "/auth/login", locale });
+    return null;
+  }
 
   const unverified = !user.email_confirmed_at;
   const { subscription, tier } = await getCurrentSubscription(user.id);
+
+  const tierLabel = (id: string) => {
+    try {
+      return t(`tierLabel.${id as "free" | "starter" | "pro" | "business"}`);
+    } catch {
+      return id;
+    }
+  };
+  const statusLabel = (s: string) => {
+    const known: Record<string, string> = {
+      active: t("statusLabel.active"),
+      trialing: t("statusLabel.trialing"),
+      past_due: t("statusLabel.past_due"),
+      canceled: t("statusLabel.canceled"),
+      incomplete: t("statusLabel.incomplete"),
+    };
+    return known[s] ?? s;
+  };
+
+  const dateFallback = t("dateFallback");
+  const formatDate = (iso: string | null): string => {
+    if (!iso) return dateFallback;
+    return new Date(iso).toLocaleDateString(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-16">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            Your account
+            {t("title")}
           </h1>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             {user.email}
@@ -62,15 +72,14 @@ export default async function AccountPage({ searchParams }: Props) {
             type="submit"
             className="rounded-full border border-black/10 px-4 py-2 text-sm dark:border-white/20"
           >
-            Sign out
+            {t("signOut")}
           </button>
         </form>
       </div>
 
       {justCheckedOut && (
         <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-          Subscription activated. It may take a few seconds for the details
-          below to refresh.
+          {t("checkoutSuccess")}
         </div>
       )}
 
@@ -81,42 +90,42 @@ export default async function AccountPage({ searchParams }: Props) {
       )}
 
       <section className="mt-10 rounded-2xl border border-black/10 p-6 dark:border-white/10">
-        <h2 className="text-xl font-semibold">Current plan</h2>
+        <h2 className="text-xl font-semibold">{t("currentPlanTitle")}</h2>
 
         {!subscription ? (
           <>
             <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-              You're on the Free tier. Upgrade any time.
+              {t("freeTierBody")}
             </p>
             <Link
               href="/pricing"
               className="mt-4 inline-block rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
             >
-              See pricing
+              {t("seePricing")}
             </Link>
           </>
         ) : (
           <>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-zinc-500">Tier</dt>
+                <dt className="text-zinc-500">{t("tier")}</dt>
                 <dd className="mt-0.5 text-base font-medium">
-                  {TIER_LABEL[subscription.tier_id] ?? subscription.tier_id}
+                  {tierLabel(subscription.tier_id)}
                 </dd>
               </div>
               <div>
-                <dt className="text-zinc-500">Status</dt>
+                <dt className="text-zinc-500">{t("status")}</dt>
                 <dd className="mt-0.5 text-base font-medium">
-                  {STATUS_LABEL[subscription.status] ?? subscription.status}
+                  {statusLabel(subscription.status)}
                 </dd>
               </div>
               <div>
                 <dt className="text-zinc-500">
                   {subscription.status === "canceled"
-                    ? "Ended"
+                    ? t("ended")
                     : subscription.cancel_at_period_end
-                      ? "Ends"
-                      : "Renews"}
+                      ? t("ends")
+                      : t("renews")}
                 </dt>
                 <dd className="mt-0.5 text-base font-medium">
                   {formatDate(subscription.current_period_end)}
@@ -124,7 +133,7 @@ export default async function AccountPage({ searchParams }: Props) {
               </div>
               {tier && (
                 <div>
-                  <dt className="text-zinc-500">Plan version</dt>
+                  <dt className="text-zinc-500">{t("planVersion")}</dt>
                   <dd className="mt-0.5 text-base font-medium">
                     v{tier.version}
                   </dd>
@@ -134,24 +143,22 @@ export default async function AccountPage({ searchParams }: Props) {
 
             {subscription.status === "past_due" && (
               <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                A recent payment failed. Update your payment method below to
-                avoid losing access.
+                {t("pastDueNote")}
               </p>
             )}
             {subscription.cancel_at_period_end &&
               subscription.status !== "canceled" && (
                 <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                  Scheduled to cancel on{" "}
-                  {formatDate(subscription.current_period_end)}. You can resume
-                  any time before then via Manage subscription.
+                  {t("scheduledCancel", {
+                    date: formatDate(subscription.current_period_end),
+                  })}
                 </p>
               )}
 
             {subscription.stripe_customer_id && (
               <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/10">
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Update your plan, change your payment method, download
-                  invoices, or cancel in Stripe's billing portal.
+                  {t("managePortalBody")}
                 </p>
                 <ManageSubscriptionButton />
               </div>

@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 type Props = {
   priceId: string;
-  label: string;
+  label?: string;
   highlight?: boolean;
 };
 
 export function SubscribeButton({ priceId, label, highlight }: Props) {
+  const t = useTranslations("Subscribe");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -22,9 +24,7 @@ export function SubscribeButton({ priceId, label, highlight }: Props) {
     } = await supabase.auth.getSession();
 
     if (!session) {
-      router.push(
-        `/auth/login?next=${encodeURIComponent("/pricing")}`,
-      );
+      router.push(`/auth/login?next=${encodeURIComponent("/pricing")}`);
       return;
     }
 
@@ -46,7 +46,7 @@ export function SubscribeButton({ priceId, label, highlight }: Props) {
 
     if (!res.ok) {
       setLoading(false);
-      alert("Could not start checkout. Please try again.");
+      alert(t("errorAlert"));
       return;
     }
 
@@ -65,7 +65,7 @@ export function SubscribeButton({ priceId, label, highlight }: Props) {
           : "border border-black/10 dark:border-white/20"
       }`}
     >
-      {loading ? "Loading..." : label}
+      {loading ? t("loading") : (label ?? t("label"))}
     </button>
   );
 }
