@@ -145,6 +145,19 @@ Supabase verifies the token and redirects to redirect_to (our /auth/callback)
 
 The function handles all `email_action_type` values: `signup`, `recovery`, `magiclink`, `invite`, `email_change`, `email_change_current`, `email_change_new`, `reauthentication`. Templates live in `supabase/functions/send-auth-email/templates.ts`.
 
+### Localized emails
+
+Templates are translated to `en` / `fr` / `es` / `de`. The function resolves the recipient's locale from `user.user_metadata.preferred_locale` and falls back to `en` when absent or unknown.
+
+The web app writes `preferred_locale` into metadata at:
+
+- signup (`app/[locale]/auth/signup/page.tsx` - `signUp({ options.data.preferred_locale })`)
+- password-reset click in `AccountSecurityCard` (via `updateUser` before `resetPasswordForEmail`)
+- email-change in `AccountSecurityCard` (passed alongside the new email on `updateUser`)
+- confirmation resend in `VerifyEmailBanner` (`updateUser` before `resend`)
+
+Unauthenticated flows (forgot-password on `/<locale>/auth/forgot-password`) cannot update the user's metadata before calling `resetPasswordForEmail`, so the email locale reflects whatever was last stored on the user; fallback is `en`.
+
 Once the hook is registered in the Supabase dashboard, Supabase stops sending via SMTP entirely - the hook owns 100% of auth emails. A non-200 response causes the underlying auth action (signup, reset, etc.) to fail visibly to the user, so the function must stay healthy.
 
 ## Excluded from TypeScript checks

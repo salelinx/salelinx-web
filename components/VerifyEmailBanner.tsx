@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export function VerifyEmailBanner({ email }: { email: string }) {
   const t = useTranslations("VerifyEmailBanner");
+  const locale = useLocale();
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
@@ -16,6 +17,8 @@ export function VerifyEmailBanner({ email }: { email: string }) {
     setError(null);
 
     const supabase = createBrowserClient();
+    // Refresh preferred_locale so the confirmation email goes out in the current language.
+    await supabase.auth.updateUser({ data: { preferred_locale: locale } });
     const { error } = await supabase.auth.resend({
       type: "signup",
       email,

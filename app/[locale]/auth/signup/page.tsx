@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -33,6 +34,7 @@ export default function SignupPage() {
       password,
       options: {
         emailRedirectTo: `${location.origin}/auth/callback?next=/account`,
+        data: { preferred_locale: locale },
       },
     });
 

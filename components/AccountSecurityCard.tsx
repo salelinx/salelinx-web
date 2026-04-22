@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 type PasswordStatus = "idle" | "sending" | "sent";
@@ -9,6 +9,7 @@ type EmailStatus = "idle" | "open" | "sending" | "sent";
 
 export function AccountSecurityCard({ email }: { email: string }) {
   const t = useTranslations("AccountSecurity");
+  const locale = useLocale();
   const [pwStatus, setPwStatus] = useState<PasswordStatus>("idle");
   const [pwError, setPwError] = useState<string | null>(null);
 
@@ -22,6 +23,9 @@ export function AccountSecurityCard({ email }: { email: string }) {
     setPwStatus("sending");
 
     const supabase = createBrowserClient();
+    // Refresh the preferred_locale on the signed-in user so the Edge Function
+    // sends the reset email in the language the user is currently viewing.
+    await supabase.auth.updateUser({ data: { preferred_locale: locale } });
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${location.origin}/auth/callback?next=/auth/reset-password`,
     });
@@ -51,7 +55,10 @@ export function AccountSecurityCard({ email }: { email: string }) {
 
     setEmailStatus("sending");
     const supabase = createBrowserClient();
-    const { error } = await supabase.auth.updateUser({ email: target });
+    const { error } = await supabase.auth.updateUser({
+      email: target,
+      data: { preferred_locale: locale },
+    });
 
     if (error) {
       setEmailStatus("open");
