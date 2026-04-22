@@ -11,6 +11,7 @@
 import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 import {
   type EmailActionType,
+  type Locale,
   renderEmail,
   type RenderInput,
 } from "./templates.ts";
@@ -19,6 +20,7 @@ type SupabaseEmailHookPayload = {
   user: {
     id: string;
     email: string;
+    user_metadata?: Record<string, unknown>;
     [key: string]: unknown;
   };
   email_data: {
@@ -33,6 +35,16 @@ type SupabaseEmailHookPayload = {
     [key: string]: unknown;
   };
 };
+
+const SUPPORTED_LOCALES: ReadonlyArray<Locale> = ["en", "fr", "es", "de"];
+
+function resolveLocale(payload: SupabaseEmailHookPayload): Locale {
+  const raw = payload.user.user_metadata?.preferred_locale;
+  if (typeof raw === "string" && SUPPORTED_LOCALES.includes(raw as Locale)) {
+    return raw as Locale;
+  }
+  return "en";
+}
 
 const HOOK_SECRET_RAW = Deno.env.get("SEND_EMAIL_HOOK_SECRET") ?? "";
 const HOOK_SECRET = HOOK_SECRET_RAW.replace(/^v1,whsec_/, "");
@@ -120,6 +132,7 @@ Deno.serve(async (req) => {
       : user.email;
 
   const verifyUrl = buildVerifyUrl(actionType, email_data);
+  const locale = resolveLocale(payload);
 
   const rendered = renderEmail({
     actionType,
@@ -127,10 +140,11 @@ Deno.serve(async (req) => {
     token: email_data.token,
     recipientEmail: recipient,
     siteUrl: email_data.site_url,
+    locale,
   } satisfies RenderInput);
 
   console.log(
-    `[send-auth-email] type=${actionType} user=${user.id} to=${recipient}`,
+    `[send-auth-email] type=${actionType} locale=${locale} user=${user.id} to=${recipient}`,
   );
 
   try {
