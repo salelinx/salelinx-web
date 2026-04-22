@@ -5,9 +5,19 @@ import { useTranslations } from 'next-intl';
 
 type Theme = 'light' | 'dark';
 
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
 function getInitialTheme(): Theme {
   if (typeof document === 'undefined') return 'light';
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+}
+
+function writeThemeCookie(theme: Theme) {
+  document.cookie = `theme=${theme}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+function hasThemeCookie(): boolean {
+  return document.cookie.split('; ').some((c) => c.startsWith('theme='));
 }
 
 export function ThemeToggle() {
@@ -16,8 +26,12 @@ export function ThemeToggle() {
   const t = useTranslations('ThemeToggle');
 
   useEffect(() => {
-    setTheme(getInitialTheme());
+    const current = getInitialTheme();
+    setTheme(current);
     setMounted(true);
+    // Persist system-preferred theme on first visit so the server can render
+    // the right class on subsequent loads and soft navigations (e.g. locale change).
+    if (!hasThemeCookie()) writeThemeCookie(current);
   }, []);
 
   function toggle() {
@@ -29,6 +43,7 @@ export function ThemeToggle() {
     try {
       localStorage.setItem('theme', next);
     } catch {}
+    writeThemeCookie(next);
     window.setTimeout(() => {
       root.classList.remove('theme-transition');
     }, 350);

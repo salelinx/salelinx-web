@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ViewTransition } from 'react';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -32,7 +33,11 @@ export async function generateMetadata({
   };
 }
 
-const themeInitScript = `(() => { try { const s = localStorage.getItem('theme'); const d = s === 'dark' || (!s && matchMedia('(prefers-color-scheme: dark)').matches); if (d) document.documentElement.classList.add('dark'); } catch (_) {} })();`;
+// Runs before body paints on first load. Only needed when no `theme` cookie
+// exists yet (e.g., visitor's first page view) so we can honour system dark
+// preference without flashing light. Once ThemeToggle writes the cookie, SSR
+// below handles it directly and this script becomes a no-op.
+const themeInitScript = `(() => { try { if (document.cookie.split('; ').some(c => c.startsWith('theme='))) return; if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark'); } catch (_) {} })();`;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -51,10 +56,13 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
 
+  const cookieStore = await cookies();
+  const isDark = cookieStore.get('theme')?.value === 'dark';
+
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased${isDark ? ' dark' : ''}`}
       suppressHydrationWarning
     >
       <head>
