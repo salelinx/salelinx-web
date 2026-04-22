@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { SubscribeButton } from '@/components/SubscribeButton';
 import { Icon, type IconName } from '@/components/Icon';
 import type { TierConfig, TierId } from '@/lib/types/tiers';
@@ -15,44 +16,12 @@ const PRICE_IDS: Partial<Record<TierId, string | undefined>> = {
 
 const TIER_META: Record<
   TierId,
-  { name: string; price: string; tagline: string; highlight?: boolean }
+  { name: string; price: string; highlight?: boolean }
 > = {
-  free: { name: 'Free', price: '£0', tagline: 'Try before you buy' },
-  starter: { name: 'Starter', price: '£7.99', tagline: 'Hobbyists' },
-  pro: {
-    name: 'Pro',
-    price: '£14.99',
-    tagline: 'Active resellers',
-    highlight: true,
-  },
-  business: {
-    name: 'Business',
-    price: '£29.99',
-    tagline: 'Power sellers & multi-shop',
-  },
-};
-
-const LIMIT_LABELS: Record<string, string> = {
-  crosslists_per_month: 'Crosslists / month',
-  relists_per_month: 'Relists / month',
-  refreshes_per_day: 'Refreshes / day',
-  follows_per_day: 'Follows / day',
-  unfollows_per_day: 'Unfollows / day',
-  cloud_storage_bytes: 'Cloud storage',
-  linked_shops: 'Linked shops',
-  support_response_days: 'Support response',
-  support_response_hours: 'Support response',
-};
-
-const FEATURE_LABELS: Record<string, string> = {
-  auto_refresh: 'Auto-refresh',
-  cloud_sync: 'Cloud sync',
-  shop_designer: 'Shop designer',
-  dead_stock: 'Dead stock analytics',
-  restocker: 'Restocker',
-  auto_offer: 'Auto-offers',
-  shipping_labels: 'Shipping labels',
-  messages: 'Messages',
+  free: { name: 'Free', price: '£0' },
+  starter: { name: 'Starter', price: '£7.99' },
+  pro: { name: 'Pro', price: '£14.99', highlight: true },
+  business: { name: 'Business', price: '£29.99' },
 };
 
 const FEATURE_ICONS: Record<string, IconName> = {
@@ -74,7 +43,7 @@ const LIMIT_ORDER = [
   'unfollows_per_day',
   'linked_shops',
   'cloud_storage_bytes',
-];
+] as const;
 
 const FEATURE_ORDER = [
   'messages',
@@ -84,20 +53,27 @@ const FEATURE_ORDER = [
   'restocker',
   'dead_stock',
   'shop_designer',
-];
+] as const;
 
-function formatLimit(key: string, value: number | null): string {
-  if (value === null) return 'Unlimited';
-  if (key === 'cloud_storage_bytes') {
-    const gb = value / 1024 ** 3;
-    return `${gb} GB`;
-  }
-  if (key === 'support_response_hours') return `${value}h`;
-  if (key === 'support_response_days') return `${value} days`;
-  return value.toLocaleString();
+type LimitKey = (typeof LIMIT_ORDER)[number] | 'support_response_days' | 'support_response_hours';
+
+function makeFormatLimit(t: (key: string, values?: Record<string, string | number>) => string) {
+  return (key: LimitKey, value: number | null): string => {
+    if (value === null) return t('unlimited');
+    if (key === 'cloud_storage_bytes') {
+      const gb = value / 1024 ** 3;
+      return t('storageGb', { value: gb });
+    }
+    if (key === 'support_response_hours') return t('supportHours', { value });
+    if (key === 'support_response_days') return t('supportDays', { value });
+    return value.toLocaleString();
+  };
 }
 
-export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
+export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
+  const t = await getTranslations('Pricing');
+  const formatLimit = makeFormatLimit(t);
+
   const ordered = TIER_ORDER.map((id) =>
     tiers.find((t) => t.tier_id === id),
   ).filter((t): t is NonNullable<typeof t> => Boolean(t));
@@ -105,13 +81,12 @@ export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   return (
     <section id="pricing" className="scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10">
       <div className="pb-12">
-        <span className={`${MONO} text-zinc-500`}>Section 02 / Pricing</span>
+        <span className={`${MONO} text-zinc-500`}>{t('sectionHeader.eyebrow')}</span>
         <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-          Pick a plan. Switch any time. Cancel any time.
+          {t('sectionHeader.title')}
         </h2>
         <p className="mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
-          Every plan ships the same extension. Higher tiers raise monthly caps
-          and unlock the heavier automations like auto-offers and restocker.
+          {t('sectionHeader.body')}
         </p>
       </div>
 
@@ -131,16 +106,18 @@ export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 <h3 className="text-xl font-semibold">{meta.name}</h3>
                 {meta.highlight && (
                   <span className="rounded-full bg-black px-2 py-0.5 text-xs text-white dark:bg-white dark:text-black">
-                    Popular
+                    {t('popular')}
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-sm text-zinc-500">{meta.tagline}</p>
+              <p className="mt-1 text-sm text-zinc-500">
+                {t(`tier.${tier.tier_id}.tagline`)}
+              </p>
 
               <p className="mt-6 text-4xl font-bold">
                 {meta.price}
                 <span className="text-base font-normal text-zinc-500">
-                  {tier.tier_id === 'free' ? '' : '/mo'}
+                  {tier.tier_id === 'free' ? '' : t('perMonth')}
                 </span>
               </p>
 
@@ -153,12 +130,11 @@ export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                       : 'border border-black/10 dark:border-white/20'
                   }`}
                 >
-                  Install extension
+                  {t('installExtension')}
                 </Link>
               ) : PRICE_IDS[tier.tier_id] ? (
                 <SubscribeButton
                   priceId={PRICE_IDS[tier.tier_id]!}
-                  label="Subscribe"
                   highlight={meta.highlight}
                 />
               ) : (
@@ -167,7 +143,7 @@ export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                   disabled
                   className="mt-6 w-full rounded-full border border-black/10 py-2.5 text-sm font-medium opacity-60 dark:border-white/20"
                 >
-                  Coming soon
+                  {t('comingSoon')}
                 </button>
               )}
 
@@ -179,7 +155,7 @@ export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 ).map((key) => (
                   <li key={key} className="flex justify-between gap-2">
                     <span className="text-zinc-600 dark:text-zinc-400">
-                      {LIMIT_LABELS[key] ?? key}
+                      {t(`limit.${key}`)}
                     </span>
                     <span className="font-medium">
                       {formatLimit(key, tier.limits[key])}
@@ -201,7 +177,7 @@ export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                       <span
                         className={`flex-1 ${included ? '' : 'line-through decoration-zinc-300 dark:decoration-zinc-700'}`}
                       >
-                        Cloud storage
+                        {t('cloudStorage')}
                       </span>
                       {included && storage !== undefined && (
                         <span className="font-medium">
@@ -232,7 +208,7 @@ export function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                             : 'line-through decoration-zinc-300 dark:decoration-zinc-700'
                         }
                       >
-                        {FEATURE_LABELS[key] ?? key}
+                        {t(`feature.${key}`)}
                       </span>
                     </li>
                   );

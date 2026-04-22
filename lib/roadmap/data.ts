@@ -2,110 +2,81 @@ import type { Marketplace } from '@/lib/docs/types';
 
 export type RoadmapStatus = 'exploring' | 'building' | 'shipped';
 
+export type RoadmapMetaKey =
+  | 'scoping'
+  | 'targetQ2_2026'
+  | 'shippedApr_2026';
+
+export type RoadmapTagKey = 'inventory' | 'automation' | 'ai' | 'insights';
+
 export type RoadmapItem = {
   id: string;
   status: RoadmapStatus;
-  title: string;
-  description: string;
+  metaKey: RoadmapMetaKey;
   marketplaces?: Marketplace[];
-  tag?: string;
-  meta: string;
+  tagKey?: RoadmapTagKey;
 };
 
 export type RoadmapColumn = {
   status: RoadmapStatus;
-  eyebrow: string;
-  title: string;
-  blurb: string;
 };
 
 export const ROADMAP_COLUMNS: RoadmapColumn[] = [
-  {
-    status: 'exploring',
-    eyebrow: '01 / Later',
-    title: 'Exploring',
-    blurb: 'Ideas we’re scoping. No promises on timing.',
-  },
-  {
-    status: 'building',
-    eyebrow: '02 / Next',
-    title: 'Building',
-    blurb: 'Actively in development. Coming soon.',
-  },
-  {
-    status: 'shipped',
-    eyebrow: '03 / Done',
-    title: 'Shipped',
-    blurb: 'Available in the latest extension release.',
-  },
+  { status: 'exploring' },
+  { status: 'building' },
+  { status: 'shipped' },
 ];
 
 export const ROADMAP_ITEMS: RoadmapItem[] = [
   {
     id: 'csv-bulk-import',
     status: 'exploring',
-    title: 'Bulk CSV import',
-    description: 'Upload a CSV of existing inventory and have SaleLinx create draft listings.',
-    tag: 'Inventory',
-    meta: 'Scoping',
+    tagKey: 'inventory',
+    metaKey: 'scoping',
   },
   {
     id: 'scheduled-relisting',
     status: 'exploring',
-    title: 'Scheduled relisting',
-    description: 'Queue relists to run on a schedule you set, not manually.',
-    tag: 'Automation',
-    meta: 'Scoping',
+    tagKey: 'automation',
+    metaKey: 'scoping',
   },
   {
     id: 'ai-description-polish',
     status: 'exploring',
-    title: 'AI description polish',
-    description: 'One-click rewrite for titles and descriptions that look hand-written, not templated.',
-    tag: 'AI',
-    meta: 'Scoping',
+    tagKey: 'ai',
+    metaKey: 'scoping',
   },
 
   {
     id: 'analytics-dashboard',
     status: 'building',
-    title: 'Analytics dashboard',
-    description: 'Sell-through rate, views per listing, and cross-marketplace sales trends.',
-    tag: 'Insights',
-    meta: 'Target Q2 2026',
+    tagKey: 'insights',
+    metaKey: 'targetQ2_2026',
   },
 
   {
     id: 'depop-vinted-crosslist',
     status: 'shipped',
-    title: 'Depop and Vinted crosslisting',
-    description: 'Bi-directional crosslisting with auto-mapped categories, sizes, and conditions.',
     marketplaces: ['depop', 'vinted'],
-    meta: 'Shipped Apr 2026',
+    metaKey: 'shippedApr_2026',
   },
   {
     id: 'shop-designer',
     status: 'shipped',
-    title: 'Depop Shop Designer',
-    description: 'Drag-and-drop layout tool for the Depop shop profile.',
     marketplaces: ['depop'],
-    meta: 'Shipped Apr 2026',
+    metaKey: 'shippedApr_2026',
   },
   {
     id: 'auto-offers',
     status: 'shipped',
-    title: 'Auto-offer replies',
-    description: 'Rule-based accept, counter, or decline on incoming offers across both marketplaces.',
     marketplaces: ['depop', 'vinted'],
-    meta: 'Shipped Apr 2026',
+    metaKey: 'shippedApr_2026',
   },
   {
     id: 'follow-bot',
     status: 'shipped',
-    title: 'Follow and unfollow bot',
-    description: 'Target followers, following, buyers, review-givers, or likers with human-looking pacing.',
     marketplaces: ['depop', 'vinted'],
-    meta: 'Shipped Apr 2026',
+    metaKey: 'shippedApr_2026',
   },
 ];
 

@@ -1,10 +1,12 @@
+import { getTranslations } from 'next-intl/server';
 import { Icon } from '@/components/Icon';
 import { MARKETPLACE_LABELS } from '@/lib/docs/status';
 import type { RoadmapItem } from '@/lib/roadmap/data';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-export function RoadmapCard({ item }: { item: RoadmapItem }) {
+export async function RoadmapCard({ item }: { item: RoadmapItem }) {
+  const t = await getTranslations('Roadmap');
   const isShipped = item.status === 'shipped';
   return (
     <li className="group rounded-2xl border border-black/10 bg-white p-5 transition hover:border-black/30 dark:border-white/10 dark:bg-zinc-950 dark:hover:border-white/30">
@@ -17,11 +19,11 @@ export function RoadmapCard({ item }: { item: RoadmapItem }) {
             {MARKETPLACE_LABELS[m]}
           </span>
         ))}
-        {item.tag ? (
+        {item.tagKey ? (
           <span
             className={`${MONO} inline-flex rounded-full border border-black/10 px-2 py-0.5 text-zinc-600 dark:border-white/15 dark:text-zinc-400`}
           >
-            {item.tag}
+            {t(`tag.${item.tagKey}`)}
           </span>
         ) : null}
       </div>
@@ -40,16 +42,16 @@ export function RoadmapCard({ item }: { item: RoadmapItem }) {
             isShipped ? 'text-zinc-700 dark:text-zinc-300' : undefined
           }
         >
-          {item.title}
+          {t(`items.${item.id}.title`)}
         </span>
       </h3>
 
       <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {item.description}
+        {t(`items.${item.id}.description`)}
       </p>
 
       <div className="mt-4 border-t border-black/5 pt-3 dark:border-white/5">
-        <span className={`${MONO} text-zinc-500`}>{item.meta}</span>
+        <span className={`${MONO} text-zinc-500`}>{t(`meta.${item.metaKey}`)}</span>
       </div>
     </li>
   );

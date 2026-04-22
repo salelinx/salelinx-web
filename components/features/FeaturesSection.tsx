@@ -1,240 +1,118 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Icon, type IconName } from '@/components/Icon';
 
 type Marketplace = 'depop' | 'vinted' | 'both';
 
 type FeatureItem = {
-  label: string;
-  detail: string;
+  id: string;
   icon: IconName;
   on: Marketplace;
   href: string;
 };
 
+type ChapterId = 'listings' | 'crosslisting' | 'visibility' | 'sales';
+
 type Chapter = {
-  number: string;
-  title: string;
-  blurb: string;
+  id: ChapterId;
   items: FeatureItem[];
 };
 
 const CHAPTERS: Chapter[] = [
   {
-    number: '01',
-    title: 'Listings & inventory',
-    blurb:
-      'One dashboard shows every listing from both shops, merged, sortable, and backed up. Link your Depop and Vinted accounts once and the panel is ready on every page.',
+    id: 'listings',
     items: [
-      {
-        label: 'Unified listings dashboard',
-        detail: 'Both shops in one grid, merged by title, sortable across columns.',
-        icon: 'grid',
-        on: 'both',
-        href: '/docs/listings/manage-inventory',
-      },
-      {
-        label: 'Link accounts once',
-        detail: 'Session auto-detected from the browser; nothing to re-enter.',
-        icon: 'link',
-        on: 'both',
-        href: '/docs/getting-started/connect-your-first-marketplace',
-      },
-      {
-        label: 'Encrypted cloud backup',
-        detail: 'Supabase-backed listing store with client-side AES encryption on linked credentials.',
-        icon: 'lock',
-        on: 'both',
-        href: '/docs/listings',
-      },
-      {
-        label: 'Settings sync across devices',
-        detail: 'Move to a second laptop and your configuration follows.',
-        icon: 'sync',
-        on: 'both',
-        href: '/docs/getting-started',
-      },
-      {
-        label: 'Multi-language UI',
-        detail: 'English, French, Spanish and German, with light and dark themes.',
-        icon: 'globe',
-        on: 'both',
-        href: '/docs/getting-started',
-      },
+      { id: 'dashboard', icon: 'grid', on: 'both', href: '/docs/listings/manage-inventory' },
+      { id: 'linkAccounts', icon: 'link', on: 'both', href: '/docs/getting-started/connect-your-first-marketplace' },
+      { id: 'backup', icon: 'lock', on: 'both', href: '/docs/listings' },
+      { id: 'sync', icon: 'sync', on: 'both', href: '/docs/getting-started' },
+      { id: 'multilanguage', icon: 'globe', on: 'both', href: '/docs/getting-started' },
     ],
   },
   {
-    number: '02',
-    title: 'Crosslisting',
-    blurb:
-      'Write the listing once, post it to both marketplaces. Categories, sizes, conditions and brands are translated for you, and the Depop shop layout tool lives in the same panel.',
+    id: 'crosslisting',
     items: [
-      {
-        label: 'Bi-directional crosslister',
-        detail: 'Depop to Vinted and Vinted to Depop, with form auto-fill on the target marketplace.',
-        icon: 'swap',
-        on: 'both',
-        href: '/docs/crosslisting/crosslist-your-first-item',
-      },
-      {
-        label: 'Auto-mapped taxonomies',
-        detail: 'Categories, sizes, conditions and brands translated between platforms.',
-        icon: 'tree',
-        on: 'both',
-        href: '/docs/crosslisting/crosslist-your-first-item',
-      },
-      {
-        label: 'CSV inventory import',
-        detail: 'Bulk-load an existing inventory with automatic field mapping.',
-        icon: 'upload',
-        on: 'both',
-        href: '/docs/listings/manage-inventory',
-      },
-      {
-        label: 'Shop Designer',
-        detail: 'Drag-and-drop layout tool for the Depop shop profile.',
-        icon: 'layout',
-        on: 'depop',
-        href: '/docs/crosslisting',
-      },
+      { id: 'bidirectional', icon: 'swap', on: 'both', href: '/docs/crosslisting/crosslist-your-first-item' },
+      { id: 'autoMap', icon: 'tree', on: 'both', href: '/docs/crosslisting/crosslist-your-first-item' },
+      { id: 'csvImport', icon: 'upload', on: 'both', href: '/docs/listings/manage-inventory' },
+      { id: 'shopDesigner', icon: 'layout', on: 'depop', href: '/docs/crosslisting' },
     ],
   },
   {
-    number: '03',
-    title: 'Visibility & audience',
-    blurb:
-      'Keep listings near the top of search and bring relevant users to your shop. Refresh runs on a schedule you set; the follow bot has five ways to target the right accounts.',
+    id: 'visibility',
     items: [
-      {
-        label: 'Listing refresher',
-        detail: 'Re-saves listings bottom-up so your shop order is preserved.',
-        icon: 'refresh',
-        on: 'depop',
-        href: '/docs/listings',
-      },
-      {
-        label: 'Auto-refresh scheduler',
-        detail: 'Runs on 4, 6, 8, 12 or 24-hour intervals via chrome.alarms.',
-        icon: 'clock',
-        on: 'depop',
-        href: '/docs/listings',
-      },
-      {
-        label: 'Follow / unfollow bot',
-        detail: 'Target a user’s followers, following, your buyers, review-givers or likers.',
-        icon: 'users',
-        on: 'both',
-        href: '/docs',
-      },
-      {
-        label: 'Blacklist and whitelist',
-        detail: 'Case-insensitive matching so specific accounts are always skipped or always kept.',
-        icon: 'filter',
-        on: 'both',
-        href: '/docs',
-      },
-      {
-        label: 'Dead-stock detector',
-        detail: 'Classifies stale listings and suggests actions.',
-        icon: 'search',
-        on: 'both',
-        href: '/docs/listings/manage-inventory',
-      },
-      {
-        label: 'Real-time activity log',
-        detail: 'Filter by feature or level, pause and stop at any time, export to JSON.',
-        icon: 'list',
-        on: 'both',
-        href: '/docs',
-      },
+      { id: 'refresher', icon: 'refresh', on: 'depop', href: '/docs/listings' },
+      { id: 'scheduler', icon: 'clock', on: 'depop', href: '/docs/listings' },
+      { id: 'followBot', icon: 'users', on: 'both', href: '/docs' },
+      { id: 'filters', icon: 'filter', on: 'both', href: '/docs' },
+      { id: 'deadStock', icon: 'search', on: 'both', href: '/docs/listings/manage-inventory' },
+      { id: 'activityLog', icon: 'list', on: 'both', href: '/docs' },
     ],
   },
   {
-    number: '04',
-    title: 'Sales & messaging',
-    blurb:
-      'Offers, buyer messages and shipping labels in one inbox across both marketplaces. Rules handle the repetitive replies so you only touch the conversations that matter.',
+    id: 'sales',
     items: [
-      {
-        label: 'Unified offers inbox',
-        detail: 'Accept, decline or counter offers from both marketplaces in one place.',
-        icon: 'tag',
-        on: 'both',
-        href: '/docs',
-      },
-      {
-        label: 'Auto-offers',
-        detail: 'Rule-based counter or accept replies on incoming offers.',
-        icon: 'zap',
-        on: 'both',
-        href: '/docs',
-      },
-      {
-        label: 'Unified messages',
-        detail: 'Conversations inbox that merges Depop and Vinted threads.',
-        icon: 'message',
-        on: 'both',
-        href: '/docs',
-      },
-      {
-        label: 'Shipping labels',
-        detail: 'Download and merge PDF labels for batched fulfilment.',
-        icon: 'box',
-        on: 'both',
-        href: '/docs',
-      },
-      {
-        label: 'Relister',
-        detail: 'Recreate listings with tweaked photos and title, then delete the original to refresh search visibility.',
-        icon: 'rotate',
-        on: 'both',
-        href: '/docs/listings/manage-inventory',
-      },
+      { id: 'offersInbox', icon: 'tag', on: 'both', href: '/docs' },
+      { id: 'autoOffers', icon: 'zap', on: 'both', href: '/docs' },
+      { id: 'messages', icon: 'message', on: 'both', href: '/docs' },
+      { id: 'shipping', icon: 'box', on: 'both', href: '/docs' },
+      { id: 'relister', icon: 'rotate', on: 'both', href: '/docs/listings/manage-inventory' },
     ],
   },
 ];
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-function MarketplaceBadge({ on }: { on: Marketplace }) {
+function MarketplaceBadge({
+  on,
+  label,
+}: {
+  on: Marketplace;
+  label: string;
+}) {
   if (on === 'both') return null;
   return (
     <span
       className={`${MONO} ml-2 inline-block shrink-0 rounded border border-black/10 px-1.5 py-0.5 text-zinc-600 dark:border-white/15 dark:text-zinc-400`}
     >
-      {on} only
+      {label}
     </span>
   );
 }
 
-export function FeaturesSection() {
+export async function FeaturesSection() {
+  const t = await getTranslations('Features');
+
   return (
     <section id="features" className="scroll-mt-20 pt-16 pb-8">
       <div className="pb-10">
-        <span className={`${MONO} text-zinc-500`}>Section 01 / Features</span>
+        <span className={`${MONO} text-zinc-500`}>{t('sectionHeader.eyebrow')}</span>
         <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-          Everything the extension does, grouped by what you actually do with it.
+          {t('sectionHeader.title')}
         </h2>
       </div>
 
       {CHAPTERS.map((chapter, i) => (
         <article
-          key={chapter.number}
+          key={chapter.id}
           className={`grid grid-cols-1 gap-10 border-t border-black/10 py-16 md:grid-cols-12 md:gap-12 dark:border-white/10 ${
             i === 0 ? 'pt-12' : ''
           }`}
         >
           <header className="md:col-span-5">
-            <span className={`${MONO} text-zinc-500`}>{chapter.number}</span>
+            <span className={`${MONO} text-zinc-500`}>
+              {t(`chapter.${chapter.id}.number`)}
+            </span>
             <h3 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {chapter.title}
+              {t(`chapter.${chapter.id}.title`)}
             </h3>
             <p className="mt-5 text-base text-zinc-600 dark:text-zinc-400">
-              {chapter.blurb}
+              {t(`chapter.${chapter.id}.blurb`)}
             </p>
           </header>
           <ul className="space-y-5 md:col-span-6 md:col-start-7">
             {chapter.items.map((item) => (
-              <li key={item.label}>
+              <li key={item.id}>
                 <Link
                   href={item.href}
                   className="group -mx-2 flex gap-4 rounded-lg p-2 transition hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
@@ -245,12 +123,15 @@ export function FeaturesSection() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline">
                       <span className="font-medium underline-offset-4 group-hover:underline">
-                        {item.label}
+                        {t(`chapter.${chapter.id}.items.${item.id}.label`)}
                       </span>
-                      <MarketplaceBadge on={item.on} />
+                      <MarketplaceBadge
+                        on={item.on}
+                        label={t('marketplaceOnly', { marketplace: item.on })}
+                      />
                     </div>
                     <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                      {item.detail}
+                      {t(`chapter.${chapter.id}.items.${item.id}.detail`)}
                     </p>
                   </div>
                 </Link>
