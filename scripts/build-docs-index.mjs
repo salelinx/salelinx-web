@@ -5,7 +5,7 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const CONTENT_DIR = path.join(ROOT, 'content', 'docs');
 const OUT_DIR = path.join(ROOT, 'public', 'docs');
-const OUT_FILE = path.join(OUT_DIR, 'search-index.json');
+const LOCALES = ['en', 'fr', 'es', 'de'];
 
 async function walk(dir) {
   const out = [];
@@ -62,13 +62,14 @@ function extractExcerpt(source, metaEnd) {
   return stripped.slice(0, 400);
 }
 
-async function main() {
-  if (!existsSync(CONTENT_DIR)) {
-    console.warn(`[docs-index] no content dir at ${CONTENT_DIR}, skipping`);
-    return;
+async function buildLocaleIndex(locale) {
+  const localeDir = path.join(CONTENT_DIR, locale);
+  if (!existsSync(localeDir)) {
+    console.warn(`[docs-index] no dir at ${localeDir}, emitting empty index`);
+    return [];
   }
 
-  const files = await walk(CONTENT_DIR);
+  const files = await walk(localeDir);
   const records = [];
 
   for (const file of files) {
@@ -97,9 +98,23 @@ async function main() {
     });
   }
 
+  return records;
+}
+
+async function main() {
+  if (!existsSync(CONTENT_DIR)) {
+    console.warn(`[docs-index] no content dir at ${CONTENT_DIR}, skipping`);
+    return;
+  }
+
   await mkdir(OUT_DIR, { recursive: true });
-  await writeFile(OUT_FILE, JSON.stringify({ records }, null, 2), 'utf8');
-  console.log(`[docs-index] wrote ${records.length} records to ${OUT_FILE}`);
+
+  for (const locale of LOCALES) {
+    const records = await buildLocaleIndex(locale);
+    const outFile = path.join(OUT_DIR, `search-index.${locale}.json`);
+    await writeFile(outFile, JSON.stringify({ records }, null, 2), 'utf8');
+    console.log(`[docs-index] wrote ${records.length} records to ${outFile}`);
+  }
 }
 
 main().catch((err) => {

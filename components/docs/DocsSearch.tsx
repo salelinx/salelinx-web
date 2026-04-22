@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Fuse from 'fuse.js';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { Icon } from '@/components/Icon';
 
 type SearchRecord = {
@@ -35,6 +35,8 @@ const FUSE_OPTIONS = {
 
 export function DocsSearch() {
   const t = useTranslations('Docs.search');
+  const locale = useLocale();
+  const router = useRouter();
   const [records, setRecords] = useState<SearchRecord[] | null>(null);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -44,7 +46,7 @@ export function DocsSearch() {
   useEffect(() => {
     if (records !== null || !open) return;
     let cancelled = false;
-    fetch('/docs/search-index.json')
+    fetch(`/docs/search-index.${locale}.json`)
       .then((r) => (r.ok ? r.json() : { records: [] }))
       .then((data) => {
         if (!cancelled) setRecords(data.records ?? []);
@@ -55,7 +57,7 @@ export function DocsSearch() {
     return () => {
       cancelled = true;
     };
-  }, [open, records]);
+  }, [locale, open, records]);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -92,7 +94,8 @@ export function DocsSearch() {
     } else if (e.key === 'Enter') {
       const hit = results[activeIndex];
       if (hit) {
-        window.location.href = hit.item.url;
+        router.push(hit.item.url);
+        setOpen(false);
       }
     } else if (e.key === 'Escape') {
       setOpen(false);

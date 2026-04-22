@@ -1,13 +1,18 @@
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Icon } from '@/components/Icon';
 import { formatChangelogDate, getRecentChangelog } from '@/lib/docs/changelog';
+import type { Locale } from '@/lib/i18n/locales';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
 export async function WhatsNewStrip() {
-  const t = await getTranslations('Docs.whatsNew');
-  const entries = getRecentChangelog(3);
+  const [t, localeStr] = await Promise.all([
+    getTranslations('Docs.whatsNew'),
+    getLocale(),
+  ]);
+  const locale = localeStr as Locale;
+  const entries = getRecentChangelog(locale, 3);
   if (entries.length === 0) return null;
 
   return (
@@ -36,7 +41,7 @@ export async function WhatsNewStrip() {
             >
               <div className="min-w-0">
                 <span className={`${MONO} text-zinc-500`}>
-                  {formatChangelogDate(entry.date)}
+                  {formatChangelogDate(entry.date, locale)}
                 </span>
                 <h3 className="mt-2 text-base font-medium tracking-tight group-hover:underline">
                   {entry.title}

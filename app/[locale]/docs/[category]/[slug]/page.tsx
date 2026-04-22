@@ -10,11 +10,15 @@ import {
   listAllArticles,
 } from '@/lib/docs/getArticle';
 import type { CategorySlug } from '@/lib/docs/types';
+import type { Locale } from '@/lib/i18n/locales';
+import { routing } from '@/i18n/routing';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
 export function generateStaticParams() {
-  return listAllArticles().map((m) => ({
+  // Articles share slugs across locales (metadata is identical shape),
+  // so one locale's list is enough to enumerate category/slug pairs.
+  return listAllArticles(routing.defaultLocale).map((m) => ({
     category: m.metadata.category,
     slug: m.metadata.slug,
   }));
@@ -26,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
   const { locale, category, slug } = await params;
-  const article = getArticle(category as CategorySlug, slug);
+  const article = getArticle(locale as Locale, category as CategorySlug, slug);
   if (!article) {
     const t = await getTranslations({ locale, namespace: 'Docs' });
     return { title: t('metaTitle') };
@@ -42,14 +46,14 @@ export default async function ArticlePage({
 }: {
   params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
-  const { category, slug } = await params;
+  const { locale, category, slug } = await params;
   const cat = getCategory(category);
-  const article = getArticle(category as CategorySlug, slug);
+  const article = getArticle(locale as Locale, category as CategorySlug, slug);
   if (!cat || !article) notFound();
 
   const t = await getTranslations('Docs');
   const MDX = article.default;
-  const { prev, next } = getPrevNext(article.metadata);
+  const { prev, next } = getPrevNext(locale as Locale, article.metadata);
   const categoryTitle = t(`category.${cat.slug}.title`);
 
   return (
