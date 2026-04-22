@@ -10,6 +10,7 @@ import { DocsFAQLink } from '@/components/docs/DocsFAQLink';
 import { CATEGORIES } from '@/lib/docs/categories';
 import { getArticleCountByCategory } from '@/lib/docs/getArticle';
 import { Link } from '@/i18n/navigation';
+import type { Locale } from '@/lib/i18n/locales';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -44,7 +45,7 @@ export default async function DocsHomePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('Docs');
-  const counts = getArticleCountByCategory();
+  const counts = getArticleCountByCategory(locale as Locale);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6">

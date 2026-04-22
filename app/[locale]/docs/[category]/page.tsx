@@ -8,6 +8,7 @@ import { Icon } from '@/components/Icon';
 import { CATEGORIES, getCategory } from '@/lib/docs/categories';
 import { listByCategory } from '@/lib/docs/getArticle';
 import type { CategorySlug } from '@/lib/docs/types';
+import type { Locale } from '@/lib/i18n/locales';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -37,12 +38,12 @@ export default async function CategoryPage({
 }: {
   params: Promise<{ locale: string; category: string }>;
 }) {
-  const { category } = await params;
+  const { locale, category } = await params;
   const cat = getCategory(category);
   if (!cat) notFound();
 
   const t = await getTranslations('Docs');
-  const articles = listByCategory(cat.slug as CategorySlug);
+  const articles = listByCategory(locale as Locale, cat.slug as CategorySlug);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">

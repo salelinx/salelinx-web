@@ -1,8 +1,9 @@
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CATEGORIES } from '@/lib/docs/categories';
 import { listAllArticles } from '@/lib/docs/getArticle';
 import type { CategorySlug } from '@/lib/docs/types';
+import type { Locale } from '@/lib/i18n/locales';
 
 export async function DocsSidebar({
   activeCategory,
@@ -11,8 +12,8 @@ export async function DocsSidebar({
   activeCategory?: CategorySlug;
   activeSlug?: string;
 }) {
-  const t = await getTranslations('Docs');
-  const all = listAllArticles();
+  const [t, locale] = await Promise.all([getTranslations('Docs'), getLocale()]);
+  const all = listAllArticles(locale as Locale);
   const byCat = new Map<CategorySlug, typeof all>();
   for (const m of all) {
     const key = m.metadata.category;

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import { formatChangelogDate, listChangelog } from '@/lib/docs/changelog';
+import type { Locale } from '@/lib/i18n/locales';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -18,9 +19,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function ChangelogPage() {
+export default async function ChangelogPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const t = await getTranslations('Docs');
-  const entries = listChangelog();
+  const entries = listChangelog(locale as Locale);
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
@@ -47,7 +53,7 @@ export default async function ChangelogPage() {
             className="border-t border-black/10 pt-10 dark:border-white/10"
           >
             <span className={`${MONO} text-zinc-500`}>
-              {formatChangelogDate(metadata.date)}
+              {formatChangelogDate(metadata.date, locale as Locale)}
             </span>
             <div className="mt-2">
               <Body />
