@@ -1,4 +1,47 @@
 {
+  "Layout": {
+    "metaTitle": "SaleLinx - Sell across Depop & Vinted",
+    "metaDescription": "Crosslist, relist, refresh, and restock across Depop and Vinted from one place."
+  },
+  "Header": {
+    "navFeatures": "Features",
+    "navPricing": "Pricing",
+    "navRoadmap": "Roadmap",
+    "navFaq": "FAQ",
+    "navDocs": "Docs",
+    "account": "Account",
+    "signOut": "Sign out",
+    "signIn": "Sign in",
+    "getStarted": "Get started"
+  },
+  "Footer": {
+    "tagline": "Sell across Depop and Vinted from one place.",
+    "sectionProduct": "Product",
+    "sectionResources": "Resources",
+    "sectionLegal": "Legal",
+    "linkFeatures": "Features",
+    "linkPricing": "Pricing",
+    "linkRoadmap": "Roadmap",
+    "linkDocs": "Docs",
+    "linkFaq": "FAQ",
+    "linkChangelog": "Changelog",
+    "linkStatus": "Marketplace status",
+    "linkPrivacy": "Privacy",
+    "linkTerms": "Terms",
+    "copyright": "© {year} SaleLinx. All rights reserved.",
+    "builtFor": "Built for Depop and Vinted sellers."
+  },
+  "Home": {
+    "heroTitle": "One tool for every Depop & Vinted seller.",
+    "heroSubtitle": "Crosslist, relist, refresh, restock, and answer buyers across both platforms from a single panel.",
+    "ctaSeePricing": "See pricing",
+    "ctaGetStarted": "Get started",
+    "ctaSignIn": "Sign in"
+  },
+  "ThemeToggle": {
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  },
   "LanguageSwitcher": {
     "label": "Language",
     "english": "English",

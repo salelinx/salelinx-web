@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 
 const MONO =
   'font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500';
@@ -6,7 +7,8 @@ const MONO =
 const linkClass =
   'text-zinc-600 transition hover:text-black dark:text-zinc-400 dark:hover:text-white';
 
-export function Footer() {
+export async function Footer() {
+  const t = await getTranslations('Footer');
   const year = new Date().getFullYear();
 
   return (
@@ -21,68 +23,68 @@ export function Footer() {
               SaleLinx
             </Link>
             <p className="mt-3 max-w-xs text-sm text-zinc-600 dark:text-zinc-400">
-              Sell across Depop and Vinted from one place.
+              {t('tagline')}
             </p>
           </div>
 
           <div>
-            <h3 className={MONO}>Product</h3>
+            <h3 className={MONO}>{t('sectionProduct')}</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <Link href="/features#features" className={linkClass}>
-                  Features
+                  {t('linkFeatures')}
                 </Link>
               </li>
               <li>
                 <Link href="/features#pricing" className={linkClass}>
-                  Pricing
+                  {t('linkPricing')}
                 </Link>
               </li>
               <li>
                 <Link href="/features#roadmap" className={linkClass}>
-                  Roadmap
+                  {t('linkRoadmap')}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className={MONO}>Resources</h3>
+            <h3 className={MONO}>{t('sectionResources')}</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <Link href="/docs" className={linkClass}>
-                  Docs
+                  {t('linkDocs')}
                 </Link>
               </li>
               <li>
                 <Link href="/faq" className={linkClass}>
-                  FAQ
+                  {t('linkFaq')}
                 </Link>
               </li>
               <li>
                 <Link href="/docs/changelog" className={linkClass}>
-                  Changelog
+                  {t('linkChangelog')}
                 </Link>
               </li>
               <li>
                 <Link href="/docs/status" className={linkClass}>
-                  Marketplace status
+                  {t('linkStatus')}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className={MONO}>Legal</h3>
+            <h3 className={MONO}>{t('sectionLegal')}</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <Link href="/legal/privacy" className={linkClass}>
-                  Privacy
+                  {t('linkPrivacy')}
                 </Link>
               </li>
               <li>
                 <Link href="/legal/terms" className={linkClass}>
-                  Terms
+                  {t('linkTerms')}
                 </Link>
               </li>
             </ul>
@@ -90,8 +92,8 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-black/5 pt-6 text-xs text-zinc-500 dark:border-white/5">
-          <span>&copy; {year} SaleLinx. All rights reserved.</span>
-          <span>Built for Depop and Vinted sellers.</span>
+          <span>{t('copyright', { year })}</span>
+          <span>{t('builtFor')}</span>
         </div>
       </div>
     </footer>

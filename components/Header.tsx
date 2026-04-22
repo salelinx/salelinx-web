@@ -1,12 +1,15 @@
-import Link from "next/link";
-import { createServerClient } from "@/lib/supabase/server";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import { createServerClient } from '@/lib/supabase/server';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export async function Header() {
   const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const t = await getTranslations('Header');
 
   return (
     <header className="border-b border-black/10 dark:border-white/10">
@@ -22,57 +25,58 @@ export async function Header() {
             href="/features#features"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
-            Features
+            {t('navFeatures')}
           </Link>
           <Link
             href="/features#pricing"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
-            Pricing
+            {t('navPricing')}
           </Link>
           <Link
             href="/features#roadmap"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
-            Roadmap
+            {t('navRoadmap')}
           </Link>
         </nav>
 
         <nav className="flex flex-1 items-center justify-end gap-4 text-sm text-zinc-600 dark:text-zinc-400">
           <Link href="/faq" className="hover:text-black hover:underline dark:hover:text-white">
-            FAQ
+            {t('navFaq')}
           </Link>
           <Link href="/docs" className="hover:text-black hover:underline dark:hover:text-white">
-            Docs
+            {t('navDocs')}
           </Link>
 
           {user ? (
             <>
               <Link href="/account" className="hover:text-black hover:underline dark:hover:text-white">
-                Account
+                {t('account')}
               </Link>
               <form action="/auth/signout" method="post">
                 <button
                   type="submit"
                   className="rounded-full border border-black/10 px-4 py-1.5 dark:border-white/20"
                 >
-                  Sign out
+                  {t('signOut')}
                 </button>
               </form>
             </>
           ) : (
             <>
               <Link href="/auth/login" className="hover:text-black hover:underline dark:hover:text-white">
-                Sign in
+                {t('signIn')}
               </Link>
               <Link
                 href="/auth/signup"
                 className="rounded-full bg-black px-4 py-1.5 text-white dark:bg-white dark:text-black"
               >
-                Get started
+                {t('getStarted')}
               </Link>
             </>
           )}
+          <LanguageSwitcher />
           <ThemeToggle />
         </nav>
       </div>

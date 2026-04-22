@@ -1,4 +1,47 @@
 {
+  "Layout": {
+    "metaTitle": "SaleLinx - Vende en Depop y Vinted",
+    "metaDescription": "Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo lugar."
+  },
+  "Header": {
+    "navFeatures": "Funciones",
+    "navPricing": "Precios",
+    "navRoadmap": "Hoja de ruta",
+    "navFaq": "FAQ",
+    "navDocs": "Docs",
+    "account": "Cuenta",
+    "signOut": "Cerrar sesión",
+    "signIn": "Iniciar sesión",
+    "getStarted": "Empezar"
+  },
+  "Footer": {
+    "tagline": "Vende en Depop y Vinted desde un solo lugar.",
+    "sectionProduct": "Producto",
+    "sectionResources": "Recursos",
+    "sectionLegal": "Legal",
+    "linkFeatures": "Funciones",
+    "linkPricing": "Precios",
+    "linkRoadmap": "Hoja de ruta",
+    "linkDocs": "Docs",
+    "linkFaq": "FAQ",
+    "linkChangelog": "Changelog",
+    "linkStatus": "Estado de plataformas",
+    "linkPrivacy": "Privacidad",
+    "linkTerms": "Términos",
+    "copyright": "© {year} SaleLinx. Todos los derechos reservados.",
+    "builtFor": "Creado para vendedores de Depop y Vinted."
+  },
+  "Home": {
+    "heroTitle": "Una herramienta para cada vendedor de Depop & Vinted.",
+    "heroSubtitle": "Crosslista, republica, actualiza, repone y responde a los compradores en ambas plataformas desde un solo panel.",
+    "ctaSeePricing": "Ver precios",
+    "ctaGetStarted": "Empezar",
+    "ctaSignIn": "Iniciar sesión"
+  },
+  "ThemeToggle": {
+    "switchToLight": "Cambiar a modo claro",
+    "switchToDark": "Cambiar a modo oscuro"
+  },
   "LanguageSwitcher": {
     "label": "Idioma",
     "english": "English",
