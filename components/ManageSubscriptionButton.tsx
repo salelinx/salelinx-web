@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export function ManageSubscriptionButton() {
+  const t = useTranslations("ManageSubscription");
   const [loading, setLoading] = useState(false);
 
   async function onClick() {
@@ -34,7 +36,7 @@ export function ManageSubscriptionButton() {
 
     if (!res.ok) {
       setLoading(false);
-      alert("Could not open the billing portal. Please try again.");
+      alert(t("errorAlert"));
       return;
     }
 
@@ -49,7 +51,7 @@ export function ManageSubscriptionButton() {
       disabled={loading}
       className="mt-4 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-black"
     >
-      {loading ? "Loading..." : "Manage subscription"}
+      {loading ? t("loading") : t("cta")}
     </button>
   );
 }

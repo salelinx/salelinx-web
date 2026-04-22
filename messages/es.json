@@ -48,5 +48,120 @@
     "french": "Français",
     "spanish": "Español",
     "german": "Deutsch"
+  },
+  "Auth": {
+    "emailPlaceholder": "tu@ejemplo.com",
+    "passwordPlaceholder": "Contraseña",
+    "pwTooShort": "La contraseña debe tener al menos 8 caracteres.",
+    "pwMismatch": "Las contraseñas no coinciden.",
+    "checkEmailTitle": "Revisa tu correo",
+    "login": {
+      "title": "Iniciar sesión",
+      "submitIdle": "Iniciar sesión",
+      "submitSubmitting": "Iniciando sesión…",
+      "createAccount": "Crear cuenta",
+      "forgotPassword": "¿Olvidaste tu contraseña?"
+    },
+    "signup": {
+      "title": "Crear cuenta",
+      "passwordPlaceholder": "Contraseña (mín. 8 caracteres)",
+      "confirmPlaceholder": "Confirmar contraseña",
+      "submitIdle": "Crear cuenta",
+      "submitSubmitting": "Creando cuenta…",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión",
+      "checkEmailBody": "Enviamos un enlace de confirmación a <email></email>. Haz clic en él para terminar de crear tu cuenta."
+    },
+    "forgotPassword": {
+      "title": "Restablecer contraseña",
+      "subtitle": "Introduce tu correo y te enviaremos un enlace para restablecerla.",
+      "submitIdle": "Enviar enlace",
+      "submitSubmitting": "Enviando…",
+      "backToSignIn": "Volver a iniciar sesión",
+      "checkEmailBody": "Enviamos un enlace para restablecer la contraseña a <email></email>."
+    },
+    "resetPassword": {
+      "title": "Establecer nueva contraseña",
+      "newPwPlaceholder": "Nueva contraseña (mín. 8 caracteres)",
+      "confirmPlaceholder": "Confirmar nueva contraseña",
+      "submitIdle": "Guardar nueva contraseña",
+      "submitSubmitting": "Guardando…"
+    }
+  },
+  "Account": {
+    "title": "Tu cuenta",
+    "signOut": "Cerrar sesión",
+    "checkoutSuccess": "Suscripción activada. Puede tardar unos segundos en actualizarse la información de abajo.",
+    "currentPlanTitle": "Plan actual",
+    "freeTierBody": "Estás en el plan Gratis. Mejora cuando quieras.",
+    "seePricing": "Ver precios",
+    "tier": "Plan",
+    "status": "Estado",
+    "renews": "Se renueva",
+    "ends": "Termina",
+    "ended": "Finalizado",
+    "planVersion": "Versión del plan",
+    "pastDueNote": "Un pago reciente falló. Actualiza tu método de pago abajo para no perder el acceso.",
+    "scheduledCancel": "Cancelación programada para el {date}. Puedes reanudarla en cualquier momento antes de esa fecha desde Gestionar suscripción.",
+    "managePortalBody": "Actualiza tu plan, cambia tu método de pago, descarga facturas o cancela desde el portal de facturación de Stripe.",
+    "dateFallback": "-",
+    "tierLabel": {
+      "free": "Gratis",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business"
+    },
+    "statusLabel": {
+      "active": "Activo",
+      "trialing": "En prueba",
+      "past_due": "Pago fallido",
+      "canceled": "Cancelado",
+      "incomplete": "Incompleto"
+    }
+  },
+  "VerifyEmailBanner": {
+    "title": "Verifica tu correo",
+    "body": "Enviamos un enlace a <email></email>. Haz clic en él para activar tu cuenta.",
+    "resend": "Reenviar enlace",
+    "sending": "Enviando…",
+    "sent": "Enviado - revisa tu bandeja de entrada"
+  },
+  "ManageSubscription": {
+    "loading": "Cargando...",
+    "cta": "Gestionar suscripción",
+    "errorAlert": "No se pudo abrir el portal de facturación. Inténtalo de nuevo."
+  },
+  "AccountSecurity": {
+    "title": "Seguridad",
+    "body": "Gestiona la contraseña y el correo de tu cuenta. Ambos cambios requieren confirmar un enlace que te enviamos.",
+    "passwordHeading": "Contraseña",
+    "passwordBody": "Enviaremos un enlace de restablecimiento a <email></email>.",
+    "passwordSent": "Enlace enviado. Revisa <email></email> y haz clic en él para establecer una nueva contraseña.",
+    "sendResetLink": "Enviar enlace",
+    "sending": "Enviando...",
+    "emailHeading": "Correo",
+    "emailCurrent": "Actual: <email></email>",
+    "emailSent": "Confirmación enviada a <email></email>. Haz clic en el enlace de ese correo para completar el cambio.",
+    "changeEmail": "Cambiar correo",
+    "newEmailPlaceholder": "nuevo@ejemplo.com",
+    "sendConfirmation": "Enviar confirmación",
+    "cancel": "Cancelar",
+    "errorEnterEmail": "Introduce el nuevo correo.",
+    "errorSameEmail": "Ese ya es tu correo actual."
+  },
+  "Subscribe": {
+    "loading": "Cargando...",
+    "label": "Suscribirse",
+    "errorAlert": "No se pudo iniciar el pago. Inténtalo de nuevo."
+  },
+  "Legal": {
+    "privacy": {
+      "title": "Política de privacidad",
+      "body": "TODO: sustituir por la política de privacidad definitiva antes del lanzamiento."
+    },
+    "terms": {
+      "title": "Términos del servicio",
+      "body": "TODO: sustituir por los términos definitivos antes del lanzamiento."
+    }
   }
 }

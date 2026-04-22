@@ -48,5 +48,120 @@
     "french": "Français",
     "spanish": "Español",
     "german": "Deutsch"
+  },
+  "Auth": {
+    "emailPlaceholder": "du@beispiel.com",
+    "passwordPlaceholder": "Passwort",
+    "pwTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+    "pwMismatch": "Die Passwörter stimmen nicht überein.",
+    "checkEmailTitle": "Prüfe deine E-Mails",
+    "login": {
+      "title": "Anmelden",
+      "submitIdle": "Anmelden",
+      "submitSubmitting": "Anmeldung läuft…",
+      "createAccount": "Konto erstellen",
+      "forgotPassword": "Passwort vergessen?"
+    },
+    "signup": {
+      "title": "Konto erstellen",
+      "passwordPlaceholder": "Passwort (mind. 8 Zeichen)",
+      "confirmPlaceholder": "Passwort bestätigen",
+      "submitIdle": "Konto erstellen",
+      "submitSubmitting": "Konto wird erstellt…",
+      "haveAccount": "Hast du bereits ein Konto?",
+      "signIn": "Anmelden",
+      "checkEmailBody": "Wir haben einen Bestätigungslink an <email></email> gesendet. Klicke darauf, um die Kontoerstellung abzuschließen."
+    },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen",
+      "subtitle": "Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen.",
+      "submitIdle": "Link senden",
+      "submitSubmitting": "Wird gesendet…",
+      "backToSignIn": "Zurück zur Anmeldung",
+      "checkEmailBody": "Wir haben einen Link zum Zurücksetzen des Passworts an <email></email> gesendet."
+    },
+    "resetPassword": {
+      "title": "Neues Passwort festlegen",
+      "newPwPlaceholder": "Neues Passwort (mind. 8 Zeichen)",
+      "confirmPlaceholder": "Neues Passwort bestätigen",
+      "submitIdle": "Neues Passwort speichern",
+      "submitSubmitting": "Wird gespeichert…"
+    }
+  },
+  "Account": {
+    "title": "Dein Konto",
+    "signOut": "Abmelden",
+    "checkoutSuccess": "Abonnement aktiviert. Es kann einige Sekunden dauern, bis die Details unten aktualisiert sind.",
+    "currentPlanTitle": "Aktuelles Paket",
+    "freeTierBody": "Du bist im kostenlosen Paket. Du kannst jederzeit upgraden.",
+    "seePricing": "Preise ansehen",
+    "tier": "Paket",
+    "status": "Status",
+    "renews": "Verlängerung",
+    "ends": "Endet",
+    "ended": "Beendet",
+    "planVersion": "Paketversion",
+    "pastDueNote": "Eine kürzliche Zahlung ist fehlgeschlagen. Aktualisiere unten deine Zahlungsmethode, um den Zugriff nicht zu verlieren.",
+    "scheduledCancel": "Kündigung geplant am {date}. Du kannst jederzeit vorher über Abonnement verwalten wieder fortfahren.",
+    "managePortalBody": "Aktualisiere dein Paket, ändere deine Zahlungsmethode, lade Rechnungen herunter oder kündige im Stripe-Abrechnungsportal.",
+    "dateFallback": "-",
+    "tierLabel": {
+      "free": "Kostenlos",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business"
+    },
+    "statusLabel": {
+      "active": "Aktiv",
+      "trialing": "Testphase",
+      "past_due": "Zahlung fehlgeschlagen",
+      "canceled": "Gekündigt",
+      "incomplete": "Unvollständig"
+    }
+  },
+  "VerifyEmailBanner": {
+    "title": "E-Mail-Adresse bestätigen",
+    "body": "Wir haben einen Link an <email></email> gesendet. Klicke darauf, um dein Konto zu aktivieren.",
+    "resend": "Link erneut senden",
+    "sending": "Wird gesendet…",
+    "sent": "Gesendet - prüfe deinen Posteingang"
+  },
+  "ManageSubscription": {
+    "loading": "Wird geladen...",
+    "cta": "Abonnement verwalten",
+    "errorAlert": "Das Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut."
+  },
+  "AccountSecurity": {
+    "title": "Sicherheit",
+    "body": "Verwalte das Passwort und die E-Mail-Adresse deines Kontos. Beide Änderungen erfordern die Bestätigung eines Links, den wir dir senden.",
+    "passwordHeading": "Passwort",
+    "passwordBody": "Wir senden einen Link zum Zurücksetzen an <email></email>.",
+    "passwordSent": "Link gesendet. Prüfe <email></email> und klicke auf den Link, um ein neues Passwort festzulegen.",
+    "sendResetLink": "Link senden",
+    "sending": "Wird gesendet...",
+    "emailHeading": "E-Mail",
+    "emailCurrent": "Aktuell: <email></email>",
+    "emailSent": "Bestätigung gesendet an <email></email>. Klicke auf den Link in dieser E-Mail, um den Wechsel abzuschließen.",
+    "changeEmail": "E-Mail ändern",
+    "newEmailPlaceholder": "neu@beispiel.com",
+    "sendConfirmation": "Bestätigung senden",
+    "cancel": "Abbrechen",
+    "errorEnterEmail": "Gib die neue E-Mail-Adresse ein.",
+    "errorSameEmail": "Das ist bereits deine aktuelle E-Mail-Adresse."
+  },
+  "Subscribe": {
+    "loading": "Wird geladen...",
+    "label": "Abonnieren",
+    "errorAlert": "Der Bezahlvorgang konnte nicht gestartet werden. Bitte versuche es erneut."
+  },
+  "Legal": {
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "body": "TODO: vor dem Launch durch die endgültige Datenschutzerklärung ersetzen."
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "body": "TODO: vor dem Launch durch die endgültigen Bedingungen ersetzen."
+    }
   }
 }

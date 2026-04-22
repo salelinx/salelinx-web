@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
+  const t = useTranslations("Auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -16,11 +18,11 @@ export default function SignupPage() {
     setError(null);
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("pwTooShort"));
       return;
     }
     if (password !== confirm) {
-      setError("Passwords don't match.");
+      setError(t("pwMismatch"));
       return;
     }
 
@@ -53,11 +55,12 @@ export default function SignupPage() {
     return (
       <main className="mx-auto w-full max-w-sm px-6 py-20">
         <h1 className="text-3xl font-semibold tracking-tight">
-          Check your email
+          {t("checkEmailTitle")}
         </h1>
         <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-          We sent a confirmation link to <strong>{email}</strong>. Click it to
-          finish creating your account.
+          {t.rich("signup.checkEmailBody", {
+            email: () => <strong>{email}</strong>,
+          })}
         </p>
       </main>
     );
@@ -65,7 +68,9 @@ export default function SignupPage() {
 
   return (
     <main className="mx-auto w-full max-w-sm px-6 py-20">
-      <h1 className="text-3xl font-semibold tracking-tight">Create account</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">
+        {t("signup.title")}
+      </h1>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <input
@@ -73,7 +78,7 @@ export default function SignupPage() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder={t("emailPlaceholder")}
           autoComplete="email"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -83,7 +88,7 @@ export default function SignupPage() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password (min 8 characters)"
+          placeholder={t("signup.passwordPlaceholder")}
           autoComplete="new-password"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -93,7 +98,7 @@ export default function SignupPage() {
           minLength={8}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          placeholder="Confirm password"
+          placeholder={t("signup.confirmPlaceholder")}
           autoComplete="new-password"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -102,16 +107,18 @@ export default function SignupPage() {
           disabled={status === "submitting"}
           className="w-full rounded-lg bg-black px-4 py-3 text-white disabled:opacity-50 dark:bg-white dark:text-black"
         >
-          {status === "submitting" ? "Creating account…" : "Create account"}
+          {status === "submitting"
+            ? t("signup.submitSubmitting")
+            : t("signup.submitIdle")}
         </button>
       </form>
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
       <div className="mt-6 text-sm">
-        Already have an account?{" "}
+        {t("signup.haveAccount")}{" "}
         <Link href="/auth/login" className="underline">
-          Sign in
+          {t("signup.signIn")}
         </Link>
       </div>
     </main>

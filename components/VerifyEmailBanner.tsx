@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export function VerifyEmailBanner({ email }: { email: string }) {
+  const t = useTranslations("VerifyEmailBanner");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
@@ -36,11 +38,12 @@ export function VerifyEmailBanner({ email }: { email: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-medium text-amber-900 dark:text-amber-100">
-            Verify your email
+            {t("title")}
           </p>
           <p className="mt-0.5 text-amber-800 dark:text-amber-200/80">
-            We sent a link to <strong>{email}</strong>. Click it to activate
-            your account.
+            {t.rich("body", {
+              email: () => <strong>{email}</strong>,
+            })}
           </p>
         </div>
         <button
@@ -50,10 +53,10 @@ export function VerifyEmailBanner({ email }: { email: string }) {
           className="rounded-full border border-amber-500/40 px-4 py-1.5 text-amber-900 disabled:opacity-50 dark:text-amber-100"
         >
           {status === "sending"
-            ? "Sending…"
+            ? t("sending")
             : status === "sent"
-              ? "Sent - check your inbox"
-              : "Resend link"}
+              ? t("sent")
+              : t("resend")}
         </button>
       </div>
       {error && <p className="mt-2 text-red-600 dark:text-red-400">{error}</p>}

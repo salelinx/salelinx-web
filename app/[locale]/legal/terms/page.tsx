@@ -1,8 +1,16 @@
-export default function TermsPage() {
+import { getTranslations } from "next-intl/server";
+
+export default async function TermsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Legal.terms" });
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-16 prose dark:prose-invert">
-      <h1>Terms of Service</h1>
-      <p>TODO: replace with finalised terms before launch.</p>
+      <h1>{t("title")}</h1>
+      <p>{t("body")}</p>
     </main>
   );
 }

@@ -48,5 +48,120 @@
     "french": "Français",
     "spanish": "Español",
     "german": "Deutsch"
+  },
+  "Auth": {
+    "emailPlaceholder": "vous@exemple.com",
+    "passwordPlaceholder": "Mot de passe",
+    "pwTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+    "pwMismatch": "Les mots de passe ne correspondent pas.",
+    "checkEmailTitle": "Vérifiez vos e-mails",
+    "login": {
+      "title": "Se connecter",
+      "submitIdle": "Se connecter",
+      "submitSubmitting": "Connexion…",
+      "createAccount": "Créer un compte",
+      "forgotPassword": "Mot de passe oublié ?"
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "passwordPlaceholder": "Mot de passe (8 caractères minimum)",
+      "confirmPlaceholder": "Confirmer le mot de passe",
+      "submitIdle": "Créer un compte",
+      "submitSubmitting": "Création du compte…",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter",
+      "checkEmailBody": "Nous avons envoyé un lien de confirmation à <email></email>. Cliquez dessus pour finaliser la création de votre compte."
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "subtitle": "Saisissez votre adresse e-mail et nous vous enverrons un lien de réinitialisation.",
+      "submitIdle": "Envoyer le lien",
+      "submitSubmitting": "Envoi…",
+      "backToSignIn": "Retour à la connexion",
+      "checkEmailBody": "Nous avons envoyé un lien de réinitialisation à <email></email>."
+    },
+    "resetPassword": {
+      "title": "Définir un nouveau mot de passe",
+      "newPwPlaceholder": "Nouveau mot de passe (8 caractères minimum)",
+      "confirmPlaceholder": "Confirmer le nouveau mot de passe",
+      "submitIdle": "Enregistrer le nouveau mot de passe",
+      "submitSubmitting": "Enregistrement…"
+    }
+  },
+  "Account": {
+    "title": "Votre compte",
+    "signOut": "Déconnexion",
+    "checkoutSuccess": "Abonnement activé. Les détails ci-dessous peuvent prendre quelques secondes à se mettre à jour.",
+    "currentPlanTitle": "Forfait actuel",
+    "freeTierBody": "Vous êtes sur le forfait Gratuit. Passez à une offre supérieure quand vous voulez.",
+    "seePricing": "Voir les tarifs",
+    "tier": "Forfait",
+    "status": "Statut",
+    "renews": "Renouvellement",
+    "ends": "Fin",
+    "ended": "Terminé",
+    "planVersion": "Version du forfait",
+    "pastDueNote": "Un paiement récent a échoué. Mettez à jour votre moyen de paiement ci-dessous pour ne pas perdre l'accès.",
+    "scheduledCancel": "Annulation prévue le {date}. Vous pouvez reprendre à tout moment avant cette date via Gérer l'abonnement.",
+    "managePortalBody": "Mettez à jour votre forfait, changez de moyen de paiement, téléchargez vos factures ou annulez depuis le portail de facturation Stripe.",
+    "dateFallback": "-",
+    "tierLabel": {
+      "free": "Gratuit",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business"
+    },
+    "statusLabel": {
+      "active": "Actif",
+      "trialing": "Période d'essai",
+      "past_due": "Paiement échoué",
+      "canceled": "Annulé",
+      "incomplete": "Incomplet"
+    }
+  },
+  "VerifyEmailBanner": {
+    "title": "Vérifiez votre adresse e-mail",
+    "body": "Nous avons envoyé un lien à <email></email>. Cliquez dessus pour activer votre compte.",
+    "resend": "Renvoyer le lien",
+    "sending": "Envoi…",
+    "sent": "Envoyé - vérifiez votre boîte de réception"
+  },
+  "ManageSubscription": {
+    "loading": "Chargement...",
+    "cta": "Gérer l'abonnement",
+    "errorAlert": "Impossible d'ouvrir le portail de facturation. Veuillez réessayer."
+  },
+  "AccountSecurity": {
+    "title": "Sécurité",
+    "body": "Gérez le mot de passe et l'adresse e-mail de votre compte. Les deux changements nécessitent la confirmation d'un lien que nous vous envoyons.",
+    "passwordHeading": "Mot de passe",
+    "passwordBody": "Nous enverrons un lien de réinitialisation à <email></email>.",
+    "passwordSent": "Lien envoyé. Consultez <email></email> et cliquez sur le lien pour définir un nouveau mot de passe.",
+    "sendResetLink": "Envoyer le lien",
+    "sending": "Envoi...",
+    "emailHeading": "E-mail",
+    "emailCurrent": "Actuel : <email></email>",
+    "emailSent": "Confirmation envoyée à <email></email>. Cliquez sur le lien dans cet e-mail pour finaliser le changement.",
+    "changeEmail": "Changer d'e-mail",
+    "newEmailPlaceholder": "nouveau@exemple.com",
+    "sendConfirmation": "Envoyer la confirmation",
+    "cancel": "Annuler",
+    "errorEnterEmail": "Saisissez la nouvelle adresse e-mail.",
+    "errorSameEmail": "C'est déjà votre adresse e-mail actuelle."
+  },
+  "Subscribe": {
+    "loading": "Chargement...",
+    "label": "S'abonner",
+    "errorAlert": "Impossible de démarrer le paiement. Veuillez réessayer."
+  },
+  "Legal": {
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "body": "TODO : à remplacer par la politique de confidentialité finalisée avant le lancement."
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "body": "TODO : à remplacer par les conditions finalisées avant le lancement."
+    }
   }
 }

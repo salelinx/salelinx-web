@@ -48,5 +48,120 @@
     "french": "Français",
     "spanish": "Español",
     "german": "Deutsch"
+  },
+  "Auth": {
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "Password",
+    "pwTooShort": "Password must be at least 8 characters.",
+    "pwMismatch": "Passwords don't match.",
+    "checkEmailTitle": "Check your email",
+    "login": {
+      "title": "Sign in",
+      "submitIdle": "Sign in",
+      "submitSubmitting": "Signing in…",
+      "createAccount": "Create account",
+      "forgotPassword": "Forgot password?"
+    },
+    "signup": {
+      "title": "Create account",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "confirmPlaceholder": "Confirm password",
+      "submitIdle": "Create account",
+      "submitSubmitting": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "checkEmailBody": "We sent a confirmation link to <email></email>. Click it to finish creating your account."
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter your email and we'll send a reset link.",
+      "submitIdle": "Send reset link",
+      "submitSubmitting": "Sending…",
+      "backToSignIn": "Back to sign in",
+      "checkEmailBody": "We sent a password reset link to <email></email>."
+    },
+    "resetPassword": {
+      "title": "Set new password",
+      "newPwPlaceholder": "New password (min 8 characters)",
+      "confirmPlaceholder": "Confirm new password",
+      "submitIdle": "Save new password",
+      "submitSubmitting": "Saving…"
+    }
+  },
+  "Account": {
+    "title": "Your account",
+    "signOut": "Sign out",
+    "checkoutSuccess": "Subscription activated. It may take a few seconds for the details below to refresh.",
+    "currentPlanTitle": "Current plan",
+    "freeTierBody": "You're on the Free tier. Upgrade any time.",
+    "seePricing": "See pricing",
+    "tier": "Tier",
+    "status": "Status",
+    "renews": "Renews",
+    "ends": "Ends",
+    "ended": "Ended",
+    "planVersion": "Plan version",
+    "pastDueNote": "A recent payment failed. Update your payment method below to avoid losing access.",
+    "scheduledCancel": "Scheduled to cancel on {date}. You can resume any time before then via Manage subscription.",
+    "managePortalBody": "Update your plan, change your payment method, download invoices, or cancel in Stripe's billing portal.",
+    "dateFallback": "-",
+    "tierLabel": {
+      "free": "Free",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business"
+    },
+    "statusLabel": {
+      "active": "Active",
+      "trialing": "Trialing",
+      "past_due": "Payment failed",
+      "canceled": "Canceled",
+      "incomplete": "Incomplete"
+    }
+  },
+  "VerifyEmailBanner": {
+    "title": "Verify your email",
+    "body": "We sent a link to <email></email>. Click it to activate your account.",
+    "resend": "Resend link",
+    "sending": "Sending…",
+    "sent": "Sent - check your inbox"
+  },
+  "ManageSubscription": {
+    "loading": "Loading...",
+    "cta": "Manage subscription",
+    "errorAlert": "Could not open the billing portal. Please try again."
+  },
+  "AccountSecurity": {
+    "title": "Security",
+    "body": "Manage the password and email address on your account. Both changes require confirming a link we send to you.",
+    "passwordHeading": "Password",
+    "passwordBody": "We'll send a reset link to <email></email>.",
+    "passwordSent": "Link sent. Check <email></email> and click the link to set a new password.",
+    "sendResetLink": "Send reset link",
+    "sending": "Sending...",
+    "emailHeading": "Email",
+    "emailCurrent": "Current: <email></email>",
+    "emailSent": "Confirmation sent to <email></email>. Click the link in that email to finish the change.",
+    "changeEmail": "Change email",
+    "newEmailPlaceholder": "new@example.com",
+    "sendConfirmation": "Send confirmation",
+    "cancel": "Cancel",
+    "errorEnterEmail": "Enter the new email address.",
+    "errorSameEmail": "That's already your current email."
+  },
+  "Subscribe": {
+    "loading": "Loading...",
+    "label": "Subscribe",
+    "errorAlert": "Could not start checkout. Please try again."
+  },
+  "Legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "body": "TODO: replace with finalised privacy policy before launch."
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "body": "TODO: replace with finalised terms before launch."
+    }
   }
 }
