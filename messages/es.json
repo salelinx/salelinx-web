@@ -340,6 +340,113 @@
       "messages": "Mensajes"
     }
   },
+  "Docs": {
+    "metaTitle": "Docs - SaleLinx",
+    "metaDescription": "Guías paso a paso y tutoriales para la extensión Chrome de SaleLinx.",
+    "eyebrow": "Docs",
+    "heroTitle": "Aprende SaleLinx.",
+    "heroBody": "Guías paso a paso y tutoriales para la extensión Chrome de SaleLinx. Para respuestas rápidas a preguntas comunes, ve a la <faq>FAQ</faq>.",
+    "browseByTopic": "Explorar por tema",
+    "byMarketplaceEyebrow": "Por marketplace",
+    "byMarketplaceTitle": "Encuentra ayuda para una plataforma concreta",
+    "faqLinkPrompt": "¿Buscas una respuesta rápida?",
+    "faqLinkCta": "Explorar la FAQ",
+    "category": {
+      "getting-started": {
+        "title": "Primeros pasos",
+        "blurb": "Instala la extensión, inicia sesión y publica tu primer anuncio."
+      },
+      "crosslisting": {
+        "title": "Crosslisting",
+        "blurb": "Publica una vez, difunde en ambas marketplaces con campos traducidos."
+      },
+      "listings": {
+        "title": "Anuncios e inventario",
+        "blurb": "Gestiona tu catálogo, ediciones masivas, actualización, republicación y copias de seguridad."
+      },
+      "marketplaces": {
+        "title": "Marketplaces",
+        "blurb": "Guías específicas para Depop, Vinted y más."
+      }
+    },
+    "task": {
+      "install": "Instalar la extensión",
+      "connect": "Conectar una marketplace",
+      "crosslist": "Crosslista tu primer artículo",
+      "manage": "Gestionar tu inventario"
+    },
+    "categoryPageEyebrow": "Categoría",
+    "categoryCardBrowse": "Explorar",
+    "articleCountOne": "{count} artículo",
+    "articleCountOther": "{count} artículos",
+    "articleStub": "Borrador",
+    "articleUpdated": "Actualizado el {date}",
+    "sidebarAria": "Navegación de docs",
+    "search": {
+      "placeholder": "Buscar en los docs...",
+      "aria": "Buscar en los docs",
+      "noResults": "Sin resultados para «{query}»."
+    },
+    "breadcrumbAria": "Ruta de navegación",
+    "breadcrumbDocs": "Docs",
+    "prevNext": {
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "status": {
+      "metaTitle": "Estado de plataformas - Docs SaleLinx",
+      "metaDescription": "Vista en vivo de las marketplaces en las que SaleLinx está haciendo crosslisting actualmente.",
+      "eyebrow": "Estado",
+      "title": "Estado de plataformas",
+      "body": "Las marketplaces en las que SaleLinx puede hacer crosslisting ahora mismo. Si ves errores y una marketplace aparece marcada aquí, el equipo ya está en ello.",
+      "updatedPrefix": "Actualizado el {date}",
+      "footnote": "El estado lo revisa el equipo de SaleLinx y se actualiza cuando se sabe que el comportamiento de publicación de la extensión se ve afectado por un cambio en una marketplace.",
+      "breadcrumb": "Estado de plataformas",
+      "state": {
+        "ok": "Operativo",
+        "degraded": "Degradado",
+        "down": "Caído"
+      },
+      "card": {
+        "eyebrow": "Estado de plataformas",
+        "allOk": "Todas las marketplaces operativas",
+        "someDegraded": "Algunas marketplaces degradadas",
+        "someDown": "Una o más marketplaces caídas",
+        "body": "Vista en vivo de las marketplaces en las que SaleLinx publica actualmente."
+      }
+    },
+    "changelog": {
+      "metaTitle": "Changelog - Docs SaleLinx",
+      "metaDescription": "Qué cambió en las últimas versiones de la extensión SaleLinx.",
+      "eyebrow": "Changelog",
+      "title": "Novedades de SaleLinx",
+      "body": "Notas de versión de la extensión SaleLinx. La entrada más reciente está arriba.",
+      "breadcrumb": "Changelog"
+    },
+    "whatsNew": {
+      "eyebrow": "Novedades",
+      "title": "Cambios recientes",
+      "fullChangelog": "Changelog completo"
+    },
+    "support": {
+      "title": "¿Sigues atascado?",
+      "body": "¿No encuentras lo que necesitas? Contacta directamente con el equipo y te responderemos.",
+      "cta": "Contactar con soporte"
+    }
+  },
+  "Faq": {
+    "metaTitle": "FAQ - SaleLinx",
+    "metaDescription": "Respuestas rápidas a preguntas comunes sobre SaleLinx: facturación, cuenta, solución de problemas, privacidad.",
+    "eyebrow": "FAQ",
+    "title": "Preguntas frecuentes.",
+    "body": "Respuestas rápidas a las preguntas que más nos hacen. ¿Buscas un tutorial completo? <docs>Explora los docs</docs>.",
+    "search": {
+      "placeholder": "Buscar en la FAQ...",
+      "aria": "Buscar en la FAQ",
+      "noResults": "Ninguna pregunta coincide con «{query}». Prueba otro término o escribe al soporte."
+    },
+    "docsLink": "¿Buscas guías paso a paso? Explora los docs"
+  },
   "Roadmap": {
     "sectionHeader": {
       "eyebrow": "Sección 03 / Hoja de ruta",

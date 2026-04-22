@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Icon } from '@/components/Icon';
-import type { FAQGroup } from '@/lib/faq/data';
+import type { FAQGroup } from '@/lib/faq';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -21,6 +22,7 @@ function matches(
 }
 
 export function FAQList({ groups }: { groups: FAQGroup[] }) {
+  const t = useTranslations('Faq.search');
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -48,16 +50,15 @@ export function FAQList({ groups }: { groups: FAQGroup[] }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search FAQ..."
+          placeholder={t('placeholder')}
           className="flex-1 bg-transparent text-base outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
-          aria-label="Search FAQ"
+          aria-label={t('aria')}
         />
       </div>
 
       {empty ? (
         <p className="mt-10 text-center text-sm text-zinc-500">
-          No questions match &ldquo;{query}&rdquo;. Try a different term, or
-          email support.
+          {t('noResults', { query })}
         </p>
       ) : (
         <div className="mt-10 space-y-14">

@@ -26,22 +26,19 @@ export async function getMarketplaceStatusFor(
 
 export const STATE_META: Record<
   StatusState,
-  { label: string; dot: string; badge: string }
+  { dot: string; badge: string }
 > = {
   ok: {
-    label: 'Operational',
     dot: 'bg-emerald-500',
     badge:
       'border-emerald-500/30 bg-emerald-500/[0.08] text-emerald-700 dark:text-emerald-400',
   },
   degraded: {
-    label: 'Degraded',
     dot: 'bg-amber-500',
     badge:
       'border-amber-500/30 bg-amber-500/[0.08] text-amber-700 dark:text-amber-400',
   },
   down: {
-    label: 'Outage',
     dot: 'bg-rose-500',
     badge:
       'border-rose-500/30 bg-rose-500/[0.08] text-rose-700 dark:text-rose-400',

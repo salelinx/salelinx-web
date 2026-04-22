@@ -1,32 +1,42 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import { formatChangelogDate, listChangelog } from '@/lib/docs/changelog';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-export const metadata = {
-  title: 'Changelog - SaleLinx docs',
-  description: 'What changed in recent releases of the SaleLinx extension.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Docs.changelog' });
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  };
+}
 
-export default function ChangelogPage() {
+export default async function ChangelogPage() {
+  const t = await getTranslations('Docs');
   const entries = listChangelog();
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
       <Breadcrumbs
         trail={[
-          { label: 'Docs', href: '/docs' },
-          { label: 'Changelog' },
+          { label: t('breadcrumbDocs'), href: '/docs' },
+          { label: t('changelog.breadcrumb') },
         ]}
       />
       <header className="mt-8">
-        <span className={`${MONO} text-zinc-500`}>Changelog</span>
+        <span className={`${MONO} text-zinc-500`}>{t('changelog.eyebrow')}</span>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-          What&rsquo;s new in SaleLinx
+          {t('changelog.title')}
         </h1>
         <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-          Release notes for the SaleLinx extension. The newest entry is at the
-          top.
+          {t('changelog.body')}
         </p>
       </header>
 

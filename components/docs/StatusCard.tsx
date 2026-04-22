@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Icon } from '@/components/Icon';
 import {
   MARKETPLACE_LABELS,
@@ -9,6 +10,7 @@ import {
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
 export async function StatusCard() {
+  const t = await getTranslations('Docs.status');
   const statuses = await getMarketplaceStatus();
   const worst = statuses.reduce<'ok' | 'degraded' | 'down'>((acc, s) => {
     if (acc === 'down' || s.state === 'down') return 'down';
@@ -18,10 +20,10 @@ export async function StatusCard() {
   const meta = STATE_META[worst];
   const headline =
     worst === 'ok'
-      ? 'All marketplaces operational'
+      ? t('card.allOk')
       : worst === 'degraded'
-        ? 'Some marketplaces degraded'
-        : 'One or more marketplaces down';
+        ? t('card.someDegraded')
+        : t('card.someDown');
 
   return (
     <Link
@@ -30,7 +32,7 @@ export async function StatusCard() {
     >
       <div className="flex items-start justify-between gap-6">
         <div className="min-w-0">
-          <span className={`${MONO} text-zinc-500`}>Marketplace status</span>
+          <span className={`${MONO} text-zinc-500`}>{t('card.eyebrow')}</span>
           <div className="mt-2 flex items-center gap-2.5">
             <span className={`inline-block h-2.5 w-2.5 rounded-full ${meta.dot}`} />
             <h3 className="text-lg font-semibold tracking-tight">
@@ -38,7 +40,7 @@ export async function StatusCard() {
             </h3>
           </div>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Live view of which marketplaces SaleLinx is currently posting to.
+            {t('card.body')}
           </p>
         </div>
         <Icon
@@ -55,7 +57,7 @@ export async function StatusCard() {
               <span className="text-zinc-700 dark:text-zinc-300">
                 {MARKETPLACE_LABELS[s.marketplace]}
               </span>
-              <span className="ml-auto text-xs text-zinc-500">{sm.label}</span>
+              <span className="ml-auto text-xs text-zinc-500">{t(`state.${s.state}`)}</span>
             </li>
           );
         })}

@@ -340,6 +340,113 @@
       "messages": "Messages"
     }
   },
+  "Docs": {
+    "metaTitle": "Docs - SaleLinx",
+    "metaDescription": "Step-by-step guides and walkthroughs for the SaleLinx Chrome extension.",
+    "eyebrow": "Docs",
+    "heroTitle": "Learn SaleLinx.",
+    "heroBody": "Step-by-step guides and walkthroughs for the SaleLinx Chrome extension. For quick answers to common questions, head to the <faq>FAQ</faq>.",
+    "browseByTopic": "Browse by topic",
+    "byMarketplaceEyebrow": "By marketplace",
+    "byMarketplaceTitle": "Find help for a specific platform",
+    "faqLinkPrompt": "Looking for a quick answer?",
+    "faqLinkCta": "Browse the FAQ",
+    "category": {
+      "getting-started": {
+        "title": "Getting started",
+        "blurb": "Install the extension, sign in, and post your first listing."
+      },
+      "crosslisting": {
+        "title": "Crosslisting",
+        "blurb": "Post once, publish to both marketplaces with translated fields."
+      },
+      "listings": {
+        "title": "Listings & inventory",
+        "blurb": "Manage your catalogue, bulk edits, refresh, relist and backups."
+      },
+      "marketplaces": {
+        "title": "Marketplaces",
+        "blurb": "Platform-specific guides for Depop, Vinted and more."
+      }
+    },
+    "task": {
+      "install": "Install the extension",
+      "connect": "Connect a marketplace",
+      "crosslist": "Crosslist your first item",
+      "manage": "Manage your inventory"
+    },
+    "categoryPageEyebrow": "Category",
+    "categoryCardBrowse": "Browse",
+    "articleCountOne": "{count} article",
+    "articleCountOther": "{count} articles",
+    "articleStub": "Stub",
+    "articleUpdated": "Updated {date}",
+    "sidebarAria": "Docs navigation",
+    "search": {
+      "placeholder": "Search the docs...",
+      "aria": "Search docs",
+      "noResults": "No results for \"{query}\"."
+    },
+    "breadcrumbAria": "Breadcrumb",
+    "breadcrumbDocs": "Docs",
+    "prevNext": {
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "status": {
+      "metaTitle": "Marketplace status - SaleLinx docs",
+      "metaDescription": "Live view of which marketplaces SaleLinx is currently crosslisting to.",
+      "eyebrow": "Status",
+      "title": "Marketplace status",
+      "body": "Which marketplaces SaleLinx is currently able to crosslist to. If you're seeing errors and a marketplace is flagged here, the team is already on it.",
+      "updatedPrefix": "Updated {date}",
+      "footnote": "Status is checked by the SaleLinx team and updated when the extension's posting behaviour is known to be impacted by a marketplace change.",
+      "breadcrumb": "Marketplace status",
+      "state": {
+        "ok": "Operational",
+        "degraded": "Degraded",
+        "down": "Outage"
+      },
+      "card": {
+        "eyebrow": "Marketplace status",
+        "allOk": "All marketplaces operational",
+        "someDegraded": "Some marketplaces degraded",
+        "someDown": "One or more marketplaces down",
+        "body": "Live view of which marketplaces SaleLinx is currently posting to."
+      }
+    },
+    "changelog": {
+      "metaTitle": "Changelog - SaleLinx docs",
+      "metaDescription": "What changed in recent releases of the SaleLinx extension.",
+      "eyebrow": "Changelog",
+      "title": "What's new in SaleLinx",
+      "body": "Release notes for the SaleLinx extension. The newest entry is at the top.",
+      "breadcrumb": "Changelog"
+    },
+    "whatsNew": {
+      "eyebrow": "What's new",
+      "title": "Recent changes",
+      "fullChangelog": "Full changelog"
+    },
+    "support": {
+      "title": "Still stuck?",
+      "body": "Can't find what you need? Reach the team directly and we'll get back to you.",
+      "cta": "Contact support"
+    }
+  },
+  "Faq": {
+    "metaTitle": "FAQ - SaleLinx",
+    "metaDescription": "Quick answers to common questions about SaleLinx: billing, account, troubleshooting, privacy.",
+    "eyebrow": "FAQ",
+    "title": "Frequently asked questions.",
+    "body": "Quick answers to the questions we hear most. Looking for a full walkthrough instead? <docs>Browse the docs</docs>.",
+    "search": {
+      "placeholder": "Search FAQ...",
+      "aria": "Search FAQ",
+      "noResults": "No questions match \"{query}\". Try a different term, or email support."
+    },
+    "docsLink": "Looking for step-by-step guides? Browse the docs"
+  },
   "Roadmap": {
     "sectionHeader": {
       "eyebrow": "Section 03 / Roadmap",

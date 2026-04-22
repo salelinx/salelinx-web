@@ -1,5 +1,7 @@
-import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import { DocsSidebar } from '@/components/docs/DocsSidebar';
 import { Icon } from '@/components/Icon';
@@ -16,26 +18,30 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ category: string }>;
-}) {
-  const { category } = await params;
+  params: Promise<{ locale: string; category: string }>;
+}): Promise<Metadata> {
+  const { locale, category } = await params;
+  const t = await getTranslations({ locale, namespace: 'Docs' });
   const cat = getCategory(category);
-  if (!cat) return { title: 'Docs - SaleLinx' };
+  if (!cat) return { title: t('metaTitle') };
+  const title = t(`category.${cat.slug}.title`);
+  const blurb = t(`category.${cat.slug}.blurb`);
   return {
-    title: `${cat.title} - SaleLinx docs`,
-    description: cat.blurb,
+    title: `${title} - SaleLinx docs`,
+    description: blurb,
   };
 }
 
 export default async function CategoryPage({
   params,
 }: {
-  params: Promise<{ category: string }>;
+  params: Promise<{ locale: string; category: string }>;
 }) {
   const { category } = await params;
   const cat = getCategory(category);
   if (!cat) notFound();
 
+  const t = await getTranslations('Docs');
   const articles = listByCategory(cat.slug as CategorySlug);
 
   return (
@@ -45,8 +51,8 @@ export default async function CategoryPage({
         <div className="min-w-0 flex-1">
           <Breadcrumbs
             trail={[
-              { label: 'Docs', href: '/docs' },
-              { label: cat.title },
+              { label: t('breadcrumbDocs'), href: '/docs' },
+              { label: t(`category.${cat.slug}.title`) },
             ]}
           />
           <header className="mt-8 flex items-start gap-5">
@@ -54,12 +60,12 @@ export default async function CategoryPage({
               <Icon name={cat.icon} className="h-6 w-6" />
             </span>
             <div>
-              <span className={`${MONO} text-zinc-500`}>Category</span>
+              <span className={`${MONO} text-zinc-500`}>{t('categoryPageEyebrow')}</span>
               <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-                {cat.title}
+                {t(`category.${cat.slug}.title`)}
               </h1>
               <p className="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
-                {cat.blurb}
+                {t(`category.${cat.slug}.blurb`)}
               </p>
             </div>
           </header>
@@ -78,7 +84,7 @@ export default async function CategoryPage({
                       </h2>
                       {a.metadata.status === 'stub' ? (
                         <span className={`${MONO} rounded border border-black/10 px-1.5 py-0.5 text-zinc-500 dark:border-white/15`}>
-                          Stub
+                          {t('articleStub')}
                         </span>
                       ) : null}
                     </div>

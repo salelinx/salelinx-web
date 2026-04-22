@@ -1,21 +1,7 @@
-import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { Link } from '@/i18n/navigation';
+import type { FAQGroup } from './types';
 
-export type FAQItem = {
-  id: string;
-  q: string;
-  a: ReactNode;
-  keywords?: string[];
-};
-
-export type FAQGroup = {
-  slug: string;
-  title: string;
-  blurb: string;
-  items: FAQItem[];
-};
-
-export const FAQ_GROUPS: FAQGroup[] = [
+export const FAQ_GROUPS_EN: FAQGroup[] = [
   {
     slug: 'getting-started',
     title: 'Getting started',
@@ -293,15 +279,3 @@ export const FAQ_GROUPS: FAQGroup[] = [
     ],
   },
 ];
-
-export function getAllFAQItems(): Array<
-  FAQItem & { groupSlug: string; groupTitle: string }
-> {
-  return FAQ_GROUPS.flatMap((g) =>
-    g.items.map((item) => ({
-      ...item,
-      groupSlug: g.slug,
-      groupTitle: g.title,
-    })),
-  );
-}

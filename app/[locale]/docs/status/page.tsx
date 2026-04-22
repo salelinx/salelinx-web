@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import {
   MARKETPLACE_LABELS,
@@ -7,32 +9,38 @@ import {
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-export const metadata = {
-  title: 'Marketplace status - SaleLinx docs',
-  description:
-    'Live view of which marketplaces SaleLinx is currently crosslisting to.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Docs.status' });
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  };
+}
 
 export default async function StatusPage() {
+  const t = await getTranslations('Docs');
   const statuses = await getMarketplaceStatus();
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-12">
       <Breadcrumbs
         trail={[
-          { label: 'Docs', href: '/docs' },
-          { label: 'Marketplace status' },
+          { label: t('breadcrumbDocs'), href: '/docs' },
+          { label: t('status.breadcrumb') },
         ]}
       />
       <header className="mt-8">
-        <span className={`${MONO} text-zinc-500`}>Status</span>
+        <span className={`${MONO} text-zinc-500`}>{t('status.eyebrow')}</span>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Marketplace status
+          {t('status.title')}
         </h1>
         <p className="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
-          Which marketplaces SaleLinx is currently able to crosslist to. If
-          you&rsquo;re seeing errors and a marketplace is flagged here, the
-          team is already on it.
+          {t('status.body')}
         </p>
       </header>
 
@@ -57,7 +65,7 @@ export default async function StatusPage() {
                     <span
                       className={`${MONO} rounded-full border px-2 py-0.5 ${meta.badge}`}
                     >
-                      {meta.label}
+                      {t(`status.state.${s.state}`)}
                     </span>
                   </div>
                   {s.note ? (
@@ -68,7 +76,7 @@ export default async function StatusPage() {
                 </div>
               </div>
               <span className="shrink-0 text-xs text-zinc-500 sm:text-right">
-                Updated {s.updatedAt}
+                {t('status.updatedPrefix', { date: s.updatedAt })}
               </span>
             </li>
           );
@@ -76,9 +84,7 @@ export default async function StatusPage() {
       </ul>
 
       <p className="mt-12 text-sm text-zinc-500">
-        Status is checked by the SaleLinx team and updated when the
-        extension&rsquo;s posting behaviour is known to be impacted by a
-        marketplace change.
+        {t('status.footnote')}
       </p>
     </main>
   );
