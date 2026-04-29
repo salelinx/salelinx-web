@@ -60,7 +60,7 @@ app/
 
 components/                  Shared React components (Header, VerifyEmailBanner, …)
 components/docs/             Docs-only components (Sidebar, CategoryCard, DocsSearch, MDX widgets)
-components/features/         SectionNav (sticky tabs) + FeaturesSection / PricingSection / RoadmapSection
+components/features/         FeaturesSection / PricingSection / RoadmapSection (stacked on /features)
 
 content/docs/                MDX article source, filed by <category>/<slug>.mdx
 content/changelog/           MDX release notes, filed by <date>-<slug>.mdx

@@ -35,8 +35,8 @@
     "heroTitle": "Ein Tool für jeden Depop- & Vinted-Verkäufer.",
     "heroSubtitle": "Crossliste, poste erneut, aktualisiere, fülle auf und beantworte Käuferfragen auf beiden Plattformen, alles über ein einziges Panel.",
     "ctaSeePricing": "Preise ansehen",
-    "ctaGetStarted": "Loslegen",
-    "ctaSignIn": "Anmelden"
+    "ctaSeeFeatures": "Funktionen ansehen",
+    "ctaGetStarted": "Loslegen"
   },
   "ThemeToggle": {
     "switchToLight": "Zu hellem Modus wechseln",
@@ -168,9 +168,9 @@
     "metaTitle": "SaleLinx - Produkt, Preise, Roadmap",
     "metaDescription": "Alles, was die SaleLinx Chrome-Erweiterung kann, was sie kostet und was als Nächstes kommt. Crossliste, poste erneut, aktualisiere und fülle auf Depop und Vinted von einem Panel aus auf.",
     "hero": {
-      "eyebrow": "Das ganze Produkt, eine Seite",
-      "title": "Das Produkt, der Preis und die Roadmap.",
-      "description": "Scrolle für die Funktionen, springe zu den Preisen, wenn du bereit bist, oder überfliege die Roadmap, um zu sehen, was als Nächstes kommt. Die Tabs folgen dir die Seite hinunter.",
+      "eyebrow": "Produktübersicht",
+      "title": "Alles, was SaleLinx kann, was es kostet und was als Nächstes kommt.",
+      "description": "Crossliste, poste erneut, aktualisiere und fülle auf Depop und Vinted von einem einzigen Browser-Panel aus auf.",
       "installExtension": "Erweiterung installieren",
       "seePricing": "Preise ansehen"
     },
@@ -179,7 +179,6 @@
       "title": "Alles, was die Erweiterung kann, gruppiert danach, was du damit tatsächlich tust."
     },
     "marketplaceOnly": "Nur {marketplace}",
-    "sectionNavAria": "Seitenabschnitte",
     "ctaSection": {
       "eyebrow": "Wann immer du willst",
       "title": "Starte im Browser, in dem du schon verkaufst.",

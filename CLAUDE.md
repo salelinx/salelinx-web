@@ -102,7 +102,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets.
 - **`mdx-components.tsx` must live at the repo root**, not under `app/`. `@next/mdx` only looks there.
 - **Marketplace status** is a hardcoded constant in `lib/docs/status.ts`. Migration path to Supabase is noted in the file; consumers call `getMarketplaceStatus()` so the swap is local.
 - **Docs vs FAQ split.** `/docs` is for step-by-step guides and walkthroughs (learning-oriented prose). `/faq` is for quick Q&A (troubleshooting, billing, one-offs) in `lib/faq/data.tsx`. Don't add troubleshooting or billing articles to `/docs`; add FAQ entries instead.
-- **Features / Pricing / Roadmap are one page.** Canonical URL is `/features`, with sections `#features`, `#pricing`, `#roadmap` anchored by the sticky `SectionNav` client component. `/pricing` and `/roadmap` are one-line `redirect()` stubs pointing at the anchors - keep them in place (Stripe's `cancelUrl` still points at `/pricing`). Section components live under `components/features/`.
+- **Features / Pricing / Roadmap are one page.** Canonical URL is `/features`, with in-page anchors `#features`, `#pricing`, `#roadmap` set on each section component. Cross-section navigation comes from the global sticky `Header` links. `/pricing` and `/roadmap` are one-line `redirect()` stubs pointing at the anchors - keep them in place (Stripe's `cancelUrl` still points at `/pricing`). Section components live under `components/features/`.
 
 ## Do NOT
 

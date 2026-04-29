@@ -12,7 +12,7 @@ export async function Header() {
   const t = await getTranslations('Header');
 
   return (
-    <header className="border-b border-black/10 dark:border-white/10">
+    <header className="sticky top-0 z-40 border-b border-black/10 bg-white/75 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-zinc-950/75 dark:supports-[backdrop-filter]:bg-zinc-950/60">
       <div className="flex w-full items-center px-6 py-4">
         <div className="flex-1">
           <Link href="/" className="text-base font-semibold tracking-tight">
