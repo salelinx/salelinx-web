@@ -21,21 +21,21 @@ export default async function Home({
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/pricing"
-          className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
+          className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
         >
           {t('ctaSeePricing')}
+        </Link>
+        <Link
+          href="/features"
+          className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
+        >
+          {t('ctaSeeFeatures')}
         </Link>
         <Link
           href="/auth/signup"
           className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
         >
           {t('ctaGetStarted')}
-        </Link>
-        <Link
-          href="/auth/login"
-          className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
-        >
-          {t('ctaSignIn')}
         </Link>
       </div>
     </main>

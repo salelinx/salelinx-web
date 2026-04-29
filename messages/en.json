@@ -35,8 +35,8 @@
     "heroTitle": "One tool for every Depop & Vinted seller.",
     "heroSubtitle": "Crosslist, relist, refresh, restock, and answer buyers across both platforms from a single panel.",
     "ctaSeePricing": "See pricing",
-    "ctaGetStarted": "Get started",
-    "ctaSignIn": "Sign in"
+    "ctaSeeFeatures": "See features",
+    "ctaGetStarted": "Get started"
   },
   "ThemeToggle": {
     "switchToLight": "Switch to light mode",
@@ -168,9 +168,9 @@
     "metaTitle": "SaleLinx - Product, pricing, roadmap",
     "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist, relist, refresh, and restock across Depop and Vinted from one panel.",
     "hero": {
-      "eyebrow": "The whole product, one page",
-      "title": "The product, the price, and the roadmap.",
-      "description": "Scroll for the features, jump to pricing when you're ready, or skim the roadmap to see what we're shipping next. The tabs follow you down the page.",
+      "eyebrow": "Product overview",
+      "title": "Everything SaleLinx does, what it costs, and what's next.",
+      "description": "Crosslist, relist, refresh, and restock across Depop and Vinted from a single browser panel.",
       "installExtension": "Install extension",
       "seePricing": "See pricing"
     },
@@ -179,7 +179,6 @@
       "title": "Everything the extension does, grouped by what you actually do with it."
     },
     "marketplaceOnly": "{marketplace} only",
-    "sectionNavAria": "Page sections",
     "ctaSection": {
       "eyebrow": "Ready when you are",
       "title": "Start in the browser you already sell from.",
