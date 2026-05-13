@@ -32,6 +32,7 @@
     "builtFor": "Conçu pour les vendeurs Depop et Vinted."
   },
   "Home": {
+    "heroEyebrow": "Disponible pour Depop + Vinted",
     "heroTitle": "Un outil pour chaque vendeur Depop & Vinted.",
     "heroSubtitle": "Crosslistez, republiez, actualisez, réapprovisionnez et répondez aux acheteurs sur les deux plateformes depuis un seul panneau.",
     "ctaSeePricing": "Voir les tarifs",
@@ -262,6 +263,10 @@
             "label": "Détecteur de stock dormant",
             "detail": "Classe les annonces obsolètes et suggère des actions."
           },
+          "autoMarkdown": {
+            "label": "Baisses de prix automatiques",
+            "detail": "Programmez des baisses en pourcentage sur les annonces dormantes pour rafraîchir leur visibilité sans y toucher."
+          },
           "activityLog": {
             "label": "Journal d'activité en temps réel",
             "detail": "Filtrez par fonctionnalité ou niveau, mettez en pause et arrêtez à tout moment, exportez en JSON."
@@ -292,6 +297,10 @@
           "relister": {
             "label": "Republieur",
             "detail": "Recrée les annonces avec photos et titre retouchés, puis supprime l'original pour rafraîchir la visibilité."
+          },
+          "restocker": {
+            "label": "Réapprovisionneur cross-plateforme",
+            "detail": "Quand un article lié se vend sur une marketplace, l'autre est automatiquement désactivé pour éviter toute survente."
           }
         }
       }
@@ -337,7 +346,10 @@
       "restocker": "Restocker",
       "auto_offer": "Offres automatiques",
       "shipping_labels": "Étiquettes d'expédition",
-      "messages": "Messages"
+      "messages": "Messages",
+      "offers": "Offres",
+      "auto_markdown": "Baisses de prix",
+      "account_linking": "Liaison de compte"
     }
   },
   "Docs": {
@@ -363,6 +375,14 @@
       "listings": {
         "title": "Annonces et inventaire",
         "blurb": "Gérez votre catalogue, les modifications en masse, le rafraîchissement, la republication et les sauvegardes."
+      },
+      "visibility": {
+        "title": "Visibilité et audience",
+        "blurb": "Rafraîchissement, follow bot, stock dormant, baisses de prix automatiques, journal d'activité."
+      },
+      "sales": {
+        "title": "Ventes et messagerie",
+        "blurb": "Offres, offres automatiques, messages, étiquettes d'expédition, réapprovisionneur, republieur."
       },
       "marketplaces": {
         "title": "Marketplaces",

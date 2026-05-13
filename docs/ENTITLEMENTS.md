@@ -79,7 +79,7 @@ Always derived from the user's local date at the moment of the check. Periods re
 
 ## Seed data (v1)
 
-See migration `011_billing.sql` in the extension repo (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1). Summary:
+See migration `011_billing.sql` in the extension repo (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1). Migration `015_add_linking_markdown_features.sql` adds `account_linking` (Pro+) and `auto_markdown` (Business). Migration `016_deadstock_starter.sql` moves `dead_stock` down to Starter+. Migration `017_shop_designer_messages_offers_starter.sql` moves `shop_designer` + `messages` down to Starter+ and adds a new `offers` (incoming-offers tab) feature gated at Starter+. Auto-offers (`auto_offer`) stays Pro+. Summary:
 
 | Label                      | JSON key                  | Free | Starter | Pro       | Business  |
 | -------------------------- | ------------------------- | ---- | ------- | --------- | --------- |
@@ -94,12 +94,15 @@ See migration `011_billing.sql` in the extension repo (creates `subscriptions`, 
 | Support response (hours)   | `support_response_hours`  | -    | -       | 48        | 24        |
 | Auto-refresh               | `auto_refresh`            | ✗    | ✗       | ✓         | ✓         |
 | Cloud sync                 | `cloud_sync`              | ✗    | ✗       | ✓         | ✓         |
-| Auto-offers                | `auto_offer`              | ✗    | ✗       | ✓         | ✓         |
 | Shipping labels            | `shipping_labels`         | ✗    | ✗       | ✓         | ✓         |
-| Messages                   | `messages`                | ✗    | ✗       | ✓         | ✓         |
+| Account linking            | `account_linking`         | ✗    | ✗       | ✓         | ✓         |
+| Auto-offers                | `auto_offer`              | ✗    | ✗       | ✓         | ✓         |
+| Offers (incoming)          | `offers`                  | ✗    | ✓       | ✓         | ✓         |
+| Messages                   | `messages`                | ✗    | ✓       | ✓         | ✓         |
+| Shop Designer              | `shop_designer`           | ✗    | ✓       | ✓         | ✓         |
+| Dead Stock                 | `dead_stock`              | ✗    | ✓       | ✓         | ✓         |
 | Restocker                  | `restocker`               | ✗    | ✗       | ✗         | ✓         |
-| Shop Designer              | `shop_designer`           | ✗    | ✗       | ✗         | ✓         |
-| Dead Stock                 | `dead_stock`              | ✗    | ✗       | ✗         | ✓         |
+| Price Drops (auto-markdown)| `auto_markdown`           | ✗    | ✗       | ✗         | ✓         |
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 

@@ -1,0 +1,98 @@
+export const metadata = {
+  title: 'Account and subscription',
+  description: 'Sign in, switch plans, manage billing and cancel from one place.',
+  category: 'getting-started',
+  slug: 'account-and-subscription',
+  order: 3,
+  updated: '2026-05-10',
+  tags: ['billing', 'account', 'subscription'],
+  marketplaces: [],
+  status: 'published',
+};
+
+# Account and subscription
+
+Your SaleLinx login covers both the website and the extension. The same email
+and password sign you in to billing on salelinx.com and to the panel inside
+Chrome.
+
+## Where to find it
+
+- **Website** &mdash; your account page is at [salelinx.com/account](/account).
+- **Extension** &mdash; the **Settings** tab in the side panel mirrors the
+  same plan info and links straight to the billing portal.
+
+## Plans at a glance
+
+Plans are tiered by what features you unlock and what monthly caps you get.
+The current pricing and what each tier includes lives on the
+[pricing page](/features#pricing). Changes there are the source of truth: the
+extension reads its limits from the same place you see them.
+
+## Upgrading
+
+1. Open [the pricing page](/features#pricing) (or click **See pricing** from
+   anywhere in the panel).
+2. Click **Subscribe** on the tier you want.
+3. Stripe Checkout opens in a new tab.
+4. Complete payment.
+
+Your account upgrades immediately. You don&rsquo;t need to reload the
+extension &mdash; the next time the panel checks your subscription (within
+about a minute), the new caps and features become available.
+
+<Callout variant="tip" title="Mid-month upgrades">
+Stripe pro-rates the difference, so you only pay for the days remaining in
+the current period. The next full bill arrives on your usual renewal date.
+</Callout>
+
+## Switching plans
+
+To move between paid plans (e.g. Pro to Business), use the same Subscribe
+button on the new tier. Stripe handles the swap and the proration.
+
+To downgrade, open **Manage subscription** (button on your account page),
+which takes you to the Stripe billing portal. Choose **Update plan** and pick
+the smaller tier. Downgrades take effect at the end of your current period
+&mdash; you keep the higher tier until then so you don&rsquo;t lose what
+you&rsquo;ve already paid for.
+
+## Managing billing
+
+Click **Manage subscription** on your account page. The Stripe customer
+portal opens in a new tab. From there you can:
+
+- Update your payment method.
+- Download invoices.
+- Change your billing email.
+- Cancel.
+
+Cancellation takes effect at the end of your current period. Until then, the
+panel works normally on whatever plan you were on. You can resume any time
+before the end date by re-opening the same portal.
+
+## Account security
+
+The **Security** card on the account page handles password resets and email
+changes. Both flow through a confirmation link we send to your inbox &mdash;
+SaleLinx never asks you to confirm changes inside the panel itself.
+
+## What if a payment fails?
+
+Stripe retries failed payments a few times. While retries are pending, the
+panel shows a banner and your access stays active. If all retries fail, your
+account drops to the Free tier and the banner switches to a prompt to update
+your payment method.
+
+## Free tier and limits
+
+Free is for trying things out, not for daily use. The monthly caps (25
+crosslists, 25 relists, 50 refreshes per day) reset on the first of each
+calendar month. Free does not include the heavier features &mdash;
+auto-offers, restocker, shipping labels, account linking, price drops &mdash;
+those start on a paid plan.
+
+## Next steps
+
+- [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)
+- For billing-specific Q&amp;A, see [the FAQ](/faq#account-billing).

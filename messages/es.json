@@ -32,6 +32,7 @@
     "builtFor": "Creado para vendedores de Depop y Vinted."
   },
   "Home": {
+    "heroEyebrow": "Disponible para Depop + Vinted",
     "heroTitle": "Una herramienta para cada vendedor de Depop & Vinted.",
     "heroSubtitle": "Crosslista, republica, actualiza, repone y responde a los compradores en ambas plataformas desde un solo panel.",
     "ctaSeePricing": "Ver precios",
@@ -262,6 +263,10 @@
             "label": "Detector de stock muerto",
             "detail": "Clasifica los anuncios obsoletos y sugiere acciones."
           },
+          "autoMarkdown": {
+            "label": "Bajadas de precio automáticas",
+            "detail": "Programa rebajas porcentuales sobre anuncios obsoletos para refrescar su visibilidad en búsquedas sin tocarlos a mano."
+          },
           "activityLog": {
             "label": "Registro de actividad en tiempo real",
             "detail": "Filtra por función o nivel, pausa y detén cuando quieras, exporta a JSON."
@@ -292,6 +297,10 @@
           "relister": {
             "label": "Republicador",
             "detail": "Recrea anuncios con fotos y título retocados y elimina el original para refrescar la visibilidad en búsquedas."
+          },
+          "restocker": {
+            "label": "Reposicionador entre plataformas",
+            "detail": "Cuando un artículo vinculado se vende en una marketplace, el otro se desactiva automáticamente para que nunca sobrevendas."
           }
         }
       }
@@ -337,7 +346,10 @@
       "restocker": "Restocker",
       "auto_offer": "Ofertas automáticas",
       "shipping_labels": "Etiquetas de envío",
-      "messages": "Mensajes"
+      "messages": "Mensajes",
+      "offers": "Ofertas",
+      "auto_markdown": "Bajadas de precio",
+      "account_linking": "Vinculación de cuenta"
     }
   },
   "Docs": {
@@ -363,6 +375,14 @@
       "listings": {
         "title": "Anuncios e inventario",
         "blurb": "Gestiona tu catálogo, ediciones masivas, actualización, republicación y copias de seguridad."
+      },
+      "visibility": {
+        "title": "Visibilidad y audiencia",
+        "blurb": "Actualización, follow bot, stock muerto, bajadas automáticas de precio, registro de actividad."
+      },
+      "sales": {
+        "title": "Ventas y mensajería",
+        "blurb": "Ofertas, ofertas automáticas, mensajes, etiquetas de envío, reposicionador, republicador."
       },
       "marketplaces": {
         "title": "Marketplaces",

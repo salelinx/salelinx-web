@@ -1,23 +1,81 @@
 export const metadata = {
   title: 'Connect your first marketplace',
-  description: 'Link SaleLinx to your Depop or Vinted account.',
+  description: 'Link SaleLinx to your Depop or Vinted account in under a minute.',
   category: 'getting-started',
   slug: 'connect-your-first-marketplace',
   order: 2,
-  updated: '2026-04-20',
+  updated: '2026-05-10',
   tags: ['setup', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
-  status: 'stub',
+  status: 'published',
 };
 
 # Connect your first marketplace
 
-SaleLinx reads your marketplace session directly from your browser, so there
-are no passwords to re-enter. You just need to be signed in on the
-marketplace in a regular tab.
+SaleLinx reads your marketplace session straight from your browser. There&rsquo;s
+no password to enter, no API key to copy. You just need to be signed in to
+Depop or Vinted in the same browser profile where SaleLinx is installed.
 
-<Callout>
-Full guide coming soon. In the meantime, make sure you&rsquo;re signed in to
-Depop or Vinted in the same browser profile, then open the SaleLinx panel on
-any product or profile page.
+## 1. Sign in on the marketplace
+
+Open a regular tab and sign in at [depop.com](https://www.depop.com) or
+[vinted.com](https://www.vinted.com). If you sell on both, sign in to both.
+SaleLinx supports any country domain (`vinted.co.uk`, `vinted.fr`, `vinted.de`,
+`vinted.es`, etc.).
+
+<Callout variant="tip" title="Why no login?">
+Marketplace logins are tied to browser cookies that the marketplace itself
+sets. SaleLinx reads those cookies on its own behalf when it makes
+authenticated calls, the same way the marketplace&rsquo;s own pages do. We
+never see, store, or transmit your marketplace password.
 </Callout>
+
+## 2. Open the SaleLinx panel
+
+Navigate to a product page (any item in your shop), a profile page, or your
+inbox on Depop or Vinted. Click the SaleLinx icon in your toolbar to open the
+side panel.
+
+The first time you open it on each marketplace, the panel runs a quick session
+check. When it succeeds, you&rsquo;ll see your shop name and avatar at the top
+of the panel.
+
+## 3. Verify the connection
+
+In the panel, open the **Listings** tab. SaleLinx reads your active items from
+the marketplace and shows them in a unified grid. If both marketplaces are
+connected, you&rsquo;ll see Depop and Vinted items merged together with a small
+platform badge on each row.
+
+If the grid stays empty for more than a few seconds, scroll down to the
+Troubleshooting section below.
+
+## Linking multiple shops
+
+If you have more than one shop on the same marketplace (a side project, a
+shared shop with a partner), upgrade to Business and you can link up to 3
+shops per marketplace under one SaleLinx account. Account linking lives in
+the **Linking** tab.
+
+## Troubleshooting
+
+**The panel shows &ldquo;Not signed in&rdquo;.**
+You&rsquo;re signed out on the marketplace itself. Open a normal tab, sign in,
+then re-open the panel.
+
+**Listings stay empty.**
+Sometimes the marketplace returns 0 items if your session is partially
+authenticated (e.g. signed in to the homepage but not to the API). Reload the
+marketplace tab once and re-open the panel.
+
+**I&rsquo;m on the wrong domain.**
+SaleLinx auto-detects which Vinted regional domain you use. If you switch
+countries (.co.uk to .fr), sign in on the new domain first.
+
+For anything else, the [FAQ troubleshooting section](/faq#troubleshooting)
+covers panel visibility, signed-out states, and listing sync issues.
+
+## Next steps
+
+- [Crosslist your first item](/docs/crosslisting/crosslist-your-first-item)
+- [Manage your inventory](/docs/listings/manage-inventory)

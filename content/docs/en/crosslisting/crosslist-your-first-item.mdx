@@ -4,19 +4,103 @@ export const metadata = {
   category: 'crosslisting',
   slug: 'crosslist-your-first-item',
   order: 1,
-  updated: '2026-04-20',
+  updated: '2026-05-10',
   tags: ['crosslist', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
-  status: 'stub',
+  status: 'published',
 };
 
 # Crosslist your first item
 
-The crosslister fills in the target marketplace&rsquo;s listing form with
-your source listing&rsquo;s title, description, photos, price, and mapped
-category.
+The crosslister takes a listing you&rsquo;ve already written on one marketplace
+and posts it to the other. It fills in the target form for you: title,
+description, photos, price, and the right category, size, condition, brand and
+colour.
 
-<Callout>
-Full guide coming soon. Until then, open any of your own listings in the
-SaleLinx panel and click **Crosslist to...** to try it.
+You stay in the driver&rsquo;s seat. You can review and tweak any field before
+publishing.
+
+## Before you start
+
+- Both marketplaces connected. See [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).
+- The source listing should already be live (or in your drafts) on one platform.
+- You&rsquo;ll need to be on a SaleLinx plan that includes crosslisting (every
+  paid tier does; the Free tier has a 25/month limit for trial use).
+
+## 1. Pick the source listing
+
+Open the **Crosslist** tab in the SaleLinx panel. The picker shows your
+existing listings from both marketplaces. Search or filter to find the item
+you want to copy across.
+
+You can also crosslist from a single listing: open any of your items on Depop
+or Vinted, and the SaleLinx panel will show a **Crosslist to...** button.
+
+## 2. Choose the target
+
+Pick the destination platform: Depop or Vinted. SaleLinx opens a new tab on
+the target marketplace and the panel switches into fill mode.
+
+<Callout variant="tip" title="Don't touch the target tab">
+While SaleLinx is filling the form, leave the target tab alone. Clicking
+inside it can interrupt React&rsquo;s controlled inputs and corrupt the form
+state. If the fill stalls for more than a minute, click **Cancel** in the
+panel and try again.
 </Callout>
+
+## 3. SaleLinx fills the form
+
+The panel works through the target form field by field:
+
+- **Title and description** copy across as-is. (You can edit either before
+  publishing.)
+- **Price** copies across in the target&rsquo;s currency. SaleLinx does not do
+  FX conversion, it just moves the number.
+- **Photos** download from the source listing and upload to the target.
+- **Category, condition, size, colour, brand** are translated through
+  SaleLinx&rsquo;s mapping tables. Depop&rsquo;s &ldquo;Used &mdash; like new&rdquo;
+  becomes Vinted&rsquo;s &ldquo;New without tags&rdquo;, etc.
+
+If a field can&rsquo;t be mapped (rare brand, very specific size), the panel
+flags it for you to set manually.
+
+## 4. Review and publish
+
+Once the form is filled, you can:
+
+- Edit any field before publishing.
+- Add or remove photos.
+- Override the category if the auto-mapping picked something off.
+- Click **Publish** to post the listing.
+
+The panel records the new listing in your dashboard so the source and the new
+copy stay linked. That linkage powers the cross-platform [restocker](/docs/sales/restocker).
+
+## Bulk crosslist
+
+To do more than one at a time, select multiple items in the Crosslist picker
+grid. SaleLinx will queue them up and crosslist them sequentially with safe
+pacing between items (the safety pacing avoids tripping marketplace rate
+limits). Plan caps apply.
+
+## What can go wrong
+
+**The form fills but doesn&rsquo;t submit.**
+Some fields (especially brand on Vinted) require an exact match against the
+platform&rsquo;s search index. If you see a stuck field, click into it
+yourself and pick from the dropdown, then click **Publish**.
+
+**Photos are missing.**
+The marketplace sometimes blocks photo downloads from a fresh page load.
+Refresh the source listing once, then retry.
+
+**Category is wrong.**
+Open the category dropdown on the target form and pick the right one. The
+auto-mapping is correct in most common cases, but the long tail (vintage
+militaria, sports memorabilia, collectibles) often needs a manual nudge.
+
+## Next steps
+
+- [Manage your inventory](/docs/listings/manage-inventory)
+- [Shop Designer (Depop)](/docs/crosslisting/shop-designer)
+- [CSV import](/docs/crosslisting/csv-import)

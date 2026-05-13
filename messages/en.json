@@ -32,6 +32,7 @@
     "builtFor": "Built for Depop and Vinted sellers."
   },
   "Home": {
+    "heroEyebrow": "Live for Depop + Vinted",
     "heroTitle": "One tool for every Depop & Vinted seller.",
     "heroSubtitle": "Crosslist, relist, refresh, restock, and answer buyers across both platforms from a single panel.",
     "ctaSeePricing": "See pricing",
@@ -262,6 +263,10 @@
             "label": "Dead-stock detector",
             "detail": "Classifies stale listings and suggests actions."
           },
+          "autoMarkdown": {
+            "label": "Auto price drops",
+            "detail": "Schedule percentage-based markdowns on stale listings to refresh search visibility without touching them by hand."
+          },
           "activityLog": {
             "label": "Real-time activity log",
             "detail": "Filter by feature or level, pause and stop at any time, export to JSON."
@@ -292,6 +297,10 @@
           "relister": {
             "label": "Relister",
             "detail": "Recreate listings with tweaked photos and title, then delete the original to refresh search visibility."
+          },
+          "restocker": {
+            "label": "Cross-platform restocker",
+            "detail": "When a linked item sells on one marketplace, the other side is automatically deactivated so you never oversell."
           }
         }
       }
@@ -337,7 +346,10 @@
       "restocker": "Restocker",
       "auto_offer": "Auto-offers",
       "shipping_labels": "Shipping labels",
-      "messages": "Messages"
+      "messages": "Messages",
+      "offers": "Offers",
+      "auto_markdown": "Price drops",
+      "account_linking": "Account linking"
     }
   },
   "Docs": {
@@ -363,6 +375,14 @@
       "listings": {
         "title": "Listings & inventory",
         "blurb": "Manage your catalogue, bulk edits, refresh, relist and backups."
+      },
+      "visibility": {
+        "title": "Visibility & audience",
+        "blurb": "Refresh, follow bot, dead-stock, automatic price drops, activity log."
+      },
+      "sales": {
+        "title": "Sales & messaging",
+        "blurb": "Offers, auto-offers, messages, shipping labels, restocker, relister."
       },
       "marketplaces": {
         "title": "Marketplaces",

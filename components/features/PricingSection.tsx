@@ -21,7 +21,7 @@ const TIER_META: Record<
   free: { name: 'Free', price: '£0' },
   starter: { name: 'Starter', price: '£7.99' },
   pro: { name: 'Pro', price: '£14.99', highlight: true },
-  business: { name: 'Business', price: '£29.99' },
+  business: { name: 'Business', price: '£24.99' },
 };
 
 const FEATURE_ICONS: Record<string, IconName> = {
@@ -33,6 +33,9 @@ const FEATURE_ICONS: Record<string, IconName> = {
   auto_offer: 'zap',
   shipping_labels: 'box',
   messages: 'message',
+  offers: 'tag',
+  auto_markdown: 'sparkle',
+  account_linking: 'link',
 };
 
 const LIMIT_ORDER = [
@@ -43,19 +46,24 @@ const LIMIT_ORDER = [
   'unfollows_per_day',
   'linked_shops',
   'cloud_storage_bytes',
+  'support_response_days',
+  'support_response_hours',
 ] as const;
 
 const FEATURE_ORDER = [
   'messages',
-  'shipping_labels',
-  'auto_offer',
-  'auto_refresh',
-  'restocker',
+  'offers',
   'dead_stock',
   'shop_designer',
+  'auto_offer',
+  'auto_refresh',
+  'account_linking',
+  'shipping_labels',
+  'restocker',
+  'auto_markdown',
 ] as const;
 
-type LimitKey = (typeof LIMIT_ORDER)[number] | 'support_response_days' | 'support_response_hours';
+type LimitKey = (typeof LIMIT_ORDER)[number];
 
 function makeFormatLimit(t: (key: string, values?: Record<string, string | number>) => string) {
   return (key: LimitKey, value: number | null): string => {

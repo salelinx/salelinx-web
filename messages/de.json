@@ -32,6 +32,7 @@
     "builtFor": "Entwickelt für Depop- und Vinted-Verkäufer."
   },
   "Home": {
+    "heroEyebrow": "Verfügbar für Depop + Vinted",
     "heroTitle": "Ein Tool für jeden Depop- & Vinted-Verkäufer.",
     "heroSubtitle": "Crossliste, poste erneut, aktualisiere, fülle auf und beantworte Käuferfragen auf beiden Plattformen, alles über ein einziges Panel.",
     "ctaSeePricing": "Preise ansehen",
@@ -262,6 +263,10 @@
             "label": "Lagerhüter-Erkennung",
             "detail": "Klassifiziert veraltete Inserate und schlägt Aktionen vor."
           },
+          "autoMarkdown": {
+            "label": "Automatische Preissenkungen",
+            "detail": "Plane prozentuale Preissenkungen für veraltete Inserate, um die Suchsichtbarkeit aufzufrischen, ohne sie manuell anzufassen."
+          },
           "activityLog": {
             "label": "Echtzeit-Aktivitätsprotokoll",
             "detail": "Nach Funktion oder Stufe filtern, jederzeit pausieren und stoppen, als JSON exportieren."
@@ -292,6 +297,10 @@
           "relister": {
             "label": "Relister",
             "detail": "Inserate mit angepassten Fotos und Titel neu erstellen und das Original löschen, um die Suchsichtbarkeit aufzufrischen."
+          },
+          "restocker": {
+            "label": "Plattformübergreifender Restocker",
+            "detail": "Wenn ein verknüpfter Artikel auf einem Marktplatz verkauft wird, wird die andere Seite automatisch deaktiviert, damit du nie überverkaufst."
           }
         }
       }
@@ -337,7 +346,10 @@
       "restocker": "Restocker",
       "auto_offer": "Automatische Angebote",
       "shipping_labels": "Versandetiketten",
-      "messages": "Nachrichten"
+      "messages": "Nachrichten",
+      "offers": "Angebote",
+      "auto_markdown": "Preissenkungen",
+      "account_linking": "Kontoverknüpfung"
     }
   },
   "Docs": {
@@ -363,6 +375,14 @@
       "listings": {
         "title": "Inserate und Bestand",
         "blurb": "Verwalte deinen Katalog, Massenbearbeitungen, Aktualisierungen, Reposts und Backups."
+      },
+      "visibility": {
+        "title": "Sichtbarkeit und Reichweite",
+        "blurb": "Aktualisierung, Follow-Bot, Lagerhüter, automatische Preissenkungen, Aktivitätsprotokoll."
+      },
+      "sales": {
+        "title": "Verkäufe und Messaging",
+        "blurb": "Angebote, automatische Angebote, Nachrichten, Versandetiketten, Restocker, Relister."
       },
       "marketplaces": {
         "title": "Marktplätze",
