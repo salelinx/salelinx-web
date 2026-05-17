@@ -1,7 +1,26 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
+import { BrandWordmark } from '@/components/BrandWordmark';
 import { HeroPreview } from './HeroPreview';
+
+// Sizes chosen so each wordmark's cap-height optically matches the
+// surrounding text. depop's viewBox is tight to letter bounds, so 0.85em
+// reads roughly the same as a capital letter. Vinted's letters fill ~85%
+// of its (cropped) viewBox so we go slightly larger.
+const HERO_BRAND_TAGS = {
+  depop: () => (
+    <BrandWordmark brand="depop" variant="wordmark" height="0.85em" className="mx-[0.06em]" />
+  ),
+  vinted: () => (
+    <BrandWordmark brand="vinted" variant="wordmark" height="1em" className="mx-[0.06em]" />
+  ),
+};
+
+const EYEBROW_BRAND_TAGS = {
+  depop: () => <BrandWordmark brand="depop" height="0.95em" />,
+  vinted: () => <BrandWordmark brand="vinted" height="0.95em" />,
+};
 
 export async function Hero() {
   const t = await getTranslations('Home');
@@ -13,20 +32,20 @@ export async function Hero() {
         <div className="absolute inset-0 opacity-[0.35] [background-image:radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.16)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_at_50%_35%,black_15%,transparent_70%)] dark:opacity-[0.22] dark:[background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.18)_1px,transparent_1px)]" />
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 pt-20 pb-10 text-center sm:pt-28">
+      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 pt-8 pb-10 text-center sm:pt-12">
         <Reveal delay={0}>
           <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-700 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
             <span className="relative inline-flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-            {t('heroEyebrow')}
+            {t.rich('heroEyebrow', EYEBROW_BRAND_TAGS)}
           </span>
         </Reveal>
 
         <Reveal delay={120}>
           <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-medium leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
-            {t('heroTitle')}
+            {t.rich('heroTitle', HERO_BRAND_TAGS)}
           </h1>
         </Reveal>
 

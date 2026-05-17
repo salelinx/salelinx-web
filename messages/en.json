@@ -32,12 +32,31 @@
     "builtFor": "Built for Depop and Vinted sellers."
   },
   "Home": {
-    "heroEyebrow": "Live for Depop + Vinted",
-    "heroTitle": "One tool for every Depop & Vinted seller.",
+    "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
+    "heroTitle": "One tool for every <depop></depop> & <vinted></vinted> seller.",
     "heroSubtitle": "Crosslist, relist, refresh, restock, and answer buyers across both platforms from a single panel.",
     "ctaSeePricing": "See pricing",
     "ctaGetStarted": "Get started",
-    "ctaSignIn": "Sign in"
+    "ctaSignIn": "Sign in",
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "Live in two minutes.",
+      "body": "Install, link your shops, and your panel is ready on every Depop and Vinted page.",
+      "steps": {
+        "install": {
+          "title": "Install the extension",
+          "body": "One-click install from the Chrome Web Store. No accounts to create, no settings to fiddle with."
+        },
+        "link": {
+          "title": "Link your shops",
+          "body": "Sign in to Depop and Vinted as normal. SaleLinx picks up the session, nothing to re-enter."
+        },
+        "crosslist": {
+          "title": "Crosslist in one click",
+          "body": "Pick any listing on either marketplace. The other side's form fills itself in. You're done."
+        }
+      }
+    }
   },
   "ThemeToggle": {
     "switchToLight": "Switch to light mode",
@@ -177,10 +196,49 @@
     },
     "sectionHeader": {
       "eyebrow": "Section 01 / Features",
-      "title": "Everything the extension does, grouped by what you actually do with it."
+      "title": "Everything else SaleLinx does.",
+      "body": "Grouped by what you actually do with it. Skim the categories or jump straight to the feature you came for."
     },
-    "marketplaceOnly": "{marketplace} only",
+    "marketplaceOnly": "<marketplace></marketplace> only",
     "sectionNavAria": "Page sections",
+    "headlines": {
+      "eyebrow": "Start here",
+      "title": "What sellers install SaleLinx for.",
+      "description": "Most people come for one of these. The rest of the features are below.",
+      "learnMore": "Learn more",
+      "items": {
+        "crosslist": {
+          "short": "Crosslist",
+          "title": "Crosslist <depop></depop> and <vinted></vinted> in one click",
+          "body": "Pick a listing, hit crosslist, and the other marketplace's form fills itself in. Categories, sizes and conditions are translated for you, so the same item goes live on both shops in seconds.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "refreshRelist": {
+          "short": "Refresh & relist",
+          "title": "Refresh and relist to stay on top",
+          "body": "Push every listing back to the top of search with one click, or recreate stale ones with tweaked photos and titles. Run it yourself, or let it run on its own every few hours.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "restocker": {
+          "short": "Restocker",
+          "title": "Never oversell across shops",
+          "body": "Sells on Depop? SaleLinx removes the same item from Vinted in the same minute. Works the other way too, so you can list the same stock on both shops without worrying about double sales.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "oneInbox": {
+          "short": "Unified inbox",
+          "title": "Offers and messages in one inbox",
+          "body": "Every offer and every buyer message from both shops, merged into a single list. Set rules to auto-accept or counter incoming offers, so you only step in for the conversations that matter.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "labels": {
+          "short": "Shipping labels",
+          "title": "Shipping labels, ready to print in batches",
+          "body": "Download and merge label PDFs for a whole day of orders, so you can run them through the printer in one go instead of clicking through every sale.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        }
+      }
+    },
     "ctaSection": {
       "eyebrow": "Ready when you are",
       "title": "Start in the browser you already sell from.",
@@ -190,117 +248,117 @@
     "chapter": {
       "listings": {
         "number": "01",
-        "title": "Listings & inventory",
-        "blurb": "One dashboard shows every listing from both shops, merged, sortable, and backed up. Link your Depop and Vinted accounts once and the panel is ready on every page.",
+        "title": "Listings and inventory",
+        "blurb": "Every listing from both shops in one place, kept safe and synced everywhere you use SaleLinx.",
         "items": {
           "dashboard": {
-            "label": "Unified listings dashboard",
-            "detail": "Both shops in one grid, merged by title, sortable across columns."
+            "label": "All your stock in one grid",
+            "detail": "Both shops side by side. Sort by date, price or status, and filter down to exactly what you need."
           },
           "linkAccounts": {
-            "label": "Link accounts once",
-            "detail": "Session auto-detected from the browser; nothing to re-enter."
+            "label": "Link your shops once",
+            "detail": "Sign in to Depop and Vinted as you normally would. SaleLinx picks up the session, no passwords to re-enter."
           },
           "backup": {
-            "label": "Encrypted cloud backup",
-            "detail": "Supabase-backed listing store with client-side AES encryption on linked credentials."
+            "label": "Your shop, safely backed up",
+            "detail": "Every listing is stored in the cloud and encrypted, so a closed laptop or a marketplace mistake never costs you a sale."
           },
           "sync": {
-            "label": "Settings sync across devices",
-            "detail": "Move to a second laptop and your configuration follows."
+            "label": "Switch laptops, keep your setup",
+            "detail": "Your settings, rules and shop links follow you to any device you sign in on."
           },
           "multilanguage": {
-            "label": "Multi-language UI",
-            "detail": "English, French, Spanish and German, with light and dark themes."
+            "label": "Use it in your language",
+            "detail": "Available in English, French, Spanish and German, with light and dark themes."
           }
         }
       },
       "crosslisting": {
         "number": "02",
         "title": "Crosslisting",
-        "blurb": "Write the listing once, post it to both marketplaces. Categories, sizes, conditions and brands are translated for you, and the Depop shop layout tool lives in the same panel.",
+        "blurb": "Write a listing once and post it to both marketplaces at the same time. The tricky stuff like categories and sizes is translated for you.",
         "items": {
           "bidirectional": {
-            "label": "Bi-directional crosslister",
-            "detail": "Depop to Vinted and Vinted to Depop, with form auto-fill on the target marketplace."
+            "label": "Crosslist Depop and Vinted, both ways",
+            "detail": "Pick any listing on either marketplace and SaleLinx fills out the other side's form for you."
           },
           "autoMap": {
-            "label": "Auto-mapped taxonomies",
-            "detail": "Categories, sizes, conditions and brands translated between platforms."
+            "label": "Categories and sizes translated for you",
+            "detail": "Depop's tags become Vinted's, and the other way round. No mapping tables to set up."
           },
           "csvImport": {
-            "label": "CSV inventory import",
-            "detail": "Bulk-load an existing inventory with automatic field mapping."
+            "label": "Bulk-import from a CSV",
+            "detail": "Already have a stocklist in a spreadsheet? Upload it once and SaleLinx maps the fields automatically."
           },
           "shopDesigner": {
-            "label": "Shop Designer",
-            "detail": "Drag-and-drop layout tool for the Depop shop profile."
+            "label": "Design your Depop shop, drag-and-drop",
+            "detail": "Rearrange the layout of your Depop profile in the panel without touching the Depop site itself."
           }
         }
       },
       "visibility": {
         "number": "03",
-        "title": "Visibility & audience",
-        "blurb": "Keep listings near the top of search and bring relevant users to your shop. Refresh runs on a schedule you set; the follow bot has five ways to target the right accounts.",
+        "title": "Visibility and audience",
+        "blurb": "Stay near the top of search and reach the buyers most likely to spend with you, without doing it by hand.",
         "items": {
           "refresher": {
-            "label": "Listing refresher",
-            "detail": "Re-saves listings bottom-up so your shop order is preserved."
+            "label": "Push every listing back to the top",
+            "detail": "Re-saves your stock from the bottom up in one click, so the order you carefully arranged is kept."
           },
           "scheduler": {
-            "label": "Auto-refresh scheduler",
-            "detail": "Runs on 4, 6, 8, 12 or 24-hour intervals via chrome.alarms."
+            "label": "Set it and forget it",
+            "detail": "Refresh runs on its own every 4, 6, 8, 12 or 24 hours. Pick the cadence, walk away."
           },
           "followBot": {
-            "label": "Follow / unfollow bot",
-            "detail": "Target a user's followers, following, your buyers, review-givers or likers."
+            "label": "Grow your following, hands-off",
+            "detail": "Follow a competitor's audience, your past buyers, or anyone who liked an item. Five ways to target the right people."
           },
           "filters": {
-            "label": "Blacklist and whitelist",
-            "detail": "Case-insensitive matching so specific accounts are always skipped or always kept."
+            "label": "Skip or always keep specific accounts",
+            "detail": "Add usernames to a blacklist or whitelist so the bot leaves friends, brands or rivals alone."
           },
           "deadStock": {
-            "label": "Dead-stock detector",
-            "detail": "Classifies stale listings and suggests actions."
+            "label": "Spot what isn't selling",
+            "detail": "SaleLinx flags stale listings and suggests what to do with them: refresh, drop the price or relist."
           },
           "autoMarkdown": {
-            "label": "Auto price drops",
-            "detail": "Schedule percentage-based markdowns on stale listings to refresh search visibility without touching them by hand."
+            "label": "Drop prices on stale items, automatically",
+            "detail": "Schedule percentage price drops on listings that have been sitting too long, to nudge them back into search."
           },
           "activityLog": {
-            "label": "Real-time activity log",
-            "detail": "Filter by feature or level, pause and stop at any time, export to JSON."
+            "label": "See every action as it happens",
+            "detail": "Watch SaleLinx work in real time. Filter, pause, stop anything mid-run, and export the log if you need it."
           }
         }
       },
       "sales": {
         "number": "04",
-        "title": "Sales & messaging",
-        "blurb": "Offers, buyer messages and shipping labels in one inbox across both marketplaces. Rules handle the repetitive replies so you only touch the conversations that matter.",
+        "title": "Sales and messaging",
+        "blurb": "Offers, messages, labels and post-sale cleanup in one place, with rules to handle the repetitive stuff.",
         "items": {
           "offersInbox": {
-            "label": "Unified offers inbox",
-            "detail": "Accept, decline or counter offers from both marketplaces in one place."
+            "label": "Accept, counter or decline in one place",
+            "detail": "Every offer from both shops shows up in one inbox, so you don't bounce between tabs to keep up."
           },
           "autoOffers": {
-            "label": "Auto-offers",
-            "detail": "Rule-based counter or accept replies on incoming offers."
+            "label": "Auto-reply to offers",
+            "detail": "Set rules like 'accept anything above 80 percent' or 'always counter at 90 percent' and let SaleLinx handle the rest."
           },
           "messages": {
-            "label": "Unified messages",
-            "detail": "Conversations inbox that merges Depop and Vinted threads."
+            "label": "All buyer messages, one list",
+            "detail": "Depop and Vinted conversations merged into a single inbox, so nothing gets missed."
           },
           "shipping": {
-            "label": "Shipping labels",
-            "detail": "Download and merge PDF labels for batched fulfilment."
+            "label": "Print shipping labels in batches",
+            "detail": "Download and merge label PDFs for a whole day of orders, ready to print and stick."
           },
           "relister": {
-            "label": "Relister",
-            "detail": "Recreate listings with tweaked photos and title, then delete the original to refresh search visibility."
+            "label": "Refresh a listing's search rank",
+            "detail": "Recreate a tired listing with tweaked photos and title, then delete the original so it climbs back up the results."
           },
           "restocker": {
-            "label": "Cross-platform restocker",
-            "detail": "When a linked item sells on one marketplace, the other side is automatically deactivated so you never oversell."
+            "label": "Never oversell across shops",
+            "detail": "Sell an item on one marketplace and SaleLinx pulls the matching listing from the other, automatically."
           }
         }
       }

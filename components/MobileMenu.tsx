@@ -104,10 +104,10 @@ export function MobileMenu({ isAuthed, labels }: Props) {
             style={{ animation: 'tabSlideIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)' }}
           >
             <nav className="flex flex-col gap-1 p-4">
-              <Link href="/features#features" className={linkClass}>
+              <Link href="/#features" className={linkClass}>
                 {labels.navFeatures}
               </Link>
-              <Link href="/features#pricing" className={linkClass}>
+              <Link href="/#pricing" className={linkClass}>
                 {labels.navPricing}
               </Link>
               <Link href="/features#roadmap" className={linkClass}>

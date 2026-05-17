@@ -31,13 +31,13 @@ export async function Header() {
 
         <nav className="hidden flex-1 items-center justify-center gap-6 text-[0.9375rem] font-medium tracking-tight md:flex md:gap-8">
           <Link
-            href="/features#features"
+            href="/#features"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t('navFeatures')}
           </Link>
           <Link
-            href="/features#pricing"
+            href="/#pricing"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t('navPricing')}

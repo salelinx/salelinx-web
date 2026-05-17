@@ -1,8 +1,10 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Icon, type IconName } from "@/components/Icon";
 import { Reveal } from "@/components/Reveal";
+import { BrandWordmark } from "@/components/BrandWordmark";
+import { HeadlineFeatures } from "@/components/features/HeadlineFeatures";
 
 type Marketplace = "depop" | "vinted" | "both";
 
@@ -180,11 +182,11 @@ const CHAPTER_ACCENT: Record<
 
 const MONO = "font-mono text-[0.68rem] uppercase tracking-[0.12em]";
 
-function MarketplaceBadge({ on, label }: { on: Marketplace; label: string }) {
+function MarketplaceBadge({ on, label }: { on: Marketplace; label: ReactNode }) {
   if (on === "both") return null;
   return (
     <span
-      className={`${MONO} ml-2 inline-block shrink-0 rounded border border-black/10 px-1.5 py-0.5 text-zinc-600 dark:border-white/15 dark:text-zinc-400`}
+      className={`${MONO} ml-2 inline-flex shrink-0 items-center gap-1 rounded border border-black/10 px-1.5 py-0.5 text-zinc-600 dark:border-white/15 dark:text-zinc-400`}
     >
       {label}
     </span>
@@ -196,13 +198,18 @@ export async function FeaturesSection() {
 
   return (
     <section id="features" className="scroll-mt-20 pt-16 pb-8">
-      <Reveal as="div" className="pb-10">
+      <HeadlineFeatures />
+
+      <Reveal as="div" className="mt-24 border-t border-black/10 pt-16 pb-4 dark:border-white/10">
         <span className={`${MONO} text-zinc-500`}>
           {t("sectionHeader.eyebrow")}
         </span>
-        <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+        <h2 className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl">
           {t("sectionHeader.title")}
         </h2>
+        <p className="mt-4 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
+          {t("sectionHeader.body")}
+        </p>
       </Reveal>
 
       {CHAPTERS.map((chapter, chapterIdx) => {
@@ -270,7 +277,18 @@ export async function FeaturesSection() {
                         </span>
                         <MarketplaceBadge
                           on={item.on}
-                          label={t("marketplaceOnly", { marketplace: item.on })}
+                          label={
+                            item.on === "both"
+                              ? null
+                              : t.rich("marketplaceOnly", {
+                                  marketplace: () => (
+                                    <BrandWordmark
+                                      brand={item.on as "depop" | "vinted"}
+                                      height="0.85em"
+                                    />
+                                  ),
+                                })
+                          }
                         />
                       </div>
                       <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">

@@ -1,6 +1,12 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { SITE_NAME, absoluteUrl } from '@/lib/site';
 import { Hero } from '@/components/home/Hero';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { HeadlineFeatures } from '@/components/features/HeadlineFeatures';
+import { PricingSection } from '@/components/features/PricingSection';
+import { getTierConfigs } from '@/lib/supabase/tier-config';
+
+export const revalidate = 60;
 
 export default async function Home({
   params,
@@ -9,7 +15,10 @@ export default async function Home({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const tLayout = await getTranslations('Layout');
+  const [tLayout, tiers] = await Promise.all([
+    getTranslations('Layout'),
+    getTierConfigs(),
+  ]);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -34,6 +43,13 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
+      <HowItWorks />
+      <section id="features" className="mx-auto w-full max-w-7xl scroll-mt-20 px-6">
+        <HeadlineFeatures />
+      </section>
+      <div className="mx-auto w-full max-w-7xl px-6">
+        <PricingSection tiers={tiers} />
+      </div>
     </main>
   );
 }
