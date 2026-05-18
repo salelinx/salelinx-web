@@ -1,0 +1,142 @@
+export const metadata = {
+  title: 'Linking',
+  description:
+    'Pair individual Depop listings with their Vinted counterparts. Fuzzy-match suggests the right partner; one click links them so the Restocker and other features know they\'re the same item.',
+  category: 'automate',
+  slug: 'linking',
+  order: 3,
+  updated: '2026-05-18',
+  tags: ['linking', 'restocker', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Linking
+
+The Linking tab pairs an individual Depop listing with its Vinted
+counterpart so the rest of SaleLinx knows they&rsquo;re the same
+item. Once two listings are linked:
+
+- [Restocker](/docs/automate/restocker) can auto-repost the partner
+  when one side sells.
+- The unified [Listings](/docs/inventory/listings) view collapses the
+  pair into one row with stacked platform badges.
+- The Crosslist tab&rsquo;s Linked / Unlinked filter recognises them
+  as a pair.
+
+A successful [Crosslist](/docs/inventory/crosslist) sets the link
+automatically. The Linking tab is for the case where you crosslisted
+manually outside SaleLinx, lost a link due to an account reset, or
+need to pair pre-existing inventory after migrating in.
+
+## When to use it
+
+- You have inventory that exists on both Depop and Vinted but
+  wasn&rsquo;t crosslisted via SaleLinx.
+- You want to turn on [Restocker](/docs/automate/restocker) and need
+  the pairs set up first.
+- A previous link broke (a listing was deleted and recreated, or an
+  edge case desynced the pair).
+
+## What you need
+
+- **Cloud sync on for both items.** Linking only works on
+  cloud-synced listings, because the link state lives on your cloud
+  record. See [Cloud sync](/docs/inventory/cloud-sync).
+- Both items active on their marketplace.
+- Both Depop and Vinted tabs open in the browser.
+
+## Reading the tab
+
+The tab is a two-column layout:
+
+- **Left column** - unlinked items on whichever platform you&rsquo;re
+  currently browsing.
+- **Right column** - unlinked items on the other platform.
+- **Already linked** - a collapsed section at the bottom shows
+  existing pairs with per-pair Unlink buttons.
+
+Each card has: a search box per column, the thumbnail, title,
+brand, price and platform badge.
+
+A dismissible &ldquo;What is linking?&rdquo; card sits at the top to
+remind you what the tab does on first visit.
+
+## Pairing manually
+
+1. **Click a card in the left column.** The right column re-sorts by
+   match probability and adds a colour-banded percentage badge to
+   each card (green for likely matches, amber for maybes, grey for
+   weak).
+2. **Click the suggested partner on the right.** A confirmation
+   modal shows both thumbnails, titles, and the match score side by
+   side.
+3. **Click Link.** Both records get a cross-reference (link_id on
+   each side). The cards disappear from the unlinked columns and
+   move to the Already linked section.
+
+The right-column reshuffle uses a quick shake animation so you can
+see which items moved.
+
+## The fuzzy match
+
+The match score is a 0-100 integer based on how similar the two
+titles are, with a small nudge if the prices are close to each other.
+SaleLinx normalises both titles (lowercase, strip punctuation, drop
+common stopwords like &ldquo;the&rdquo;, &ldquo;vintage&rdquo;,
+&ldquo;new&rdquo;) before comparing, so cosmetic differences
+don&rsquo;t throw it off.
+
+The score bands map to badges:
+
+| Band  | Visual                  |
+| ----- | ----------------------- |
+| Good  | Green, confident match  |
+| Maybe | Amber, worth a look     |
+| Weak  | Grey, probably unrelated |
+
+The match isn&rsquo;t perfect. Treat &ldquo;Good&rdquo; as a strong
+suggestion you should still confirm, not as truth.
+
+## Link 100%
+
+Above the columns is a **Link 100%** button. Click it to open a
+review modal listing every unlinked pair with a perfect-confidence
+match. Each row is pre-checked; uncheck any you don&rsquo;t want,
+then **Accept** to link the remaining pairs in one batch. Faster
+than clicking through one at a time when your titles are clean
+matches.
+
+## Refresh
+
+The **Refresh** button at the top of the tab re-fetches your
+listings on both Depop and Vinted in parallel, then reloads the
+columns. Use it after you&rsquo;ve added new listings on either
+side and want them to show up in the unlinked columns.
+
+The button disables and shows &ldquo;Refreshing&hellip;&rdquo; while
+running.
+
+## Unlinking
+
+In the **Already linked** section, each pair has an Unlink button.
+Clicking it removes the cross-reference on both sides without
+touching the listings themselves. The pair reappears in the
+unlinked columns.
+
+## Plan and access
+
+Linking is included on **Pro and Business**. The free trial and
+Starter see the tab locked with an Upgrade card.
+
+Cloud sync (a prerequisite) is also Pro and Business, so the gates
+align.
+
+## Next steps
+
+- [Cloud sync](/docs/inventory/cloud-sync) - the prerequisite for
+  any linking.
+- [Crosslist](/docs/inventory/crosslist) - sets links automatically
+  on every successful crosslist.
+- [Restocker](/docs/automate/restocker) - the main consumer of
+  linked pairs.

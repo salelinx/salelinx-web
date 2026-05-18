@@ -35,7 +35,12 @@ Deno.serve(async (req) => {
   if (!user)
     return new Response("Unauthorized", { status: 401, headers: corsHeaders });
 
-  const { priceId, successUrl, cancelUrl } = await req.json();
+  const { priceId, successUrl, cancelUrl, trialDays } = await req.json();
+
+  const trial =
+    typeof trialDays === "number" && trialDays > 0 && trialDays <= 30
+      ? Math.floor(trialDays)
+      : null;
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
@@ -45,6 +50,17 @@ Deno.serve(async (req) => {
     success_url: successUrl,
     cancel_url: cancelUrl,
     allow_promotion_codes: true,
+    ...(trial
+      ? {
+          subscription_data: {
+            trial_period_days: trial,
+            trial_settings: {
+              end_behavior: { missing_payment_method: "cancel" },
+            },
+          },
+          payment_method_collection: "if_required",
+        }
+      : {}),
   });
 
   return new Response(JSON.stringify({ url: session.url }), {

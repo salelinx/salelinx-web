@@ -1,0 +1,103 @@
+export const metadata = {
+  title: 'Shop Designer',
+  description:
+    'Drag-and-drop layout tool for the Depop shop profile. Pin, reorder and preview your shop without dragging items around in Depop\'s own UI.',
+  category: 'inventory',
+  slug: 'shop-designer',
+  order: 6,
+  updated: '2026-05-18',
+  tags: ['shop', 'depop', 'design', 'layout'],
+  marketplaces: ['depop'],
+  status: 'published',
+};
+
+# Shop Designer
+
+Shop Designer is a visual layout tool for your Depop shop. It lets
+you pin, re-order, and group your active listings without dragging
+items around inside Depop&rsquo;s own UI, which is fiddly on the web
+and slow on mobile.
+
+This feature is **Depop only**. Vinted doesn&rsquo;t expose a public
+way to re-order a shop, so the equivalent doesn&rsquo;t exist for
+Vinted listings.
+
+## What it does
+
+- **Reorder listings** by dragging cards in the panel preview. Saving
+  pushes the new order to Depop in one batch.
+- **Pin items to the top** so featured pieces always show first.
+- **Preview** the resulting shop layout before you commit.
+
+The panel reads your active listings from Depop, shows them as a
+draggable grid, and lets you save the result back to Depop in one go.
+
+## Opening the designer
+
+Inside the SaleLinx panel, open the **Shop Designer** tab. The first
+time you open it on a new account, it pulls your active listings
+(this can take a few seconds for shops with hundreds of items).
+
+The grid mirrors the order Depop currently shows on your shop page.
+
+## Reordering
+
+Drag any card to a new position. The preview updates instantly. Drop
+targets highlight as you drag.
+
+Use the toolbar:
+
+- **Sort by date** - resets the preview to newest-first.
+- **Reverse** - flips the current order.
+- **Reset** - throws away changes and reloads from Depop.
+
+## Saving
+
+Click **Save layout**. SaleLinx pushes the new order to Depop one
+item at a time, using the same [Refresh](/docs/inventory/refresh)
+mechanism under the hood (each repositioned item is bumped by a
+re-save, in reverse order, to land in the target position). Safe
+pacing between calls means the marketplace doesn&rsquo;t flag the
+burst as automated activity.
+
+The save can take a minute or two for a large shop. The panel shows
+progress and you can keep working in other tabs - nothing else is
+blocked.
+
+<Callout variant="tip" title="When ordering matters">
+Depop&rsquo;s search and feed surface listings partly based on shop
+activity, so a recently re-ordered shop can briefly get a small
+visibility bump. Don&rsquo;t re-order daily - the bump diminishes if
+Depop sees the same items being shuffled in a tight loop.
+</Callout>
+
+## Common tasks
+
+**Featuring a new collection.** Drag the new pieces to the top, save.
+They&rsquo;ll be the first thing shoppers see when they land on your
+profile.
+
+**Cleaning up a messy shop.** Use **Sort by date** to reset, then
+nudge the items you want featured to the top. Saves you the
+click-by-click drag in Depop&rsquo;s native shop editor.
+
+## Limitations
+
+- **Depop only** - Vinted has no equivalent.
+- **Active listings only** - sold and draft items aren&rsquo;t shown.
+- **No grouping** - Depop doesn&rsquo;t support sections, so neither
+  does the designer. Order is a single flat list.
+
+## Plan and access
+
+Shop Designer is included on Starter and above, and on the 7-day
+free trial (which grants Starter access). Once the trial ends
+without subscribing, the tab locks.
+
+## Next steps
+
+- [Crosslist](/docs/inventory/crosslist) - post any listing to the
+  other marketplace.
+- [Refresh](/docs/inventory/refresh) - the mechanism that powers the
+  designer&rsquo;s save.
+- [Listings](/docs/inventory/listings) - the unified inventory view.

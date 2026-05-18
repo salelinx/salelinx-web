@@ -1,0 +1,29 @@
+export const metadata = {
+  title: 'Synchronisation cloud',
+  description:
+    'Comment SaleLinx sauvegarde vos annonces dans le cloud, ce que fait l\'enrichisseur en arrière-plan et comment choisir ce qui est synchronisé.',
+  category: 'inventory',
+  slug: 'cloud-sync',
+  order: 8,
+  updated: '2026-05-18',
+  tags: ['cloud', 'synchronisation', 'sauvegarde', 'enrichissement'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'stub',
+};
+
+# Synchronisation cloud
+
+Par défaut, SaleLinx stocke vos annonces localement dans votre
+navigateur. La synchronisation cloud, optionnelle et activable par
+annonce, copie ces données (et les photos) sur votre compte
+SaleLinx (Supabase). L'**enrichisseur** est le processus en
+arrière-plan qui rend la synchro possible.
+
+<Callout>
+Traduction française complète à venir. Voir la
+[version anglaise](/en/docs/inventory/cloud-sync) pour le détail
+des deux stores (IndexedDB local / Supabase cloud), le chiffrement
+client, les déclencheurs d'enrichissement, la cadence sous task
+queue, la sauvegarde d'images, le multi-onglet / multi-appareil et
+les annonces orphelines.
+</Callout>

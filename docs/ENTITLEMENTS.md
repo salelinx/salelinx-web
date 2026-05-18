@@ -81,28 +81,27 @@ Always derived from the user's local date at the moment of the check. Periods re
 
 See migration `011_billing.sql` in the extension repo (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1). Migration `015_add_linking_markdown_features.sql` adds `account_linking` (Pro+) and `auto_markdown` (Business). Migration `016_deadstock_starter.sql` moves `dead_stock` down to Starter+. Migration `017_shop_designer_messages_offers_starter.sql` moves `shop_designer` + `messages` down to Starter+ and adds a new `offers` (incoming-offers tab) feature gated at Starter+. Auto-offers (`auto_offer`) stays Pro+. Summary:
 
-| Label                      | JSON key                  | Free | Starter | Pro       | Business  |
-| -------------------------- | ------------------------- | ---- | ------- | --------- | --------- |
-| Crosslists / mo            | `crosslists_per_month`    | 25   | 150     | 3,500     | Unlimited |
-| Relists / mo               | `relists_per_month`       | 25   | 150     | 3,500     | Unlimited |
-| Refreshes / day            | `refreshes_per_day`       | 50   | 100     | Unlimited | Unlimited |
-| Follows / day              | `follows_per_day`         | 100  | 500     | Unlimited | Unlimited |
-| Unfollows / day            | `unfollows_per_day`       | 100  | 500     | Unlimited | Unlimited |
-| Linked shops               | `linked_shops`            | 1    | 1       | 1         | 3         |
-| Cloud storage              | `cloud_storage_bytes`     | -    | -       | 1 GB      | 5 GB      |
-| Support response (days)    | `support_response_days`   | 7    | 5       | -         | -         |
-| Support response (hours)   | `support_response_hours`  | -    | -       | 48        | 24        |
-| Auto-refresh               | `auto_refresh`            | ✗    | ✗       | ✓         | ✓         |
-| Cloud sync                 | `cloud_sync`              | ✗    | ✗       | ✓         | ✓         |
-| Shipping labels            | `shipping_labels`         | ✗    | ✗       | ✓         | ✓         |
-| Account linking            | `account_linking`         | ✗    | ✗       | ✓         | ✓         |
-| Auto-offers                | `auto_offer`              | ✗    | ✗       | ✓         | ✓         |
-| Offers (incoming)          | `offers`                  | ✗    | ✓       | ✓         | ✓         |
-| Messages                   | `messages`                | ✗    | ✓       | ✓         | ✓         |
-| Shop Designer              | `shop_designer`           | ✗    | ✓       | ✓         | ✓         |
-| Dead Stock                 | `dead_stock`              | ✗    | ✓       | ✓         | ✓         |
-| Restocker                  | `restocker`               | ✗    | ✗       | ✗         | ✓         |
-| Price Drops (auto-markdown)| `auto_markdown`           | ✗    | ✗       | ✗         | ✓         |
+| Label                       | JSON key                 | Free | Starter | Pro       | Business  |
+| --------------------------- | ------------------------ | ---- | ------- | --------- | --------- |
+| Crosslists / mo             | `crosslists_per_month`   | 25   | 150     | 3,500     | Unlimited |
+| Relists / mo                | `relists_per_month`      | 25   | 150     | 3,500     | Unlimited |
+| Refreshes / day             | `refreshes_per_day`      | 50   | 100     | Unlimited | Unlimited |
+| Follows / day               | `follows_per_day`        | 100  | 500     | Unlimited | Unlimited |
+| Unfollows / day             | `unfollows_per_day`      | 100  | 500     | Unlimited | Unlimited |
+| Cloud storage               | `cloud_storage_bytes`    | -    | -       | 500 MB    | 1 GB      |
+| Support response (days)     | `support_response_days`  | 7    | 5       | -         | -         |
+| Support response (hours)    | `support_response_hours` | -    | -       | 48        | 24        |
+| Auto-refresh                | `auto_refresh`           | ✗    | ✗       | ✓         | ✓         |
+| Cloud sync                  | `cloud_sync`             | ✗    | ✗       | ✓         | ✓         |
+| Shipping labels             | `shipping_labels`        | ✗    | ✗       | ✓         | ✓         |
+| Account linking             | `account_linking`        | ✗    | ✗       | ✓         | ✓         |
+| Auto-offers                 | `auto_offer`             | ✗    | ✗       | ✓         | ✓         |
+| Offers (incoming)           | `offers`                 | ✗    | ✓       | ✓         | ✓         |
+| Messages                    | `messages`               | ✗    | ✓       | ✓         | ✓         |
+| Shop Designer               | `shop_designer`          | ✗    | ✓       | ✓         | ✓         |
+| Dead Stock                  | `dead_stock`             | ✗    | ✓       | ✓         | ✓         |
+| Restocker                   | `restocker`              | ✗    | ✗       | ✗         | ✓         |
+| Price Drops (auto-markdown) | `auto_markdown`          | ✗    | ✗       | ✗         | ✓         |
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 

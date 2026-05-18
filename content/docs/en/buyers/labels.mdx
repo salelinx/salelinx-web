@@ -1,0 +1,168 @@
+export const metadata = {
+  title: 'Labels',
+  description:
+    'Download, batch-print or email merged PDF shipping labels for your sold orders. Plus the Vinted feedback bot for closing the post-sale loop.',
+  category: 'buyers',
+  slug: 'labels',
+  order: 3,
+  updated: '2026-05-18',
+  tags: ['shipping', 'labels', 'pdf', 'feedback'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Labels
+
+The **Labels** tab gathers your sold orders from both marketplaces
+and lets you download, print or email the label PDFs in one go -
+instead of clicking each order in the marketplace UI and saving
+labels one at a time. The same tab also hosts the Vinted
+**feedback bot** for posting bulk seller feedback on completed
+sales.
+
+## What it shows
+
+Two sections:
+
+1. **To ship** - sold orders that have a label ready (Depop) or
+   that need one ordered first (Vinted &ldquo;needs label&rdquo;
+   flow). Each card shows the buyer, item title, carrier badge,
+   and the order date.
+2. **Shipped** - orders you&rsquo;ve marked sent, kept around so
+   you can leave Vinted feedback in bulk from the same tab.
+
+Filters at the top narrow by carrier (Evri, Royal Mail, etc.) or
+by free-text search across buyer name and item title.
+
+## Selecting orders
+
+Click a card to select it. Click again to deselect. The toolbar
+shows the selected count and enables **Print** and **Email**.
+
+The header checkbox selects everything visible (respecting the
+current filter), so you can do the day&rsquo;s shipping in one
+selection.
+
+## Downloading and printing
+
+Click **Print labels** with one or more cards selected. SaleLinx:
+
+1. Downloads each individual label PDF from the marketplace.
+2. Merges them into one combined PDF in the order they appear in
+   the panel.
+3. Saves it to your downloads folder with a name like
+   `labels-2026-05-10-12.pdf`.
+4. Opens the merged PDF in a new tab so you can hit Print.
+
+For Vinted&rsquo;s Evri labels (which come in A4 with extra
+whitespace), SaleLinx auto-crops to the label box before merging so
+you don&rsquo;t waste half a page per label.
+
+## QR vs PDF (Depop)
+
+Depop offers some carriers as a QR code instead of a PDF. For
+those orders, the card shows a **PDF / QR** toggle. Pick whichever
+your local drop-off point accepts.
+
+## Emailing labels
+
+Sometimes you want the labels on a different device (phone for
+printing at the post office, partner&rsquo;s computer). Click
+**Email labels** with your selection.
+
+A small modal asks for an email address, then SaleLinx sends the
+merged PDF straight from the extension. The subject and body are
+pre-written; you can tick &ldquo;Remember this address&rdquo; so it
+pre-fills next time.
+
+If your account doesn&rsquo;t have email send configured (or it
+fails), SaleLinx falls back to a regular `mailto:` link with the
+PDF attached as a download.
+
+## Vinted &ldquo;needs label&rdquo; flow
+
+For Vinted orders where you haven&rsquo;t ordered the label yet,
+the card shows **PDF** and **QR** buttons. Click one and SaleLinx
+asks Vinted for that label type via the API. The card updates to
+**Label ready** within a few seconds and joins the rest of the
+printable batch.
+
+## Vinted feedback bot
+
+The **Shipped** section also surfaces orders that are eligible for
+seller feedback. Each row carries a **Leave feedback** button. The
+bot posts your feedback - with an optional follow-up DM - in bulk
+or one-at-a-time.
+
+### Eligibility
+
+A sold Vinted order shows up as feedback-eligible only when **all**
+of these are true:
+
+- The transaction&rsquo;s user status is `completed` (the buyer
+  has received the item).
+- You haven&rsquo;t already left feedback on it.
+- Vinted still exposes the feedback action (i.e. you&rsquo;re
+  inside the feedback window).
+
+The strict completion gate is deliberate: Vinted technically
+exposes the feedback action earlier (in transit, on cancelled
+orders, etc.), but acting on it then would risk reviews on orders
+the buyer never received.
+
+### Configuring the message
+
+Click the gear icon in the Shipped section header to open the
+feedback settings card:
+
+- **Rating** - 1 to 5 stars. Defaults to 5.
+- **Feedback message** - the public review text. Supports the
+  `@username` placeholder, which is replaced with the
+  buyer&rsquo;s Vinted login. Use `\@` to write a literal `@`.
+- **Send follow-up DM** - toggle. When on, SaleLinx also sends a
+  private chat message after the feedback lands.
+- **DM message** - body of the optional DM, same `@username`
+  substitution.
+
+Settings are stored locally and apply to every run; there&rsquo;s
+no per-order override (matching the simpler dotb-style flow).
+
+### Running it
+
+For a single order: click **Leave feedback** on the row. The row
+disappears once the post lands.
+
+For bulk:
+
+1. Tick the rows you want to feedback.
+2. Click **Leave feedback on selected** in the toolbar.
+3. SaleLinx queues the posts through the task queue with standard
+   pacing.
+
+Selected rows are removed from the list as soon as the bot accepts
+the job. If the run fails partway through, the next manual refresh
+of the tab brings any un-fed-back rows back into view.
+
+### Pacing
+
+Feedback posts (and the optional DMs, queued separately) go through
+SaleLinx&rsquo;s standard pacing so a bulk run doesn&rsquo;t look
+automated to Vinted.
+
+A failed DM doesn&rsquo;t invalidate the feedback. The row still
+flips, and the failure is logged so you can chase it manually if
+needed. If the marketplace pushes back hard the bot stops cleanly;
+re-sign-in and try again later.
+
+## Plan and access
+
+Available on **Pro and Business**. The free trial and Starter see
+the tab locked.
+
+## Next steps
+
+- [Messages](/docs/buyers/messages) - reply to buyer messages from
+  the same panel.
+- [Offers](/docs/buyers/offers) - close the pre-sale loop.
+- [Restocker](/docs/automate/restocker) - the next step after the
+  sale ships and the order completes.

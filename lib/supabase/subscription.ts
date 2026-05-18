@@ -42,3 +42,19 @@ export async function getCurrentSubscription(
     tier: (tier as TierConfig | null) ?? null,
   };
 }
+
+const ENTITLED_STATUSES = new Set<SubscriptionRow["status"]>([
+  "active",
+  "trialing",
+]);
+
+export function isEntitled(sub: SubscriptionRow | null): boolean {
+  return sub !== null && ENTITLED_STATUSES.has(sub.status);
+}
+
+export function trialDaysRemaining(sub: SubscriptionRow | null): number | null {
+  if (!sub || sub.status !== "trialing" || !sub.current_period_end) return null;
+  const ms = new Date(sub.current_period_end).getTime() - Date.now();
+  if (Number.isNaN(ms) || ms <= 0) return 0;
+  return Math.ceil(ms / (24 * 60 * 60 * 1000));
+}

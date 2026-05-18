@@ -1,0 +1,98 @@
+export const metadata = {
+  title: 'Listings',
+  description:
+    'The unified Listings tab merges your Depop and Vinted catalogue into one sortable, filterable grid with bulk actions.',
+  category: 'inventory',
+  slug: 'listings',
+  order: 1,
+  updated: '2026-05-18',
+  tags: ['listings', 'inventory', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Listings
+
+The **Listings** tab merges your Depop and Vinted catalogue into one
+sortable grid. Each row is one listing with a platform badge so you
+always know where it lives. Filters, bulk edits, refresh, relist,
+price changes and delete all work across both marketplaces from the
+same screen.
+
+## What the grid shows
+
+Per row, the grid shows:
+
+- Photo, title and platform badge.
+- Status (active, sold, draft, hidden).
+- Price.
+- Listed date and age.
+- Restock toggle and quantity (when available).
+- Quick-edit buttons.
+
+Click any column header to sort. Click a row to expand the detail
+drawer with the full description, all photos, tags and the edit form.
+
+## Filtering and search
+
+The toolbar above the grid has filters for:
+
+- **Platform** - Depop only, Vinted only, or both.
+- **Status** - active, sold, draft, hidden.
+- **Marketplace search** - types into the source marketplace&rsquo;s
+  search index. Useful when you remember a phrase from the title.
+
+Filters stack: platform = Vinted + status = active + search =
+&ldquo;jeans&rdquo; narrows the grid to just those rows.
+
+## Bulk actions
+
+Select multiple rows by clicking their checkboxes (or use the header
+checkbox to select everything visible). The toolbar reveals bulk
+actions:
+
+- **Refresh** - re-saves selected listings to push them up the search
+  feed (Depop). See [Refresh](/docs/inventory/refresh).
+- **Relist** - deletes and re-creates each listing from scratch with
+  optional photo modifications. See [Relist](/docs/inventory/relist).
+- **Price change** - flat percentage drop or fixed amount across
+  selection.
+- **Delete** - removes the listings from the marketplace. There is no
+  undo.
+
+## Quick edit
+
+The pencil icon on any row opens an inline editor for title,
+description and price. Save commits to the marketplace immediately.
+Useful for one-off typo fixes without leaving the dashboard.
+
+## Restocker columns
+
+If a row supports restocking (active Vinted item, or a Depop item
+linked to a Vinted item), the **Restock** toggle and **Qty** input
+appear in-row. See [Restocker](/docs/automate/restocker) for the full
+flow.
+
+## Cloud sync
+
+A cloud icon on each row toggles backup to your SaleLinx account.
+Local data stays in the browser; cloud sync is opt-in per listing and
+powers cross-device, cross-platform features. See
+[Cloud sync](/docs/inventory/cloud-sync) for the full picture.
+
+## Multi-language
+
+The panel itself is available in English, French, Spanish and German
+with light and dark themes. Listing data stays in whatever language
+you wrote it in - SaleLinx never re-translates user content.
+
+## Next steps
+
+- [Crosslist](/docs/inventory/crosslist) - post any listing to the
+  other marketplace.
+- [Refresh](/docs/inventory/refresh) - bump listings to the top of
+  your shop.
+- [Cloud sync](/docs/inventory/cloud-sync) - opt in to encrypted
+  backup of your catalogue.
+- [Restocker](/docs/automate/restocker) - auto-repost when a linked
+  item sells.

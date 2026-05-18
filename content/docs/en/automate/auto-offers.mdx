@@ -1,0 +1,101 @@
+export const metadata = {
+  title: 'Auto-Offers',
+  description:
+    'Auto-accept incoming buyer offers above a percentage threshold on a schedule you control.',
+  category: 'automate',
+  slug: 'auto-offers',
+  order: 2,
+  updated: '2026-05-18',
+  tags: ['offers', 'automation', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Auto-Offers
+
+Auto-Offers periodically scans your pending Depop and Vinted offers
+and accepts any that meet a threshold you set. It removes the manual
+step for small-ticket items where any offer above N% of asking is
+fine, while still letting you handle bigger or more interesting
+offers by hand.
+
+## Where it lives
+
+Inside the **Offers** tab in the panel. The auto-accept controls
+are at the top of the tab, above the manual offers list.
+
+## How it decides
+
+An offer is auto-accepted only when it clears two checks:
+
+1. The offer is at least your **Minimum percent** of the listed
+   price.
+2. The offer is at or above your **Minimum price** floor (if you set
+   one).
+
+If either fails, the offer is left alone for you to handle
+manually. The thresholds are applied per-offer, so a multi-item shop
+with mixed prices behaves correctly.
+
+## Setting it up
+
+In the Offers tab:
+
+1. Toggle **Auto-accept** on.
+2. Set **Minimum percent** - e.g. 90 means &ldquo;accept any offer
+   at 90% of asking or higher&rdquo;.
+3. Optionally set **Minimum price** - e.g. £5 means &ldquo;ignore
+   anything below a fiver regardless of percentage&rdquo;. Leave at
+   0 to disable the floor.
+4. Pick **platforms** - tick Depop, Vinted, or both. Each runs
+   independently.
+5. Pick **interval** - how often to scan (5, 10, 15, 30, or 60
+   minutes; default 15).
+
+Toggling on triggers an immediate scan so you don&rsquo;t have to
+wait a full interval to see it work.
+
+## Status and recent accepts
+
+The auto-accept block shows:
+
+- **Last run** - when the last scan completed and how many offers
+  were accepted in it.
+- **Next run** - countdown to the next scan.
+- **Recent accepts** - last 5 offers SaleLinx accepted
+  automatically, so you can spot-check decisions.
+
+## Trade-offs
+
+Auto-Offers will sometimes accept offers you would have countered.
+The guidance: set the threshold conservatively. 90% is a sensible
+default. If you set it to 70%, you&rsquo;ll auto-accept lowballs
+you could have nudged up by a few quid.
+
+The minimum-price floor is the safer lever for mixed-price shops. A
+90% threshold on a £5 item still drops you to £4.50; a £5 floor
+stops that.
+
+## What it doesn&rsquo;t do
+
+- **Doesn&rsquo;t counter** - only accepts. Counter-offering needs
+  human judgement on the right step-down amount.
+- **Doesn&rsquo;t decline** - offers below the threshold sit in the
+  pending list waiting for you. Marketplaces auto-expire them after
+  their own deadline.
+- **Doesn&rsquo;t touch already-accepted offers** - the scan looks
+  at pending only.
+
+## Plan and access
+
+Available on Pro and above. The free trial and Starter see the
+auto-accept controls locked. The manual offers inbox
+(accept/decline/counter on each card) is available on Starter and
+above (which includes the trial).
+
+## Next steps
+
+- [Offers](/docs/buyers/offers) - the manual inbox for offers
+  below your threshold.
+- [Price Drops](/docs/automate/price-drops) - reduce prices so
+  lower offers stop coming in at all.

@@ -41,14 +41,17 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Do I need to pay to try it?',
         a: (
           <p>
-            No. The free tier lets you try the core flows. See{' '}
+            You get a 7-day free trial of the Starter plan when you sign up. No
+            card is required to start the trial and you won&rsquo;t be charged
+            anything. After 7 days the trial ends and you&rsquo;ll need to pick
+            a plan to keep going. See{' '}
             <Link href="/pricing" className="underline underline-offset-4">
               pricing
             </Link>{' '}
-            for what each tier includes.
+            for what each plan includes.
           </p>
         ),
-        keywords: ['free', 'trial', 'pricing', 'tier'],
+        keywords: ['free', 'trial', 'pricing', 'tier', 'starter'],
       },
     ],
   },

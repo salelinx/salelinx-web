@@ -1,0 +1,84 @@
+export const metadata = {
+  title: 'Messages',
+  description:
+    'Read and reply to buyer messages from Depop and Vinted in one panel, without leaving the page you\'re on.',
+  category: 'buyers',
+  slug: 'messages',
+  order: 2,
+  updated: '2026-05-18',
+  tags: ['messages', 'conversations', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Messages
+
+The **Messages** tab merges unread buyer messages from Depop and
+Vinted into one view. Two columns side by side, with the unread
+count next to each platform&rsquo;s logo. Each card shows the
+buyer&rsquo;s avatar, username, time since their last message, a
+two-line preview, the unread badge, and a thumbnail of the item the
+conversation is about.
+
+(The extension labels the tab &ldquo;Messages&rdquo; in the
+sidebar; under the hood it&rsquo;s the conversations endpoint.)
+
+## What &ldquo;unread&rdquo; means
+
+The tab shows conversations where you owe the buyer a reply. The
+definition differs by platform because their APIs do:
+
+- **Depop** - any conversation where `unreadCount > 0`.
+  Depop&rsquo;s inbox endpoint exposes the unread count directly,
+  so SaleLinx doesn&rsquo;t need to fetch each conversation to
+  decide.
+- **Vinted** - any conversation where `unread: true` AND the most
+  recent text message is from the buyer (not from you). The second
+  check excludes cases where you replied recently but the buyer
+  hasn&rsquo;t opened it yet.
+
+## Opening a thread
+
+Click any conversation card to expand the thread inline. Only one
+is open at a time - opening a second collapses the first. Vinted
+threads are pre-loaded so they open instantly; Depop threads are
+fetched on demand, so the first open takes a moment.
+
+The reply input sits at the bottom of the open thread. Type your
+message and click **Send** (or hit Enter, with Shift+Enter for a
+new line). Replies are sent with high priority so they jump ahead
+of any background work.
+
+There&rsquo;s also an **Open in platform** link if you need the
+full marketplace UI for something the panel doesn&rsquo;t support
+(attachments, blocking, reporting).
+
+## Sending and pacing
+
+Replies go through SaleLinx&rsquo;s pacing engine so back-to-back
+sends don&rsquo;t look automated. If the marketplace pushes back
+the send is retried; if your session gets flagged outright, the
+send stops and you should re-sign-in.
+
+## Refreshing
+
+The **Refresh** button at the top of the tab re-fetches both Depop
+and Vinted in parallel. The previous results stay on screen until
+the new fetch completes, so the tab doesn&rsquo;t flash empty.
+
+There&rsquo;s no auto-refresh on a timer - the tab refreshes when
+you open it and when you press Refresh. Live polling the inbox
+would burn through marketplace budget for no real benefit.
+
+## Plan and access
+
+Messages is available on **Starter and above** (which includes the
+7-day free trial).
+
+## Next steps
+
+- [Offers](/docs/buyers/offers) - pending offers from the same
+  shared Vinted inbox cache.
+- [Labels](/docs/buyers/labels) - the next step after a sale closes.
+- [Bots](/docs/inventory/bots) - grow the audience whose messages
+  these are.
