@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { SectionNav } from '@/components/features/SectionNav';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { RoadmapSection } from '@/components/features/RoadmapSection';
@@ -38,15 +37,15 @@ export default async function FeaturesPage({
 
   return (
     <main>
-      <section className="mx-auto w-full max-w-7xl px-6 pt-20 pb-20 sm:pt-28 sm:pb-24">
+      <section className="mx-auto w-full max-w-7xl px-6 pt-20 pb-20 text-center sm:pt-28 sm:pb-24">
         <span className={`${MONO} text-zinc-500`}>{t('hero.eyebrow')}</span>
-        <h1 className="mt-6 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">
+        <h1 className="mx-auto mt-6 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">
           {t('hero.title')}
         </h1>
-        <p className="mt-8 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
+        <p className="mx-auto mt-8 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
           {t('hero.description')}
         </p>
-        <div className="mt-10 flex flex-wrap items-center gap-3">
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/auth/signup"
             className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
@@ -61,8 +60,6 @@ export default async function FeaturesPage({
           </a>
         </div>
       </section>
-
-      <SectionNav />
 
       <div className="mx-auto w-full max-w-7xl px-6">
         <FeaturesSection />

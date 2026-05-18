@@ -36,6 +36,7 @@
     "heroTitle": "Un outil pour chaque vendeur <depop></depop> & <vinted></vinted>.",
     "heroSubtitle": "Crosslistez, republiez, actualisez, réapprovisionnez et répondez aux acheteurs sur les deux plateformes depuis un seul panneau.",
     "ctaSeePricing": "Voir les tarifs",
+    "ctaSeeFeatures": "Voir les fonctionnalités",
     "ctaGetStarted": "Commencer",
     "ctaSignIn": "Se connecter",
     "howItWorks": {
@@ -188,9 +189,9 @@
     "metaTitle": "SaleLinx - Produit, tarifs, feuille de route",
     "metaDescription": "Tout ce que fait l'extension Chrome SaleLinx, son prix et ce qui arrive ensuite. Crosslistez, republiez, actualisez et réapprovisionnez sur Depop et Vinted depuis un seul panneau.",
     "hero": {
-      "eyebrow": "Tout le produit sur une seule page",
-      "title": "Le produit, le prix et la feuille de route.",
-      "description": "Faites défiler pour voir les fonctionnalités, accédez aux tarifs quand vous êtes prêt, ou parcourez la feuille de route pour voir ce que nous préparons. Les onglets vous suivent pendant la lecture.",
+      "eyebrow": "Aperçu du produit",
+      "title": "Tout ce que fait SaleLinx, son prix et la suite.",
+      "description": "Crosslistez, republiez, actualisez et réapprovisionnez sur Depop et Vinted depuis un seul panneau de navigateur.",
       "installExtension": "Installer l'extension",
       "seePricing": "Voir les tarifs"
     },
