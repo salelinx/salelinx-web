@@ -1,9 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 type Theme = 'light' | 'dark';
+
+// View Transitions API isn't in the default TS DOM lib yet.
+interface ViewTransition {
+  finished: Promise<void>;
+}
+type StartViewTransition = (callback: () => void) => ViewTransition;
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
@@ -23,6 +29,7 @@ function hasThemeCookie(): boolean {
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
+  const transitioning = useRef(false);
   const t = useTranslations('ThemeToggle');
 
   useEffect(() => {
@@ -35,18 +42,44 @@ export function ThemeToggle() {
   }, []);
 
   function toggle() {
+    if (transitioning.current) return;
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
     const root = document.documentElement;
-    root.classList.add('theme-transition');
+
+    const applyTheme = () => {
+      root.classList.toggle('dark', next === 'dark');
+      try {
+        localStorage.setItem('theme', next);
+      } catch {}
+      writeThemeCookie(next);
+    };
+
     setTheme(next);
-    root.classList.toggle('dark', next === 'dark');
-    try {
-      localStorage.setItem('theme', next);
-    } catch {}
-    writeThemeCookie(next);
-    window.setTimeout(() => {
-      root.classList.remove('theme-transition');
-    }, 350);
+
+    // View Transitions API drives a diagonal clip-path wipe. Direction is keyed
+    // off `data-theme-sweep` on <html> so the CSS picks the right diagonal:
+    // light -> dark sweeps top-left to bottom-right, dark -> light the reverse.
+    const startViewTransition = (
+      document as Document & { startViewTransition?: StartViewTransition }
+    ).startViewTransition;
+    if (typeof startViewTransition !== 'function') {
+      applyTheme();
+      return;
+    }
+
+    transitioning.current = true;
+    root.dataset.themeSweep = next;
+
+    const transition = startViewTransition.call(document, () => {
+      applyTheme();
+    });
+
+    transition.finished
+      .catch(() => {})
+      .finally(() => {
+        delete root.dataset.themeSweep;
+        transitioning.current = false;
+      });
   }
 
   const label = theme === 'dark' ? t('switchToLight') : t('switchToDark');

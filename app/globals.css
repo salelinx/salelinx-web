@@ -19,34 +19,231 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  /* Smooth scroll for in-page anchor jumps (header nav -> #features, #pricing). */
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-::view-transition-old(root),
+/* Theme swap: driven by the View Transitions API. ThemeToggle runs the
+   `.dark` class swap inside `document.startViewTransition()` and sets
+   `data-theme-sweep` on <html> for direction. The old snapshot is pinned and
+   the new snapshot is clipped in along a diagonal — top-left to bottom-right
+   for light -> dark, the reverse for dark -> light. The page is non-
+   interactive for the duration (a VT limitation). */
+::view-transition-group(root) {
+  animation-duration: 2600ms;
+}
+::view-transition-old(root) {
+  animation: none;
+}
 ::view-transition-new(root) {
-  animation-duration: 220ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation: 2600ms cubic-bezier(0.4, 0.05, 0.25, 1) both themeSweepDark;
+}
+html[data-theme-sweep="light"]::view-transition-new(root) {
+  animation-name: themeSweepLight;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
+@keyframes themeSweepDark {
+  from { clip-path: polygon(0 0, 0 0, 0 0); }
+  to   { clip-path: polygon(0 0, 220% 0, 0 220%); }
+}
+
+@keyframes themeSweepLight {
+  from { clip-path: polygon(100% 100%, 100% 100%, 100% 100%); }
+  to   { clip-path: polygon(100% 100%, -120% 100%, 100% -120%); }
+}
+
+/* Suppress every colour/border transition while the swap commits, so the
+   "new" snapshot the browser captures is the fully-applied new theme rather
+   than a frame mid cross-fade. */
+html[data-theme-sweep] *,
+html[data-theme-sweep] *::before,
+html[data-theme-sweep] *::after {
+  transition: none !important;
+}
+
+/* Motion primitives ported from the extension panel.
+   Curves favour cubic-bezier(0.16, 1, 0.3, 1) for deceleration-forward
+   entrances. Each "reveal" element starts hidden; once .in-view is added
+   (by Reveal.tsx via IntersectionObserver) it animates into place. */
+
+@keyframes tabSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
-.theme-transition,
-.theme-transition *,
-.theme-transition *::before,
-.theme-transition *::after {
-  transition:
-    background-color 300ms ease,
-    border-color 300ms ease,
-    color 300ms ease,
-    fill 300ms ease,
-    stroke 300ms ease !important;
-  transition-delay: 0s !important;
+@keyframes cascadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes panelSwap {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.01) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+}
+
+.reveal.in-view {
+  animation: tabSlideIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.reveal-pop.in-view {
+  animation: popIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Cascade items get their own per-item delay via --stagger-delay
+   (set inline on each li/card). The parent triggers .in-view and the
+   children read the var to stagger. Curve and offsets are kept small so
+   the swap on tab change feels snappy rather than waterfall-y. */
+.cascade-item {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.in-view > .cascade-item,
+.in-view .cascade-list > .cascade-item {
+  animation: cascadeIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: calc(var(--stagger-delay, 0ms) * 0.45);
+}
+
+/* Panel-swap variant: when switching tabs we don't want a long staggered
+   waterfall, just a quick unified fade-slide so the whole panel feels
+   like one element transitioning in. */
+.panel-swap {
+  animation: panelSwap 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.panel-swap .cascade-item {
+  animation: cascadeIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: calc(var(--stagger-delay, 0ms) * 0.18);
+}
+
+/* Wrapper around the active panel: its inline height is driven by a
+   ResizeObserver in HeroPreview so the card grows/shrinks smoothly when
+   panels of different intrinsic heights swap in. */
+.panel-height-anim {
+  transition-property: height;
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: height;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-height-anim {
+    transition: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.in-view,
+  .reveal-pop.in-view,
+  .cascade-item,
+  .in-view > .cascade-item,
+  .in-view .cascade-list > .cascade-item,
+  .panel-swap,
+  .panel-swap .cascade-item {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Hero preview ambient animations. Used in HeroPreview's Crosslist active
+   step (slow gradient sweep) and Conversations typing dots. */
+
+@keyframes heroProgressSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.hero-progress-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.55) 50%,
+    transparent 100%
+  );
+  animation: heroProgressSweep 1.8s ease-in-out infinite;
+}
+
+@keyframes heroTypingDot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.hero-typing-dot {
+  animation: heroTypingDot 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-progress-sweep,
+  .hero-typing-dot {
+    animation: none !important;
+  }
 }

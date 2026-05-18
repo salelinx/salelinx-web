@@ -4,6 +4,8 @@ export type CategorySlug =
   | 'getting-started'
   | 'crosslisting'
   | 'listings'
+  | 'visibility'
+  | 'sales'
   | 'marketplaces';
 
 export type Marketplace = 'depop' | 'vinted';

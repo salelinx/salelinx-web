@@ -1,0 +1,89 @@
+export const metadata = {
+  title: 'CSV import',
+  description: 'Bulk-load an inventory from a Shopify, dotb or SaleLinx export and post it to Depop or Vinted.',
+  category: 'crosslisting',
+  slug: 'csv-import',
+  order: 3,
+  updated: '2026-05-10',
+  tags: ['import', 'bulk', 'csv'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# CSV import
+
+Bring an existing inventory in from another tool and post it to Depop or
+Vinted as listings. SaleLinx auto-detects the file format from the column
+headers, so you don&rsquo;t need to map fields by hand for the supported
+exports.
+
+## When to use it
+
+- Migrating from another reselling tool (e.g. dotb).
+- Importing a Shopify product export.
+- Re-loading a previous SaleLinx export after a wipe or platform switch.
+
+If you only have a handful of items, the standard
+[one-at-a-time crosslist](/docs/crosslisting/crosslist-your-first-item) is
+faster.
+
+## Supported formats
+
+SaleLinx auto-detects the format from the headers and shows a badge in the
+preview:
+
+- **dotb** &mdash; full export including Vinted catalog, size, condition and
+  package-size IDs. Imports cleanly with no manual mapping.
+- **Shopify** &mdash; product CSV from a Shopify store. Title, description,
+  brand, price and images carry over; category/size are inferred from
+  Shopify product types.
+- **SaleLinx** &mdash; the format SaleLinx itself exports. Round-trips your
+  own backup.
+- **Unknown** &mdash; if SaleLinx can&rsquo;t identify the format from the
+  headers, the import is rejected. Re-export from the source tool with a
+  recognised header set.
+
+## Importing
+
+1. Open the **Listings** tab.
+2. Click the **CSV** menu button in the toolbar and choose **Import**.
+3. Drop your CSV into the file picker.
+4. SaleLinx parses the file and shows the detected format + a preview of the
+   first rows.
+5. Pick the target marketplace (Depop or Vinted).
+6. Optionally tick **Save as draft** &mdash; lets you import without going
+   live so you can review on the marketplace itself first.
+7. Click **Start import**.
+
+The panel posts each row sequentially with safe pacing between items so the
+marketplace doesn&rsquo;t flag the burst as automated activity. Progress and
+per-row status update live; you can keep working in other tabs.
+
+## What rows are skipped
+
+Rows that fail validation are skipped and listed at the end with the reason.
+Common causes:
+
+- Missing required field (title, description, price).
+- Photo URL returns 404 or non-image content.
+- Brand isn&rsquo;t recognised by the target marketplace (you can edit and
+  retry, or fall back to no brand).
+
+The import never blocks on a single bad row &mdash; it logs and moves on.
+
+## Exporting
+
+The same CSV menu has an **Export all** option. SaleLinx writes a CSV in its
+native format with everything in your unified Listings dashboard. Useful for
+backing up before a re-import, or moving an inventory to a different SaleLinx
+account.
+
+## Plan and access
+
+Available on Pro and above. Free and Starter can use the standard one-by-one
+crosslist instead.
+
+## Next steps
+
+- [Crosslist your first item](/docs/crosslisting/crosslist-your-first-item)
+- [Manage your inventory](/docs/listings/manage-inventory)

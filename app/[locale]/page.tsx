@@ -1,5 +1,12 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
+import { SITE_NAME, absoluteUrl } from '@/lib/site';
+import { Hero } from '@/components/home/Hero';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { HeadlineFeatures } from '@/components/features/HeadlineFeatures';
+import { PricingSection } from '@/components/features/PricingSection';
+import { getTierConfigs } from '@/lib/supabase/tier-config';
+
+export const revalidate = 60;
 
 export default async function Home({
   params,
@@ -8,35 +15,40 @@ export default async function Home({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations('Home');
+  const [tLayout, tiers] = await Promise.all([
+    getTranslations('Layout'),
+    getTierConfigs(),
+  ]);
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: SITE_NAME,
+    description: tLayout('metaDescription'),
+    url: absoluteUrl(locale, '/'),
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Chrome',
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'GBP',
+      lowPrice: '7.99',
+      highPrice: '29.99',
+    },
+  };
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-20 text-center">
-      <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-        {t('heroTitle')}
-      </h1>
-      <p className="max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
-        {t('heroSubtitle')}
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <Link
-          href="/pricing"
-          className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
-        >
-          {t('ctaSeePricing')}
-        </Link>
-        <Link
-          href="/features"
-          className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
-        >
-          {t('ctaSeeFeatures')}
-        </Link>
-        <Link
-          href="/auth/signup"
-          className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-        >
-          {t('ctaGetStarted')}
-        </Link>
+    <main className="flex flex-1 flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Hero />
+      <HowItWorks />
+      <section id="features" className="mx-auto w-full max-w-7xl scroll-mt-20 px-6">
+        <HeadlineFeatures />
+      </section>
+      <div className="mx-auto w-full max-w-7xl px-6">
+        <PricingSection tiers={tiers} />
       </div>
     </main>
   );

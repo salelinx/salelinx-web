@@ -32,11 +32,32 @@
     "builtFor": "Creado para vendedores de Depop y Vinted."
   },
   "Home": {
-    "heroTitle": "Una herramienta para cada vendedor de Depop & Vinted.",
+    "heroEyebrow": "Disponible para <depop></depop> + <vinted></vinted>",
+    "heroTitle": "Una herramienta para cada vendedor de <depop></depop> & <vinted></vinted>.",
     "heroSubtitle": "Crosslista, republica, actualiza, repone y responde a los compradores en ambas plataformas desde un solo panel.",
     "ctaSeePricing": "Ver precios",
     "ctaSeeFeatures": "Ver funciones",
-    "ctaGetStarted": "Empezar"
+    "ctaGetStarted": "Empezar",
+    "ctaSignIn": "Iniciar sesión",
+    "howItWorks": {
+      "eyebrow": "Cómo funciona",
+      "title": "Listo en dos minutos.",
+      "body": "Instala, vincula tus tiendas y tu panel está listo en cada página de Depop y Vinted.",
+      "steps": {
+        "install": {
+          "title": "Instala la extensión",
+          "body": "Instalación en un clic desde la Chrome Web Store. Sin cuentas que crear, sin ajustes que tocar."
+        },
+        "link": {
+          "title": "Vincula tus tiendas",
+          "body": "Inicia sesión en Depop y Vinted como siempre. SaleLinx detecta la sesión, nada que reintroducir."
+        },
+        "crosslist": {
+          "title": "Crosslista en un clic",
+          "body": "Elige un anuncio en cualquiera de las marketplaces. El formulario del otro lado se rellena solo. Listo."
+        }
+      }
+    }
   },
   "ThemeToggle": {
     "switchToLight": "Cambiar a modo claro",
@@ -176,9 +197,49 @@
     },
     "sectionHeader": {
       "eyebrow": "Sección 01 / Funciones",
-      "title": "Todo lo que hace la extensión, agrupado por lo que haces con ella."
+      "title": "Todo lo demás que hace SaleLinx.",
+      "body": "Agrupado por lo que haces con ello. Hojea las categorías o salta directo a la función que viniste a buscar."
     },
-    "marketplaceOnly": "Solo {marketplace}",
+    "marketplaceOnly": "Solo <marketplace></marketplace>",
+    "sectionNavAria": "Secciones de la página",
+    "headlines": {
+      "eyebrow": "Empieza aquí",
+      "title": "Para qué instalan SaleLinx los vendedores.",
+      "description": "La mayoría viene por una de estas. El resto de funciones está más abajo.",
+      "learnMore": "Saber más",
+      "items": {
+        "crosslist": {
+          "short": "Crosslist",
+          "title": "Crosslista <depop></depop> y <vinted></vinted> en un clic",
+          "body": "Elige un anuncio, pulsa crosslist y el formulario de la otra marketplace se rellena solo. Categorías, tallas y condiciones se traducen por ti, así el mismo artículo sale en ambas tiendas en segundos.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "refreshRelist": {
+          "short": "Refrescar y republicar",
+          "title": "Refresca y republica para estar arriba",
+          "body": "Empuja cada anuncio al principio de la búsqueda con un clic, o recrea los que están estancados con fotos y títulos retocados. Hazlo tú o deja que se ejecute solo cada pocas horas.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "restocker": {
+          "short": "Restocker",
+          "title": "Nunca vendas dos veces",
+          "body": "¿Se vendió en Depop? SaleLinx retira el mismo artículo de Vinted en el mismo minuto. Funciona también al revés, así puedes publicar el mismo stock en ambas tiendas sin miedo a ventas duplicadas.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "oneInbox": {
+          "short": "Bandeja unificada",
+          "title": "Ofertas y mensajes en una bandeja",
+          "body": "Cada oferta y cada mensaje de comprador de ambas tiendas, fusionados en una lista. Define reglas para aceptar o contraofertar automáticamente y solo entra a las conversaciones que importan.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "labels": {
+          "short": "Etiquetas de envío",
+          "title": "Etiquetas de envío, listas para imprimir en lote",
+          "body": "Descarga y une los PDFs de etiquetas de un día entero de pedidos, así pasan por la impresora de una sola vez en lugar de clicar venta por venta.",
+          "works": "<depop></depop> + <vinted></vinted>"
+        }
+      }
+    },
     "ctaSection": {
       "eyebrow": "Cuando quieras",
       "title": "Empieza en el navegador donde ya vendes.",
@@ -189,108 +250,116 @@
       "listings": {
         "number": "01",
         "title": "Anuncios e inventario",
-        "blurb": "Un único panel muestra todos los anuncios de ambas tiendas, fusionados, ordenables y con copia de seguridad. Vincula tus cuentas de Depop y Vinted una vez y el panel estará listo en cada página.",
+        "blurb": "Cada anuncio de ambas tiendas en un solo sitio, a salvo y sincronizado allí donde uses SaleLinx.",
         "items": {
           "dashboard": {
-            "label": "Panel unificado de anuncios",
-            "detail": "Ambas tiendas en una sola cuadrícula, fusionadas por título y ordenables por columnas."
+            "label": "Todo tu stock en una cuadrícula",
+            "detail": "Ambas tiendas lado a lado. Ordena por fecha, precio o estado y filtra justo lo que necesitas."
           },
           "linkAccounts": {
-            "label": "Vincula cuentas una vez",
-            "detail": "Sesión detectada automáticamente desde el navegador; nada que volver a introducir."
+            "label": "Vincula tus tiendas una sola vez",
+            "detail": "Inicia sesión en Depop y Vinted como siempre. SaleLinx detecta la sesión, sin contraseñas que volver a meter."
           },
           "backup": {
-            "label": "Copia de seguridad cifrada en la nube",
-            "detail": "Almacén de anuncios en Supabase con cifrado AES del lado del cliente sobre las credenciales vinculadas."
+            "label": "Tu tienda, a salvo en la nube",
+            "detail": "Cada anuncio se guarda cifrado en la nube, para que un portátil cerrado o un fallo de la marketplace nunca te cueste una venta."
           },
           "sync": {
-            "label": "Sincronización de ajustes entre dispositivos",
-            "detail": "Cambia a otro portátil y tu configuración te acompaña."
+            "label": "Cambia de portátil, conserva tu setup",
+            "detail": "Tus ajustes, reglas y tiendas vinculadas te siguen a cualquier dispositivo donde inicies sesión."
           },
           "multilanguage": {
-            "label": "Interfaz multilingüe",
-            "detail": "Inglés, francés, español y alemán, con temas claro y oscuro."
+            "label": "Úsalo en tu idioma",
+            "detail": "Disponible en inglés, francés, español y alemán, con temas claro y oscuro."
           }
         }
       },
       "crosslisting": {
         "number": "02",
         "title": "Crosslisting",
-        "blurb": "Escribe el anuncio una vez, publícalo en ambas marketplaces. Categorías, tallas, condiciones y marcas se traducen por ti, y la herramienta de diseño de la tienda Depop vive en el mismo panel.",
+        "blurb": "Escribe un anuncio una vez y publícalo en las dos marketplaces a la vez. Lo complicado, como categorías y tallas, se traduce por ti.",
         "items": {
           "bidirectional": {
-            "label": "Crosslister bidireccional",
-            "detail": "De Depop a Vinted y de Vinted a Depop, con autocompletado del formulario en la marketplace de destino."
+            "label": "Crosslista Depop y Vinted, en ambos sentidos",
+            "detail": "Elige un anuncio en cualquiera de las dos marketplaces y SaleLinx rellena el formulario del otro lado por ti."
           },
           "autoMap": {
-            "label": "Taxonomías mapeadas automáticamente",
-            "detail": "Categorías, tallas, condiciones y marcas traducidas entre plataformas."
+            "label": "Categorías y tallas traducidas por ti",
+            "detail": "Las etiquetas de Depop se convierten en las de Vinted, y al revés. Sin tablas de mapeo que configurar."
           },
           "csvImport": {
-            "label": "Importación de inventario por CSV",
-            "detail": "Carga masiva de un inventario existente con mapeo automático de campos."
+            "label": "Importa en bloque desde un CSV",
+            "detail": "¿Ya tienes una lista de stock en una hoja de cálculo? Súbela y SaleLinx asigna los campos automáticamente."
           },
           "shopDesigner": {
-            "label": "Shop Designer",
-            "detail": "Herramienta de diseño por arrastrar y soltar para el perfil de la tienda Depop."
+            "label": "Diseña tu tienda Depop con arrastrar y soltar",
+            "detail": "Reorganiza el diseño de tu perfil Depop dentro del panel sin tocar la web de Depop."
           }
         }
       },
       "visibility": {
         "number": "03",
         "title": "Visibilidad y audiencia",
-        "blurb": "Mantén los anuncios cerca del principio en la búsqueda y atrae a los usuarios adecuados a tu tienda. La actualización se ejecuta según el horario que definas; el bot de seguimiento tiene cinco formas de apuntar a las cuentas correctas.",
+        "blurb": "Mantente arriba en la búsqueda y llega a los compradores con más probabilidades de comprarte, sin hacerlo a mano.",
         "items": {
           "refresher": {
-            "label": "Actualizador de anuncios",
-            "detail": "Regrabar anuncios de abajo arriba para preservar el orden de tu tienda."
+            "label": "Empuja cada anuncio arriba",
+            "detail": "Vuelve a guardar tu stock de abajo arriba con un clic, así el orden que pusiste con cuidado se respeta."
           },
           "scheduler": {
-            "label": "Programador de actualización automática",
-            "detail": "Se ejecuta en intervalos de 4, 6, 8, 12 o 24 horas mediante chrome.alarms."
+            "label": "Configúralo y olvídalo",
+            "detail": "La actualización se ejecuta sola cada 4, 6, 8, 12 o 24 horas. Elige el ritmo y a otra cosa."
           },
           "followBot": {
-            "label": "Bot de seguimiento y dejar de seguir",
-            "detail": "Apunta a seguidores, seguidos, compradores, reseñadores o quienes han dado like."
+            "label": "Haz crecer tu audiencia sin esfuerzo",
+            "detail": "Sigue a la audiencia de un competidor, a tus compradores anteriores o a quien dio like a un artículo. Cinco formas de apuntar a la gente adecuada."
           },
           "filters": {
-            "label": "Listas negra y blanca",
-            "detail": "Coincidencia sin distinción de mayúsculas para saltar o conservar siempre cuentas concretas."
+            "label": "Salta o conserva siempre cuentas concretas",
+            "detail": "Añade nombres de usuario a una lista negra o blanca para que el bot deje en paz a amigos, marcas o rivales."
           },
           "deadStock": {
-            "label": "Detector de stock muerto",
-            "detail": "Clasifica los anuncios obsoletos y sugiere acciones."
+            "label": "Detecta lo que no se vende",
+            "detail": "SaleLinx marca los anuncios estancados y te sugiere qué hacer: refrescar, bajar precio o republicar."
+          },
+          "autoMarkdown": {
+            "label": "Baja precios en stock viejo, automáticamente",
+            "detail": "Programa bajadas porcentuales en anuncios que llevan demasiado tiempo, para devolverlos a la búsqueda."
           },
           "activityLog": {
-            "label": "Registro de actividad en tiempo real",
-            "detail": "Filtra por función o nivel, pausa y detén cuando quieras, exporta a JSON."
+            "label": "Mira cada acción en directo",
+            "detail": "Observa cómo trabaja SaleLinx en tiempo real. Filtra, pausa, detén cualquier cosa y exporta el registro si lo necesitas."
           }
         }
       },
       "sales": {
         "number": "04",
         "title": "Ventas y mensajería",
-        "blurb": "Ofertas, mensajes de compradores y etiquetas de envío en una sola bandeja para ambas marketplaces. Las reglas gestionan las respuestas repetitivas para que solo toques las conversaciones que importan.",
+        "blurb": "Ofertas, mensajes, etiquetas y postventa en un solo sitio, con reglas para lo repetitivo.",
         "items": {
           "offersInbox": {
-            "label": "Bandeja unificada de ofertas",
-            "detail": "Acepta, rechaza o contraoferta ofertas de ambas marketplaces desde un solo lugar."
+            "label": "Acepta, contraoferta o rechaza en un sitio",
+            "detail": "Cada oferta de ambas tiendas aparece en una bandeja, así no saltas entre pestañas para seguir el ritmo."
           },
           "autoOffers": {
-            "label": "Ofertas automáticas",
-            "detail": "Respuestas basadas en reglas para contraofertar o aceptar ofertas entrantes."
+            "label": "Responde a ofertas automáticamente",
+            "detail": "Define reglas como 'acepta cualquier oferta por encima del 80 por ciento' o 'contraoferta siempre al 90 por ciento' y deja que SaleLinx se encargue."
           },
           "messages": {
-            "label": "Mensajes unificados",
-            "detail": "Bandeja de conversaciones que fusiona los hilos de Depop y Vinted."
+            "label": "Todos los mensajes de compradores en una lista",
+            "detail": "Conversaciones de Depop y Vinted fusionadas en una sola bandeja para que no se pierda nada."
           },
           "shipping": {
-            "label": "Etiquetas de envío",
-            "detail": "Descarga y fusiona PDFs de etiquetas para envíos por lotes."
+            "label": "Imprime etiquetas en lotes",
+            "detail": "Descarga y une PDFs de etiquetas de un día entero de pedidos, listos para imprimir y pegar."
           },
           "relister": {
-            "label": "Republicador",
-            "detail": "Recrea anuncios con fotos y título retocados y elimina el original para refrescar la visibilidad en búsquedas."
+            "label": "Refresca la posición de un anuncio",
+            "detail": "Recrea un anuncio cansado con fotos y título retocados y borra el original para que vuelva a subir."
+          },
+          "restocker": {
+            "label": "Nunca vendas dos veces",
+            "detail": "Vende un artículo en una marketplace y SaleLinx retira el anuncio equivalente de la otra, automáticamente."
           }
         }
       }
@@ -336,7 +405,10 @@
       "restocker": "Restocker",
       "auto_offer": "Ofertas automáticas",
       "shipping_labels": "Etiquetas de envío",
-      "messages": "Mensajes"
+      "messages": "Mensajes",
+      "offers": "Ofertas",
+      "auto_markdown": "Bajadas de precio",
+      "account_linking": "Vinculación de cuenta"
     }
   },
   "Docs": {
@@ -362,6 +434,14 @@
       "listings": {
         "title": "Anuncios e inventario",
         "blurb": "Gestiona tu catálogo, ediciones masivas, actualización, republicación y copias de seguridad."
+      },
+      "visibility": {
+        "title": "Visibilidad y audiencia",
+        "blurb": "Actualización, follow bot, stock muerto, bajadas automáticas de precio, registro de actividad."
+      },
+      "sales": {
+        "title": "Ventas y mensajería",
+        "blurb": "Ofertas, ofertas automáticas, mensajes, etiquetas de envío, reposicionador, republicador."
       },
       "marketplaces": {
         "title": "Marketplaces",

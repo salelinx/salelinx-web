@@ -9,6 +9,7 @@ import '../globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { routing } from '@/i18n/routing';
+import { SITE_NAME, SITE_URL, absoluteUrl, languageAlternates } from '@/lib/site';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,9 +28,57 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Layout' });
+  const title = t('metaTitle');
+  const description = t('metaDescription');
+  const canonical = absoluteUrl(locale, '/');
+
   return {
-    title: t('metaTitle'),
-    description: t('metaDescription'),
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: title,
+      template: `%s | ${SITE_NAME}`,
+    },
+    description,
+    applicationName: SITE_NAME,
+    alternates: {
+      canonical,
+      languages: languageAlternates('/'),
+    },
+    openGraph: {
+      type: 'website',
+      siteName: SITE_NAME,
+      title,
+      description,
+      url: canonical,
+      locale,
+      images: [
+        {
+          url: '/og.png',
+          width: 1200,
+          height: 630,
+          alt: SITE_NAME,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og.png'],
+    },
+    icons: {
+      icon: '/favicon.ico',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
 }
 
