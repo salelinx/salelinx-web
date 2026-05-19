@@ -1,0 +1,107 @@
+export const metadata = {
+  title: 'Restocker',
+  description:
+    'Cross-platform stock sync. When a linked item sells on one marketplace, the other side reposts (or deactivates) automatically.',
+  category: 'automate',
+  slug: 'restocker',
+  order: 4,
+  updated: '2026-05-18',
+  tags: ['restocker', 'stock', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Restocker
+
+The Restocker keeps your stock honest across marketplaces. Two
+scenarios it handles:
+
+1. **Multi-quantity Vinted seller.** You list a t-shirt with 3 in
+   stock. As each one sells, the restocker reposts a fresh listing
+   for the next unit so the item stays continuously listed without
+   you doing anything.
+2. **Cross-platform linked items.** Same item listed on both Depop
+   and Vinted. When it sells on Depop, the restocker takes the
+   Vinted copy down so you don&rsquo;t oversell. (And vice versa.)
+
+## Where it lives
+
+The **Restocker** tab in the panel. Each tracked item is one row.
+
+## Adding an item
+
+From the **Listings** tab, find the row, set **Restock = on**, and
+enter the quantity you have in stock. (A quantity of 1 still counts
+- that&rsquo;s the cross-platform single-unit flow.)
+
+The Restock toggle and Qty number live inline on each Listings row,
+so you can set up multiple items without leaving the dashboard.
+
+## How it works (Vinted multi-quantity)
+
+When you have N units tracked:
+
+1. The marketplace listing sells. Vinted marks it sold.
+2. The restocker checks (next scan tick) and confirms the item is
+   closed using a live API check, not just a cached state.
+3. It reposts a fresh copy of the same listing - same title,
+   description, photos, price, mapped fields.
+4. Quantity decrements by 1 in your SaleLinx record.
+5. When quantity reaches 0, restock auto-disables for that item.
+
+Reposts use the cloud-stored copy of the listing (title,
+description, photos, mapped fields) so nothing is lost even if the
+marketplace removes the old listing.
+
+## How it works (cross-platform)
+
+When you have an item linked across Depop and Vinted (typically
+because you crosslisted it):
+
+1. The item sells on one marketplace.
+2. The restocker takes the other side down so you can&rsquo;t
+   accidentally sell the same physical unit twice.
+3. If you have remaining stock (quantity &gt; 1 across both sides),
+   it then reposts the listing on whichever side is configured.
+
+[Linking](/docs/automate/linking) is what powers the &ldquo;these
+are the same physical item&rdquo; relationship. Successful
+crosslists set links automatically; you can also pair pre-existing
+inventory manually in the Linking tab.
+
+## Schedule
+
+The restocker runs as part of the panel&rsquo;s background bot loop
+while the panel is open. It uses safe pacing between checks and
+reposts so the marketplaces don&rsquo;t flag the burst as automated
+activity.
+
+## What it won&rsquo;t do
+
+- **Won&rsquo;t restock without a confirmed sale.** SaleLinx waits
+  for a clean sold signal before acting, so transient marketplace
+  glitches don&rsquo;t trigger phantom reposts.
+- **Won&rsquo;t loop on stale state.** If something marks a listing
+  as sold incorrectly, the next check spots the live signal and
+  self-corrects without reposting.
+- **Doesn&rsquo;t modify photos.** If you want each repost to look
+  fresh (different photo crop, different first image), use
+  [Relist](/docs/inventory/relist) instead - it&rsquo;s designed
+  for that.
+
+## Plan and access
+
+Restocker is **Business only**. Pro doesn&rsquo;t include it.
+
+Restocker also requires [Cloud sync](/docs/inventory/cloud-sync)
+(for the reposted content) and, for cross-platform pairs,
+[Linking](/docs/automate/linking).
+
+## Next steps
+
+- [Linking](/docs/automate/linking) - pair the items the restocker
+  acts on.
+- [Cloud sync](/docs/inventory/cloud-sync) - the source of truth
+  for the reposted content.
+- [Relist](/docs/inventory/relist) - the heavier alternative when
+  you want each repost to look genuinely new.

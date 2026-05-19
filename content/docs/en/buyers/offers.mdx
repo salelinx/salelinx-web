@@ -1,0 +1,98 @@
+export const metadata = {
+  title: 'Offers',
+  description:
+    'Pending offers from Depop and Vinted in one inbox. Accept, decline or counter from the panel without opening the marketplace.',
+  category: 'buyers',
+  slug: 'offers',
+  order: 1,
+  updated: '2026-05-18',
+  tags: ['offers', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Offers
+
+The **Offers** tab gathers your pending offers from Depop and Vinted
+in one place. Each card has the buyer&rsquo;s name, their offer
+amount, the original price, and three action buttons: **Accept**,
+**Decline**, **Counter**.
+
+The tab also hosts the [Auto-Offers](/docs/automate/auto-offers)
+controls at the top - settings for automatically accepting offers
+above a threshold without you clicking through.
+
+## What shows up
+
+- **Depop** - all active offer transactions where the buyer is
+  waiting on you.
+- **Vinted** - inbox entries that look like offers (the
+  `description` field is the offer text), filtered to skip
+  already-handled offers (those Vinted marks as &ldquo;You accepted
+  X&rsquo;s offer!&rdquo; or &ldquo;You declined X&rsquo;s
+  offer!&rdquo;).
+
+Bundle offers (multiple items in one Vinted offer) display each item
+in the bundle inside the card.
+
+## Age filter
+
+The top of the tab has a max-age dropdown (default 3 days). Offers
+older than that are hidden. Most sellers want to act on fresh
+offers; old ones are usually irrelevant.
+
+## Acting on an offer
+
+Each card has three buttons:
+
+- **Accept** - confirms the buyer&rsquo;s price. The transaction
+  moves to the sold/paid flow on the marketplace.
+- **Decline** - closes the offer. Vinted notifies the buyer; Depop
+  marks the offer as declined without a notification.
+- **Counter** - opens an input where you type your counter-price.
+  Submitting posts the counter and removes the card from the list.
+
+All three actions go through the task queue at normal priority.
+
+## Shared cache with Messages
+
+The Vinted side of Offers and [Messages](/docs/buyers/messages)
+share a single inbox fetch and conversation-detail cache. If you
+open both tabs in the same session, the second tab to open
+doesn&rsquo;t re-fetch what the first one already has.
+
+This drops the API cost considerably (on a shop with 50
+conversations, the combined load of both tabs goes from 102 API
+calls to roughly 8 to 15). Caches invalidate automatically when you
+send a reply, accept, decline, or counter, so you never see a stale
+view.
+
+## Refreshing
+
+The **Refresh** button at the top of the tab re-fetches both Depop
+and Vinted in parallel. There&rsquo;s no auto-refresh on a timer -
+live polling the inbox would burn through API budget for no real
+benefit.
+
+## Why there&rsquo;s no bulk decline
+
+SaleLinx doesn&rsquo;t bulk-decline because that&rsquo;s exactly
+the kind of action that looks automated to the marketplace and
+risks flagging your session. Lowball offers can be declined one at
+a time, or just left to expire.
+
+## Plan and access
+
+The manual offers inbox is available on **Starter and above**
+(which includes the 7-day free trial). The [Auto-Offers](/docs/automate/auto-offers)
+auto-accept controls at the top of the tab are **Pro and above**.
+
+## Next steps
+
+- [Auto-Offers](/docs/automate/auto-offers) - auto-accept offers
+  above a threshold.
+- [Messages](/docs/buyers/messages) - reply to buyer conversations
+  in the same shared inbox.
+- [Price Drops](/docs/automate/price-drops) - if you&rsquo;re
+  getting too many lowballs, dropping the price can shift the
+  baseline.

@@ -114,7 +114,11 @@
     "signOut": "Cerrar sesión",
     "checkoutSuccess": "Suscripción activada. Puede tardar unos segundos en actualizarse la información de abajo.",
     "currentPlanTitle": "Plan actual",
-    "freeTierBody": "Estás en el plan Gratis. Mejora cuando quieras.",
+    "noSubscriptionBody": "No tienes un plan activo. Empieza tu prueba gratuita de 7 días para usar SaleLinx.",
+    "startTrial": "Empezar prueba gratuita",
+    "trialEndsInDays": "Tu prueba gratuita termina en {days} días. Después se te cobrará el plan Starter.",
+    "trialEndsTomorrow": "Tu prueba gratuita termina mañana. Después se te cobrará el plan Starter.",
+    "lockedNote": "Tu suscripción no está activa. Vuelve a suscribirte para seguir usando SaleLinx.",
     "seePricing": "Ver precios",
     "tier": "Plan",
     "status": "Estado",
@@ -210,7 +214,7 @@
       "items": {
         "crosslist": {
           "short": "Crosslist",
-          "title": "Crosslista <depop></depop> y <vinted></vinted> en un clic",
+          "title": "Crosslista Depop y Vinted en un clic",
           "body": "Elige un anuncio, pulsa crosslist y el formulario de la otra marketplace se rellena solo. Categorías, tallas y condiciones se traducen por ti, así el mismo artículo sale en ambas tiendas en segundos.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
@@ -378,10 +382,17 @@
     "unlimited": "Ilimitado",
     "cloudStorage": "Almacenamiento en la nube",
     "storageGb": "{value} GB",
+    "storageMb": "{value} MB",
     "supportHours": "{value} h",
     "supportDays": "{value} días",
+    "trial": {
+      "name": "Prueba gratuita de 7 días",
+      "tagline": "Acceso completo a Starter durante 7 días.",
+      "priceSuffix": "durante {days} días",
+      "thenPrice": "Después {price} / mes",
+      "cta": "Empezar prueba gratuita"
+    },
     "tier": {
-      "free": { "tagline": "Pruébalo antes de pagar" },
       "starter": { "tagline": "Aficionados" },
       "pro": { "tagline": "Revendedores activos" },
       "business": { "tagline": "Vendedores pro y multitienda" }
@@ -393,7 +404,6 @@
       "follows_per_day": "Seguimientos / día",
       "unfollows_per_day": "Dejar de seguir / día",
       "cloud_storage_bytes": "Almacenamiento en la nube",
-      "linked_shops": "Tiendas vinculadas",
       "support_response_days": "Respuesta del soporte",
       "support_response_hours": "Respuesta del soporte"
     },
@@ -427,31 +437,23 @@
         "title": "Primeros pasos",
         "blurb": "Instala la extensión, inicia sesión y publica tu primer anuncio."
       },
-      "crosslisting": {
-        "title": "Crosslisting",
-        "blurb": "Publica una vez, difunde en ambas marketplaces con campos traducidos."
+      "inventory": {
+        "title": "Inventario y publicación",
+        "blurb": "Anuncios, bots, republicación, refresco, crosslist, shop designer, import CSV, sincronización en la nube."
       },
-      "listings": {
-        "title": "Anuncios e inventario",
-        "blurb": "Gestiona tu catálogo, ediciones masivas, actualización, republicación y copias de seguridad."
+      "automate": {
+        "title": "Automatización",
+        "blurb": "Stock estancado, ofertas automáticas, linking, reposicionador, bajadas de precio."
       },
-      "visibility": {
-        "title": "Visibilidad y audiencia",
-        "blurb": "Actualización, follow bot, stock muerto, bajadas automáticas de precio, registro de actividad."
-      },
-      "sales": {
-        "title": "Ventas y mensajería",
-        "blurb": "Ofertas, ofertas automáticas, mensajes, etiquetas de envío, reposicionador, republicador."
-      },
-      "marketplaces": {
-        "title": "Marketplaces",
-        "blurb": "Guías específicas para Depop, Vinted y más."
+      "buyers": {
+        "title": "Mensajes de compradores",
+        "blurb": "Ofertas, mensajes, etiquetas de envío y valoraciones."
       }
     },
     "task": {
       "install": "Instalar la extensión",
       "connect": "Conectar una marketplace",
-      "crosslist": "Crosslista tu primer artículo",
+      "crosslist": "Crosslista un anuncio",
       "manage": "Gestionar tu inventario"
     },
     "categoryPageEyebrow": "Categoría",

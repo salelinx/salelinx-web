@@ -7,6 +7,22 @@ import {
   useState,
   type CSSProperties,
 } from 'react';
+
+/**
+ * Drives a panel demo loop. Returns a tick counter that increments every
+ * `intervalMs`. Respects prefers-reduced-motion (stays at 0). Reset to 0
+ * whenever the panel mounts (because panels unmount when the tab changes).
+ */
+function useAnimationTick(intervalMs: number): number {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => setTick((t) => t + 1), intervalMs);
+    return () => window.clearInterval(id);
+  }, [intervalMs]);
+  return tick;
+}
 import { Icon, type IconName } from '@/components/Icon';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { ProductImage, type ProductType } from './ProductImage';
@@ -249,7 +265,7 @@ function ListingsPanel() {
           <PlatformBadge platform="depop" size={10} />
           Depop
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-black/[0.08] px-2 py-[2px] text-[9.5px] text-zinc-600 dark:border-white/15 dark:text-zinc-300">
+        <span className="hidden items-center gap-1 rounded-full border border-black/[0.08] px-2 py-[2px] text-[9.5px] text-zinc-600 sm:inline-flex dark:border-white/15 dark:text-zinc-300">
           <PlatformBadge platform="vinted" size={10} />
           Vinted
         </span>
@@ -257,16 +273,16 @@ function ListingsPanel() {
 
       {/* Table header row */}
       <div
-        className="cascade-item grid grid-cols-[28px_1fr_36px_56px_38px_60px_28px] items-center gap-2 px-2 font-mono text-[8.5px] uppercase tracking-[0.1em] text-zinc-500"
+        className="cascade-item grid grid-cols-[28px_1fr_36px_56px_60px] items-center gap-2 px-2 font-mono text-[8.5px] uppercase tracking-[0.1em] text-zinc-500 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px]"
         style={{ '--stagger-delay': `40ms` } as CSSProperties}
       >
         <span />
         <span>Item</span>
         <span>Site</span>
         <span className="text-right">Price</span>
-        <span className="text-right">Views</span>
+        <span className="hidden text-right sm:inline">Views</span>
         <span className="text-center">Restock</span>
-        <span className="text-right">Listed</span>
+        <span className="hidden text-right sm:inline">Listed</span>
       </div>
 
       {/* Listing rows */}
@@ -274,7 +290,7 @@ function ListingsPanel() {
         {rows.map((r, i) => (
           <li
             key={r.title}
-            className="cascade-item grid grid-cols-[28px_1fr_36px_56px_38px_60px_28px] items-center gap-2 rounded-md border border-black/[0.06] bg-white px-2 py-1.5 dark:border-white/10 dark:bg-white/[0.02]"
+            className="cascade-item grid grid-cols-[28px_1fr_36px_56px_60px] items-center gap-2 rounded-md border border-black/[0.06] bg-white px-2 py-1.5 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px] dark:border-white/10 dark:bg-white/[0.02]"
             style={{ '--stagger-delay': `${80 + i * 50}ms` } as CSSProperties}
           >
             <ProductImage
@@ -330,7 +346,7 @@ function ListingsPanel() {
                 r.prices[0]
               )}
             </div>
-            <div className="text-right font-mono text-[10px] tabular-nums text-zinc-600 dark:text-zinc-400">
+            <div className="hidden text-right font-mono text-[10px] tabular-nums text-zinc-600 sm:block dark:text-zinc-400">
               {r.views}
             </div>
             <div className="flex items-center justify-center gap-1">
@@ -358,7 +374,7 @@ function ListingsPanel() {
                 {r.restockOn ? r.restockQty : '--'}
               </span>
             </div>
-            <div className="text-right font-mono text-[9.5px] text-zinc-500">{r.listed}</div>
+            <div className="hidden text-right font-mono text-[9.5px] text-zinc-500 sm:block">{r.listed}</div>
           </li>
         ))}
       </ul>
@@ -546,51 +562,52 @@ function CrosslistPanel() {
 }
 
 function AutoOffersPanel() {
-  const offers: {
+  // Live demo: every ~6s a new like comes in on one of your listings, the
+  // bot picks it up and sends the liker a private offer at a configurable
+  // discount (here 15% off listed). The active card cycles through three
+  // phases — LIKE detected → bot preparing the offer → offer SENT. Older
+  // sent offers show below with their outcome.
+  const TICKS_PER_OFFER = 60; // 6s
+  const tick = useAnimationTick(100);
+  const offerIndex = Math.floor(tick / TICKS_PER_OFFER);
+  const inOffer = tick % TICKS_PER_OFFER;
+
+  type Phase = 'like' | 'preparing' | 'sent';
+  const phase: Phase =
+    inOffer < 12 ? 'like' : inOffer < 30 ? 'preparing' : 'sent';
+
+  // Pool of likers + items the bot rotates through. Each one gets an
+  // auto-offer at 85% of listed (rounded to the nearest pound).
+  const POOL: {
     platform: 'depop' | 'vinted';
-    chip: string;
-    tone: 'success' | 'warn' | 'neutral';
     username: string;
-    meta: string;
     hue: number;
     type: ProductType;
     photo: string;
     initial: string;
+    item: string;
+    listed: number;
+    historyOutcome: 'accepted' | 'pending' | 'declined';
   }[] = [
-    {
-      platform: 'vinted',
-      chip: 'BOUGHT',
-      tone: 'success',
-      username: 'lila_resale',
-      meta: '8m ago · paid £18.00',
-      hue: 195,
-      type: 'tee',
-      photo: PHOTO.crossNecklace,
-      initial: 'L',
-    },
-    {
-      platform: 'depop',
-      chip: 'OFFERED',
-      tone: 'success',
-      username: 'sam_thrifts',
-      meta: '1m ago · £24.00 (was £28)',
-      hue: 200,
-      type: 'tee',
-      photo: PHOTO.crystalCross,
-      initial: 'S',
-    },
-    {
-      platform: 'depop',
-      chip: 'SKIPPED',
-      tone: 'warn',
-      username: 'mia_v',
-      meta: '2m ago · price floor reached',
-      hue: 0,
-      type: 'tee',
-      photo: PHOTO.strawberryRings,
-      initial: 'M',
-    },
+    { platform: 'depop', username: 'sam_thrifts', hue: 200, type: 'tee', photo: PHOTO.crystalCross,    initial: 'S', item: 'Crystal cross',  listed: 28, historyOutcome: 'accepted' },
+    { platform: 'vinted', username: 'mia_v',       hue: 0,   type: 'tee', photo: PHOTO.strawberryRings, initial: 'M', item: 'Strawberry rings', listed: 16, historyOutcome: 'pending'  },
+    { platform: 'depop', username: 'lila_resale', hue: 195, type: 'tee', photo: PHOTO.crossNecklace,  initial: 'L', item: 'Cross necklace', listed: 18, historyOutcome: 'accepted' },
+    { platform: 'vinted', username: 'kai_pop',     hue: 22,  type: 'tee', photo: PHOTO.starBeanie,     initial: 'K', item: 'Star beanie',    listed: 22, historyOutcome: 'declined' },
   ];
+
+  const discountPct = 15; // 15% off listed
+  const offerPriceFor = (listed: number) => Math.max(1, Math.round(listed * (1 - discountPct / 100)));
+
+  const active = POOL[offerIndex % POOL.length];
+  const activeOffer = offerPriceFor(active.listed);
+
+  // History rows = the two most recent sent offers (one and two cycles back).
+  const history = [1, 2].map((back) => POOL[((offerIndex - back) % POOL.length + POOL.length) % POOL.length]);
+
+  // Stats climb as the demo runs.
+  const sent = 38 + offerIndex;
+  const converted = 9 + Math.floor(offerIndex / 3);
+  const earned = 211 + offerIndex * 18;
   return (
     <div className="cascade-list flex flex-col gap-1.5">
       <div
@@ -598,24 +615,24 @@ function AutoOffersPanel() {
         style={{ '--stagger-delay': `0ms` } as CSSProperties}
       >
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">
-            42
+          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+            {sent}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Sent
           </div>
         </div>
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">
-            11
+          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+            {converted}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Converted
           </div>
         </div>
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-emerald-600 dark:text-emerald-400">
-            £273
+          <div className="font-mono text-[14px] font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            £{earned}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Earned
@@ -623,152 +640,236 @@ function AutoOffersPanel() {
         </div>
       </div>
 
-      <ul className="cascade-list flex flex-col gap-1.5">
-        {offers.map((row, i) => (
-          <li
-            key={row.initial + row.username}
-            className={`cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(row.platform)}`}
-            style={{ '--stagger-delay': `${60 + i * 70}ms` } as CSSProperties}
+      {/* Active card: state machine cycles like → preparing → sent */}
+      <div
+        key={`active-${offerIndex}`}
+        className={`cascade-item relative flex flex-col gap-1.5 rounded-md border bg-white px-2.5 py-2 transition-colors duration-300 dark:bg-white/[0.02] ${
+          phase === 'sent'
+            ? 'border-emerald-500/30 bg-emerald-500/[0.04] dark:border-emerald-400/30 dark:bg-emerald-400/[0.04]'
+            : phase === 'like'
+            ? 'border-pink-500/30 bg-pink-500/[0.04] dark:border-pink-400/30 dark:bg-pink-400/[0.04]'
+            : 'border-black/[0.08] dark:border-white/15'
+        }`}
+        style={{ '--stagger-delay': `60ms` } as CSSProperties}
+      >
+        <div className="flex items-center gap-2.5">
+          <span
+            className="flex size-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+            style={avatarStyle(active.hue)}
           >
-            <span
-              className="flex size-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
-              style={avatarStyle(row.hue)}
-            >
-              {row.initial}
-            </span>
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass(row.tone)}`}
-                >
-                  {row.chip}
-                </span>
-                <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
-                  @{row.username}
-                </span>
-              </div>
-              <div className="truncate text-[10px] text-zinc-500 dark:text-zinc-500">
-                {row.meta}
-              </div>
+            {active.initial}
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${
+                  phase === 'like'
+                    ? 'bg-pink-500/15 text-pink-700 dark:text-pink-300'
+                    : phase === 'preparing'
+                    ? chipClass('neutral')
+                    : chipClass('success')
+                }`}
+              >
+                {phase === 'like' && '♥ NEW LIKE'}
+                {phase === 'preparing' && 'BOT PREPARING OFFER…'}
+                {phase === 'sent' && 'OFFER SENT'}
+              </span>
+              <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
+                @{active.username}
+              </span>
+              <PlatformBadge platform={active.platform} size={11} />
             </div>
+            <div className="truncate text-[10px] text-zinc-500">
+              {phase === 'like' && `Liked ${active.item} (£${active.listed})`}
+              {phase === 'preparing' && `Composing private offer at -${discountPct}% (£${activeOffer})`}
+              {phase === 'sent' && `Sent £${activeOffer} to @${active.username} · was £${active.listed}`}
+            </div>
+          </div>
+          {phase === 'preparing' ? (
+            <span className="flex size-9 flex-shrink-0 items-center justify-center rounded-md bg-zinc-900/[0.04] dark:bg-white/[0.06]">
+              <svg viewBox="0 0 16 16" className="h-4 w-4 animate-spin text-zinc-500" fill="none" aria-hidden>
+                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" opacity="0.25" />
+                <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </span>
+          ) : (
             <ProductImage
-              type={row.type}
-              hue={row.hue}
-              src={row.photo}
+              type={active.type}
+              hue={active.hue}
+              src={active.photo}
               className="size-9 flex-shrink-0 rounded-md"
             />
-          </li>
-        ))}
+          )}
+        </div>
+      </div>
+
+      {/* History: the previous two sent offers and what happened to them */}
+      <ul className="cascade-list flex flex-col gap-1.5">
+        {history.map((row, i) => {
+          const sentPrice = offerPriceFor(row.listed);
+          return (
+            <li
+              key={`hist-${offerIndex}-${i}`}
+              className={`cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 opacity-80 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(row.platform)}`}
+              style={{ '--stagger-delay': `${120 + i * 70}ms` } as CSSProperties}
+            >
+              <span
+                className="flex size-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+                style={avatarStyle(row.hue)}
+              >
+                {row.initial}
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${
+                      row.historyOutcome === 'accepted'
+                        ? chipClass('success')
+                        : row.historyOutcome === 'declined'
+                        ? chipClass('warn')
+                        : chipClass('neutral')
+                    }`}
+                  >
+                    {row.historyOutcome === 'accepted' && 'BOUGHT'}
+                    {row.historyOutcome === 'pending' && 'AWAITING'}
+                    {row.historyOutcome === 'declined' && 'DECLINED'}
+                  </span>
+                  <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
+                    @{row.username}
+                  </span>
+                </div>
+                <div className="truncate text-[10px] text-zinc-500">
+                  Sent £{sentPrice} on {row.item} (was £{row.listed})
+                </div>
+              </div>
+              <ProductImage
+                type={row.type}
+                hue={row.hue}
+                src={row.photo}
+                className="size-9 flex-shrink-0 rounded-md"
+              />
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
 }
 
 function RestockerPanel() {
-  // Stock-aware restocker. Each item carries a current stock count and a
-  // record of the most recent sale on each marketplace. The narrative the
-  // panel tells: when one platform reports a sale, SaleLinx decrements
-  // stock and (if any remains) auto-relists so the listing stays live.
-  const rows: {
+  // Live demo: every ~6 seconds, one item gets a sale event, the bar fills
+  // showing the restock in progress, then the listing pops back to "RESTOCKED"
+  // and its stock decrements by 1. The cycle rotates through the inventory.
+  //
+  // Tick fires every 100ms; one cycle = 60 ticks = 6s. The four phases break
+  // up that cycle so the user can follow what just happened.
+  const TICKS_PER_CYCLE = 60;
+  const tick = useAnimationTick(100);
+  const cycleIndex = Math.floor(tick / TICKS_PER_CYCLE);
+  const inCycle = tick % TICKS_PER_CYCLE;
+
+  type Phase = 'idle' | 'sale' | 'restocking' | 'done';
+  const phase: Phase =
+    inCycle < 3
+      ? 'idle'
+      : inCycle < 12
+      ? 'sale'
+      : inCycle < 40
+      ? 'restocking'
+      : 'done';
+  // Progress bar 0..1 across the 'restocking' window (ticks 12..40).
+  const progress =
+    phase === 'restocking'
+      ? Math.min(1, Math.max(0, (inCycle - 12) / 28))
+      : phase === 'done'
+      ? 1
+      : 0;
+
+  type Row = {
     title: string;
     hue: number;
     type: ProductType;
     photo: string;
-    stock: number;
-    soldOn?: 'depop' | 'vinted';
-    soldAt?: string;
-    justRestocked?: boolean;
-    lowStock?: boolean;
-  }[] = [
-    {
-      title: 'Star beanie',
-      hue: 220,
-      type: 'tee',
-      photo: PHOTO.starBeanie,
-      stock: 3,
-      soldOn: 'vinted',
-      soldAt: 'just now',
-      justRestocked: true,
-    },
-    {
-      title: 'Crystal cross',
-      hue: 200,
-      type: 'tee',
-      photo: PHOTO.crystalCross,
-      stock: 5,
-    },
-    {
-      title: 'Cross necklace',
-      hue: 195,
-      type: 'tee',
-      photo: PHOTO.crossNecklace,
-      stock: 2,
-      soldOn: 'depop',
-      soldAt: '6m ago',
-      justRestocked: true,
-    },
-    {
-      title: 'Rose charm',
-      hue: 8,
-      type: 'tee',
-      photo: PHOTO.roseCharm,
-      stock: 1,
-      lowStock: true,
-    },
-    {
-      title: 'Sport shades',
-      hue: 210,
-      type: 'tee',
-      photo: PHOTO.sportSunglasses,
-      stock: 4,
-    },
+    initialStock: number;
+    soldOn: 'depop' | 'vinted';
+  };
+  const baseRows: Row[] = [
+    { title: 'Star beanie', hue: 220, type: 'tee', photo: PHOTO.starBeanie, initialStock: 4, soldOn: 'vinted' },
+    { title: 'Crystal cross', hue: 200, type: 'tee', photo: PHOTO.crystalCross, initialStock: 5, soldOn: 'depop' },
+    { title: 'Cross necklace', hue: 195, type: 'tee', photo: PHOTO.crossNecklace, initialStock: 3, soldOn: 'vinted' },
+    { title: 'Rose charm', hue: 8, type: 'tee', photo: PHOTO.roseCharm, initialStock: 2, soldOn: 'depop' },
+    { title: 'Sport shades', hue: 210, type: 'tee', photo: PHOTO.sportSunglasses, initialStock: 4, soldOn: 'vinted' },
   ];
+
+  // Active row for this cycle.
+  const activeIdx = cycleIndex % baseRows.length;
+  const active = baseRows[activeIdx];
+
+  // Stock per row: each row has had (number of completed cycles that picked it) sales applied.
+  // For the active row in 'done' phase, also count the just-finished sale.
+  const stocks = baseRows.map((r, i) => {
+    const completedSalesForRow = Math.floor((cycleIndex + (baseRows.length - i)) / baseRows.length);
+    const inflight = i === activeIdx && (phase === 'sale' || phase === 'restocking') ? 1 : 0;
+    return Math.max(0, r.initialStock - completedSalesForRow + inflight);
+  });
+
+  // Stats counters tick up as the demo runs.
+  const restocksToday = 8 + cycleIndex;
+  const salesToday = 184 + cycleIndex * 22;
   return (
     <div className="cascade-list flex flex-col gap-2">
-      {/* Live sale event - the trigger that drives a restock */}
+      {/* Live sale event banner - swaps content as the cycle advances */}
       <div
-        className="cascade-item flex items-center gap-2.5 overflow-hidden rounded-md border border-emerald-500/30 bg-emerald-500/[0.06] px-3 py-2"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        className="cascade-item flex items-center gap-2.5 overflow-hidden rounded-md border border-emerald-500/30 bg-emerald-500/[0.06] px-3 py-2 transition-opacity duration-300"
+        style={{
+          '--stagger-delay': `0ms`,
+          opacity: phase === 'idle' ? 0.5 : 1,
+        } as CSSProperties}
       >
         <span className="relative inline-flex h-1.5 w-1.5 flex-shrink-0">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+          {phase !== 'idle' && (
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+          )}
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
         </span>
         <ProductImage
-          type="tee"
-          hue={220}
-          src={PHOTO.starBeanie}
+          type={active.type}
+          hue={active.hue}
+          src={active.photo}
           className="size-6 flex-shrink-0 rounded"
         />
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-medium text-emerald-800 dark:text-emerald-200">
-            Star beanie sold on <span className="font-semibold">Vinted</span>
+            {active.title} sold on <span className="font-semibold">{active.soldOn === 'depop' ? 'Depop' : 'Vinted'}</span>
           </div>
           <div className="truncate text-[9.5px] text-emerald-700/80 dark:text-emerald-300/80">
-            Stock 4 -&gt; 3 · auto-relisted to keep listing live
+            {phase === 'sale' && 'Detected · queueing restock…'}
+            {phase === 'restocking' && `Relisting on ${active.soldOn === 'depop' ? 'Vinted' : 'Depop'} · ${Math.round(progress * 100)}%`}
+            {phase === 'done' && `Stock ${stocks[activeIdx] + 1} → ${stocks[activeIdx]} · listing kept live`}
+            {phase === 'idle' && 'Watching for sales…'}
           </div>
         </div>
         <span className="font-mono text-[9px] text-emerald-700/70 dark:text-emerald-300/70">
-          just now
+          {phase === 'idle' ? '' : 'just now'}
         </span>
       </div>
 
-      {/* Stats: how much restocking has happened today */}
+      {/* Stats: incrementing counters as the demo runs */}
       <div
         className="cascade-item grid grid-cols-3 divide-x divide-black/[0.06] rounded-md border border-black/[0.06] bg-white py-1 text-center dark:divide-white/10 dark:border-white/10 dark:bg-white/[0.02]"
         style={{ '--stagger-delay': `60ms` } as CSSProperties}
       >
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">
-            12
+          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+            {restocksToday}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Restocks today
           </div>
         </div>
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-emerald-600 dark:text-emerald-400">
-            £284
+          <div className="font-mono text-[14px] font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            £{salesToday}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Sales today
@@ -784,69 +885,100 @@ function RestockerPanel() {
         </div>
       </div>
 
-      {/* Stock list: each item with its count + recent activity */}
+      {/* Stock list: progress bar overlays the active row during restock */}
       <ul className="cascade-list flex flex-col gap-1.5">
-        {rows.map((row, i) => (
-          <li
-            key={row.title}
-            className="cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.02]"
-            style={{ '--stagger-delay': `${120 + i * 55}ms` } as CSSProperties}
-          >
-            <ProductImage
-              type={row.type}
-              hue={row.hue}
-              src={row.photo}
-              className="size-7 flex-shrink-0 rounded"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
-                {row.title}
-              </div>
-              {row.soldOn && (
-                <div className="truncate text-[9.5px] text-zinc-500">
-                  Sold on {row.soldOn === 'depop' ? 'Depop' : 'Vinted'} · {row.soldAt}
+        {baseRows.map((row, i) => {
+          const isActive = i === activeIdx;
+          const stock = stocks[i];
+          const lowStock = stock <= 1;
+          const showProgress = isActive && phase === 'restocking';
+          const showRestocked = isActive && phase === 'done';
+          return (
+            <li
+              key={row.title}
+              className="cascade-item relative overflow-hidden rounded-md border border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]"
+              style={{ '--stagger-delay': `${120 + i * 55}ms` } as CSSProperties}
+            >
+              {/* Progress bar overlay - fills the row from left to right */}
+              {showProgress && (
+                <span
+                  className="absolute inset-y-0 left-0 bg-emerald-500/[0.08] transition-[width] duration-100 ease-linear"
+                  style={{ width: `${progress * 100}%` }}
+                />
+              )}
+              <div className="relative flex items-center gap-2.5 px-2.5 py-1.5">
+                <ProductImage
+                  type={row.type}
+                  hue={row.hue}
+                  src={row.photo}
+                  className="size-7 flex-shrink-0 rounded"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
+                    {row.title}
+                  </div>
+                  {(showProgress || showRestocked) && (
+                    <div className="truncate text-[9.5px] text-zinc-500">
+                      {showProgress
+                        ? `Sold on ${row.soldOn === 'depop' ? 'Depop' : 'Vinted'} · restocking…`
+                        : `Sold on ${row.soldOn === 'depop' ? 'Depop' : 'Vinted'} · just now`}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              {row.justRestocked && (
-                <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
-                  RESTOCKED
-                </span>
-              )}
-              {row.lowStock && (
-                <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('warn')}`}>
-                  LOW
-                </span>
-              )}
-              <span className="flex items-baseline gap-0.5 rounded-md bg-zinc-900/[0.04] px-2 py-0.5 dark:bg-white/[0.06]">
-                <span className={`font-mono text-[12px] font-semibold tabular-nums ${row.lowStock ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
-                  {row.stock}
-                </span>
-                <span className="font-mono text-[8.5px] uppercase tracking-[0.08em] text-zinc-500">
-                  in stock
-                </span>
-              </span>
-            </div>
-          </li>
-        ))}
+                <div className="flex items-center gap-1.5">
+                  {showRestocked && (
+                    <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
+                      RESTOCKED
+                    </span>
+                  )}
+                  {!showRestocked && lowStock && (
+                    <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('warn')}`}>
+                      LOW
+                    </span>
+                  )}
+                  <span className="flex items-baseline gap-0.5 rounded-md bg-zinc-900/[0.04] px-2 py-0.5 dark:bg-white/[0.06]">
+                    <span className={`font-mono text-[12px] font-semibold tabular-nums transition-colors ${lowStock ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                      {stock}
+                    </span>
+                    <span className="font-mono text-[8.5px] uppercase tracking-[0.08em] text-zinc-500">
+                      in stock
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
 }
 
 function ConversationsPanel() {
+  // Live demo: messages appear one by one with a "typing" indicator from
+  // whichever side is about to speak next. After all messages are visible,
+  // the thread holds for a beat then restarts. Tick = 100ms, full cycle =
+  // 80 ticks = 8s (5 phases × 16 ticks each = perfect for the 8s autocycle).
+  const TICKS_PER_PHASE = 16;
+  const PHASES = 5;
+  const tick = useAnimationTick(100);
+  const phase = Math.floor(tick / TICKS_PER_PHASE) % PHASES;
+
   const messages = [
     { hue: 178, initial: 'L', text: 'Is this still available?', time: '12:04', mine: false },
-    {
-      hue: 0,
-      initial: 'Y',
-      text: 'Yes! Shipping today if you grab it.',
-      time: '12:05',
-      mine: true,
-    },
+    { hue: 0, initial: 'Y', text: 'Yes! Shipping today if you grab it.', time: '12:05', mine: true },
     { hue: 178, initial: 'L', text: 'Perfect, just paid.', time: '12:06', mine: false },
   ];
+
+  // Phases (in order):
+  // 0: buyer typing (no messages yet)
+  // 1: msg 0 visible, seller (me) typing
+  // 2: msgs 0+1 visible, buyer typing
+  // 3: all 3 visible
+  // 4: pause with all 3 visible (then loop)
+  const visibleCount = phase === 0 ? 0 : phase === 1 ? 1 : phase === 2 ? 2 : 3;
+  const typingFrom: 'buyer' | 'me' | null =
+    phase === 0 ? 'buyer' : phase === 1 ? 'me' : phase === 2 ? 'buyer' : null;
   return (
     <div className="cascade-list flex flex-col gap-2">
       <div
@@ -864,11 +996,11 @@ function ConversationsPanel() {
       </div>
 
       <ul className="cascade-list flex flex-col gap-1.5">
-        {messages.map((m, i) => (
+        {messages.slice(0, visibleCount).map((m, i) => (
           <li
-            key={i}
+            key={`msg-${i}`}
             className={`cascade-item flex items-end gap-1.5 ${m.mine ? 'flex-row-reverse' : ''}`}
-            style={{ '--stagger-delay': `${80 + i * 80}ms` } as CSSProperties}
+            style={{ '--stagger-delay': `0ms` } as CSSProperties}
           >
             <span
               className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
@@ -888,36 +1020,43 @@ function ConversationsPanel() {
             <span className="self-center font-mono text-[9px] text-zinc-400">{m.time}</span>
           </li>
         ))}
-        <li
-          className="cascade-item flex items-end gap-1.5"
-          style={{ '--stagger-delay': `${80 + messages.length * 80}ms` } as CSSProperties}
-        >
-          <span
-            className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-            style={avatarStyle(178)}
+        {typingFrom && (
+          <li
+            key={`typing-${phase}`}
+            className={`cascade-item flex items-end gap-1.5 ${typingFrom === 'me' ? 'flex-row-reverse' : ''}`}
+            style={{ '--stagger-delay': `0ms` } as CSSProperties}
           >
-            L
-          </span>
-          <div
-            className="rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.04]"
-            aria-label="typing"
-          >
-            <span className="flex items-center gap-1">
-              <span
-                className="hero-typing-dot size-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500"
-                style={{ animationDelay: '0ms' }}
-              />
-              <span
-                className="hero-typing-dot size-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500"
-                style={{ animationDelay: '180ms' }}
-              />
-              <span
-                className="hero-typing-dot size-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500"
-                style={{ animationDelay: '360ms' }}
-              />
+            <span
+              className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
+              style={avatarStyle(typingFrom === 'me' ? 0 : 178)}
+            >
+              {typingFrom === 'me' ? 'Y' : 'L'}
             </span>
-          </div>
-        </li>
+            <div
+              className={
+                typingFrom === 'me'
+                  ? 'rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-2 dark:bg-white'
+                  : 'rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.04]'
+              }
+              aria-label="typing"
+            >
+              <span className="flex items-center gap-1">
+                <span
+                  className={`hero-typing-dot size-1.5 rounded-full ${typingFrom === 'me' ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
+                  style={{ animationDelay: '0ms' }}
+                />
+                <span
+                  className={`hero-typing-dot size-1.5 rounded-full ${typingFrom === 'me' ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
+                  style={{ animationDelay: '180ms' }}
+                />
+                <span
+                  className={`hero-typing-dot size-1.5 rounded-full ${typingFrom === 'me' ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
+                  style={{ animationDelay: '360ms' }}
+                />
+              </span>
+            </div>
+          </li>
+        )}
       </ul>
 
       <div className="mt-auto flex items-center justify-between border-t border-black/[0.06] pt-2 font-mono text-[9.5px] uppercase tracking-[0.1em] text-zinc-500 dark:border-white/10">
@@ -1061,13 +1200,45 @@ function LabelsPanel() {
 }
 
 function FollowBotPanel() {
-  const recent: { username: string; hue: number; status: 'followed' | 'followed-back' | 'unfollowed' }[] = [
+  // Live demo: every ~2.5s the bot follows a new account. The counter ticks
+  // up smoothly, the progress bar advances, and a new card slides in at the
+  // top of the recent-activity list (with stable keys, React only mounts the
+  // new row; the other four reconcile in place instead of all 5 rebuilding).
+  const TICKS_PER_FOLLOW = 25; // 2.5s — slower so the list doesn't churn
+  const tick = useAnimationTick(100);
+  const follows = Math.floor(tick / TICKS_PER_FOLLOW);
+  const inFollow = tick % TICKS_PER_FOLLOW;
+  const justFollowed = inFollow < 15; // hold the highlight for 1.5s
+
+  // A small pool we cycle through to simulate "new" follows arriving.
+  type Status = 'followed' | 'followed-back' | 'unfollowed';
+  const POOL: { username: string; hue: number; status: Status }[] = [
     { username: 'thrift_haven', hue: 22, status: 'followed-back' },
     { username: 'vintage_vee', hue: 200, status: 'followed' },
     { username: 'mia_v', hue: 312, status: 'followed' },
     { username: 'kai_pop', hue: 0, status: 'unfollowed' },
     { username: 'sam_thrifts', hue: 178, status: 'followed-back' },
+    { username: 'depot_finds', hue: 140, status: 'followed' },
+    { username: 'lila_resale', hue: 60, status: 'followed-back' },
+    { username: 'arc_vintage', hue: 280, status: 'followed' },
+    { username: 'rose_market', hue: 340, status: 'followed' },
+    { username: 'kiera_shop', hue: 100, status: 'followed-back' },
   ];
+
+  // Take the next 5 entries from the rotating pool. The newest is at the top.
+  const recent = Array.from({ length: 5 }, (_, i) => {
+    const idx = (POOL.length - 1 - (follows + i)) % POOL.length;
+    const safeIdx = ((idx % POOL.length) + POOL.length) % POOL.length;
+    return POOL[safeIdx];
+  });
+
+  // Counters (start at a nice round-ish number, climb from there).
+  const followed = 218 + follows;
+  const backRate = 0.29 + (follows % 7) * 0.005; // small jitter for realism
+  const back = Math.round(followed * backRate);
+  const rate = Math.round((back / followed) * 100);
+  const target = 500;
+  const progressPct = Math.min(100, (followed / target) * 100);
   return (
     <div className="cascade-list flex flex-col gap-2">
       <div
@@ -1083,7 +1254,7 @@ function FollowBotPanel() {
             Targeting @drip_resale&apos;s followers
           </span>
         </div>
-        <span className="font-mono text-[10px] text-zinc-500">218 / 500</span>
+        <span className="font-mono text-[10px] text-zinc-500 tabular-nums">{followed} / {target}</span>
       </div>
 
       <div
@@ -1091,8 +1262,8 @@ function FollowBotPanel() {
         style={{ '--stagger-delay': `60ms` } as CSSProperties}
       >
         <span
-          className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/80"
-          style={{ width: '43.6%' }}
+          className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/80 transition-[width] duration-300 ease-out"
+          style={{ width: `${progressPct}%` }}
         />
       </div>
 
@@ -1101,24 +1272,24 @@ function FollowBotPanel() {
         style={{ '--stagger-delay': `120ms` } as CSSProperties}
       >
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">
-            218
+          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+            {followed}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Followed
           </div>
         </div>
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-emerald-600 dark:text-emerald-400">
-            64
+          <div className="font-mono text-[14px] font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            {back}
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Back
           </div>
         </div>
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">
-            29%
+          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+            {rate}%
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
             Rate
@@ -1127,38 +1298,49 @@ function FollowBotPanel() {
       </div>
 
       <ul className="cascade-list flex flex-col gap-1.5">
-        {recent.map((r, i) => (
-          <li
-            key={r.username}
-            className="cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.02]"
-            style={{ '--stagger-delay': `${180 + i * 60}ms` } as CSSProperties}
-          >
-            <span
-              className="flex size-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
-              style={avatarStyle(r.hue)}
-            >
-              {r.username[0].toUpperCase()}
-            </span>
-            <span className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
-              @{r.username}
-            </span>
-            <span
-              className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${
-                r.status === 'followed-back'
-                  ? chipClass('success')
-                  : r.status === 'unfollowed'
-                  ? chipClass('warn')
-                  : chipClass('neutral')
+        {recent.map((r, i) => {
+          const isTop = i === 0;
+          return (
+            <li
+              key={r.username}
+              className={`hero-follow-row-enter flex items-center gap-2.5 rounded-md border px-2.5 py-1.5 transition-colors duration-300 ${
+                isTop && justFollowed
+                  ? 'border-emerald-500/30 bg-emerald-500/[0.05] dark:border-emerald-400/30 dark:bg-emerald-400/[0.05]'
+                  : 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
               }`}
             >
-              {r.status === 'followed-back'
-                ? 'FOLLOWED BACK'
-                : r.status === 'unfollowed'
-                ? 'UNFOLLOWED'
-                : 'FOLLOWED'}
-            </span>
-          </li>
-        ))}
+              <span
+                className="flex size-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
+                style={avatarStyle(r.hue)}
+              >
+                {r.username[0].toUpperCase()}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
+                @{r.username}
+              </span>
+              {isTop && justFollowed && (
+                <span className="font-mono text-[9px] text-emerald-700/80 dark:text-emerald-300/80">
+                  just now
+                </span>
+              )}
+              <span
+                className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${
+                  r.status === 'followed-back'
+                    ? chipClass('success')
+                    : r.status === 'unfollowed'
+                    ? chipClass('warn')
+                    : chipClass('neutral')
+                }`}
+              >
+                {r.status === 'followed-back'
+                  ? 'FOLLOWED BACK'
+                  : r.status === 'unfollowed'
+                  ? 'UNFOLLOWED'
+                  : 'FOLLOWED'}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -1277,47 +1459,46 @@ function RelisterPanel() {
 }
 
 function PriceDropsPanel() {
-  const rows: {
+  // Live demo: every 3 seconds, one tracked item ticks its price down by the
+  // next-cycle amount, flashes green briefly, then settles. Cycles through
+  // the tracked list. Tick = 100ms so the green-flash window can be tight.
+  const TICKS_PER_DROP = 30; // 3s
+  const FLASH_TICKS = 6; // 600ms green flash after the drop
+  const tick = useAnimationTick(100);
+  const dropIndex = Math.floor(tick / TICKS_PER_DROP);
+  const inDrop = tick % TICKS_PER_DROP;
+
+  type Row = {
     title: string;
     type: ProductType;
     photo: string;
     hue: number;
-    current: number;
-    next: number;
-    nextIn: string;
+    start: number; // starting price at cycle 0
+    step: number; // how much we drop per cycle
     floor: number;
-  }[] = [
-    {
-      title: 'Cross necklace',
-      type: 'tee',
-      photo: PHOTO.crossNecklace,
-      hue: 195,
-      current: 28,
-      next: 25,
-      nextIn: 'tomorrow',
-      floor: 18,
-    },
-    {
-      title: 'Sport shades',
-      type: 'tee',
-      photo: PHOTO.sportSunglasses,
-      hue: 210,
-      current: 24,
-      next: 22,
-      nextIn: '3 days',
-      floor: 15,
-    },
-    {
-      title: 'Rose charm',
-      type: 'tee',
-      photo: PHOTO.roseCharm,
-      hue: 8,
-      current: 12,
-      next: 11,
-      nextIn: '5 days',
-      floor: 8,
-    },
+    nextIn: string;
+  };
+  const baseRows: Row[] = [
+    { title: 'Cross necklace', type: 'tee', photo: PHOTO.crossNecklace, hue: 195, start: 28, step: 3, floor: 18, nextIn: 'tomorrow' },
+    { title: 'Sport shades', type: 'tee', photo: PHOTO.sportSunglasses, hue: 210, start: 24, step: 2, floor: 15, nextIn: '3 days' },
+    { title: 'Rose charm', type: 'tee', photo: PHOTO.roseCharm, hue: 8, start: 12, step: 1, floor: 8, nextIn: '5 days' },
   ];
+
+  const activeIdx = dropIndex % baseRows.length;
+  const cycleNumber = Math.floor(dropIndex / baseRows.length);
+  const flashing = inDrop < FLASH_TICKS;
+
+  // Each row's price = start - (step × cycles_that_picked_it), clamped to floor.
+  // For the active row we apply the new cycle's drop only AFTER it fires
+  // (i.e. throughout the visible cycle, including the flash window).
+  const priceFor = (i: number): number => {
+    const drops = i <= activeIdx ? cycleNumber + 1 : cycleNumber;
+    return Math.max(baseRows[i].floor, baseRows[i].start - baseRows[i].step * drops);
+  };
+  const previousPriceFor = (i: number): number => {
+    const drops = i <= activeIdx ? cycleNumber : Math.max(0, cycleNumber - 1);
+    return Math.max(baseRows[i].floor, baseRows[i].start - baseRows[i].step * drops);
+  };
   return (
     <div className="cascade-list flex flex-col gap-2">
       <div
@@ -1334,14 +1515,22 @@ function PriceDropsPanel() {
       </div>
 
       <ul className="cascade-list flex flex-col gap-1.5">
-        {rows.map((r, i) => {
-          const dropPct = Math.round(((r.current - r.next) / r.current) * 100);
-          const progressToFloor =
-            ((r.current - r.floor) / (r.current * 0.4)) * 100;
+        {baseRows.map((r, i) => {
+          const current = priceFor(i);
+          const previous = previousPriceFor(i);
+          const isActive = i === activeIdx;
+          const justDropped = isActive && flashing;
+          const dropPct = previous > 0 ? Math.round(((previous - current) / previous) * 100) : 0;
+          const range = Math.max(1, r.start - r.floor);
+          const progressToFloor = ((r.start - current) / range) * 100;
           return (
             <li
               key={r.title}
-              className="cascade-item flex flex-col gap-1.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-2 dark:border-white/10 dark:bg-white/[0.02]"
+              className={`cascade-item relative flex flex-col gap-1.5 overflow-hidden rounded-md border px-2.5 py-2 transition-colors duration-300 ${
+                justDropped
+                  ? 'border-emerald-500/40 bg-emerald-500/[0.06] dark:border-emerald-400/30 dark:bg-emerald-400/[0.06]'
+                  : 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
+              }`}
               style={{ '--stagger-delay': `${80 + i * 70}ms` } as CSSProperties}
             >
               <div className="flex items-center gap-2.5">
@@ -1354,21 +1543,34 @@ function PriceDropsPanel() {
                 <div className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
                   {r.title}
                 </div>
-                <span className="font-mono text-[10.5px] font-semibold text-zinc-900 line-through opacity-50 dark:text-zinc-100">
-                  £{r.current}
-                </span>
-                <Icon name="arrow-right" className="h-3 w-3 text-zinc-400" />
-                <span className="font-mono text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400">
-                  £{r.next}
-                </span>
-                <span className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('neutral')}`}>
-                  -{dropPct}%
-                </span>
+                {justDropped && previous !== current ? (
+                  <>
+                    <span className="font-mono text-[10.5px] font-semibold text-zinc-900 line-through opacity-50 dark:text-zinc-100">
+                      £{previous}
+                    </span>
+                    <Icon name="arrow-right" className="h-3 w-3 text-zinc-400" />
+                    <span className="font-mono text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      £{current}
+                    </span>
+                    <span className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
+                      DROPPED -{dropPct}%
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-mono text-[10.5px] font-semibold text-zinc-900 tabular-nums dark:text-zinc-100">
+                      £{current}
+                    </span>
+                    <span className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('neutral')}`}>
+                      next -£{r.step}
+                    </span>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-zinc-200/60 dark:bg-white/10">
                   <span
-                    className="absolute inset-y-0 left-0 rounded-full bg-amber-500/70"
+                    className="absolute inset-y-0 left-0 rounded-full bg-amber-500/70 transition-[width] duration-500"
                     style={{ width: `${Math.min(100, Math.max(0, progressToFloor))}%` }}
                   />
                 </div>
@@ -1590,8 +1792,9 @@ function ShopDesignerPanel() {
   );
 }
 
-function OffersPanel() {
-  const offers: {
+function OffersPanel({ onInteract }: { onInteract?: () => void }) {
+  type Offer = {
+    id: string;
     platform: 'depop' | 'vinted';
     username: string;
     item: string;
@@ -1601,50 +1804,74 @@ function OffersPanel() {
     listed: number;
     offer: number;
     received: string;
-  }[] = [
-    {
-      platform: 'vinted',
-      username: 'lila_resale',
-      item: 'Star beanie',
-      type: 'tee',
-      photo: PHOTO.starBeanie,
-      hue: 220,
-      listed: 22,
-      offer: 18,
-      received: '2m ago',
-    },
-    {
-      platform: 'depop',
-      username: 'kai_pop',
-      item: 'Sport shades',
-      type: 'tee',
-      photo: PHOTO.sportSunglasses,
-      hue: 210,
-      listed: 24,
-      offer: 20,
-      received: '14m ago',
-    },
-    {
-      platform: 'vinted',
-      username: 'sam_thrifts',
-      item: 'Crystal cross',
-      type: 'tee',
-      photo: PHOTO.crystalCross,
-      hue: 200,
-      listed: 28,
-      offer: 24,
-      received: '1h ago',
-    },
+  };
+  const BASE_OFFERS: Offer[] = [
+    { id: 'a', platform: 'vinted', username: 'lila_resale', item: 'Star beanie', type: 'tee', photo: PHOTO.starBeanie, hue: 220, listed: 22, offer: 18, received: '2m ago' },
+    { id: 'b', platform: 'depop', username: 'kai_pop', item: 'Sport shades', type: 'tee', photo: PHOTO.sportSunglasses, hue: 210, listed: 24, offer: 20, received: '14m ago' },
+    { id: 'c', platform: 'vinted', username: 'sam_thrifts', item: 'Crystal cross', type: 'tee', photo: PHOTO.crystalCross, hue: 200, listed: 28, offer: 24, received: '1h ago' },
   ];
+
+  type Resolution = 'accepted' | 'countered' | 'declined';
+  // Per-offer state machine, four phases:
+  //   pending  → user hasn't acted yet, buttons visible
+  //   resolved → user clicked, confirmation pill swaps in (~900ms hold)
+  //   leaving  → exit animation playing (collapse + fade, ~350ms)
+  //   gone     → unmounted from the list
+  const [resolved, setResolved] = useState<Record<string, Resolution>>({});
+  const [leaving, setLeaving] = useState<Record<string, boolean>>({});
+  const [removed, setRemoved] = useState<Record<string, boolean>>({});
+
+  const handle = (id: string, action: Resolution) => {
+    if (resolved[id]) return; // ignore double-clicks
+    onInteract?.();
+    setResolved((r) => ({ ...r, [id]: action }));
+    // Confirmation pill holds for 900ms so the user reads the action they
+    // triggered, then the exit animation runs for 350ms, then we drop the
+    // card from the DOM. Two timers keeps the choreography legible.
+    window.setTimeout(() => {
+      setLeaving((l) => ({ ...l, [id]: true }));
+      window.setTimeout(() => {
+        setRemoved((r) => ({ ...r, [id]: true }));
+      }, 350);
+    }, 900);
+  };
+
+  // Reset everything when nothing's left so the demo restores itself after a
+  // few seconds of empty inbox. (Without this the visitor sees a permanently
+  // empty panel after their first round of clicks.)
+  const allDone = BASE_OFFERS.every((o) => removed[o.id]);
+  useEffect(() => {
+    if (!allDone) return;
+    const t = window.setTimeout(() => {
+      setResolved({});
+      setLeaving({});
+      setRemoved({});
+    }, 2000);
+    return () => window.clearTimeout(t);
+  }, [allDone]);
+
+  const remainingCount = BASE_OFFERS.filter((o) => !removed[o.id]).length;
+
   return (
     <div className="cascade-list flex flex-col gap-1.5">
       <ul className="cascade-list flex flex-col gap-1.5">
-        {offers.map((o, i) => {
+        {BASE_OFFERS.map((o, i) => {
+          if (removed[o.id]) return null;
+          const state = resolved[o.id];
+          const isLeaving = leaving[o.id];
           const dropPct = Math.round(((o.listed - o.offer) / o.listed) * 100);
           return (
             <li
-              key={o.username + o.item}
-              className={`cascade-item flex flex-col gap-1.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-2 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(o.platform)}`}
+              key={o.id}
+              className={`${isLeaving ? 'hero-offer-row-exit' : 'cascade-item'} flex flex-col gap-1.5 rounded-md border bg-white px-2.5 py-2 transition-colors duration-300 dark:bg-white/[0.02] ${platformBorder(o.platform)} ${
+                state === 'accepted'
+                  ? 'border-emerald-500/40 bg-emerald-500/[0.05] dark:border-emerald-400/40 dark:bg-emerald-400/[0.06]'
+                  : state === 'declined'
+                  ? 'border-zinc-400/40 opacity-60 dark:border-white/20'
+                  : state === 'countered'
+                  ? 'border-amber-500/40 bg-amber-500/[0.05] dark:border-amber-400/40 dark:bg-amber-400/[0.06]'
+                  : 'border-black/[0.06] dark:border-white/10'
+              }`}
               style={{ '--stagger-delay': `${i * 70}ms` } as CSSProperties}
             >
               <div className="flex items-center gap-2.5">
@@ -1679,42 +1906,59 @@ function OffersPanel() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  tabIndex={-1}
-                  className="flex-1 rounded bg-emerald-500/15 px-2 py-1 text-[10px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/25 dark:text-emerald-300"
+              {state ? (
+                /* Confirmation pill replacing the buttons for ~900ms */
+                <div
+                  className={`hero-offer-confirm-in flex items-center justify-center rounded px-2 py-1 text-[10.5px] font-semibold tracking-[0.06em] ${
+                    state === 'accepted'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                      : state === 'countered'
+                      ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                      : 'bg-zinc-900/[0.06] text-zinc-500 dark:bg-white/10'
+                  }`}
                 >
-                  Accept
-                </button>
-                <button
-                  type="button"
-                  tabIndex={-1}
-                  className="flex-1 rounded bg-zinc-900/[0.06] px-2 py-1 text-[10px] font-semibold text-zinc-700 transition-colors hover:bg-zinc-900/10 dark:bg-white/10 dark:text-zinc-200"
-                >
-                  Counter
-                </button>
-                <button
-                  type="button"
-                  tabIndex={-1}
-                  className="flex-1 rounded px-2 py-1 text-[10px] font-semibold text-zinc-500 transition-colors hover:bg-zinc-900/[0.04] dark:hover:bg-white/[0.06]"
-                >
-                  Decline
-                </button>
-              </div>
+                  {state === 'accepted' && `Accepted at £${o.offer}`}
+                  {state === 'countered' && `Countered with £${Math.round((o.listed + o.offer) / 2)}`}
+                  {state === 'declined' && 'Declined'}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handle(o.id, 'accepted')}
+                    className="flex-1 rounded bg-emerald-500/15 px-2 py-1 text-[10px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/25 active:bg-emerald-500/40 dark:text-emerald-300"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handle(o.id, 'countered')}
+                    className="flex-1 rounded bg-zinc-900/[0.06] px-2 py-1 text-[10px] font-semibold text-zinc-700 transition-colors hover:bg-zinc-900/10 active:bg-zinc-900/[0.18] dark:bg-white/10 dark:text-zinc-200 dark:hover:bg-white/15"
+                  >
+                    Counter
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handle(o.id, 'declined')}
+                    className="flex-1 rounded px-2 py-1 text-[10px] font-semibold text-zinc-500 transition-colors hover:bg-zinc-900/[0.04] active:bg-zinc-900/[0.1] dark:hover:bg-white/[0.06]"
+                  >
+                    Decline
+                  </button>
+                </div>
+              )}
             </li>
           );
         })}
+        {allDone && (
+          <li className="rounded-md border border-dashed border-black/10 px-3 py-6 text-center text-[10.5px] text-zinc-500 dark:border-white/15">
+            Inbox empty. New offers reappear in a moment…
+          </li>
+        )}
       </ul>
       <div className="mt-auto flex items-center justify-between border-t border-black/[0.06] pt-2 font-mono text-[9.5px] uppercase tracking-[0.1em] text-zinc-500 dark:border-white/10">
         <span>Pending offers</span>
-        <span className="flex items-center gap-2.5">
-          <span className="inline-flex items-center gap-1">
-            <PlatformBadge platform="vinted" size={11} /> 4
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <PlatformBadge platform="depop" size={11} /> 2
-          </span>
+        <span className="font-mono text-[9.5px] text-zinc-600 tabular-nums dark:text-zinc-400">
+          {remainingCount}
         </span>
       </div>
     </div>
@@ -1802,7 +2046,7 @@ export function HeroPreview() {
         const idx = order.indexOf(curr);
         return order[(idx + 1) % order.length];
       });
-    }, 5000);
+    }, 8000);
     return () => window.clearInterval(timer);
   }, [userInteracted]);
 
@@ -1904,7 +2148,9 @@ export function HeroPreview() {
                     {activeTab === 'relister' && <RelisterPanel />}
                     {activeTab === 'priceDrops' && <PriceDropsPanel />}
                     {activeTab === 'followBot' && <FollowBotPanel />}
-                    {activeTab === 'offers' && <OffersPanel />}
+                    {activeTab === 'offers' && (
+                      <OffersPanel onInteract={() => setUserInteracted(true)} />
+                    )}
                     {activeTab === 'autoOffers' && <AutoOffersPanel />}
                     {activeTab === 'conversations' && <ConversationsPanel />}
                     {activeTab === 'labels' && <LabelsPanel />}

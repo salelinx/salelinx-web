@@ -1,0 +1,102 @@
+export const metadata = {
+  title: 'Relist',
+  description:
+    'Recreate a listing from scratch with optional photo modifications, then delete the original so it re-enters search as new content.',
+  category: 'inventory',
+  slug: 'relist',
+  order: 3,
+  updated: '2026-05-18',
+  tags: ['relist', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Relist
+
+Relist is a refresh tool with teeth. It deletes a stale listing and
+posts a brand-new copy with the same content, optionally with subtly
+modified photos so the marketplace&rsquo;s duplicate-detection
+doesn&rsquo;t flag it.
+
+The result: your item gets a fresh listed-date and re-enters the
+search feed as new content, instead of being buried by the algorithm
+as old stock.
+
+## When to use it
+
+- A listing has been live for weeks with no traction.
+- The Depop refresher and Vinted re-uploads aren&rsquo;t enough.
+- You want to swap the lead photo or update wording without losing
+  the price history showing in your shop activity.
+
+If you just want to nudge a listing up without recreating it, use the
+[Refresh tab](/docs/inventory/refresh) instead.
+
+## How it works
+
+For each item you select:
+
+1. SaleLinx reads the source listing&rsquo;s title, description,
+   price, category, condition, brand, size and photos from your cloud
+   backup.
+2. Optionally applies photo modifications (crop, brightness or hue
+   tweak, re-order) so the photos aren&rsquo;t byte-identical to the
+   originals.
+3. Posts a fresh listing on the same marketplace with all that
+   content.
+4. Once the new listing is live, deletes the original.
+5. Updates your unified [Listings](/docs/inventory/listings) view to
+   point at the new ID.
+
+This sequence is the safer order: post first, delete second. If
+posting fails partway, your original is still live and you
+haven&rsquo;t lost anything.
+
+## Photo modification
+
+Marketplaces aggressively de-duplicate listings by perceptual photo
+hash. SaleLinx&rsquo;s photo modifier tweaks each photo just enough
+to break the hash without changing how the photo looks to a buyer:
+
+- **Crop** - trims a small uneven border off each edge.
+- **Hue / brightness** - nudges colour balance by a couple of
+  percent.
+- **Order shuffle** - reorders photos beyond the first one (the lead
+  stays where you put it for buyer recognition).
+
+Modification is on by default. If you toggle it off, photos are
+re-uploaded verbatim and you may end up with a duplicate-flagged
+listing.
+
+## Running it
+
+From the **Listings** tab:
+
+1. Select the rows you want to relist (single or multiple).
+2. Open the bulk-action toolbar and click **Relist**.
+3. Confirm the photo-modification settings (or accept defaults).
+4. Click **Start**.
+
+SaleLinx queues the relists and processes them with safe pacing
+between items so the marketplace doesn&rsquo;t flag the burst as
+automated activity. Progress shows in the panel; you can keep working
+in other tabs.
+
+## Plan and access
+
+Available on every paid plan, including the 7-day free trial.
+There&rsquo;s no tab-level lock. What varies by plan is your monthly
+relist allowance - the higher tiers raise it considerably. See the
+pricing page for current numbers.
+
+If you only need a lighter visibility bump (no delete + repost),
+the [Refresh tab](/docs/inventory/refresh) is the lower-touch
+alternative.
+
+## Next steps
+
+- [Refresh](/docs/inventory/refresh) - the lighter-touch alternative.
+- [Restocker](/docs/automate/restocker) - auto-repost when a linked
+  item sells.
+- [Dead Stock](/docs/automate/dead-stock) - find which listings are
+  candidates for relisting.

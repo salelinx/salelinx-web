@@ -9,9 +9,15 @@ type Props = {
   priceId: string;
   label?: string;
   highlight?: boolean;
+  trialDays?: number;
 };
 
-export function SubscribeButton({ priceId, label, highlight }: Props) {
+export function SubscribeButton({
+  priceId,
+  label,
+  highlight,
+  trialDays,
+}: Props) {
   const t = useTranslations("Subscribe");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -40,6 +46,7 @@ export function SubscribeButton({ priceId, label, highlight }: Props) {
           priceId,
           successUrl: `${window.location.origin}/account?checkout=success`,
           cancelUrl: `${window.location.origin}/pricing`,
+          ...(trialDays ? { trialDays } : {}),
         }),
       },
     );

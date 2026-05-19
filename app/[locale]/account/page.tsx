@@ -1,7 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
-import { getCurrentSubscription } from "@/lib/supabase/subscription";
+import {
+  getCurrentSubscription,
+  isEntitled,
+  trialDaysRemaining,
+} from "@/lib/supabase/subscription";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
@@ -27,6 +31,8 @@ export default async function AccountPage({ params, searchParams }: Props) {
 
   const unverified = !user.email_confirmed_at;
   const { subscription, tier } = await getCurrentSubscription(user.id);
+  const entitled = isEntitled(subscription);
+  const trialDaysLeft = trialDaysRemaining(subscription);
 
   const tierLabel = (id: string) => {
     try {
@@ -95,13 +101,13 @@ export default async function AccountPage({ params, searchParams }: Props) {
         {!subscription ? (
           <>
             <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-              {t("freeTierBody")}
+              {t("noSubscriptionBody")}
             </p>
             <Link
               href="/pricing"
               className="mt-4 inline-block rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
             >
-              {t("seePricing")}
+              {t("startTrial")}
             </Link>
           </>
         ) : (
@@ -141,11 +147,31 @@ export default async function AccountPage({ params, searchParams }: Props) {
               )}
             </dl>
 
+            {subscription.status === "trialing" && trialDaysLeft !== null && (
+              <p className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+                {trialDaysLeft <= 1
+                  ? t("trialEndsTomorrow")
+                  : t("trialEndsInDays", { days: trialDaysLeft })}
+              </p>
+            )}
             {subscription.status === "past_due" && (
               <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
                 {t("pastDueNote")}
               </p>
             )}
+            {!entitled &&
+              subscription.status !== "past_due" &&
+              subscription.status !== "trialing" && (
+                <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                  <p>{t("lockedNote")}</p>
+                  <Link
+                    href="/pricing"
+                    className="mt-3 inline-block rounded-full bg-amber-900 px-4 py-2 text-xs font-medium text-amber-50 dark:bg-amber-200 dark:text-amber-950"
+                  >
+                    {t("seePricing")}
+                  </Link>
+                </div>
+              )}
             {subscription.cancel_at_period_end &&
               subscription.status !== "canceled" && (
                 <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">

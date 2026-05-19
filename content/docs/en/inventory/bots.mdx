@@ -1,0 +1,143 @@
+export const metadata = {
+  title: 'Bots',
+  description:
+    'Grow your audience on Depop and Vinted: follow buyers, reviewers, likers and target audiences. Bulk-unfollow, blacklist, and target-unfollow from one cross-platform tab.',
+  category: 'inventory',
+  slug: 'bots',
+  order: 2,
+  updated: '2026-05-18',
+  tags: ['follow', 'unfollow', 'bots', 'depop', 'vinted', 'audience'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Bots
+
+The **Bots** tab is your audience-growth toolkit. From one place you
+can follow accounts in a target&rsquo;s network, follow your own
+buyers and reviewers, bulk-unfollow, and curate a blacklist of people
+you never want to target. It&rsquo;s cross-platform: the same tab
+works on Depop and Vinted, with SaleLinx picking the right backend
+based on the page you&rsquo;re on.
+
+## Why follow at all
+
+- Following someone notifies them, which increases the chance they
+  look at your shop.
+- Following sellers in your niche surfaces you in their network and
+  builds reciprocal follows.
+- Following your own buyers and reviewers keeps you in their feed for
+  repeat purchases.
+
+## Available actions
+
+### Both Depop and Vinted
+
+- **Follow followers of a target** - follows everyone who follows
+  another user.
+- **Follow following of a target** - follows everyone another user
+  follows.
+- **Unfollow all** - bulk unfollow from your own following list.
+- **Target unfollow** - unfollow accounts that appear in another
+  user&rsquo;s followers or following list.
+
+### Depop only
+
+Vinted doesn&rsquo;t expose &ldquo;buyers&rdquo; or
+&ldquo;reviewers&rdquo; as queryable audiences the way Depop does, so
+these actions are Depop-side only:
+
+- **Follow buyers** - follows every account that has ever bought
+  from you.
+- **Follow reviewers** - follows every account that has left a
+  review on a target shop (defaults to your own).
+- **Follow likers** - on a product page, follows every account
+  that has liked that listing.
+- **Unfollow buyers / reviewers** - mirror of the Follow
+  versions, removes accounts you previously followed via those flows.
+- **Blacklist all current following** - one-click action that
+  adds every account in your following list to your blacklist, so the
+  Follow bots never re-target them.
+
+## Picking targets
+
+You can run a follow bot in a few ways:
+
+- **By username** - type a target&rsquo;s handle into the input,
+  choose **Followers** or **Following**, and start the run.
+- **From a profile page** - navigate to a user&rsquo;s shop, click
+  the Bots tab, and the input prefills with their handle.
+- **From a product page (likers only)** - on a Depop product page,
+  click **Follow likers** and SaleLinx pulls the liker list for that
+  exact listing.
+- **From your own data** - **Follow buyers** and **Follow reviewers**
+  default to your own account; no target needed.
+
+## Blacklist and whitelist
+
+Two text boxes in the **Settings** section govern who the bots will
+skip:
+
+- **Blacklist** (used by follow actions) - usernames you never want
+  to follow. One per line or comma-separated. Case-insensitive.
+- **Whitelist** (used by unfollow actions) - usernames you never want
+  to unfollow. Same format.
+
+Two convenience buttons populate the blacklist in bulk:
+
+- **Blacklist all following** walks your own following list and adds
+  every username. Useful before running **Follow buyers** so you
+  don&rsquo;t accidentally re-follow accounts you&rsquo;ve already
+  curated.
+- **Blacklist all followers** does the same for your followers list.
+
+Both deduplicate against existing entries, so it&rsquo;s safe to run
+them multiple times.
+
+## Pacing and safety
+
+The bots run on SaleLinx&rsquo;s pacing engine so the burst
+doesn&rsquo;t look automated to the marketplace. You don&rsquo;t need
+to configure anything; sensible defaults are applied per platform.
+Power users can tweak the delay range in Settings if they want a
+faster or slower cadence.
+
+If the marketplace pushes back temporarily, the bot quietly waits and
+retries. If your session gets flagged outright (a `403`), the run
+stops immediately and you should sign out, sign back in, and give
+things a few hours before resuming.
+
+## Hitting your following limit (Depop)
+
+Depop enforces a ceiling on how many accounts a single user can
+follow. Before any Depop follow run, SaleLinx checks your current
+following count and stops cleanly if you&rsquo;re at the cap. To
+free up headroom, run **Unfollow all** (or **Target unfollow** for
+something more selective) and try again.
+
+Vinted doesn&rsquo;t enforce an equivalent cap.
+
+## What you&rsquo;ll see in the log
+
+The activity log shows one line per action: `Followed @username`,
+`Skipped @username (blacklisted)`, `Already following @username
+(skipped)`, and so on. At the end of a run you get a summary line
+with done / skipped / failed counts.
+
+## Plan and access
+
+The Bots tab is available on every paid plan, including the 7-day
+free trial. There&rsquo;s no tab-level lock. What varies by plan is
+your **daily follow and unfollow allowance** - the higher tiers raise
+or remove the cap entirely. See the pricing page for current numbers,
+or check the Membership card at the top of the panel for your
+remaining allowance today.
+
+## Next steps
+
+- [Listings](/docs/inventory/listings) - the audience you grow here
+  buys what you list there.
+- [Messages](/docs/buyers/messages) - reply to incoming buyer
+  conversations from the panel.
+- [Labels](/docs/buyers/labels) - includes the Vinted feedback bot
+  for closing the post-sale loop.

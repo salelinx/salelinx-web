@@ -20,8 +20,8 @@ const TASK_PILLS: Array<{
 }> = [
   { key: 'install', href: '/docs/getting-started/install-the-extension' },
   { key: 'connect', href: '/docs/getting-started/connect-your-first-marketplace' },
-  { key: 'crosslist', href: '/docs/crosslisting/crosslist-your-first-item' },
-  { key: 'manage', href: '/docs/listings/manage-inventory' },
+  { key: 'crosslist', href: '/docs/inventory/crosslist' },
+  { key: 'manage', href: '/docs/inventory/listings' },
 ];
 
 export async function generateMetadata({

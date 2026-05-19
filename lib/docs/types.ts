@@ -2,11 +2,9 @@ import type { IconName } from '@/components/Icon';
 
 export type CategorySlug =
   | 'getting-started'
-  | 'crosslisting'
-  | 'listings'
-  | 'visibility'
-  | 'sales'
-  | 'marketplaces';
+  | 'inventory'
+  | 'automate'
+  | 'buyers';
 
 export type Marketplace = 'depop' | 'vinted';
 

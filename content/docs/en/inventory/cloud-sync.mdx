@@ -1,0 +1,186 @@
+export const metadata = {
+  title: 'Cloud sync',
+  description:
+    'How SaleLinx backs up your listings to the cloud, what the enricher does in the background, and how to choose what gets synced.',
+  category: 'inventory',
+  slug: 'cloud-sync',
+  order: 8,
+  updated: '2026-05-18',
+  tags: ['cloud', 'sync', 'backup', 'enrichment'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Cloud sync
+
+SaleLinx stores your listing catalogue locally in your browser by
+default. &ldquo;Cloud sync&rdquo; is an opt-in feature, per listing,
+that copies that data (plus the photos) to your SaleLinx account on
+Supabase. A background process called the **listing enricher** is
+what makes cloud sync possible: it fetches the full detail of each
+listing from the marketplace, image-backs-up its photos, then writes
+the result to your cloud account.
+
+Once you understand both, you&rsquo;ll know exactly what happens
+when you flip the cloud toggle on a listing and why it sometimes
+takes a moment to settle.
+
+## Why you&rsquo;d enable cloud sync
+
+- **Cross-device** - the same catalogue appears on every browser
+  signed into your SaleLinx account.
+- **Backup** - if a listing is removed from the marketplace, your
+  cloud copy still has the photos and content.
+  [Relist](/docs/inventory/relist) can recreate it.
+- **Cross-platform features** - the
+  [Restocker](/docs/automate/restocker) and
+  [Crosslist](/docs/inventory/crosslist) rely on full listing data
+  being available to recreate items. Cloud sync is what ensures that
+  data has been captured.
+
+Cloud sync is **per listing**: you toggle it on the rows you want
+backed up, not on the whole shop. Nothing leaves your browser unless
+you opt that listing in.
+
+## What gets stored where
+
+Two stores work together:
+
+1. **Local store (your browser)** - IndexedDB. Holds the index of
+   every listing SaleLinx has seen, including basic fields like
+   title, price, photos, and status. Always present once your
+   subscription or trial is active.
+2. **Cloud store (Supabase)** - your encrypted listings + image
+   backups. Only contains rows you&rsquo;ve opted into cloud sync
+   for.
+
+Local is always the primary source of truth. Cloud is additive
+backup. If you disable cloud on a listing, the local copy stays put;
+the cloud row is removed.
+
+### What&rsquo;s encrypted
+
+Titles and descriptions are encrypted in your browser before upload,
+so SaleLinx servers can&rsquo;t read your listing content in plain
+text. Photos are stored as files in Supabase storage with restricted
+access rules tied to your account ID.
+
+## The enricher
+
+The enricher fills in the parts of a listing that the basic poller
+doesn&rsquo;t capture: condition, colour, size mapping, full
+description, exact category path, and the high-resolution image URLs.
+It then triggers an image backup so the photos survive even if the
+marketplace deletes the listing.
+
+### What triggers it
+
+The enricher kicks in whenever you toggle cloud sync on, when a
+cloud-synced listing hasn&rsquo;t been refreshed for a while, or when
+SaleLinx notices a cloud-synced listing changed on the marketplace
+(price edit, status change, etc.).
+
+Recently enriched listings aren&rsquo;t re-enriched, so cloud sync
+stays cheap once your shop is in steady state.
+
+### What it does per listing
+
+For each listing in the queue the enricher fetches the full detail
+from the marketplace, normalises it into SaleLinx&rsquo;s unified
+shape, backs up the photos to your private storage, merges the
+enriched data into your local store without clobbering fields you&rsquo;ve
+set manually, and pushes the record up to the cloud.
+
+If you&rsquo;re signed into a different marketplace account from the
+one linked to SaleLinx, the run stops immediately so the wrong data
+can&rsquo;t leak into your cloud.
+
+### Pacing
+
+Enrichment runs in the background at low priority. Anything you do
+in the foreground (manual refresh, crosslist, follow run) takes
+precedence and the enricher waits its turn. Runs are capped so the
+enricher can&rsquo;t hammer the marketplace; anything left over
+continues on the next run.
+
+If the marketplace pushes back (a rate limit or a flagged session),
+the run stops cleanly and the queue picks up where it left off later.
+The activity log prefixes enricher events with `[enricher]` so you
+can find them.
+
+## Turning cloud sync on or off
+
+From the **Listings** tab:
+
+1. Find the row (or select multiple).
+2. Click the cloud toggle in the row header. A cloud icon appears
+   when sync is on; it&rsquo;s greyed out when off.
+
+Behind the scenes, enabling sync:
+
+1. Adds the listing ID to your cloud-enabled set.
+2. Queues the listing for enrichment.
+3. The next storage write (e.g. when enrichment finishes) triggers
+   the batched cloud upload.
+
+You won&rsquo;t see the row in the cloud immediately - it appears
+once the enricher reaches it and the next debounced flush runs
+(usually within a couple of seconds of enrichment finishing).
+
+Disabling sync:
+
+1. Removes the listing ID from your cloud-enabled set.
+2. Drops it from the enrichment queue (if it was waiting).
+3. Deletes the cloud row + backed-up photos.
+
+Disabling is immediate and removes the cloud copy. Local data is
+untouched.
+
+### Bulk actions
+
+The header **Cloud** column has a toggle-all checkbox. Tick it to
+cloud-sync every visible row (respecting your current filters).
+Untick it to disable for the same set.
+
+## Cross-tab and cross-device behaviour
+
+Cloud sync is designed for the realistic case where you have
+SaleLinx open in more than one tab or on more than one machine.
+Concurrent toggles are merged safely, every open panel re-renders
+when the cloud-enabled set changes, and new devices pull your full
+cloud index on first sign-in then keep it warm with delta updates.
+
+## Orphan cloud listings
+
+Occasionally the local poller drops a listing (e.g. an old sold item
+that the marketplace stopped returning) while the cloud copy
+persists. SaleLinx surfaces these &ldquo;orphans&rdquo; in the
+Listings grid so you can still see and manage them - the alternative
+would be a row that&rsquo;s effectively invisible until you happen
+to clear the cache.
+
+Orphans are filtered by your current platform and status filters
+exactly like normal rows.
+
+## Plan and access
+
+- **Trial and Starter** - local store only. Cloud sync toggle is
+  locked.
+- **Pro and Business** - cloud sync available. Tier limits cap the
+  total number of cloud-synced listings.
+- **Listing enricher** - runs automatically whenever cloud sync is
+  enabled. No separate gate.
+
+Cloud quota limits show on the Membership card at the top of the
+panel.
+
+## Next steps
+
+- [Listings](/docs/inventory/listings) - the tab where cloud toggles
+  live.
+- [Crosslist](/docs/inventory/crosslist) - enriched listings make
+  crosslisting much smoother.
+- [Restocker](/docs/automate/restocker) - relies on cloud-synced
+  data to recreate items when they sell out.
+- [Relist](/docs/inventory/relist) - recreates listings from the
+  cloud backup if the marketplace removes them.

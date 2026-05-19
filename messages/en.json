@@ -114,7 +114,11 @@
     "signOut": "Sign out",
     "checkoutSuccess": "Subscription activated. It may take a few seconds for the details below to refresh.",
     "currentPlanTitle": "Current plan",
-    "freeTierBody": "You're on the Free tier. Upgrade any time.",
+    "noSubscriptionBody": "You don't have an active plan. Start your free 7-day trial to use SaleLinx.",
+    "startTrial": "Start free trial",
+    "trialEndsInDays": "Your free trial ends in {days} days. After that you'll be billed for Starter.",
+    "trialEndsTomorrow": "Your free trial ends tomorrow. After that you'll be billed for Starter.",
+    "lockedNote": "Your subscription isn't active. Re-subscribe to keep using SaleLinx.",
     "seePricing": "See pricing",
     "tier": "Tier",
     "status": "Status",
@@ -210,7 +214,7 @@
       "items": {
         "crosslist": {
           "short": "Crosslist",
-          "title": "Crosslist <depop></depop> and <vinted></vinted> in one click",
+          "title": "Crosslist Depop and Vinted in one click",
           "body": "Pick a listing, hit crosslist, and the other marketplace's form fills itself in. Categories, sizes and conditions are translated for you, so the same item goes live on both shops in seconds.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
@@ -378,10 +382,17 @@
     "unlimited": "Unlimited",
     "cloudStorage": "Cloud storage",
     "storageGb": "{value} GB",
+    "storageMb": "{value} MB",
     "supportHours": "{value}h",
     "supportDays": "{value} days",
+    "trial": {
+      "name": "Free 7-day trial",
+      "tagline": "Full Starter access for 7 days.",
+      "priceSuffix": "for {days} days",
+      "thenPrice": "Then {price} / month",
+      "cta": "Start free trial"
+    },
     "tier": {
-      "free": { "tagline": "Try before you buy" },
       "starter": { "tagline": "Hobbyists" },
       "pro": { "tagline": "Active resellers" },
       "business": { "tagline": "Power sellers & multi-shop" }
@@ -393,7 +404,6 @@
       "follows_per_day": "Follows / day",
       "unfollows_per_day": "Unfollows / day",
       "cloud_storage_bytes": "Cloud storage",
-      "linked_shops": "Linked shops",
       "support_response_days": "Support response",
       "support_response_hours": "Support response"
     },
@@ -427,31 +437,23 @@
         "title": "Getting started",
         "blurb": "Install the extension, sign in, and post your first listing."
       },
-      "crosslisting": {
-        "title": "Crosslisting",
-        "blurb": "Post once, publish to both marketplaces with translated fields."
+      "inventory": {
+        "title": "Inventory & posting",
+        "blurb": "Listings, bots, relist, refresh, crosslist, shop designer, CSV import, cloud sync."
       },
-      "listings": {
-        "title": "Listings & inventory",
-        "blurb": "Manage your catalogue, bulk edits, refresh, relist and backups."
+      "automate": {
+        "title": "Automate",
+        "blurb": "Dead stock, auto-offers, linking, restocker, price drops."
       },
-      "visibility": {
-        "title": "Visibility & audience",
-        "blurb": "Refresh, follow bot, dead-stock, automatic price drops, activity log."
-      },
-      "sales": {
-        "title": "Sales & messaging",
-        "blurb": "Offers, auto-offers, messages, shipping labels, restocker, relister."
-      },
-      "marketplaces": {
-        "title": "Marketplaces",
-        "blurb": "Platform-specific guides for Depop, Vinted and more."
+      "buyers": {
+        "title": "Buyer messages",
+        "blurb": "Offers, messages, shipping labels and feedback."
       }
     },
     "task": {
       "install": "Install the extension",
       "connect": "Connect a marketplace",
-      "crosslist": "Crosslist your first item",
+      "crosslist": "Crosslist a listing",
       "manage": "Manage your inventory"
     },
     "categoryPageEyebrow": "Category",

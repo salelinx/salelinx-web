@@ -114,7 +114,11 @@
     "signOut": "Déconnexion",
     "checkoutSuccess": "Abonnement activé. Les détails ci-dessous peuvent prendre quelques secondes à se mettre à jour.",
     "currentPlanTitle": "Forfait actuel",
-    "freeTierBody": "Vous êtes sur le forfait Gratuit. Passez à une offre supérieure quand vous voulez.",
+    "noSubscriptionBody": "Vous n'avez pas de forfait actif. Démarrez votre essai gratuit de 7 jours pour utiliser SaleLinx.",
+    "startTrial": "Démarrer l'essai gratuit",
+    "trialEndsInDays": "Votre essai gratuit se termine dans {days} jours. Ensuite, le forfait Starter sera facturé.",
+    "trialEndsTomorrow": "Votre essai gratuit se termine demain. Ensuite, le forfait Starter sera facturé.",
+    "lockedNote": "Votre abonnement n'est pas actif. Réabonnez-vous pour continuer à utiliser SaleLinx.",
     "seePricing": "Voir les tarifs",
     "tier": "Forfait",
     "status": "Statut",
@@ -210,7 +214,7 @@
       "items": {
         "crosslist": {
           "short": "Crosslist",
-          "title": "Crosslistez <depop></depop> et <vinted></vinted> en un clic",
+          "title": "Crosslistez Depop et Vinted en un clic",
           "body": "Choisissez une annonce, cliquez sur crosslist et le formulaire de l'autre marketplace se remplit tout seul. Catégories, tailles et états sont traduits pour vous, le même article est en ligne sur les deux boutiques en quelques secondes.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
@@ -378,10 +382,17 @@
     "unlimited": "Illimité",
     "cloudStorage": "Stockage cloud",
     "storageGb": "{value} Go",
+    "storageMb": "{value} Mo",
     "supportHours": "{value} h",
     "supportDays": "{value} jours",
+    "trial": {
+      "name": "Essai gratuit de 7 jours",
+      "tagline": "Accès complet à Starter pendant 7 jours.",
+      "priceSuffix": "pendant {days} jours",
+      "thenPrice": "Puis {price} / mois",
+      "cta": "Démarrer l'essai gratuit"
+    },
     "tier": {
-      "free": { "tagline": "Essayez avant d'acheter" },
       "starter": { "tagline": "Amateurs" },
       "pro": { "tagline": "Revendeurs actifs" },
       "business": { "tagline": "Vendeurs pros et multi-boutiques" }
@@ -393,7 +404,6 @@
       "follows_per_day": "Abonnements / jour",
       "unfollows_per_day": "Désabonnements / jour",
       "cloud_storage_bytes": "Stockage cloud",
-      "linked_shops": "Boutiques liées",
       "support_response_days": "Réponse du support",
       "support_response_hours": "Réponse du support"
     },
@@ -427,31 +437,23 @@
         "title": "Premiers pas",
         "blurb": "Installez l'extension, connectez-vous et publiez votre première annonce."
       },
-      "crosslisting": {
-        "title": "Crosslisting",
-        "blurb": "Publiez une fois, diffusez sur les deux marketplaces avec des champs traduits."
+      "inventory": {
+        "title": "Inventaire et publication",
+        "blurb": "Annonces, bots, republication, rafraîchissement, crosslist, shop designer, import CSV, synchro cloud."
       },
-      "listings": {
-        "title": "Annonces et inventaire",
-        "blurb": "Gérez votre catalogue, les modifications en masse, le rafraîchissement, la republication et les sauvegardes."
+      "automate": {
+        "title": "Automatisation",
+        "blurb": "Stock dormant, offres automatiques, linking, réapprovisionneur, baisses de prix."
       },
-      "visibility": {
-        "title": "Visibilité et audience",
-        "blurb": "Rafraîchissement, follow bot, stock dormant, baisses de prix automatiques, journal d'activité."
-      },
-      "sales": {
-        "title": "Ventes et messagerie",
-        "blurb": "Offres, offres automatiques, messages, étiquettes d'expédition, réapprovisionneur, republieur."
-      },
-      "marketplaces": {
-        "title": "Marketplaces",
-        "blurb": "Guides spécifiques pour Depop, Vinted et d'autres plateformes."
+      "buyers": {
+        "title": "Messages acheteurs",
+        "blurb": "Offres, messages, étiquettes d'expédition et évaluations."
       }
     },
     "task": {
       "install": "Installer l'extension",
       "connect": "Connecter une marketplace",
-      "crosslist": "Crosslistez votre premier article",
+      "crosslist": "Crosslister une annonce",
       "manage": "Gérer votre inventaire"
     },
     "categoryPageEyebrow": "Catégorie",

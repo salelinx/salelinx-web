@@ -1,0 +1,176 @@
+export const metadata = {
+  title: 'Crosslist',
+  description:
+    'Post any listing from one marketplace to the other in a single click. API-based, batched up to 50 at a time, fully automated.',
+  category: 'inventory',
+  slug: 'crosslist',
+  order: 5,
+  updated: '2026-05-18',
+  tags: ['crosslist', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Crosslist
+
+The Crosslist tab takes any listing you&rsquo;ve already created on one
+marketplace and posts it to the other. It does the entire transfer over
+the marketplace APIs in the background. There&rsquo;s no form to fill,
+no new tab to babysit, and no waiting for an editor to load. You pick
+the items, click the button, and watch the queue run.
+
+## When to use it
+
+- You list something new on Depop and want it live on Vinted too.
+- You&rsquo;re cleaning up an old shop and want every unlinked listing
+  mirrored to the other side.
+- You&rsquo;re moving to SaleLinx and need to bulk-mirror your existing
+  catalogue in one pass.
+
+## What you need
+
+- Both marketplaces signed in (see
+  [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)).
+- **Both Depop and Vinted tabs open in the browser.** The crosslister
+  uses both sites&rsquo; in-page API access at the same time. If
+  either tab is missing, a dialog offers to open it.
+- An active subscription or the 7-day free trial.
+
+## The listing picker
+
+The Crosslist tab shows an 8-column grid of your own listings. Each
+card has the photo, a price badge overlay, the title, size/category
+tags, brand, condition, and likes / views. The cards glow in the
+source platform&rsquo;s colour (red for Depop, green for Vinted) so
+you can see at a glance which way the transfer is going.
+
+Three controls sit above the grid:
+
+- **Direction toggle** (source logo → target logo). Click it to flip
+  the direction. By default the source is whichever site you&rsquo;re
+  currently browsing, but you can swap freely.
+- **Link filter** (All / Linked / Unlinked). Defaults to **Unlinked**
+  so the grid only shows items that don&rsquo;t yet have a partner on
+  the other side. Switch to **All** if you want to see your full
+  catalogue.
+- **Auto-post toggle** (off by default). When off, SaleLinx creates
+  **drafts** on the target. When on, it publishes live listings
+  straight away.
+
+Tick the cards you want to crosslist (single or multiple, up to 50 in
+one batch) and click **Crosslist to [target logo]**.
+
+## What &ldquo;linked&rdquo; means
+
+A listing is **linked** when its partner on the other marketplace is
+known to SaleLinx. The link is set automatically the moment a
+crosslist succeeds. The Linked / Unlinked filter uses that link state,
+and other features (Restocker, Linking tab) read it too.
+
+If a pair gets out of sync, you can repair the link manually from the
+[Linking tab](/docs/automate/linking).
+
+## How the crosslist actually runs
+
+Both directions are fully API-based. The crosslister doesn&rsquo;t
+open new tabs and doesn&rsquo;t inject anything into the marketplace
+editor. For each item it reads the source listing, translates the
+platform-specific fields (category, condition, colour, brand, size,
+shipping) into the target marketplace&rsquo;s equivalents, re-uploads
+the photos, and posts the result.
+
+Common edge cases handled automatically:
+
+- **Brand not on the target&rsquo;s list** - posted with no brand
+  attached so you can pick one yourself before publishing.
+- **Colour not recognised** - mapped to the closest accepted colour
+  on the target (e.g. mustard becomes yellow) where possible, dropped
+  otherwise.
+- **Size missing from the target&rsquo;s catalogue** - left blank for
+  you to set manually.
+- **Photo download blocked** - the source platform occasionally throws
+  a transient block on a fresh page load; refresh the source and
+  retry.
+
+You don&rsquo;t need to know any of this to use it. The button just
+works. But if a crosslist looks off, the &ldquo;why&rdquo; usually
+lives somewhere on this list.
+
+## Batches
+
+A single click crosslists up to **50** items in one go. The batch:
+
+- Runs sequentially with safe pacing between items so the
+  marketplace doesn&rsquo;t flag the burst as automated activity.
+- Streams progress to the panel as each item completes.
+- Survives the side panel being closed or the browser sleeping - the
+  queue resumes automatically.
+
+If an item fails partway through (transient network blip, marketplace
+error), the batch advances to the next item rather than stalling.
+Failed items stay unlinked, so you can re-select and retry them
+later.
+
+## Auto-post: drafts vs live
+
+The Auto-post toggle is **off by default**. There&rsquo;s a deliberate
+reason for that: posting straight to live means any mapping mistake
+(wrong category, wrong size, missing brand) lands on a real, visible
+listing. Drafts let you eyeball the result first.
+
+- **Auto-post off (recommended for first runs).** SaleLinx writes a
+  draft to the target. Open the draft on the marketplace, tweak
+  anything that looks wrong, and publish manually.
+- **Auto-post on.** SaleLinx publishes immediately. Faster for known-
+  good mapping cases (your usual brands, common categories, simple
+  sizes) but you lose the review step.
+
+You can flip the toggle at any time. The setting persists across
+sessions.
+
+## Plan and access
+
+Crosslisting is included on every plan from the 7-day free trial
+upwards. Each plan has its own monthly crosslist allowance, with the
+higher tiers offering progressively more headroom. See the pricing
+page for current numbers.
+
+For bulk migrations larger than your monthly allowance, see
+[CSV import](/docs/inventory/csv-import).
+
+## Troubleshooting
+
+**&ldquo;Both Depop and Vinted tabs must be open.&rdquo;** Click the
+dialog&rsquo;s &ldquo;Open&rdquo; button or do it yourself. The
+crosslister needs both sites&rsquo; in-page API access at the same
+time.
+
+**Brand comes through as &ldquo;Other&rdquo; or &ldquo;Unbranded.&rdquo;**
+The source brand wasn&rsquo;t found in the target marketplace&rsquo;s
+brand list. Fix manually on the target draft, or add the brand
+yourself.
+
+**Category looks off.** SaleLinx&rsquo;s mapping covers the common
+cases but the long tail (vintage militaria, sports memorabilia, kids
+size edge cases) sometimes needs a manual override. Open the draft
+and pick the right category before publishing.
+
+**Photos missing.** The source platform occasionally blocks photo
+downloads on a fresh page. Refresh the source listing once, then
+re-run the crosslist.
+
+**Vinted item won&rsquo;t fetch.** If the listing isn&rsquo;t yours,
+the API path is blocked - SaleLinx falls back to opening it in a
+background tab to scrape the page. This is slower but works on any
+public listing.
+
+## Next steps
+
+- [CSV import](/docs/inventory/csv-import) - bulk crosslist from a
+  spreadsheet.
+- [Linking](/docs/automate/linking) - manually pair listings that
+  already exist on both sides.
+- [Restocker](/docs/automate/restocker) - the downstream feature that
+  uses linked pairs to auto-repost when one side sells.
+- [Shop Designer](/docs/inventory/shop-designer) - rearrange your
+  Depop shop layout after crosslisting.

@@ -1,0 +1,144 @@
+export const metadata = {
+  title: 'Dead Stock',
+  description:
+    'Find listings that have been live too long with too little engagement, and choose what to do about them.',
+  category: 'automate',
+  slug: 'dead-stock',
+  order: 1,
+  updated: '2026-05-18',
+  tags: ['dead stock', 'analytics', 'depop', 'vinted'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Dead Stock
+
+The Dead Stock tab scores every active listing in your shop against
+its age, view count, and like count, then sorts them into four
+health tiers. It surfaces the items that are tying up capital
+without producing sales, so you can decide whether to refresh, mark
+down, relist, or delete them.
+
+## When to use it
+
+- Your shop is large enough that you can&rsquo;t eyeball stale items
+  yourself.
+- You want a regular &ldquo;triage&rdquo; pass before listing new
+  stock.
+- You&rsquo;re about to run [Price Drops](/docs/automate/price-drops)
+  and want to pick the right candidates.
+- You want to know how much money is sitting in stock that&rsquo;s
+  unlikely to sell.
+
+## How the classification works
+
+Each active listing is placed in one of four tiers. The thresholds
+differ by marketplace because Depop and Vinted have different
+baseline engagement rates.
+
+**Depop**
+
+| Tier        | Rule                                                         |
+| ----------- | ------------------------------------------------------------ |
+| **Dead**    | 21+ days old AND (fewer than 5 likes OR fewer than 30 views) |
+| **Stale**   | 10+ days old AND (fewer than 5 likes OR fewer than 30 views) |
+| **Slow**    | 5+ days old AND (fewer than 3 likes OR fewer than 15 views)  |
+| **Healthy** | Anything above those bars                                    |
+
+**Vinted**
+
+| Tier        | Rule                                                         |
+| ----------- | ------------------------------------------------------------ |
+| **Dead**    | 30+ days old AND (fewer than 5 likes OR fewer than 40 views) |
+| **Stale**   | 14+ days old AND (fewer than 5 likes OR fewer than 40 views) |
+| **Slow**    | 7+ days old AND (fewer than 3 likes OR fewer than 20 views)  |
+| **Healthy** | Anything above those bars                                    |
+
+Sold and hidden listings are excluded. Age is measured from the
+listing&rsquo;s original creation date, not the last refresh.
+
+<Callout variant="tip" title="Why two thresholds (likes OR views)?">
+A listing with 50 views but zero likes is failing differently from
+one with 5 likes but no views. Either is a warning sign. The OR
+catches both failure modes.
+</Callout>
+
+## Reading the tab
+
+The Dead Stock tab has four blocks, top to bottom:
+
+1. **Tier counts** - how many listings sit in each tier across the
+   filtered marketplace(s).
+2. **Capital at risk** - the combined value of every Dead and Stale
+   item, plus the age of the oldest such listing. This is the money
+   you could free up by selling, marking down, or removing.
+3. **Worst five** - cards showing your five worst-performing
+   listings. Ordered first by tier (Dead beats Stale beats Slow) and
+   then by likes-per-day (lower is worse). Each card has a one-click
+   **Relist** button.
+4. **Full list** - the complete classified inventory, filterable by
+   tier and by marketplace. Each row shows the photo, title, price,
+   age, tier badge, and engagement stats.
+
+The filters at the top of the list let you narrow to a specific
+tier or marketplace without losing the row selection underneath.
+
+## Taking action
+
+Selecting one or more rows opens the action bar at the bottom of
+the tab. From there you can:
+
+- **Relist** - opens the relist overlay pre-filled with the chosen
+  listings. See [Relist](/docs/inventory/relist).
+- **Clear selection** - drops everything from the action bar.
+
+For each individual listing you can also click straight through to
+the marketplace page to delete it manually, or jump to the **Price
+Drops** tab to add it to your markdown schedule.
+
+The detector itself never edits or deletes anything. It&rsquo;s
+purely diagnostic; every action is opt-in.
+
+## How the data is gathered
+
+The detector reads from your **Listings** cache, which SaleLinx
+keeps in sync in the background while the panel is open and tops up
+with listing data picked up from your normal browsing.
+
+If a listing was created very recently and view/like counts
+haven&rsquo;t been recorded yet, it&rsquo;s treated as having zero
+of each, which can briefly flag it as Slow.
+
+## Recommended workflow
+
+A weekly triage that uses the detector to drive other tools:
+
+1. Open the Dead Stock tab and check the **Capital at risk** number.
+2. Filter to **Dead** items. For each:
+   - If you still want to sell at the current price, send it to
+     [Relist](/docs/inventory/relist) to give it a fresh listing
+     date.
+   - If it&rsquo;s priced too high, add it to
+     [Price Drops](/docs/automate/price-drops) with an aggressive
+     percentage.
+   - If you&rsquo;ve already tried both, delete it on the
+     marketplace and free the slot for new stock.
+3. Filter to **Stale** items and run [Refresh](/docs/inventory/refresh)
+   on the lot.
+4. Leave **Slow** items alone until the next pass; they&rsquo;re too
+   young to act on.
+
+## Plan and access
+
+Dead Stock is included on **Starter, Pro and Business**. The 7-day
+free trial grants Starter access, so trial users get the full tab
+too. The tab is locked end-to-end (full overlay, no preview) when
+the user has no active subscription.
+
+## Next steps
+
+- [Price Drops](/docs/automate/price-drops) - schedule markdowns on
+  the items you flag here.
+- [Refresh](/docs/inventory/refresh) - cheap visibility bump for
+  Stale items.
+- [Relist](/docs/inventory/relist) - the right tool for Dead items.

@@ -247,3 +247,99 @@ html[data-theme-sweep] *::after {
     animation: none !important;
   }
 }
+
+/* Follow-bot list row entry: when React mounts a new top row (a new follow
+   arrived), animate its max-height from 0 → its natural height. The growth
+   smoothly pushes the existing rows below it down — the rest of the list
+   doesn't snap into place. Pair with overflow:hidden on the row so the
+   content inside doesn't overflow during the height ramp. */
+@keyframes heroFollowRowEnter {
+  0% {
+    opacity: 0;
+    max-height: 0;
+    margin-top: -6px; /* counter the flex gap so layout starts at 0 */
+    transform: translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    max-height: 60px;
+    margin-top: 0;
+    transform: translateY(0);
+  }
+}
+
+.hero-follow-row-enter {
+  overflow: hidden;
+  animation: heroFollowRowEnter 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-follow-row-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    max-height: none !important;
+    transform: none !important;
+    margin-top: 0 !important;
+  }
+}
+
+/* Offers list row exit: when a card has been accepted/countered/declined
+   and its confirmation hold is over, collapse it out of the layout. Animates
+   max-height + padding + margin so the rows below slide up smoothly into
+   the freed space. Pair with overflow:hidden so content doesn't spill while
+   the height ramps to zero. */
+@keyframes heroOfferRowExit {
+  0% {
+    opacity: 1;
+    max-height: 110px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-top: 0;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: -6px; /* eat the flex gap to fully close the slot */
+    transform: translateY(-6px);
+  }
+}
+
+.hero-offer-row-exit {
+  overflow: hidden;
+  animation: heroOfferRowExit 0.35s cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+
+/* Confirmation pill swap-in: replaces the Accept/Counter/Decline button row
+   the moment the user clicks. Small grow-and-fade so the swap reads as a
+   reaction to the click rather than a snap. */
+@keyframes heroOfferConfirmIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hero-offer-confirm-in {
+  animation: heroOfferConfirmIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-offer-row-exit,
+  .hero-offer-confirm-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    max-height: none !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    margin-top: 0 !important;
+  }
+}

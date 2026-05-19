@@ -1,0 +1,29 @@
+export const metadata = {
+  title: 'Sincronización en la nube',
+  description:
+    'Cómo SaleLinx hace copia de seguridad de tus anuncios en la nube, qué hace el enriquecedor en segundo plano y cómo eliges qué se sincroniza.',
+  category: 'inventory',
+  slug: 'cloud-sync',
+  order: 8,
+  updated: '2026-05-18',
+  tags: ['nube', 'sincronización', 'backup', 'enriquecimiento'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'stub',
+};
+
+# Sincronización en la nube
+
+Por defecto SaleLinx guarda tus anuncios localmente en el
+navegador. La sincronización en la nube, opcional y activable por
+anuncio, copia esos datos (y las fotos) a tu cuenta de SaleLinx en
+Supabase. El **enriquecedor** es el proceso en segundo plano que
+hace posible la sincronización.
+
+<Callout>
+Traducción completa al español próximamente. Consulta la
+[versión en inglés](/en/docs/inventory/cloud-sync) para el detalle
+de los dos stores (IndexedDB local / Supabase nube), el cifrado en
+cliente, los disparadores de enriquecimiento, la cadencia mediante
+task queue, el backup de imágenes, el comportamiento
+multi-pestaña / multi-dispositivo y los anuncios huérfanos.
+</Callout>

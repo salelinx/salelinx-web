@@ -114,7 +114,11 @@
     "signOut": "Abmelden",
     "checkoutSuccess": "Abonnement aktiviert. Es kann einige Sekunden dauern, bis die Details unten aktualisiert sind.",
     "currentPlanTitle": "Aktuelles Paket",
-    "freeTierBody": "Du bist im kostenlosen Paket. Du kannst jederzeit upgraden.",
+    "noSubscriptionBody": "Du hast kein aktives Paket. Starte deine kostenlose 7-tägige Testphase, um SaleLinx zu nutzen.",
+    "startTrial": "Kostenlose Testphase starten",
+    "trialEndsInDays": "Deine kostenlose Testphase endet in {days} Tagen. Danach wird das Starter-Paket berechnet.",
+    "trialEndsTomorrow": "Deine kostenlose Testphase endet morgen. Danach wird das Starter-Paket berechnet.",
+    "lockedNote": "Dein Abonnement ist nicht aktiv. Abonniere erneut, um SaleLinx weiter zu nutzen.",
     "seePricing": "Preise ansehen",
     "tier": "Paket",
     "status": "Status",
@@ -210,7 +214,7 @@
       "items": {
         "crosslist": {
           "short": "Crosslisten",
-          "title": "<depop></depop> und <vinted></vinted> mit einem Klick crosslisten",
+          "title": "Depop und Vinted mit einem Klick crosslisten",
           "body": "Wähle ein Inserat, klick auf Crosslist und das Formular des anderen Marktplatzes füllt sich von selbst aus. Kategorien, Größen und Zustand werden übersetzt, sodass derselbe Artikel in Sekunden in beiden Shops online ist.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
@@ -378,10 +382,17 @@
     "unlimited": "Unbegrenzt",
     "cloudStorage": "Cloud-Speicher",
     "storageGb": "{value} GB",
+    "storageMb": "{value} MB",
     "supportHours": "{value} Std.",
     "supportDays": "{value} Tage",
+    "trial": {
+      "name": "Kostenlose 7-Tage-Testphase",
+      "tagline": "Voller Starter-Zugriff für 7 Tage.",
+      "priceSuffix": "für {days} Tage",
+      "thenPrice": "Danach {price} / Monat",
+      "cta": "Kostenlose Testphase starten"
+    },
     "tier": {
-      "free": { "tagline": "Vor dem Kauf ausprobieren" },
       "starter": { "tagline": "Hobby-Nutzer" },
       "pro": { "tagline": "Aktive Wiederverkäufer" },
       "business": { "tagline": "Power-Verkäufer und Multi-Shop" }
@@ -393,7 +404,6 @@
       "follows_per_day": "Folgen / Tag",
       "unfollows_per_day": "Entfolgen / Tag",
       "cloud_storage_bytes": "Cloud-Speicher",
-      "linked_shops": "Verknüpfte Shops",
       "support_response_days": "Support-Antwort",
       "support_response_hours": "Support-Antwort"
     },
@@ -427,31 +437,23 @@
         "title": "Erste Schritte",
         "blurb": "Installiere die Erweiterung, melde dich an und veröffentliche dein erstes Inserat."
       },
-      "crosslisting": {
-        "title": "Crosslisting",
-        "blurb": "Einmal posten, auf beiden Marktplätzen mit übersetzten Feldern veröffentlichen."
+      "inventory": {
+        "title": "Bestand und Veröffentlichung",
+        "blurb": "Inserate, Bots, Repost, Aktualisieren, Crosslist, Shop Designer, CSV-Import, Cloud-Synchronisation."
       },
-      "listings": {
-        "title": "Inserate und Bestand",
-        "blurb": "Verwalte deinen Katalog, Massenbearbeitungen, Aktualisierungen, Reposts und Backups."
+      "automate": {
+        "title": "Automatisierung",
+        "blurb": "Tote Bestände, automatische Angebote, Linking, Restocker, Preissenkungen."
       },
-      "visibility": {
-        "title": "Sichtbarkeit und Reichweite",
-        "blurb": "Aktualisierung, Follow-Bot, Lagerhüter, automatische Preissenkungen, Aktivitätsprotokoll."
-      },
-      "sales": {
-        "title": "Verkäufe und Messaging",
-        "blurb": "Angebote, automatische Angebote, Nachrichten, Versandetiketten, Restocker, Relister."
-      },
-      "marketplaces": {
-        "title": "Marktplätze",
-        "blurb": "Plattformspezifische Anleitungen für Depop, Vinted und mehr."
+      "buyers": {
+        "title": "Käufernachrichten",
+        "blurb": "Angebote, Nachrichten, Versandetiketten und Bewertungen."
       }
     },
     "task": {
       "install": "Erweiterung installieren",
       "connect": "Einen Marktplatz verbinden",
-      "crosslist": "Dein erstes Teil crosslisten",
+      "crosslist": "Ein Inserat crosslisten",
       "manage": "Deinen Bestand verwalten"
     },
     "categoryPageEyebrow": "Kategorie",
