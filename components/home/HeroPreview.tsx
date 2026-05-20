@@ -1115,24 +1115,33 @@ function LabelsPanel() {
       hue: 210,
     },
   ];
+  // Carrier badges: brand-coloured monogram pill + text label. The monogram
+  // is a stylised abstraction (initial letter on a coloured block), not the
+  // actual carrier logo, to keep the demo trademark-safe.
   const CARRIER: Record<
     'rm' | 'evri' | 'inpost',
-    { label: string; className: string }
+    { label: string; mono: string; chipClass: string; badgeClass: string }
   > = {
     rm: {
       label: 'Royal Mail',
-      className:
+      mono: 'RM',
+      chipClass:
         'bg-[rgba(207,20,43,0.10)] text-[rgb(167,16,34)] dark:bg-[rgba(207,20,43,0.18)] dark:text-[rgb(255,140,150)]',
+      badgeClass: 'bg-[rgb(207,20,43)] text-white',
     },
     evri: {
       label: 'Evri',
-      className:
+      mono: 'e',
+      chipClass:
         'bg-[rgba(6,143,180,0.10)] text-[rgb(5,114,144)] dark:bg-[rgba(6,143,180,0.18)] dark:text-[rgb(110,200,225)]',
+      badgeClass: 'bg-[rgb(6,143,180)] text-white',
     },
     inpost: {
       label: 'InPost',
-      className:
+      mono: 'iP',
+      chipClass:
         'bg-[rgba(238,219,0,0.18)] text-[rgb(132,118,0)] dark:bg-[rgba(238,219,0,0.18)] dark:text-[rgb(238,219,0)]',
+      badgeClass: 'bg-[rgb(238,219,0)] text-[rgb(60,40,0)]',
     },
   };
   return (
@@ -1169,8 +1178,14 @@ function LabelsPanel() {
               <div className="truncate font-mono text-[9.5px] text-zinc-500">{o.item}</div>
             </div>
             <span
-              className={`flex-shrink-0 rounded-full px-1.5 py-[1px] font-mono text-[9px] font-semibold tracking-[0.06em] ${CARRIER[o.carrier].className}`}
+              className={`flex flex-shrink-0 items-center gap-1 rounded-full py-[1px] pl-[1px] pr-1.5 font-mono text-[9px] font-semibold tracking-[0.06em] ${CARRIER[o.carrier].chipClass}`}
             >
+              <span
+                className={`inline-flex h-3.5 min-w-[14px] items-center justify-center rounded-full px-1 text-[8.5px] font-bold tracking-[0.04em] ${CARRIER[o.carrier].badgeClass}`}
+                aria-hidden="true"
+              >
+                {CARRIER[o.carrier].mono}
+              </span>
               {CARRIER[o.carrier].label}
             </span>
           </li>
