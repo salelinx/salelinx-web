@@ -1977,6 +1977,7 @@ export function HeroPreview() {
   };
   const headerTitle = t(`headers.${activeTab}.title`);
   const headerMeta = t(`headers.${activeTab}.meta`);
+  const navRef = useRef<HTMLElement | null>(null);
 
   // Animate the panel container height to match whichever panel is active.
   // Panels have different intrinsic heights, so without this the card
@@ -2056,6 +2057,62 @@ export function HeroPreview() {
     return () => window.clearInterval(timer);
   }, [userInteracted]);
 
+  // Mobile only: slowly auto-scroll the sidebar nav horizontally so the
+  // user sees there are more tabs than fit on screen. Ping-pongs forward
+  // then back. Stops on any user touch/scroll interaction (and stays off
+  // until they idle out via the interactionTick effect below). Skipped
+  // when reduced-motion is set or the viewport is wide enough that the
+  // nav becomes the desktop vertical column.
+  useEffect(() => {
+    if (userInteracted) return;
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const isMobile = window.matchMedia('(max-width: 639px)').matches;
+    if (!isMobile) return;
+    const el = navRef.current;
+    if (!el) return;
+
+    let raf = 0;
+    let dir = 1;
+    let stopped = false;
+
+    const tick = () => {
+      if (stopped) return;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      const next = el.scrollLeft + dir * 0.55;
+      if (next >= max) {
+        dir = -1;
+        el.scrollLeft = max;
+      } else if (next <= 0) {
+        dir = 1;
+        el.scrollLeft = 0;
+      } else {
+        el.scrollLeft = next;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    const pause = () => {
+      stopped = true;
+      cancelAnimationFrame(raf);
+      bumpInteraction();
+    };
+    el.addEventListener('touchstart', pause, { passive: true });
+    el.addEventListener('wheel', pause, { passive: true });
+
+    return () => {
+      stopped = true;
+      cancelAnimationFrame(raf);
+      el.removeEventListener('touchstart', pause);
+      el.removeEventListener('wheel', pause);
+    };
+  }, [userInteracted]);
+
   // Resume auto-cycling after a stretch of inactivity. Each interaction
   // bumps interactionTick, which resets this timer.
   useEffect(() => {
@@ -2100,6 +2157,7 @@ export function HeroPreview() {
 
           <div className="flex flex-col sm:grid sm:grid-cols-[148px_1fr] sm:divide-x sm:divide-black/[0.06] dark:sm:divide-white/10">
             <nav
+              ref={navRef}
               className="flex gap-1 overflow-x-auto border-b border-black/[0.06] bg-zinc-50/60 p-2 sm:flex-col sm:gap-0.5 sm:overflow-visible sm:border-0 sm:p-3 dark:border-white/10 dark:bg-white/[0.02] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               aria-label="Preview sections"
             >
