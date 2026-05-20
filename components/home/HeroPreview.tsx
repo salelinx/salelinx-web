@@ -956,40 +956,62 @@ function RestockerPanel() {
 function ConversationsPanel() {
   // Live demo: messages appear one by one with a "typing" indicator from
   // whichever side is about to speak next. After all messages are visible,
-  // the thread holds for a beat then restarts. Tick = 100ms, full cycle =
-  // 80 ticks = 8s (5 phases × 16 ticks each = perfect for the 8s autocycle).
-  const TICKS_PER_PHASE = 16;
-  const PHASES = 5;
+  // the thread holds for a beat then restarts. Slowed to read realistically:
+  // each phase is 3.2s (32 ticks at 100ms) so typing feels human, with a
+  // longer hold at the end. Full cycle = 8 phases × 3.2s = 25.6s.
+  const TICKS_PER_PHASE = 32;
+  const PHASES = 8;
   const tick = useAnimationTick(100);
   const phase = Math.floor(tick / TICKS_PER_PHASE) % PHASES;
 
-  const messages = [
-    { hue: 178, initial: 'L', text: 'Is this still available?', time: '12:04', mine: false },
-    { hue: 0, initial: 'Y', text: 'Yes! Shipping today if you grab it.', time: '12:05', mine: true },
-    { hue: 178, initial: 'L', text: 'Perfect, just paid.', time: '12:06', mine: false },
+  type Msg = { hue: number; initial: string; text: string; time: string; mine: boolean };
+  const messages: Msg[] = [
+    { hue: 178, initial: 'L', text: 'Hey, is this still available?', time: '12:04', mine: false },
+    { hue: 0, initial: 'Y', text: 'Yes! Just listed it this morning.', time: '12:05', mine: true },
+    { hue: 178, initial: 'L', text: 'Any chance you would take £18?', time: '12:07', mine: false },
+    { hue: 0, initial: 'Y', text: 'Could do £20 if you grab it now.', time: '12:08', mine: true },
+    { hue: 178, initial: 'L', text: 'Sounds good, paying now.', time: '12:10', mine: false },
+    { hue: 0, initial: 'Y', text: 'Awesome, shipping out tomorrow.', time: '12:11', mine: true },
   ];
 
-  // Phases (in order):
-  // 0: buyer typing (no messages yet)
-  // 1: msg 0 visible, seller (me) typing
-  // 2: msgs 0+1 visible, buyer typing
-  // 3: all 3 visible
-  // 4: pause with all 3 visible (then loop)
-  const visibleCount = phase === 0 ? 0 : phase === 1 ? 1 : phase === 2 ? 2 : 3;
+  // Phases (in order). Pattern: typing -> message appears -> next side typing.
+  //   0: buyer typing, no messages yet
+  //   1: msg 0 visible, me (seller) typing
+  //   2: msgs 0-1 visible, buyer typing
+  //   3: msgs 0-2 visible, me typing
+  //   4: msgs 0-3 visible, buyer typing
+  //   5: msgs 0-4 visible, me typing
+  //   6: all 6 visible
+  //   7: all 6 visible (extra hold before loop)
+  const visibleCount = Math.min(phase, messages.length);
   const typingFrom: 'buyer' | 'me' | null =
-    phase === 0 ? 'buyer' : phase === 1 ? 'me' : phase === 2 ? 'buyer' : null;
+    phase >= messages.length
+      ? null
+      : phase % 2 === 0
+        ? 'buyer'
+        : 'me';
   return (
     <div className="cascade-list flex flex-col gap-2">
       <div
-        className="cascade-item flex items-center justify-between rounded-md border border-black/[0.06] bg-white px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.02]"
+        className="cascade-item flex items-center justify-between gap-2 rounded-md border border-black/[0.06] bg-white px-2.5 py-2 dark:border-white/10 dark:bg-white/[0.02]"
         style={{ '--stagger-delay': `0ms` } as CSSProperties}
       >
-        <div className="flex items-center gap-2">
-          <PlatformBadge platform="vinted" size={14} />
-          <span className="text-[11px] font-medium text-zinc-900 dark:text-zinc-100">
-            @lila_resale
-          </span>
-          <span className="text-[10px] text-zinc-500">· Star beanie</span>
+        <div className="flex min-w-0 items-center gap-2">
+          <ProductImage
+            type="tee"
+            hue={220}
+            src={PHOTO.starBeanie}
+            className="size-9 flex-shrink-0 rounded"
+          />
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <PlatformBadge platform="vinted" size={12} />
+              <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
+                @lila_resale
+              </span>
+            </div>
+            <div className="truncate text-[10px] text-zinc-500">Star beanie · £22</div>
+          </div>
         </div>
         <span className="font-mono text-[9.5px] text-zinc-500">re: offer</span>
       </div>
@@ -1074,11 +1096,15 @@ function ConversationsPanel() {
 }
 
 function LabelsPanel() {
+  // Mix of Depop and Vinted orders so the panel reads as "labels for both
+  // marketplaces in one place". Depop orders use Evri (the integration's
+  // Depop-only carrier); Vinted orders split between Royal Mail and InPost.
   const orders: {
     buyer: string;
     item: string;
     type: ProductType;
     photo: string;
+    platform: 'depop' | 'vinted';
     carrier: 'rm' | 'evri' | 'inpost';
     hue: number;
   }[] = [
@@ -1087,7 +1113,8 @@ function LabelsPanel() {
       item: 'Star beanie',
       type: 'tee',
       photo: PHOTO.starBeanie,
-      carrier: 'rm',
+      platform: 'depop',
+      carrier: 'evri',
       hue: 220,
     },
     {
@@ -1095,7 +1122,8 @@ function LabelsPanel() {
       item: 'Crystal cross',
       type: 'tee',
       photo: PHOTO.crystalCross,
-      carrier: 'evri',
+      platform: 'vinted',
+      carrier: 'rm',
       hue: 200,
     },
     {
@@ -1103,6 +1131,7 @@ function LabelsPanel() {
       item: 'Rose charm',
       type: 'tee',
       photo: PHOTO.roseCharm,
+      platform: 'vinted',
       carrier: 'inpost',
       hue: 22,
     },
@@ -1111,27 +1140,35 @@ function LabelsPanel() {
       item: 'Sport shades',
       type: 'tee',
       photo: PHOTO.sportSunglasses,
-      carrier: 'rm',
+      platform: 'depop',
+      carrier: 'evri',
       hue: 210,
     },
   ];
+  // Carrier badges: brand favicon inside a small white rounded chip + the
+  // carrier name. Icons live under /public/brand/ (downloaded from each
+  // carrier's site) so the demo reads as "we support Royal Mail / Evri /
+  // InPost" at a glance.
   const CARRIER: Record<
     'rm' | 'evri' | 'inpost',
-    { label: string; className: string }
+    { label: string; iconSrc: string; chipClass: string }
   > = {
     rm: {
       label: 'Royal Mail',
-      className:
+      iconSrc: '/brand/royal-mail.png',
+      chipClass:
         'bg-[rgba(207,20,43,0.10)] text-[rgb(167,16,34)] dark:bg-[rgba(207,20,43,0.18)] dark:text-[rgb(255,140,150)]',
     },
     evri: {
       label: 'Evri',
-      className:
+      iconSrc: '/brand/evri.png',
+      chipClass:
         'bg-[rgba(6,143,180,0.10)] text-[rgb(5,114,144)] dark:bg-[rgba(6,143,180,0.18)] dark:text-[rgb(110,200,225)]',
     },
     inpost: {
       label: 'InPost',
-      className:
+      iconSrc: '/brand/inpost.png',
+      chipClass:
         'bg-[rgba(238,219,0,0.18)] text-[rgb(132,118,0)] dark:bg-[rgba(238,219,0,0.18)] dark:text-[rgb(238,219,0)]',
     },
   };
@@ -1141,7 +1178,7 @@ function LabelsPanel() {
         {orders.map((o, i) => (
           <li
             key={o.buyer}
-            className="cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.02]"
+            className={`cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(o.platform)}`}
             style={{ '--stagger-delay': `${i * 60}ms` } as CSSProperties}
           >
             <span className="flex size-3.5 flex-shrink-0 items-center justify-center rounded-sm border border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
@@ -1163,14 +1200,25 @@ function LabelsPanel() {
               className="size-7 flex-shrink-0 rounded"
             />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
-                @{o.buyer}
+              <div className="flex items-center gap-1.5">
+                <PlatformBadge platform={o.platform} size={12} />
+                <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
+                  @{o.buyer}
+                </span>
               </div>
               <div className="truncate font-mono text-[9.5px] text-zinc-500">{o.item}</div>
             </div>
             <span
-              className={`flex-shrink-0 rounded-full px-1.5 py-[1px] font-mono text-[9px] font-semibold tracking-[0.06em] ${CARRIER[o.carrier].className}`}
+              className={`flex flex-shrink-0 items-center gap-1.5 rounded-full py-[2px] pl-[2px] pr-2 font-mono text-[10px] font-semibold tracking-[0.04em] ${CARRIER[o.carrier].chipClass}`}
             >
+              <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.06)] dark:bg-white">
+                <img
+                  src={CARRIER[o.carrier].iconSrc}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-4 w-4 object-contain"
+                />
+              </span>
               {CARRIER[o.carrier].label}
             </span>
           </li>
@@ -1224,10 +1272,15 @@ function FollowBotPanel() {
     { username: 'kiera_shop', hue: 100, status: 'followed-back' },
   ];
 
-  // Take the next 5 entries from the rotating pool. The newest is at the top.
+  // Take the last 5 follows in reverse-chronological order. Position 0 is
+  // the most recent (just landed at the top of the list and pushes the
+  // rest down a row); position 4 is the oldest still visible and is the
+  // one that drops off the bottom on the next follow. POOL acts as a fixed
+  // rotation so the visible names repeat in a predictable cycle rather
+  // than feeling random.
   const recent = Array.from({ length: 5 }, (_, i) => {
-    const idx = (POOL.length - 1 - (follows + i)) % POOL.length;
-    const safeIdx = ((idx % POOL.length) + POOL.length) % POOL.length;
+    const raw = (follows - i) % POOL.length;
+    const safeIdx = ((raw % POOL.length) + POOL.length) % POOL.length;
     return POOL[safeIdx];
   });
 
@@ -1487,6 +1540,20 @@ function PriceDropsPanel() {
   const cycleNumber = Math.floor(dropIndex / baseRows.length);
   const flashing = inDrop < FLASH_TICKS;
 
+  // Sale event: once per "macro cycle" (every 9 drops = ~27s) one of the
+  // tracked items sells. Which one rotates deterministically so the demo
+  // feels varied without being truly random. The sold state holds for ~4s
+  // before the cycle continues so viewers see the SOLD badge clearly.
+  const MACRO_CYCLE_DROPS = 9;
+  const SALE_HOLD_TICKS = 40; // 4s
+  const SALE_FIRES_AT_TICK = MACRO_CYCLE_DROPS * TICKS_PER_DROP - SALE_HOLD_TICKS;
+  const macroCycle = Math.floor(dropIndex / MACRO_CYCLE_DROPS);
+  const ticksIntoMacro =
+    (dropIndex % MACRO_CYCLE_DROPS) * TICKS_PER_DROP + inDrop;
+  const inSaleFlash = ticksIntoMacro >= SALE_FIRES_AT_TICK;
+  const soldIdx = (macroCycle * 2 + 1) % baseRows.length;
+  const isSold = (i: number) => inSaleFlash && i === soldIdx;
+
   // Each row's price = start - (step × cycles_that_picked_it), clamped to floor.
   // For the active row we apply the new cycle's drop only AFTER it fires
   // (i.e. throughout the visible cycle, including the flash window).
@@ -1522,13 +1589,16 @@ function PriceDropsPanel() {
           const dropPct = previous > 0 ? Math.round(((previous - current) / previous) * 100) : 0;
           const range = Math.max(1, r.start - r.floor);
           const progressToFloor = ((r.start - current) / range) * 100;
+          const sold = isSold(i);
           return (
             <li
               key={r.title}
               className={`cascade-item relative flex flex-col gap-1.5 overflow-hidden rounded-md border px-2.5 py-2 transition-colors duration-300 ${
-                justDropped
-                  ? 'border-emerald-500/40 bg-emerald-500/[0.06] dark:border-emerald-400/30 dark:bg-emerald-400/[0.06]'
-                  : 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
+                sold
+                  ? 'border-emerald-500/60 bg-emerald-500/[0.10] dark:border-emerald-400/50 dark:bg-emerald-400/[0.10]'
+                  : justDropped
+                    ? 'border-emerald-500/40 bg-emerald-500/[0.06] dark:border-emerald-400/30 dark:bg-emerald-400/[0.06]'
+                    : 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
               }`}
               style={{ '--stagger-delay': `${80 + i * 70}ms` } as CSSProperties}
             >
@@ -1542,7 +1612,16 @@ function PriceDropsPanel() {
                 <div className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
                   {r.title}
                 </div>
-                {justDropped && previous !== current ? (
+                {sold ? (
+                  <>
+                    <span className="font-mono text-[10.5px] font-semibold text-emerald-600 tabular-nums dark:text-emerald-400">
+                      £{current}
+                    </span>
+                    <span className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
+                      SOLD
+                    </span>
+                  </>
+                ) : justDropped && previous !== current ? (
                   <>
                     <span className="font-mono text-[10.5px] font-semibold text-zinc-900 line-through opacity-50 dark:text-zinc-100">
                       £{previous}
@@ -1567,15 +1646,33 @@ function PriceDropsPanel() {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-zinc-200/60 dark:bg-white/10">
-                  <span
-                    className="absolute inset-y-0 left-0 rounded-full bg-amber-500/70 transition-[width] duration-500"
-                    style={{ width: `${Math.min(100, Math.max(0, progressToFloor))}%` }}
-                  />
-                </div>
-                <span className="font-mono text-[9px] text-zinc-500">
-                  next in {r.nextIn} · floor £{r.floor}
-                </span>
+                {sold ? (
+                  <span className="flex flex-1 items-center gap-1 font-mono text-[9.5px] text-emerald-600 dark:text-emerald-400">
+                    <svg viewBox="0 0 10 10" className="size-2.5" aria-hidden="true">
+                      <path
+                        d="M2 5.2l2 2 4-4"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
+                    </svg>
+                    Sold via {i === 0 ? 'Depop' : i === 1 ? 'Vinted' : 'Depop'} · just now
+                  </span>
+                ) : (
+                  <>
+                    <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-zinc-200/60 dark:bg-white/10">
+                      <span
+                        className="absolute inset-y-0 left-0 rounded-full bg-amber-500/70 transition-[width] duration-500"
+                        style={{ width: `${Math.min(100, Math.max(0, progressToFloor))}%` }}
+                      />
+                    </div>
+                    <span className="font-mono text-[9px] text-zinc-500">
+                      next in {r.nextIn} · floor £{r.floor}
+                    </span>
+                  </>
+                )}
               </div>
             </li>
           );
