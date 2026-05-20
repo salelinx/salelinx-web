@@ -23,6 +23,7 @@ function useAnimationTick(intervalMs: number): number {
   }, [intervalMs]);
   return tick;
 }
+import { useTranslations } from 'next-intl';
 import { Icon, type IconName } from '@/components/Icon';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { ProductImage, type ProductType } from './ProductImage';
@@ -43,36 +44,24 @@ type TabId =
 interface SideTab {
   id: TabId;
   icon: IconName;
-  label: string;
 }
 
+// Labels and headers (title + meta) come from Home.preview translations
+// in messages/*.json so the demo localises with the site language. Order
+// here is the rendering order of the sidebar.
 const SIDE_TABS: SideTab[] = [
-  { id: 'crosslist', icon: 'swap', label: 'Crosslist' },
-  { id: 'restocker', icon: 'refresh', label: 'Restocker' },
-  { id: 'shopDesigner', icon: 'layout', label: 'Shop designer' },
-  { id: 'listings', icon: 'grid', label: 'Listings' },
-  { id: 'relister', icon: 'rotate', label: 'Relister' },
-  { id: 'priceDrops', icon: 'tag', label: 'Price drops' },
-  { id: 'followBot', icon: 'users', label: 'Follow bot' },
-  { id: 'offers', icon: 'zap', label: 'Offers' },
-  { id: 'autoOffers', icon: 'sparkle', label: 'Auto-offers' },
-  { id: 'conversations', icon: 'message', label: 'Conversations' },
-  { id: 'labels', icon: 'box', label: 'Labels' },
+  { id: 'crosslist', icon: 'swap' },
+  { id: 'restocker', icon: 'refresh' },
+  { id: 'shopDesigner', icon: 'layout' },
+  { id: 'listings', icon: 'grid' },
+  { id: 'relister', icon: 'rotate' },
+  { id: 'priceDrops', icon: 'tag' },
+  { id: 'followBot', icon: 'users' },
+  { id: 'offers', icon: 'zap' },
+  { id: 'autoOffers', icon: 'sparkle' },
+  { id: 'conversations', icon: 'message' },
+  { id: 'labels', icon: 'box' },
 ];
-
-const TAB_HEADERS: Record<TabId, { title: string; meta: string }> = {
-  listings: { title: 'My listings', meta: '128 in store' },
-  crosslist: { title: 'Crosslist', meta: 'Vinted to Depop' },
-  shopDesigner: { title: 'Shop designer', meta: 'Depop layout' },
-  restocker: { title: 'Restocker', meta: 'Every 6h' },
-  relister: { title: 'Relister', meta: 'Refreshing rank' },
-  priceDrops: { title: 'Price drops', meta: '4 scheduled' },
-  followBot: { title: 'Follow bot', meta: '218 / 500 today' },
-  offers: { title: 'Offers', meta: '6 pending' },
-  autoOffers: { title: 'Auto-offers', meta: 'Live' },
-  conversations: { title: 'Inbox', meta: '3 unread' },
-  labels: { title: 'Labels', meta: '5 to print' },
-};
 
 // Product photos. Local studio shots of the accessory items the demo shop
 // sells across both marketplaces.
@@ -425,11 +414,19 @@ function CrosslistPanel() {
             className="aspect-square w-full"
           />
           <div className="flex flex-col gap-1 p-2">
+            <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-[#5bb4be] to-[#007782] shadow-[0_0_0_1.5px_white,0_1px_2px_rgba(0,119,130,0.45)] dark:shadow-[0_0_0_1.5px_rgba(255,255,255,0.6),0_1px_2px_rgba(0,119,130,0.5)]">
+                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="currentColor" aria-hidden="true">
+                  <path d="M6 1l1.5 3.5L11 5l-2.7 2.3.8 3.5L6 9l-3.1 1.8.8-3.5L1 5l3.5-.5L6 1z" />
+                </svg>
+              </span>
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">@your_shop</span>
+            </div>
             <div className="truncate text-[11px] font-semibold text-zinc-900 dark:text-zinc-100">
               Star beanie
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="font-mono text-[12px] font-bold text-zinc-900 dark:text-zinc-100">
+              <span className="font-mono text-[12px] font-bold text-[#007782] dark:text-[#5bb4be]">
                 £22
               </span>
               <span className="text-[9px] text-zinc-500">incl. fee £24.50</span>
@@ -447,19 +444,19 @@ function CrosslistPanel() {
           </div>
         </div>
 
-        {/* Mapping arrow */}
+        {/* Mapping arrow: bidirectional, crosslist runs either direction */}
         <div
           className="cascade-item relative flex flex-col items-center justify-center gap-1.5 px-1 pt-6"
           style={{ '--stagger-delay': `100ms` } as CSSProperties}
         >
           <svg
-            className="size-5 text-zinc-400 dark:text-zinc-600"
-            viewBox="0 0 24 24"
+            className="size-6 text-zinc-400 dark:text-zinc-500"
+            viewBox="0 0 28 24"
             fill="none"
             aria-hidden="true"
           >
             <path
-              d="M5 12h14m0 0l-5-5m5 5l-5 5"
+              d="M3 12h22M3 12l5-5M3 12l5 5M25 12l-5-5M25 12l-5 5"
               stroke="currentColor"
               strokeWidth="1.5"
               strokeLinecap="round"
@@ -489,11 +486,13 @@ function CrosslistPanel() {
             className="aspect-square w-full"
           />
           <div className="flex flex-col gap-1 p-2">
-            <div className="flex items-center gap-1 text-[9px] text-zinc-500">
-              <span className="inline-flex h-3 w-3 items-center justify-center rounded-full bg-[#ff2300] text-[7px] font-bold text-white">
-                Y
+            <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-[#ff7a66] to-[#ff2300] shadow-[0_0_0_1.5px_white,0_1px_2px_rgba(255,35,0,0.45)] dark:shadow-[0_0_0_1.5px_rgba(255,255,255,0.6),0_1px_2px_rgba(255,35,0,0.5)]">
+                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="currentColor" aria-hidden="true">
+                  <path d="M6 1l1.5 3.5L11 5l-2.7 2.3.8 3.5L6 9l-3.1 1.8.8-3.5L1 5l3.5-.5L6 1z" />
+                </svg>
               </span>
-              <span>@your_shop</span>
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">@your_shop</span>
             </div>
             <div className="truncate text-[11px] font-semibold text-zinc-900 dark:text-zinc-100">
               Star beanie vintage y2k
@@ -1968,9 +1967,16 @@ function OffersPanel({ onInteract }: { onInteract?: () => void }) {
 // ── Main ────────────────────────────────────────────────────────────
 
 export function HeroPreview() {
+  const t = useTranslations('Home.preview');
   const [activeTab, setActiveTab] = useState<TabId>('crosslist');
   const [userInteracted, setUserInteracted] = useState(false);
-  const header = TAB_HEADERS[activeTab];
+  const [interactionTick, setInteractionTick] = useState(0);
+  const bumpInteraction = () => {
+    setUserInteracted(true);
+    setInteractionTick((n) => n + 1);
+  };
+  const headerTitle = t(`headers.${activeTab}.title`);
+  const headerMeta = t(`headers.${activeTab}.meta`);
 
   // Animate the panel container height to match whichever panel is active.
   // Panels have different intrinsic heights, so without this the card
@@ -2050,8 +2056,16 @@ export function HeroPreview() {
     return () => window.clearInterval(timer);
   }, [userInteracted]);
 
+  // Resume auto-cycling after a stretch of inactivity. Each interaction
+  // bumps interactionTick, which resets this timer.
+  useEffect(() => {
+    if (!userInteracted) return;
+    const t = window.setTimeout(() => setUserInteracted(false), 15000);
+    return () => window.clearTimeout(t);
+  }, [userInteracted, interactionTick]);
+
   const handleTabClick = (id: TabId) => {
-    setUserInteracted(true);
+    bumpInteraction();
     setActiveTab(id);
   };
 
@@ -2112,7 +2126,7 @@ export function HeroPreview() {
                     >
                       <Icon name={tab.icon} className="h-3.5 w-3.5" />
                     </span>
-                    <span>{tab.label}</span>
+                    <span>{t(`tabs.${tab.id}`)}</span>
                   </button>
                 );
               })}
@@ -2121,10 +2135,10 @@ export function HeroPreview() {
             <div className="flex flex-col p-3 sm:p-5">
               <div className="flex items-center justify-between pb-2">
                 <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-500">
-                  {header.title}
+                  {headerTitle}
                 </div>
                 <div className="font-mono text-[10px] text-zinc-400 dark:text-zinc-500">
-                  {header.meta}
+                  {headerMeta}
                 </div>
               </div>
               <div
@@ -2149,7 +2163,7 @@ export function HeroPreview() {
                     {activeTab === 'priceDrops' && <PriceDropsPanel />}
                     {activeTab === 'followBot' && <FollowBotPanel />}
                     {activeTab === 'offers' && (
-                      <OffersPanel onInteract={() => setUserInteracted(true)} />
+                      <OffersPanel onInteract={bumpInteraction} />
                     )}
                     {activeTab === 'autoOffers' && <AutoOffersPanel />}
                     {activeTab === 'conversations' && <ConversationsPanel />}

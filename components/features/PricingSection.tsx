@@ -181,7 +181,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
       className="scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10"
     >
       <div className="pb-12">
-        <span className={`${MONO} text-zinc-500`}>
+        <span className={`${MONO} text-zinc-500 dark:text-zinc-400`}>
           {t("sectionHeader.eyebrow")}
         </span>
         <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
@@ -194,20 +194,20 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {starterTier && (
-          <div className="rounded-2xl border border-black/10 p-6 dark:border-white/10">
+          <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:border-white/10 dark:bg-zinc-900">
             <div className="flex items-baseline justify-between">
               <h3 className="text-xl font-semibold">{t("trial.name")}</h3>
             </div>
-            <p className="mt-1 text-sm text-zinc-500">{t("trial.tagline")}</p>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{t("trial.tagline")}</p>
 
             <p className="mt-6 text-4xl font-bold">
               £0
-              <span className="text-base font-normal text-zinc-500">
+              <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
                 {" "}
                 {t("trial.priceSuffix", { days: TRIAL_DAYS })}
               </span>
             </p>
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               {t("trial.thenPrice", { price: TIER_META.starter.price })}
             </p>
 
@@ -235,9 +235,9 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
           return (
             <div
               key={tier.tier_id}
-              className={`rounded-2xl border p-6 ${
+              className={`rounded-2xl border bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:bg-zinc-900 ${
                 meta.highlight
-                  ? "border-black bg-zinc-50 dark:border-white dark:bg-zinc-900"
+                  ? "border-black dark:border-white"
                   : "border-black/10 dark:border-white/10"
               }`}
             >
@@ -249,13 +249,13 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 {t(`tier.${tier.tier_id}.tagline`)}
               </p>
 
               <p className="mt-6 text-4xl font-bold">
                 {meta.price}
-                <span className="text-base font-normal text-zinc-500">
+                <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
                   {t("perMonth")}
                 </span>
               </p>

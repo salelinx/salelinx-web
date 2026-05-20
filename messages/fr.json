@@ -34,11 +34,63 @@
   "Home": {
     "heroEyebrow": "Disponible pour <depop></depop> + <vinted></vinted>",
     "heroTitle": "Un outil pour chaque vendeur <depop></depop> & <vinted></vinted>.",
-    "heroSubtitle": "Crosslistez, republiez, actualisez, réapprovisionnez et répondez aux acheteurs sur les deux plateformes depuis un seul panneau.",
+    "heroSubtitle": "Pour que vous puissiez <word></word>",
+    "heroWords": [
+      "crosslister vos articles en quelques secondes.",
+      "republier vos articles automatiquement.",
+      "actualiser vos annonces pour qu'elles restent en haut.",
+      "réapprovisionner les articles vendus en un clic!",
+      "répondre aux acheteurs sans changer d'onglet.",
+      "lister 10x plus vite qu'avant.",
+      "gagner des heures de tâches répétitives chaque semaine.",
+      "ne plus rater une vente!",
+      "garder l'œil sur chaque message.",
+      "faire grandir votre boutique sans le tracas.",
+      "zapper complètement le travail manuel.",
+      "vous concentrer sur ce qui se vend vraiment.",
+      "vendre plus, sans stress.",
+      "vendre malin, pas à la dure."
+    ],
     "ctaSeePricing": "Voir les tarifs",
     "ctaSeeFeatures": "Voir les fonctionnalités",
     "ctaGetStarted": "Commencer",
     "ctaSignIn": "Se connecter",
+    "previewEyebrow": "Essayez la démo interactive",
+    "preview": {
+      "tabs": {
+        "listings": "Annonces",
+        "crosslist": "Crosslist",
+        "shopDesigner": "Designer boutique",
+        "restocker": "Restocker",
+        "relister": "Relister",
+        "priceDrops": "Baisses de prix",
+        "followBot": "Bot d'abonnés",
+        "offers": "Offres",
+        "autoOffers": "Auto-offres",
+        "conversations": "Messages",
+        "labels": "Étiquettes"
+      },
+      "headers": {
+        "listings": { "title": "Mes annonces", "meta": "128 en boutique" },
+        "crosslist": { "title": "Crosslist", "meta": "Vinted vers Depop" },
+        "shopDesigner": { "title": "Designer boutique", "meta": "Mise en page Depop" },
+        "restocker": { "title": "Restocker", "meta": "Toutes les 6h" },
+        "relister": { "title": "Relister", "meta": "Remontée du classement" },
+        "priceDrops": { "title": "Baisses de prix", "meta": "4 programmées" },
+        "followBot": { "title": "Bot d'abonnés", "meta": "218 / 500 aujourd'hui" },
+        "offers": { "title": "Offres", "meta": "6 en attente" },
+        "autoOffers": { "title": "Auto-offres", "meta": "En direct" },
+        "conversations": { "title": "Boîte", "meta": "3 non lus" },
+        "labels": { "title": "Étiquettes", "meta": "5 à imprimer" }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Fini le jeu des onglets",
+      "title": "Pilotez vos deux boutiques depuis un seul panneau.",
+      "body": "Installation en un clic. Gratuit pour vos premières annonces, sans carte.",
+      "primary": "Commencer gratuitement",
+      "secondary": "Voir les tarifs"
+    },
     "howItWorks": {
       "eyebrow": "Comment ça marche",
       "title": "Opérationnel en deux minutes.",
@@ -53,8 +105,8 @@
           "body": "Connectez-vous à Depop et Vinted comme d'habitude. SaleLinx récupère la session, rien à ressaisir."
         },
         "crosslist": {
-          "title": "Crosslistez en un clic",
-          "body": "Choisissez une annonce sur l'une ou l'autre marketplace. Le formulaire de l'autre côté se remplit tout seul. Terminé."
+          "title": "Vendez plus, cliquez moins",
+          "body": "Crosslistez, republiez, réapprovisionnez et répondez aux acheteurs depuis un seul panneau. Chaque outil pour faire grandir votre boutique se trouve là où vous vendez."
         }
       }
     }
@@ -218,10 +270,10 @@
           "body": "Choisissez une annonce, cliquez sur crosslist et le formulaire de l'autre marketplace se remplit tout seul. Catégories, tailles et états sont traduits pour vous, le même article est en ligne sur les deux boutiques en quelques secondes.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
-        "refreshRelist": {
-          "short": "Rafraîchir & republier",
-          "title": "Rafraîchissez et republiez pour rester en tête",
-          "body": "Remontez chaque annonce en tête des résultats en un clic, ou recréez celles qui dorment avec photos et titres retouchés. Lancez-le vous-même ou laissez-le tourner tout seul toutes les quelques heures.",
+        "relist": {
+          "short": "Republier",
+          "title": "Republiez pour rester en tête",
+          "body": "Recréez les annonces qui dorment avec photos et titres retouchés, puis supprimez les originales pour qu'elles remontent dans les résultats. Lancez-le vous-même ou laissez-le tourner tout seul toutes les quelques heures.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "restocker": {

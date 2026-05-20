@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { SITE_NAME, absoluteUrl } from '@/lib/site';
 import { Hero } from '@/components/home/Hero';
 import { HowItWorks } from '@/components/home/HowItWorks';
+import { FinalCta } from '@/components/home/FinalCta';
 import { HeadlineFeatures } from '@/components/features/HeadlineFeatures';
 import { PricingSection } from '@/components/features/PricingSection';
 import { getTierConfigs } from '@/lib/supabase/tier-config';
@@ -43,13 +44,18 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
-      <HowItWorks />
+      <div className="section-band">
+        <HowItWorks />
+      </div>
       <section id="features" className="mx-auto w-full max-w-7xl scroll-mt-20 px-6">
         <HeadlineFeatures />
       </section>
-      <div className="mx-auto w-full max-w-7xl px-6">
-        <PricingSection tiers={tiers} />
+      <div className="section-band">
+        <div className="mx-auto w-full max-w-7xl px-6">
+          <PricingSection tiers={tiers} />
+        </div>
       </div>
+      <FinalCta />
     </main>
   );
 }

@@ -34,11 +34,63 @@
   "Home": {
     "heroEyebrow": "Verfügbar für <depop></depop> + <vinted></vinted>",
     "heroTitle": "Ein Tool für jeden <depop></depop>- & <vinted></vinted>-Verkäufer.",
-    "heroSubtitle": "Crossliste, poste erneut, aktualisiere, fülle auf und beantworte Käuferfragen auf beiden Plattformen, alles über ein einziges Panel.",
+    "heroSubtitle": "So kannst du <word></word>",
+    "heroWords": [
+      "deine Artikel in Sekunden crosslisten.",
+      "deine Artikel automatisch neu einstellen.",
+      "Listings auffrischen, damit sie oben bleiben.",
+      "verkaufte Artikel mit einem Klick auffüllen!",
+      "Käufern antworten, ohne den Tab zu wechseln.",
+      "10x schneller listen als zuvor.",
+      "Stunden Routinearbeit pro Woche sparen.",
+      "nie wieder einen Verkauf verpassen!",
+      "jede Nachricht im Blick behalten.",
+      "deinen Shop ohne den ganzen Aufwand ausbauen.",
+      "die manuelle Arbeit komplett überspringen.",
+      "dich auf das konzentrieren, was wirklich verkauft.",
+      "mehr verkaufen, weniger Stress.",
+      "klüger verkaufen, nicht härter."
+    ],
     "ctaSeePricing": "Preise ansehen",
     "ctaSeeFeatures": "Funktionen ansehen",
     "ctaGetStarted": "Loslegen",
     "ctaSignIn": "Anmelden",
+    "previewEyebrow": "Live-Demo ausprobieren",
+    "preview": {
+      "tabs": {
+        "listings": "Inserate",
+        "crosslist": "Crosslisten",
+        "shopDesigner": "Shop-Designer",
+        "restocker": "Restocker",
+        "relister": "Relister",
+        "priceDrops": "Preisabschläge",
+        "followBot": "Follow-Bot",
+        "offers": "Angebote",
+        "autoOffers": "Auto-Angebote",
+        "conversations": "Unterhaltungen",
+        "labels": "Etiketten"
+      },
+      "headers": {
+        "listings": { "title": "Meine Inserate", "meta": "128 im Shop" },
+        "crosslist": { "title": "Crosslisten", "meta": "Vinted nach Depop" },
+        "shopDesigner": { "title": "Shop-Designer", "meta": "Depop-Layout" },
+        "restocker": { "title": "Restocker", "meta": "Alle 6h" },
+        "relister": { "title": "Relister", "meta": "Rang auffrischen" },
+        "priceDrops": { "title": "Preisabschläge", "meta": "4 geplant" },
+        "followBot": { "title": "Follow-Bot", "meta": "218 / 500 heute" },
+        "offers": { "title": "Angebote", "meta": "6 offen" },
+        "autoOffers": { "title": "Auto-Angebote", "meta": "Live" },
+        "conversations": { "title": "Posteingang", "meta": "3 ungelesen" },
+        "labels": { "title": "Etiketten", "meta": "5 zu drucken" }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Schluss mit dem Tab-Chaos",
+      "title": "Beide Shops aus einem Panel führen.",
+      "body": "Mit einem Klick installiert. Für deine ersten Listings gratis, keine Karte nötig.",
+      "primary": "Kostenlos starten",
+      "secondary": "Preise ansehen"
+    },
     "howItWorks": {
       "eyebrow": "So funktioniert es",
       "title": "In zwei Minuten startklar.",
@@ -53,8 +105,8 @@
           "body": "Melde dich wie gewohnt bei Depop und Vinted an. SaleLinx erkennt die Sitzung, nichts erneut eingeben."
         },
         "crosslist": {
-          "title": "Mit einem Klick crosslisten",
-          "body": "Wähle ein Inserat auf einem der Marktplätze. Das Formular der anderen Seite füllt sich von selbst. Fertig."
+          "title": "Mehr verkaufen, weniger klicken",
+          "body": "Crosslisten, neu listen, auffüllen und Käufern antworten, alles aus einem Panel. Jedes Werkzeug für mehr Verkäufe sitzt genau dort, wo du verkaufst."
         }
       }
     }
@@ -218,10 +270,10 @@
           "body": "Wähle ein Inserat, klick auf Crosslist und das Formular des anderen Marktplatzes füllt sich von selbst aus. Kategorien, Größen und Zustand werden übersetzt, sodass derselbe Artikel in Sekunden in beiden Shops online ist.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
-        "refreshRelist": {
-          "short": "Auffrischen & neu listen",
-          "title": "Auffrischen und neu listen, immer oben",
-          "body": "Schieb jedes Inserat mit einem Klick zurück nach oben oder erstell veraltete Artikel mit neuen Fotos und Titeln neu. Mach es selbst oder lass es alle paar Stunden automatisch laufen.",
+        "relist": {
+          "short": "Neu listen",
+          "title": "Neu listen, immer oben",
+          "body": "Erstell veraltete Inserate mit frischen Fotos und Titeln neu und lösch die Originale, damit sie in den Suchergebnissen wieder nach oben klettern. Mach es selbst oder lass es alle paar Stunden automatisch laufen.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "restocker": {

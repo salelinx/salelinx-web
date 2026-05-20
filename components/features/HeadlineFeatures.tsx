@@ -10,11 +10,11 @@ const BRAND_TAGS = {
   vinted: () => <BrandWordmark brand="vinted" height="0.95em" />,
 };
 
-type AccentId = 'violet' | 'emerald' | 'sky' | 'amber' | 'rose';
+type AccentId = 'violet' | 'emerald' | 'sky' | 'amber' | 'rose' | 'fuchsia';
 
 type HeadlineId =
   | 'crosslist'
-  | 'refreshRelist'
+  | 'relist'
   | 'restocker'
   | 'oneInbox'
   | 'labels';
@@ -34,35 +34,35 @@ type Headline = {
 const HEADLINES: Headline[] = [
   {
     id: 'crosslist',
-    icon: 'swap',
+    icon: 'crosslist-arrows',
     accent: 'violet',
     href: '/docs/inventory/crosslist',
     span: 'md:col-span-2',
   },
   {
-    id: 'refreshRelist',
-    icon: 'refresh',
+    id: 'relist',
+    icon: 'relist',
     accent: 'emerald',
     href: '/docs/inventory/relist',
     span: 'md:col-span-2',
   },
   {
     id: 'restocker',
-    icon: 'rotate',
-    accent: 'sky',
+    icon: 'cube',
+    accent: 'fuchsia',
     href: '/docs/automate/restocker',
     span: 'md:col-span-2',
   },
   {
     id: 'oneInbox',
-    icon: 'message',
+    icon: 'chat-bubble',
     accent: 'amber',
     href: '/docs/buyers/messages',
     span: 'md:col-span-3',
   },
   {
     id: 'labels',
-    icon: 'box',
+    icon: 'truck',
     accent: 'rose',
     href: '/docs/buyers/labels',
     span: 'md:col-span-3',
@@ -107,6 +107,12 @@ const ACCENT: Record<
     iconHover: 'group-hover:text-rose-500 dark:group-hover:text-rose-400',
     glow: 'bg-rose-500/10 dark:bg-rose-400/15',
     pill: 'text-rose-600 dark:text-rose-300',
+  },
+  fuchsia: {
+    bar: 'from-fuchsia-400/70 via-fuchsia-500/40 to-transparent',
+    iconHover: 'group-hover:text-fuchsia-500 dark:group-hover:text-fuchsia-400',
+    glow: 'bg-fuchsia-500/10 dark:bg-fuchsia-400/15',
+    pill: 'text-fuchsia-600 dark:text-fuchsia-300',
   },
 };
 

@@ -1,15 +1,55 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* Dark variant applies when an ancestor has `.dark`, but a `.light` island
+   inside the dark tree opts back out (used for the HeroPreview panel which
+   should always render in its light theme). */
+@custom-variant dark (&:where(.dark, .dark *):not(.light, .light *));
 
 :root {
-  --background: #ffffff;
+  --background: #faf8f3;
+  --background-band: #efece3;
+  --band-hairline: rgba(0, 0, 0, 0.08);
+  --dot-color: rgba(24, 24, 27, 0.09);
   --foreground: #171717;
 }
 
 .dark {
-  --background: #0a0a0a;
+  --background: #0a0a0d;
+  --background-band: #131318;
+  --band-hairline: rgba(255, 255, 255, 0.08);
+  --dot-color: rgba(255, 255, 255, 0.04);
   --foreground: #ededed;
+}
+
+/* Island that opts out of dark mode (e.g., the HeroPreview demo panel,
+   which is designed to read like a desktop app screenshot regardless of
+   the page theme). Resets the cascading CSS vars to their light values
+   and sets the inherited text colour. The `dark` custom-variant above
+   skips elements inside `.light`, so `dark:` utilities don't apply. */
+.light {
+  --background: #ececef;
+  --background-band: #e0e0e3;
+  --band-hairline: rgba(0, 0, 0, 0.08);
+  --dot-color: rgba(24, 24, 27, 0.09);
+  --foreground: #1f1f1f;
+  color: var(--foreground);
+}
+
+/* Soften every white-ish surface inside the light island so the panel
+   reads as a neutral light-grey card. The attribute selector catches
+   every `bg-white`, `bg-white/95`, etc. without having to enumerate
+   each slash-escaped Tailwind class. We exclude very-low-alpha variants
+   (`bg-white/[0.0X]`, `bg-white/10`, `bg-white/15`) so those subtle
+   overlays still read as accents on top of the grey surface. */
+.light [class~="bg-white"],
+.light [class~="bg-white/95"],
+.light [class~="bg-white/90"],
+.light [class~="bg-white/80"],
+.light [class~="bg-white/70"],
+.light [class~="bg-white/60"],
+.light [class~="bg-zinc-50"],
+.light [class~="bg-zinc-50/60"] {
+  background-color: #e4e4e7 !important;
 }
 
 @theme inline {
@@ -20,58 +60,69 @@
 }
 
 html {
-  /* Smooth scroll for in-page anchor jumps (header nav -> #features, #pricing). */
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  /* In-page anchor jumps (header nav -> #features, #pricing) snap instantly
+     so navigating across long sections doesn't feel like a long scroll. */
+  scroll-behavior: auto;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: 0 0;
+  background-attachment: fixed;
+  background-repeat: repeat;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* Theme swap: driven by the View Transitions API. ThemeToggle runs the
-   `.dark` class swap inside `document.startViewTransition()` and sets
-   `data-theme-sweep` on <html> for direction. The old snapshot is pinned and
-   the new snapshot is clipped in along a diagonal — top-left to bottom-right
-   for light -> dark, the reverse for dark -> light. The page is non-
-   interactive for the duration (a VT limitation). */
-::view-transition-group(root) {
-  animation-duration: 2600ms;
-}
-::view-transition-old(root) {
-  animation: none;
-}
-::view-transition-new(root) {
-  animation: 2600ms cubic-bezier(0.4, 0.05, 0.25, 1) both themeSweepDark;
-}
-html[data-theme-sweep="light"]::view-transition-new(root) {
-  animation-name: themeSweepLight;
+.dark body {
+  background-color: #0a0a0d;
+  background-image:
+    radial-gradient(60vw 50vh at 12% 0%, rgba(16, 185, 129, 0.38), transparent 60%),
+    radial-gradient(55vw 50vh at 90% 100%, rgba(16, 185, 129, 0.38), transparent 60%),
+    linear-gradient(135deg, #0a0a0d 0%, #131322 55%, #0a0a0d 100%);
+  background-size: 100vw 100vh, 100vw 100vh, 100vw 100vh;
+  background-position: 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-attachment: fixed, fixed, fixed;
 }
 
-@keyframes themeSweepDark {
-  from { clip-path: polygon(0 0, 0 0, 0 0); }
-  to   { clip-path: polygon(0 0, 220% 0, 0 220%); }
+/* Section wrapper, kept as a layout primitive so existing pages keep the
+   same structure. Fully transparent with no dividers so the body's
+   corner-glow gradient flows through every section without hard edges
+   between hero, features, pricing, and the final CTA. */
+.section-band {
+  position: relative;
 }
 
-@keyframes themeSweepLight {
-  from { clip-path: polygon(100% 100%, 100% 100%, 100% 100%); }
-  to   { clip-path: polygon(100% 100%, -120% 100%, 100% -120%); }
+/* Bold final-CTA band: dark gradient with conic accent and large hairline. */
+.cta-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0a0a0d 0%, #131322 55%, #0a0a0d 100%);
+  color: #f5f5f4;
 }
-
-/* Suppress every colour/border transition while the swap commits, so the
-   "new" snapshot the browser captures is the fully-applied new theme rather
-   than a frame mid cross-fade. */
-html[data-theme-sweep] *,
-html[data-theme-sweep] *::before,
-html[data-theme-sweep] *::after {
-  transition: none !important;
+.cta-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60vw 50vh at 12% 0%, rgba(16, 185, 129, 0.38), transparent 60%),
+    radial-gradient(55vw 50vh at 90% 100%, rgba(16, 185, 129, 0.38), transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
+.cta-band::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Motion primitives ported from the extension panel.
@@ -129,7 +180,8 @@ html[data-theme-sweep] *::after {
   }
 }
 
-.reveal {
+.reveal,
+.reveal-pop {
   opacity: 0;
 }
 
@@ -139,6 +191,30 @@ html[data-theme-sweep] *::after {
 
 .reveal-pop.in-view {
   animation: popIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* The hero's interactive preview gets a longer, gentler entrance so it
+   reads as the page's hero moment rather than a snappy card pop. Uses
+   a softer ease-out curve with no overshoot. */
+@keyframes heroPreviewReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(16px);
+    filter: blur(6px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+.hero-preview-reveal.in-view {
+  animation: heroPreviewReveal 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Cascade items get their own per-item delay via --stagger-delay
@@ -197,6 +273,24 @@ html[data-theme-sweep] *::after {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
+  }
+}
+
+/* Down-arrow nudge on the "Try the live demo" pill above HeroPreview.
+   Small, looped, settles between bounces so it reads as a hint rather than
+   a distraction. */
+@keyframes heroPreviewArrowNudge {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(3px); }
+}
+
+.hero-preview-arrow {
+  animation: heroPreviewArrowNudge 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-preview-arrow {
+    animation: none !important;
   }
 }
 
