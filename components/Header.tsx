@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MobileMenu } from '@/components/MobileMenu';
 
@@ -98,7 +97,6 @@ export async function Header() {
             </>
           )}
           <LanguageSwitcher />
-          <ThemeToggle />
         </nav>
 
         <MobileMenu

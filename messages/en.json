@@ -34,11 +34,63 @@
   "Home": {
     "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
     "heroTitle": "One tool for every <depop></depop> & <vinted></vinted> seller.",
-    "heroSubtitle": "Crosslist, relist, refresh, restock, and answer buyers across both platforms from a single panel.",
+    "heroSubtitle": "So you can <word></word>",
+    "heroWords": [
+      "crosslist your items in seconds.",
+      "relist your items automatically.",
+      "refresh listings so they stay on top.",
+      "restock sold items in one click!",
+      "answer buyers without switching tabs.",
+      "list 10x faster than before.",
+      "save hours of busywork each week.",
+      "never miss a sale again!",
+      "stay on top of every message.",
+      "grow your shop without the grind.",
+      "skip the manual work entirely.",
+      "focus on what actually sells.",
+      "ship more, stress less.",
+      "sell smarter, not harder."
+    ],
     "ctaSeePricing": "See pricing",
     "ctaSeeFeatures": "See features",
     "ctaGetStarted": "Get started",
     "ctaSignIn": "Sign in",
+    "previewEyebrow": "Try the live demo",
+    "preview": {
+      "tabs": {
+        "listings": "Listings",
+        "crosslist": "Crosslist",
+        "shopDesigner": "Shop designer",
+        "restocker": "Restocker",
+        "relister": "Relister",
+        "priceDrops": "Price drops",
+        "followBot": "Follow bot",
+        "offers": "Offers",
+        "autoOffers": "Auto-offers",
+        "conversations": "Conversations",
+        "labels": "Labels"
+      },
+      "headers": {
+        "listings": { "title": "My listings", "meta": "128 in store" },
+        "crosslist": { "title": "Crosslist", "meta": "Vinted to Depop" },
+        "shopDesigner": { "title": "Shop designer", "meta": "Depop layout" },
+        "restocker": { "title": "Restocker", "meta": "Every 6h" },
+        "relister": { "title": "Relister", "meta": "Refreshing rank" },
+        "priceDrops": { "title": "Price drops", "meta": "4 scheduled" },
+        "followBot": { "title": "Follow bot", "meta": "218 / 500 today" },
+        "offers": { "title": "Offers", "meta": "6 pending" },
+        "autoOffers": { "title": "Auto-offers", "meta": "Live" },
+        "conversations": { "title": "Inbox", "meta": "3 unread" },
+        "labels": { "title": "Labels", "meta": "5 to print" }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Stop tab-juggling",
+      "title": "Run both shops from one panel.",
+      "body": "Install in a click. Free for your first listings, no card needed.",
+      "primary": "Get started free",
+      "secondary": "See pricing"
+    },
     "howItWorks": {
       "eyebrow": "How it works",
       "title": "Live in two minutes.",
@@ -53,8 +105,8 @@
           "body": "Sign in to Depop and Vinted as normal. SaleLinx picks up the session, nothing to re-enter."
         },
         "crosslist": {
-          "title": "Crosslist in one click",
-          "body": "Pick any listing on either marketplace. The other side's form fills itself in. You're done."
+          "title": "Sell more, click less",
+          "body": "Crosslist, relist, restock and answer buyers from one panel. Every tool to grow your shop is right where you sell."
         }
       }
     }
@@ -218,10 +270,10 @@
           "body": "Pick a listing, hit crosslist, and the other marketplace's form fills itself in. Categories, sizes and conditions are translated for you, so the same item goes live on both shops in seconds.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
-        "refreshRelist": {
-          "short": "Refresh & relist",
-          "title": "Refresh and relist to stay on top",
-          "body": "Push every listing back to the top of search with one click, or recreate stale ones with tweaked photos and titles. Run it yourself, or let it run on its own every few hours.",
+        "relist": {
+          "short": "Relist",
+          "title": "Relist to stay on top",
+          "body": "Recreate tired listings with tweaked photos and titles, then delete the originals so they climb back up the search results. Run it yourself, or let it run on its own every few hours.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "restocker": {

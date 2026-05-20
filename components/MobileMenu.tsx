@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface Labels {
   navFeatures: string;
@@ -155,7 +154,6 @@ export function MobileMenu({ isAuthed, labels }: Props) {
 
               <div className="mt-3 flex items-center justify-between border-t border-black/[0.06] pt-3 dark:border-white/10">
                 <LanguageSwitcher />
-                <ThemeToggle />
               </div>
             </nav>
           </div>

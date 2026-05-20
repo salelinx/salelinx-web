@@ -55,7 +55,7 @@ export async function HowItWorks() {
   const t = await getTranslations('Home.howItWorks');
 
   return (
-    <section className="mx-auto w-full max-w-5xl px-6 py-24 sm:py-32">
+    <section className="mx-auto w-full max-w-5xl px-6 pt-12 pb-20 sm:pt-16 sm:pb-24">
       <Reveal as="div" className="pb-12 text-center">
         <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
         <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">

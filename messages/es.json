@@ -34,11 +34,63 @@
   "Home": {
     "heroEyebrow": "Disponible para <depop></depop> + <vinted></vinted>",
     "heroTitle": "Una herramienta para cada vendedor de <depop></depop> & <vinted></vinted>.",
-    "heroSubtitle": "Crosslista, republica, actualiza, repone y responde a los compradores en ambas plataformas desde un solo panel.",
+    "heroSubtitle": "Para que puedas <word></word>",
+    "heroWords": [
+      "crosslistar tus artículos en segundos.",
+      "republicar tus artículos automáticamente.",
+      "actualizar tus listings para que sigan arriba.",
+      "reponer artículos vendidos con un solo clic!",
+      "responder a los compradores sin cambiar de pestaña.",
+      "listar 10x más rápido que antes.",
+      "ahorrar horas de trabajo repetitivo cada semana.",
+      "no perder ninguna venta!",
+      "controlar todos tus mensajes en un sitio.",
+      "hacer crecer tu tienda sin tanto esfuerzo.",
+      "saltarte el trabajo manual por completo.",
+      "centrarte en lo que de verdad vende.",
+      "vender más, sin estrés.",
+      "vender con cabeza, no a la fuerza."
+    ],
     "ctaSeePricing": "Ver precios",
     "ctaSeeFeatures": "Ver funciones",
     "ctaGetStarted": "Empezar",
     "ctaSignIn": "Iniciar sesión",
+    "previewEyebrow": "Prueba la demo interactiva",
+    "preview": {
+      "tabs": {
+        "listings": "Anuncios",
+        "crosslist": "Crosslist",
+        "shopDesigner": "Diseñador de tienda",
+        "restocker": "Restocker",
+        "relister": "Relister",
+        "priceDrops": "Bajadas de precio",
+        "followBot": "Bot de seguidores",
+        "offers": "Ofertas",
+        "autoOffers": "Auto-ofertas",
+        "conversations": "Conversaciones",
+        "labels": "Etiquetas"
+      },
+      "headers": {
+        "listings": { "title": "Mis anuncios", "meta": "128 en la tienda" },
+        "crosslist": { "title": "Crosslist", "meta": "Vinted a Depop" },
+        "shopDesigner": { "title": "Diseñador de tienda", "meta": "Diseño Depop" },
+        "restocker": { "title": "Restocker", "meta": "Cada 6h" },
+        "relister": { "title": "Relister", "meta": "Refrescando posición" },
+        "priceDrops": { "title": "Bajadas de precio", "meta": "4 programadas" },
+        "followBot": { "title": "Bot de seguidores", "meta": "218 / 500 hoy" },
+        "offers": { "title": "Ofertas", "meta": "6 pendientes" },
+        "autoOffers": { "title": "Auto-ofertas", "meta": "En vivo" },
+        "conversations": { "title": "Bandeja", "meta": "3 sin leer" },
+        "labels": { "title": "Etiquetas", "meta": "5 para imprimir" }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Adiós al caos de pestañas",
+      "title": "Gestiona ambas tiendas desde un solo panel.",
+      "body": "Se instala en un clic. Gratis para tus primeros anuncios, sin tarjeta.",
+      "primary": "Empezar gratis",
+      "secondary": "Ver precios"
+    },
     "howItWorks": {
       "eyebrow": "Cómo funciona",
       "title": "Listo en dos minutos.",
@@ -53,8 +105,8 @@
           "body": "Inicia sesión en Depop y Vinted como siempre. SaleLinx detecta la sesión, nada que reintroducir."
         },
         "crosslist": {
-          "title": "Crosslista en un clic",
-          "body": "Elige un anuncio en cualquiera de las marketplaces. El formulario del otro lado se rellena solo. Listo."
+          "title": "Vende más, haz menos clics",
+          "body": "Crosslista, republica, repón y responde a los compradores desde un solo panel. Cada herramienta para crecer tu tienda está justo donde vendes."
         }
       }
     }
@@ -218,10 +270,10 @@
           "body": "Elige un anuncio, pulsa crosslist y el formulario de la otra marketplace se rellena solo. Categorías, tallas y condiciones se traducen por ti, así el mismo artículo sale en ambas tiendas en segundos.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
-        "refreshRelist": {
-          "short": "Refrescar y republicar",
-          "title": "Refresca y republica para estar arriba",
-          "body": "Empuja cada anuncio al principio de la búsqueda con un clic, o recrea los que están estancados con fotos y títulos retocados. Hazlo tú o deja que se ejecute solo cada pocas horas.",
+        "relist": {
+          "short": "Republicar",
+          "title": "Republica para estar arriba",
+          "body": "Recrea los anuncios estancados con fotos y títulos retocados, y borra los originales para que vuelvan a subir en la búsqueda. Hazlo tú o deja que se ejecute solo cada pocas horas.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "restocker": {
