@@ -262,7 +262,7 @@ function ListingsPanel() {
 
       {/* Table header row */}
       <div
-        className="cascade-item grid grid-cols-[28px_1fr_36px_56px_60px] items-center gap-2 px-2 font-mono text-[8.5px] uppercase tracking-[0.1em] text-zinc-500 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px]"
+        className="cascade-item grid grid-cols-[22px_1fr_24px_44px_44px] items-center gap-1.5 px-2 font-mono text-[8.5px] uppercase tracking-[0.1em] text-zinc-500 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px] sm:gap-2"
         style={{ '--stagger-delay': `40ms` } as CSSProperties}
       >
         <span />
@@ -279,7 +279,7 @@ function ListingsPanel() {
         {rows.map((r, i) => (
           <li
             key={r.title}
-            className="cascade-item grid grid-cols-[28px_1fr_36px_56px_60px] items-center gap-2 rounded-md border border-black/[0.06] bg-white px-2 py-1.5 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px] dark:border-white/10 dark:bg-white/[0.02]"
+            className="cascade-item grid grid-cols-[22px_1fr_24px_44px_44px] items-center gap-1.5 rounded-md border border-black/[0.06] bg-white px-2 py-1.5 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px] sm:gap-2 dark:border-white/10 dark:bg-white/[0.02]"
             style={{ '--stagger-delay': `${80 + i * 50}ms` } as CSSProperties}
           >
             <ProductImage
