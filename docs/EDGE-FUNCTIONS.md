@@ -1,25 +1,29 @@
 # Edge Functions
 
-Four Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
+Six Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
 
 ## Why Edge Functions, not Next.js route handlers?
 
 - **`stripe-webhook`** - lives next to Supabase so it has direct service-role access to the DB without exposing it to Vercel env. Also simpler to lock down (`verify_jwt = false`).
 - **`create-checkout-session` / `create-portal-session`** - could live in Next.js, but keeping all Stripe-adjacent code in one place is easier to reason about. Single deploy target, single set of secrets.
 - **`send-auth-email`** - must be reachable from Supabase Auth's Send Email Hook; an Edge Function URL is the natural fit.
+- **`send-support-email`** - target of two Supabase Database Webhooks (insert on `support_tickets`, insert on `support_ticket_replies`). Needs service-role read on `auth.users` and write back to `support_tickets.notification_message_id`, so Supabase is the natural home.
+- **`send-shipping-labels`** - called by the Chrome extension to email a merged shipping-label PDF via Resend. Lives here (not in the extension) because Edge Function deploys are co-located with everything else Supabase-adjacent, and the extension only needs the function URL.
 
-## The four functions
+## The six functions
 
-| Function                  | `verify_jwt` | Purpose                                                                    |
-| ------------------------- | ------------ | -------------------------------------------------------------------------- |
-| `stripe-webhook`          | false        | Stripe POSTs here; we verify with `STRIPE_WEBHOOK_SECRET` instead          |
-| `create-checkout-session` | false*       | Authed user requests a Stripe Checkout URL. Auth enforced by `getUser()`.  |
-| `create-portal-session`   | false*       | Authed user requests a Stripe Customer Portal URL. Same pattern.           |
-| `send-auth-email`         | false        | Supabase Auth POSTs here for every auth email; signed, delivered via Resend|
+| Function                  | `verify_jwt` | Purpose                                                                                                  |
+| ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
+| `stripe-webhook`          | false        | Stripe POSTs here; we verify with `STRIPE_WEBHOOK_SECRET` instead                                        |
+| `create-checkout-session` | false*       | Authed user requests a Stripe Checkout URL. Auth enforced by `getUser()`.                                |
+| `create-portal-session`   | false*       | Authed user requests a Stripe Customer Portal URL. Same pattern.                                         |
+| `send-auth-email`         | false        | Supabase Auth POSTs here for every auth email; signed, delivered via Resend                              |
+| `send-support-email`      | false        | Database Webhooks POST here on new ticket / new user reply; emails `support@salelinx.com` via Resend     |
+| `send-shipping-labels`    | false*       | Extension POSTs a base64 PDF + recipient; auth enforced by `getUser(jwt)`; delivered via Resend          |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced.
 
-`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. Deno uses URL imports, not `node_modules`.
+`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` imports `@supabase/supabase-js` from `jsr:` and uses plain `fetch` for Resend. Deno uses URL imports, not `node_modules`.
 
 ## Deno specifics (don't copy Node patterns)
 
@@ -56,6 +60,8 @@ supabase functions deploy stripe-webhook
 supabase functions deploy create-checkout-session
 supabase functions deploy create-portal-session
 supabase functions deploy send-auth-email
+supabase functions deploy send-support-email
+supabase functions deploy send-shipping-labels --no-verify-jwt
 ```
 
 ## Secrets
@@ -68,6 +74,10 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
 supabase secrets set RESEND_API_KEY=re_...
 supabase secrets set RESEND_FROM='SaleLinx <no-reply@yourdomain.com>'
 supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
+supabase secrets set SUPPORT_NOTIFY_FROM='SaleLinx Support <support@salelinx.com>'
+supabase secrets set SUPPORT_NOTIFY_TO='support@salelinx.com'
+supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
+# send-shipping-labels reuses RESEND_API_KEY and RESEND_FROM - no extra secrets.
 ```
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are **auto-injected** by the runtime - don't set them manually.
@@ -159,6 +169,84 @@ The web app writes `preferred_locale` into metadata at:
 Unauthenticated flows (forgot-password on `/<locale>/auth/forgot-password`) cannot update the user's metadata before calling `resetPasswordForEmail`, so the email locale reflects whatever was last stored on the user; fallback is `en`.
 
 Once the hook is registered in the Supabase dashboard, Supabase stops sending via SMTP entirely - the hook owns 100% of auth emails. A non-200 response causes the underlying auth action (signup, reset, etc.) to fail visibly to the user, so the function must stay healthy.
+
+## Send support email
+
+`send-support-email` is the target of two Supabase **Database Webhooks** (set up in the dashboard under Database -> Webhooks):
+
+| Webhook                       | Table                     | Event  |
+| ----------------------------- | ------------------------- | ------ |
+| `support-ticket-created`      | `support_tickets`         | INSERT |
+| `support-ticket-reply-created`| `support_ticket_replies`  | INSERT |
+
+Both webhooks send a custom header `x-support-webhook-secret: <SUPPORT_NOTIFY_HOOK_SECRET>` that the function verifies before doing anything else. `verify_jwt = false` for the same ES256 reason as the other functions.
+
+Payload shape (standard Supabase Database Webhook):
+
+```json
+{
+  "type": "INSERT",
+  "table": "support_tickets",
+  "schema": "public",
+  "record": { "id": "...", "user_id": "...", "type": "bug", "message": "...", "platform": "depop", ... },
+  "old_record": null
+}
+```
+
+Flow per webhook:
+
+```
+support_tickets INSERT
+  ▼
+Database Webhook POSTs to send-support-email with x-support-webhook-secret
+  ▼
+Function: verify header -> auth.admin.getUserById(record.user_id) -> render template
+  ▼
+POST to Resend (From: SUPPORT_NOTIFY_FROM, To: SUPPORT_NOTIFY_TO, Reply-To: user.email)
+  ▼
+Synthesize Message-ID from Resend's returned id + from-domain: <{id}@{from-domain}>
+  ▼
+UPDATE support_tickets SET notification_message_id = <message-id> WHERE id = record.id
+```
+
+```
+support_ticket_replies INSERT
+  ▼
+Database Webhook POSTs to send-support-email
+  ▼
+Function: verify header
+  ▼ if record.is_admin = true, return 200 immediately (admin replies don't email)
+  ▼
+SELECT notification_message_id, type, message FROM support_tickets WHERE id = ticket_id
+  ▼
+Render reply template, POST to Resend with In-Reply-To + References = parent message-id
+  ▼
+Gmail threads the reply under the original notification
+```
+
+Threading is best-effort: if the original ticket's notification was sent before this function existed, `notification_message_id` is null and the reply notification arrives as a fresh thread.
+
+See `docs/SUPPORT.md` for the end-to-end ticket flow.
+
+## Send shipping labels
+
+`send-shipping-labels` is called by the Chrome extension when the user emails a merged shipping-label PDF to themselves or a co-worker. Flow:
+
+```
+User clicks "Email labels" in the extension
+  ▼
+Extension POSTs to https://<project-ref>.supabase.co/functions/v1/send-shipping-labels
+  Authorization: Bearer <user JWT>
+  body: { to, pdfBase64, filename, count, subject?, body? }
+  ▼
+Function: validate JWT via supabase.auth.getUser(jwt) -> 401 if invalid
+  ▼
+POST to Resend with the base64 PDF as an attachment
+  ▼
+Recipient receives the labels in their inbox
+```
+
+The function lives in this repo (not the extension) because all Edge Functions deploy from a single workspace; the extension just calls the URL. It deploys with `--no-verify-jwt` for the same ES256 reason as the authed Stripe functions.
 
 ## Excluded from TypeScript checks
 
