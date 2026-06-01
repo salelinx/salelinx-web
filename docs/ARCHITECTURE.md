@@ -59,7 +59,8 @@ extension sees, and vice versa.
 - Account dashboard (`/account`) - current tier, manage subscription
 - **Stripe integration** - Checkout session, Customer Portal, webhook (all in `supabase/functions/`)
 - Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
-- **Support hub** (`/account/support`) - new-ticket form, the user's thread, and the admin management panel (gated by `admin_users`). This is the canonical place to manage tickets; the extension only files + reads.
+- **Support hub** (`/account/support`) - user-facing: new-ticket form + the user's own thread. The extension only files + reads.
+- **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
 - Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`
 
 ### Extension (`muiltiplatform-seller-bot`) owns

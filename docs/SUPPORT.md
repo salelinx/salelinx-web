@@ -6,7 +6,8 @@ End-to-end picture of how a user files a support ticket (from the website or the
 
 | Piece                            | Repo                       | Role                                                                                       |
 | -------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
-| Web support hub `/account/support` | `resale-bot-web`         | New-ticket form + the user's own thread + reply box. Admins also get the full management panel here. |
+| Web support hub `/account/support` | `resale-bot-web`         | User-facing: new-ticket form + the user's own thread + reply box.                          |
+| Admin console `/admin/support`   | `resale-bot-web`           | Staff management surface (ticket table, detail/thread, reply/close/reopen/delete). Lives in the dedicated `/admin` console, NOT under `/account`. See `docs/ADMIN.md`. |
 | Extension Support tab            | `muiltiplatform-seller-bot`| New-ticket form (with diagnostics) + read-only "my tickets" list + a deep-link to the web hub |
 | `support_tickets` table          | shared Supabase            | One row per ticket. Columns: type, message, platform, status, diagnostics (app_version, tier_id, source, user_agent, locale), `notification_message_id` |
 | `support_ticket_replies` table   | shared Supabase            | One row per reply (user or admin), `is_admin` flag stamped server-side                     |
@@ -18,7 +19,7 @@ End-to-end picture of how a user files a support ticket (from the website or the
 ## Who does what
 
 - **Users** file and reply from either the website (`/account/support`) or the extension Support tab. The extension is read-only for existing threads and deep-links to the website to reply.
-- **Staff** triage in two places: the `support@salelinx.com` Gmail inbox (notifications land there) and the admin panel on `/account/support` (visible only to `admin_users` members), where they reply, close/reopen, and delete tickets.
+- **Staff** triage in two places: the `support@salelinx.com` Gmail inbox (notifications land there) and the admin console at `/admin/support` (the dedicated, internal `/admin` area, gated to `admin_users` members), where they reply, close/reopen, and delete tickets. Every admin action records an `admin_audit_log` entry; deletes require step-up re-auth. See `docs/ADMIN.md`.
 - The website is the canonical management surface; the extension's old admin panel was removed from the shipped bundle.
 
 ## End-to-end flow
@@ -95,8 +96,10 @@ We use RFC 5322 `Message-ID` / `In-Reply-To` / `References` headers, not subject
 | Diagnostics + source columns                 | `support_tickets` (migration `026_support_ticket_metadata.sql`) |
 | Threading column                             | `support_tickets.notification_message_id` (migration `025`)     |
 | Tickets + replies schema + admin RLS         | migrations `009_support_tickets.sql` + `012_admin_and_ticket_replies.sql` |
-| Web hub (form + thread + admin)              | `app/[locale]/account/support/page.tsx` + `components/support/*` |
+| Web hub (user form + thread)                 | `app/[locale]/account/support/page.tsx` + `components/support/SupportClient.tsx` |
+| Admin console support module                 | `app/admin/support/page.tsx` + `components/admin/support/*`     |
 | Admin detection helper                       | `lib/supabase/admin.ts` (`isAdmin`)                             |
+| Admin audit + identity RPCs                  | migration `027_admin_console_foundation.sql` (`log_admin_action`, `admin_user_emails`, `admin_audit_log`) |
 | Extension Support tab                        | `../muiltiplatform-seller-bot/src/panel/tabs/support.ts`        |
 | Database Webhook config                      | Supabase dashboard (Database -> Webhooks)                       |
 
@@ -104,7 +107,7 @@ The function is deployed via the Supabase Dashboard's single-file upload, so the
 
 ## Admin access
 
-Admin is membership in the `admin_users` table (grant via the Supabase dashboard; there are no write RLS policies on it). The web hub calls `isAdmin(user.id)` to decide whether to render the admin panel, but that check is cosmetic: every admin write (reply with `is_admin=true`, status update, delete) is independently gated by RLS via `public.is_admin()`. A non-admin who somehow rendered the panel would see only their own tickets and be rejected on any admin write.
+Admin is membership in the `admin_users` table (grant via the Supabase dashboard; there are no write RLS policies on it). Staff manage tickets in the dedicated `/admin` console, not under `/account`. The full admin security model (the middleware + layout gate, RLS as the real boundary, the audit log, step-up re-auth, and the deferred MFA work) is documented in `docs/ADMIN.md`. As before: every admin write (reply with `is_admin=true`, status update, delete) is independently gated by RLS via `public.is_admin()`, so the app-level gate is defense in depth, not the boundary.
 
 ## Secrets
 

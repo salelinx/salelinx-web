@@ -269,10 +269,6 @@
     "adminDeleteConfirm": "Dieses Ticket und alle Antworten löschen? Das kann nicht rückgängig gemacht werden.",
     "adminActionError": "Aktion fehlgeschlagen. Bitte versuche es erneut."
   },
-  "Admin": {
-    "title": "Admin",
-    "subtitle": "Verwalte alle Support-Tickets. Antworten, schließen, erneut öffnen oder löschen."
-  },
   "Subscribe": {
     "loading": "Wird geladen...",
     "label": "Abonnieren",

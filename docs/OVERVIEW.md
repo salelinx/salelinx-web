@@ -58,7 +58,12 @@ app/
 ├── faq/                     Frequently asked questions - accordion Q&A
 └── legal/                   ToS + Privacy
 
+app/admin/                   Internal staff console. TOP-LEVEL (sibling of [locale], NOT localized);
+                             owns its own <html>/theme/shell so it escapes the marketing chrome.
+                             Gated to admin_users. First module: support. See docs/ADMIN.md.
+
 components/                  Shared React components (Header, VerifyEmailBanner, …)
+components/admin/            Admin console components (AdminSidebar, support/AdminTicketTable, …)
 components/docs/             Docs-only components (Sidebar, CategoryCard, DocsSearch, MDX widgets)
 components/features/         FeaturesSection / PricingSection / RoadmapSection (stacked on /features)
 
