@@ -22,7 +22,8 @@ docs/
 ├── AUTH.md             Signup / login / reset / verify flows, session handling
 ├── ENTITLEMENTS.md     tier_limits + usage_counters, config-driven gating
 ├── STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
-└── EDGE-FUNCTIONS.md   Deno functions, deploy, secrets, Stripe signature verification
+├── EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
+└── SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
 ```
 
 ## After making changes
@@ -44,18 +45,20 @@ docs/
 - Server Components use `lib/supabase/server.ts`; Client Components use `lib/supabase/client.ts`. Never cross the boundary.
 - `proxy.ts` (Next.js 16's renamed middleware) refreshes auth cookies on every request - don't remove it. Must export `proxy`, not `middleware`.
 - Shared types (`lib/types/tiers.ts`) must stay in sync with the extension's `src/entitlements/types.ts`. Copy-paste for now.
-- Supabase migrations live in the **extension repo**, not here. This repo only reads.
+- Supabase migrations live in this repo under `supabase/migrations/`. The extension reads the same database but no longer owns schema.
 
 ## Edge Functions (Deno)
 
 Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node - use `Deno.env.get(...)`, `esm.sh` imports, `Deno.serve`. Excluded from this repo's TS check via `tsconfig.json`.
 
 - `stripe-webhook` - `verify_jwt = false` (Stripe signs with its own secret)
-- `create-checkout-session` - `verify_jwt = true`
-- `create-portal-session` - `verify_jwt = true`
+- `create-checkout-session` - `verify_jwt = false` (handler calls `getUser()` because Supabase gateway can't verify ES256)
+- `create-portal-session` - `verify_jwt = false` (same ES256 reason)
 - `send-auth-email` - `verify_jwt = false` (Supabase Auth signs via Standard Webhooks; delivers auth emails via Resend)
+- `send-support-email` - `verify_jwt = false` (Database Webhooks send a shared secret via `x-support-webhook-secret`; emails new tickets + user replies to `support@salelinx.com`)
+- `send-shipping-labels` - `verify_jwt = false` (called by the extension with the user's JWT in `Authorization`; handler validates via `getUser(jwt)` and emails a merged label PDF via Resend)
 
-See `docs/EDGE-FUNCTIONS.md` for deploy + secrets.
+See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 
 ## Git & Commits
 
