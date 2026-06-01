@@ -55,7 +55,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `create-checkout-session` - `verify_jwt = false` (handler calls `getUser()` because Supabase gateway can't verify ES256)
 - `create-portal-session` - `verify_jwt = false` (same ES256 reason)
 - `send-auth-email` - `verify_jwt = false` (Supabase Auth signs via Standard Webhooks; delivers auth emails via Resend)
-- `send-support-email` - `verify_jwt = false` (Database Webhooks send a shared secret via `x-support-webhook-secret`; emails new tickets + user replies to `support@salelinx.com`)
+- `send-support-email` - `verify_jwt = false` (Database Webhooks send a shared secret via `x-support-webhook-secret`; emails staff notifications to `support@salelinx.com`, an auto-ack to the ticket author, and admin replies back to the ticket owner)
 - `send-shipping-labels` - `verify_jwt = false` (called by the extension with the user's JWT in `Authorization`; handler validates via `getUser(jwt)` and emails a merged label PDF via Resend)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.

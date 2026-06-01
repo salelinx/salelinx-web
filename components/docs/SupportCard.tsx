@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Icon } from '@/components/Icon';
 
 export async function SupportCard() {
@@ -18,12 +19,12 @@ export async function SupportCard() {
           </p>
         </div>
       </div>
-      <a
-        href="mailto:support@salelinx.com"
+      <Link
+        href="/account/support"
         className="shrink-0 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
       >
         {t('cta')}
-      </a>
+      </Link>
     </div>
   );
 }

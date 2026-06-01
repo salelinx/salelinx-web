@@ -59,7 +59,8 @@ extension sees, and vice versa.
 - Account dashboard (`/account`) - current tier, manage subscription
 - **Stripe integration** - Checkout session, Customer Portal, webhook (all in `supabase/functions/`)
 - Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
-- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`
+- **Support hub** (`/account/support`) - new-ticket form, the user's thread, and the admin management panel (gated by `admin_users`). This is the canonical place to manage tickets; the extension only files + reads.
+- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`
 
 ### Extension (`muiltiplatform-seller-bot`) owns
 
@@ -95,7 +96,9 @@ repo (`supabase/migrations/`).
 | `linked_accounts`        | extension only     | extension                                     | Maps Supabase user → Depop/Vinted shop IDs                              |
 | `platform_credentials`   | extension only     | extension (encrypted)                         | Encrypted platform session tokens                                       |
 | `user_settings`          | extension only     | extension                                     | Per-user bot timing preferences                                         |
-| `support_tickets`        | extension only     | extension                                     | Bug reports / feedback                                                  |
+| `support_tickets`        | both               | both (web + extension) + `stripe-webhook` n/a | Support tickets - bug / feature / feedback, status, diagnostics         |
+| `support_ticket_replies` | both               | both (web users + web admins)                 | Ticket conversation thread; `is_admin` flag stamped server-side         |
+| `admin_users`            | both               | SQL/dashboard only                            | Support-admin membership; backs `is_admin()` RLS helper                 |
 
 See `docs/ENTITLEMENTS.md` for the entitlement model (features, limits,
 quotas, grandfathering via `tier_version`).

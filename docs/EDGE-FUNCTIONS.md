@@ -18,7 +18,7 @@ Six Supabase Edge Functions live in `supabase/functions/`. They run on Supabase'
 | `create-checkout-session` | false*       | Authed user requests a Stripe Checkout URL. Auth enforced by `getUser()`.                                |
 | `create-portal-session`   | false*       | Authed user requests a Stripe Customer Portal URL. Same pattern.                                         |
 | `send-auth-email`         | false        | Supabase Auth POSTs here for every auth email; signed, delivered via Resend                              |
-| `send-support-email`      | false        | Database Webhooks POST here on new ticket / new user reply; emails `support@salelinx.com` via Resend     |
+| `send-support-email`      | false        | Database Webhooks POST here on new ticket / new reply; emails staff, the auto-ack, and admin-reply-to-user via Resend |
 | `send-shipping-labels`    | false*       | Extension POSTs a base64 PDF + recipient; auth enforced by `getUser(jwt)`; delivered via Resend          |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced.
@@ -200,13 +200,15 @@ support_tickets INSERT
   ▼
 Database Webhook POSTs to send-support-email with x-support-webhook-secret
   ▼
-Function: verify header -> auth.admin.getUserById(record.user_id) -> render template
+Function: verify header -> auth.admin.getUserById(record.user_id) -> render templates
   ▼
-POST to Resend (From: SUPPORT_NOTIFY_FROM, To: SUPPORT_NOTIFY_TO, Reply-To: user.email)
+1. STAFF notif -> Resend (From: SUPPORT_NOTIFY_FROM, To: SUPPORT_NOTIFY_TO, Reply-To: author)
   ▼
-Synthesize Message-ID from Resend's returned id + from-domain: <{id}@{from-domain}>
+   Synthesize Message-ID <{id}@{from-domain}> and
+   UPDATE support_tickets SET notification_message_id = <message-id>
   ▼
-UPDATE support_tickets SET notification_message_id = <message-id> WHERE id = record.id
+2. AUTO-ACK -> Resend (To: author, Reply-To: SUPPORT_NOTIFY_TO)  [best-effort; a
+   failure is logged but does not fail the webhook]
 ```
 
 ```
@@ -215,16 +217,19 @@ support_ticket_replies INSERT
 Database Webhook POSTs to send-support-email
   ▼
 Function: verify header
-  ▼ if record.is_admin = true, return 200 immediately (admin replies don't email)
   ▼
-SELECT notification_message_id, type, message FROM support_tickets WHERE id = ticket_id
+SELECT id, type, message, user_id, notification_message_id FROM support_tickets WHERE id = ticket_id
   ▼
-Render reply template, POST to Resend with In-Reply-To + References = parent message-id
-  ▼
-Gmail threads the reply under the original notification
+if record.is_admin = true  (admin reply):
+   look up the OWNER's email (ticket.user_id, NOT record.user_id)
+   POST to Resend (To: owner, From: SUPPORT_NOTIFY_FROM, Reply-To: SUPPORT_NOTIFY_TO)
+   presented as "SaleLinx Support"; NOT threaded (owner never saw the staff thread)
+else  (user reply):
+   POST staff notif (To: SUPPORT_NOTIFY_TO, Reply-To: user)
+   In-Reply-To + References = parent notification_message_id -> Gmail threads it
 ```
 
-Threading is best-effort: if the original ticket's notification was sent before this function existed, `notification_message_id` is null and the reply notification arrives as a fresh thread.
+The admin-reply recipient is the **ticket owner**, never the admin who authored it. Staff-side threading is best-effort: if the ticket's notification predates this function, `notification_message_id` is null and the user-reply notification arrives as a fresh thread.
 
 See `docs/SUPPORT.md` for the end-to-end ticket flow.
 
