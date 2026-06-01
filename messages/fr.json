@@ -10,6 +10,8 @@
     "navFaq": "FAQ",
     "navDocs": "Docs",
     "account": "Compte",
+    "support": "Assistance",
+    "admin": "Admin",
     "signOut": "Déconnexion",
     "signIn": "Connexion",
     "getStarted": "Commencer"
@@ -267,6 +269,10 @@
     "adminDelete": "Supprimer",
     "adminDeleteConfirm": "Supprimer ce ticket et toutes ses réponses ? Cette action est irréversible.",
     "adminActionError": "L'action a échoué. Veuillez réessayer."
+  },
+  "Admin": {
+    "title": "Admin",
+    "subtitle": "Gérez tous les tickets d'assistance. Répondre, fermer, rouvrir ou supprimer."
   },
   "Subscribe": {
     "loading": "Chargement...",

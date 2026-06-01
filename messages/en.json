@@ -10,6 +10,8 @@
     "navFaq": "FAQ",
     "navDocs": "Docs",
     "account": "Account",
+    "support": "Support",
+    "admin": "Admin",
     "signOut": "Sign out",
     "signIn": "Sign in",
     "getStarted": "Get started"
@@ -267,6 +269,10 @@
     "adminDelete": "Delete",
     "adminDeleteConfirm": "Delete this ticket and all its replies? This cannot be undone.",
     "adminActionError": "Action failed. Please try again."
+  },
+  "Admin": {
+    "title": "Admin",
+    "subtitle": "Manage every support ticket. Reply, close, reopen, or delete."
   },
   "Subscribe": {
     "loading": "Loading...",

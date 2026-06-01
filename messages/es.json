@@ -10,6 +10,8 @@
     "navFaq": "FAQ",
     "navDocs": "Docs",
     "account": "Cuenta",
+    "support": "Soporte",
+    "admin": "Admin",
     "signOut": "Cerrar sesión",
     "signIn": "Iniciar sesión",
     "getStarted": "Empezar"
@@ -267,6 +269,10 @@
     "adminDelete": "Eliminar",
     "adminDeleteConfirm": "¿Eliminar este ticket y todas sus respuestas? No se puede deshacer.",
     "adminActionError": "La acción falló. Inténtalo de nuevo."
+  },
+  "Admin": {
+    "title": "Admin",
+    "subtitle": "Gestiona todos los tickets de soporte. Responder, cerrar, reabrir o eliminar."
   },
   "Subscribe": {
     "loading": "Cargando...",

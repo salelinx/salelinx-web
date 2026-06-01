@@ -12,6 +12,8 @@ interface Labels {
   navFaq: string;
   navDocs: string;
   account: string;
+  support: string;
+  admin: string;
   signOut: string;
   signIn: string;
   getStarted: string;
@@ -21,10 +23,11 @@ interface Labels {
 
 interface Props {
   isAuthed: boolean;
+  isAdmin: boolean;
   labels: Labels;
 }
 
-export function MobileMenu({ isAuthed, labels }: Props) {
+export function MobileMenu({ isAuthed, isAdmin, labels }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -122,6 +125,14 @@ export function MobileMenu({ isAuthed, labels }: Props) {
               <div className="mt-2 border-t border-black/[0.06] pt-3 dark:border-white/10">
                 {isAuthed ? (
                   <div className="flex flex-col gap-2">
+                    <Link href="/account/support" className={linkClass}>
+                      {labels.support}
+                    </Link>
+                    {isAdmin && (
+                      <Link href="/admin" className={linkClass}>
+                        {labels.admin}
+                      </Link>
+                    )}
                     <Link href="/account" className={linkClass}>
                       {labels.account}
                     </Link>
