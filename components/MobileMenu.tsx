@@ -13,7 +13,6 @@ interface Labels {
   navDocs: string;
   account: string;
   support: string;
-  admin: string;
   signOut: string;
   signIn: string;
   getStarted: string;
@@ -23,11 +22,10 @@ interface Labels {
 
 interface Props {
   isAuthed: boolean;
-  isAdmin: boolean;
   labels: Labels;
 }
 
-export function MobileMenu({ isAuthed, isAdmin, labels }: Props) {
+export function MobileMenu({ isAuthed, labels }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -128,11 +126,6 @@ export function MobileMenu({ isAuthed, isAdmin, labels }: Props) {
                     <Link href="/account/support" className={linkClass}>
                       {labels.support}
                     </Link>
-                    {isAdmin && (
-                      <Link href="/admin" className={linkClass}>
-                        {labels.admin}
-                      </Link>
-                    )}
                     <Link href="/account" className={linkClass}>
                       {labels.account}
                     </Link>

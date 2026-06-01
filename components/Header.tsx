@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import { isAdmin } from '@/lib/supabase/admin';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MobileMenu } from '@/components/MobileMenu';
 
@@ -11,8 +10,6 @@ export async function Header() {
     data: { user },
   } = await supabase.auth.getUser();
   const t = await getTranslations('Header');
-
-  const showAdmin = user ? await isAdmin(user.id) : false;
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/10 bg-white/75 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-zinc-950/75 dark:supports-[backdrop-filter]:bg-zinc-950/60">
@@ -74,14 +71,6 @@ export async function Header() {
               >
                 {t('support')}
               </Link>
-              {showAdmin && (
-                <Link
-                  href="/admin"
-                  className="hover:text-black hover:underline dark:hover:text-white"
-                >
-                  {t('admin')}
-                </Link>
-              )}
               <Link
                 href="/account"
                 className="hover:text-black hover:underline dark:hover:text-white"
@@ -122,7 +111,6 @@ export async function Header() {
 
         <MobileMenu
           isAuthed={!!user}
-          isAdmin={showAdmin}
           labels={{
             navFeatures: t('navFeatures'),
             navPricing: t('navPricing'),
@@ -131,7 +119,6 @@ export async function Header() {
             navDocs: t('navDocs'),
             account: t('account'),
             support: t('support'),
-            admin: t('admin'),
             signOut: t('signOut'),
             signIn: t('signIn'),
             getStarted: t('getStarted'),
