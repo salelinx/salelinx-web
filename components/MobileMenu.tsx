@@ -119,13 +119,13 @@ export function MobileMenu({ isAuthed, labels }: Props) {
               <Link href="/docs" className={linkClass}>
                 {labels.navDocs}
               </Link>
-              <Link href="/help" className={linkClass}>
-                {labels.support}
-              </Link>
 
               <div className="mt-2 border-t border-black/[0.06] pt-3 dark:border-white/10">
                 {isAuthed ? (
                   <div className="flex flex-col gap-2">
+                    <Link href="/help" className={linkClass}>
+                      {labels.support}
+                    </Link>
                     <Link href="/account" className={linkClass}>
                       {labels.account}
                     </Link>

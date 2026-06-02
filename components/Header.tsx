@@ -62,15 +62,15 @@ export async function Header() {
           >
             {t('navDocs')}
           </Link>
-          <Link
-            href="/help"
-            className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
-          >
-            {t('support')}
-          </Link>
 
           {user ? (
             <>
+              <Link
+                href="/help"
+                className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
+              >
+                {t('support')}
+              </Link>
               <Link
                 href="/account"
                 className="hover:text-black hover:underline dark:hover:text-white"
