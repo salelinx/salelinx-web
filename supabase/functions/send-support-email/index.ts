@@ -35,12 +35,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 // a sibling templates.ts - the CLI bundles whole folders.
 // ============================================================================
 
-type TicketType = "bug" | "feature" | "feedback";
+type TicketType = "bug" | "feature" | "feedback" | "other";
 
 const TYPE_LABEL: Record<TicketType, string> = {
   bug: "Bug",
   feature: "Feature",
   feedback: "Feedback",
+  other: "Other",
 };
 
 function typeLabel(type: string): string {

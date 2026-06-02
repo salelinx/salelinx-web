@@ -5,7 +5,7 @@
 // /account/tickets (the track surface), with ticket creation moved to the
 // /help/support contact form. List/reply logic + RLS are unchanged.
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type {
@@ -26,6 +26,16 @@ export function TicketList({ userId, initialTickets, initialReplies }: Props) {
 
   const [tickets, setTickets] = useState<SupportTicket[]>(initialTickets);
   const [replies, setReplies] = useState<SupportReply[]>(initialReplies);
+  const [showClosed, setShowClosed] = useState(false);
+
+  const closedCount = useMemo(
+    () => tickets.filter((tk) => tk.status === "closed").length,
+    [tickets],
+  );
+  const visible = useMemo(
+    () => (showClosed ? tickets : tickets.filter((tk) => tk.status !== "closed")),
+    [tickets, showClosed],
+  );
 
   async function refreshMine() {
     const { data: ts } = await supabase
@@ -51,15 +61,32 @@ export function TicketList({ userId, initialTickets, initialReplies }: Props) {
 
   return (
     <section className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10">
-      <h2 className="text-xl font-semibold">{t("myTicketsTitle")}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">{t("myTicketsTitle")}</h2>
+        {closedCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowClosed((v) => !v)}
+            className="text-sm text-zinc-600 underline-offset-4 hover:text-black hover:underline dark:text-zinc-400 dark:hover:text-white"
+          >
+            {showClosed
+              ? t("hideClosed")
+              : t("showClosed", { count: closedCount })}
+          </button>
+        )}
+      </div>
 
       {tickets.length === 0 ? (
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           {t("noTickets")}
         </p>
+      ) : visible.length === 0 ? (
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          {t("noOpenTickets")}
+        </p>
       ) : (
         <ul className="mt-4 space-y-4">
-          {tickets.map((ticket) => (
+          {visible.map((ticket) => (
             <UserTicketCard
               key={ticket.id}
               ticket={ticket}

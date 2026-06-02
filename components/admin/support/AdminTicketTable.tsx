@@ -21,7 +21,7 @@ type Props = {
 };
 
 type StatusFilter = "open" | "closed" | "all";
-type TypeFilter = "all" | "bug" | "feature" | "feedback";
+type TypeFilter = "all" | "bug" | "feature" | "feedback" | "other";
 type SourceFilter = "all" | "web" | "extension" | "email";
 type SortKey = "updated_at" | "created_at" | "status" | "type";
 
@@ -29,10 +29,25 @@ const TYPE_LABEL: Record<string, string> = {
   bug: "Bug",
   feature: "Feature",
   feedback: "Feedback",
+  other: "Other",
 };
 
 function typeLabel(type: string): string {
   return TYPE_LABEL[type] ?? type;
+}
+
+// A ticket "needs a reply" from staff when its most recent activity came from
+// the user: either it has no replies yet (a fresh ticket nobody answered), or
+// the latest reply on it is the user's (is_admin === false). Closed tickets are
+// never flagged. Replies passed in are already sorted oldest-first.
+function ticketNeedsReply(
+  ticket: SupportTicket,
+  ticketReplies: SupportReply[],
+): boolean {
+  if (ticket.status === "closed") return false;
+  if (ticketReplies.length === 0) return true;
+  const last = ticketReplies[ticketReplies.length - 1];
+  return !last.is_admin;
 }
 
 function formatRelative(iso: string): string {
@@ -67,9 +82,30 @@ export function AdminTicketTable({
   const [status, setStatus] = useState<StatusFilter>("open");
   const [type, setType] = useState<TypeFilter>("all");
   const [source, setSource] = useState<SourceFilter>("all");
+  const [needsReplyOnly, setNeedsReplyOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("updated_at");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // ticket id -> whether it awaits a staff reply (computed from the reply set).
+  const needsReplyById = useMemo(() => {
+    const byTicket = new Map<string, SupportReply[]>();
+    for (const r of replies) {
+      const arr = byTicket.get(r.ticket_id);
+      if (arr) arr.push(r);
+      else byTicket.set(r.ticket_id, [r]);
+    }
+    const map: Record<string, boolean> = {};
+    for (const tk of tickets) {
+      map[tk.id] = ticketNeedsReply(tk, byTicket.get(tk.id) ?? []);
+    }
+    return map;
+  }, [tickets, replies]);
+
+  const needsReplyCount = useMemo(
+    () => Object.values(needsReplyById).filter(Boolean).length,
+    [needsReplyById],
+  );
 
   async function refreshAll() {
     const { data: ts } = await supabase
@@ -102,6 +138,7 @@ export function AdminTicketTable({
       }
       if (type !== "all" && tk.type !== type) return false;
       if (source !== "all" && tk.source !== source) return false;
+      if (needsReplyOnly && !needsReplyById[tk.id]) return false;
       if (term) {
         const email = (emails[tk.user_id] ?? "").toLowerCase();
         const haystack = `${tk.message} ${email} ${tk.user_id}`.toLowerCase();
@@ -124,7 +161,17 @@ export function AdminTicketTable({
       }
     });
     return sorted;
-  }, [tickets, emails, status, type, source, search, sortKey]);
+  }, [
+    tickets,
+    emails,
+    status,
+    type,
+    source,
+    needsReplyOnly,
+    needsReplyById,
+    search,
+    sortKey,
+  ]);
 
   const selected = selectedId
     ? (tickets.find((tk) => tk.id === selectedId) ?? null)
@@ -162,6 +209,7 @@ export function AdminTicketTable({
             ["bug", "Bug"],
             ["feature", "Feature"],
             ["feedback", "Feedback"],
+            ["other", "Other"],
           ]}
           onChange={(v) => setType(v as TypeFilter)}
         />
@@ -176,6 +224,26 @@ export function AdminTicketTable({
           ]}
           onChange={(v) => setSource(v as SourceFilter)}
         />
+        <button
+          type="button"
+          onClick={() => setNeedsReplyOnly((v) => !v)}
+          className={
+            needsReplyOnly
+              ? "inline-flex items-center gap-1.5 rounded bg-amber-500 px-2 py-0.5 font-medium text-white"
+              : "inline-flex items-center gap-1.5 rounded border border-amber-300 px-2 py-0.5 font-medium text-amber-700 hover:bg-amber-50"
+          }
+        >
+          Needs reply
+          <span
+            className={
+              needsReplyOnly
+                ? "rounded-full bg-white/25 px-1.5 text-[10px]"
+                : "rounded-full bg-amber-100 px-1.5 text-[10px]"
+            }
+          >
+            {needsReplyCount}
+          </span>
+        </button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
@@ -223,7 +291,18 @@ export function AdminTicketTable({
                     }
                   >
                     <td className="whitespace-nowrap px-3 py-2">
-                      <StatusBadge closed={isClosed} />
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge closed={isClosed} />
+                        {needsReplyById[tk.id] && (
+                          <span
+                            title="Awaiting your reply"
+                            className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            Needs reply
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-700">
                       {typeLabel(tk.type)}
