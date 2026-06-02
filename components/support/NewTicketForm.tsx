@@ -78,11 +78,14 @@ export function NewTicketForm({ userId }: Props) {
             onChange={(e) => setType(e.target.value as TicketType | "")}
             className="mt-1.5 w-full max-w-xs rounded-lg border border-black/10 px-3 py-2.5 text-sm dark:border-white/20 dark:bg-transparent"
           >
-            <option value="" disabled>
+            {/* Options render in a native OS popup (always light), so give them
+                explicit dark-on-white colors; without this they inherit the
+                page's light text and are unreadable on the white menu. */}
+            <option value="" disabled className="bg-white text-zinc-500">
               {t("typePlaceholder")}
             </option>
             {TICKET_TYPES.map((tt) => (
-              <option key={tt} value={tt}>
+              <option key={tt} value={tt} className="bg-white text-zinc-900">
                 {t(`type_${tt}`)}
               </option>
             ))}
