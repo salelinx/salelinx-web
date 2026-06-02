@@ -21,7 +21,7 @@ type Props = {
 };
 
 type StatusFilter = "open" | "closed" | "all";
-type TypeFilter = "all" | "bug" | "feature" | "feedback";
+type TypeFilter = "all" | "bug" | "feature" | "feedback" | "other";
 type SourceFilter = "all" | "web" | "extension" | "email";
 type SortKey = "updated_at" | "created_at" | "status" | "type";
 
@@ -29,6 +29,7 @@ const TYPE_LABEL: Record<string, string> = {
   bug: "Bug",
   feature: "Feature",
   feedback: "Feedback",
+  other: "Other",
 };
 
 function typeLabel(type: string): string {
@@ -208,6 +209,7 @@ export function AdminTicketTable({
             ["bug", "Bug"],
             ["feature", "Feature"],
             ["feedback", "Feedback"],
+            ["other", "Other"],
           ]}
           onChange={(v) => setType(v as TypeFilter)}
         />

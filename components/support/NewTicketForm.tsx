@@ -11,7 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type { TicketType } from "@/lib/types/support";
 
-const TICKET_TYPES: TicketType[] = ["bug", "feature", "feedback"];
+const TICKET_TYPES: TicketType[] = ["bug", "feature", "feedback", "other"];
 
 type Props = {
   userId: string;
@@ -22,7 +22,8 @@ export function NewTicketForm({ userId }: Props) {
   const locale = useLocale();
   const supabase = createBrowserClient();
 
-  const [type, setType] = useState<TicketType>("bug");
+  // Empty default: the user must pick a type. "" renders the placeholder option.
+  const [type, setType] = useState<TicketType | "">("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formStatus, setFormStatus] = useState<"idle" | "success" | "error">(
@@ -31,7 +32,7 @@ export function NewTicketForm({ userId }: Props) {
 
   async function submitTicket() {
     const text = message.trim();
-    if (!text) return;
+    if (!text || !type) return;
 
     setSubmitting(true);
     setFormStatus("idle");
@@ -56,7 +57,7 @@ export function NewTicketForm({ userId }: Props) {
 
     setFormStatus("success");
     setMessage("");
-    setType("bug");
+    setType("");
   }
 
   return (
@@ -74,9 +75,12 @@ export function NewTicketForm({ userId }: Props) {
           <select
             id="ticket-type"
             value={type}
-            onChange={(e) => setType(e.target.value as TicketType)}
+            onChange={(e) => setType(e.target.value as TicketType | "")}
             className="mt-1.5 w-full max-w-xs rounded-lg border border-black/10 px-3 py-2.5 text-sm dark:border-white/20 dark:bg-transparent"
           >
+            <option value="" disabled>
+              {t("typePlaceholder")}
+            </option>
             {TICKET_TYPES.map((tt) => (
               <option key={tt} value={tt}>
                 {t(`type_${tt}`)}
@@ -106,7 +110,7 @@ export function NewTicketForm({ userId }: Props) {
           <button
             type="button"
             onClick={submitTicket}
-            disabled={submitting || !message.trim()}
+            disabled={submitting || !message.trim() || !type}
             className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-black"
           >
             {submitting ? t("submitting") : t("submit")}
