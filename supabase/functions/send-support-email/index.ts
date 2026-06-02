@@ -221,7 +221,7 @@ function renderAck(input: AckInput): Rendered {
     <h1 style="font-size:18px;font-weight:600;margin:0 0 16px;">Thanks - we got your message</h1>
     <p style="font-size:14px;line-height:1.6;color:#1c1917;margin:0 0 16px;">
       We've logged your ${escapeHtml(typeLabel(input.type).toLowerCase())} and the team will follow up here. You can track and reply to this ticket any time at
-      <a href="https://salelinx.com/account/support" style="color:#1c1917;">salelinx.com/account/support</a>.
+      <a href="https://salelinx.com/account/tickets" style="color:#1c1917;">salelinx.com/account/tickets</a>.
     </p>
     <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
       ${metaRow("Type", escapeHtml(typeLabel(input.type)))}
@@ -238,7 +238,7 @@ function renderAck(input: AckInput): Rendered {
     `Thanks - we got your message`,
     ``,
     `We've logged your ${typeLabel(input.type).toLowerCase()} and the team will follow up here.`,
-    `Track and reply: https://salelinx.com/account/support`,
+    `Track and reply: https://salelinx.com/account/tickets`,
     ``,
     `Type:     ${typeLabel(input.type)}`,
     `Ticket:   ${input.ticketId}`,
@@ -263,7 +263,7 @@ function renderAdminReplyToUser(input: AdminReplyToUserInput): Rendered {
     </div>
     <p style="font-size:12px;color:#a8a29e;margin:24px 0 0;">
       Reply to this email, or pick up the conversation at
-      <a href="https://salelinx.com/account/support" style="color:#a8a29e;">salelinx.com/account/support</a> (Ticket ${escapeHtml(input.ticketId)}).
+      <a href="https://salelinx.com/account/tickets" style="color:#a8a29e;">salelinx.com/account/tickets</a> (Ticket ${escapeHtml(input.ticketId)}).
     </p>
   `);
 
@@ -273,7 +273,7 @@ function renderAdminReplyToUser(input: AdminReplyToUserInput): Rendered {
     input.replyBody,
     ``,
     `---`,
-    `Reply to this email, or continue at https://salelinx.com/account/support`,
+    `Reply to this email, or continue at https://salelinx.com/account/tickets`,
     `Ticket: ${input.ticketId}`,
     `Sent:   ${input.createdAt}`,
   ].join("\n");

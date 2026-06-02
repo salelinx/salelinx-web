@@ -6,7 +6,8 @@ End-to-end picture of how a user files a support ticket (from the website or the
 
 | Piece                            | Repo                       | Role                                                                                       |
 | -------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
-| Web support hub `/account/support` | `resale-bot-web`         | User-facing: new-ticket form + the user's own thread + reply box.                          |
+| Contact form `/help/support`     | `resale-bot-web`           | User-facing, login-gated: the "send us a message" new-ticket form. Reachable from the public `/help` hub. |
+| Ticket history `/account/tickets`| `resale-bot-web`           | User-facing: the user's own tickets + threads + reply box (track-only; no new-ticket form). |
 | Admin console `/admin/support`   | `resale-bot-web`           | Staff management surface (ticket table, detail/thread, reply/close/reopen/delete). Lives in the dedicated `/admin` console, NOT under `/account`. See `docs/ADMIN.md`. |
 | Extension Support tab            | `muiltiplatform-seller-bot`| New-ticket form (with diagnostics) + read-only "my tickets" list + a deep-link to the web hub |
 | `support_tickets` table          | shared Supabase            | One row per ticket. Columns: type, message, platform, status, diagnostics (app_version, tier_id, source, user_agent, locale), `notification_message_id` |
@@ -18,7 +19,7 @@ End-to-end picture of how a user files a support ticket (from the website or the
 
 ## Who does what
 
-- **Users** file and reply from either the website (`/account/support`) or the extension Support tab. The extension is read-only for existing threads and deep-links to the website to reply.
+- **Users** file from the login-gated contact form at `/help/support` (reached from the public `/help` hub), and track + reply to their tickets at `/account/tickets`. They can also file from the extension Support tab, which is read-only for existing threads and deep-links to the website to reply.
 - **Staff** triage in two places: the `support@salelinx.com` Gmail inbox (notifications land there) and the admin console at `/admin/support` (the dedicated, internal `/admin` area, gated to `admin_users` members), where they reply, close/reopen, and delete tickets. Every admin action records an `admin_audit_log` entry; deletes require step-up re-auth. See `docs/ADMIN.md`.
 - The website is the canonical management surface; the extension's old admin panel was removed from the shipped bundle.
 
@@ -43,8 +44,8 @@ Edge Function (new ticket):
   4. Persist Message-ID to support_tickets.notification_message_id
   5. Send AUTO-ACK to author  -> To: author, Reply-To: support@  (best-effort)
   ▼
-Staff see the ticket in Gmail AND in the /account/support admin panel.
-The user gets an auto-ack and can track the ticket at /account/support.
+Staff see the ticket in Gmail AND in the /admin/support console.
+The user gets an auto-ack and can track the ticket at /account/tickets.
 
 Staff reply (admin panel inserts a reply row with is_admin = true)
   ▼
@@ -96,7 +97,9 @@ We use RFC 5322 `Message-ID` / `In-Reply-To` / `References` headers, not subject
 | Diagnostics + source columns                 | `support_tickets` (migration `026_support_ticket_metadata.sql`) |
 | Threading column                             | `support_tickets.notification_message_id` (migration `025`)     |
 | Tickets + replies schema + admin RLS         | migrations `009_support_tickets.sql` + `012_admin_and_ticket_replies.sql` |
-| Web hub (user form + thread)                 | `app/[locale]/account/support/page.tsx` + `components/support/SupportClient.tsx` |
+| User contact form (create)                   | `app/[locale]/help/support/page.tsx` + `components/support/NewTicketForm.tsx` |
+| User ticket history (track)                  | `app/[locale]/account/tickets/page.tsx` + `components/support/TicketList.tsx` |
+| Public help hub + FAQ                         | `app/[locale]/help/page.tsx` + `app/[locale]/help/faq/page.tsx` (`/faq` redirects to `/help/faq`) |
 | Admin console support module                 | `app/admin/support/page.tsx` + `components/admin/support/*`     |
 | Admin detection helper                       | `lib/supabase/admin.ts` (`isAdmin`)                             |
 | Admin audit + identity RPCs                  | migration `027_admin_console_foundation.sql` (`log_admin_action`, `admin_user_emails`, `admin_audit_log`) |

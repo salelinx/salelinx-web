@@ -1,5 +1,10 @@
 "use client";
 
+// The user's ticket history: their tickets + per-ticket thread and in-thread
+// reply box. Extracted from the former SupportClient so it can stand alone on
+// /account/tickets (the track surface), with ticket creation moved to the
+// /help/support contact form. List/reply logic + RLS are unchanged.
+
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
@@ -15,26 +20,12 @@ type Props = {
   initialReplies: SupportReply[];
 };
 
-const TICKET_TYPES: TicketType[] = ["bug", "feature", "feedback"];
-
-export function SupportClient({
-  userId,
-  initialTickets,
-  initialReplies,
-}: Props) {
+export function TicketList({ userId, initialTickets, initialReplies }: Props) {
   const t = useTranslations("Support");
-  const locale = useLocale();
   const supabase = createBrowserClient();
 
   const [tickets, setTickets] = useState<SupportTicket[]>(initialTickets);
   const [replies, setReplies] = useState<SupportReply[]>(initialReplies);
-
-  const [type, setType] = useState<TicketType>("bug");
-  const [message, setMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [formStatus, setFormStatus] = useState<"idle" | "success" | "error">(
-    "idle",
-  );
 
   async function refreshMine() {
     const { data: ts } = await supabase
@@ -58,127 +49,28 @@ export function SupportClient({
     setReplies((rs as SupportReply[] | null) ?? []);
   }
 
-  async function submitTicket() {
-    const text = message.trim();
-    if (!text) return;
-
-    setSubmitting(true);
-    setFormStatus("idle");
-
-    const { error } = await supabase.from("support_tickets").insert({
-      user_id: userId,
-      type,
-      message: text,
-      platform: null,
-      source: "web",
-      locale,
-      user_agent:
-        typeof navigator !== "undefined" ? navigator.userAgent : null,
-    });
-
-    setSubmitting(false);
-
-    if (error) {
-      setFormStatus("error");
-      return;
-    }
-
-    setFormStatus("success");
-    setMessage("");
-    setType("bug");
-    await refreshMine();
-  }
-
   return (
-    <>
-      <section className="mt-10 rounded-2xl border border-black/10 p-6 dark:border-white/10">
-        <h2 className="text-xl font-semibold">{t("newTicketTitle")}</h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          {t("newTicketBody")}
+    <section className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10">
+      <h2 className="text-xl font-semibold">{t("myTicketsTitle")}</h2>
+
+      {tickets.length === 0 ? (
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          {t("noTickets")}
         </p>
-
-        <div className="mt-5 space-y-4">
-          <div>
-            <label className="block text-sm font-medium" htmlFor="ticket-type">
-              {t("typeLabel")}
-            </label>
-            <select
-              id="ticket-type"
-              value={type}
-              onChange={(e) => setType(e.target.value as TicketType)}
-              className="mt-1.5 w-full max-w-xs rounded-lg border border-black/10 px-3 py-2.5 text-sm dark:border-white/20 dark:bg-transparent"
-            >
-              {TICKET_TYPES.map((tt) => (
-                <option key={tt} value={tt}>
-                  {t(`type_${tt}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              className="block text-sm font-medium"
-              htmlFor="ticket-message"
-            >
-              {t("messageLabel")}
-            </label>
-            <textarea
-              id="ticket-message"
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                if (formStatus !== "idle") setFormStatus("idle");
-              }}
-              rows={5}
-              placeholder={t("messagePlaceholder")}
-              className="mt-1.5 w-full rounded-lg border border-black/10 px-3 py-2.5 text-sm dark:border-white/20 dark:bg-transparent"
+      ) : (
+        <ul className="mt-4 space-y-4">
+          {tickets.map((ticket) => (
+            <UserTicketCard
+              key={ticket.id}
+              ticket={ticket}
+              replies={replies.filter((r) => r.ticket_id === ticket.id)}
+              userId={userId}
+              onReplied={refreshMine}
             />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={submitTicket}
-              disabled={submitting || !message.trim()}
-              className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-black"
-            >
-              {submitting ? t("submitting") : t("submit")}
-            </button>
-            {formStatus === "success" && (
-              <span className="text-sm text-emerald-600 dark:text-emerald-400">
-                {t("submitSuccess")}
-              </span>
-            )}
-            {formStatus === "error" && (
-              <span className="text-sm text-red-600">{t("submitError")}</span>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10">
-        <h2 className="text-xl font-semibold">{t("myTicketsTitle")}</h2>
-
-        {tickets.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            {t("noTickets")}
-          </p>
-        ) : (
-          <ul className="mt-4 space-y-4">
-            {tickets.map((ticket) => (
-              <UserTicketCard
-                key={ticket.id}
-                ticket={ticket}
-                replies={replies.filter((r) => r.ticket_id === ticket.id)}
-                userId={userId}
-                onReplied={refreshMine}
-              />
-            ))}
-          </ul>
-        )}
-      </section>
-    </>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

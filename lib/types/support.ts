@@ -1,6 +1,7 @@
-// Support ticket shapes shared by the /account/support page and its client
-// components. Mirrors the support_tickets / support_ticket_replies tables in
-// the shared Supabase project (migrations 009 + 012 + 025 + 026).
+// Support ticket shapes shared by the support UI (the /help/support contact
+// form, the /account/tickets history, and the /admin support module). Mirrors
+// the support_tickets / support_ticket_replies tables in the shared Supabase
+// project (migrations 009 + 012 + 025 + 026).
 
 export type TicketType = "bug" | "feature" | "feedback";
 export type TicketStatus = "open" | "closed";

@@ -23,6 +23,7 @@
     "linkFeatures": "Fonctionnalités",
     "linkPricing": "Tarifs",
     "linkRoadmap": "Feuille de route",
+    "linkHelp": "Aide",
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
@@ -195,7 +196,10 @@
       "past_due": "Paiement échoué",
       "canceled": "Annulé",
       "incomplete": "Incomplet"
-    }
+    },
+    "supportTitle": "Assistance",
+    "supportBody": "Suivez vos tickets d'assistance et nos reponses.",
+    "supportCta": "Vos tickets"
   },
   "VerifyEmailBanner": {
     "title": "Vérifiez votre adresse e-mail",
@@ -252,6 +256,10 @@
     "replyPlaceholder": "Ajouter une réponse...",
     "replySend": "Envoyer la réponse",
     "replyError": "Échec de l'envoi de votre réponse. Veuillez réessayer.",
+    "trackTicketsCta": "Suivez vos tickets",
+    "ticketsTitle": "Vos tickets",
+    "ticketsSubtitle": "Suivez les demandes que vous avez envoyees et repondez a nos reponses.",
+    "contactSupportCta": "Contacter l'assistance",
     "adminTitle": "Tous les tickets (admin)",
     "adminFilter_open": "Ouverts",
     "adminFilter_closed": "Fermés",
@@ -268,6 +276,23 @@
     "adminDelete": "Supprimer",
     "adminDeleteConfirm": "Supprimer ce ticket et toutes ses réponses ? Cette action est irréversible.",
     "adminActionError": "L'action a échoué. Veuillez réessayer."
+  },
+  "Help": {
+    "metaTitle": "Aide",
+    "metaDescription": "Trouvez des reponses, parcourez la documentation ou contactez l'equipe SaleLinx.",
+    "eyebrow": "Centre d'aide",
+    "title": "Comment pouvons-nous vous aider ?",
+    "body": "Cherchez dans la FAQ, lisez la documentation ou envoyez-nous un message. Nous repondrons par e-mail et dans votre compte.",
+    "faqCardTitle": "FAQ",
+    "faqCardBody": "Reponses rapides aux questions courantes sur la configuration, la facturation et le depannage.",
+    "docsCardTitle": "Documentation",
+    "docsCardBody": "Guides etape par etape pour chaque fonctionnalite de SaleLinx.",
+    "statusCardTitle": "Statut des plateformes",
+    "statusCardBody": "Verifiez quelles marketplaces sont actuellement prises en charge et fonctionnelles.",
+    "supportMetaTitle": "Contacter l'assistance",
+    "supportMetaDescription": "Envoyez un message a l'equipe SaleLinx.",
+    "supportTitle": "Contacter l'assistance",
+    "supportBody": "Envoyez-nous un message et nous repondrons par e-mail et dans votre compte."
   },
   "Subscribe": {
     "loading": "Chargement...",

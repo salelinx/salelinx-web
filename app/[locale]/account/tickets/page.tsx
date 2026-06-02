@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
-import { SupportClient } from "@/components/support/SupportClient";
+import { TicketList } from "@/components/support/TicketList";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -21,7 +21,9 @@ async function fetchReplies(
   return (data as SupportReply[] | null) ?? [];
 }
 
-export default async function AccountSupportPage({ params }: Props) {
+// Track-only: the user's tickets + threads. Creating a ticket lives on the
+// /help/support contact form. Staff manage every ticket on the /admin route.
+export default async function AccountTicketsPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Support" });
 
@@ -34,8 +36,7 @@ export default async function AccountSupportPage({ params }: Props) {
     return null;
   }
 
-  // The user's own tickets. RLS scopes the SELECT to their own rows. Staff
-  // manage every ticket on the separate /admin route.
+  // RLS scopes the SELECT to the user's own rows.
   const { data: myTicketsData } = await supabase
     .from("support_tickets")
     .select("*")
@@ -49,14 +50,24 @@ export default async function AccountSupportPage({ params }: Props) {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-16">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          {t("subtitle")}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {t("ticketsTitle")}
+          </h1>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            {t("ticketsSubtitle")}
+          </p>
+        </div>
+        <Link
+          href="/help/support"
+          className="shrink-0 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
+        >
+          {t("contactSupportCta")}
+        </Link>
       </div>
 
-      <SupportClient
+      <TicketList
         userId={user.id}
         initialTickets={myTickets}
         initialReplies={myReplies}

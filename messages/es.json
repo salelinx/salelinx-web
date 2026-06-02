@@ -23,6 +23,7 @@
     "linkFeatures": "Funciones",
     "linkPricing": "Precios",
     "linkRoadmap": "Hoja de ruta",
+    "linkHelp": "Ayuda",
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
@@ -195,7 +196,10 @@
       "past_due": "Pago fallido",
       "canceled": "Cancelado",
       "incomplete": "Incompleto"
-    }
+    },
+    "supportTitle": "Soporte",
+    "supportBody": "Sigue tus tickets de soporte y nuestras respuestas.",
+    "supportCta": "Tus tickets"
   },
   "VerifyEmailBanner": {
     "title": "Verifica tu correo",
@@ -252,6 +256,10 @@
     "replyPlaceholder": "Añade una respuesta...",
     "replySend": "Enviar respuesta",
     "replyError": "No se pudo enviar tu respuesta. Inténtalo de nuevo.",
+    "trackTicketsCta": "Sigue tus tickets",
+    "ticketsTitle": "Tus tickets",
+    "ticketsSubtitle": "Sigue las solicitudes que has enviado y responde a nuestras respuestas.",
+    "contactSupportCta": "Contactar con soporte",
     "adminTitle": "Todos los tickets (admin)",
     "adminFilter_open": "Abiertos",
     "adminFilter_closed": "Cerrados",
@@ -268,6 +276,23 @@
     "adminDelete": "Eliminar",
     "adminDeleteConfirm": "¿Eliminar este ticket y todas sus respuestas? No se puede deshacer.",
     "adminActionError": "La acción falló. Inténtalo de nuevo."
+  },
+  "Help": {
+    "metaTitle": "Ayuda",
+    "metaDescription": "Encuentra respuestas, consulta la documentacion o contacta con el equipo de SaleLinx.",
+    "eyebrow": "Centro de ayuda",
+    "title": "Como podemos ayudarte?",
+    "body": "Busca en las preguntas frecuentes, lee la documentacion o envianos un mensaje. Responderemos por correo electronico y en tu cuenta.",
+    "faqCardTitle": "Preguntas frecuentes",
+    "faqCardBody": "Respuestas rapidas a preguntas habituales sobre configuracion, facturacion y resolucion de problemas.",
+    "docsCardTitle": "Documentacion",
+    "docsCardBody": "Guias paso a paso para cada funcion de SaleLinx.",
+    "statusCardTitle": "Estado de plataformas",
+    "statusCardBody": "Comprueba que marketplaces son compatibles y funcionan actualmente.",
+    "supportMetaTitle": "Contactar con soporte",
+    "supportMetaDescription": "Envia un mensaje al equipo de SaleLinx.",
+    "supportTitle": "Contactar con soporte",
+    "supportBody": "Envianos un mensaje y responderemos por correo electronico y en tu cuenta."
   },
   "Subscribe": {
     "loading": "Cargando...",

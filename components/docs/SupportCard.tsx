@@ -20,7 +20,7 @@ export async function SupportCard() {
         </div>
       </div>
       <Link
-        href="/account/support"
+        href="/help/support"
         className="shrink-0 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
       >
         {t('cta')}

@@ -5,9 +5,10 @@ import { createServerClient } from "./server";
 // INSERT/UPDATE/DELETE RLS policies on it). The "admin_users self read" policy
 // lets a signed-in user read their own row, which is all this check needs.
 //
-// This is the WEB equivalent of the extension's isCurrentUserAdmin(). It only
-// controls what the /account/support UI renders; every admin WRITE is gated
-// independently by RLS via public.is_admin(), so the UI check is cosmetic.
+// This is the WEB equivalent of the extension's isCurrentUserAdmin(). It gates
+// access to the /admin console (middleware + layout), but every admin WRITE is
+// also gated independently by RLS via public.is_admin(), so the app-level check
+// is defense in depth, not the security boundary.
 export async function isAdmin(userId: string): Promise<boolean> {
   const supabase = await createServerClient();
   const { data } = await supabase

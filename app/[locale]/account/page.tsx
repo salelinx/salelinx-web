@@ -194,6 +194,21 @@ export default async function AccountPage({ params, searchParams }: Props) {
       </section>
 
       {user.email && <AccountSecurityCard email={user.email} />}
+
+      <section className="mt-6 flex flex-col items-start gap-4 rounded-2xl border border-black/10 p-6 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+        <div>
+          <h2 className="text-xl font-semibold">{t("supportTitle")}</h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            {t("supportBody")}
+          </p>
+        </div>
+        <Link
+          href="/account/tickets"
+          className="shrink-0 rounded-full border border-black/10 px-5 py-2.5 text-sm font-medium hover:bg-black/[0.04] dark:border-white/20 dark:hover:bg-white/[0.06]"
+        >
+          {t("supportCta")}
+        </Link>
+      </section>
     </main>
   );
 }

@@ -23,6 +23,7 @@
     "linkFeatures": "Features",
     "linkPricing": "Pricing",
     "linkRoadmap": "Roadmap",
+    "linkHelp": "Help",
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
@@ -195,7 +196,10 @@
       "past_due": "Payment failed",
       "canceled": "Canceled",
       "incomplete": "Incomplete"
-    }
+    },
+    "supportTitle": "Support",
+    "supportBody": "Track your support tickets and our replies.",
+    "supportCta": "Your tickets"
   },
   "VerifyEmailBanner": {
     "title": "Verify your email",
@@ -252,6 +256,10 @@
     "replyPlaceholder": "Add a reply...",
     "replySend": "Send reply",
     "replyError": "Could not send your reply. Please try again.",
+    "trackTicketsCta": "Track your tickets",
+    "ticketsTitle": "Your tickets",
+    "ticketsSubtitle": "Track the requests you've sent and reply to our responses.",
+    "contactSupportCta": "Contact support",
     "adminTitle": "All tickets (admin)",
     "adminFilter_open": "Open",
     "adminFilter_closed": "Closed",
@@ -268,6 +276,23 @@
     "adminDelete": "Delete",
     "adminDeleteConfirm": "Delete this ticket and all its replies? This cannot be undone.",
     "adminActionError": "Action failed. Please try again."
+  },
+  "Help": {
+    "metaTitle": "Help",
+    "metaDescription": "Find answers, browse the docs, or contact the SaleLinx team.",
+    "eyebrow": "Help center",
+    "title": "How can we help?",
+    "body": "Search the FAQ, read the docs, or send us a message. We'll reply by email and in your account.",
+    "faqCardTitle": "FAQ",
+    "faqCardBody": "Quick answers to common questions about setup, billing, and troubleshooting.",
+    "docsCardTitle": "Docs",
+    "docsCardBody": "Step-by-step guides and walkthroughs for every SaleLinx feature.",
+    "statusCardTitle": "Marketplace status",
+    "statusCardBody": "Check which marketplaces are currently supported and working.",
+    "supportMetaTitle": "Contact support",
+    "supportMetaDescription": "Send the SaleLinx team a message.",
+    "supportTitle": "Contact support",
+    "supportBody": "Send us a message and we'll reply by email and in your account."
   },
   "Subscribe": {
     "loading": "Loading...",

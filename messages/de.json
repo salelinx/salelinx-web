@@ -23,6 +23,7 @@
     "linkFeatures": "Funktionen",
     "linkPricing": "Preise",
     "linkRoadmap": "Roadmap",
+    "linkHelp": "Hilfe",
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
@@ -195,7 +196,10 @@
       "past_due": "Zahlung fehlgeschlagen",
       "canceled": "Gekündigt",
       "incomplete": "Unvollständig"
-    }
+    },
+    "supportTitle": "Support",
+    "supportBody": "Verfolge deine Support-Tickets und unsere Antworten.",
+    "supportCta": "Deine Tickets"
   },
   "VerifyEmailBanner": {
     "title": "E-Mail-Adresse bestätigen",
@@ -252,6 +256,10 @@
     "replyPlaceholder": "Antwort hinzufügen...",
     "replySend": "Antwort senden",
     "replyError": "Deine Antwort konnte nicht gesendet werden. Bitte versuche es erneut.",
+    "trackTicketsCta": "Tickets verfolgen",
+    "ticketsTitle": "Deine Tickets",
+    "ticketsSubtitle": "Verfolge deine gesendeten Anfragen und antworte auf unsere Antworten.",
+    "contactSupportCta": "Support kontaktieren",
     "adminTitle": "Alle Tickets (Admin)",
     "adminFilter_open": "Offen",
     "adminFilter_closed": "Geschlossen",
@@ -268,6 +276,23 @@
     "adminDelete": "Löschen",
     "adminDeleteConfirm": "Dieses Ticket und alle Antworten löschen? Das kann nicht rückgängig gemacht werden.",
     "adminActionError": "Aktion fehlgeschlagen. Bitte versuche es erneut."
+  },
+  "Help": {
+    "metaTitle": "Hilfe",
+    "metaDescription": "Finde Antworten, durchsuche die Dokumentation oder kontaktiere das SaleLinx-Team.",
+    "eyebrow": "Hilfecenter",
+    "title": "Wie können wir helfen?",
+    "body": "Durchsuche die FAQ, lies die Dokumentation oder sende uns eine Nachricht. Wir antworten per E-Mail und in deinem Konto.",
+    "faqCardTitle": "FAQ",
+    "faqCardBody": "Schnelle Antworten auf häufige Fragen zu Einrichtung, Abrechnung und Fehlerbehebung.",
+    "docsCardTitle": "Dokumentation",
+    "docsCardBody": "Schritt-für-Schritt-Anleitungen für jede SaleLinx-Funktion.",
+    "statusCardTitle": "Marktplatz-Status",
+    "statusCardBody": "Prüfe, welche Marktplätze derzeit unterstützt werden und funktionieren.",
+    "supportMetaTitle": "Support kontaktieren",
+    "supportMetaDescription": "Sende dem SaleLinx-Team eine Nachricht.",
+    "supportTitle": "Support kontaktieren",
+    "supportBody": "Sende uns eine Nachricht und wir antworten per E-Mail und in deinem Konto."
   },
   "Subscribe": {
     "loading": "Wird geladen...",
