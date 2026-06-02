@@ -51,7 +51,7 @@ export async function Header() {
 
         <nav className="hidden flex-1 items-center justify-end gap-4 text-sm text-zinc-600 sm:flex dark:text-zinc-400">
           <Link
-            href="/faq"
+            href="/help/faq"
             className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
           >
             {t('navFaq')}
@@ -61,6 +61,12 @@ export async function Header() {
             className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
           >
             {t('navDocs')}
+          </Link>
+          <Link
+            href="/help"
+            className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
+          >
+            {t('support')}
           </Link>
 
           {user ? (
@@ -112,6 +118,7 @@ export async function Header() {
             navFaq: t('navFaq'),
             navDocs: t('navDocs'),
             account: t('account'),
+            support: t('support'),
             signOut: t('signOut'),
             signIn: t('signIn'),
             getStarted: t('getStarted'),

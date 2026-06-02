@@ -8,13 +8,18 @@ type CookieEntry = { name: string; value: string; options?: CookieOptions };
 const intlMiddleware = createIntlMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
-  // Skip locale handling for auth route handlers that live outside [locale].
   const pathname = request.nextUrl.pathname;
-  const isRouteHandler =
-    pathname.startsWith("/auth/callback") ||
-    pathname.startsWith("/auth/signout");
 
-  let response = isRouteHandler
+  // Paths that must NOT be locale-prefixed by intlMiddleware but STILL need the
+  // Supabase cookie refresh below: auth route handlers (outside [locale]) and
+  // the top-level, non-localized /admin console tree.
+  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
+  const skipIntl =
+    pathname.startsWith("/auth/callback") ||
+    pathname.startsWith("/auth/signout") ||
+    isAdminPath;
+
+  let response = skipIntl
     ? NextResponse.next({ request })
     : intlMiddleware(request);
 
@@ -28,7 +33,7 @@ export async function proxy(request: NextRequest) {
           entries.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          const next = isRouteHandler
+          const next = skipIntl
             ? NextResponse.next({ request })
             : intlMiddleware(request);
           // Preserve headers/cookies/status set by the previous response.
@@ -43,7 +48,33 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Layer 1 of the admin gate (see docs/ADMIN.md): block non-admins before any
+  // admin route code runs. Fail-closed - any error denies. RLS is still the
+  // real boundary; this is defense in depth + a clean redirect for humans.
+  //
+  // TODO(admin-mfa): also require an AAL2 session here once MFA enrolment ships.
+  if (isAdminPath) {
+    try {
+      if (!user) {
+        return NextResponse.redirect(new URL("/auth/login", request.url));
+      }
+      const { data: adminRow } = await supabase
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!adminRow) {
+        return NextResponse.redirect(new URL("/account", request.url));
+      }
+    } catch {
+      return NextResponse.redirect(new URL("/account", request.url));
+    }
+  }
+
   return response;
 }
 

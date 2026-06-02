@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Admin console styles. Deliberately forked from app/globals.css: the admin
+   area is an internal tool, not the marketing site, so it does NOT inherit the
+   marketing dot-grid background, emerald corner-glow, or the hero/landing
+   animation keyframes. This is a flat, dense, light "console" surface.
+
+   Tailwind 4 scans all source files for utility classes regardless of which
+   CSS file imports it, so every utility is still available here. */
+
+:root {
+  /* Light console palette: neutral, high-contrast, no brand glow. */
+  --admin-bg: #f7f7f8; /* app canvas */
+  --admin-surface: #ffffff; /* cards, table, sidebar */
+  --admin-border: #e4e4e7; /* zinc-200 hairlines */
+  --admin-foreground: #18181b; /* zinc-900 */
+  --admin-muted: #71717a; /* zinc-500 */
+}
+
+@theme inline {
+  --color-background: var(--admin-bg);
+  --color-foreground: var(--admin-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background-color: var(--admin-bg);
+  color: var(--admin-foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}

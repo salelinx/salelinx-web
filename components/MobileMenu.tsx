@@ -12,6 +12,7 @@ interface Labels {
   navFaq: string;
   navDocs: string;
   account: string;
+  support: string;
   signOut: string;
   signIn: string;
   getStarted: string;
@@ -112,11 +113,14 @@ export function MobileMenu({ isAuthed, labels }: Props) {
               <Link href="/features#roadmap" className={linkClass}>
                 {labels.navRoadmap}
               </Link>
-              <Link href="/faq" className={linkClass}>
+              <Link href="/help/faq" className={linkClass}>
                 {labels.navFaq}
               </Link>
               <Link href="/docs" className={linkClass}>
                 {labels.navDocs}
+              </Link>
+              <Link href="/help" className={linkClass}>
+                {labels.support}
               </Link>
 
               <div className="mt-2 border-t border-black/[0.06] pt-3 dark:border-white/10">
