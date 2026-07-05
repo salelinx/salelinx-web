@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Deno Edge Functions: they run on Supabase under Deno (https:// / jsr:
+    // imports, Deno.* globals, @ts-nocheck for the Deno TS config), not Node,
+    // and are already excluded from tsc. The Next/Node ESLint ruleset does not
+    // apply to them. Use the Deno VSCode extension for inline checking there.
+    "supabase/functions/**",
   ]),
 ]);
 

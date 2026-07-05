@@ -18,20 +18,27 @@ export function AdminSidebar({ adminEmail }: Props) {
 
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)]">
-      <div className="flex h-12 items-center gap-2 border-b border-[var(--admin-border)] px-4">
-        <span className="flex h-5 w-5 items-center justify-center rounded bg-zinc-900 text-[10px] font-bold text-white">
-          S
-        </span>
-        <span className="text-sm font-semibold tracking-tight">
-          SaleLinx Admin
-        </span>
+      <div className="flex h-12 items-center border-b border-[var(--admin-border)] px-4">
+        {/* Logo + title link back to the dashboard home (/admin). */}
+        <Link
+          href="/admin"
+          className="flex items-center gap-2 rounded-md hover:opacity-80"
+        >
+          <span className="flex h-5 w-5 items-center justify-center rounded bg-zinc-900 text-[10px] font-bold text-white">
+            S
+          </span>
+          <span className="text-sm font-semibold tracking-tight">
+            SaleLinx Admin
+          </span>
+        </Link>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-2">
         <ul className="space-y-0.5">
           {ADMIN_MODULES.map((mod) => {
-            const active =
-              pathname === mod.href || pathname.startsWith(mod.href + "/");
+            const active = mod.exact
+              ? pathname === mod.href
+              : pathname === mod.href || pathname.startsWith(mod.href + "/");
 
             if (!mod.enabled) {
               return (

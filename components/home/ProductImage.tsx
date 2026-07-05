@@ -109,6 +109,7 @@ export function ProductImage({ type, hue, src, className = '' }: ProductImagePro
       <div
         className={`relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${className}`}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary external product photo (no-referrer, lazy); next/image would need per-domain config */}
         <img
           src={src}
           alt=""

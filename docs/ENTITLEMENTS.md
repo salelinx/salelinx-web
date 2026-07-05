@@ -25,7 +25,7 @@ PK (tier_id, version)
 - Limit value `null` = unlimited
 - Limit missing entirely = not applicable for this tier
 
-RLS: public read, service-role-only write.
+RLS: public read, no client write policies. Writes happen via the service role (Supabase dashboard) or the `is_admin()`-gated `admin_set_tier_limit` / `admin_set_tier_feature` RPCs behind the admin console (migration `030`, see `docs/ADMIN.md`).
 
 ### `usage_counters`
 
@@ -106,6 +106,8 @@ See migration `011_billing.sql` in the extension repo (creates `subscriptions`, 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 
 ## Changing caps without a deploy
+
+Admins can edit existing caps and toggle existing feature flags from the admin console (`/admin/tiers` and `/admin/flags`, audit-logged). Introducing a brand-new key is still a SQL-editor operation:
 
 ```sql
 UPDATE tier_limits

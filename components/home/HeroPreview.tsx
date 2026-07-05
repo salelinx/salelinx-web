@@ -102,6 +102,7 @@ function PlatformBadge({
 }) {
   const src = platform === 'depop' ? '/depop-logo.png' : '/vinted-logo.png';
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size platform logo; next/image adds no value here
     <img
       src={src}
       alt={platform === 'depop' ? 'Depop' : 'Vinted'}
@@ -1212,6 +1213,7 @@ function LabelsPanel() {
               className={`flex flex-shrink-0 items-center gap-1.5 rounded-full py-[2px] pl-[2px] pr-2 font-mono text-[10px] font-semibold tracking-[0.04em] ${CARRIER[o.carrier].chipClass}`}
             >
               <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.06)] dark:bg-white">
+                {/* eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size carrier icon; next/image adds no value here */}
                 <img
                   src={CARRIER[o.carrier].iconSrc}
                   alt=""
@@ -2172,6 +2174,7 @@ export function HeroPreview() {
         <div className="relative overflow-hidden rounded-[15px] bg-white/95 backdrop-blur-xl dark:bg-zinc-950/95">
           <div className="flex items-center justify-between border-b border-black/[0.06] px-4 py-3 dark:border-white/10">
             <div className="flex items-center gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element -- small fixed-size logo with dark:invert; next/image adds no value here */}
               <img
                 src="/salelinx-logo.png"
                 alt=""
