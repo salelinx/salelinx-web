@@ -1,3 +1,7 @@
+/* eslint-disable react/no-unescaped-entities --
+   French FAQ prose: literal apostrophes (l', d', n', qu'...) are pervasive and
+   correct in the JSX text below. Escaping each one would hurt readability of
+   this content file with no user-facing benefit. */
 import { Link } from '@/i18n/navigation';
 import type { FAQGroup } from './types';
 

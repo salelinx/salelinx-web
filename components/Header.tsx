@@ -16,6 +16,7 @@ export async function Header() {
       <div className="flex w-full items-end gap-3 px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex flex-1 items-center sm:flex-1">
           <Link href="/" className="inline-flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element -- small fixed-size logo with dark:invert; next/image adds no value here */}
             <img
               src="/salelinx-logo.png"
               alt=""

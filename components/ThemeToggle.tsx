@@ -1,9 +1,23 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
 
 type Theme = 'light' | 'dark';
+
+// Whether we have hydrated on the client. Implemented with
+// useSyncExternalStore (server snapshot false, client snapshot true) instead of
+// a mount-effect setState, so it reads as a client-only value without
+// triggering a cascading render. Used to gate the icon, which can differ from
+// the server-rendered one.
+const noopSubscribe = () => () => {};
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+}
 
 // View Transitions API isn't in the default TS DOM lib yet.
 interface ViewTransition {
@@ -27,18 +41,20 @@ function hasThemeCookie(): boolean {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('light');
-  const [mounted, setMounted] = useState(false);
+  // Lazily read the real theme from the DOM on first client render (SSR returns
+  // 'light' from the typeof-document guard). Doing this in the useState
+  // initializer instead of a mount effect avoids a synchronous setState in an
+  // effect body, which the React lint rule flags as a cascading render.
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const mounted = useHydrated();
   const transitioning = useRef(false);
   const t = useTranslations('ThemeToggle');
 
   useEffect(() => {
-    const current = getInitialTheme();
-    setTheme(current);
-    setMounted(true);
     // Persist system-preferred theme on first visit so the server can render
-    // the right class on subsequent loads and soft navigations (e.g. locale change).
-    if (!hasThemeCookie()) writeThemeCookie(current);
+    // the right class on subsequent loads and soft navigations (e.g. locale
+    // change). No setState here - just an external write.
+    if (!hasThemeCookie()) writeThemeCookie(getInitialTheme());
   }, []);
 
   function toggle() {

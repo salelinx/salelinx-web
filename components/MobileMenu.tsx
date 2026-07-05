@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -28,9 +28,17 @@ interface Props {
 export function MobileMenu({ isAuthed, labels }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // Close the menu on navigation. We track the pathname the menu was last
+  // synced to and close in an event-driven way rather than calling setState
+  // synchronously in an effect body (which the React lint rule flags as a
+  // potential cascading render).
+  const lastPathRef = useRef(pathname);
 
   useEffect(() => {
-    setOpen(false);
+    if (lastPathRef.current !== pathname) {
+      lastPathRef.current = pathname;
+      setOpen(false);
+    }
   }, [pathname]);
 
   useEffect(() => {
