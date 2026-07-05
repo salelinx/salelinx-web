@@ -36,8 +36,9 @@ export async function proxy(request: NextRequest) {
           const next = skipIntl
             ? NextResponse.next({ request })
             : intlMiddleware(request);
-          // Preserve headers/cookies/status set by the previous response.
-          response.headers.forEach((v, k) => next.headers.append(k, v));
+          // Carry over ONLY cookies from the previous response. Copying all
+          // headers would duplicate intlMiddleware's x-middleware-rewrite /
+          // Location headers, which corrupts the rewrite target and 404s "/".
           response.cookies.getAll().forEach((c) => next.cookies.set(c));
           response = next;
           entries.forEach(({ name, value, options }) =>
