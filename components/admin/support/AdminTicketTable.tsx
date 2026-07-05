@@ -11,6 +11,7 @@
 import { useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
+import { ticketNeedsReply } from "@/lib/admin/needs-reply";
 import { AdminTicketDetail } from "./AdminTicketDetail";
 
 type Props = {
@@ -34,20 +35,6 @@ const TYPE_LABEL: Record<string, string> = {
 
 function typeLabel(type: string): string {
   return TYPE_LABEL[type] ?? type;
-}
-
-// A ticket "needs a reply" from staff when its most recent activity came from
-// the user: either it has no replies yet (a fresh ticket nobody answered), or
-// the latest reply on it is the user's (is_admin === false). Closed tickets are
-// never flagged. Replies passed in are already sorted oldest-first.
-function ticketNeedsReply(
-  ticket: SupportTicket,
-  ticketReplies: SupportReply[],
-): boolean {
-  if (ticket.status === "closed") return false;
-  if (ticketReplies.length === 0) return true;
-  const last = ticketReplies[ticketReplies.length - 1];
-  return !last.is_admin;
 }
 
 function formatRelative(iso: string): string {

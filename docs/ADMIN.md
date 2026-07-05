@@ -1,6 +1,22 @@
 # Admin console
 
-The internal staff console at `/admin`. It is a dedicated, English-only tool, deliberately kept distinct from the marketing site (its own shell, no Header/Footer, light "console" theme). It is unlinked from the public site - reachable only by typing the URL - and gated to `admin_users` members. Support tickets are the first module; the console is built to grow.
+The internal staff console at `/admin`. It is a dedicated, English-only tool, deliberately kept distinct from the marketing site (its own shell, no Header/Footer, light "console" theme). It is unlinked from the public site - reachable only by typing the URL - and gated to `admin_users` members. Support tickets were the first module; the console is built to grow.
+
+## Modules
+
+| Module | Route | Status | Notes |
+| --- | --- | --- | --- |
+| Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
+| Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
+| Users | `/admin/users` | Live, read-only | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). |
+| Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
+| Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
+| Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
+| Usage | `/admin/usage` | Live, read-only | Cross-user consumption for the current period, sorted by percent-of-cap. |
+| Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
+| Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migrations 020-022). |
+
+Users / Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support and the two tier edit modules (Tier limits / Feature flags) mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier RPCs log server-side inside the function). Tier edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete).
 
 ## Routing & layout
 
@@ -18,12 +34,27 @@ Consequences:
 | Console styles (forked from globals.css) | `app/admin/admin.css` |
 | Sidebar (registry-driven nav) | `components/admin/AdminSidebar.tsx` |
 | Module registry | `lib/admin/modules.ts` |
-| `/admin` index redirect | `app/admin/page.tsx` -> `/admin/support` |
+| `/admin` home dashboard | `app/admin/page.tsx` + `components/admin/AdminDashboard.tsx` |
 | Support module | `app/admin/support/page.tsx` + `components/admin/support/*` |
+| Users module | `app/admin/users/page.tsx` + `components/admin/users/*` |
+| Subscriptions module | `app/admin/subscriptions/page.tsx` + `components/admin/subscriptions/*` |
+| Tier limits module | `app/admin/tiers/page.tsx` + `components/admin/tiers/*` |
+| Feature flags module | `app/admin/flags/page.tsx` + `components/admin/flags/*` |
+| Usage module | `app/admin/usage/page.tsx` + `components/admin/usage/*` |
+| Audit log module | `app/admin/audit/page.tsx` + `components/admin/audit/*` |
+| Storage module | `app/admin/storage/page.tsx` + `components/admin/storage/*` |
+| Shared needs-reply predicate | `lib/admin/needs-reply.ts` (support table + dashboard) |
+| Usage period keys / cap mapping | `lib/admin/period.ts`, `lib/admin/usage-caps.ts` |
+| Byte formatting (Storage module) | `lib/admin/format-bytes.ts` |
+| Tier grid helpers (ordering, key union) | `lib/admin/tiers.ts` |
+| Admin module data shapes | `lib/types/admin.ts` |
 | Layer-1 edge gate + locale bypass | `proxy.ts` |
 | Admin detection helper | `lib/supabase/admin.ts` (`isAdmin`) |
 | Step-up re-auth helper | `lib/admin/reauth.ts` (`requireReauth`) |
 | Audit + identity RPCs, audit table | migration `027_admin_console_foundation.sql` |
+| Read-only cross-user RPCs | migration `029_admin_read_rpcs.sql` |
+| Tier write RPCs | migration `030_admin_tier_write_rpcs.sql` |
+| Storage read RPC | migration `031_admin_storage_read_rpc.sql` |
 
 ## Security model
 
@@ -38,6 +69,40 @@ Defense in depth, fail-closed (any error or uncertainty denies). Five layers, ea
 ### Identity lookups
 
 `support_tickets` (and other tables) store `user_id`, not email. The web app never holds the service-role key (Edge Functions only), so identity is resolved by the `admin_user_emails(uuid[])` SECURITY DEFINER RPC, which returns `user_id -> email` for admins and zero rows for everyone else (the `is_admin()` predicate is in its `WHERE`). The support module batches the ticket/reply author ids through it and shows email when resolved, monospace `user_id` as fallback.
+
+### Cross-user read RPCs (migration `029`)
+
+The Users / Subscriptions / Usage modules need data ACROSS users, but the billing tables are own-row-only under RLS (`subscriptions` and `usage_counters` both gate on `auth.uid() = user_id`) and `auth.users` is not directly readable. A plain `select("*")` as an admin would return only the admin's own rows. So, exactly like `admin_user_emails`, each cross-user read is a SECURITY DEFINER function that **re-checks `public.is_admin()` itself** (in the `WHERE`, or the body for the JSONB one), making non-admins get zero rows / an exception:
+
+- `admin_list_users()` - the roster: `auth.users` LEFT JOINed to `subscriptions` for current tier/status.
+- `admin_list_subscriptions()` - every `subscriptions` row (emails resolved separately via `admin_user_emails`).
+- `admin_list_usage(period_keys[])` - `usage_counters` rows for the passed period keys. Scoped to the current period so the read stays bounded (the table grows ~ users x features x periods; daily rows accumulate one per user per day). If the base grows, add pagination / a top-N cap.
+- `admin_user_detail(user_id, period_keys[])` - a single JSONB bundle for the detail drawer: subscription + usage for the periods + ticket count + the **target** user's `is_admin` flag (display-only; the caller is still gated on being an admin).
+
+All are READ-only and `GRANT EXECUTE ... TO authenticated` (safe because of the in-function `is_admin()` check). The audit module needs no RPC: `admin_audit_log` already has an `is_admin()` SELECT policy from `027`, so it reads directly. Tier caps for the usage views come from the public-read `tier_limits` table via `getTierConfigs()`.
+
+### Tier write RPCs (migration `030`)
+
+The Tier limits / Feature flags modules edit `tier_limits`, which is public-read with **no client write policies** (service-role only, migration `011`). The web app never holds the service-role key, so - same pattern again - each write is a SECURITY DEFINER function that re-checks `public.is_admin()` itself:
+
+- `admin_set_tier_limit(tier_id, version, key, value)` - `jsonb_set` one cap in `limits`. `value` is a JSON number or null (unlimited).
+- `admin_set_tier_feature(tier_id, version, key, enabled)` - `jsonb_set` one boolean in `features`.
+
+Guardrails built into both functions (not the UI):
+
+- **Active rows only** (`effective_until IS NULL`). Historical versions are grandfathering records and must not be rewritten.
+- **Known keys only.** A typo'd key raises instead of silently creating a key nobody reads (gating treats absent keys as "not applicable"/"disabled", so a stray key is invisible corruption). Limits require the key on the target row (absent = "not applicable", shown as `-` and not editable); features require the key on any active row (absent = disabled, so enabling a feature on a tier whose row lacks the key is legitimate and creates it). Introducing a brand-new key stays a deliberate SQL-editor operation (see `docs/ENTITLEMENTS.md`).
+- **Audit is server-side.** Each function calls `log_admin_action` itself (`tier.limit_update` / `tier.feature_update`, metadata carries `key`, `old`, `new`), so a mutation can never skip the audit log and every change is reversible from it.
+
+Reads for these modules come from the public-read `tier_limits` table via the same `getTierConfigs()` the pricing page uses. Edits propagate on the existing cache TTLs (pricing page ~60s revalidate, extension ~1h).
+
+### Storage read RPC (migration `031`)
+
+The Storage module's data source is the `user_storage` gauge from migrations `020`-`022`: a running per-user byte total for the `listing-images` bucket, kept in lockstep by triggers on `storage.objects` (the same gauge the quota-enforcement triggers read). The table is own-row-only under RLS, so - same pattern as `029` - the cross-user read is a SECURITY DEFINER RPC that re-checks `public.is_admin()` itself:
+
+- `admin_list_storage()` - every `user_storage` row (`user_id`, `bytes_used`, `updated_at`), largest first. One row per user who has ever uploaded, so the read stays bounded without pagination.
+
+Emails come from `admin_user_emails`, tiers from `admin_list_users` / `admin_list_subscriptions`, and the `cloud_storage_bytes` cap from the public-read `tier_limits` table via `getTierConfigs()`. Cap semantics differ from the count caps: `null` means unlimited, while an **absent** `cloud_storage_bytes` key means the tier has no storage allowance at all (Free/Starter) - shown as `-` with no percent.
 
 ## Per-module security checklist
 
