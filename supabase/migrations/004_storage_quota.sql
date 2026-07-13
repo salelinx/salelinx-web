@@ -1,26 +1,30 @@
--- Cloud storage quota: per-user byte tracking + hard cap enforcement.
--- Closes the cloud_storage_bytes gap noted in docs/technical/ENTITLEMENTS.md.
+-- Cloud storage quota: per-user byte tracking + hard cap enforcement for the
+-- listing-images bucket.
 --
--- Pro is capped at 500 MB (524288000) and Business at 1 GB (1073741824) by
--- the seed in 011_billing.sql. Until now nothing measured bucket usage or
--- rejected overages. This migration adds:
+-- Consolidated baseline (July 2026). This file is the net result of the
+-- original migrations 020-022 (quota v1 -> v2 -> v3). Full history in git.
 --
---   1. user_storage table — running byte total per user (a gauge, not the
---      per-period counter pattern used by usage_counters).
---   2. AFTER INSERT/DELETE triggers on storage.objects keeping the gauge in
---      lockstep with the listing-images bucket.
---   3. BEFORE INSERT trigger that rejects uploads which would push the user
---      over their tier cap — the upload returns 403 to the extension and
---      the existing warn-and-continue path in listing-enricher.ts handles
---      it gracefully.
---   4. One-time backfill so existing users get an accurate baseline.
---   5. RLS read policy so the panel can render a storage meter.
+-- Why enforcement runs on BOTH AFTER INSERT and AFTER UPDATE: the Supabase
+-- Storage API writes storage.objects in one of two ways depending on the
+-- environment. Either it populates metadata.size on the initial INSERT, or it
+-- INSERTs with NULL metadata, PUTs the bytes to S3, then UPDATEs the row with
+-- the size. Running the same bump-and-check on both events with OLD/NEW delta
+-- math covers both paths exactly once:
+--   AFTER INSERT: delta = NEW.size (OLD is implicitly 0)
+--   AFTER UPDATE: delta = NEW.size - OLD.size
 --
--- Path convention: listing-enricher uploads as `{userId}/{listingId}/photo_N.jpg`.
--- storage.foldername(name)[1] therefore yields the owning user_id.
+-- The BEFORE INSERT trigger is only a cheap pre-flight: a user already at or
+-- over cap gets rejected before the S3 PUT happens at all. When the real check
+-- raises, the metadata write rolls back and the S3 object may briefly exist as
+-- an orphan; Supabase's storage consistency job sweeps those.
+--
+-- Path convention: listing-enricher uploads as {userId}/{listingId}/photo_N.jpg,
+-- so storage.foldername(name)[1] yields the owning user_id. The UUID regex
+-- guard skips legacy/debug uploads whose first segment isn't a user id.
 
 -- =============================================================================
--- 1. user_storage — running byte total per user (gauge)
+-- 1. user_storage - running byte total per user (a gauge, not a per-period
+--    counter like usage_counters)
 -- =============================================================================
 
 CREATE TABLE public.user_storage (
@@ -39,7 +43,7 @@ CREATE POLICY "user_storage own read"
 -- 2. Helper: resolve the cloud_storage_bytes cap for a given user
 -- =============================================================================
 -- NULL = unlimited (matches the cached subscription contract).
--- Missing key  = not applicable to this tier  = treated as zero (no quota).
+-- Missing key = not applicable to this tier = treated as zero (no quota).
 -- No subscription row = free tier, version 1.
 
 CREATE OR REPLACE FUNCTION public.get_user_storage_cap(p_user_id UUID)
@@ -70,14 +74,11 @@ REVOKE ALL ON FUNCTION public.get_user_storage_cap(UUID) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_user_storage_cap(UUID) TO authenticated;
 
 -- =============================================================================
--- 3. Trigger functions on storage.objects
+-- 3. BEFORE INSERT pre-flight - reject when already at or over cap
 -- =============================================================================
+-- No size check here (metadata.size may not be populated yet); the exact
+-- check happens in apply_storage_delta once the size is known.
 
--- BEFORE INSERT: reject uploads that would breach the cap. Reading the
--- pre-existing total + the new object's size, blocking when sum > cap.
--- NULL cap means unlimited (no check). Cap of 0 / missing key means
--- the tier has no storage allowance and every upload to the bucket is
--- rejected.
 CREATE OR REPLACE FUNCTION public.enforce_cloud_storage_quota()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -86,7 +87,6 @@ SET search_path = public
 AS $$
 DECLARE
   v_user_id UUID;
-  v_new_size BIGINT;
   v_current BIGINT;
   v_cap BIGINT;
 BEGIN
@@ -100,10 +100,7 @@ BEGIN
   END IF;
   v_user_id := (storage.foldername(NEW.name))[1]::UUID;
 
-  v_new_size := COALESCE((NEW.metadata->>'size')::BIGINT, 0);
   v_cap := public.get_user_storage_cap(v_user_id);
-
-  -- Unlimited tier — short-circuit.
   IF v_cap IS NULL THEN
     RETURN NEW;
   END IF;
@@ -112,19 +109,61 @@ BEGIN
   FROM public.user_storage
   WHERE user_id = v_user_id;
 
-  IF COALESCE(v_current, 0) + v_new_size > v_cap THEN
+  -- Already at or over cap -> reject without even trying. The actual size
+  -- check happens after the Storage API populates metadata; this is just
+  -- a fast-path for the obvious case.
+  IF COALESCE(v_current, 0) >= v_cap THEN
     RAISE EXCEPTION 'cloud_storage_quota_exceeded'
-      USING DETAIL = format(
-        'user=%s used=%s new=%s cap=%s',
-        v_user_id, COALESCE(v_current, 0), v_new_size, v_cap
-      );
+      USING DETAIL = format('user=%s used=%s cap=%s', v_user_id, COALESCE(v_current, 0), v_cap);
   END IF;
 
   RETURN NEW;
 END;
 $$;
 
--- AFTER INSERT: bump the running total.
+-- =============================================================================
+-- 4. Shared bump + cap-check (used by both INSERT and UPDATE triggers)
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.apply_storage_delta(p_user_id UUID, p_delta BIGINT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_current BIGINT;
+  v_cap BIGINT;
+BEGIN
+  IF p_delta = 0 THEN
+    RETURN;
+  END IF;
+
+  INSERT INTO public.user_storage (user_id, bytes_used, updated_at)
+  VALUES (p_user_id, GREATEST(0, p_delta), NOW())
+  ON CONFLICT (user_id) DO UPDATE
+    SET bytes_used = GREATEST(0, public.user_storage.bytes_used + p_delta),
+        updated_at = NOW()
+  RETURNING bytes_used INTO v_current;
+
+  v_cap := public.get_user_storage_cap(p_user_id);
+  IF v_cap IS NULL THEN
+    RETURN;
+  END IF;
+
+  IF v_current > v_cap THEN
+    RAISE EXCEPTION 'cloud_storage_quota_exceeded'
+      USING DETAIL = format(
+        'user=%s used=%s delta=%s cap=%s', p_user_id, v_current, p_delta, v_cap
+      );
+  END IF;
+END;
+$$;
+
+-- =============================================================================
+-- 5. AFTER INSERT - bump by NEW.size when populated up-front
+-- =============================================================================
+
 CREATE OR REPLACE FUNCTION public.bump_user_storage_on_insert()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -146,21 +185,49 @@ BEGIN
   v_user_id := (storage.foldername(NEW.name))[1]::UUID;
 
   v_size := COALESCE((NEW.metadata->>'size')::BIGINT, 0);
-  IF v_size = 0 THEN
-    RETURN NULL;
-  END IF;
-
-  INSERT INTO public.user_storage (user_id, bytes_used, updated_at)
-  VALUES (v_user_id, v_size, NOW())
-  ON CONFLICT (user_id) DO UPDATE
-    SET bytes_used = public.user_storage.bytes_used + EXCLUDED.bytes_used,
-        updated_at = NOW();
+  PERFORM public.apply_storage_delta(v_user_id, v_size);
 
   RETURN NULL;
 END;
 $$;
 
--- AFTER DELETE: decrement, clamped at zero.
+-- =============================================================================
+-- 6. AFTER UPDATE - bump by NEW.size - OLD.size when populated later
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.bump_user_storage_on_update()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_user_id UUID;
+  v_old_size BIGINT;
+  v_new_size BIGINT;
+BEGIN
+  IF NEW.bucket_id <> 'listing-images' THEN
+    RETURN NULL;
+  END IF;
+
+  IF (storage.foldername(NEW.name))[1] !~
+       '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
+    RETURN NULL;
+  END IF;
+  v_user_id := (storage.foldername(NEW.name))[1]::UUID;
+
+  v_old_size := COALESCE((OLD.metadata->>'size')::BIGINT, 0);
+  v_new_size := COALESCE((NEW.metadata->>'size')::BIGINT, 0);
+  PERFORM public.apply_storage_delta(v_user_id, v_new_size - v_old_size);
+
+  RETURN NULL;
+END;
+$$;
+
+-- =============================================================================
+-- 7. AFTER DELETE - decrement, clamped at zero
+-- =============================================================================
+
 CREATE OR REPLACE FUNCTION public.bump_user_storage_on_delete()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -196,7 +263,7 @@ END;
 $$;
 
 -- =============================================================================
--- 4. Triggers on storage.objects
+-- 8. Triggers on storage.objects
 -- =============================================================================
 
 DROP TRIGGER IF EXISTS enforce_cloud_storage_quota ON storage.objects;
@@ -211,6 +278,12 @@ CREATE TRIGGER user_storage_track_insert
   FOR EACH ROW
   EXECUTE FUNCTION public.bump_user_storage_on_insert();
 
+DROP TRIGGER IF EXISTS user_storage_track_update ON storage.objects;
+CREATE TRIGGER user_storage_track_update
+  AFTER UPDATE ON storage.objects
+  FOR EACH ROW
+  EXECUTE FUNCTION public.bump_user_storage_on_update();
+
 DROP TRIGGER IF EXISTS user_storage_track_delete ON storage.objects;
 CREATE TRIGGER user_storage_track_delete
   AFTER DELETE ON storage.objects
@@ -218,13 +291,12 @@ CREATE TRIGGER user_storage_track_delete
   EXECUTE FUNCTION public.bump_user_storage_on_delete();
 
 -- =============================================================================
--- 5. Backfill — one-shot sum of existing listing-images objects per user
+-- 9. Backfill - one-shot sum of existing listing-images objects per user
 -- =============================================================================
 -- Safe to re-run: the INSERT...ON CONFLICT replaces the row with the freshly
 -- computed total rather than additively double-counting. The regex pre-filter
--- skips any first-segment that isn't a UUID so a single bad folder name
--- (legacy uploads, manual debugging, test fixtures) can't error the whole
--- statement out via a failing ::UUID cast.
+-- skips any first-segment that isn't a UUID so a single bad folder name can't
+-- error the whole statement out via a failing ::UUID cast.
 
 INSERT INTO public.user_storage (user_id, bytes_used, updated_at)
 SELECT

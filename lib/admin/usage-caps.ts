@@ -3,7 +3,7 @@ import type { TierConfig } from "@/lib/types/tiers";
 // Maps a usage_counters feature name (singular, e.g. 'crosslist') to the
 // tier_limits limit key that caps it (e.g. 'crosslists_per_month'). The two
 // naming schemes differ: usage counters are keyed by the action verb, tier
-// limits by a pluralized per-period key (see migration 011 seed). A feature
+// limits by a pluralized per-period key (see the seed in 002_billing_tiers.sql). A feature
 // with no entry here has no numeric cap we can show.
 const FEATURE_TO_LIMIT_KEY: Record<string, string> = {
   crosslist: "crosslists_per_month",

@@ -25,7 +25,7 @@ PK (tier_id, version)
 - Limit value `null` = unlimited
 - Limit missing entirely = not applicable for this tier
 
-RLS: public read, no client write policies. Writes happen via the service role (Supabase dashboard) or the `is_admin()`-gated `admin_set_tier_limit` / `admin_set_tier_feature` RPCs behind the admin console (migration `030`, see `docs/ADMIN.md`).
+RLS: public read, no client write policies. Writes happen via the service role (Supabase dashboard) or the `is_admin()`-gated `admin_set_tier_limit` / `admin_set_tier_feature` RPCs behind the admin console (migration `006_admin_console.sql`, see `docs/ADMIN.md`).
 
 ### `usage_counters`
 
@@ -79,7 +79,7 @@ Always derived from the user's local date at the moment of the check. Periods re
 
 ## Seed data (v1)
 
-See migration `011_billing.sql` in the extension repo (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1). Migration `015_add_linking_markdown_features.sql` adds `account_linking` (Pro+) and `auto_markdown` (Business). Migration `016_deadstock_starter.sql` moves `dead_stock` down to Starter+. Migration `017_shop_designer_messages_offers_starter.sql` moves `shop_designer` + `messages` down to Starter+ and adds a new `offers` (incoming-offers tab) feature gated at Starter+. Auto-offers (`auto_offer`) stays Pro+. Summary:
+See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. Summary:
 
 | Label                       | JSON key                 | Free | Starter | Pro       | Business  |
 | --------------------------- | ------------------------ | ---- | ------- | --------- | --------- |

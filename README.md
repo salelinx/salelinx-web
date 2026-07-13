@@ -68,7 +68,7 @@ Once the hook is enabled, the Supabase SMTP panel becomes irrelevant - the hook 
 
 ### Migrations
 
-Run `011_billing.sql` from the **extension repo** (`../muiltiplatform-seller-bot/supabase/migrations/`). All DB schema lives there - this repo only reads.
+All DB schema lives in this repo under `supabase/migrations/` (a consolidated 6-file baseline; see the folder's README). Apply the files in order via the Supabase dashboard SQL editor. For billing specifically, `002_billing_tiers.sql` creates `subscriptions`, `tier_limits`, `usage_counters` and seeds the tiers.
 
 ## Directory layout
 

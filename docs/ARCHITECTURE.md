@@ -70,7 +70,6 @@ extension sees, and vice versa.
 - Shop linking flow (OAuth-style handshake to link platform accounts)
 - Bot runtime (action queue, delay/backoff, retry, cancellation)
 - Per-user feature enforcement (`tryConsume`, `check`, `checkQuota`)
-- **Supabase migrations** for the entire schema - including tables the website reads
 - Extension-facing cloud sync for listings
 
 ### Shared contracts (keep in sync - nothing enforces this)
@@ -84,13 +83,13 @@ extension sees, and vice versa.
 
 ## Database tables and who writes to them
 
-All in the shared Supabase project. Migrations live in the extension
-repo (`supabase/migrations/`).
+All in the shared Supabase project. Migrations live in this repo
+(`supabase/migrations/`); the extension no longer owns schema.
 
 | Table                    | Read by            | Written by                                    | Purpose                                                                 |
 | ------------------------ | ------------------ | --------------------------------------------- | ----------------------------------------------------------------------- |
 | `auth.users`             | both               | Supabase Auth (email/password, magic link)    | User identity                                                           |
-| `tier_limits`            | both               | SQL migrations only                           | Tier definitions - features (bool) and limits (numeric caps)            |
+| `tier_limits`            | both               | SQL migrations + admin console RPCs           | Tier definitions - features (bool) and limits (numeric caps)            |
 | `subscriptions`          | both               | `stripe-webhook` Edge Function (service role) | Per-user billing state - tier, status, period end, cancel_at_period_end |
 | `usage_counters`         | both               | `increment_usage_counter` RPC (extension)     | Per-user/feature/period counters - monthly or daily buckets             |
 | `listings`               | extension only     | extension                                     | Cached listing state for crosslist / relist / refresh                   |

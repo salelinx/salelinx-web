@@ -1,6 +1,6 @@
 // Human-readable byte formatting for the admin Storage module. Binary units
 // to match how the tier caps were chosen (500 MB = 524288000 = 500 * 1024^2,
-// 1 GB = 1073741824 = 1024^3 in the migration 011 seed), so a maxed-out Pro
+// 1 GB = 1073741824 = 1024^3 in the tier seed), so a maxed-out Pro
 // user reads "500 MB / 500 MB", not "524.3 MB / 500 MB".
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

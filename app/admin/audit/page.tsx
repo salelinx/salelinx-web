@@ -4,7 +4,7 @@ import { AdminAuditTable } from "@/components/admin/audit/AdminAuditTable";
 
 // /admin/audit - the admin action log. Unlike the other new modules this reads
 // admin_audit_log DIRECTLY: that table already carries an is_admin() SELECT
-// policy (migration 027), so no RPC is needed. The log is append-only, so this
+// policy (migration 006_admin_console.sql), so no RPC is needed. The log is append-only, so this
 // module is read-only by nature. Actor ids are resolved to emails via the
 // existing admin_user_emails() RPC.
 //

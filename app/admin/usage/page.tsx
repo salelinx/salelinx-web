@@ -16,7 +16,7 @@ import {
 // period keys server-side (YYYY-MM month bucket + YYYY-MM-DD day bucket) and
 // pass them to admin_list_usage() so the read stays bounded (usage_counters
 // grows ~ users x features x periods; an unscoped read would grow without
-// bound - see the scale note in migration 029). Each usage row is paired with
+// bound - see the scale note in migration 006_admin_console.sql). Each usage row is paired with
 // the user's email and measured against the cap from their tier config.
 //
 // Read-only. If the user base grows, add pagination / a top-N cap to the RPC.

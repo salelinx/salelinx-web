@@ -26,7 +26,7 @@ export function currentPeriodKeys(now: Date): CurrentPeriods {
 }
 
 // Whether a feature's caps are keyed monthly vs daily, inferred from the
-// tier_limits limit keys (see seed data in migration 011): *_per_month vs
+// tier_limits limit keys (see the seed in 002_billing_tiers.sql): *_per_month vs
 // *_per_day. Used to pick which period key a usage row should be measured
 // against when showing "count / cap".
 export function isMonthlyFeature(feature: string): boolean {
