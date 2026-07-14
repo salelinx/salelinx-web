@@ -39,14 +39,18 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         q: 'Muss ich bezahlen, um es auszuprobieren?',
         a: (
           <p>
-            Nein. Mit dem kostenlosen Paket kannst du die Kernabläufe ausprobieren. Siehe{' '}
+            Du bekommst eine kostenlose 7-Tage-Testphase des Starter-Pakets,
+            eine pro Konto. Zum Start ist eine Karte erforderlich, während der
+            Testphase wird aber nichts abgebucht, und du kannst jederzeit über
+            deine Kontoseite kündigen. Ohne Kündigung startet dein Starter-Abo
+            automatisch am Ende der Testphase. Siehe{' '}
             <Link href="/pricing" className="underline underline-offset-4">
               Preise
             </Link>
             , was jede Stufe enthält.
           </p>
         ),
-        keywords: ['kostenlos', 'test', 'preise', 'paket'],
+        keywords: ['kostenlos', 'test', 'preise', 'paket', 'karte'],
       },
     ],
   },

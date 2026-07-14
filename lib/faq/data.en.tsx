@@ -41,17 +41,18 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Do I need to pay to try it?',
         a: (
           <p>
-            You get a 7-day free trial of the Starter plan when you sign up. No
-            card is required to start the trial and you won&rsquo;t be charged
-            anything. After 7 days the trial ends and you&rsquo;ll need to pick
-            a plan to keep going. See{' '}
+            You get a 7-day free trial of the Starter plan, one per account. A
+            card is required to start it, but nothing is charged during the
+            trial and you can cancel any time from your account page. If you
+            don&rsquo;t cancel, your Starter subscription starts automatically
+            when the trial ends. See{' '}
             <Link href="/pricing" className="underline underline-offset-4">
               pricing
             </Link>{' '}
             for what each plan includes.
           </p>
         ),
-        keywords: ['free', 'trial', 'pricing', 'tier', 'starter'],
+        keywords: ['free', 'trial', 'pricing', 'tier', 'starter', 'card'],
       },
     ],
   },
