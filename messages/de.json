@@ -139,6 +139,7 @@
     },
     "signup": {
       "title": "Konto erstellen",
+      "emailInUse": "Mit dieser E-Mail existiert bereits ein Konto. Melde dich unten an oder setze dein Passwort zurück, falls du es vergessen hast.",
       "passwordPlaceholder": "Passwort (mind. 8 Zeichen)",
       "confirmPlaceholder": "Passwort bestätigen",
       "submitIdle": "Konto erstellen",
