@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { createServerClient } from "@/lib/supabase/server";
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { Icon, type IconName } from "@/components/Icon";
 import type { TierConfig, TierId } from "@/lib/types/tiers";
@@ -175,6 +176,24 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   const starterTier = paidTiers.find((tier) => tier.tier_id === "starter");
   const starterPriceId = PRICE_IDS.starter;
 
+  // The trial is one per account (enforced in create-checkout-session), so
+  // hide the trial card once the signed-in user has any subscription
+  // history. Signed-out visitors always see it.
+  let trialEligible = true;
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { count } = await supabase
+      .from("subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+    trialEligible = (count ?? 0) === 0;
+  }
+
+  const showTrialCard = Boolean(starterTier) && trialEligible;
+
   return (
     <section
       id="pricing"
@@ -192,8 +211,12 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {starterTier && (
+      <div
+        className={`grid gap-6 md:grid-cols-2 ${
+          showTrialCard ? "lg:grid-cols-4" : "lg:grid-cols-3"
+        }`}
+      >
+        {showTrialCard && starterTier && (
           <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:border-white/10 dark:bg-zinc-900">
             <div className="flex items-baseline justify-between">
               <h3 className="text-xl font-semibold">{t("trial.name")}</h3>

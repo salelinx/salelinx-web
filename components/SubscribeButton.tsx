@@ -51,6 +51,13 @@ export function SubscribeButton({
       },
     );
 
+    if (res.status === 409) {
+      // Already has an active subscription; plan changes happen in the
+      // Customer Portal, reachable from the account page.
+      router.push("/account");
+      return;
+    }
+
     if (!res.ok) {
       setLoading(false);
       alert(t("errorAlert"));

@@ -306,8 +306,7 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Privacy Policy",
-      "body": "TODO: replace with finalised privacy policy before launch."
+      "title": "Privacy Policy"
     },
     "terms": {
       "title": "Terms of Service",
@@ -512,9 +511,9 @@
     "supportDays": "{value} days",
     "trial": {
       "name": "Free 7-day trial",
-      "tagline": "Full Starter access for 7 days.",
+      "tagline": "Full Starter access for 7 days. Card required.",
       "priceSuffix": "for {days} days",
-      "thenPrice": "Then {price} / month",
+      "thenPrice": "Then {price} / month unless you cancel before the trial ends",
       "cta": "Start free trial"
     },
     "tier": {

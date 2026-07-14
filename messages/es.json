@@ -306,8 +306,7 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Política de privacidad",
-      "body": "TODO: sustituir por la política de privacidad definitiva antes del lanzamiento."
+      "title": "Política de privacidad"
     },
     "terms": {
       "title": "Términos del servicio",
@@ -512,9 +511,9 @@
     "supportDays": "{value} días",
     "trial": {
       "name": "Prueba gratuita de 7 días",
-      "tagline": "Acceso completo a Starter durante 7 días.",
+      "tagline": "Acceso completo a Starter durante 7 días. Se requiere tarjeta.",
       "priceSuffix": "durante {days} días",
-      "thenPrice": "Después {price} / mes",
+      "thenPrice": "Después {price} / mes salvo que canceles antes de que termine la prueba",
       "cta": "Empezar prueba gratuita"
     },
     "tier": {

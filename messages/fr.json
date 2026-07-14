@@ -306,8 +306,7 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Politique de confidentialité",
-      "body": "TODO : à remplacer par la politique de confidentialité finalisée avant le lancement."
+      "title": "Politique de confidentialité"
     },
     "terms": {
       "title": "Conditions d'utilisation",
@@ -512,9 +511,9 @@
     "supportDays": "{value} jours",
     "trial": {
       "name": "Essai gratuit de 7 jours",
-      "tagline": "Accès complet à Starter pendant 7 jours.",
+      "tagline": "Accès complet à Starter pendant 7 jours. Carte bancaire requise.",
       "priceSuffix": "pendant {days} jours",
-      "thenPrice": "Puis {price} / mois",
+      "thenPrice": "Puis {price} / mois sauf annulation avant la fin de l'essai",
       "cta": "Démarrer l'essai gratuit"
     },
     "tier": {

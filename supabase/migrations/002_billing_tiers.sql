@@ -135,10 +135,16 @@ GRANT EXECUTE ON FUNCTION public.increment_usage_counter(TEXT, TEXT, BIGINT) TO 
 
 INSERT INTO public.tier_limits (tier_id, version, features, limits) VALUES
   (
+    -- 'free' is a fallback, not an advertised plan: the product model is a
+    -- 7-day Starter trial then a paid tier. Users with no subscriptions row
+    -- (never trialed, or trial expired without a card) resolve here, so all
+    -- metered caps are 0 and every boolean feature is off. Manual listing
+    -- management in the extension still works; bot/crosslist/relist actions
+    -- surface the upgrade prompt.
     'free',
     1,
     '{"auto_refresh":false,"cloud_sync":false,"auto_offer":false,"shipping_labels":false,"messages":false,"restocker":false,"shop_designer":false,"dead_stock":false,"account_linking":false,"auto_markdown":false,"offers":false,"auto_accept_offers":false,"shipping_label_email":false}'::jsonb,
-    '{"crosslists_per_month":25,"relists_per_month":25,"refreshes_per_day":50,"follows_per_day":100,"unfollows_per_day":100,"support_response_days":7}'::jsonb
+    '{"crosslists_per_month":0,"relists_per_month":0,"refreshes_per_day":0,"follows_per_day":0,"unfollows_per_day":0,"support_response_days":7}'::jsonb
   ),
   (
     'starter',

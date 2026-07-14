@@ -37,29 +37,66 @@ Deno.serve(async (req) => {
 
   const { priceId, successUrl, cancelUrl, trialDays } = await req.json();
 
-  const trial =
-    typeof trialDays === "number" && trialDays > 0 && trialDays <= 30
-      ? Math.floor(trialDays)
-      : null;
+  // The client can only REQUEST a trial; the terms are decided here.
+  // Policy: 7 days, Starter only, one per account, card always collected
+  // (Stripe's default payment_method_collection for subscription mode), so
+  // the trial converts to a paid Starter subscription automatically unless
+  // the user cancels first.
+  const TRIAL_PERIOD_DAYS = 7;
+  const trialRequested = Boolean(trialDays);
+
+  // Subscription history for this user (RLS limits the query to own rows).
+  const { data: subRows, error: subErr } = await supabase
+    .from("subscriptions")
+    .select("status, stripe_customer_id")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  if (subErr) {
+    return new Response(JSON.stringify({ error: subErr.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // Never allow a second concurrent subscription: both clients resolve the
+  // user's tier from the newest entitled row, so a duplicate would shadow
+  // the real plan. Plan changes go through the Customer Portal instead.
+  const ENTITLED = new Set(["active", "trialing", "past_due"]);
+  if ((subRows ?? []).some((r) => ENTITLED.has(r.status as string))) {
+    return new Response(JSON.stringify({ error: "already_subscribed" }), {
+      status: 409,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // One trial per account (any prior row, even canceled, burns it) and only
+  // on the Starter price, verified via the price's own metadata.
+  let trialPeriodDays: number | null = null;
+  if (trialRequested && (subRows ?? []).length === 0) {
+    const price = await stripe.prices.retrieve(priceId);
+    if ((price.metadata?.tier_id ?? "") === "starter") {
+      trialPeriodDays = TRIAL_PERIOD_DAYS;
+    }
+  }
+
+  // Reuse the Stripe customer from a previous (lapsed) subscription so one
+  // user does not accumulate customer records.
+  const existingCustomerId =
+    (subRows ?? []).find((r) => r.stripe_customer_id)?.stripe_customer_id ??
+    null;
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: priceId, quantity: 1 }],
-    customer_email: user.email,
+    ...(existingCustomerId
+      ? { customer: existingCustomerId }
+      : { customer_email: user.email }),
     client_reference_id: user.id,
     success_url: successUrl,
     cancel_url: cancelUrl,
     allow_promotion_codes: true,
-    ...(trial
-      ? {
-          subscription_data: {
-            trial_period_days: trial,
-            trial_settings: {
-              end_behavior: { missing_payment_method: "cancel" },
-            },
-          },
-          payment_method_collection: "if_required",
-        }
+    ...(trialPeriodDays
+      ? { subscription_data: { trial_period_days: trialPeriodDays } }
       : {}),
   });
 

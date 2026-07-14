@@ -35,6 +35,18 @@ Stripe fires webhook customer.subscription.created → our webhook upserts subsc
 
 **Key detail:** `client_reference_id` is set to Supabase `user.id` so the webhook can map the Stripe customer back to our user.
 
+## Free trial policy (enforced server-side)
+
+The pricing page's trial card sends `trialDays` with the Starter price, but the client value is only a REQUEST. `create-checkout-session` decides the terms:
+
+- **7 days, Starter only.** The function retrieves the price from Stripe and applies the trial only when its metadata says `tier_id: 'starter'`. The length is a server constant, so a crafted request cannot get a longer trial or a trial on Pro/Business.
+- **One per account.** Any existing `subscriptions` row for the user (even canceled) means no trial: the checkout proceeds at full price. The pricing page hides the trial card for users with history (`PricingSection` counts their rows), so honest users never see a misleading CTA.
+- **Card required.** `payment_method_collection` is left at Stripe's default ("always"), so the card is taken up front and the trial converts to a paid Starter subscription automatically at day 7 unless the user cancels (copy on the trial card and FAQ discloses this).
+- **No duplicate subscriptions.** If the user already has an entitled row (`active`, `trialing`, `past_due`), the function returns 409 `already_subscribed` and `SubscribeButton` redirects to `/account`. Plan changes go through the Customer Portal.
+- **Customer reuse.** If a prior row has a `stripe_customer_id`, checkout passes `customer` instead of `customer_email` so one user does not accumulate Stripe customers.
+
+Both clients resolve the user's tier from the newest ENTITLED row (`active | trialing | past_due`); lapsed rows fall back to the zero-limit free config. See `lib/supabase/subscription.ts` (web) and the extension's `src/utils/cloud/subscription.ts`.
+
 ## Manage subscription (Customer Portal)
 
 ```

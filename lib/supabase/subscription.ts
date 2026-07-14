@@ -15,6 +15,16 @@ export type SubscriptionRow = {
   updated_at: string;
 };
 
+// Statuses that represent the user's current plan. Preferred over lapsed
+// rows when a user has more than one (e.g. an old canceled trial plus a
+// live subscription); "newest row wins" alone would let a stale row shadow
+// the real plan.
+const CURRENT_STATUSES = new Set<SubscriptionRow["status"]>([
+  "active",
+  "trialing",
+  "past_due",
+]);
+
 export async function getCurrentSubscription(
   userId: string,
 ): Promise<{ subscription: SubscriptionRow | null; tier: TierConfig | null }> {
@@ -25,9 +35,11 @@ export async function getCurrentSubscription(
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
-    .limit(1);
+    .limit(10);
 
-  const subscription = (subs?.[0] as SubscriptionRow | undefined) ?? null;
+  const rows = (subs ?? []) as SubscriptionRow[];
+  const subscription =
+    rows.find((r) => CURRENT_STATUSES.has(r.status)) ?? rows[0] ?? null;
   if (!subscription) return { subscription: null, tier: null };
 
   const { data: tier } = await supabase
