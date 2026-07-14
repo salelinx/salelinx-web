@@ -306,8 +306,7 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Datenschutzerklärung",
-      "body": "TODO: vor dem Launch durch die endgültige Datenschutzerklärung ersetzen."
+      "title": "Datenschutzerklärung"
     },
     "terms": {
       "title": "Nutzungsbedingungen",

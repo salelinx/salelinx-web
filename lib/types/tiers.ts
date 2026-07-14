@@ -18,7 +18,8 @@ export interface GateResult {
     | "feature_disabled"
     | "limit_exceeded"
     | "quota_exceeded"
-    | "not_linked";
+    | "not_linked"
+    | "auth_required";
   current?: number;
   cap?: number | null;
   resetsAt?: string;
