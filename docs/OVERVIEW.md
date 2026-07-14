@@ -117,7 +117,7 @@ All defined in `.env.example`. Public-only by design - the website has no server
 
 ## Database schema ownership
 
-**Supabase migrations live in the extension repo** (`../muiltiplatform-seller-bot/supabase/migrations/`), not here. The extension is the schema owner because it was first. This repo reads from those tables.
+**Supabase migrations live in this repo** (`supabase/migrations/`). The extension reads the same database but no longer owns schema. The folder is a consolidated baseline of 6 files; see `supabase/migrations/README.md` for what maps where and how to apply.
 
 Relevant tables:
 
@@ -136,7 +136,7 @@ See `docs/ENTITLEMENTS.md` for how `tier_limits` and `usage_counters` are used.
 
 - **Website** - push to `main` → Vercel auto-deploys
 - **Edge Functions** - `supabase functions deploy <name>` from this repo
-- **Migrations** - run from the extension repo via Supabase CLI or Dashboard SQL editor
+- **Migrations** - run from this repo (`supabase/migrations/`) via Dashboard SQL editor or Supabase CLI
 
 ## Related docs
 

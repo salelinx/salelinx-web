@@ -64,16 +64,16 @@ export type AdminUserDetail = {
   is_admin: boolean;
 };
 
-// Row from admin_list_storage() (migration 031): one user_storage gauge row,
-// the running byte total of the user's listing-images uploads (maintained by
-// the storage.objects triggers from migrations 020-022).
+// Row from admin_list_storage() (migration 006_admin_console.sql): one
+// user_storage gauge row, the running byte total of the user's listing-images
+// uploads (maintained by the storage.objects triggers from 004_storage_quota.sql).
 export type AdminStorageRow = {
   user_id: string;
   bytes_used: number;
   updated_at: string;
 };
 
-// Row from public.admin_audit_log (migration 027). Read directly via the
+// Row from public.admin_audit_log (migration 006_admin_console.sql). Read directly via the
 // is_admin() SELECT policy, no RPC.
 export type AdminAuditRow = {
   id: string;

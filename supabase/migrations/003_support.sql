@@ -1,18 +1,14 @@
--- Admin role + support ticket replies/status/delete
+-- Support tickets + replies, admin role, is_admin() helper.
 --
--- Adds:
---   1. admin_users table — flip a row into this table in the Supabase
---      dashboard to grant a user admin privileges
---   2. is_admin() SECURITY DEFINER helper used in RLS policies
---   3. status + updated_at on support_tickets
---   4. support_ticket_replies thread table
---   5. RLS policies giving admins full read/update/delete on tickets and
---      full read/insert/delete on replies, while still letting each user
---      see only their own thread
+-- Consolidated baseline (July 2026). This file is the net result of the
+-- original migrations 009, 012_admin_and_ticket_replies, 025, 026 and 028.
+-- Full history in git.
 
 -- =============================================================================
--- 1. admin_users
+-- 1. admin_users - membership grants admin privileges
 -- =============================================================================
+-- No INSERT/UPDATE/DELETE policies: only the service role can grant admin
+-- (do it via the Supabase dashboard SQL editor). See docs/ADMIN.md.
 
 CREATE TABLE public.admin_users (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -21,13 +17,10 @@ CREATE TABLE public.admin_users (
 
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 
--- Admins can see who else is admin; regular users can only check their own row
+-- Regular users can only check their own row
 CREATE POLICY "admin_users self read"
   ON public.admin_users FOR SELECT
   USING (auth.uid() = user_id);
-
--- No INSERT/UPDATE/DELETE policies — only the service role can grant admin
--- (do it via the Supabase dashboard SQL editor)
 
 -- =============================================================================
 -- 2. is_admin() helper
@@ -50,20 +43,61 @@ REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 
 -- =============================================================================
--- 3. support_tickets — add status + updated_at
+-- 3. support_tickets
 -- =============================================================================
+-- Diagnostic metadata columns (app_version, tier_id, source, user_agent,
+-- locale) are UNTRUSTED, DISPLAY-ONLY. The user INSERT policy only checks
+-- auth.uid() = user_id, so a browser client can set any of these values.
+-- Never branch authorization or entitlement logic on tier_id or source -
+-- read the real tier from `subscriptions` if a decision depends on it.
+--
+-- notification_message_id stores the RFC 5322 Message-ID of the first
+-- support-notification email sent to support@salelinx.com, so reply
+-- notifications can set In-Reply-To/References and Gmail threads them.
+-- Written by the send-support-email Edge Function. See docs/SUPPORT.md.
 
-ALTER TABLE public.support_tickets
-  ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'open'
+CREATE TABLE public.support_tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  type TEXT NOT NULL
+    CONSTRAINT support_tickets_type_check
+    CHECK (type IN ('bug', 'feature', 'feedback', 'other')),
+  message TEXT NOT NULL,
+  platform TEXT,
+  status TEXT NOT NULL DEFAULT 'open'
     CHECK (status IN ('open', 'closed')),
-  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+  app_version TEXT,
+  tier_id TEXT,
+  source TEXT NOT NULL DEFAULT 'web'
+    CHECK (source IN ('web', 'extension', 'email')),
+  user_agent TEXT,
+  locale TEXT,
+  notification_message_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-CREATE INDEX IF NOT EXISTS idx_support_tickets_status
+CREATE INDEX idx_support_tickets_status
   ON public.support_tickets(status);
-CREATE INDEX IF NOT EXISTS idx_support_tickets_user_id
+CREATE INDEX idx_support_tickets_user_id
   ON public.support_tickets(user_id);
 
--- Admin read/update/delete policies (additive — user policies from 009 stay)
+ALTER TABLE public.support_tickets ENABLE ROW LEVEL SECURITY;
+
+-- Users can insert their own tickets, but can't impersonate the inbound-email
+-- source: 'email'-sourced rows are created by the service role (Edge
+-- Function), which bypasses RLS.
+CREATE POLICY "Users can insert own tickets"
+  ON public.support_tickets FOR INSERT
+  WITH CHECK (
+    auth.uid() = user_id
+    AND (source IS NULL OR source IN ('web', 'extension'))
+  );
+
+CREATE POLICY "Users can read own tickets"
+  ON public.support_tickets FOR SELECT
+  USING (auth.uid() = user_id);
+
 CREATE POLICY "Admins can read all tickets"
   ON public.support_tickets FOR SELECT
   USING (public.is_admin());

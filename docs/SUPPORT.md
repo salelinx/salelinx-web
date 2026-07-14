@@ -94,15 +94,15 @@ We use RFC 5322 `Message-ID` / `In-Reply-To` / `References` headers, not subject
 | -------------------------------------------- | --------------------------------------------------------------- |
 | Edge Function (single file: handler + email rendering) | `supabase/functions/send-support-email/index.ts`      |
 | Function gateway config                      | `supabase/config.toml` (`[functions.send-support-email]`)       |
-| Diagnostics + source columns                 | `support_tickets` (migration `026_support_ticket_metadata.sql`) |
-| Threading column                             | `support_tickets.notification_message_id` (migration `025`)     |
-| Tickets + replies schema + admin RLS         | migrations `009_support_tickets.sql` + `012_admin_and_ticket_replies.sql` |
+| Diagnostics + source columns                 | `support_tickets` (migration `003_support.sql`)                 |
+| Threading column                             | `support_tickets.notification_message_id` (migration `003_support.sql`) |
+| Tickets + replies schema + admin RLS         | migration `003_support.sql`                                     |
 | User contact form (create)                   | `app/[locale]/help/support/page.tsx` + `components/support/NewTicketForm.tsx` |
 | User ticket history (track)                  | `app/[locale]/account/tickets/page.tsx` + `components/support/TicketList.tsx` |
 | Public help hub + FAQ                         | `app/[locale]/help/page.tsx` + `app/[locale]/help/faq/page.tsx` (`/faq` redirects to `/help/faq`) |
 | Admin console support module                 | `app/admin/support/page.tsx` + `components/admin/support/*`     |
 | Admin detection helper                       | `lib/supabase/admin.ts` (`isAdmin`)                             |
-| Admin audit + identity RPCs                  | migration `027_admin_console_foundation.sql` (`log_admin_action`, `admin_user_emails`, `admin_audit_log`) |
+| Admin audit + identity RPCs                  | migration `006_admin_console.sql` (`log_admin_action`, `admin_user_emails`, `admin_audit_log`) |
 | Extension Support tab                        | `../muiltiplatform-seller-bot/src/panel/tabs/support.ts`        |
 | Database Webhook config                      | Supabase dashboard (Database -> Webhooks)                       |
 

@@ -13,7 +13,7 @@ import {
 } from "@/components/admin/storage/AdminStorageTable";
 
 // /admin/storage - per-user cloud storage consumption. The data source is the
-// user_storage gauge (migrations 020-022): a running byte total per user for
+// user_storage gauge (migration 004_storage_quota.sql): a running byte total per user for
 // the listing-images bucket, maintained by triggers on storage.objects. One
 // row per user who has ever uploaded; measured against the
 // cloud_storage_bytes cap from their tier config.

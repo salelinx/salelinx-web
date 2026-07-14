@@ -14,7 +14,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Usage | `/admin/usage` | Live, read-only | Cross-user consumption for the current period, sorted by percent-of-cap. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
-| Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migrations 020-022). |
+| Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
 Users / Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support and the two tier edit modules (Tier limits / Feature flags) mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier RPCs log server-side inside the function). Tier edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete).
 
@@ -51,10 +51,7 @@ Consequences:
 | Layer-1 edge gate + locale bypass | `proxy.ts` |
 | Admin detection helper | `lib/supabase/admin.ts` (`isAdmin`) |
 | Step-up re-auth helper | `lib/admin/reauth.ts` (`requireReauth`) |
-| Audit + identity RPCs, audit table | migration `027_admin_console_foundation.sql` |
-| Read-only cross-user RPCs | migration `029_admin_read_rpcs.sql` |
-| Tier write RPCs | migration `030_admin_tier_write_rpcs.sql` |
-| Storage read RPC | migration `031_admin_storage_read_rpc.sql` |
+| Audit + identity RPCs, audit table, read/write RPCs | migration `006_admin_console.sql` |
 
 ## Security model
 
@@ -70,7 +67,7 @@ Defense in depth, fail-closed (any error or uncertainty denies). Five layers, ea
 
 `support_tickets` (and other tables) store `user_id`, not email. The web app never holds the service-role key (Edge Functions only), so identity is resolved by the `admin_user_emails(uuid[])` SECURITY DEFINER RPC, which returns `user_id -> email` for admins and zero rows for everyone else (the `is_admin()` predicate is in its `WHERE`). The support module batches the ticket/reply author ids through it and shows email when resolved, monospace `user_id` as fallback.
 
-### Cross-user read RPCs (migration `029`)
+### Cross-user read RPCs (migration `006_admin_console.sql`)
 
 The Users / Subscriptions / Usage modules need data ACROSS users, but the billing tables are own-row-only under RLS (`subscriptions` and `usage_counters` both gate on `auth.uid() = user_id`) and `auth.users` is not directly readable. A plain `select("*")` as an admin would return only the admin's own rows. So, exactly like `admin_user_emails`, each cross-user read is a SECURITY DEFINER function that **re-checks `public.is_admin()` itself** (in the `WHERE`, or the body for the JSONB one), making non-admins get zero rows / an exception:
 
@@ -79,11 +76,11 @@ The Users / Subscriptions / Usage modules need data ACROSS users, but the billin
 - `admin_list_usage(period_keys[])` - `usage_counters` rows for the passed period keys. Scoped to the current period so the read stays bounded (the table grows ~ users x features x periods; daily rows accumulate one per user per day). If the base grows, add pagination / a top-N cap.
 - `admin_user_detail(user_id, period_keys[])` - a single JSONB bundle for the detail drawer: subscription + usage for the periods + ticket count + the **target** user's `is_admin` flag (display-only; the caller is still gated on being an admin).
 
-All are READ-only and `GRANT EXECUTE ... TO authenticated` (safe because of the in-function `is_admin()` check). The audit module needs no RPC: `admin_audit_log` already has an `is_admin()` SELECT policy from `027`, so it reads directly. Tier caps for the usage views come from the public-read `tier_limits` table via `getTierConfigs()`.
+All are READ-only and `GRANT EXECUTE ... TO authenticated` (safe because of the in-function `is_admin()` check). The audit module needs no RPC: `admin_audit_log` already has an `is_admin()` SELECT policy, so it reads directly. Tier caps for the usage views come from the public-read `tier_limits` table via `getTierConfigs()`.
 
-### Tier write RPCs (migration `030`)
+### Tier write RPCs (migration `006_admin_console.sql`)
 
-The Tier limits / Feature flags modules edit `tier_limits`, which is public-read with **no client write policies** (service-role only, migration `011`). The web app never holds the service-role key, so - same pattern again - each write is a SECURITY DEFINER function that re-checks `public.is_admin()` itself:
+The Tier limits / Feature flags modules edit `tier_limits`, which is public-read with **no client write policies** (service-role only, see `002_billing_tiers.sql`). The web app never holds the service-role key, so - same pattern again - each write is a SECURITY DEFINER function that re-checks `public.is_admin()` itself:
 
 - `admin_set_tier_limit(tier_id, version, key, value)` - `jsonb_set` one cap in `limits`. `value` is a JSON number or null (unlimited).
 - `admin_set_tier_feature(tier_id, version, key, enabled)` - `jsonb_set` one boolean in `features`.
@@ -96,9 +93,9 @@ Guardrails built into both functions (not the UI):
 
 Reads for these modules come from the public-read `tier_limits` table via the same `getTierConfigs()` the pricing page uses. Edits propagate on the existing cache TTLs (pricing page ~60s revalidate, extension ~1h).
 
-### Storage read RPC (migration `031`)
+### Storage read RPC (migration `006_admin_console.sql`)
 
-The Storage module's data source is the `user_storage` gauge from migrations `020`-`022`: a running per-user byte total for the `listing-images` bucket, kept in lockstep by triggers on `storage.objects` (the same gauge the quota-enforcement triggers read). The table is own-row-only under RLS, so - same pattern as `029` - the cross-user read is a SECURITY DEFINER RPC that re-checks `public.is_admin()` itself:
+The Storage module's data source is the `user_storage` gauge from migration `004_storage_quota.sql`: a running per-user byte total for the `listing-images` bucket, kept in lockstep by triggers on `storage.objects` (the same gauge the quota-enforcement triggers read). The table is own-row-only under RLS, so - same pattern as the other cross-user reads - the read is a SECURITY DEFINER RPC that re-checks `public.is_admin()` itself:
 
 - `admin_list_storage()` - every `user_storage` row (`user_id`, `bytes_used`, `updated_at`), largest first. One row per user who has ever uploaded, so the read stays bounded without pagination.
 
@@ -112,7 +109,7 @@ Every new module MUST satisfy all of these (no exceptions):
 - [ ] Every mutation calls `log_admin_action(...)` so it lands in the audit log.
 - [ ] Destructive/irreversible actions call `requireReauth()` first and abort cleanly on cancel/failure.
 - [ ] Any privileged read (e.g. across users) is a SECURITY DEFINER RPC that re-checks `is_admin()` itself - never assume the app gate.
-- [ ] Any new admin table gets the commented-out AAL2 RESTRICTIVE policy stub (see migration `027`) so MFA enforcement is a one-step uncomment later.
+- [ ] Any new admin table gets the commented-out AAL2 RESTRICTIVE policy stub (see the end of `006_admin_console.sql`) so MFA enforcement is a one-step uncomment later.
 - [ ] The module's data fetch is RLS-scoped and does not trust a prior gate.
 
 ## Granting admin
@@ -131,7 +128,7 @@ Revoke by deleting the row. Keep the admin set small; every member has full read
 
 The single biggest future hardening. **Deferred** only because no MFA enroll/challenge flow exists in the web app yet (enforcing now would lock admins out). It is designed-for, not forgotten:
 
-- **Database:** migration `027` contains the exact `RESTRICTIVE` policies, commented out, on `support_tickets`, `support_ticket_replies`, and `admin_audit_log`. They require `(select auth.jwt()->>'aal') = 'aal2'`, ANDed with the existing admin policies. Uncomment to enforce at the DB level.
+- **Database:** the end of migration `006_admin_console.sql` contains the exact `RESTRICTIVE` policies, commented out, on `support_tickets`, `support_ticket_replies`, and `admin_audit_log`. They require `(select auth.jwt()->>'aal') = 'aal2'`, ANDed with the existing admin policies. Uncomment to enforce at the DB level.
 - **App gate:** `app/admin/layout.tsx` and `proxy.ts` each carry a `TODO(admin-mfa)` marker showing where to add a `supabase.auth.mfa.getAuthenticatorAssuranceLevel()` check that redirects to an MFA challenge/enroll page when `currentLevel !== 'aal2'`.
 - **Prerequisite:** build a TOTP enroll + challenge flow (Supabase `auth.mfa.enroll` / `challenge` / `verify`) reachable from `/account/security`, then enroll every admin before flipping the RESTRICTIVE policies on (otherwise admins lose access).
 
