@@ -139,6 +139,7 @@
     },
     "signup": {
       "title": "Créer un compte",
+      "emailInUse": "Un compte existe déjà avec cet email. Connectez-vous ci-dessous, ou réinitialisez votre mot de passe si vous l'avez oublié.",
       "passwordPlaceholder": "Mot de passe (8 caractères minimum)",
       "confirmPlaceholder": "Confirmer le mot de passe",
       "submitIdle": "Créer un compte",
