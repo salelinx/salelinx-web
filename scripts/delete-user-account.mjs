@@ -5,7 +5,9 @@
 //      touch Storage)
 //   2. The Stripe customer (cancels any active subscription and detaches the
 //      payment method; Stripe retains invoices for legal/tax reasons)
-//   3. The auth.users row - ON DELETE CASCADE then removes listings,
+//   3. Their admin_audit_log rows, if any (actor_id has no cascade, so an
+//      admin's audit rows would otherwise block deletion)
+//   4. The auth.users row - ON DELETE CASCADE then removes listings,
 //      platform_credentials, user_settings, linked_accounts, subscriptions,
 //      usage_counters, user_storage, support_tickets, and replies
 //
@@ -165,7 +167,16 @@ async function main() {
     }
   }
 
-  // 3. Auth user - cascades all remaining user-owned rows
+  // 3. If the user is (or was) an admin, their audit rows block deletion:
+  // admin_audit_log.actor_id has no cascade by design. Metadata contains no
+  // personal data, so removing the rows loses nothing that must be kept.
+  const { error: auditErr } = await supabase
+    .from('admin_audit_log')
+    .delete()
+    .eq('actor_id', user.id);
+  if (auditErr) fail(`audit log cleanup failed: ${auditErr.message}`);
+
+  // 4. Auth user - cascades all remaining user-owned rows
   const { error: delErr } = await supabase.auth.admin.deleteUser(user.id);
   if (delErr) fail(`deleteUser failed: ${delErr.message}`);
   console.log(`Deleted auth user ${user.id} and all cascaded rows.`);

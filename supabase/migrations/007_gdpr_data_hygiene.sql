@@ -14,13 +14,40 @@
 -- =============================================================================
 -- 1. Cascade user deletion into support_tickets
 -- =============================================================================
+-- The FK is dropped by lookup, not by name: 003_support.sql is a consolidated
+-- baseline, so a database built from the original migration series may carry a
+-- differently named constraint.
 
-ALTER TABLE public.support_tickets
-  DROP CONSTRAINT support_tickets_user_id_fkey;
+DO $$
+DECLARE
+  fk_name TEXT;
+BEGIN
+  SELECT conname INTO fk_name
+  FROM pg_constraint
+  WHERE conrelid = 'public.support_tickets'::regclass
+    AND contype = 'f'
+    AND confrelid = 'auth.users'::regclass;
+  IF fk_name IS NOT NULL THEN
+    EXECUTE format('ALTER TABLE public.support_tickets DROP CONSTRAINT %I', fk_name);
+  END IF;
+END;
+$$;
 
 ALTER TABLE public.support_tickets
   ADD CONSTRAINT support_tickets_user_id_fkey
   FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- =============================================================================
+-- 1b. Scrub PII that past ticket deletions copied into the audit log
+-- =============================================================================
+-- The admin UI used to snapshot the deleted ticket's message and user_id into
+-- admin_audit_log.metadata. The UI no longer does; remove it from old rows so
+-- audit entries cannot outlive an erasure request.
+
+UPDATE public.admin_audit_log
+  SET metadata = metadata - 'message' - 'user_id'
+  WHERE action = 'ticket.delete'
+    AND (metadata ? 'message' OR metadata ? 'user_id');
 
 -- =============================================================================
 -- 2. Drop the never-written buyer_info column
