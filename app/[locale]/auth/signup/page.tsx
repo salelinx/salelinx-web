@@ -44,6 +44,15 @@ export default function SignupPage() {
       return;
     }
 
+    // Supabase anti-enumeration: signing up with an already-registered email
+    // returns a fake success with an EMPTY identities array and sends no
+    // email. Without this check the user sits on "check your inbox" forever.
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      setStatus("idle");
+      setError(t("signup.emailInUse"));
+      return;
+    }
+
     // If email confirmation is disabled in Supabase, we get a session immediately.
     if (data.session) {
       window.location.href = "/account";

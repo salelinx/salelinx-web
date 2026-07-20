@@ -139,6 +139,7 @@
     },
     "signup": {
       "title": "Create account",
+      "emailInUse": "An account with this email already exists. Sign in below, or reset your password if you have forgotten it.",
       "passwordPlaceholder": "Password (min 8 characters)",
       "confirmPlaceholder": "Confirm password",
       "submitIdle": "Create account",
