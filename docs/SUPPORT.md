@@ -88,6 +88,22 @@ We use RFC 5322 `Message-ID` / `In-Reply-To` / `References` headers, not subject
 
 `[<Type>] <first 50 chars of the message>` for the staff notification and admin reply. `<Type>` is `Bug` / `Feature` / `Feedback`. The auto-ack uses a friendlier subject (`We received your support request [<Type>]`). Platform is not in the subject; it shows up in the staff notification body as a `Platform:` row.
 
+## Retention and personal data
+
+- Closed tickets (and their replies, via cascade) are purged 24 months after
+  their last update by `purge_old_support_tickets()` (migration
+  `007_gdpr_data_hygiene.sql`, scheduled nightly via pg_cron). This matches the
+  retention period stated in the privacy policy.
+- `support_tickets.user_id` cascades on user deletion (also migration 007), so
+  the account deletion runbook in `docs/GDPR.md` removes tickets automatically.
+- The ticket-delete audit entry deliberately records only `type`, `created_at`,
+  and `reauthenticated` - never the message body or user_id, so audit rows do
+  not outlive an erasure request.
+- The Edge Function logs user UUIDs but never email addresses or message
+  content (see the development rules in `docs/GDPR.md`).
+- The purge only reaches the database: notification copies in the
+  `support@salelinx.com` inbox are cleaned up manually.
+
 ## Where things live
 
 | Concern                                      | File                                                            |

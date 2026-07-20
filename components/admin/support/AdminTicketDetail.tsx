@@ -132,11 +132,11 @@ export function AdminTicketDetail({
       return;
     }
 
-    // Snapshot the deleted row for forensics (the row is gone after this).
+    // Audit the deletion without copying personal data into the log: the
+    // audit row must not outlive an erasure request, so no message body or
+    // user_id here. The ticket id is already recorded as p_target_id.
     await logAction("ticket.delete", {
       type: ticket.type,
-      message: ticket.message,
-      user_id: ticket.user_id,
       created_at: ticket.created_at,
       reauthenticated: true,
     });
