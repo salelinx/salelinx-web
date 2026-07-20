@@ -23,7 +23,8 @@ docs/
 ├── ENTITLEMENTS.md     tier_limits + usage_counters, config-driven gating
 ├── STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
 ├── EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
-└── SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
+├── SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
+└── GDPR.md             Data inventory (ROPA), retention, deletion/export runbooks, breach process
 ```
 
 ## After making changes
@@ -114,4 +115,6 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - Add extension-specific code here - that belongs in the other repo
 - Create a second Supabase project "for the website"
 - Introduce `middleware.ts` (deprecated in Next 16)
+- Log personal data (email addresses, message bodies, buyer data) in Edge Functions - user UUIDs are the ceiling; see `docs/GDPR.md`
+- Add a user-owned table without `REFERENCES auth.users(id) ON DELETE CASCADE` - it breaks the account deletion runbook in `docs/GDPR.md`
 - Use `node_modules`-style imports inside `supabase/functions/` - Deno only understands `https://` / `jsr:`

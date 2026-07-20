@@ -131,14 +131,14 @@ async function handleRequest(req: Request): Promise<Response> {
   const resendKey = Deno.env.get('RESEND_API_KEY');
   const resendFrom = Deno.env.get('RESEND_FROM');
   console.log(
-    `[send-shipping-labels] secrets: RESEND_API_KEY=${resendKey ? 'set' : 'MISSING'}, RESEND_FROM=${resendFrom ? `set ("${resendFrom}")` : 'MISSING'}`,
+    `[send-shipping-labels] secrets: RESEND_API_KEY=${resendKey ? 'set' : 'MISSING'}, RESEND_FROM=${resendFrom ? 'set' : 'MISSING'}`,
   );
   if (!resendKey || !resendFrom) {
     return json(503, { ok: false, error: 'Email service not configured', code: 'not_configured' });
   }
-  console.log(
-    `[send-shipping-labels] sending to ${body.to}, from ${resendFrom}, count=${body.count}`,
-  );
+  // Never log body.to: recipient email addresses are personal data and
+  // function logs are retained outside our control.
+  console.log(`[send-shipping-labels] sending, count=${body.count}`);
 
   const labelWord = body.count === 1 ? 'label' : 'labels';
   const dateStr = new Date().toLocaleDateString('en-GB', {

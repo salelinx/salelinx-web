@@ -271,3 +271,4 @@ If you want type safety locally, open individual function files in VSCode with t
 - **`email_change_current` goes to the OLD email address** (from `email_data.old_email`), `email_change_new` goes to the new one - use the right field for the recipient.
 - **`email_change_new` uses `token_hash_new`**, not `token_hash`, when building the verify URL.
 - **A failing hook breaks auth UX** - if `send-auth-email` returns non-200, the user sees "failed to send" on signup / reset. Monitor function logs after every deploy.
+- **Never `console.log` personal data** - no email addresses, message bodies, or buyer data in function logs; user UUIDs are the ceiling. Function logs are retained by Supabase outside our control. See `docs/GDPR.md`.

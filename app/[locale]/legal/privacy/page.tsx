@@ -1,19 +1,16 @@
 import { getTranslations } from "next-intl/server";
+import {
+  LegalSections,
+  type LegalSection,
+} from "@/components/legal/LegalSections";
 
 // The policy body is intentionally English-only and hardcoded rather than
 // translated through next-intl: it is a legal document, and a mistranslated
 // clause is a liability. Only the page title comes from the Legal namespace.
 
-const LAST_UPDATED = "14 July 2026";
+const LAST_UPDATED = "20 July 2026";
 
-interface Section {
-  heading: string;
-  paragraphs?: string[];
-  bullets?: string[];
-  trailing?: string[];
-}
-
-const SECTIONS: Section[] = [
+const SECTIONS: LegalSection[] = [
   {
     heading: "Who we are",
     paragraphs: [
@@ -28,6 +25,7 @@ const SECTIONS: Section[] = [
       "We only store listing content on our servers when you turn on cloud sync or backup features.",
       "Payments are handled by Stripe. We never see or store your card details.",
       "We do not sell or share your data with advertisers or data brokers, and we do not collect your browsing history.",
+      "Details about your buyers (names, delivery details on shipping labels) are processed on your device. They reach our systems only if you use the email shipping labels feature, and even then they are only passed through to deliver your email, never stored.",
     ],
   },
   {
@@ -45,6 +43,14 @@ const SECTIONS: Section[] = [
     paragraphs: [
       "To do its job, the extension reads and uses data from Depop and Vinted inside your browser: your session cookies and tokens, your listings, offers, orders, and conversations. This data is processed locally on your device.",
       "Except for the optional cloud features described above, none of it is transmitted to SaleLinx servers. In particular, we never receive your Depop or Vinted passwords, session cookies, or authentication tokens.",
+    ],
+  },
+  {
+    heading: "Order and buyer information",
+    paragraphs: [
+      "When you use order features such as shipping labels, the extension reads details about your sales from the marketplace, including your buyer's name, username, and the delivery details printed on the shipping label. This information belongs to your buyers, and it is processed on your device: it is held in memory while you use the feature, is not saved to our servers, and is not included in cloud sync.",
+      "If you use the email shipping labels feature, the label PDF (which contains the buyer details the carrier prints on the label) is sent through our servers and our email provider (Resend) solely to deliver it to the email address you choose. We do not store the PDF or the buyer details it contains after the email is sent.",
+      "For your buyers' personal data, you are the data controller: you decide to fetch it from the marketplace and where to send it. SaleLinx acts only on your instructions to deliver the email. You are responsible for handling your buyers' details lawfully, for example not forwarding labels to people who have no business receiving them.",
     ],
   },
   {
@@ -82,7 +88,7 @@ const SECTIONS: Section[] = [
     bullets: [
       "Supabase: authentication, database, and file storage (account data, subscription status, usage counters, and cloud-synced listings and images).",
       "Stripe: subscription payments and invoicing.",
-      "Resend: transactional email delivery.",
+      "Resend: transactional email delivery (account and support emails, and shipping label emails you choose to send, which can include label PDFs containing buyer delivery details).",
       "Vercel: hosting for the salelinx.com website.",
     ],
     trailing: [
@@ -93,6 +99,7 @@ const SECTIONS: Section[] = [
     heading: "Data retention and deletion",
     paragraphs: [
       "We keep your account data for as long as your account exists. Cloud-synced listings and images can be removed at any time from within the extension, which deletes them from our storage.",
+      "Support tickets and their replies are deleted 24 months after the ticket is closed.",
       "To delete your account and all associated data, email support@salelinx.com from your account email address. We will complete the deletion within 30 days, except for records we are legally required to keep (for example invoices).",
     ],
   },
@@ -112,7 +119,7 @@ const SECTIONS: Section[] = [
   {
     heading: "Cookies",
     paragraphs: [
-      "The salelinx.com website uses only essential cookies, which keep you signed in to your account. We do not use advertising or cross-site tracking cookies.",
+      "The salelinx.com website uses only essential and preference cookies: sign-in cookies that keep you logged in to your account, and a cookie that remembers your light or dark theme choice. We do not use advertising or cross-site tracking cookies.",
     ],
   },
   {
@@ -148,34 +155,7 @@ export default async function PrivacyPage({
         This policy is provided in English.
       </p>
 
-      {SECTIONS.map((section) => (
-        <section key={section.heading} className="mt-10">
-          <h2 className="text-xl font-semibold">{section.heading}</h2>
-          {section.paragraphs?.map((p) => (
-            <p
-              key={p.slice(0, 40)}
-              className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400"
-            >
-              {p}
-            </p>
-          ))}
-          {section.bullets && (
-            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-              {section.bullets.map((b) => (
-                <li key={b.slice(0, 40)}>{b}</li>
-              ))}
-            </ul>
-          )}
-          {section.trailing?.map((p) => (
-            <p
-              key={p.slice(0, 40)}
-              className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400"
-            >
-              {p}
-            </p>
-          ))}
-        </section>
-      ))}
+      <LegalSections sections={SECTIONS} />
     </main>
   );
 }

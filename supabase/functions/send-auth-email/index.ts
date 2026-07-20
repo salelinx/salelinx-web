@@ -143,8 +143,10 @@ Deno.serve(async (req) => {
     locale,
   } satisfies RenderInput);
 
+  // Never log the recipient email: it is personal data and function logs are
+  // retained outside our control. The user id is enough to correlate.
   console.log(
-    `[send-auth-email] type=${actionType} locale=${locale} user=${user.id} to=${recipient}`,
+    `[send-auth-email] type=${actionType} locale=${locale} user=${user.id}`,
   );
 
   try {
