@@ -126,6 +126,21 @@ export default function SignupPage() {
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
+      <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+        {t.rich("signup.agree", {
+          terms: (chunks) => (
+            <Link href="/legal/terms" className="underline">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/legal/privacy" className="underline">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
+
       <div className="mt-6 text-sm">
         {t("signup.haveAccount")}{" "}
         <Link href="/auth/login" className="underline">

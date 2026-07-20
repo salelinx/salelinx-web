@@ -35,7 +35,7 @@ const SECTIONS: LegalSection[] = [
       "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
       "Usage counters. We record counts of metered actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan. These are numbers only, not the content of the actions.",
-      "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply.",
+      "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply, along with basic diagnostics attached to the ticket (extension version, browser user agent, language, and which marketplace it concerns).",
     ],
   },
   {

@@ -146,6 +146,7 @@
       "submitSubmitting": "Création du compte…",
       "haveAccount": "Vous avez déjà un compte ?",
       "signIn": "Se connecter",
+      "agree": "En créant un compte, vous acceptez les <terms>Conditions d'utilisation</terms> et la <privacy>Politique de confidentialité</privacy>.",
       "checkEmailBody": "Nous avons envoyé un lien de confirmation à <email></email>. Cliquez dessus pour finaliser la création de votre compte."
     },
     "forgotPassword": {
