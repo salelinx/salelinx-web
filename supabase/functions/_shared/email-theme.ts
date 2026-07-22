@@ -111,16 +111,20 @@ type LayoutInput = {
 };
 
 /**
- * The shell every email shares: cream page, centred white card, wordmark,
- * optional eyebrow, body, divider, footer.
+ * The shell every email shares: cream page, centred white card, logo lockup,
+ * optional eyebrow, body, footer.
  *
- * The wordmark is live text, not an image. Most clients block remote images by
- * default, and a brand that only appears after "show images" is worse than one
- * that always renders.
+ * The masthead mirrors the site header exactly: the logo mark next to the
+ * "SaleLinx" wordmark. Both are present on purpose. Many clients block remote
+ * images until the reader allows them, and the text half means the brand still
+ * reads when that happens, so the mark is decorative (alt="") rather than
+ * carrying the name on its own.
  */
 export function emailLayout(input: LayoutInput): string {
   const { preheader, eyebrow, bodyHtml, footerNote } = input;
   const siteUrl = input.siteUrl || "https://www.salelinx.com";
+  // Absolute URL: email clients have no origin to resolve a relative path from.
+  const logoUrl = `${siteUrl.replace(/\/$/, "")}/salelinx-logo.png`;
 
   const eyebrowHtml = eyebrow
     ? `<div style="margin:0 0 14px;font-family:${MONO_STACK};font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:${theme.muted};">${eyebrow}</div>`
@@ -148,7 +152,14 @@ export function emailLayout(input: LayoutInput): string {
           <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;">
             <tr>
               <td style="padding:0 4px 18px;">
-                <a href="${siteUrl}" style="font-family:${FONT_STACK};font-size:17px;font-weight:600;letter-spacing:-0.02em;color:${theme.ink};text-decoration:none;">SaleLinx</a>
+                <a href="${siteUrl}" style="text-decoration:none;color:${theme.ink};">
+                  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+                    <td style="padding:0 9px 0 0;vertical-align:middle;">
+                      <img src="${logoUrl}" width="20" height="28" alt="" style="display:block;width:20px;height:28px;border:0;outline:none;text-decoration:none;" />
+                    </td>
+                    <td style="vertical-align:middle;font-family:${FONT_STACK};font-size:17px;font-weight:600;letter-spacing:-0.02em;color:${theme.ink};">SaleLinx</td>
+                  </tr></table>
+                </a>
               </td>
             </tr>
           </table>
