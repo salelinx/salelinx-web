@@ -34,7 +34,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import {
-  LOGO_ATTACHMENT,
+  EMAIL_ASSETS,
   emailLayout,
   escapeHtml,
   heading,
@@ -222,7 +222,7 @@ async function handleRequest(req: Request): Promise<Response> {
       // The label PDF the user asked for, plus the inline masthead logo.
       attachments: [
         { filename: body.filename, content: body.pdfBase64 },
-        LOGO_ATTACHMENT,
+        ...EMAIL_ASSETS,
       ],
     }),
   });
