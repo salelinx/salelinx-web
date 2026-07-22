@@ -24,13 +24,31 @@ type EmailOtpType =
   | "email_change"
   | "email";
 
+function isSafePath(path: string): boolean {
+  return path.startsWith("/") && !path.startsWith("//");
+}
+
 // Only same-origin relative paths are safe to forward to. Anything else (a
 // full URL, a protocol-relative //evil.com) is discarded for the default.
 function safeNext(raw: string | null): string {
   if (!raw) return "/account";
   try {
-    const path = raw.startsWith("http") ? new URL(raw).pathname + new URL(raw).search : raw;
-    if (!path.startsWith("/") || path.startsWith("//")) return "/account";
+    const url = raw.startsWith("http") ? new URL(raw) : null;
+    const path = url ? url.pathname + url.search : raw;
+    if (!isSafePath(path)) return "/account";
+
+    // The email's redirect_to targets /auth/callback?next=/x, which exists to
+    // exchange a code for a session. We have already verified here, so skip
+    // that hop and go straight to the inner destination. This is not just an
+    // optimisation: /auth/callback lives outside [locale], so next-intl's
+    // router would prefix it to /fr/auth/callback and 404 for every non-English
+    // user.
+    if (path.startsWith("/auth/callback")) {
+      const query = path.split("?")[1] ?? "";
+      const inner = new URLSearchParams(query).get("next");
+      return inner && isSafePath(inner) ? inner : "/account";
+    }
+
     return path;
   } catch {
     return "/account";
