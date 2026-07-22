@@ -33,6 +33,15 @@
 // @ts-nocheck — this file runs under Deno, not the extension's TS config.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import {
+  emailLayout,
+  escapeHtml,
+  heading,
+  metaRow,
+  metaTable,
+  MONO_STACK,
+  paragraph,
+} from '../_shared/email-theme.ts';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -169,53 +178,33 @@ async function handleRequest(req: Request): Promise<Response> {
 
   // HTML version — most modern mail clients render this; plain-text fallback
   // above covers the rest.
-  const html = `<!doctype html>
-<html>
-  <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#18181b;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <tr>
-              <td style="padding:28px 32px 8px;">
-                <p style="margin:0 0 16px;font-size:15px;line-height:1.55;color:#27272a;">Hi,</p>
-                <p style="margin:0 0 20px;font-size:15px;line-height:1.55;color:#27272a;">
-                  Your shipping ${labelWord} ${body.count === 1 ? 'is' : 'are'} attached and ready to print.
-                </p>
-                <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 24px;font-size:14px;color:#3f3f46;">
-                  <tr>
-                    <td style="padding:6px 20px 6px 0;color:#71717a;">Count</td>
-                    <td style="padding:6px 0;font-weight:600;color:#18181b;">${body.count} ${labelWord}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:6px 20px 6px 0;color:#71717a;">File</td>
-                    <td style="padding:6px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#18181b;">${body.filename}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:6px 20px 6px 0;color:#71717a;">Date</td>
-                    <td style="padding:6px 0;color:#18181b;">${dateStr}</td>
-                  </tr>
-                </table>
-                <p style="margin:0 0 16px;font-size:13px;line-height:1.55;color:#52525b;">
-                  For best results, print at 4 × 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.
-                </p>
-                <p style="margin:0 0 24px;font-size:13px;line-height:1.55;color:#52525b;">
-                  Reply to this email if anything looks off.
-                </p>
-                <p style="margin:0;font-size:15px;color:#27272a;">Thanks.</p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:16px 32px 24px;border-top:1px solid #f4f4f5;font-size:11px;color:#a1a1aa;">
-                Generated automatically by your shipping workflow.
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
+  const html = emailLayout({
+    preheader: `${body.count} ${labelWord} attached, ready to print.`,
+    eyebrow: 'Shipping labels',
+    bodyHtml: `
+      ${heading(`Your ${labelWord} ${body.count === 1 ? 'is' : 'are'} ready`)}
+      ${paragraph(
+        `${body.count === 1 ? 'It is' : 'They are'} attached to this email and ready to print.`,
+        22,
+      )}
+      ${metaTable(
+        [
+          metaRow('Count', `${body.count} ${labelWord}`),
+          metaRow(
+            'File',
+            `<span style="font-family:${MONO_STACK};">${escapeHtml(body.filename)}</span>`,
+          ),
+          metaRow('Date', escapeHtml(dateStr)),
+        ].join(''),
+      )}
+      ${paragraph(
+        'For best results, print at 4 x 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
+        14,
+      )}
+      ${paragraph('Reply to this email if anything looks off.', 0)}
+    `,
+    footerNote: 'Generated automatically by your shipping workflow.',
+  });
 
   const resp = await fetch('https://api.resend.com/emails', {
     method: 'POST',

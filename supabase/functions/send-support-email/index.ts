@@ -26,6 +26,17 @@
 // back into the panel yet. That's a future addition.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import {
+  emailLayout,
+  escapeHtml,
+  FONT_STACK,
+  heading,
+  metaRow,
+  metaTable,
+  panel,
+  paragraph,
+  theme,
+} from "../_shared/email-theme.ts";
 
 // ============================================================================
 // Email rendering (subject + HTML + plaintext). Kept inline so the Supabase
@@ -54,45 +65,8 @@ function truncate(text: string, max: number): string {
   return collapsed.slice(0, max).trimEnd() + "...";
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
 function formatBody(body: string): string {
   return escapeHtml(body).replace(/\n/g, "<br />");
-}
-
-function layout(innerHtml: string): string {
-  return `<!doctype html>
-<html>
-  <body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1c1917;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f5f4;padding:32px 0;">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background:#ffffff;border-radius:12px;padding:32px;max-width:600px;border:1px solid #e7e5e4;">
-            <tr>
-              <td>
-                ${innerHtml}
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
-}
-
-function metaRow(label: string, value: string): string {
-  return `<tr>
-    <td style="padding:4px 12px 4px 0;font-size:13px;color:#78716c;vertical-align:top;white-space:nowrap;">${label}</td>
-    <td style="padding:4px 0;font-size:13px;color:#1c1917;word-break:break-all;">${value}</td>
-  </tr>`;
 }
 
 type NewTicketInput = {
@@ -133,18 +107,17 @@ function renderNewTicket(input: NewTicketInput): Rendered {
     metaRow("Created", escapeHtml(input.createdAt)),
   ].join("");
 
-  const html = layout(`
-    <h1 style="font-size:18px;font-weight:600;margin:0 0 16px;">New support ticket</h1>
-    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
-      ${metaRows}
-    </table>
-    <div style="background:#fafaf9;border:1px solid #e7e5e4;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;color:#1c1917;white-space:pre-wrap;">
-      ${formatBody(input.message)}
-    </div>
-    <p style="font-size:12px;color:#a8a29e;margin:24px 0 0;">
-      Reply by email to keep the conversation in this thread. (Replies are not sent back to the user yet - reach them at the From address above.)
-    </p>
-  `);
+  const html = emailLayout({
+    preheader: truncate(input.message, 90),
+    eyebrow: "New ticket",
+    bodyHtml: `
+      ${heading("New support ticket")}
+      ${metaTable(metaRows)}
+      ${panel(formatBody(input.message))}
+    `,
+    footerNote:
+      "Reply by email to keep the conversation in this thread. (Replies are not sent back to the user yet, reach them at the From address above.)",
+  });
 
   const lines = [
     `New support ticket`,
@@ -173,15 +146,15 @@ function renderNewReply(input: NewReplyInput): Rendered {
     metaRow("Sent", escapeHtml(input.createdAt)),
   ].join("");
 
-  const html = layout(`
-    <h1 style="font-size:18px;font-weight:600;margin:0 0 16px;">New reply on ticket</h1>
-    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
-      ${metaRows}
-    </table>
-    <div style="background:#fafaf9;border:1px solid #e7e5e4;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;color:#1c1917;white-space:pre-wrap;">
-      ${formatBody(input.replyBody)}
-    </div>
-  `);
+  const html = emailLayout({
+    preheader: truncate(input.replyBody, 90),
+    eyebrow: "Ticket reply",
+    bodyHtml: `
+      ${heading("New reply on ticket")}
+      ${metaTable(metaRows)}
+      ${panel(formatBody(input.replyBody))}
+    `,
+  });
 
   const text = [
     `New reply on ticket`,
@@ -218,22 +191,26 @@ type AdminReplyToUserInput = {
 function renderAck(input: AckInput): Rendered {
   const subject = `We received your support request [${typeLabel(input.type)}]`;
 
-  const html = layout(`
-    <h1 style="font-size:18px;font-weight:600;margin:0 0 16px;">Thanks - we got your message</h1>
-    <p style="font-size:14px;line-height:1.6;color:#1c1917;margin:0 0 16px;">
-      We've logged your ${escapeHtml(typeLabel(input.type).toLowerCase())} and the team will follow up here. You can track and reply to this ticket any time at
-      <a href="https://salelinx.com/account/tickets" style="color:#1c1917;">salelinx.com/account/tickets</a>.
-    </p>
-    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
-      ${metaRow("Type", escapeHtml(typeLabel(input.type)))}
-      ${metaRow("Ticket ID", escapeHtml(input.ticketId))}
-      ${metaRow("Received", escapeHtml(input.createdAt))}
-    </table>
-    <p style="font-size:13px;color:#78716c;margin:0 0 8px;">Your message:</p>
-    <div style="background:#fafaf9;border:1px solid #e7e5e4;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;color:#1c1917;white-space:pre-wrap;">
-      ${formatBody(input.message)}
-    </div>
-  `);
+  const html = emailLayout({
+    preheader: "We logged your request and the team will follow up here.",
+    eyebrow: "Support",
+    bodyHtml: `
+      ${heading("Thanks, we got your message")}
+      ${paragraph(
+        `We've logged your ${escapeHtml(typeLabel(input.type).toLowerCase())} and the team will follow up here. You can track and reply to this ticket any time at <a href="https://salelinx.com/account/tickets" style="color:${theme.ink};">salelinx.com/account/tickets</a>.`,
+        20,
+      )}
+      ${metaTable(
+        [
+          metaRow("Type", escapeHtml(typeLabel(input.type))),
+          metaRow("Ticket ID", escapeHtml(input.ticketId)),
+          metaRow("Received", escapeHtml(input.createdAt)),
+        ].join(""),
+      )}
+      <p style="margin:0 0 8px;font-family:${FONT_STACK};font-size:13px;color:${theme.muted};">Your message:</p>
+      ${panel(formatBody(input.message))}
+    `,
+  });
 
   const text = [
     `Thanks - we got your message`,
@@ -257,16 +234,15 @@ function renderAck(input: AckInput): Rendered {
 function renderAdminReplyToUser(input: AdminReplyToUserInput): Rendered {
   const subject = `[${typeLabel(input.ticketType)}] ${truncate(input.ticketSubjectPreview, 50)}`;
 
-  const html = layout(`
-    <h1 style="font-size:18px;font-weight:600;margin:0 0 16px;">SaleLinx Support replied</h1>
-    <div style="background:#fafaf9;border:1px solid #e7e5e4;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;color:#1c1917;white-space:pre-wrap;">
-      ${formatBody(input.replyBody)}
-    </div>
-    <p style="font-size:12px;color:#a8a29e;margin:24px 0 0;">
-      Reply to this email, or pick up the conversation at
-      <a href="https://salelinx.com/account/tickets" style="color:#a8a29e;">salelinx.com/account/tickets</a> (Ticket ${escapeHtml(input.ticketId)}).
-    </p>
-  `);
+  const html = emailLayout({
+    preheader: truncate(input.replyBody, 90),
+    eyebrow: "Support",
+    bodyHtml: `
+      ${heading("SaleLinx Support replied")}
+      ${panel(formatBody(input.replyBody))}
+    `,
+    footerNote: `Reply to this email, or pick up the conversation at <a href="https://salelinx.com/account/tickets" style="color:${theme.muted};">salelinx.com/account/tickets</a> (Ticket ${escapeHtml(input.ticketId)}).`,
+  });
 
   const text = [
     `SaleLinx Support replied`,
