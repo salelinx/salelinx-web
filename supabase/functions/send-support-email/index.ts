@@ -27,6 +27,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
+  LOGO_ATTACHMENT,
   emailLayout,
   escapeHtml,
   FONT_STACK,
@@ -346,6 +347,9 @@ async function sendViaResend(args: ResendSendArgs): Promise<ResendSendResult> {
       html: args.html,
       text: args.text,
       headers: args.headers,
+      // Inline masthead logo. Referenced as cid: in the HTML, so it renders
+      // without the reader having to allow remote images.
+      attachments: [LOGO_ATTACHMENT],
     }),
   });
 

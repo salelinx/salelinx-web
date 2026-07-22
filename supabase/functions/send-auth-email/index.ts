@@ -9,6 +9,7 @@
 // The dashboard reveals the signing secret in the form `v1,whsec_<base64>`.
 
 import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
+import { LOGO_ATTACHMENT } from "../_shared/email-theme.ts";
 import {
   type EmailActionType,
   type Locale,
@@ -107,6 +108,9 @@ async function sendViaResend(args: {
       subject: args.subject,
       html: args.html,
       text: args.text,
+      // Inline masthead logo. Referenced as cid: in the HTML, so it renders
+      // without the reader having to allow remote images.
+      attachments: [LOGO_ATTACHMENT],
     }),
   });
 
