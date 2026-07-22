@@ -89,7 +89,13 @@ function ConfirmInner() {
 
   const tokenHash = params.get("token_hash");
   const type = normaliseType(params.get("type"));
-  const next = safeNext(params.get("next"));
+  // A recovery link exists to set a new password, so it always lands on the
+  // reset form no matter what `next` says. Supabase rewrites redirect_to to the
+  // bare Site URL whenever the requested one is not in the Redirect URLs
+  // allowlist, and honouring that dropped the user on the homepage, signed in
+  // via verifyOtp but never asked to choose a password.
+  const next =
+    type === "recovery" ? "/auth/reset-password" : safeNext(params.get("next"));
 
   const [status, setStatus] = useState<"idle" | "verifying">("idle");
   const [error, setError] = useState<string | null>(null);
