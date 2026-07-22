@@ -74,6 +74,10 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
 supabase secrets set RESEND_API_KEY=re_...
 supabase secrets set RESEND_FROM='SaleLinx <no-reply@yourdomain.com>'
 supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
+# Public site origin. Auth email links point here (/auth/confirm), not at
+# Supabase's /auth/v1/verify - see docs/AUTH.md. Falls back to the hook
+# payload's site_url if unset.
+supabase secrets set SITE_URL='https://www.salelinx.com'
 supabase secrets set SUPPORT_NOTIFY_FROM='SaleLinx Support <support@salelinx.com>'
 supabase secrets set SUPPORT_NOTIFY_TO='support@salelinx.com'
 supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'

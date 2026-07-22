@@ -161,7 +161,28 @@
       "newPwPlaceholder": "Nueva contraseña (mín. 8 caracteres)",
       "confirmPlaceholder": "Confirmar nueva contraseña",
       "submitIdle": "Guardar nueva contraseña",
-      "submitSubmitting": "Guardando…"
+      "submitSubmitting": "Guardando…",
+      "noSessionTitle": "El enlace ya no es válido",
+      "noSessionBody": "No pudimos confirmar tu identidad con ese enlace. Solicita uno nuevo para establecer tu contraseña."
+    },
+    "confirm": {
+      "title": "Confirma tu correo",
+      "body": "Pulsa el botón de abajo para confirmar. Solo lo completamos cuando haces clic, así los escáneres de enlaces de tu bandeja no pueden gastarlo antes.",
+      "submit": "Confirmar",
+      "recoveryTitle": "Restablece tu contraseña",
+      "recoveryBody": "Pulsa el botón de abajo para continuar. Solo lo completamos cuando haces clic, así los escáneres de enlaces de tu bandeja no pueden gastarlo antes.",
+      "recoverySubmit": "Continuar para restablecer",
+      "submitSubmitting": "Verificando…",
+      "invalidTitle": "Enlace incompleto",
+      "invalidBody": "A este enlace le falta información que necesitamos. Puede que tu cliente de correo lo haya modificado.",
+      "requestNew": "Solicitar un enlace nuevo"
+    },
+    "linkError": {
+      "title": "Ese enlace no funcionó",
+      "body": "No pudimos verificar ese enlace. Puede que ya se haya usado.",
+      "expiredTitle": "Ese enlace ha caducado",
+      "expiredBody": "Los enlaces de restablecimiento solo se pueden usar una vez. Solicita uno nuevo y funcionará de inmediato.",
+      "requestNew": "Enviarme un enlace nuevo"
     }
   },
   "Account": {

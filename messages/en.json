@@ -161,7 +161,28 @@
       "newPwPlaceholder": "New password (min 8 characters)",
       "confirmPlaceholder": "Confirm new password",
       "submitIdle": "Save new password",
-      "submitSubmitting": "Saving…"
+      "submitSubmitting": "Saving…",
+      "noSessionTitle": "Link no longer valid",
+      "noSessionBody": "We could not confirm your identity from that link. Request a new one to set your password."
+    },
+    "confirm": {
+      "title": "Confirm your email",
+      "body": "Press the button below to confirm. We only complete this when you click, so link scanners in your inbox cannot use it up first.",
+      "submit": "Confirm",
+      "recoveryTitle": "Reset your password",
+      "recoveryBody": "Press the button below to continue. We only complete this when you click, so link scanners in your inbox cannot use it up first.",
+      "recoverySubmit": "Continue to reset password",
+      "submitSubmitting": "Verifying…",
+      "invalidTitle": "Link incomplete",
+      "invalidBody": "This link is missing information we need. It may have been altered by your email client.",
+      "requestNew": "Request a new link"
+    },
+    "linkError": {
+      "title": "That link did not work",
+      "body": "We could not verify that link. It may have already been used.",
+      "expiredTitle": "That link has expired",
+      "expiredBody": "Password reset links can only be used once. Request a new one and it will work straight away.",
+      "requestNew": "Send me a new link"
     }
   },
   "Account": {

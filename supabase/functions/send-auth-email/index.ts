@@ -51,7 +51,22 @@ const HOOK_SECRET = HOOK_SECRET_RAW.replace(/^v1,whsec_/, "");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+// Public site origin, e.g. https://www.salelinx.com. Auth email links point
+// here, not at Supabase (see buildVerifyUrl). Falls back to the hook payload's
+// site_url when unset so a missing secret degrades rather than breaks.
+const SITE_URL = Deno.env.get("SITE_URL") ?? "";
 
+// The link must NOT point at Supabase's /auth/v1/verify. That URL consumes the
+// one-time token on any GET, and mail security scanners (Outlook Safe Links,
+// Gmail, Proofpoint) plus link-tracking proxies fetch every URL in an inbound
+// email on delivery. The scanner spends the token seconds after send, and the
+// real click then fails with "One-time token not found", surfaced to the user
+// as otp_expired. Observed in the auth logs: a successful 303 /verify 7 seconds
+// after /recover, then 403 on the human's click 8 seconds later.
+//
+// So we point at our own /auth/confirm page, which holds the token_hash and
+// only calls verifyOtp after an explicit button press. Scanners fetch, they do
+// not click, so the token survives until the user acts on it.
 function buildVerifyUrl(
   actionType: EmailActionType,
   emailData: SupabaseEmailHookPayload["email_data"],
@@ -62,12 +77,16 @@ function buildVerifyUrl(
       ? emailData.token_hash_new
       : emailData.token_hash;
 
+  // redirect_to is where the user should land AFTER verification succeeds. It
+  // is already allowlisted in Supabase and is same-origin with SITE_URL, so we
+  // pass it through as `next` for /auth/confirm to forward to.
   const params = new URLSearchParams({
-    token: tokenHash,
+    token_hash: tokenHash,
     type: actionType,
-    redirect_to: emailData.redirect_to,
+    next: emailData.redirect_to,
   });
-  return `${SUPABASE_URL}/auth/v1/verify?${params.toString()}`;
+  const origin = SITE_URL || emailData.site_url;
+  return `${origin.replace(/\/$/, "")}/auth/confirm?${params.toString()}`;
 }
 
 async function sendViaResend(args: {

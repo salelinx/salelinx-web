@@ -161,7 +161,28 @@
       "newPwPlaceholder": "Neues Passwort (mind. 8 Zeichen)",
       "confirmPlaceholder": "Neues Passwort bestätigen",
       "submitIdle": "Neues Passwort speichern",
-      "submitSubmitting": "Wird gespeichert…"
+      "submitSubmitting": "Wird gespeichert…",
+      "noSessionTitle": "Link nicht mehr gültig",
+      "noSessionBody": "Wir konnten deine Identität über diesen Link nicht bestätigen. Fordere einen neuen an, um dein Passwort zu setzen."
+    },
+    "confirm": {
+      "title": "Bestätige deine E-Mail",
+      "body": "Drücke unten auf den Button, um zu bestätigen. Wir schließen das erst ab, wenn du klickst, damit Link-Scanner in deinem Postfach ihn nicht vorher verbrauchen.",
+      "submit": "Bestätigen",
+      "recoveryTitle": "Passwort zurücksetzen",
+      "recoveryBody": "Drücke unten auf den Button, um fortzufahren. Wir schließen das erst ab, wenn du klickst, damit Link-Scanner in deinem Postfach ihn nicht vorher verbrauchen.",
+      "recoverySubmit": "Weiter zum Zurücksetzen",
+      "submitSubmitting": "Wird geprüft…",
+      "invalidTitle": "Link unvollständig",
+      "invalidBody": "Diesem Link fehlen benötigte Informationen. Möglicherweise wurde er von deinem E-Mail-Programm verändert.",
+      "requestNew": "Neuen Link anfordern"
+    },
+    "linkError": {
+      "title": "Dieser Link hat nicht funktioniert",
+      "body": "Wir konnten diesen Link nicht verifizieren. Möglicherweise wurde er bereits verwendet.",
+      "expiredTitle": "Dieser Link ist abgelaufen",
+      "expiredBody": "Links zum Zurücksetzen funktionieren nur einmal. Fordere einen neuen an, dann klappt es sofort.",
+      "requestNew": "Neuen Link senden"
     }
   },
   "Account": {

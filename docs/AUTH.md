@@ -122,11 +122,29 @@ Without this, access tokens silently expire and users get unexpectedly logged ou
 Auth emails do **not** go through Supabase's SMTP. Supabase Auth is configured to POST every email to the `send-auth-email` Edge Function (Authentication → Hooks → Send email hook), which verifies the Standard Webhooks signature, renders an HTML template, and calls Resend.
 
 - Templates live in `supabase/functions/send-auth-email/templates.ts` - one per `email_action_type` (signup, recovery, magiclink, invite, email_change, reauthentication).
-- The link in every email points at `${SUPABASE_URL}/auth/v1/verify?token=<token_hash>&type=<action>&redirect_to=<redirect_to>`, which Supabase verifies and then redirects to our `/auth/callback`. The client-visible flow (code exchange, session cookies) is unchanged - we just own the visual layer of the email.
+- The link in every email points at `${SITE_URL}/auth/confirm?token_hash=<token_hash>&type=<action>&next=<redirect_to>`, **not** at Supabase's `/auth/v1/verify`. See "Why the link is not a verify URL" below. `/auth/confirm` calls `verifyOtp` on a button press and then forwards to `next`.
 - For `email_change` with "Secure email change" ON, Supabase fires the hook twice: once to the old address (`email_change_current`, using `old_email` as the recipient) and once to the new address (`email_change_new`, using `token_hash_new` to build the link).
 - A non-200 response from the hook causes the underlying auth action to fail with a user-visible error, so the function is a critical path - keep `RESEND_API_KEY`, `RESEND_FROM`, and `SEND_EMAIL_HOOK_SECRET` current.
 
 Full deploy / secret instructions are in `docs/EDGE-FUNCTIONS.md`.
+
+### Why the link is not a verify URL
+
+Supabase's `/auth/v1/verify` consumes the one-time token on **any** GET. Mail security scanners (Outlook Safe Links, Gmail, Proofpoint) and link-tracking proxies fetch every URL in an inbound email on delivery, which spends the token before the recipient ever clicks. The user then sees `otp_expired` on a link that is seconds old.
+
+This was observed in the Auth logs: a successful `303 GET /verify` ("login: request completed") 7 seconds after `POST /recover`, then `403 GET /verify` ("One-time token not found") on the human's click 8 seconds later.
+
+The fix is that the email link lands on our own `/auth/confirm` page, which holds `token_hash` and calls `supabase.auth.verifyOtp({ token_hash, type })` **only from the button's onClick**. Scanners fetch pages; they do not click buttons.
+
+- **Never auto-verify in a `useEffect` on `/auth/confirm`.** That reintroduces the bug exactly, because the scanner's GET would run the effect during SSR/hydration and burn the token.
+- The `SITE_URL` secret must be set on the Edge Function (e.g. `https://www.salelinx.com`). It falls back to the hook payload's `site_url` if unset.
+- This affects every auth email, not just recovery: signup, magiclink, invite, and email change all route through the same `buildVerifyUrl`.
+
+### When a link genuinely fails
+
+`proxy.ts` watches for `?error_code=` on any request (Supabase redirects to the Site URL with the error attached when verification fails) and forwards to `/auth/link-error`, which explains what happened and offers a new link. Supabase repeats the error in the URL hash, which never reaches the server, so that page also reads the hash client-side.
+
+`/auth/callback` returns to `/auth/link-error` when `exchangeCodeForSession` fails, rather than redirecting onward to a page that needs a session it does not have. `/auth/reset-password` checks for a session before rendering its form for the same reason.
 
 ## Supabase config needed
 

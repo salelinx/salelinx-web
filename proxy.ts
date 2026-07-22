@@ -10,6 +10,19 @@ const intlMiddleware = createIntlMiddleware(routing);
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // Supabase reports auth link failures by redirecting to the Site URL with
+  // ?error=...&error_code=... (it also repeats them in the hash, which the
+  // server cannot see). Nothing read these, so an expired or already-consumed
+  // link just rendered the homepage and looked like the site was broken.
+  // Forward them to a page that explains what happened and offers a new link.
+  const errorCode = request.nextUrl.searchParams.get("error_code");
+  if (errorCode && !pathname.startsWith("/auth/link-error")) {
+    const target = request.nextUrl.clone();
+    target.pathname = "/auth/link-error";
+    target.searchParams.delete("error");
+    return NextResponse.redirect(target);
+  }
+
   // Paths that must NOT be locale-prefixed by intlMiddleware but STILL need the
   // Supabase cookie refresh below: auth route handlers (outside [locale]) and
   // the top-level, non-localized /admin console tree.
