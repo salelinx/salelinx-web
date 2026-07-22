@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export default function ResetPasswordPage() {
@@ -12,6 +12,19 @@ export default function ResetPasswordPage() {
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
   const [error, setError] = useState<string | null>(null);
+  // updateUser needs a recovery session. Reaching this page without one used to
+  // render a form that could only fail on submit, so check up front and send
+  // the user somewhere useful instead.
+  const [session, setSession] = useState<"checking" | "present" | "missing">(
+    "checking",
+  );
+
+  useEffect(() => {
+    const supabase = createBrowserClient();
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session ? "present" : "missing");
+    });
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,6 +51,29 @@ export default function ResetPasswordPage() {
 
     router.push("/account");
     router.refresh();
+  }
+
+  if (session === "checking") {
+    return <main className="mx-auto w-full max-w-sm px-6 py-20" />;
+  }
+
+  if (session === "missing") {
+    return (
+      <main className="mx-auto w-full max-w-sm px-6 py-20">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {t("resetPassword.noSessionTitle")}
+        </h1>
+        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+          {t("resetPassword.noSessionBody")}
+        </p>
+        <Link
+          href="/auth/forgot-password"
+          className="mt-8 block w-full rounded-lg bg-black px-4 py-3 text-center text-white dark:bg-white dark:text-black"
+        >
+          {t("linkError.requestNew")}
+        </Link>
+      </main>
+    );
   }
 
   return (

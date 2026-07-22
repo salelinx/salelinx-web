@@ -161,7 +161,28 @@
       "newPwPlaceholder": "Nouveau mot de passe (8 caractères minimum)",
       "confirmPlaceholder": "Confirmer le nouveau mot de passe",
       "submitIdle": "Enregistrer le nouveau mot de passe",
-      "submitSubmitting": "Enregistrement…"
+      "submitSubmitting": "Enregistrement…",
+      "noSessionTitle": "Lien plus valide",
+      "noSessionBody": "Nous n'avons pas pu confirmer votre identité avec ce lien. Demandez-en un nouveau pour définir votre mot de passe."
+    },
+    "confirm": {
+      "title": "Confirmez votre e-mail",
+      "body": "Appuyez sur le bouton ci-dessous pour confirmer. Nous ne validons qu'au moment où vous cliquez, afin que les scanners de liens de votre boîte mail ne puissent pas l'utiliser avant vous.",
+      "submit": "Confirmer",
+      "recoveryTitle": "Réinitialisez votre mot de passe",
+      "recoveryBody": "Appuyez sur le bouton ci-dessous pour continuer. Nous ne validons qu'au moment où vous cliquez, afin que les scanners de liens de votre boîte mail ne puissent pas l'utiliser avant vous.",
+      "recoverySubmit": "Continuer vers la réinitialisation",
+      "submitSubmitting": "Vérification…",
+      "invalidTitle": "Lien incomplet",
+      "invalidBody": "Il manque des informations dans ce lien. Il a peut-être été modifié par votre client de messagerie.",
+      "requestNew": "Demander un nouveau lien"
+    },
+    "linkError": {
+      "title": "Ce lien n'a pas fonctionné",
+      "body": "Nous n'avons pas pu vérifier ce lien. Il a peut-être déjà été utilisé.",
+      "expiredTitle": "Ce lien a expiré",
+      "expiredBody": "Les liens de réinitialisation ne peuvent servir qu'une seule fois. Demandez-en un nouveau et il fonctionnera immédiatement.",
+      "requestNew": "Envoyez-moi un nouveau lien"
     }
   },
   "Account": {
