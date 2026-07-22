@@ -124,7 +124,13 @@ export function emailLayout(input: LayoutInput): string {
   const { preheader, eyebrow, bodyHtml, footerNote } = input;
   const siteUrl = input.siteUrl || "https://www.salelinx.com";
   // Absolute URL: email clients have no origin to resolve a relative path from.
-  const logoUrl = `${siteUrl.replace(/\/$/, "")}/salelinx-logo.png`;
+  //
+  // NOT salelinx-logo.png. That file carries its shape only in the alpha
+  // channel (every RGB pixel is 0,0,0), so any client that drops or flattens
+  // alpha renders it as a solid black rectangle, which is what mail clients
+  // did. salelinx-email-logo.png is the same mark pre-composited onto the
+  // masthead's cream with no alpha channel at all.
+  const logoUrl = `${siteUrl.replace(/\/$/, "")}/salelinx-email-logo.png`;
 
   const eyebrowHtml = eyebrow
     ? `<div style="margin:0 0 14px;font-family:${MONO_STACK};font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:${theme.muted};">${eyebrow}</div>`
