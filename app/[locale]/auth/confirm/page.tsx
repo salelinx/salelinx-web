@@ -33,7 +33,14 @@ function isSafePath(path: string): boolean {
 function safeNext(raw: string | null): string {
   if (!raw) return "/account";
   try {
-    const url = raw.startsWith("http") ? new URL(raw) : null;
+    let url: URL | null = null;
+    if (raw.startsWith("http")) {
+      url = new URL(raw);
+      // Reject a foreign origin outright rather than keeping its path. Not an
+      // open redirect either way (the result is always same-origin), but
+      // harvesting /steal out of https://evil.com/steal is not a sane default.
+      if (url.origin !== window.location.origin) return "/account";
+    }
     const path = url ? url.pathname + url.search : raw;
     if (!isSafePath(path)) return "/account";
 

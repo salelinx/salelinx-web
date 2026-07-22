@@ -50,20 +50,33 @@ router.push('/account') + router.refresh() (triggers server component re-render 
 ```
 User enters email on /auth/forgot-password
   ▼
-supabase.auth.resetPasswordForEmail(email, { redirectTo: /auth/callback?next=/auth/reset-password })
+supabase.auth.resetPasswordForEmail(email, { redirectTo })
   ▼
-Supabase sends recovery email
+Supabase Auth fires the send-email hook -> send-auth-email Edge Function
   ▼
-User clicks link → /auth/callback?code=...&next=/auth/reset-password
+Function emails a link to OUR page, never to /auth/v1/verify:
+  {SITE_URL}/auth/confirm?token_hash=...&type=recovery&next=...
   ▼
-Code exchanged → temporary session
+User clicks. The page renders a button and does NOTHING on load.
   ▼
-User lands on /auth/reset-password, enters new password
+User presses "Continue to reset password"
   ▼
-supabase.auth.updateUser({ password })
+supabase.auth.verifyOtp({ type: 'recovery', token_hash }) -> recovery session
+  ▼
+Always routes to /auth/reset-password (never `next`, see below)
+  ▼
+Page checks a session exists, then supabase.auth.updateUser({ password })
   ▼
 redirect to /account
 ```
+
+Three things about this flow are deliberate and easy to undo by accident:
+
+1. **The link points at our page, not `/auth/v1/verify`.** That endpoint spends the one-time token on any GET, and mail scanners fetch links on delivery. See "Why the link is not a verify URL" below.
+2. **`/auth/confirm` must not verify on mount.** The button press is the whole defence. A `useEffect` that auto-verifies reintroduces the bug exactly.
+3. **Recovery ignores `next` and always goes to `/auth/reset-password`.** Supabase silently rewrites `redirect_to` to the bare Site URL when the requested URL is not in the Redirect URLs allowlist. Honouring `next` therefore signed the user in and dropped them on the homepage, never asking for a password. A recovery link has exactly one valid destination, so it should not depend on dashboard config.
+
+Because `verifyOtp` takes a `token_hash` rather than exchanging a PKCE code, the link also works in a **different browser** from the one that requested it. The old code-exchange flow did not.
 
 ## Protecting routes
 
