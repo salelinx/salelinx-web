@@ -34,7 +34,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import {
-  LOGO_ATTACHMENT,
+  EMAIL_ASSETS,
   emailLayout,
   escapeHtml,
   heading,
@@ -42,6 +42,7 @@ import {
   metaTable,
   MONO_STACK,
   paragraph,
+  theme,
 } from '../_shared/email-theme.ts';
 
 const CORS_HEADERS = {
@@ -140,6 +141,10 @@ async function handleRequest(req: Request): Promise<Response> {
   // ── Send via Resend ──────────────────────────────────────────────────────
   const resendKey = Deno.env.get('RESEND_API_KEY');
   const resendFrom = Deno.env.get('RESEND_FROM');
+  // RESEND_FROM is no-reply@, so a bare "reply to this email" would dead-end.
+  // Point replies at the support inbox instead. Secrets are project-wide, so
+  // this is the same address send-support-email uses.
+  const supportTo = Deno.env.get('SUPPORT_NOTIFY_TO');
   console.log(
     `[send-shipping-labels] secrets: RESEND_API_KEY=${resendKey ? 'set' : 'MISSING'}, RESEND_FROM=${resendFrom ? 'set' : 'MISSING'}`,
   );
@@ -172,7 +177,9 @@ async function handleRequest(req: Request): Promise<Response> {
       '',
       'For best results, print at 4 × 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
       '',
-      'Reply to this email if anything looks off.',
+      supportTo
+        ? 'Reply to this email if anything looks off.'
+        : 'If anything looks off, contact us at salelinx.com/account/support.',
       '',
       'Thanks.',
     ].join('\n');
@@ -202,7 +209,12 @@ async function handleRequest(req: Request): Promise<Response> {
         'For best results, print at 4 x 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
         14,
       )}
-      ${paragraph('Reply to this email if anything looks off.', 0)}
+      ${paragraph(
+        supportTo
+          ? 'Reply to this email if anything looks off.'
+          : 'If anything looks off, contact us at <a href="https://salelinx.com/account/support" style="color:' + theme.ink + ';">salelinx.com/account/support</a>.',
+        0,
+      )}
     `,
     footerNote: 'Generated automatically by your shipping workflow.',
   });
@@ -216,13 +228,14 @@ async function handleRequest(req: Request): Promise<Response> {
     body: JSON.stringify({
       from: resendFrom,
       to: body.to,
+      ...(supportTo ? { reply_to: supportTo } : {}),
       subject,
       text,
       html,
       // The label PDF the user asked for, plus the inline masthead logo.
       attachments: [
         { filename: body.filename, content: body.pdfBase64 },
-        LOGO_ATTACHMENT,
+        ...EMAIL_ASSETS,
       ],
     }),
   });
