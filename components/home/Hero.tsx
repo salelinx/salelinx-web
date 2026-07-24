@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { HeroPreview } from './HeroPreview';
-import { Typewriter } from './Typewriter';
+import { RollingPhrase } from './RollingPhrase';
 
 // Sizes chosen so each wordmark's cap-height optically matches the
 // surrounding text. depop's viewBox is tight to letter bounds, so 0.85em
@@ -52,7 +52,7 @@ export async function Hero() {
         <Reveal delay={220}>
           <p className="mt-6 max-w-xl text-balance text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-400">
             {t.rich('heroSubtitle', {
-              word: () => <Typewriter words={t.raw('heroWords') as string[]} />,
+              word: () => <RollingPhrase words={t.raw('heroWords') as string[]} />,
             })}
           </p>
         </Reveal>
