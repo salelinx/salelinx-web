@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { SITE_NAME, absoluteUrl } from '@/lib/site';
+import { SITE_NAME, SITE_URL, absoluteUrl } from '@/lib/site';
 import { Hero } from '@/components/home/Hero';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
@@ -21,20 +21,57 @@ export default async function Home({
     getTierConfigs(),
   ]);
 
+  // One @graph so the brand is a single connected entity rather than three
+  // unrelated blobs: Organization is what search engines attach brand aliases
+  // and imagery to, and the other nodes point back at it.
+  const orgId = `${SITE_URL}/#organization`;
+  // The domain only ever spells the brand closed-up, so "sale linx" as two
+  // words has nothing to match against. alternateName is the supported way to
+  // declare the spellings people actually type.
+  const brandAliases = ['Sale Linx', 'Salelinx', 'sale linx'];
+
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: SITE_NAME,
-    description: tLayout('metaDescription'),
-    url: absoluteUrl(locale, '/'),
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Chrome',
-    offers: {
-      '@type': 'AggregateOffer',
-      priceCurrency: 'GBP',
-      lowPrice: '7.99',
-      highPrice: '29.99',
-    },
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': orgId,
+        name: SITE_NAME,
+        alternateName: brandAliases,
+        url: SITE_URL,
+        logo: `${SITE_URL}/salelinx-icon.png`,
+        image: `${SITE_URL}/og.png`,
+        email: 'hello@salelinx.com',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE_URL}/#website`,
+        name: SITE_NAME,
+        alternateName: brandAliases,
+        url: SITE_URL,
+        publisher: { '@id': orgId },
+      },
+      {
+        '@type': 'SoftwareApplication',
+        name: SITE_NAME,
+        alternateName: brandAliases,
+        description: tLayout('metaDescription'),
+        url: absoluteUrl(locale, '/'),
+        // Name the brand image explicitly. Without this the only images Google
+        // could associate with the page were the product photos in the hero
+        // preview, so it picked one (the star beanie) as the search thumbnail.
+        image: `${SITE_URL}/og.png`,
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Chrome',
+        publisher: { '@id': orgId },
+        offers: {
+          '@type': 'AggregateOffer',
+          priceCurrency: 'GBP',
+          lowPrice: '7.99',
+          highPrice: '29.99',
+        },
+      },
+    ],
   };
 
   return (
