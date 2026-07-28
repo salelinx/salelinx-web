@@ -104,13 +104,15 @@ BEGIN
     RETURNING * INTO v_target;
   END IF;
 
-  -- Metadata stays within the GDPR logging ceiling: user UUID only, no email.
+  -- Audit metadata carries NO user ids (docs/GDPR.md: audit entries must not
+  -- reference users, so they cannot outlive an erasure request). target_id is
+  -- the subscription row id, an opaque reference that cascades away with the
+  -- account.
   PERFORM public.log_admin_action(
     'user.subscription_update',
     'subscriptions',
     v_target.id::TEXT,
     jsonb_build_object(
-      'user_id', p_user_id,
       'old', v_old,
       'new', jsonb_build_object(
         'tier_id', p_tier_id,

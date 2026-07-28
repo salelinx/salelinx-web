@@ -1,6 +1,6 @@
 # Edge Functions
 
-Seven Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
+Eight Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
 
 ## Why Edge Functions, not Next.js route handlers?
 
@@ -10,8 +10,9 @@ Seven Supabase Edge Functions live in `supabase/functions/`. They run on Supabas
 - **`send-support-email`** - target of two Supabase Database Webhooks (insert on `support_tickets`, insert on `support_ticket_replies`). Needs service-role read on `auth.users` and write back to `support_tickets.notification_message_id`, so Supabase is the natural home.
 - **`send-shipping-labels`** - called by the Chrome extension to email a merged shipping-label PDF via Resend. Lives here (not in the extension) because Edge Function deploys are co-located with everything else Supabase-adjacent, and the extension only needs the function URL.
 - **`admin-change-plan`** - the admin console's real Stripe plan change (swap the price on a customer's live subscription). Needs `STRIPE_SECRET_KEY` and the service role (admin gate + audit write), so it lives with the other Stripe-adjacent functions.
+- **`admin-delete-user`** - the admin console's account deletion (the GDPR erasure runbook: storage, Stripe customer, auth user). Needs the service role and `STRIPE_SECRET_KEY`; same home as the script it mirrors (`scripts/delete-user-account.mjs`).
 
-## The seven functions
+## The eight functions
 
 | Function                  | `verify_jwt` | Purpose                                                                                                  |
 | ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -22,6 +23,7 @@ Seven Supabase Edge Functions live in `supabase/functions/`. They run on Supabas
 | `send-support-email`      | false        | Database Webhooks POST here on new ticket / new reply; emails staff, the auto-ack, and admin-reply-to-user via Resend |
 | `send-shipping-labels`    | false*       | Extension POSTs a base64 PDF + recipient; auth enforced by `getUser(jwt)`; delivered via Resend          |
 | `admin-change-plan`       | false*       | Admin console swaps a customer's paid plan in Stripe; auth by `getUser()` + `admin_users` membership     |
+| `admin-delete-user`       | false*       | Admin console runs the GDPR account deletion; auth by `getUser()` + `admin_users` membership             |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced.
 
@@ -65,6 +67,7 @@ supabase functions deploy send-auth-email
 supabase functions deploy send-support-email
 supabase functions deploy send-shipping-labels --no-verify-jwt
 supabase functions deploy admin-change-plan --no-verify-jwt
+supabase functions deploy admin-delete-user --no-verify-jwt
 ```
 
 ## Secrets

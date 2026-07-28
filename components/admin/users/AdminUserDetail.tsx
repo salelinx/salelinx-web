@@ -22,6 +22,12 @@
 //    stripe-webhook then syncs tier_id back onto our row. It charges the
 //    customer money, so it is gated behind step-up reauth like ticket
 //    deletion.
+//
+// Plus the danger zone: "Delete account" runs the GDPR erasure runbook via
+// the admin-delete-user Edge Function (storage objects, Stripe customer,
+// then the auth user, which cascades every user-owned row - see
+// docs/GDPR.md). Irreversible, so step-up reauth. Hidden for admins (the
+// function refuses to delete admins or the caller themselves).
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -45,6 +51,7 @@ type Props = {
     tierId: string,
     status: string,
   ) => void;
+  onDeleted: (userId: string) => void;
 };
 
 const STATUS_OPTIONS = [
@@ -71,6 +78,7 @@ export function AdminUserDetail({
   tiers,
   onClose,
   onSubscriptionChange,
+  onDeleted,
 }: Props) {
   const supabase = createBrowserClient();
   const [detail, setDetail] = useState<Detail | null>(null);
@@ -91,7 +99,10 @@ export function AdminUserDetail({
   const [planTierSel, setPlanTierSel] = useState("");
   const [planBusy, setPlanBusy] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
-  const [reauthOpen, setReauthOpen] = useState(false);
+  // Which action the step-up reauth modal is confirming.
+  const [reauthFor, setReauthFor] = useState<"plan" | "delete" | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   // Bumped after a plan change so the effect refetches the detail bundle
   // (the webhook syncs the row a few seconds after Stripe accepts).
   const [refreshKey, setRefreshKey] = useState(0);
@@ -279,12 +290,74 @@ export function AdminUserDetail({
     }
 
     setPlanBusy(false);
-    setReauthOpen(false);
+    setReauthFor(null);
     setPlanOpen(false);
     setNotice(
       `Stripe accepted the change to ${planTierSel}. The subscription row syncs when the webhook lands (usually a few seconds); reopen this drawer to see it.`,
     );
     setRefreshKey((k) => k + 1);
+  }
+
+  async function confirmAccountDelete(password: string) {
+    if (deleteBusy) return;
+    setDeleteBusy(true);
+    setDeleteError(null);
+
+    try {
+      await requireReauth(password);
+    } catch (err) {
+      setDeleteBusy(false);
+      setDeleteError(
+        err instanceof Error ? err.message : "Re-authentication failed.",
+      );
+      return;
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      setDeleteBusy(false);
+      setDeleteError("Could not verify your session. Please sign in again.");
+      return;
+    }
+
+    let res: Response;
+    try {
+      res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/admin-delete-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ userId: user.user_id }),
+        },
+      );
+    } catch {
+      setDeleteBusy(false);
+      setDeleteError("Could not reach the deletion function.");
+      return;
+    }
+
+    if (!res.ok) {
+      let message = `Deletion failed (${res.status}).`;
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) message = `Deletion failed: ${body.error}`;
+      } catch {
+        // non-JSON error body; keep the status message
+      }
+      setDeleteBusy(false);
+      setDeleteError(message);
+      return;
+    }
+
+    setDeleteBusy(false);
+    setReauthFor(null);
+    onDeleted(user.user_id);
+    onClose();
   }
 
   return (
@@ -385,7 +458,7 @@ export function AdminUserDetail({
                       ))}
                     </select>
                   </label>
-                  {planError && !reauthOpen && (
+                  {planError && reauthFor === null && (
                     <p className="text-red-600">{planError}</p>
                   )}
                   <div className="flex gap-2 pt-1">
@@ -393,7 +466,7 @@ export function AdminUserDetail({
                       type="button"
                       onClick={() => {
                         setPlanError(null);
-                        setReauthOpen(true);
+                        setReauthFor("plan");
                       }}
                       disabled={planBusy || !planTierSel}
                       className="rounded bg-zinc-900 px-3 py-1 font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
@@ -584,37 +657,103 @@ export function AdminUserDetail({
                 </p>
               )}
             </Section>
+
+            {!detail.is_admin && (
+              <Section title="Danger zone">
+                <p className="mb-2 text-xs text-zinc-500">
+                  Deletes the account and everything it owns: listings, images,
+                  linked accounts, usage, tickets, and the Stripe customer
+                  (cancelling any subscription). This is the GDPR erasure
+                  runbook; it cannot be undone. Remember the manual follow-up:
+                  purge their threads from the support inbox (docs/GDPR.md).
+                </p>
+                {deleteError && reauthFor === null && (
+                  <p className="mb-2 text-xs text-red-600">{deleteError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDeleteError(null);
+                    setReauthFor("delete");
+                  }}
+                  className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                >
+                  Delete account
+                </button>
+              </Section>
+            )}
           </>
         )}
       </div>
 
-      {reauthOpen && (
-        <PlanReauthModal
-          tierId={planTierSel}
+      {reauthFor === "plan" && (
+        <ReauthModal
+          title="Confirm plan change"
+          description={
+            <>
+              This switches the customer&apos;s live Stripe subscription to{" "}
+              <span className="font-medium capitalize">{planTierSel}</span> and
+              applies a prorated charge or credit immediately. Re-enter your
+              password to continue.
+            </>
+          }
+          confirmLabel="Change plan"
+          busyLabel="Changing..."
+          danger={false}
           busy={planBusy}
           error={planError}
           onCancel={() => {
-            setReauthOpen(false);
+            setReauthFor(null);
             setPlanError(null);
           }}
           onConfirm={(password) => void confirmPlanChange(password)}
+        />
+      )}
+      {reauthFor === "delete" && (
+        <ReauthModal
+          title="Confirm account deletion"
+          description={
+            <>
+              This permanently deletes{" "}
+              <span className="font-medium">{user.email ?? user.user_id}</span>{" "}
+              and everything they own, and cancels any Stripe subscription.
+              This cannot be undone. Re-enter your password to continue.
+            </>
+          }
+          confirmLabel="Delete account"
+          busyLabel="Deleting..."
+          danger
+          busy={deleteBusy}
+          error={deleteError}
+          onCancel={() => {
+            setReauthFor(null);
+            setDeleteError(null);
+          }}
+          onConfirm={(password) => void confirmAccountDelete(password)}
         />
       )}
     </div>
   );
 }
 
-// Step-up reauth before the Stripe plan change (models the ticket-delete
-// modal in AdminTicketDetail.tsx). The change bills the customer, so it is
-// treated like a destructive action per docs/ADMIN.md.
-function PlanReauthModal({
-  tierId,
+// Step-up reauth for actions that bill the customer or destroy data (models
+// the ticket-delete modal in AdminTicketDetail.tsx), per docs/ADMIN.md.
+function ReauthModal({
+  title,
+  description,
+  confirmLabel,
+  busyLabel,
+  danger,
   busy,
   error,
   onCancel,
   onConfirm,
 }: {
-  tierId: string;
+  title: string;
+  description: React.ReactNode;
+  confirmLabel: string;
+  busyLabel: string;
+  danger: boolean;
   busy: boolean;
   error: string | null;
   onCancel: () => void;
@@ -625,13 +764,8 @@ function PlanReauthModal({
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-sm rounded-lg border border-[var(--admin-border)] bg-white p-5 shadow-xl">
-        <h2 className="text-sm font-semibold">Confirm plan change</h2>
-        <p className="mt-1 text-xs text-zinc-500">
-          This switches the customer&apos;s live Stripe subscription to{" "}
-          <span className="font-medium capitalize">{tierId}</span> and applies
-          a prorated charge or credit immediately. Re-enter your password to
-          continue.
-        </p>
+        <h2 className="text-sm font-semibold">{title}</h2>
+        <p className="mt-1 text-xs text-zinc-500">{description}</p>
         <input
           type="password"
           value={password}
@@ -654,9 +788,14 @@ function PlanReauthModal({
             type="button"
             onClick={() => onConfirm(password)}
             disabled={busy || !password}
-            className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+            className={
+              "rounded-md px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50 " +
+              (danger
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-zinc-900 hover:bg-zinc-700")
+            }
           >
-            {busy ? "Changing..." : "Change plan"}
+            {busy ? busyLabel : confirmLabel}
           </button>
         </div>
       </div>

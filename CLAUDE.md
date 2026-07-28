@@ -59,6 +59,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `send-support-email` - `verify_jwt = false` (Database Webhooks send a shared secret via `x-support-webhook-secret`; emails staff notifications to `support@salelinx.com`, an auto-ack to the ticket author, and admin replies back to the ticket owner)
 - `send-shipping-labels` - `verify_jwt = false` (called by the extension with the user's JWT in `Authorization`; handler validates via `getUser(jwt)` and emails a merged label PDF via Resend)
 - `admin-change-plan` - `verify_jwt = false` (admin console changes a customer's paid Stripe plan; handler validates via `getUser()` plus `admin_users` membership through the service role, swaps the subscription price, and lets `stripe-webhook` sync the row)
+- `admin-delete-user` - `verify_jwt = false` (admin console runs the GDPR account deletion: storage objects, Stripe customer, then the auth user; same `getUser()` plus `admin_users` gate; see `docs/GDPR.md`)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 
@@ -95,7 +96,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **`setAll` cookie callbacks need an explicit `CookieEntry[]` type** - TS strict mode flags implicit `any`.
 - **`router.refresh()` after password login** - without it, the Header still shows signed-out state until navigation.
 - **`supabase/functions/` is excluded from `tsc`** - TS errors there won't surface until deploy. Use the Deno VSCode extension for inline checking.
-- **Stripe API version pinned at `2025-02-24.acacia`** in 4 places (`lib/stripe.ts` + 3 Edge Functions). Bump all or none.
+- **Stripe API version pinned at `2025-02-24.acacia`** in 6 places (`lib/stripe.ts` + 5 Edge Functions). Bump all or none.
 - **`constructEventAsync` in Deno**, never `constructEvent` - sync variant crashes.
 - **Webhook must read `req.text()` first, then verify** - JSON.parse breaks signature.
 - **Auth emails go through the `send-auth-email` Edge Function + Resend, not Supabase SMTP** - templates in `supabase/functions/send-auth-email/templates.ts`. A failing hook breaks signup/reset UX.

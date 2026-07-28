@@ -126,15 +126,16 @@ Deno.serve(async (req) => {
   });
 
   // Audit with the verified caller as actor. The service role writes past the
-  // (intentionally absent) client policies on admin_audit_log. Metadata stays
-  // within the GDPR logging ceiling: UUIDs and Stripe ids only, no email.
+  // (intentionally absent) client policies on admin_audit_log. Metadata
+  // carries NO user ids (docs/GDPR.md: audit entries must not reference
+  // users); target_id is the subscription row id, which cascades away if the
+  // account is later erased.
   const { error: auditErr } = await admin.from("admin_audit_log").insert({
     actor_id: user.id,
     action: "user.stripe_plan_change",
     target_table: "subscriptions",
     target_id: target.id,
     metadata: {
-      user_id: userId,
       old_tier: target.tier_id,
       new_tier: tierId,
       old_price: item.price.id,

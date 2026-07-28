@@ -227,6 +227,10 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
               ),
             )
           }
+          onDeleted={(userId) => {
+            setUsers((prev) => prev.filter((u) => u.user_id !== userId));
+            setSelectedId(null);
+          }}
         />
       )}
     </div>

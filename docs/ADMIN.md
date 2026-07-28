@@ -8,7 +8,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | --- | --- | --- | --- |
 | Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
-| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), and change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged). |
+| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
@@ -16,7 +16,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
-Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, and the Stripe plan change below, which bills the customer).
+Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, the Stripe plan change below, which bills the customer, and account deletion).
 
 ## Routing & layout
 
@@ -120,7 +120,15 @@ Key properties:
 
 See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flow.
 
-### Storage read RPC (migration `006_admin_console.sql`)
+### Account deletion (`admin-delete-user` Edge Function)
+
+The Users drawer's "Delete account" button (danger zone, hidden for admins) runs the GDPR erasure runbook from the console. It is an Edge Function for the same reason as the plan change: it needs the service role (`auth.admin.deleteUser`, Storage cleanup, audit write) and `STRIPE_SECRET_KEY`, which the web app never holds. Same gate: `getUser()` then an authoritative `admin_users` service-role read.
+
+It mirrors `scripts/delete-user-account.mjs` exactly: delete `listing-images/{userId}/` storage objects (DB cascade does not touch Storage), delete the Stripe customer(s) (cancels any subscription; a Stripe failure aborts BEFORE the account is touched, so a user is never deleted while still chargeable), then delete the auth user, which cascades every user-owned row.
+
+Guardrails: an admin cannot delete themselves, and cannot delete another admin (revoke admin in the dashboard first; `admin_audit_log.actor_id`'s FK would block it anyway). Step-up reauth is required (irreversible). The audit entry (`user.delete`) records counts only, never the user id, per `docs/GDPR.md` - it is the record that an erasure happened, and it must not itself reference the erased user.
+
+Manual follow-up the function cannot do (also shown in the UI): purge the user's threads from the `support@salelinx.com` inbox.
 
 The Storage module's data source is the `user_storage` gauge from migration `004_storage_quota.sql`: a running per-user byte total for the `listing-images` bucket, kept in lockstep by triggers on `storage.objects` (the same gauge the quota-enforcement triggers read). The table is own-row-only under RLS, so - same pattern as the other cross-user reads - the read is a SECURITY DEFINER RPC that re-checks `public.is_admin()` itself:
 
