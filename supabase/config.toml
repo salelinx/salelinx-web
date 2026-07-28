@@ -2,7 +2,7 @@
 # Run `supabase link --project-ref <your-project-ref>` once to connect this folder
 # to the same Supabase project the extension uses.
 
-project_id = "resale-bot-web"
+project_id = "salelinx-web"
 
 # All functions have verify_jwt = false. The Supabase gateway's built-in
 # JWT verify only supports HS256, but our project issues ES256 tokens.

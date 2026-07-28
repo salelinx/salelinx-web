@@ -1,8 +1,8 @@
-# resale-bot-web
+# salelinx-web
 
 Marketing site, pricing page, auth, and subscription management for the SaleLinx Chrome extension.
 
-Companion to the extension repo at `../muiltiplatform-seller-bot`. Both share a single Supabase project so users are one pool.
+Companion to the extension repo at `../salelinx-app`. Both share a single Supabase project so users are one pool.
 
 ## Stack
 
