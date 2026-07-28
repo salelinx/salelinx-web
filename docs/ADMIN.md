@@ -8,7 +8,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | --- | --- | --- | --- |
 | Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
-| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged). |
+| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), and change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
@@ -16,7 +16,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
-Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete).
+Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, and the Stripe plan change below, which bills the customer).
 
 ## Routing & layout
 
@@ -104,7 +104,21 @@ Guardrails built into the function (not the UI):
 - **Known tier only.** The `(tier_id, tier_version)` pair must exist in `tier_limits`; assigning an unconfigured tier would silently resolve to nothing. Historical (grandfathered) versions are allowed.
 - **Audit is server-side.** The function calls `log_admin_action` itself (`user.subscription_update`, metadata carries `old`, `new`, and a `stripe_managed` flag), so the change is reversible from the log.
 
-**Stripe caveat** (also shown in the UI): if the target row is Stripe-managed (`stripe_subscription_id` set), the next webhook event for that subscription overwrites `tier_id`/`status` again, and the override never changes what Stripe charges. Overrides are durable only for comp rows or lapsed subscriptions; real plan changes for paying customers belong in Stripe (Customer Portal or dashboard).
+**Stripe caveat** (also shown in the UI): if the target row is Stripe-managed (`stripe_subscription_id` set), the next webhook event for that subscription overwrites `tier_id`/`status` again, and the override never changes what Stripe charges. Overrides are durable only for comp rows or lapsed subscriptions; real plan changes for paying customers use the Stripe plan change below (or the Stripe dashboard).
+
+### Stripe plan change (`admin-change-plan` Edge Function)
+
+The Users drawer's "Change plan" button (shown only for entitled Stripe-managed subscriptions) is the real paid plan change. It cannot be a Postgres RPC because it needs `STRIPE_SECRET_KEY`, which only Edge Functions hold, so the pattern shifts: the function validates the caller's JWT via `getUser()`, then gates on `admin_users` membership via a service-role read (authoritative, RLS-independent), then swaps the price on the customer's live Stripe subscription with `proration_behavior: 'create_prorations'`.
+
+Key properties:
+
+- **Stripe stays the source of truth.** The function never writes `tier_id`/`status` itself; Stripe fires `customer.subscription.updated` and the existing `stripe-webhook` maps the new price's `tier_id` metadata back onto the row (usually within seconds). No sync problem, no override to clobber.
+- **Tier -> price mapping is metadata**, the same `tier_id` / `billing_cycle` metadata the webhook reads. No lookup table; tiers without an active monthly Stripe price return `no_price_for_tier`.
+- **Step-up reauth.** It bills the customer (immediate prorated charge or credit), so the UI requires `requireReauth()` first, like ticket deletion.
+- **Audit is server-side.** The function inserts the `user.stripe_plan_change` entry itself (service role, verified caller as actor; metadata carries old/new tier and price ids, UUIDs only).
+- **Errors:** `no_stripe_subscription` (comp row or lapsed - use the entitlement override instead), `already_on_plan`, `no_price_for_tier`, `subscription_canceled`.
+
+See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flow.
 
 ### Storage read RPC (migration `006_admin_console.sql`)
 

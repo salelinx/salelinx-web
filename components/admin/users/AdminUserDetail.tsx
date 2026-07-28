@@ -6,18 +6,27 @@
 // user's admin status) in a single round-trip. Usage is shown against the
 // tier's caps (tier configs are passed in from the page, public-read).
 //
-// One mutation: the Subscription section has an edit form (tier / version /
-// status) backed by the admin_set_user_subscription() RPC
-// (008_admin_edit_subscription.sql). The function re-checks is_admin(),
-// validates the (tier, version) pair against tier_limits, creates a comp row
-// when the user has none, and writes the audit entry server-side. Reversible
-// (the audit log records the old value), so it uses a confirm-style form, not
-// step-up reauth, per docs/ADMIN.md. When the row is Stripe-managed we warn
-// that the next webhook event will overwrite the override.
+// Two mutations, deliberately separate:
+//
+// 1. "Edit" - entitlement override (tier / version / status) via the
+//    admin_set_user_subscription() RPC (008_admin_edit_subscription.sql).
+//    Changes OUR subscriptions row only; Stripe billing is untouched.
+//    Reversible (the audit log records the old value), so it uses a
+//    confirm-style form, not step-up reauth, per docs/ADMIN.md. When the row
+//    is Stripe-managed we warn that the next webhook event will overwrite
+//    the override.
+//
+// 2. "Change plan" - the REAL paid plan change via the admin-change-plan
+//    Edge Function, shown only for entitled Stripe-managed subscriptions.
+//    It swaps the price on the live Stripe subscription (prorated); the
+//    stripe-webhook then syncs tier_id back onto our row. It charges the
+//    customer money, so it is gated behind step-up reauth like ticket
+//    deletion.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { requireReauth } from "@/lib/admin/reauth";
 import type { TierConfig } from "@/lib/types/tiers";
 import type {
   AdminSubscriptionRow,
@@ -77,6 +86,16 @@ export function AdminUserDetail({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
+  // Stripe plan-change form (entitled Stripe-managed subscriptions only).
+  const [planOpen, setPlanOpen] = useState(false);
+  const [planTierSel, setPlanTierSel] = useState("");
+  const [planBusy, setPlanBusy] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
+  const [reauthOpen, setReauthOpen] = useState(false);
+  // Bumped after a plan change so the effect refetches the detail bundle
+  // (the webhook syncs the row a few seconds after Stripe accepts).
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // The parent gives this drawer a `key={user.user_id}`, so it remounts per
   // user and the initial state (loading, no detail) is already correct - no
   // synchronous setState in the effect body is needed (which would trigger a
@@ -105,7 +124,7 @@ export function AdminUserDetail({
     return () => {
       cancelled = true;
     };
-  }, [user.user_id, supabase]);
+  }, [user.user_id, supabase, refreshKey]);
 
   const sub = detail?.subscription ?? null;
   // Resolve the tier config for this user's current tier so usage can be shown
@@ -181,6 +200,93 @@ export function AdminUserDetail({
     onSubscriptionChange(user.user_id, row.tier_id, row.status);
   }
 
+  // Stripe plan change: only meaningful for a live Stripe subscription. Comp
+  // rows and lapsed subscriptions have nothing to change in Stripe.
+  const canChangePlan =
+    !!sub?.stripe_subscription_id &&
+    ["active", "trialing", "past_due"].includes(sub.status);
+  // Stripe prices are keyed by tier_id metadata only (versions are a DB
+  // concept), so the plan options are the distinct paid tier ids.
+  const paidTierIds = Array.from(
+    new Set(tiers.map((t) => t.tier_id).filter((t) => t !== "free")),
+  );
+
+  function startPlanChange() {
+    setPlanTierSel(
+      paidTierIds.find((t) => t !== sub?.tier_id) ?? paidTierIds[0] ?? "",
+    );
+    setPlanError(null);
+    setNotice(null);
+    setEditing(false);
+    setPlanOpen(true);
+  }
+
+  async function confirmPlanChange(password: string) {
+    if (planBusy || !planTierSel) return;
+    setPlanBusy(true);
+    setPlanError(null);
+
+    try {
+      await requireReauth(password);
+    } catch (err) {
+      setPlanBusy(false);
+      setPlanError(
+        err instanceof Error ? err.message : "Re-authentication failed.",
+      );
+      return;
+    }
+
+    // Session AFTER reauth (signInWithPassword rotates it).
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      setPlanBusy(false);
+      setPlanError("Could not verify your session. Please sign in again.");
+      return;
+    }
+
+    let res: Response;
+    try {
+      res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/admin-change-plan`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ userId: user.user_id, tierId: planTierSel }),
+        },
+      );
+    } catch {
+      setPlanBusy(false);
+      setPlanError("Could not reach the plan-change function.");
+      return;
+    }
+
+    if (!res.ok) {
+      let message = `Plan change failed (${res.status}).`;
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body.error) message = `Plan change failed: ${body.error}`;
+      } catch {
+        // non-JSON error body; keep the status message
+      }
+      setPlanBusy(false);
+      setPlanError(message);
+      return;
+    }
+
+    setPlanBusy(false);
+    setReauthOpen(false);
+    setPlanOpen(false);
+    setNotice(
+      `Stripe accepted the change to ${planTierSel}. The subscription row syncs when the webhook lands (usually a few seconds); reopen this drawer to see it.`,
+    );
+    setRefreshKey((k) => k + 1);
+  }
+
   return (
     <div className="fixed inset-y-0 right-0 z-20 flex w-full max-w-xl flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-xl">
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-[var(--admin-border)] px-4">
@@ -224,23 +330,87 @@ export function AdminUserDetail({
             <Section
               title="Subscription"
               action={
-                !editing && (
-                  <button
-                    type="button"
-                    onClick={startEdit}
-                    className="rounded border border-[var(--admin-border)] px-2 py-0.5 text-xs text-zinc-600 hover:bg-zinc-100"
-                  >
-                    Edit
-                  </button>
+                !editing &&
+                !planOpen && (
+                  <div className="flex gap-1.5">
+                    {canChangePlan && (
+                      <button
+                        type="button"
+                        onClick={startPlanChange}
+                        className="rounded border border-[var(--admin-border)] px-2 py-0.5 text-xs text-zinc-600 hover:bg-zinc-100"
+                      >
+                        Change plan
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={startEdit}
+                      className="rounded border border-[var(--admin-border)] px-2 py-0.5 text-xs text-zinc-600 hover:bg-zinc-100"
+                    >
+                      Edit
+                    </button>
+                  </div>
                 )
               }
             >
-              {notice && !editing && (
+              {notice && !editing && !planOpen && (
                 <p className="mb-2 rounded bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
                   {notice}
                 </p>
               )}
-              {editing ? (
+              {planOpen ? (
+                <div className="space-y-2 rounded-md border border-[var(--admin-border)] bg-sky-50 p-3 text-xs">
+                  <p className="text-zinc-600">
+                    Changes the customer&apos;s PAID plan in Stripe: the live
+                    subscription switches to the new tier&apos;s price with an
+                    immediate prorated charge or credit. Our database syncs
+                    automatically via the webhook. Currently{" "}
+                    <span className="font-medium capitalize">
+                      {sub?.tier_id}
+                    </span>{" "}
+                    ({sub?.status}).
+                  </p>
+                  <label className="flex items-center gap-2">
+                    <span className="w-12 text-zinc-500">Plan</span>
+                    <select
+                      value={planTierSel}
+                      disabled={planBusy}
+                      onChange={(e) => setPlanTierSel(e.target.value)}
+                      className="rounded-md border border-[var(--admin-border)] bg-white px-2 py-1 outline-none focus:border-zinc-400"
+                    >
+                      {paidTierIds.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {planError && !reauthOpen && (
+                    <p className="text-red-600">{planError}</p>
+                  )}
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPlanError(null);
+                        setReauthOpen(true);
+                      }}
+                      disabled={planBusy || !planTierSel}
+                      className="rounded bg-zinc-900 px-3 py-1 font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+                    >
+                      Continue
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPlanOpen(false)}
+                      disabled={planBusy}
+                      className="rounded px-2 py-1 text-zinc-600 hover:bg-zinc-100"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : editing ? (
                 <div className="space-y-2 rounded-md border border-[var(--admin-border)] bg-amber-50 p-3 text-xs">
                   <p className="text-zinc-600">
                     Currently{" "}
@@ -416,6 +586,79 @@ export function AdminUserDetail({
             </Section>
           </>
         )}
+      </div>
+
+      {reauthOpen && (
+        <PlanReauthModal
+          tierId={planTierSel}
+          busy={planBusy}
+          error={planError}
+          onCancel={() => {
+            setReauthOpen(false);
+            setPlanError(null);
+          }}
+          onConfirm={(password) => void confirmPlanChange(password)}
+        />
+      )}
+    </div>
+  );
+}
+
+// Step-up reauth before the Stripe plan change (models the ticket-delete
+// modal in AdminTicketDetail.tsx). The change bills the customer, so it is
+// treated like a destructive action per docs/ADMIN.md.
+function PlanReauthModal({
+  tierId,
+  busy,
+  error,
+  onCancel,
+  onConfirm,
+}: {
+  tierId: string;
+  busy: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onConfirm: (password: string) => void;
+}) {
+  const [password, setPassword] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-sm rounded-lg border border-[var(--admin-border)] bg-white p-5 shadow-xl">
+        <h2 className="text-sm font-semibold">Confirm plan change</h2>
+        <p className="mt-1 text-xs text-zinc-500">
+          This switches the customer&apos;s live Stripe subscription to{" "}
+          <span className="font-medium capitalize">{tierId}</span> and applies
+          a prorated charge or credit immediately. Re-enter your password to
+          continue.
+        </p>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          placeholder="Your password"
+          className="mt-3 w-full rounded-md border border-[var(--admin-border)] bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400"
+        />
+        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={busy}
+            className="rounded-md border border-[var(--admin-border)] px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(password)}
+            disabled={busy || !password}
+            className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          >
+            {busy ? "Changing..." : "Change plan"}
+          </button>
+        </div>
       </div>
     </div>
   );
