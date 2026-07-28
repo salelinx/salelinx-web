@@ -1,6 +1,6 @@
-# resale-bot-web
+# salelinx-web
 
-Marketing + billing website for the SaleLinx Chrome extension (sibling repo `../muiltiplatform-seller-bot`). Both share a single Supabase project.
+Marketing + billing website for the SaleLinx Chrome extension (sibling repo `../salelinx-app`). Both share a single Supabase project.
 
 ## Before making changes
 
