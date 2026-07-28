@@ -1,17 +1,29 @@
 "use client";
 
-// Right-hand detail drawer for one user. Read-only: no actions. On open it
-// fetches admin_user_detail() (an is_admin()-gated RPC returning a JSONB
-// bundle: subscription + usage for the current periods + ticket count + the
-// target user's admin status) in a single round-trip. Usage is shown against
-// the tier's caps (tier configs are passed in from the page, public-read).
-// Models AdminTicketDetail.tsx minus all mutations.
+// Right-hand detail drawer for one user. On open it fetches
+// admin_user_detail() (an is_admin()-gated RPC returning a JSONB bundle:
+// subscription + usage for the current periods + ticket count + the target
+// user's admin status) in a single round-trip. Usage is shown against the
+// tier's caps (tier configs are passed in from the page, public-read).
+//
+// One mutation: the Subscription section has an edit form (tier / version /
+// status) backed by the admin_set_user_subscription() RPC
+// (008_admin_edit_subscription.sql). The function re-checks is_admin(),
+// validates the (tier, version) pair against tier_limits, creates a comp row
+// when the user has none, and writes the audit entry server-side. Reversible
+// (the audit log records the old value), so it uses a confirm-style form, not
+// step-up reauth, per docs/ADMIN.md. When the row is Stripe-managed we warn
+// that the next webhook event will overwrite the override.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type { TierConfig } from "@/lib/types/tiers";
-import type { AdminUserRow, AdminUserDetail as Detail } from "@/lib/types/admin";
+import type {
+  AdminSubscriptionRow,
+  AdminUserRow,
+  AdminUserDetail as Detail,
+} from "@/lib/types/admin";
 import { currentPeriodKeys, isMonthlyFeature } from "@/lib/admin/period";
 import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
 
@@ -19,7 +31,20 @@ type Props = {
   user: AdminUserRow;
   tiers: TierConfig[];
   onClose: () => void;
+  onSubscriptionChange: (
+    userId: string,
+    tierId: string,
+    status: string,
+  ) => void;
 };
+
+const STATUS_OPTIONS = [
+  "active",
+  "trialing",
+  "past_due",
+  "canceled",
+  "incomplete",
+] as const;
 
 function formatWhen(iso: string | null): string {
   if (!iso) return "-";
@@ -32,11 +57,25 @@ function formatWhen(iso: string | null): string {
   });
 }
 
-export function AdminUserDetail({ user, tiers, onClose }: Props) {
+export function AdminUserDetail({
+  user,
+  tiers,
+  onClose,
+  onSubscriptionChange,
+}: Props) {
   const supabase = createBrowserClient();
   const [detail, setDetail] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Subscription edit form. tierSel is a "tier_id:version" key into the
+  // active tier configs (the same rows the tiers/flags modules edit).
+  const [editing, setEditing] = useState(false);
+  const [tierSel, setTierSel] = useState("");
+  const [statusSel, setStatusSel] = useState<string>("active");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   // The parent gives this drawer a `key={user.user_id}`, so it remounts per
   // user and the initial state (loading, no detail) is already correct - no
@@ -80,6 +119,68 @@ export function AdminUserDetail({ user, tiers, onClose }: Props) {
     tiers.find((t) => t.tier_id === (sub?.tier_id ?? user.tier_id ?? "free")) ||
     null;
 
+  function startEdit() {
+    const current =
+      sub &&
+      tiers.some(
+        (t) => t.tier_id === sub.tier_id && t.version === sub.tier_version,
+      )
+        ? `${sub.tier_id}:${sub.tier_version}`
+        : tiers.length > 0
+          ? `${tiers[0].tier_id}:${tiers[0].version}`
+          : "";
+    setTierSel(current);
+    setStatusSel(sub?.status ?? "active");
+    setSaveError(null);
+    setNotice(null);
+    setEditing(true);
+  }
+
+  async function saveSubscription() {
+    if (saving || !tierSel) return;
+
+    // tierSel is "tier_id:version"; split on the LAST colon so a tier id
+    // containing separators can never break the parse.
+    const split = tierSel.lastIndexOf(":");
+    const tierId = tierSel.slice(0, split);
+    const tierVersion = Number(tierSel.slice(split + 1));
+
+    if (
+      sub &&
+      sub.tier_id === tierId &&
+      sub.tier_version === tierVersion &&
+      sub.status === statusSel
+    ) {
+      setSaveError("No change: that is already the current subscription.");
+      return;
+    }
+
+    setSaving(true);
+    setSaveError(null);
+    const { data, error: rpcErr } = await supabase.rpc(
+      "admin_set_user_subscription",
+      {
+        p_user_id: user.user_id,
+        p_tier_id: tierId,
+        p_tier_version: tierVersion,
+        p_status: statusSel,
+      },
+    );
+    setSaving(false);
+    if (rpcErr || !data) {
+      setSaveError(`Update failed: ${rpcErr?.message ?? "no row returned"}`);
+      return;
+    }
+
+    const row = data as AdminSubscriptionRow;
+    setDetail((prev) => (prev ? { ...prev, subscription: row } : prev));
+    setEditing(false);
+    setNotice(
+      `Subscription set to ${row.tier_id} v${row.tier_version} (${row.status}).`,
+    );
+    onSubscriptionChange(user.user_id, row.tier_id, row.status);
+  }
+
   return (
     <div className="fixed inset-y-0 right-0 z-20 flex w-full max-w-xl flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-xl">
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-[var(--admin-border)] px-4">
@@ -120,8 +221,103 @@ export function AdminUserDetail({ user, tiers, onClose }: Props) {
 
         {detail && !loading && (
           <>
-            <Section title="Subscription">
-              {sub ? (
+            <Section
+              title="Subscription"
+              action={
+                !editing && (
+                  <button
+                    type="button"
+                    onClick={startEdit}
+                    className="rounded border border-[var(--admin-border)] px-2 py-0.5 text-xs text-zinc-600 hover:bg-zinc-100"
+                  >
+                    Edit
+                  </button>
+                )
+              }
+            >
+              {notice && !editing && (
+                <p className="mb-2 rounded bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
+                  {notice}
+                </p>
+              )}
+              {editing ? (
+                <div className="space-y-2 rounded-md border border-[var(--admin-border)] bg-amber-50 p-3 text-xs">
+                  <p className="text-zinc-600">
+                    Currently{" "}
+                    {sub ? (
+                      <>
+                        <span className="font-medium capitalize">
+                          {sub.tier_id}
+                        </span>{" "}
+                        v{sub.tier_version} ({sub.status})
+                      </>
+                    ) : (
+                      "no subscription (free tier); saving creates a comp row"
+                    )}
+                    . Audit-logged.
+                  </p>
+                  {sub?.stripe_subscription_id && (
+                    <p className="text-amber-800">
+                      This subscription is managed by Stripe: the next webhook
+                      event for it will overwrite this override, and the amount
+                      Stripe charges does not change. Real plan changes for
+                      paying users belong in Stripe.
+                    </p>
+                  )}
+                  <label className="flex items-center gap-2">
+                    <span className="w-12 text-zinc-500">Tier</span>
+                    <select
+                      value={tierSel}
+                      disabled={saving}
+                      onChange={(e) => setTierSel(e.target.value)}
+                      className="rounded-md border border-[var(--admin-border)] bg-white px-2 py-1 outline-none focus:border-zinc-400"
+                    >
+                      {tiers.map((t) => (
+                        <option
+                          key={`${t.tier_id}:${t.version}`}
+                          value={`${t.tier_id}:${t.version}`}
+                        >
+                          {t.tier_id} v{t.version}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <span className="w-12 text-zinc-500">Status</span>
+                    <select
+                      value={statusSel}
+                      disabled={saving}
+                      onChange={(e) => setStatusSel(e.target.value)}
+                      className="rounded-md border border-[var(--admin-border)] bg-white px-2 py-1 outline-none focus:border-zinc-400"
+                    >
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {saveError && <p className="text-red-600">{saveError}</p>}
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => void saveSubscription()}
+                      disabled={saving}
+                      className="rounded bg-zinc-900 px-3 py-1 font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(false)}
+                      disabled={saving}
+                      className="rounded px-2 py-1 text-zinc-600 hover:bg-zinc-100"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : sub ? (
                 <dl className="grid grid-cols-[8rem_1fr] gap-x-3 gap-y-1 text-xs">
                   <Meta label="Tier">
                     <span className="capitalize">{sub.tier_id}</span>{" "}
@@ -242,16 +438,21 @@ function Meta({
 
 function Section({
   title,
+  action,
   children,
 }: {
   title: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <section className="mt-5 border-t border-[var(--admin-border)] pt-4">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-        {title}
-      </h3>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          {title}
+        </h3>
+        {action}
+      </div>
       {children}
     </section>
   );

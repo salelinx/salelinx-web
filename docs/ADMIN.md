@@ -8,7 +8,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | --- | --- | --- | --- |
 | Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
-| Users | `/admin/users` | Live, read-only | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). |
+| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
@@ -16,7 +16,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
-Users / Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support and the two tier edit modules (Tier limits / Feature flags) mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier RPCs log server-side inside the function). Tier edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete).
+Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete).
 
 ## Routing & layout
 
@@ -52,6 +52,7 @@ Consequences:
 | Admin detection helper | `lib/supabase/admin.ts` (`isAdmin`) |
 | Step-up re-auth helper | `lib/admin/reauth.ts` (`requireReauth`) |
 | Audit + identity RPCs, audit table, read/write RPCs | migration `006_admin_console.sql` |
+| Subscription write RPC | migration `008_admin_edit_subscription.sql` |
 
 ## Security model
 
@@ -92,6 +93,18 @@ Guardrails built into both functions (not the UI):
 - **Audit is server-side.** Each function calls `log_admin_action` itself (`tier.limit_update` / `tier.feature_update`, metadata carries `key`, `old`, `new`), so a mutation can never skip the audit log and every change is reversible from it.
 
 Reads for these modules come from the public-read `tier_limits` table via the same `getTierConfigs()` the pricing page uses. Edits propagate on the existing cache TTLs (pricing page ~60s revalidate, extension ~1h).
+
+### Subscription write RPC (migration `008_admin_edit_subscription.sql`)
+
+The Users detail drawer's "Edit subscription" form calls `admin_set_user_subscription(user_id, tier_id, tier_version, status)`. `subscriptions` is own-row-read-only under RLS with no client write policies, so - same pattern again - the write is a SECURITY DEFINER function that re-checks `public.is_admin()` itself. It updates the user's current subscription row (the same row tier resolution prefers: newest entitled row, else newest of any status), or inserts a comp row (Stripe ids null) when the user has none - the "bespoke tiers / support comps" path from `docs/ENTITLEMENTS.md`, reachable from the console.
+
+Guardrails built into the function (not the UI):
+
+- **Valid status only.** Must be one of the `subscriptions.status` CHECK values.
+- **Known tier only.** The `(tier_id, tier_version)` pair must exist in `tier_limits`; assigning an unconfigured tier would silently resolve to nothing. Historical (grandfathered) versions are allowed.
+- **Audit is server-side.** The function calls `log_admin_action` itself (`user.subscription_update`, metadata carries `old`, `new`, and a `stripe_managed` flag), so the change is reversible from the log.
+
+**Stripe caveat** (also shown in the UI): if the target row is Stripe-managed (`stripe_subscription_id` set), the next webhook event for that subscription overwrites `tier_id`/`status` again, and the override never changes what Stripe charges. Overrides are durable only for comp rows or lapsed subscriptions; real plan changes for paying customers belong in Stripe (Customer Portal or dashboard).
 
 ### Storage read RPC (migration `006_admin_console.sql`)
 

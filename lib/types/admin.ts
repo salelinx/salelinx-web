@@ -1,7 +1,7 @@
-// Shapes for the read-only admin console modules (Users, Subscriptions, Usage,
-// Audit log). These mirror the return types of the admin_* RPCs in migration
-// 029 (and the admin_audit_log table from 027). Read-only: there are no
-// mutation payloads here.
+// Shapes for the admin console modules (Users, Subscriptions, Usage, Audit
+// log). These mirror the return types of the admin_* RPCs in migrations
+// 006_admin_console.sql and 008_admin_edit_subscription.sql (which also
+// returns an AdminSubscriptionRow).
 
 // Row from admin_list_users(): one auth.users user joined to their current
 // subscription (tier/status may be null when the user has no subscription row).

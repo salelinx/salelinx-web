@@ -141,7 +141,7 @@ INSERT INTO tier_limits (tier_id, version, features, limits) VALUES
 ('pro_custom_acme', 1, '{...}'::jsonb, '{...}'::jsonb);
 ```
 
-Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user. All the same gating code works.
+Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user - either from the admin console (`/admin/users` detail drawer, "Edit subscription"; custom tiers show up automatically because the form lists active `tier_limits` rows) or via SQL. All the same gating code works.
 
 ## Shared types (keep in sync with extension)
 

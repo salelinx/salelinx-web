@@ -1,8 +1,10 @@
 "use client";
 
 // Dense user roster for the admin console: search by email, filter by tier and
-// status, sort, and open a read-only detail drawer per user. Models the support
-// table (components/admin/support/AdminTicketTable.tsx) but has NO mutations.
+// status, sort, and open a detail drawer per user. Models the support table
+// (components/admin/support/AdminTicketTable.tsx). The drawer's subscription
+// edit reports back via onSubscriptionChange so the roster row updates without
+// a refetch.
 
 import { useMemo, useState } from "react";
 import type { TierConfig } from "@/lib/types/tiers";
@@ -34,7 +36,7 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export function AdminUserTable({ initialUsers, tiers }: Props) {
-  const [users] = useState<AdminUserRow[]>(initialUsers);
+  const [users, setUsers] = useState<AdminUserRow[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [tier, setTier] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
@@ -216,6 +218,15 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           user={selected}
           tiers={tiers}
           onClose={() => setSelectedId(null)}
+          onSubscriptionChange={(userId, tierId, status) =>
+            setUsers((prev) =>
+              prev.map((u) =>
+                u.user_id === userId
+                  ? { ...u, tier_id: tierId, status }
+                  : u,
+              ),
+            )
+          }
         />
       )}
     </div>
