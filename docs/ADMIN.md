@@ -8,7 +8,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | --- | --- | --- | --- |
 | Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
-| Users | `/admin/users` | Live, read-only | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). |
+| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
@@ -16,7 +16,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
-Users / Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support and the two tier edit modules (Tier limits / Feature flags) mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier RPCs log server-side inside the function). Tier edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete).
+Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, the Stripe plan change below, which bills the customer, and account deletion).
 
 ## Routing & layout
 
@@ -52,6 +52,7 @@ Consequences:
 | Admin detection helper | `lib/supabase/admin.ts` (`isAdmin`) |
 | Step-up re-auth helper | `lib/admin/reauth.ts` (`requireReauth`) |
 | Audit + identity RPCs, audit table, read/write RPCs | migration `006_admin_console.sql` |
+| Subscription write RPC | migration `008_admin_edit_subscription.sql` |
 
 ## Security model
 
@@ -93,7 +94,41 @@ Guardrails built into both functions (not the UI):
 
 Reads for these modules come from the public-read `tier_limits` table via the same `getTierConfigs()` the pricing page uses. Edits propagate on the existing cache TTLs (pricing page ~60s revalidate, extension ~1h).
 
-### Storage read RPC (migration `006_admin_console.sql`)
+### Subscription write RPC (migration `008_admin_edit_subscription.sql`)
+
+The Users detail drawer's "Edit subscription" form calls `admin_set_user_subscription(user_id, tier_id, tier_version, status)`. `subscriptions` is own-row-read-only under RLS with no client write policies, so - same pattern again - the write is a SECURITY DEFINER function that re-checks `public.is_admin()` itself. It updates the user's current subscription row (the same row tier resolution prefers: newest entitled row, else newest of any status), or inserts a comp row (Stripe ids null) when the user has none - the "bespoke tiers / support comps" path from `docs/ENTITLEMENTS.md`, reachable from the console.
+
+Guardrails built into the function (not the UI):
+
+- **Valid status only.** Must be one of the `subscriptions.status` CHECK values.
+- **Known tier only.** The `(tier_id, tier_version)` pair must exist in `tier_limits`; assigning an unconfigured tier would silently resolve to nothing. Historical (grandfathered) versions are allowed.
+- **Audit is server-side.** The function calls `log_admin_action` itself (`user.subscription_update`, metadata carries `old`, `new`, and a `stripe_managed` flag), so the change is reversible from the log.
+
+**Stripe caveat** (also shown in the UI): if the target row is Stripe-managed (`stripe_subscription_id` set), the next webhook event for that subscription overwrites `tier_id`/`status` again, and the override never changes what Stripe charges. Overrides are durable only for comp rows or lapsed subscriptions; real plan changes for paying customers use the Stripe plan change below (or the Stripe dashboard).
+
+### Stripe plan change (`admin-change-plan` Edge Function)
+
+The Users drawer's "Change plan" button (shown only for entitled Stripe-managed subscriptions) is the real paid plan change. It cannot be a Postgres RPC because it needs `STRIPE_SECRET_KEY`, which only Edge Functions hold, so the pattern shifts: the function validates the caller's JWT via `getUser()`, then gates on `admin_users` membership via a service-role read (authoritative, RLS-independent), then swaps the price on the customer's live Stripe subscription with `proration_behavior: 'create_prorations'`.
+
+Key properties:
+
+- **Stripe stays the source of truth.** The function never writes `tier_id`/`status` itself; Stripe fires `customer.subscription.updated` and the existing `stripe-webhook` maps the new price's `tier_id` metadata back onto the row (usually within seconds). No sync problem, no override to clobber.
+- **Tier -> price mapping is metadata**, the same `tier_id` / `billing_cycle` metadata the webhook reads. No lookup table; tiers without an active monthly Stripe price return `no_price_for_tier`.
+- **Step-up reauth.** It bills the customer (immediate prorated charge or credit), so the UI requires `requireReauth()` first, like ticket deletion.
+- **Audit is server-side.** The function inserts the `user.stripe_plan_change` entry itself (service role, verified caller as actor; metadata carries old/new tier and price ids, UUIDs only).
+- **Errors:** `no_stripe_subscription` (comp row or lapsed - use the entitlement override instead), `already_on_plan`, `no_price_for_tier`, `subscription_canceled`.
+
+See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flow.
+
+### Account deletion (`admin-delete-user` Edge Function)
+
+The Users drawer's "Delete account" button (danger zone, hidden for admins) runs the GDPR erasure runbook from the console. It is an Edge Function for the same reason as the plan change: it needs the service role (`auth.admin.deleteUser`, Storage cleanup, audit write) and `STRIPE_SECRET_KEY`, which the web app never holds. Same gate: `getUser()` then an authoritative `admin_users` service-role read.
+
+It mirrors `scripts/delete-user-account.mjs` exactly: delete `listing-images/{userId}/` storage objects (DB cascade does not touch Storage), delete the Stripe customer(s) (cancels any subscription; a Stripe failure aborts BEFORE the account is touched, so a user is never deleted while still chargeable), then delete the auth user, which cascades every user-owned row.
+
+Guardrails: an admin cannot delete themselves, and cannot delete another admin (revoke admin in the dashboard first; `admin_audit_log.actor_id`'s FK would block it anyway). Step-up reauth is required (irreversible). The audit entry (`user.delete`) records counts only, never the user id, per `docs/GDPR.md` - it is the record that an erasure happened, and it must not itself reference the erased user.
+
+Manual follow-up the function cannot do (also shown in the UI): purge the user's threads from the `support@salelinx.com` inbox.
 
 The Storage module's data source is the `user_storage` gauge from migration `004_storage_quota.sql`: a running per-user byte total for the `listing-images` bucket, kept in lockstep by triggers on `storage.objects` (the same gauge the quota-enforcement triggers read). The table is own-row-only under RLS, so - same pattern as the other cross-user reads - the read is a SECURITY DEFINER RPC that re-checks `public.is_admin()` itself:
 

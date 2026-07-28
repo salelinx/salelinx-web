@@ -64,17 +64,21 @@ Trigger: user emails a deletion request from their account email address
 
 1. Verify the request came from the account email (reply-to check; if in doubt
    ask them to confirm from that address).
-2. Dry run: `node scripts/delete-user-account.mjs user@example.com`
-   Requires `SUPABASE_SERVICE_ROLE_KEY` in the environment or `.env.local`
-   (get it from Supabase dashboard > Settings > API; never commit it).
-3. Execute: `node scripts/delete-user-account.mjs user@example.com --execute`
-   The script deletes storage objects, the Stripe customer (cancels any
-   subscription; Stripe keeps invoices for tax law, which the policy discloses),
-   then the auth user, which cascades all user-owned rows including tickets.
-4. Manual follow-ups the script cannot do:
+2. Delete via either path (both run the same steps: storage objects, the
+   Stripe customer - cancels any subscription; Stripe keeps invoices for tax
+   law, which the policy discloses - then the auth user, which cascades all
+   user-owned rows including tickets):
+   - **Admin console:** `/admin/users` > open the user > Danger zone >
+     Delete account (step-up reauth; backed by the `admin-delete-user` Edge
+     Function, see `docs/ADMIN.md`). No dry run; the drawer shows what the
+     account holds first.
+   - **Script:** dry run `node scripts/delete-user-account.mjs user@example.com`,
+     then re-run with `--execute`. Requires `SUPABASE_SERVICE_ROLE_KEY` in the
+     environment or `.env.local` (dashboard > Settings > API; never commit it).
+3. Manual follow-ups neither path can do:
    - Delete the user's threads from the `support@salelinx.com` inbox.
    - If they emailed other addresses, purge those too.
-5. Confirm completion to the user by email.
+4. Confirm completion to the user by email.
 
 Supabase database backups age out on the platform's schedule; deleted data
 disappears from backups automatically within the backup retention window.
