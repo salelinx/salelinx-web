@@ -34,12 +34,8 @@ export default async function AdminLayout({
   // Layer 2 of the gate (see docs/ADMIN.md). The middleware (Layer 1) already
   // blocks non-admins before this renders; we re-check here, fail-closed, so a
   // missed matcher or bypassed middleware still denies. RLS (Layer 3) is the
-  // real boundary for every read/write underneath.
-  //
-  // TODO(admin-mfa): additionally require an AAL2 session here once an MFA
-  // enroll/challenge flow exists -
-  // const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  // if (aal?.currentLevel !== "aal2") redirect("/account/security");
+  // real boundary for every read/write underneath: is_admin() also requires
+  // an AAL2 session (migration 009), mirroring the check below.
   let adminEmail = "";
   try {
     const supabase = await createServerClient();
@@ -51,6 +47,11 @@ export default async function AdminLayout({
     }
     if (!(await isAdmin(user.id))) {
       redirect("/account");
+    }
+    const { data: aal } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.currentLevel !== "aal2") {
+      redirect("/auth/mfa?next=/admin");
     }
     adminEmail = user.email ?? "";
   } catch (err) {

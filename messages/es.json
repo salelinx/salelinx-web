@@ -137,6 +137,17 @@
       "createAccount": "Crear cuenta",
       "forgotPassword": "¿Olvidaste tu contraseña?"
     },
+    "mfa": {
+      "title": "Verificación en dos pasos",
+      "body": "Introduce el código de 6 dígitos de tu aplicación de autenticación.",
+      "loading": "Cargando…",
+      "codePlaceholder": "123456",
+      "submitIdle": "Verificar",
+      "submitSubmitting": "Verificando…",
+      "codeError": "Ese código no funcionó. Revisa tu aplicación e inténtalo de nuevo.",
+      "notEnrolled": "Esta zona requiere autenticación de dos factores y tu cuenta aún no la tiene configurada. Actívala primero desde la sección Seguridad de tu cuenta.",
+      "goToSecurity": "Ir a la configuración de la cuenta"
+    },
     "signup": {
       "title": "Crear cuenta",
       "emailInUse": "Ya existe una cuenta con este email. Inicia sesión abajo o restablece tu contraseña si la has olvidado.",
@@ -251,7 +262,21 @@
     "sendConfirmation": "Enviar confirmación",
     "cancel": "Cancelar",
     "errorEnterEmail": "Introduce el nuevo correo.",
-    "errorSameEmail": "Ese ya es tu correo actual."
+    "errorSameEmail": "Ese ya es tu correo actual.",
+    "mfaHeading": "Autenticación de dos factores",
+    "mfaBody": "Protege tu cuenta con un código de 6 dígitos de una aplicación de autenticación como segundo paso de inicio de sesión.",
+    "mfaLoading": "Cargando…",
+    "mfaEnable": "Activar 2FA",
+    "mfaWorking": "Procesando…",
+    "mfaScan": "Escanea este código QR con tu aplicación de autenticación (Google Authenticator, 1Password, Authy…) y luego introduce el código de 6 dígitos que muestra.",
+    "mfaQrAlt": "Código QR para tu aplicación de autenticación",
+    "mfaManual": "O introduce esta clave manualmente:",
+    "mfaCodePlaceholder": "123456",
+    "mfaActivate": "Activar",
+    "mfaOn": "La autenticación de dos factores está activada.",
+    "mfaDisable": "Desactivar 2FA",
+    "mfaDisablePrompt": "Introduce un código de 6 dígitos actual de tu aplicación para confirmar la desactivación.",
+    "mfaCodeError": "Ese código no funcionó. Revisa tu aplicación e inténtalo de nuevo."
   },
   "Support": {
     "title": "Soporte",

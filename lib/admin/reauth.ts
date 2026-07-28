@@ -1,17 +1,53 @@
 import { createBrowserClient } from "@/lib/supabase/client";
 
-// Step-up re-authentication for destructive admin actions (e.g. deleting a
-// ticket). We re-verify the admin's password by signing in again with their
-// current email: a success proves they currently know the password, blunting a
-// hijacked-but-idle session from doing irreversible damage. This does NOT issue
-// a new factor or change the session's AAL - it is a possession-of-password
-// check. (TODO(admin-mfa): once MFA ships, prefer an AAL2 step-up challenge.)
+// Step-up re-authentication for destructive admin actions (ticket delete,
+// Stripe plan change, account deletion).
 //
-// Returns true on success; throws on a wrong password / no session so callers
-// can surface the error and abort the destructive action.
+// With a TOTP factor enrolled, the step-up is an MFA re-verification: the
+// admin enters a fresh 6-digit code, which proves possession of the second
+// factor and keeps (or restores) the session at AAL2 - required by
+// is_admin() and the admin Edge Functions since migration 009.
+//
+// Without a factor (pre-enrollment only), it falls back to re-entering the
+// password. NOTE the fallback's sharp edge: signInWithPassword issues a
+// FRESH session at AAL1, so once MFA enforcement is live an enrolled admin
+// must never take this path - and cannot, because the factor check runs
+// first. Callers use getReauthKind() to label the prompt correctly.
+//
+// Returns true on success; throws so callers can surface the error and abort
+// the destructive action.
 
-export async function requireReauth(password: string): Promise<boolean> {
+export type ReauthKind = "totp" | "password";
+
+export async function getReauthKind(): Promise<ReauthKind> {
   const supabase = createBrowserClient();
+  const { data } = await supabase.auth.mfa.listFactors();
+  return data?.totp.some((f) => f.status === "verified") ? "totp" : "password";
+}
+
+export async function requireReauth(secret: string): Promise<boolean> {
+  const supabase = createBrowserClient();
+
+  const { data: factors } = await supabase.auth.mfa.listFactors();
+  const totp = factors?.totp.find((f) => f.status === "verified");
+
+  if (totp) {
+    const { data: challenge, error: chErr } = await supabase.auth.mfa.challenge(
+      { factorId: totp.id },
+    );
+    if (chErr || !challenge) {
+      throw new Error("Could not start verification. Please try again.");
+    }
+    const { error } = await supabase.auth.mfa.verify({
+      factorId: totp.id,
+      challengeId: challenge.id,
+      code: secret.trim(),
+    });
+    if (error) {
+      throw new Error("Incorrect code.");
+    }
+    return true;
+  }
 
   const { data, error: userErr } = await supabase.auth.getUser();
   const email = data.user?.email;
@@ -19,7 +55,10 @@ export async function requireReauth(password: string): Promise<boolean> {
     throw new Error("Could not verify your session. Please sign in again.");
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password: secret,
+  });
   if (error) {
     throw new Error("Incorrect password.");
   }

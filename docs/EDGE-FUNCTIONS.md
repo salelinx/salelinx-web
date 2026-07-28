@@ -25,7 +25,7 @@ Eight Supabase Edge Functions live in `supabase/functions/`. They run on Supabas
 | `admin-change-plan`       | false*       | Admin console swaps a customer's paid plan in Stripe; auth by `getUser()` + `admin_users` membership     |
 | `admin-delete-user`       | false*       | Admin console runs the GDPR account deletion; auth by `getUser()` + `admin_users` membership             |
 
-\*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced.
+\*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in migration 009) and `admin_users` membership via the service role.
 
 `stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` imports `@supabase/supabase-js` from `jsr:` and uses plain `fetch` for Resend. Deno uses URL imports, not `node_modules`.
 
