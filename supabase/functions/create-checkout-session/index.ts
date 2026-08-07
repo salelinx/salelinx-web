@@ -98,24 +98,36 @@ Deno.serve(async (req) => {
     applyReferralDiscount = hasReferral === true;
   }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price: priceId, quantity: 1 }],
-    ...(existingCustomerId
-      ? { customer: existingCustomerId }
-      : { customer_email: user.email }),
-    client_reference_id: user.id,
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    ...(applyReferralDiscount
-      ? { discounts: [{ coupon: referralCouponId }] }
-      : { allow_promotion_codes: true }),
-    ...(trialPeriodDays
-      ? { subscription_data: { trial_period_days: trialPeriodDays } }
-      : {}),
-  });
+  // An unhandled Stripe throw becomes a bare 500 with no CORS headers, which
+  // the browser reports as an opaque CORS failure. Catch and answer properly
+  // so the client sees the real error.
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      ...(existingCustomerId
+        ? { customer: existingCustomerId }
+        : { customer_email: user.email }),
+      client_reference_id: user.id,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      ...(applyReferralDiscount
+        ? { discounts: [{ coupon: referralCouponId }] }
+        : { allow_promotion_codes: true }),
+      ...(trialPeriodDays
+        ? { subscription_data: { trial_period_days: trialPeriodDays } }
+        : {}),
+    });
 
-  return new Response(JSON.stringify({ url: session.url }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+    return new Response(JSON.stringify({ url: session.url }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    const message = (err as Error).message ?? "checkout session failed";
+    console.error(`[create-checkout-session] stripe error: ${message}`);
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 });
