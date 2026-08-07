@@ -15,9 +15,9 @@ Friend clicks the link -> app/r/[code]/route.ts
   sets slx_ref cookie (HttpOnly, 30 days, last-touch wins)
   redirects to /features
   ▼
-Friend signs up, confirms email -> /auth/callback
-  after exchangeCodeForSession succeeds: claim_referral(code) RPC
-  inserts a referrals row (status = pending), cookie cleared
+Friend signs up and confirms email (any auth path)
+  proxy.ts sees a signed-in request still carrying slx_ref
+  claim_referral(code) RPC inserts a referrals row (pending), cookie cleared
   ▼
 Friend subscribes -> create-checkout-session
   has_pending_referral() true -> REFERRAL_COUPON_ID auto-applied
@@ -64,19 +64,23 @@ referee-side read surface is the `has_pending_referral()` RPC (a boolean).
 
 ## Claim guards (`claim_referral`)
 
-Every guard returns FALSE instead of raising - the RPC runs inside the auth
-callback and must never break sign-in:
+The claim fires in `proxy.ts` on the first signed-in request that still
+carries the `slx_ref` cookie. It CANNOT live in `/auth/callback`: signup
+verification goes through `/auth/confirm`, which verifies client-side via
+`verifyOtp` and deliberately skips the callback hop, so the callback never
+runs for signups. The proxy point catches every auth path (email confirm,
+no-confirmation signups, even sign-in days later within the cookie window).
+
+Every guard returns FALSE instead of raising - the RPC runs on the request
+path and must never break anything:
 
 - no session / null code / bad shape
 - unknown code
 - self-referral
-- account older than 48h (the callback also fires for password reset and
-  email change; the age check plus the UNIQUE constraint make those replays
-  no-ops)
+- account older than 48h (an existing signed-in user who clicks a referral
+  link just gets the cookie cleared; the age check plus the UNIQUE
+  constraint make all replays no-ops)
 - already claimed (unique_violation swallowed)
-
-Known limitation: if Supabase "Confirm email" is ever turned OFF, signup
-bypasses `/auth/callback` and claims are silently lost.
 
 ## Reward rules (`process-referral-rewards`)
 
@@ -144,7 +148,7 @@ paid invoice gets it). See `docs/STRIPE.md`.
 | --- | --- |
 | Schema + RPCs | `supabase/migrations/010_referrals.sql` |
 | Share link | `app/r/[code]/route.ts` (+ `/r/` in `proxy.ts` skipIntl) |
-| Claim | `app/auth/callback/route.ts` |
+| Claim | `proxy.ts` (first signed-in request with the cookie) |
 | Conversion | `supabase/functions/stripe-webhook/index.ts` |
 | Referee discount | `supabase/functions/create-checkout-session/index.ts` |
 | Reward grant | `supabase/functions/process-referral-rewards/index.ts` |

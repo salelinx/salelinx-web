@@ -1,11 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next") ?? "/account";
-  const refCode = request.cookies.get("slx_ref")?.value;
 
   if (code) {
     const supabase = await createServerClient();
@@ -19,24 +18,7 @@ export async function GET(request: NextRequest) {
       target.searchParams.set("error_description", error.message);
       return NextResponse.redirect(target);
     }
-
-    // First moment a verified session exists: claim any referral cookie set
-    // by /r/CODE. The RPC self-guards (self-referral, account age, duplicate,
-    // bad code) and returns false instead of raising, so a failed claim can
-    // never break sign-in. The callback also fires for password reset and
-    // email change; the RPC's guards make those replays harmless.
-    if (refCode) {
-      try {
-        await supabase.rpc("claim_referral", { p_code: refCode });
-      } catch {
-        // never break the auth flow over a referral
-      }
-    }
   }
 
-  const response = NextResponse.redirect(new URL(next, url.origin));
-  if (refCode) {
-    response.cookies.set("slx_ref", "", { maxAge: 0, path: "/" });
-  }
-  return response;
+  return NextResponse.redirect(new URL(next, url.origin));
 }
