@@ -139,6 +139,41 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
     .eq("stripe_subscription_id", subId)
     .eq("status", "past_due");
   if (error) throw new Error(`active reset failed: ${error.message}`);
+
+  await markReferralConverted(invoice, subId);
+}
+
+// Referral conversion: the referee's first PAID invoice flips their pending
+// referral to 'converted' (the reward itself is granted 7 days later by
+// process-referral-rewards). No billing_reason logic needed: a pending row
+// exists at most once per referee, so the status guard makes every later
+// invoice a no-op. Trials convert on the first real charge at day 7
+// (billing_reason 'subscription_cycle'), which amount_paid > 0 covers.
+async function markReferralConverted(
+  invoice: Stripe.Invoice,
+  subId: string,
+): Promise<void> {
+  if (!invoice.amount_paid || invoice.amount_paid <= 0) return;
+
+  // Invoices carry no client_reference_id; map back to our user through the
+  // subscriptions row. A miss is NOT an error - this invoice event can race
+  // checkout.session.completed - and the next cycle's invoice heals it.
+  const { data: subRow, error: lookupError } = await supabase
+    .from("subscriptions")
+    .select("user_id")
+    .eq("stripe_subscription_id", subId)
+    .maybeSingle();
+  if (lookupError) {
+    throw new Error(`referral lookup failed: ${lookupError.message}`);
+  }
+  if (!subRow) return;
+
+  const { error } = await supabase
+    .from("referrals")
+    .update({ status: "converted", converted_at: new Date().toISOString() })
+    .eq("referee_id", subRow.user_id)
+    .eq("status", "pending");
+  if (error) throw new Error(`referral convert failed: ${error.message}`);
 }
 
 Deno.serve(async (req) => {
