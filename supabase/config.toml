@@ -14,6 +14,8 @@ project_id = "salelinx-web"
 # `send-auth-email` is signed by Supabase Auth (Standard Webhooks).
 # `send-support-email` is gated by a shared secret in the x-support-webhook-secret
 # header (set in the Database Webhook config).
+# `process-referral-rewards` is gated by a shared secret in the
+# x-referral-cron-secret header (set in the dashboard Cron job config).
 
 [functions.stripe-webhook]
 verify_jwt = false
@@ -37,4 +39,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.admin-delete-user]
+verify_jwt = false
+
+[functions.process-referral-rewards]
 verify_jwt = false

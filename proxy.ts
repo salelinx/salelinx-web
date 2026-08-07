@@ -24,12 +24,15 @@ export async function proxy(request: NextRequest) {
   }
 
   // Paths that must NOT be locale-prefixed by intlMiddleware but STILL need the
-  // Supabase cookie refresh below: auth route handlers (outside [locale]) and
-  // the top-level, non-localized /admin console tree.
+  // Supabase cookie refresh below: auth route handlers (outside [locale]), the
+  // referral share-link handler, and the top-level, non-localized /admin
+  // console tree.
   const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
   const skipIntl =
     pathname.startsWith("/auth/callback") ||
     pathname.startsWith("/auth/signout") ||
+    pathname === "/r" ||
+    pathname.startsWith("/r/") ||
     isAdminPath;
 
   let response = skipIntl

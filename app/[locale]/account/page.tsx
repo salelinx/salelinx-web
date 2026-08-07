@@ -6,9 +6,12 @@ import {
   isEntitled,
   trialDaysRemaining,
 } from "@/lib/supabase/subscription";
+import { getReferralSummary } from "@/lib/supabase/referrals";
+import { SITE_URL } from "@/lib/site";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
+import { ReferralsCard } from "@/components/ReferralsCard";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -30,7 +33,10 @@ export default async function AccountPage({ params, searchParams }: Props) {
   }
 
   const unverified = !user.email_confirmed_at;
-  const { subscription, tier } = await getCurrentSubscription(user.id);
+  const [{ subscription, tier }, referrals] = await Promise.all([
+    getCurrentSubscription(user.id),
+    getReferralSummary(),
+  ]);
   const entitled = isEntitled(subscription);
   const trialDaysLeft = trialDaysRemaining(subscription);
 
@@ -194,6 +200,23 @@ export default async function AccountPage({ params, searchParams }: Props) {
       </section>
 
       {user.email && <AccountSecurityCard email={user.email} />}
+
+      {referrals.code && (
+        <ReferralsCard
+          link={`${SITE_URL}/r/${referrals.code}`}
+          pending={referrals.pending}
+          converting={referrals.converting}
+          rewarded={referrals.rewarded}
+          creditEarned={
+            referrals.rewardedTotalCents > 0 && referrals.rewardCurrency
+              ? new Intl.NumberFormat(locale, {
+                  style: "currency",
+                  currency: referrals.rewardCurrency.toUpperCase(),
+                }).format(referrals.rewardedTotalCents / 100)
+              : null
+          }
+        />
+      )}
 
       <section className="mt-6 flex flex-col items-start gap-4 rounded-2xl border border-black/10 p-6 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
         <div>

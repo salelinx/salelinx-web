@@ -79,7 +79,7 @@ All in `supabase/functions/stripe-webhook/index.ts`. Priority:
 | `customer.subscription.updated`                      | Update `tier_id`, `status`, `current_period_end` on the row matched by `stripe_subscription_id`. Handles plan changes + renewals.                                                    |
 | `customer.subscription.deleted`                      | Set `status = 'canceled'`. Don't delete the row - keep history.                                                                                                                      |
 | `invoice.payment_failed`                             | Set `status = 'past_due'`. Trigger payment-failed email via Resend.                                                                                                                  |
-| `invoice.payment_succeeded`                          | Reset `status = 'active'` only if it was `past_due` (otherwise no-op).                                                                                                               |
+| `invoice.payment_succeeded`                          | Reset `status = 'active'` only if it was `past_due`. Also flips a pending referral to `converted` on the first invoice with `amount_paid > 0` (see `docs/REFERRALS.md`).             |
 
 Any event not listed → respond 200 silently, don't 500.
 
@@ -100,6 +100,27 @@ stripe listen --forward-to https://<project-ref>.supabase.co/functions/v1/stripe
 ```
 
 It prints a temporary `whsec_...` that you set as `STRIPE_WEBHOOK_SECRET` while testing.
+
+## Referrals (coupon + customer balance)
+
+Two Stripe features back the referral program (`docs/REFERRALS.md`):
+
+- **Referee first-month discount**: a hand-created Coupon whose ID lives in the
+  `REFERRAL_COUPON_ID` Edge Function secret. `create-checkout-session` passes it
+  via `discounts: [{ coupon }]` when the buyer has a pending referral.
+  **`discounts` and `allow_promotion_codes` are mutually exclusive** on a
+  Checkout Session - the function drops the promo-code field for referred
+  checkouts, so a referred user cannot also enter a promo code.
+  Create the coupon with `duration: 'once'`, then verify with a **test clock**
+  that the discount survives the 7-day trial's $0 invoice; if the trial invoice
+  consumes it, recreate as `duration: 'repeating', duration_in_months: 2`.
+- **Referrer reward**: `process-referral-rewards` calls
+  `stripe.customers.createBalanceTransaction` with a **negative** amount (=
+  credit) equal to one month of the referrer's current plan price. Stripe
+  applies customer balance automatically to upcoming invoices; no plan or
+  subscription change is involved. The transaction carries
+  `metadata.referral_id` and an idempotency key so retries can never
+  double-credit.
 
 ## Pricing changes
 

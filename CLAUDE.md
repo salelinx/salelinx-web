@@ -24,6 +24,7 @@ docs/
 ├── STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
 ├── EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
 ├── SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
+├── REFERRALS.md        Referral program: share links, claims, conversions, reward grants
 └── GDPR.md             Data inventory (ROPA), retention, deletion/export runbooks, breach process
 ```
 
@@ -60,6 +61,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `send-shipping-labels` - `verify_jwt = false` (called by the extension with the user's JWT in `Authorization`; handler validates via `getUser(jwt)` and emails a merged label PDF via Resend)
 - `admin-change-plan` - `verify_jwt = false` (admin console changes a customer's paid Stripe plan; handler validates via `getUser()` plus `admin_users` membership through the service role, swaps the subscription price, and lets `stripe-webhook` sync the row)
 - `admin-delete-user` - `verify_jwt = false` (admin console runs the GDPR account deletion: storage objects, Stripe customer, then the auth user; same `getUser()` plus `admin_users` gate; see `docs/GDPR.md`)
+- `process-referral-rewards` - `verify_jwt = false` (daily dashboard Cron job POSTs with the `x-referral-cron-secret` shared secret; grants referral rewards as Stripe balance credits; see `docs/REFERRALS.md`)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 
@@ -96,7 +98,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **`setAll` cookie callbacks need an explicit `CookieEntry[]` type** - TS strict mode flags implicit `any`.
 - **`router.refresh()` after password login** - without it, the Header still shows signed-out state until navigation.
 - **`supabase/functions/` is excluded from `tsc`** - TS errors there won't surface until deploy. Use the Deno VSCode extension for inline checking.
-- **Stripe API version pinned at `2025-02-24.acacia`** in 6 places (`lib/stripe.ts` + 5 Edge Functions). Bump all or none.
+- **Stripe API version pinned at `2025-02-24.acacia`** in 7 places (`lib/stripe.ts` + 6 Edge Functions). Bump all or none.
 - **`constructEventAsync` in Deno**, never `constructEvent` - sync variant crashes.
 - **Webhook must read `req.text()` first, then verify** - JSON.parse breaks signature.
 - **Auth emails go through the `send-auth-email` Edge Function + Resend, not Supabase SMTP** - templates in `supabase/functions/send-auth-email/templates.ts`. A failing hook breaks signup/reset UX.
@@ -108,6 +110,8 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **`mdx-components.tsx` must live at the repo root**, not under `app/`. `@next/mdx` only looks there.
 - **Marketplace status** is a hardcoded constant in `lib/docs/status.ts`. Migration path to Supabase is noted in the file; consumers call `getMarketplaceStatus()` so the swap is local.
 - **Docs vs FAQ split.** `/docs` is for step-by-step guides and walkthroughs (learning-oriented prose). `/faq` is for quick Q&A (troubleshooting, billing, one-offs) in `lib/faq/data.tsx`. Don't add troubleshooting or billing articles to `/docs`; add FAQ entries instead.
+- **`/r/CODE` referral links must stay in `proxy.ts`'s `skipIntl` allowlist** - without that line next-intl locale-rewrites the route and the handler never runs. The attribution cookie is `slx_ref` (HttpOnly, 30 days); the claim happens in `/auth/callback`, so referrals silently stop if email confirmation is ever disabled. See `docs/REFERRALS.md`.
+- **Referees must never get a SELECT policy on `referrals`** - it would expose the referrer's UUID. Referee-side reads go through the `has_pending_referral()` RPC.
 - **Features / Pricing / Roadmap are one page.** Canonical URL is `/features`, with in-page anchors `#features`, `#pricing`, `#roadmap` set on each section component. Cross-section navigation comes from the global sticky `Header` links. `/pricing` and `/roadmap` are one-line `redirect()` stubs pointing at the anchors - keep them in place (Stripe's `cancelUrl` still points at `/pricing`). Section components live under `components/features/`.
 
 ## Do NOT

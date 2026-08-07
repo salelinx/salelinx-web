@@ -61,7 +61,8 @@ extension sees, and vice versa.
 - Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
 - **Support** - user-facing: a login-gated contact form at `/help/support` (create a ticket, reached from the public `/help` hub) and the ticket history at `/account/tickets` (track + reply). The extension only files + reads.
 - **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
-- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`
+- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `process-referral-rewards`
+- **Referral program** - share links (`/r/CODE`), the account Referrals card, and the reward pipeline (see `docs/REFERRALS.md`)
 
 ### Extension (`salelinx-app`) owns
 
@@ -99,6 +100,8 @@ All in the shared Supabase project. Migrations live in this repo
 | `support_tickets`        | both               | both (web + extension) + `stripe-webhook` n/a | Support tickets - bug / feature / feedback, status, diagnostics         |
 | `support_ticket_replies` | both               | both (web users + web admins)                 | Ticket conversation thread; `is_admin` flag stamped server-side         |
 | `admin_users`            | both               | SQL/dashboard only                            | Support-admin membership; backs `is_admin()` RLS helper                 |
+| `referral_codes`         | website only       | `get_or_create_referral_code()` RPC           | One share code per user (/r/CODE links); see `docs/REFERRALS.md`        |
+| `referrals`              | website only       | RPCs + `stripe-webhook` + reward function     | Referral lifecycle: pending -> converted -> rewarded/void               |
 
 See `docs/ENTITLEMENTS.md` for the entitlement model (features, limits,
 quotas, grandfathering via `tier_version`).

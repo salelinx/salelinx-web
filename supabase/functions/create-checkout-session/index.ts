@@ -85,6 +85,19 @@ Deno.serve(async (req) => {
     (subRows ?? []).find((r) => r.stripe_customer_id)?.stripe_customer_id ??
     null;
 
+  // Referred users get the first-month discount coupon auto-applied. The RPC
+  // runs as the user (anon client), so it can only ever report their own
+  // pending referral. Stripe rejects `discounts` together with
+  // `allow_promotion_codes`, so a referred checkout drops the promo-code
+  // field - a referred user cannot also enter a promo code (accepted
+  // trade-off; the referral discount wins).
+  let applyReferralDiscount = false;
+  const referralCouponId = Deno.env.get("REFERRAL_COUPON_ID") ?? "";
+  if (referralCouponId) {
+    const { data: hasReferral } = await supabase.rpc("has_pending_referral");
+    applyReferralDiscount = hasReferral === true;
+  }
+
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: priceId, quantity: 1 }],
@@ -94,7 +107,9 @@ Deno.serve(async (req) => {
     client_reference_id: user.id,
     success_url: successUrl,
     cancel_url: cancelUrl,
-    allow_promotion_codes: true,
+    ...(applyReferralDiscount
+      ? { discounts: [{ coupon: referralCouponId }] }
+      : { allow_promotion_codes: true }),
     ...(trialPeriodDays
       ? { subscription_data: { trial_period_days: trialPeriodDays } }
       : {}),
