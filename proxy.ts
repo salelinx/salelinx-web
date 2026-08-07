@@ -69,6 +69,23 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Referral claim. This lives here, not in /auth/callback, because signup
+  // verification never passes through the callback: /auth/confirm verifies
+  // client-side via verifyOtp and skips the callback hop entirely. Claiming
+  // on "signed-in request carrying the referral cookie" catches every auth
+  // path. The RPC self-guards (self-referral, 48h account age, duplicates,
+  // bad code) and returns false instead of raising, so this can never break
+  // a request; the cookie is cleared after one attempt either way.
+  const refCode = request.cookies.get("slx_ref")?.value;
+  if (user && refCode) {
+    try {
+      await supabase.rpc("claim_referral", { p_code: refCode });
+    } catch {
+      // never fail the request over a referral
+    }
+    response.cookies.set("slx_ref", "", { maxAge: 0, path: "/" });
+  }
+
   // Layer 1 of the admin gate (see docs/ADMIN.md): block non-admins before any
   // admin route code runs. Fail-closed - any error denies. RLS is still the
   // real boundary; this is defense in depth + a clean redirect for humans.
