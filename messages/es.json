@@ -253,6 +253,16 @@
     "errorEnterEmail": "Introduce el nuevo correo.",
     "errorSameEmail": "Ese ya es tu correo actual."
   },
+  "Referrals": {
+    "title": "Recomienda a un amigo",
+    "body": "Comparte tu enlace. Quien se suscriba a través de él obtiene un descuento en su primer mes, y tú recibes un mes gratis cuando haya pagado.",
+    "copy": "Copiar enlace",
+    "copied": "Copiado",
+    "statSignedUp": "Registrados",
+    "statSubscribed": "Suscritos",
+    "statRewarded": "Meses ganados",
+    "creditEarned": "Crédito acumulado: {amount}. Se aplica automáticamente a tu próxima factura."
+  },
   "Support": {
     "title": "Soporte",
     "subtitle": "Envía una solicitud y sigue nuestras respuestas. También te avisaremos por correo cuando el equipo responda.",

@@ -253,6 +253,16 @@
     "errorEnterEmail": "Saisissez la nouvelle adresse e-mail.",
     "errorSameEmail": "C'est déjà votre adresse e-mail actuelle."
   },
+  "Referrals": {
+    "title": "Parrainez un ami",
+    "body": "Partagez votre lien. Toute personne qui s'abonne via ce lien obtient une réduction sur son premier mois, et vous recevez un mois gratuit une fois qu'elle a payé.",
+    "copy": "Copier le lien",
+    "copied": "Copié",
+    "statSignedUp": "Inscrits",
+    "statSubscribed": "Abonnés",
+    "statRewarded": "Mois gagnés",
+    "creditEarned": "Crédit obtenu : {amount}. Il est appliqué automatiquement à votre prochaine facture."
+  },
   "Support": {
     "title": "Assistance",
     "subtitle": "Envoyez une demande et suivez nos réponses. Nous vous écrivons aussi par e-mail quand l'équipe répond.",

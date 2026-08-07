@@ -253,6 +253,16 @@
     "errorEnterEmail": "Gib die neue E-Mail-Adresse ein.",
     "errorSameEmail": "Das ist bereits deine aktuelle E-Mail-Adresse."
   },
+  "Referrals": {
+    "title": "Freunde werben",
+    "body": "Teile deinen Link. Wer sich darüber anmeldet, erhält einen Rabatt auf den ersten Monat, und du bekommst einen Gratismonat, sobald die Person bezahlt hat.",
+    "copy": "Link kopieren",
+    "copied": "Kopiert",
+    "statSignedUp": "Registriert",
+    "statSubscribed": "Abonniert",
+    "statRewarded": "Gratismonate",
+    "creditEarned": "Bisher erhaltenes Guthaben: {amount}. Es wird automatisch mit deiner nächsten Rechnung verrechnet."
+  },
   "Support": {
     "title": "Support",
     "subtitle": "Stelle eine Anfrage und verfolge unsere Antworten. Wir benachrichtigen dich auch per E-Mail, wenn das Team antwortet.",

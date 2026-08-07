@@ -253,6 +253,16 @@
     "errorEnterEmail": "Enter the new email address.",
     "errorSameEmail": "That's already your current email."
   },
+  "Referrals": {
+    "title": "Refer a friend",
+    "body": "Share your link. Anyone who subscribes through it gets a discount on their first month, and you get one month free once they've paid.",
+    "copy": "Copy link",
+    "copied": "Copied",
+    "statSignedUp": "Signed up",
+    "statSubscribed": "Subscribed",
+    "statRewarded": "Months earned",
+    "creditEarned": "Credit earned so far: {amount}. It's applied automatically to your next invoice."
+  },
   "Support": {
     "title": "Support",
     "subtitle": "File a request and track our replies. We'll also email you when the team responds.",
