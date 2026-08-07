@@ -25,7 +25,12 @@ Friend subscribes -> create-checkout-session
   ▼
 First PAID invoice (amount_paid > 0) -> stripe-webhook
   referrals row -> converted, converted_at stamped
-  (a 7-day Starter trial converts at day 7, when the first real charge lands)
+  Two webhook paths flip it, whichever arrives first (status-guarded no-ops
+  of each other): checkout.session.completed converts instant purchases
+  (its latest_invoice is checked for amount_paid > 0 - it knows the user
+  directly, so it never races the subscriptions insert), and
+  invoice.payment_succeeded converts trials at day 7 and renewals
+
   ▼
 7 days later -> process-referral-rewards (daily Cron)
   referee still entitled? referrer has a live subscription?
