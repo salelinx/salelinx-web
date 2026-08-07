@@ -17,6 +17,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |
 | Support | Ticket message, replies, app version, user agent, locale; email resolved from auth at send time | Users | Contract / legitimate interest | Supabase `support_tickets`, `support_ticket_replies`; copies in the support inbox | 24 months after ticket closed (automated purge); inbox purged manually |
+| Referrals | Share code; referrer-referee account linkage, status, reward amounts | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes`, `referrals` | Life of account (both FKs cascade) |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
@@ -90,7 +91,9 @@ On request from the account email:
 1. Auth profile: dashboard > Authentication > user (email, created, last sign-in).
 2. Rows for their `user_id` from: `listings`, `linked_accounts`, `user_settings`,
    `subscriptions`, `usage_counters`, `user_storage`, `support_tickets`,
-   `support_ticket_replies` (SQL editor, export as CSV or JSON).
+   `support_ticket_replies`, `referral_codes`, and `referrals` (where they are
+   referrer or referee; redact the OTHER party's UUID before sending - it is
+   someone else's personal data) (SQL editor, export as CSV or JSON).
 3. Storage: download `listing-images/{userId}/` if they want the images.
 4. Do not export `platform_credentials` content (it is encrypted client-side
    and useless outside their device); note its existence instead.
