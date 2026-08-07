@@ -62,7 +62,7 @@ async function handleSubscriptionCheckout(
 
   const subscription = await stripe.subscriptions.retrieve(
     session.subscription,
-    { expand: ["items.data.price"] },
+    { expand: ["items.data.price", "latest_invoice"] },
   );
   const price = subscription.items.data[0]?.price;
   if (!price) throw new Error("subscription has no price");
@@ -87,6 +87,24 @@ async function handleSubscriptionCheckout(
     { onConflict: "stripe_subscription_id" },
   );
   if (error) throw new Error(`subscriptions upsert failed: ${error.message}`);
+
+  // Referral conversion for instant (non-trial) purchases. This cannot be
+  // left to invoice.payment_succeeded alone: that event often arrives BEFORE
+  // this one, misses the subscriptions row we just upserted, and skips. Here
+  // we know the user directly (client_reference_id), so convert now if the
+  // first invoice was genuinely paid. The status='pending' guard makes this
+  // and the invoice path no-ops of each other, whichever runs second.
+  const firstInvoice = subscription.latest_invoice as Stripe.Invoice | null;
+  if (firstInvoice && (firstInvoice.amount_paid ?? 0) > 0) {
+    const { error: refError } = await supabase
+      .from("referrals")
+      .update({ status: "converted", converted_at: new Date().toISOString() })
+      .eq("referee_id", userId)
+      .eq("status", "pending");
+    if (refError) {
+      throw new Error(`referral convert failed: ${refError.message}`);
+    }
+  }
 }
 
 async function handleSubscriptionUpdated(
