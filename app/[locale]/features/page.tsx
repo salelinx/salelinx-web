@@ -5,6 +5,7 @@ import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { RoadmapSection } from '@/components/features/RoadmapSection';
 import { getTierConfigs } from '@/lib/supabase/tier-config';
+import { pageMetadata } from '@/lib/site';
 
 export const revalidate = 60;
 
@@ -15,10 +16,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Features' });
-  return {
+  return pageMetadata({
+    locale,
+    path: '/features',
     title: t('metaTitle'),
     description: t('metaDescription'),
-  };
+  });
 }
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';

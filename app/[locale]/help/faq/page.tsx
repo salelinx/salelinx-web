@@ -6,6 +6,7 @@ import { SupportCard } from '@/components/docs/SupportCard';
 import { Icon } from '@/components/Icon';
 import { getFaqGroups } from '@/lib/faq';
 import type { Locale } from '@/lib/i18n/locales';
+import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -16,10 +17,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Faq' });
-  return {
+  return pageMetadata({
+    locale,
+    path: '/help/faq',
     title: t('metaTitle'),
     description: t('metaDescription'),
-  };
+  });
 }
 
 export default async function FAQPage({

@@ -1,5 +1,6 @@
+import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { SITE_NAME, SITE_URL, absoluteUrl } from '@/lib/site';
+import { SITE_NAME, SITE_URL, absoluteUrl, pageMetadata } from '@/lib/site';
 import { Hero } from '@/components/home/Hero';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
@@ -8,6 +9,23 @@ import { PricingSection } from '@/components/features/PricingSection';
 import { getTierConfigs } from '@/lib/supabase/tier-config';
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Layout' });
+  return pageMetadata({
+    locale,
+    path: '/',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+    // The homepage title already carries the brand; skip the template.
+    absoluteTitle: true,
+  });
+}
 
 export default async function Home({
   params,
