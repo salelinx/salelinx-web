@@ -1,6 +1,6 @@
 # Edge Functions
 
-Nine Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
+Ten Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
 
 ## Why Edge Functions, not Next.js route handlers?
 
@@ -11,9 +11,10 @@ Nine Supabase Edge Functions live in `supabase/functions/`. They run on Supabase
 - **`send-shipping-labels`** - called by the Chrome extension to email a merged shipping-label PDF via Resend. Lives here (not in the extension) because Edge Function deploys are co-located with everything else Supabase-adjacent, and the extension only needs the function URL.
 - **`admin-change-plan`** - the admin console's real Stripe plan change (swap the price on a customer's live subscription). Needs `STRIPE_SECRET_KEY` and the service role (admin gate + audit write), so it lives with the other Stripe-adjacent functions.
 - **`admin-delete-user`** - the admin console's account deletion (the GDPR erasure runbook: storage, Stripe customer, auth user). Needs the service role and `STRIPE_SECRET_KEY`; same home as the script it mirrors (`scripts/delete-user-account.mjs`).
+- **`delete-account`** - self-serve account deletion from `/account` (Danger zone). Two stages: `request` emails the account address a confirmation link (Resend, HMAC-signed token, 60-minute expiry, signed with `DELETE_ACCOUNT_TOKEN_SECRET`); `confirm` (from `/account/delete-confirm`) verifies the token was minted for the caller and then runs the same erasure steps as `admin-delete-user`. Refuses admins (their audit-log FKs would break) and writes no audit entry (the actor would not survive their own deletion).
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 
-## The nine functions
+## The ten functions
 
 | Function                  | `verify_jwt` | Purpose                                                                                                  |
 | ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -25,6 +26,7 @@ Nine Supabase Edge Functions live in `supabase/functions/`. They run on Supabase
 | `send-shipping-labels`    | false*       | Extension POSTs a base64 PDF + recipient; auth enforced by `getUser(jwt)`; delivered via Resend          |
 | `admin-change-plan`       | false*       | Admin console swaps a customer's paid plan in Stripe; auth by `getUser()` + `admin_users` membership     |
 | `admin-delete-user`       | false*       | Admin console runs the GDPR account deletion; auth by `getUser()` + `admin_users` membership             |
+| `delete-account`          | false*       | User deletes their own account: emails a signed confirm link and erases on confirm; auth by `getUser()`  |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced.
@@ -70,6 +72,7 @@ supabase functions deploy send-support-email
 supabase functions deploy send-shipping-labels --no-verify-jwt
 supabase functions deploy admin-change-plan --no-verify-jwt
 supabase functions deploy admin-delete-user --no-verify-jwt
+supabase functions deploy delete-account --no-verify-jwt
 supabase functions deploy process-referral-rewards --no-verify-jwt
 ```
 
@@ -96,6 +99,10 @@ supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # the daily Cron job sends in x-referral-cron-secret.
 supabase secrets set REFERRAL_COUPON_ID='<coupon id>'
 supabase secrets set REFERRAL_CRON_SECRET='<random-string, 32+ bytes>'
+# delete-account: HMAC key for the emailed deletion-confirmation tokens.
+# Internal only (never leaves the function); rotating it just invalidates
+# any confirmation links already in flight.
+supabase secrets set DELETE_ACCOUNT_TOKEN_SECRET='<random-string, 32+ bytes>'
 ```
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are **auto-injected** by the runtime - don't set them manually.

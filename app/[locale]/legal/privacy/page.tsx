@@ -100,7 +100,7 @@ const SECTIONS: LegalSection[] = [
     paragraphs: [
       "We keep your account data for as long as your account exists. Cloud-synced listings and images can be removed at any time from within the extension, which deletes them from our storage.",
       "Support tickets and their replies are deleted 24 months after the ticket is closed.",
-      "To delete your account and all associated data, email support@salelinx.com from your account email address. We will complete the deletion within 30 days, except for records we are legally required to keep (for example invoices).",
+      "To delete your account and all associated data, use the Delete account section on your account page; deletion takes effect immediately. You can also email support@salelinx.com from your account email address and we will complete the deletion within 30 days. Either way, records we are legally required to keep (for example invoices) are retained.",
     ],
   },
   {

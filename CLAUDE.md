@@ -61,6 +61,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `send-shipping-labels` - `verify_jwt = false` (called by the extension with the user's JWT in `Authorization`; handler validates via `getUser(jwt)` and emails a merged label PDF via Resend)
 - `admin-change-plan` - `verify_jwt = false` (admin console changes a customer's paid Stripe plan; handler validates via `getUser()` plus `admin_users` membership through the service role, swaps the subscription price, and lets `stripe-webhook` sync the row)
 - `admin-delete-user` - `verify_jwt = false` (admin console runs the GDPR account deletion: storage objects, Stripe customer, then the auth user; same `getUser()` plus `admin_users` gate; see `docs/GDPR.md`)
+- `delete-account` - `verify_jwt = false` (self-serve GDPR deletion from the `/account` Danger zone; handler validates via `getUser()`; stage `request` emails a signed confirmation link, stage `confirm` verifies the token and deletes the caller's own account with the same steps as `admin-delete-user`; refuses admins; see `docs/GDPR.md`)
 - `process-referral-rewards` - `verify_jwt = false` (daily dashboard Cron job POSTs with the `x-referral-cron-secret` shared secret; grants referral rewards as Stripe balance credits; see `docs/REFERRALS.md`)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.

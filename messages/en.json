@@ -253,6 +253,29 @@
     "errorEnterEmail": "Enter the new email address.",
     "errorSameEmail": "That's already your current email."
   },
+  "DeleteAccount": {
+    "title": "Delete account",
+    "body": "Permanently delete your account and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "cta": "Delete account",
+    "confirmBody": "We'll send a confirmation link to <email></email>. Nothing is deleted until you open that link and confirm one more time. Enter your password to continue.",
+    "passwordPlaceholder": "Your password",
+    "confirm": "Send confirmation email",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "sentBody": "Confirmation link sent to <email></email>. Open it to finish deleting your account. The link expires in 60 minutes.",
+    "errorWrongPassword": "Incorrect password.",
+    "errorAdmin": "Admin accounts cannot be deleted from here. Contact support@salelinx.com.",
+    "errorGeneric": "Something went wrong. Please try again, or email support@salelinx.com and we'll do it for you."
+  },
+  "DeleteAccountConfirm": {
+    "title": "Delete your account?",
+    "body": "This is the final step. Confirming permanently deletes <email></email> and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "confirm": "Permanently delete my account",
+    "deleting": "Deleting...",
+    "keepAccount": "Keep my account",
+    "errorInvalidToken": "This confirmation link is invalid or has expired. Go back to your account page and request a new one.",
+    "errorGeneric": "Deletion failed. Please try again, or email support@salelinx.com and we'll do it for you."
+  },
   "Referrals": {
     "title": "Refer a friend",
     "body": "Share your link. Anyone who subscribes through it gets a discount on their first month, and you get one month free once they've paid.",

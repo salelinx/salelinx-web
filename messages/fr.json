@@ -253,6 +253,29 @@
     "errorEnterEmail": "Saisissez la nouvelle adresse e-mail.",
     "errorSameEmail": "C'est déjà votre adresse e-mail actuelle."
   },
+  "DeleteAccount": {
+    "title": "Supprimer le compte",
+    "body": "Supprime définitivement votre compte et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
+    "cta": "Supprimer le compte",
+    "confirmBody": "Nous enverrons un lien de confirmation à <email></email>. Rien n'est supprimé tant que vous n'avez pas ouvert ce lien et confirmé une dernière fois. Saisissez votre mot de passe pour continuer.",
+    "passwordPlaceholder": "Votre mot de passe",
+    "confirm": "Envoyer l'e-mail de confirmation",
+    "sending": "Envoi...",
+    "cancel": "Annuler",
+    "sentBody": "Lien de confirmation envoyé à <email></email>. Ouvrez-le pour finaliser la suppression de votre compte. Le lien expire dans 60 minutes.",
+    "errorWrongPassword": "Mot de passe incorrect.",
+    "errorAdmin": "Les comptes administrateurs ne peuvent pas être supprimés ici. Contactez support@salelinx.com.",
+    "errorGeneric": "Une erreur est survenue. Réessayez ou écrivez à support@salelinx.com et nous nous en chargerons."
+  },
+  "DeleteAccountConfirm": {
+    "title": "Supprimer votre compte ?",
+    "body": "C'est la dernière étape. En confirmant, vous supprimez définitivement <email></email> et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
+    "confirm": "Supprimer définitivement mon compte",
+    "deleting": "Suppression...",
+    "keepAccount": "Conserver mon compte",
+    "errorInvalidToken": "Ce lien de confirmation est invalide ou a expiré. Retournez sur la page de votre compte pour en demander un nouveau.",
+    "errorGeneric": "La suppression a échoué. Réessayez ou écrivez à support@salelinx.com et nous nous en chargerons."
+  },
   "Referrals": {
     "title": "Parrainez un ami",
     "body": "Partagez votre lien. Toute personne qui s'abonne via ce lien obtient une réduction sur son premier mois, et vous recevez un mois gratuit une fois qu'elle a payé.",
