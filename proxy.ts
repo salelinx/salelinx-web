@@ -113,7 +113,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // robots.txt and sitemap.xml are served by app/robots.ts and app/sitemap.ts
+  // OUTSIDE the [locale] tree. They must be excluded here: intlMiddleware
+  // would locale-rewrite them into [locale]/[...rest], which 404s them with
+  // an HTML error page instead of their content.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg)$).*)",
   ],
 };
