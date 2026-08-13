@@ -139,6 +139,7 @@
     "checkEmailTitle": "Check your email",
     "login": {
       "title": "Sign in",
+      "metaDescription": "Sign in to your SaleLinx account to manage your plan, billing, and referrals.",
       "submitIdle": "Sign in",
       "submitSubmitting": "Signing in…",
       "createAccount": "Create account",
@@ -146,6 +147,7 @@
     },
     "signup": {
       "title": "Create account",
+      "metaDescription": "Create a free SaleLinx account and start crosslisting, relisting, and refreshing your listings across Depop and Vinted.",
       "emailInUse": "An account with this email already exists. Sign in below, or reset your password if you have forgotten it.",
       "passwordPlaceholder": "Password (min 8 characters)",
       "confirmPlaceholder": "Confirm password",
@@ -157,6 +159,7 @@
     },
     "forgotPassword": {
       "title": "Reset password",
+      "metaDescription": "Request a reset link and get back into your SaleLinx account.",
       "subtitle": "Enter your email and we'll send a reset link.",
       "submitIdle": "Send reset link",
       "submitSubmitting": "Sending…",
@@ -368,14 +371,16 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Privacy Policy"
+      "title": "Privacy Policy",
+      "metaDescription": "How SaleLinx handles your data: what we collect, what stays on your device, and how to request a copy or deletion of your account."
     },
     "terms": {
-      "title": "Terms of Service"
+      "title": "Terms of Service",
+      "metaDescription": "The terms that cover your use of the SaleLinx extension and website: accounts, subscriptions, billing, and acceptable use."
     }
   },
   "Features": {
-    "metaTitle": "SaleLinx - Product, pricing, roadmap",
+    "metaTitle": "Product, pricing, roadmap",
     "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist, relist, refresh, and restock across Depop and Vinted from one panel.",
     "hero": {
       "eyebrow": "Product overview",
@@ -607,7 +612,7 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs - SaleLinx",
+    "metaTitle": "Docs",
     "metaDescription": "Step-by-step guides and walkthroughs for the SaleLinx Chrome extension.",
     "eyebrow": "Docs",
     "heroTitle": "Learn SaleLinx.",
@@ -660,7 +665,7 @@
       "next": "Next"
     },
     "status": {
-      "metaTitle": "Marketplace status - SaleLinx docs",
+      "metaTitle": "Marketplace status",
       "metaDescription": "Live view of which marketplaces SaleLinx is currently crosslisting to.",
       "eyebrow": "Status",
       "title": "Marketplace status",
@@ -682,7 +687,7 @@
       }
     },
     "changelog": {
-      "metaTitle": "Changelog - SaleLinx docs",
+      "metaTitle": "Changelog",
       "metaDescription": "What changed in recent releases of the SaleLinx extension.",
       "eyebrow": "Changelog",
       "title": "What's new in SaleLinx",
@@ -701,7 +706,7 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ - SaleLinx",
+    "metaTitle": "FAQ",
     "metaDescription": "Quick answers to common questions about SaleLinx: billing, account, troubleshooting, privacy.",
     "eyebrow": "FAQ",
     "title": "Frequently asked questions.",

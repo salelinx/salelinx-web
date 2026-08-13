@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { SupportCard } from '@/components/docs/SupportCard';
 import { Icon, type IconName } from '@/components/Icon';
+import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -19,10 +20,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Help' });
-  return {
+  return pageMetadata({
+    locale,
+    path: '/help',
     title: t('metaTitle'),
     description: t('metaDescription'),
-  };
+  });
 }
 
 export default async function HelpPage({

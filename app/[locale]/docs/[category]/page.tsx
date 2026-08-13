@@ -9,6 +9,7 @@ import { CATEGORIES, getCategory } from '@/lib/docs/categories';
 import { listByCategory } from '@/lib/docs/getArticle';
 import type { CategorySlug } from '@/lib/docs/types';
 import type { Locale } from '@/lib/i18n/locales';
+import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -27,10 +28,12 @@ export async function generateMetadata({
   if (!cat) return { title: t('metaTitle') };
   const title = t(`category.${cat.slug}.title`);
   const blurb = t(`category.${cat.slug}.blurb`);
-  return {
-    title: `${title} - SaleLinx docs`,
+  return pageMetadata({
+    locale,
+    path: `/docs/${cat.slug}`,
+    title,
     description: blurb,
-  };
+  });
 }
 
 export default async function CategoryPage({

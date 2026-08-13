@@ -139,6 +139,7 @@
     "checkEmailTitle": "Prüfe deine E-Mails",
     "login": {
       "title": "Anmelden",
+      "metaDescription": "Melde dich bei deinem SaleLinx-Konto an, um Tarif, Abrechnung und Empfehlungen zu verwalten.",
       "submitIdle": "Anmelden",
       "submitSubmitting": "Anmeldung läuft…",
       "createAccount": "Konto erstellen",
@@ -146,6 +147,7 @@
     },
     "signup": {
       "title": "Konto erstellen",
+      "metaDescription": "Erstelle ein kostenloses SaleLinx-Konto und beginne, deine Angebote auf Depop und Vinted zu crosslisten, erneut zu posten und zu aktualisieren.",
       "emailInUse": "Mit dieser E-Mail existiert bereits ein Konto. Melde dich unten an oder setze dein Passwort zurück, falls du es vergessen hast.",
       "passwordPlaceholder": "Passwort (mind. 8 Zeichen)",
       "confirmPlaceholder": "Passwort bestätigen",
@@ -157,6 +159,7 @@
     },
     "forgotPassword": {
       "title": "Passwort zurücksetzen",
+      "metaDescription": "Fordere einen Link zum Zurücksetzen an und erhalte wieder Zugriff auf dein SaleLinx-Konto.",
       "subtitle": "Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen.",
       "submitIdle": "Link senden",
       "submitSubmitting": "Wird gesendet…",
@@ -368,14 +371,16 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Datenschutzerklärung"
+      "title": "Datenschutzerklärung",
+      "metaDescription": "Wie SaleLinx mit deinen Daten umgeht: was wir erheben, was auf deinem Gerät bleibt und wie du eine Kopie oder die Löschung deines Kontos anforderst."
     },
     "terms": {
-      "title": "Nutzungsbedingungen"
+      "title": "Nutzungsbedingungen",
+      "metaDescription": "Die Bedingungen für die Nutzung der SaleLinx-Erweiterung und -Website: Konten, Abos, Abrechnung und zulässige Nutzung."
     }
   },
   "Features": {
-    "metaTitle": "SaleLinx - Produkt, Preise, Roadmap",
+    "metaTitle": "Produkt, Preise, Roadmap",
     "metaDescription": "Alles, was die SaleLinx Chrome-Erweiterung kann, was sie kostet und was als Nächstes kommt. Crossliste, poste erneut, aktualisiere und fülle auf Depop und Vinted von einem Panel aus auf.",
     "hero": {
       "eyebrow": "Produktübersicht",
@@ -607,7 +612,7 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs - SaleLinx",
+    "metaTitle": "Docs",
     "metaDescription": "Schritt-für-Schritt-Anleitungen und Durchläufe für die SaleLinx Chrome-Erweiterung.",
     "eyebrow": "Docs",
     "heroTitle": "SaleLinx lernen.",
@@ -660,7 +665,7 @@
       "next": "Weiter"
     },
     "status": {
-      "metaTitle": "Marktplatz-Status - SaleLinx Docs",
+      "metaTitle": "Marktplatz-Status",
       "metaDescription": "Live-Ansicht der Marktplätze, auf denen SaleLinx derzeit crosslistet.",
       "eyebrow": "Status",
       "title": "Marktplatz-Status",
@@ -682,7 +687,7 @@
       }
     },
     "changelog": {
-      "metaTitle": "Changelog - SaleLinx Docs",
+      "metaTitle": "Changelog",
       "metaDescription": "Was sich in den letzten Versionen der SaleLinx-Erweiterung geändert hat.",
       "eyebrow": "Changelog",
       "title": "Was ist neu in SaleLinx",
@@ -701,7 +706,7 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ - SaleLinx",
+    "metaTitle": "FAQ",
     "metaDescription": "Schnelle Antworten auf häufige Fragen zu SaleLinx: Abrechnung, Konto, Fehlerbehebung, Datenschutz.",
     "eyebrow": "FAQ",
     "title": "Häufig gestellte Fragen.",
