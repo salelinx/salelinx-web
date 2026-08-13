@@ -257,13 +257,23 @@
     "title": "Eliminar cuenta",
     "body": "Elimina permanentemente tu cuenta y todo su contenido: publicaciones, imágenes, cuentas de marketplaces vinculadas, historial de uso y tickets de soporte. Cualquier suscripción activa se cancela de inmediato, sin reembolso por el tiempo restante del período de facturación. Esta acción no se puede deshacer.",
     "cta": "Eliminar cuenta",
-    "confirmBody": "Esto elimina permanentemente <email></email> y todos sus datos. Introduce tu contraseña para confirmar.",
+    "confirmBody": "Enviaremos un enlace de confirmación a <email></email>. No se elimina nada hasta que abras ese enlace y confirmes una vez más. Introduce tu contraseña para continuar.",
     "passwordPlaceholder": "Tu contraseña",
-    "confirm": "Eliminar mi cuenta permanentemente",
-    "deleting": "Eliminando...",
+    "confirm": "Enviar correo de confirmación",
+    "sending": "Enviando...",
     "cancel": "Cancelar",
+    "sentBody": "Enlace de confirmación enviado a <email></email>. Ábrelo para terminar de eliminar tu cuenta. El enlace caduca en 60 minutos.",
     "errorWrongPassword": "Contraseña incorrecta.",
     "errorAdmin": "Las cuentas de administrador no se pueden eliminar desde aquí. Contacta con support@salelinx.com.",
+    "errorGeneric": "Algo salió mal. Inténtalo de nuevo o escribe a support@salelinx.com y lo haremos por ti."
+  },
+  "DeleteAccountConfirm": {
+    "title": "¿Eliminar tu cuenta?",
+    "body": "Este es el último paso. Al confirmar, se elimina permanentemente <email></email> y todo su contenido: publicaciones, imágenes, cuentas de marketplaces vinculadas, historial de uso y tickets de soporte. Cualquier suscripción activa se cancela de inmediato, sin reembolso por el tiempo restante del período de facturación. Esta acción no se puede deshacer.",
+    "confirm": "Eliminar mi cuenta permanentemente",
+    "deleting": "Eliminando...",
+    "keepAccount": "Conservar mi cuenta",
+    "errorInvalidToken": "Este enlace de confirmación no es válido o ha caducado. Vuelve a la página de tu cuenta y solicita uno nuevo.",
     "errorGeneric": "No se pudo eliminar la cuenta. Inténtalo de nuevo o escribe a support@salelinx.com y lo haremos por ti."
   },
   "Referrals": {

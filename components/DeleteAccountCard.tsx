@@ -1,31 +1,31 @@
 "use client";
 
-// Self-serve GDPR account deletion (docs/GDPR.md). Click-through: the button
-// opens an inline confirm panel that requires the user's password. The
-// password recheck is the same step-up pattern as the admin console
-// (lib/admin/reauth.ts): signInWithPassword proves current possession of the
-// password, blunting a hijacked-but-idle session. Then the delete-account
-// Edge Function runs the erasure (storage, Stripe customer, auth user).
-// On success we drop the local session and hard-navigate home; the server
-// session is already gone with the user.
+// Step 1 of self-serve GDPR account deletion (docs/GDPR.md). Click-through:
+// the button opens an inline confirm panel that requires the user's password
+// (same step-up pattern as the admin console, lib/admin/reauth.ts:
+// signInWithPassword proves current possession of the password, blunting a
+// hijacked-but-idle session). On success the delete-account Edge Function
+// emails a signed confirmation link; the actual erasure happens on
+// /account/delete-confirm (DeleteAccountConfirm), reached from that email.
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
 
-type Status = "idle" | "open" | "deleting";
+type Status = "idle" | "open" | "sending" | "sent";
 
 export function DeleteAccountCard({ email }: { email: string }) {
   const t = useTranslations("DeleteAccount");
+  const locale = useLocale();
   const [status, setStatus] = useState<Status>("idle");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  async function confirmDelete(e: React.FormEvent) {
+  async function requestDeletion(e: React.FormEvent) {
     e.preventDefault();
-    if (status === "deleting" || !password) return;
+    if (status === "sending" || !password) return;
     setError(null);
-    setStatus("deleting");
+    setStatus("sending");
 
     const supabase = createBrowserClient();
 
@@ -55,7 +55,11 @@ export function DeleteAccountCard({ email }: { email: string }) {
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`,
         {
           method: "POST",
-          headers: { Authorization: `Bearer ${session.access_token}` },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ stage: "request", locale }),
         },
       );
     } catch {
@@ -77,10 +81,8 @@ export function DeleteAccountCard({ email }: { email: string }) {
       return;
     }
 
-    // The auth user is gone; clear the local session only (a server signOut
-    // would 403) and leave the account area entirely.
-    await supabase.auth.signOut({ scope: "local" });
-    window.location.assign("/");
+    setPassword("");
+    setStatus("sent");
   }
 
   return (
@@ -92,7 +94,13 @@ export function DeleteAccountCard({ email }: { email: string }) {
         {t("body")}
       </p>
 
-      {status === "idle" ? (
+      {status === "sent" ? (
+        <p className="mt-4 text-sm text-emerald-600 dark:text-emerald-400">
+          {t.rich("sentBody", {
+            email: () => <strong>{email}</strong>,
+          })}
+        </p>
+      ) : status === "idle" ? (
         <button
           type="button"
           onClick={() => {
@@ -105,7 +113,7 @@ export function DeleteAccountCard({ email }: { email: string }) {
         </button>
       ) : (
         <form
-          onSubmit={confirmDelete}
+          onSubmit={requestDeletion}
           className="mt-4 flex max-w-sm flex-col gap-3 rounded-xl border border-red-500/30 bg-red-50 p-4 dark:bg-red-950/30"
         >
           <p className="text-sm text-red-900 dark:text-red-200">
@@ -131,10 +139,10 @@ export function DeleteAccountCard({ email }: { email: string }) {
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="submit"
-              disabled={status === "deleting" || !password}
+              disabled={status === "sending" || !password}
               className="rounded-full bg-red-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
             >
-              {status === "deleting" ? t("deleting") : t("confirm")}
+              {status === "sending" ? t("sending") : t("confirm")}
             </button>
             <button
               type="button"
@@ -143,7 +151,7 @@ export function DeleteAccountCard({ email }: { email: string }) {
                 setPassword("");
                 setError(null);
               }}
-              disabled={status === "deleting"}
+              disabled={status === "sending"}
               className="rounded-full border border-black/10 px-5 py-2.5 text-sm font-medium disabled:opacity-60 dark:border-white/20"
             >
               {t("cancel")}

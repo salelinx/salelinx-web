@@ -61,9 +61,11 @@ policy's "Service providers" section in the same change.
 ## Deletion runbook (right to erasure)
 
 Self-serve first: users can delete their own account from `/account` (Danger
-zone, password re-entry required). It runs the `delete-account` Edge Function,
-which performs the same steps as the staff paths below (storage, Stripe
-customer, auth user) with no staff involvement. Because staff are not
+zone). The flow is deliberately high-friction: password re-entry, then a
+confirmation link emailed to the account address (60-minute expiry), then a
+final confirm on `/account/delete-confirm`. It runs the `delete-account` Edge
+Function, which performs the same steps as the staff paths below (storage,
+Stripe customer, auth user) with no staff involvement. Because staff are not
 notified, sweep the `support@salelinx.com` inbox periodically for threads
 whose senders no longer have accounts (the manual follow-up in step 3 below
 has no trigger for self-serve deletions).
