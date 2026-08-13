@@ -1,11 +1,28 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
   LegalSections,
   type LegalSection,
 } from "@/components/legal/LegalSections";
+import { pageMetadata } from "@/lib/site";
 
 // Like the privacy policy, the terms body is hardcoded English on purpose.
 // Only the page title is translated. See components/legal/LegalSections.tsx.
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Legal.terms" });
+  return pageMetadata({
+    locale,
+    path: "/legal/terms",
+    title: t("title"),
+    description: t("metaDescription"),
+  });
+}
 
 const LAST_UPDATED = "20 July 2026";
 

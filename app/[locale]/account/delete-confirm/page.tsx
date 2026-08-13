@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
@@ -12,6 +13,23 @@ type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ token?: string }>;
 };
+
+// Private, token-carrying page: keep it out of search results.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({
+    locale,
+    namespace: "DeleteAccountConfirm",
+  });
+  return {
+    title: t("title"),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function DeleteConfirmPage({
   params,

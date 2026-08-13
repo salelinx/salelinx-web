@@ -1,12 +1,29 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
   LegalSections,
   type LegalSection,
 } from "@/components/legal/LegalSections";
+import { pageMetadata } from "@/lib/site";
 
 // The policy body is intentionally English-only and hardcoded rather than
 // translated through next-intl: it is a legal document, and a mistranslated
 // clause is a liability. Only the page title comes from the Legal namespace.
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Legal.privacy" });
+  return pageMetadata({
+    locale,
+    path: "/legal/privacy",
+    title: t("title"),
+    description: t("metaDescription"),
+  });
+}
 
 const LAST_UPDATED = "20 July 2026";
 
