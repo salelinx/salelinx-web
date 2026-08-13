@@ -33,6 +33,13 @@
     "copyright": "© {year} SaleLinx. Todos los derechos reservados.",
     "builtFor": "Creado para vendedores de Depop y Vinted."
   },
+  "NotFound": {
+    "metaTitle": "Página no encontrada",
+    "title": "Página no encontrada",
+    "body": "La página que buscas no existe o se ha movido.",
+    "goHome": "Volver al inicio",
+    "getHelp": "Visitar el centro de ayuda"
+  },
   "Home": {
     "heroEyebrow": "Disponible para <depop></depop> + <vinted></vinted>",
     "heroTitle": "Una herramienta para cada vendedor de <depop></depop> & <vinted></vinted>.",
