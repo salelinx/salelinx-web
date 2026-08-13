@@ -133,7 +133,8 @@
       "submitIdle": "Sign in",
       "submitSubmitting": "Signing in…",
       "createAccount": "Create account",
-      "forgotPassword": "Forgot password?"
+      "forgotPassword": "Forgot password?",
+      "linkInvalid": "That link has expired or was already used. Sign in below, or request a new link."
     },
     "signup": {
       "title": "Create account",

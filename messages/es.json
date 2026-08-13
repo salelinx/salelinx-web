@@ -133,7 +133,8 @@
       "submitIdle": "Iniciar sesión",
       "submitSubmitting": "Iniciando sesión…",
       "createAccount": "Crear cuenta",
-      "forgotPassword": "¿Olvidaste tu contraseña?"
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "linkInvalid": "Ese enlace ha caducado o ya se ha utilizado. Inicia sesión abajo o solicita un enlace nuevo."
     },
     "signup": {
       "title": "Crear cuenta",

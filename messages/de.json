@@ -133,7 +133,8 @@
       "submitIdle": "Anmelden",
       "submitSubmitting": "Anmeldung läuft…",
       "createAccount": "Konto erstellen",
-      "forgotPassword": "Passwort vergessen?"
+      "forgotPassword": "Passwort vergessen?",
+      "linkInvalid": "Dieser Link ist abgelaufen oder wurde bereits verwendet. Melde dich unten an oder fordere einen neuen Link an."
     },
     "signup": {
       "title": "Konto erstellen",

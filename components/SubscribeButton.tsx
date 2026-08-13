@@ -9,14 +9,12 @@ type Props = {
   priceId: string;
   label?: string;
   highlight?: boolean;
-  trialDays?: number;
 };
 
 export function SubscribeButton({
   priceId,
   label,
   highlight,
-  trialDays,
 }: Props) {
   const t = useTranslations("Subscribe");
   const [loading, setLoading] = useState(false);
@@ -34,31 +32,39 @@ export function SubscribeButton({
       return;
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-checkout-session`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+    // Redirect URLs and trial length are decided by the Edge Function, not
+    // sent from here: they control what the customer is charged and where they
+    // land afterwards, so the browser is not allowed a say.
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-checkout-session`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ priceId }),
         },
-        body: JSON.stringify({
-          priceId,
-          successUrl: `${window.location.origin}/account?checkout=success`,
-          cancelUrl: `${window.location.origin}/pricing`,
-          ...(trialDays ? { trialDays } : {}),
-        }),
-      },
-    );
+      );
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setLoading(false);
+        const body = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        alert(body?.error ?? t("errorAlert"));
+        return;
+      }
+
+      const { url } = (await res.json()) as { url: string };
+      window.location.href = url;
+    } catch {
+      // Network failure. Without this the promise rejects and the button stays
+      // stuck on its disabled loading state with no explanation.
       setLoading(false);
       alert(t("errorAlert"));
-      return;
     }
-
-    const { url } = (await res.json()) as { url: string };
-    window.location.href = url;
   }
 
   return (

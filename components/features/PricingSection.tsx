@@ -6,6 +6,8 @@ import type { TierConfig, TierId } from "@/lib/types/tiers";
 
 const MONO = "font-mono text-[0.68rem] uppercase tracking-[0.12em]";
 
+// Display only. The trial actually granted is decided by the
+// create-checkout-session Edge Function; keep the two in step.
 const TRIAL_DAYS = 7;
 const PAID_TIER_ORDER: TierId[] = ["starter", "pro", "business"];
 
@@ -214,7 +216,6 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
             {starterPriceId ? (
               <SubscribeButton
                 priceId={starterPriceId}
-                trialDays={TRIAL_DAYS}
                 label={t("trial.cta")}
               />
             ) : (

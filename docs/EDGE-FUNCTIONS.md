@@ -68,9 +68,16 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
 supabase secrets set RESEND_API_KEY=re_...
 supabase secrets set RESEND_FROM='SaleLinx <no-reply@yourdomain.com>'
 supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
+supabase secrets set SITE_URL='https://salelinx.com'
 ```
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are **auto-injected** by the runtime - don't set them manually.
+
+`SITE_URL` is where `create-checkout-session` and `create-portal-session` send the
+customer afterwards (`/account?checkout=success`, `/pricing`, `/account`). These
+used to come from the request body, which let a caller redirect a paying customer
+to any site. It defaults to `https://salelinx.com` if unset, so set it on any
+non-production project or checkout will bounce users to the live site.
 
 ## Auth inside a function
 
