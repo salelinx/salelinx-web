@@ -11,6 +11,7 @@ import { SITE_URL } from "@/lib/site";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
+import { DeleteAccountCard } from "@/components/DeleteAccountCard";
 import { ReferralsCard } from "@/components/ReferralsCard";
 
 type Props = {
@@ -232,6 +233,8 @@ export default async function AccountPage({ params, searchParams }: Props) {
           {t("supportCta")}
         </Link>
       </section>
+
+      {user.email && <DeleteAccountCard email={user.email} />}
     </main>
   );
 }

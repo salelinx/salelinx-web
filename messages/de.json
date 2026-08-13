@@ -253,6 +253,19 @@
     "errorEnterEmail": "Gib die neue E-Mail-Adresse ein.",
     "errorSameEmail": "Das ist bereits deine aktuelle E-Mail-Adresse."
   },
+  "DeleteAccount": {
+    "title": "Konto löschen",
+    "body": "Löscht dein Konto und alles darin dauerhaft: Angebote, Bilder, verknüpfte Marktplatz-Konten, Nutzungsverlauf und Support-Tickets. Ein aktives Abo wird sofort gekündigt, ohne Erstattung für die verbleibende Abrechnungszeit. Das lässt sich nicht rückgängig machen.",
+    "cta": "Konto löschen",
+    "confirmBody": "Damit werden <email></email> und alle zugehörigen Daten dauerhaft gelöscht. Gib zur Bestätigung dein Passwort ein.",
+    "passwordPlaceholder": "Dein Passwort",
+    "confirm": "Mein Konto dauerhaft löschen",
+    "deleting": "Wird gelöscht...",
+    "cancel": "Abbrechen",
+    "errorWrongPassword": "Falsches Passwort.",
+    "errorAdmin": "Admin-Konten können hier nicht gelöscht werden. Wende dich an support@salelinx.com.",
+    "errorGeneric": "Löschen fehlgeschlagen. Versuche es erneut oder schreibe an support@salelinx.com, dann übernehmen wir das."
+  },
   "Referrals": {
     "title": "Freunde werben",
     "body": "Teile deinen Link. Wer sich darüber anmeldet, erhält einen Rabatt auf den ersten Monat, und du bekommst einen Gratismonat, sobald die Person bezahlt hat.",

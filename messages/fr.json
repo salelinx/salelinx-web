@@ -253,6 +253,19 @@
     "errorEnterEmail": "Saisissez la nouvelle adresse e-mail.",
     "errorSameEmail": "C'est déjà votre adresse e-mail actuelle."
   },
+  "DeleteAccount": {
+    "title": "Supprimer le compte",
+    "body": "Supprime définitivement votre compte et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
+    "cta": "Supprimer le compte",
+    "confirmBody": "Cette action supprime définitivement <email></email> et toutes ses données. Saisissez votre mot de passe pour confirmer.",
+    "passwordPlaceholder": "Votre mot de passe",
+    "confirm": "Supprimer définitivement mon compte",
+    "deleting": "Suppression...",
+    "cancel": "Annuler",
+    "errorWrongPassword": "Mot de passe incorrect.",
+    "errorAdmin": "Les comptes administrateurs ne peuvent pas être supprimés ici. Contactez support@salelinx.com.",
+    "errorGeneric": "La suppression a échoué. Réessayez ou écrivez à support@salelinx.com et nous nous en chargerons."
+  },
   "Referrals": {
     "title": "Parrainez un ami",
     "body": "Partagez votre lien. Toute personne qui s'abonne via ce lien obtient une réduction sur son premier mois, et vous recevez un mois gratuit une fois qu'elle a payé.",

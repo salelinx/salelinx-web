@@ -253,6 +253,19 @@
     "errorEnterEmail": "Enter the new email address.",
     "errorSameEmail": "That's already your current email."
   },
+  "DeleteAccount": {
+    "title": "Delete account",
+    "body": "Permanently delete your account and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "cta": "Delete account",
+    "confirmBody": "This permanently deletes <email></email> and all of its data. Enter your password to confirm.",
+    "passwordPlaceholder": "Your password",
+    "confirm": "Permanently delete my account",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
+    "errorWrongPassword": "Incorrect password.",
+    "errorAdmin": "Admin accounts cannot be deleted from here. Contact support@salelinx.com.",
+    "errorGeneric": "Deletion failed. Please try again, or email support@salelinx.com and we'll do it for you."
+  },
   "Referrals": {
     "title": "Refer a friend",
     "body": "Share your link. Anyone who subscribes through it gets a discount on their first month, and you get one month free once they've paid.",

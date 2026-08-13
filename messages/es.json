@@ -253,6 +253,19 @@
     "errorEnterEmail": "Introduce el nuevo correo.",
     "errorSameEmail": "Ese ya es tu correo actual."
   },
+  "DeleteAccount": {
+    "title": "Eliminar cuenta",
+    "body": "Elimina permanentemente tu cuenta y todo su contenido: publicaciones, imágenes, cuentas de marketplaces vinculadas, historial de uso y tickets de soporte. Cualquier suscripción activa se cancela de inmediato, sin reembolso por el tiempo restante del período de facturación. Esta acción no se puede deshacer.",
+    "cta": "Eliminar cuenta",
+    "confirmBody": "Esto elimina permanentemente <email></email> y todos sus datos. Introduce tu contraseña para confirmar.",
+    "passwordPlaceholder": "Tu contraseña",
+    "confirm": "Eliminar mi cuenta permanentemente",
+    "deleting": "Eliminando...",
+    "cancel": "Cancelar",
+    "errorWrongPassword": "Contraseña incorrecta.",
+    "errorAdmin": "Las cuentas de administrador no se pueden eliminar desde aquí. Contacta con support@salelinx.com.",
+    "errorGeneric": "No se pudo eliminar la cuenta. Inténtalo de nuevo o escribe a support@salelinx.com y lo haremos por ti."
+  },
   "Referrals": {
     "title": "Recomienda a un amigo",
     "body": "Comparte tu enlace. Quien se suscriba a través de él obtiene un descuento en su primer mes, y tú recibes un mes gratis cuando haya pagado.",
