@@ -45,7 +45,9 @@ export function readConsentCookie(): Consent | null {
 }
 
 function writeConsentCookie(value: Consent) {
-  document.cookie = `${CONSENT_COOKIE}=${value}; path=/; max-age=${CONSENT_MAX_AGE}; SameSite=Lax`;
+  // Secure only over https so local dev over plain http still works.
+  const secure = location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${CONSENT_COOKIE}=${value}; path=/; max-age=${CONSENT_MAX_AGE}; SameSite=Lax${secure}`;
 }
 
 function ensureGtag() {
@@ -153,7 +155,7 @@ export function CookieConsent() {
       <p className="mt-2 text-sm leading-snug text-zinc-600 dark:text-zinc-400">
         {t('body')}{' '}
         <Link
-          href="/legal/privacy"
+          href="/legal/privacy#cookies"
           className="underline underline-offset-2 transition hover:text-black dark:hover:text-white"
         >
           {t('privacyLink')}
