@@ -10,6 +10,7 @@
     "navFaq": "FAQ",
     "navDocs": "Docs",
     "account": "Account",
+    "support": "Support",
     "signOut": "Sign out",
     "signIn": "Sign in",
     "getStarted": "Get started"
@@ -22,6 +23,7 @@
     "linkFeatures": "Features",
     "linkPricing": "Pricing",
     "linkRoadmap": "Roadmap",
+    "linkHelp": "Help",
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
@@ -30,6 +32,13 @@
     "linkTerms": "Terms",
     "copyright": "© {year} SaleLinx. All rights reserved.",
     "builtFor": "Built for Depop and Vinted sellers."
+  },
+  "NotFound": {
+    "metaTitle": "Page not found",
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist or has been moved.",
+    "goHome": "Back to home",
+    "getHelp": "Visit the help center"
   },
   "Home": {
     "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
@@ -130,14 +139,16 @@
     "checkEmailTitle": "Check your email",
     "login": {
       "title": "Sign in",
+      "metaDescription": "Sign in to your SaleLinx account to manage your plan, billing, and referrals.",
       "submitIdle": "Sign in",
       "submitSubmitting": "Signing in…",
       "createAccount": "Create account",
-      "forgotPassword": "Forgot password?",
-      "linkInvalid": "That link has expired or was already used. Sign in below, or request a new link."
+      "forgotPassword": "Forgot password?"
     },
     "signup": {
       "title": "Create account",
+      "metaDescription": "Create a free SaleLinx account and start crosslisting, relisting, and refreshing your listings across Depop and Vinted.",
+      "emailInUse": "An account with this email already exists. Sign in below, or reset your password if you have forgotten it.",
       "passwordPlaceholder": "Password (min 8 characters)",
       "confirmPlaceholder": "Confirm password",
       "submitIdle": "Create account",
@@ -148,6 +159,7 @@
     },
     "forgotPassword": {
       "title": "Reset password",
+      "metaDescription": "Request a reset link and get back into your SaleLinx account.",
       "subtitle": "Enter your email and we'll send a reset link.",
       "submitIdle": "Send reset link",
       "submitSubmitting": "Sending…",
@@ -159,7 +171,28 @@
       "newPwPlaceholder": "New password (min 8 characters)",
       "confirmPlaceholder": "Confirm new password",
       "submitIdle": "Save new password",
-      "submitSubmitting": "Saving…"
+      "submitSubmitting": "Saving…",
+      "noSessionTitle": "Link no longer valid",
+      "noSessionBody": "We could not confirm your identity from that link. Request a new one to set your password."
+    },
+    "confirm": {
+      "title": "Confirm your email",
+      "body": "Press the button below to confirm. We only complete this when you click, so link scanners in your inbox cannot use it up first.",
+      "submit": "Confirm",
+      "recoveryTitle": "Reset your password",
+      "recoveryBody": "Press the button below to continue. We only complete this when you click, so link scanners in your inbox cannot use it up first.",
+      "recoverySubmit": "Continue to reset password",
+      "submitSubmitting": "Verifying…",
+      "invalidTitle": "Link incomplete",
+      "invalidBody": "This link is missing information we need. It may have been altered by your email client.",
+      "requestNew": "Request a new link"
+    },
+    "linkError": {
+      "title": "That link did not work",
+      "body": "We could not verify that link. It may have already been used.",
+      "expiredTitle": "That link has expired",
+      "expiredBody": "Password reset links can only be used once. Request a new one and it will work straight away.",
+      "requestNew": "Send me a new link"
     }
   },
   "Account": {
@@ -195,7 +228,10 @@
       "past_due": "Payment failed",
       "canceled": "Canceled",
       "incomplete": "Incomplete"
-    }
+    },
+    "supportTitle": "Support",
+    "supportBody": "Track your support tickets and our replies.",
+    "supportCta": "Your tickets"
   },
   "VerifyEmailBanner": {
     "title": "Verify your email",
@@ -227,6 +263,107 @@
     "errorEnterEmail": "Enter the new email address.",
     "errorSameEmail": "That's already your current email."
   },
+  "DeleteAccount": {
+    "title": "Delete account",
+    "body": "Permanently delete your account and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "cta": "Delete account",
+    "confirmBody": "We'll send a confirmation link to <email></email>. Nothing is deleted until you open that link and confirm one more time. Enter your password to continue.",
+    "passwordPlaceholder": "Your password",
+    "confirm": "Send confirmation email",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "sentBody": "Confirmation link sent to <email></email>. Open it to finish deleting your account. The link expires in 60 minutes.",
+    "errorWrongPassword": "Incorrect password.",
+    "errorAdmin": "Admin accounts cannot be deleted from here. Contact support@salelinx.com.",
+    "errorGeneric": "Something went wrong. Please try again, or email support@salelinx.com and we'll do it for you."
+  },
+  "DeleteAccountConfirm": {
+    "title": "Delete your account?",
+    "body": "This is the final step. Confirming permanently deletes <email></email> and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "confirm": "Permanently delete my account",
+    "deleting": "Deleting...",
+    "keepAccount": "Keep my account",
+    "errorInvalidToken": "This confirmation link is invalid or has expired. Go back to your account page and request a new one.",
+    "errorGeneric": "Deletion failed. Please try again, or email support@salelinx.com and we'll do it for you."
+  },
+  "Referrals": {
+    "title": "Refer a friend",
+    "body": "Share your link. Anyone who subscribes through it gets a discount on their first month, and you get one month free once they've paid.",
+    "copy": "Copy link",
+    "copied": "Copied",
+    "statSignedUp": "Signed up",
+    "statSubscribed": "Subscribed",
+    "statRewarded": "Months earned",
+    "creditEarned": "Credit earned so far: {amount}. It's applied automatically to your next invoice."
+  },
+  "Support": {
+    "title": "Support",
+    "subtitle": "File a request and track our replies. We'll also email you when the team responds.",
+    "newTicketTitle": "New request",
+    "newTicketBody": "Tell us what's going on and we'll get back to you here and by email.",
+    "typeLabel": "Type",
+    "typePlaceholder": "Select a type...",
+    "type_bug": "Bug",
+    "type_feature": "Feature request",
+    "type_feedback": "Feedback",
+    "type_other": "Other",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Describe the issue or idea...",
+    "submit": "Submit request",
+    "submitting": "Sending...",
+    "submitSuccess": "Sent. We'll be in touch.",
+    "submitError": "Could not send. Please try again.",
+    "myTicketsTitle": "Your requests",
+    "noTickets": "You haven't filed any requests yet.",
+    "noOpenTickets": "No open requests. Use Show closed to see resolved ones.",
+    "showClosed": "Show closed ({count})",
+    "hideClosed": "Hide closed",
+    "statusOpen": "Open",
+    "statusClosed": "Closed",
+    "authorYou": "You",
+    "authorUser": "User",
+    "authorSupport": "SaleLinx Support",
+    "replyPlaceholder": "Add a reply...",
+    "replySend": "Send reply",
+    "replyError": "Could not send your reply. Please try again.",
+    "trackTicketsCta": "Track your tickets",
+    "ticketsTitle": "Your tickets",
+    "ticketsSubtitle": "Track the requests you've sent and reply to our responses.",
+    "contactSupportCta": "Contact support",
+    "adminTitle": "All tickets (admin)",
+    "adminFilter_open": "Open",
+    "adminFilter_closed": "Closed",
+    "adminFilter_all": "All",
+    "adminEmpty": "No tickets match this filter.",
+    "adminFromUser": "From",
+    "adminPlatform": "Platform",
+    "adminTier": "Tier",
+    "adminVersion": "Version",
+    "adminReplyPlaceholder": "Reply as SaleLinx Support...",
+    "adminReplySend": "Reply",
+    "adminClose": "Close",
+    "adminReopen": "Reopen",
+    "adminDelete": "Delete",
+    "adminDeleteConfirm": "Delete this ticket and all its replies? This cannot be undone.",
+    "adminActionError": "Action failed. Please try again."
+  },
+  "Help": {
+    "metaTitle": "Help",
+    "metaDescription": "Find answers, browse the docs, or contact the SaleLinx team.",
+    "eyebrow": "Help center",
+    "title": "How can we help?",
+    "body": "Search the FAQ, read the docs, or send us a message. We'll reply by email and in your account.",
+    "faqCardTitle": "FAQ",
+    "faqCardBody": "Quick answers to common questions about setup, billing, and troubleshooting.",
+    "docsCardTitle": "Docs",
+    "docsCardBody": "Step-by-step guides and walkthroughs for every SaleLinx feature.",
+    "statusCardTitle": "Marketplace status",
+    "statusCardBody": "Check which marketplaces are currently supported and working.",
+    "supportMetaTitle": "Contact support",
+    "supportMetaDescription": "Send the SaleLinx team a message.",
+    "supportTitle": "Contact support",
+    "supportBody": "Send us a message and we'll reply by email and in your account."
+  },
   "Subscribe": {
     "loading": "Loading...",
     "label": "Subscribe",
@@ -235,15 +372,15 @@
   "Legal": {
     "privacy": {
       "title": "Privacy Policy",
-      "body": "TODO: replace with finalised privacy policy before launch."
+      "metaDescription": "How SaleLinx handles your data: what we collect, what stays on your device, and how to request a copy or deletion of your account."
     },
     "terms": {
       "title": "Terms of Service",
-      "body": "TODO: replace with finalised terms before launch."
+      "metaDescription": "The terms that cover your use of the SaleLinx extension and website: accounts, subscriptions, billing, and acceptable use."
     }
   },
   "Features": {
-    "metaTitle": "SaleLinx - Product, pricing, roadmap",
+    "metaTitle": "Product, pricing, roadmap",
     "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist, relist, refresh, and restock across Depop and Vinted from one panel.",
     "hero": {
       "eyebrow": "Product overview",
@@ -440,9 +577,9 @@
     "supportDays": "{value} days",
     "trial": {
       "name": "Free 7-day trial",
-      "tagline": "Full Starter access for 7 days.",
+      "tagline": "Full Starter access for 7 days. Card required.",
       "priceSuffix": "for {days} days",
-      "thenPrice": "Then {price} / month",
+      "thenPrice": "Then {price} / month unless you cancel before the trial ends",
       "cta": "Start free trial"
     },
     "tier": {
@@ -475,7 +612,7 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs - SaleLinx",
+    "metaTitle": "Docs",
     "metaDescription": "Step-by-step guides and walkthroughs for the SaleLinx Chrome extension.",
     "eyebrow": "Docs",
     "heroTitle": "Learn SaleLinx.",
@@ -528,7 +665,7 @@
       "next": "Next"
     },
     "status": {
-      "metaTitle": "Marketplace status - SaleLinx docs",
+      "metaTitle": "Marketplace status",
       "metaDescription": "Live view of which marketplaces SaleLinx is currently crosslisting to.",
       "eyebrow": "Status",
       "title": "Marketplace status",
@@ -550,7 +687,7 @@
       }
     },
     "changelog": {
-      "metaTitle": "Changelog - SaleLinx docs",
+      "metaTitle": "Changelog",
       "metaDescription": "What changed in recent releases of the SaleLinx extension.",
       "eyebrow": "Changelog",
       "title": "What's new in SaleLinx",
@@ -569,7 +706,7 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ - SaleLinx",
+    "metaTitle": "FAQ",
     "metaDescription": "Quick answers to common questions about SaleLinx: billing, account, troubleshooting, privacy.",
     "eyebrow": "FAQ",
     "title": "Frequently asked questions.",

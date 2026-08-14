@@ -52,12 +52,17 @@ export async function Footer() {
             <h3 className={MONO}>{t('sectionResources')}</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
+                <Link href="/help" className={linkClass}>
+                  {t('linkHelp')}
+                </Link>
+              </li>
+              <li>
                 <Link href="/docs" className={linkClass}>
                   {t('linkDocs')}
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className={linkClass}>
+                <Link href="/help/faq" className={linkClass}>
                   {t('linkFaq')}
                 </Link>
               </li>

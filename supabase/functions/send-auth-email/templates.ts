@@ -16,6 +16,15 @@ export type EmailActionType =
   | "email_change_new"
   | "reauthentication";
 
+import {
+  button,
+  codeBlock,
+  emailLayout,
+  heading,
+  linkFallback,
+  paragraph,
+} from "../_shared/email-theme.ts";
+
 export type Locale = "en" | "fr" | "es" | "de";
 
 export type RenderInput = {
@@ -35,7 +44,6 @@ export type RenderedEmail = {
 
 const brand = {
   name: "SaleLinx",
-  accent: "#1f8a4c",
 };
 
 type ActionStrings = {
@@ -347,86 +355,72 @@ function packFor(locale: Locale): Pack {
   return PACKS[locale] ?? PACKS.en;
 }
 
-function layout(bodyHtml: string, ignoreFooter: string): string {
-  return `<!doctype html>
-<html>
-  <body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1c1917;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f5f4;padding:32px 0;">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="background:#ffffff;border-radius:12px;padding:40px;max-width:560px;border:1px solid #e7e5e4;">
-            <tr>
-              <td>
-                <div style="font-size:14px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:${brand.accent};margin-bottom:24px;">${brand.name}</div>
-                ${bodyHtml}
-                <hr style="border:none;border-top:1px solid #e7e5e4;margin:32px 0 16px;" />
-                <p style="font-size:12px;color:#78716c;line-height:1.6;margin:0;">
-                  ${ignoreFooter}
-                </p>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
-}
-
-function button(href: string, label: string): string {
-  return `<a href="${href}" style="display:inline-block;background:${brand.accent};color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:15px;">${label}</a>`;
-}
-
-function linkFallback(url: string, prefix: string): string {
-  return `<p style="font-size:13px;color:#57534e;line-height:1.6;margin:24px 0 0;">${prefix}<br /><a href="${url}" style="color:${brand.accent};word-break:break-all;">${url}</a></p>`;
-}
-
 function fillText(template: string, values: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
 }
 
+// The eyebrow label above the heading. Gives each email an at-a-glance
+// category the way the site's mono pills do, rather than every message opening
+// with an undifferentiated headline.
+const EYEBROW: Record<Locale, Record<"account" | "security", string>> = {
+  en: { account: "Account", security: "Security" },
+  fr: { account: "Compte", security: "Sécurité" },
+  es: { account: "Cuenta", security: "Seguridad" },
+  de: { account: "Konto", security: "Sicherheit" },
+};
+
+const SECURITY_ACTIONS = new Set<EmailActionType>([
+  "recovery",
+  "reauthentication",
+  "email_change",
+  "email_change_current",
+  "email_change_new",
+]);
+
 export function renderEmail(input: RenderInput): RenderedEmail {
-  const { actionType, verifyUrl, token, locale } = input;
+  const { actionType, verifyUrl, token, locale, siteUrl } = input;
   const pack = packFor(locale);
+  const labels = EYEBROW[locale] ?? EYEBROW.en;
+  const eyebrow = SECURITY_ACTIONS.has(actionType)
+    ? labels.security
+    : labels.account;
 
   if (actionType === "reauthentication") {
     const strings = pack.actions.reauthentication;
-    const html = layout(
-      `
-        <h1 style="font-size:22px;font-weight:600;margin:0 0 12px;">${strings.heading}</h1>
-        <p style="font-size:15px;line-height:1.6;color:#44403c;margin:0 0 16px;">
-          ${strings.body}
-        </p>
-        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:28px;font-weight:700;letter-spacing:0.25em;background:#f5f5f4;border:1px solid #e7e5e4;border-radius:8px;padding:16px;text-align:center;">${token}</div>
-      `,
-      pack.ignoreFooter,
-    );
     return {
       subject: strings.subject,
-      html,
+      html: emailLayout({
+        preheader: strings.body,
+        eyebrow,
+        siteUrl,
+        bodyHtml: `
+          ${heading(strings.heading)}
+          ${paragraph(strings.body, 20)}
+          ${codeBlock(token)}
+        `,
+        footerNote: pack.ignoreFooter,
+      }),
       text: fillText(strings.text, { token }),
     };
   }
 
   const strings =
-    actionType in pack.actions
-      ? pack.actions[actionType]
-      : pack.defaultAction;
+    actionType in pack.actions ? pack.actions[actionType] : pack.defaultAction;
 
-  const html = layout(
-    `
-      <h1 style="font-size:22px;font-weight:600;margin:0 0 12px;">${strings.heading}</h1>
-      <p style="font-size:15px;line-height:1.6;color:#44403c;margin:0 0 24px;">
-        ${strings.body}
-      </p>
-      ${button(verifyUrl, strings.button)}
-      ${linkFallback(verifyUrl, pack.linkFallbackPrefix)}
-    `,
-    pack.ignoreFooter,
-  );
   return {
     subject: strings.subject,
-    html,
+    html: emailLayout({
+      preheader: strings.body,
+      eyebrow,
+      siteUrl,
+      bodyHtml: `
+        ${heading(strings.heading)}
+        ${paragraph(strings.body)}
+        ${button(verifyUrl, strings.button)}
+        ${linkFallback(verifyUrl, pack.linkFallbackPrefix)}
+      `,
+      footerNote: pack.ignoreFooter,
+    }),
     text: fillText(strings.text, { url: verifyUrl }),
   };
 }

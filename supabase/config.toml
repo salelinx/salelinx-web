@@ -2,14 +2,20 @@
 # Run `supabase link --project-ref <your-project-ref>` once to connect this folder
 # to the same Supabase project the extension uses.
 
-project_id = "resale-bot-web"
+project_id = "salelinx-web"
 
 # All functions have verify_jwt = false. The Supabase gateway's built-in
 # JWT verify only supports HS256, but our project issues ES256 tokens.
-# Auth is still enforced: `create-checkout-session` and `create-portal-session`
-# call supabase.auth.getUser() inside the handler and return 401 if null.
+# Auth is still enforced: `create-checkout-session`, `create-portal-session`,
+# `send-shipping-labels`, `delete-account`, and `admin-change-plan` call
+# supabase.auth.getUser() inside the handler and return 401 if null
+# (`admin-change-plan` additionally requires admin_users membership).
 # `stripe-webhook` is signed by Stripe, not by user JWT.
 # `send-auth-email` is signed by Supabase Auth (Standard Webhooks).
+# `send-support-email` is gated by a shared secret in the x-support-webhook-secret
+# header (set in the Database Webhook config).
+# `process-referral-rewards` is gated by a shared secret in the
+# x-referral-cron-secret header (set in the dashboard Cron job config).
 
 [functions.stripe-webhook]
 verify_jwt = false
@@ -21,4 +27,22 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-auth-email]
+verify_jwt = false
+
+[functions.send-support-email]
+verify_jwt = false
+
+[functions.send-shipping-labels]
+verify_jwt = false
+
+[functions.admin-change-plan]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = false
+
+[functions.admin-delete-user]
+verify_jwt = false
+
+[functions.process-referral-rewards]
 verify_jwt = false

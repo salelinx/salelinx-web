@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  createElement,
   useEffect,
   useRef,
   useState,
+  type ElementType,
   type ReactNode,
 } from "react";
 
@@ -67,5 +67,12 @@ export function Reveal({
   const base = pop ? "reveal-pop" : "reveal";
   const classes = `${base}${shown ? " in-view" : ""} ${className}`.trim();
 
-  return createElement(as, { ref, className: classes }, children);
+  // Dynamic tag via a capitalized alias so this is plain JSX (the React lint /
+  // compiler understands ref forwarding here, unlike a createElement call). The
+  // intrinsic-tag union would otherwise intersect each tag's differing ref
+  // type; spread a loosely-typed props bag so our single HTMLElement ref fits
+  // whichever tag `as` resolves to (all are HTMLElements at runtime).
+  const Tag = as as ElementType;
+  const tagProps: Record<string, unknown> = { ref, className: classes };
+  return <Tag {...tagProps}>{children}</Tag>;
 }

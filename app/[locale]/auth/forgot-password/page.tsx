@@ -17,8 +17,13 @@ export default function ForgotPasswordPage() {
     setError(null);
 
     const supabase = createBrowserClient();
+    // Recovery no longer routes through /auth/callback: the emailed link lands
+    // on /auth/confirm, which verifies the token and always sends the user to
+    // /auth/reset-password. This value only reaches the email as `next`, and
+    // recovery deliberately ignores it, but point it somewhere honest rather
+    // than at a code-exchange route this flow no longer uses.
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${location.origin}/auth/callback?next=/auth/reset-password`,
+      redirectTo: `${location.origin}/auth/reset-password`,
     });
 
     if (error) {

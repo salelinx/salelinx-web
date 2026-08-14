@@ -6,7 +6,11 @@ import { ARTICLE_MODULES_BY_LOCALE } from '@/lib/docs/manifest';
 const STATIC_PATHS: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }[] = [
   { path: '/', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/features', priority: 0.9, changeFrequency: 'weekly' },
-  { path: '/faq', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/help', priority: 0.6, changeFrequency: 'monthly' },
+  // The old /faq is a redirect stub; the FAQ itself lives at /help/faq.
+  // /help/support is deliberately absent: it redirects logged-out visitors
+  // (crawlers included) to login, so listing it would only draw soft-404s.
+  { path: '/help/faq', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/docs', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/docs/changelog', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/docs/status', priority: 0.5, changeFrequency: 'daily' },

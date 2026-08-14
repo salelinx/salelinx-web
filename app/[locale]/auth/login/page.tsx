@@ -18,9 +18,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
-  const [error, setError] = useState<string | null>(
-    searchParams.get("error") === "link_invalid" ? t("login.linkInvalid") : null,
-  );
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

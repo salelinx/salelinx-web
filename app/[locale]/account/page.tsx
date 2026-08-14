@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
@@ -6,14 +7,32 @@ import {
   isEntitled,
   trialDaysRemaining,
 } from "@/lib/supabase/subscription";
+import { getReferralSummary } from "@/lib/supabase/referrals";
+import { SITE_URL } from "@/lib/site";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
+import { DeleteAccountCard } from "@/components/DeleteAccountCard";
+import { ReferralsCard } from "@/components/ReferralsCard";
 
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ checkout?: string }>;
 };
+
+// Private, auth-gated page: keep it out of search results.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Account" });
+  return {
+    title: t("title"),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function AccountPage({ params, searchParams }: Props) {
   const [{ locale }, qs] = await Promise.all([params, searchParams]);
@@ -30,7 +49,10 @@ export default async function AccountPage({ params, searchParams }: Props) {
   }
 
   const unverified = !user.email_confirmed_at;
-  const { subscription, tier } = await getCurrentSubscription(user.id);
+  const [{ subscription, tier }, referrals] = await Promise.all([
+    getCurrentSubscription(user.id),
+    getReferralSummary(),
+  ]);
   const entitled = isEntitled(subscription);
   const trialDaysLeft = trialDaysRemaining(subscription);
 
@@ -194,6 +216,40 @@ export default async function AccountPage({ params, searchParams }: Props) {
       </section>
 
       {user.email && <AccountSecurityCard email={user.email} />}
+
+      {referrals.code && (
+        <ReferralsCard
+          link={`${SITE_URL}/r/${referrals.code}`}
+          pending={referrals.pending}
+          converting={referrals.converting}
+          rewarded={referrals.rewarded}
+          creditEarned={
+            referrals.rewardedTotalCents > 0 && referrals.rewardCurrency
+              ? new Intl.NumberFormat(locale, {
+                  style: "currency",
+                  currency: referrals.rewardCurrency.toUpperCase(),
+                }).format(referrals.rewardedTotalCents / 100)
+              : null
+          }
+        />
+      )}
+
+      <section className="mt-6 flex flex-col items-start gap-4 rounded-2xl border border-black/10 p-6 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+        <div>
+          <h2 className="text-xl font-semibold">{t("supportTitle")}</h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            {t("supportBody")}
+          </p>
+        </div>
+        <Link
+          href="/account/tickets"
+          className="shrink-0 rounded-full border border-black/10 px-5 py-2.5 text-sm font-medium hover:bg-black/[0.04] dark:border-white/20 dark:hover:bg-white/[0.06]"
+        >
+          {t("supportCta")}
+        </Link>
+      </section>
+
+      {user.email && <DeleteAccountCard email={user.email} />}
     </main>
   );
 }

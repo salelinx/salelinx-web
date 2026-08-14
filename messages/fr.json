@@ -10,6 +10,7 @@
     "navFaq": "FAQ",
     "navDocs": "Docs",
     "account": "Compte",
+    "support": "Assistance",
     "signOut": "Déconnexion",
     "signIn": "Connexion",
     "getStarted": "Commencer"
@@ -22,6 +23,7 @@
     "linkFeatures": "Fonctionnalités",
     "linkPricing": "Tarifs",
     "linkRoadmap": "Feuille de route",
+    "linkHelp": "Aide",
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
@@ -30,6 +32,13 @@
     "linkTerms": "Conditions",
     "copyright": "© {year} SaleLinx. Tous droits réservés.",
     "builtFor": "Conçu pour les vendeurs Depop et Vinted."
+  },
+  "NotFound": {
+    "metaTitle": "Page introuvable",
+    "title": "Page introuvable",
+    "body": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "goHome": "Retour à l'accueil",
+    "getHelp": "Consulter le centre d'aide"
   },
   "Home": {
     "heroEyebrow": "Disponible pour <depop></depop> + <vinted></vinted>",
@@ -130,14 +139,16 @@
     "checkEmailTitle": "Vérifiez vos e-mails",
     "login": {
       "title": "Se connecter",
+      "metaDescription": "Connectez-vous à votre compte SaleLinx pour gérer votre offre, la facturation et vos parrainages.",
       "submitIdle": "Se connecter",
       "submitSubmitting": "Connexion…",
       "createAccount": "Créer un compte",
-      "forgotPassword": "Mot de passe oublié ?",
-      "linkInvalid": "Ce lien a expiré ou a déjà été utilisé. Connectez-vous ci-dessous ou demandez un nouveau lien."
+      "forgotPassword": "Mot de passe oublié ?"
     },
     "signup": {
       "title": "Créer un compte",
+      "metaDescription": "Créez un compte SaleLinx gratuit et commencez à crosslister, republier et actualiser vos annonces sur Depop et Vinted.",
+      "emailInUse": "Un compte existe déjà avec cet email. Connectez-vous ci-dessous, ou réinitialisez votre mot de passe si vous l'avez oublié.",
       "passwordPlaceholder": "Mot de passe (8 caractères minimum)",
       "confirmPlaceholder": "Confirmer le mot de passe",
       "submitIdle": "Créer un compte",
@@ -148,6 +159,7 @@
     },
     "forgotPassword": {
       "title": "Réinitialiser le mot de passe",
+      "metaDescription": "Demandez un lien de réinitialisation pour retrouver l'accès à votre compte SaleLinx.",
       "subtitle": "Saisissez votre adresse e-mail et nous vous enverrons un lien de réinitialisation.",
       "submitIdle": "Envoyer le lien",
       "submitSubmitting": "Envoi…",
@@ -159,7 +171,28 @@
       "newPwPlaceholder": "Nouveau mot de passe (8 caractères minimum)",
       "confirmPlaceholder": "Confirmer le nouveau mot de passe",
       "submitIdle": "Enregistrer le nouveau mot de passe",
-      "submitSubmitting": "Enregistrement…"
+      "submitSubmitting": "Enregistrement…",
+      "noSessionTitle": "Lien plus valide",
+      "noSessionBody": "Nous n'avons pas pu confirmer votre identité avec ce lien. Demandez-en un nouveau pour définir votre mot de passe."
+    },
+    "confirm": {
+      "title": "Confirmez votre e-mail",
+      "body": "Appuyez sur le bouton ci-dessous pour confirmer. Nous ne validons qu'au moment où vous cliquez, afin que les scanners de liens de votre boîte mail ne puissent pas l'utiliser avant vous.",
+      "submit": "Confirmer",
+      "recoveryTitle": "Réinitialisez votre mot de passe",
+      "recoveryBody": "Appuyez sur le bouton ci-dessous pour continuer. Nous ne validons qu'au moment où vous cliquez, afin que les scanners de liens de votre boîte mail ne puissent pas l'utiliser avant vous.",
+      "recoverySubmit": "Continuer vers la réinitialisation",
+      "submitSubmitting": "Vérification…",
+      "invalidTitle": "Lien incomplet",
+      "invalidBody": "Il manque des informations dans ce lien. Il a peut-être été modifié par votre client de messagerie.",
+      "requestNew": "Demander un nouveau lien"
+    },
+    "linkError": {
+      "title": "Ce lien n'a pas fonctionné",
+      "body": "Nous n'avons pas pu vérifier ce lien. Il a peut-être déjà été utilisé.",
+      "expiredTitle": "Ce lien a expiré",
+      "expiredBody": "Les liens de réinitialisation ne peuvent servir qu'une seule fois. Demandez-en un nouveau et il fonctionnera immédiatement.",
+      "requestNew": "Envoyez-moi un nouveau lien"
     }
   },
   "Account": {
@@ -195,7 +228,10 @@
       "past_due": "Paiement échoué",
       "canceled": "Annulé",
       "incomplete": "Incomplet"
-    }
+    },
+    "supportTitle": "Assistance",
+    "supportBody": "Suivez vos tickets d'assistance et nos reponses.",
+    "supportCta": "Vos tickets"
   },
   "VerifyEmailBanner": {
     "title": "Vérifiez votre adresse e-mail",
@@ -227,6 +263,107 @@
     "errorEnterEmail": "Saisissez la nouvelle adresse e-mail.",
     "errorSameEmail": "C'est déjà votre adresse e-mail actuelle."
   },
+  "DeleteAccount": {
+    "title": "Supprimer le compte",
+    "body": "Supprime définitivement votre compte et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
+    "cta": "Supprimer le compte",
+    "confirmBody": "Nous enverrons un lien de confirmation à <email></email>. Rien n'est supprimé tant que vous n'avez pas ouvert ce lien et confirmé une dernière fois. Saisissez votre mot de passe pour continuer.",
+    "passwordPlaceholder": "Votre mot de passe",
+    "confirm": "Envoyer l'e-mail de confirmation",
+    "sending": "Envoi...",
+    "cancel": "Annuler",
+    "sentBody": "Lien de confirmation envoyé à <email></email>. Ouvrez-le pour finaliser la suppression de votre compte. Le lien expire dans 60 minutes.",
+    "errorWrongPassword": "Mot de passe incorrect.",
+    "errorAdmin": "Les comptes administrateurs ne peuvent pas être supprimés ici. Contactez support@salelinx.com.",
+    "errorGeneric": "Une erreur est survenue. Réessayez ou écrivez à support@salelinx.com et nous nous en chargerons."
+  },
+  "DeleteAccountConfirm": {
+    "title": "Supprimer votre compte ?",
+    "body": "C'est la dernière étape. En confirmant, vous supprimez définitivement <email></email> et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
+    "confirm": "Supprimer définitivement mon compte",
+    "deleting": "Suppression...",
+    "keepAccount": "Conserver mon compte",
+    "errorInvalidToken": "Ce lien de confirmation est invalide ou a expiré. Retournez sur la page de votre compte pour en demander un nouveau.",
+    "errorGeneric": "La suppression a échoué. Réessayez ou écrivez à support@salelinx.com et nous nous en chargerons."
+  },
+  "Referrals": {
+    "title": "Parrainez un ami",
+    "body": "Partagez votre lien. Toute personne qui s'abonne via ce lien obtient une réduction sur son premier mois, et vous recevez un mois gratuit une fois qu'elle a payé.",
+    "copy": "Copier le lien",
+    "copied": "Copié",
+    "statSignedUp": "Inscrits",
+    "statSubscribed": "Abonnés",
+    "statRewarded": "Mois gagnés",
+    "creditEarned": "Crédit obtenu : {amount}. Il est appliqué automatiquement à votre prochaine facture."
+  },
+  "Support": {
+    "title": "Assistance",
+    "subtitle": "Envoyez une demande et suivez nos réponses. Nous vous écrivons aussi par e-mail quand l'équipe répond.",
+    "newTicketTitle": "Nouvelle demande",
+    "newTicketBody": "Expliquez-nous votre problème et nous vous répondrons ici et par e-mail.",
+    "typeLabel": "Type",
+    "typePlaceholder": "Choisissez un type...",
+    "type_bug": "Bug",
+    "type_feature": "Demande de fonctionnalité",
+    "type_feedback": "Retour",
+    "type_other": "Autre",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Décrivez le problème ou l'idée...",
+    "submit": "Envoyer la demande",
+    "submitting": "Envoi...",
+    "submitSuccess": "Envoyé. Nous revenons vers vous.",
+    "submitError": "Échec de l'envoi. Veuillez réessayer.",
+    "myTicketsTitle": "Vos demandes",
+    "noTickets": "Vous n'avez pas encore envoyé de demande.",
+    "noOpenTickets": "Aucune demande ouverte. Utilisez Afficher les fermées pour voir les demandes résolues.",
+    "showClosed": "Afficher les fermées ({count})",
+    "hideClosed": "Masquer les fermées",
+    "statusOpen": "Ouvert",
+    "statusClosed": "Fermé",
+    "authorYou": "Vous",
+    "authorUser": "Utilisateur",
+    "authorSupport": "Assistance SaleLinx",
+    "replyPlaceholder": "Ajouter une réponse...",
+    "replySend": "Envoyer la réponse",
+    "replyError": "Échec de l'envoi de votre réponse. Veuillez réessayer.",
+    "trackTicketsCta": "Suivez vos tickets",
+    "ticketsTitle": "Vos tickets",
+    "ticketsSubtitle": "Suivez les demandes que vous avez envoyees et repondez a nos reponses.",
+    "contactSupportCta": "Contacter l'assistance",
+    "adminTitle": "Tous les tickets (admin)",
+    "adminFilter_open": "Ouverts",
+    "adminFilter_closed": "Fermés",
+    "adminFilter_all": "Tous",
+    "adminEmpty": "Aucun ticket ne correspond à ce filtre.",
+    "adminFromUser": "De",
+    "adminPlatform": "Plateforme",
+    "adminTier": "Forfait",
+    "adminVersion": "Version",
+    "adminReplyPlaceholder": "Répondre en tant qu'Assistance SaleLinx...",
+    "adminReplySend": "Répondre",
+    "adminClose": "Fermer",
+    "adminReopen": "Rouvrir",
+    "adminDelete": "Supprimer",
+    "adminDeleteConfirm": "Supprimer ce ticket et toutes ses réponses ? Cette action est irréversible.",
+    "adminActionError": "L'action a échoué. Veuillez réessayer."
+  },
+  "Help": {
+    "metaTitle": "Aide",
+    "metaDescription": "Trouvez des reponses, parcourez la documentation ou contactez l'equipe SaleLinx.",
+    "eyebrow": "Centre d'aide",
+    "title": "Comment pouvons-nous vous aider ?",
+    "body": "Cherchez dans la FAQ, lisez la documentation ou envoyez-nous un message. Nous repondrons par e-mail et dans votre compte.",
+    "faqCardTitle": "FAQ",
+    "faqCardBody": "Reponses rapides aux questions courantes sur la configuration, la facturation et le depannage.",
+    "docsCardTitle": "Documentation",
+    "docsCardBody": "Guides etape par etape pour chaque fonctionnalite de SaleLinx.",
+    "statusCardTitle": "Statut des plateformes",
+    "statusCardBody": "Verifiez quelles marketplaces sont actuellement prises en charge et fonctionnelles.",
+    "supportMetaTitle": "Contacter l'assistance",
+    "supportMetaDescription": "Envoyez un message a l'equipe SaleLinx.",
+    "supportTitle": "Contacter l'assistance",
+    "supportBody": "Envoyez-nous un message et nous repondrons par e-mail et dans votre compte."
+  },
   "Subscribe": {
     "loading": "Chargement...",
     "label": "S'abonner",
@@ -235,15 +372,15 @@
   "Legal": {
     "privacy": {
       "title": "Politique de confidentialité",
-      "body": "TODO : à remplacer par la politique de confidentialité finalisée avant le lancement."
+      "metaDescription": "Comment SaleLinx traite vos données : ce que nous collectons, ce qui reste sur votre appareil et comment demander une copie ou la suppression de votre compte."
     },
     "terms": {
       "title": "Conditions d'utilisation",
-      "body": "TODO : à remplacer par les conditions finalisées avant le lancement."
+      "metaDescription": "Les conditions qui régissent l'utilisation de l'extension et du site SaleLinx : comptes, abonnements, facturation et usage acceptable."
     }
   },
   "Features": {
-    "metaTitle": "SaleLinx - Produit, tarifs, feuille de route",
+    "metaTitle": "Produit, tarifs, feuille de route",
     "metaDescription": "Tout ce que fait l'extension Chrome SaleLinx, son prix et ce qui arrive ensuite. Crosslistez, republiez, actualisez et réapprovisionnez sur Depop et Vinted depuis un seul panneau.",
     "hero": {
       "eyebrow": "Aperçu du produit",
@@ -440,9 +577,9 @@
     "supportDays": "{value} jours",
     "trial": {
       "name": "Essai gratuit de 7 jours",
-      "tagline": "Accès complet à Starter pendant 7 jours.",
+      "tagline": "Accès complet à Starter pendant 7 jours. Carte bancaire requise.",
       "priceSuffix": "pendant {days} jours",
-      "thenPrice": "Puis {price} / mois",
+      "thenPrice": "Puis {price} / mois sauf annulation avant la fin de l'essai",
       "cta": "Démarrer l'essai gratuit"
     },
     "tier": {
@@ -475,7 +612,7 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs - SaleLinx",
+    "metaTitle": "Docs",
     "metaDescription": "Guides pas à pas et explications pour l'extension Chrome SaleLinx.",
     "eyebrow": "Docs",
     "heroTitle": "Apprendre SaleLinx.",
@@ -528,7 +665,7 @@
       "next": "Suivant"
     },
     "status": {
-      "metaTitle": "Statut des plateformes - Docs SaleLinx",
+      "metaTitle": "Statut des plateformes",
       "metaDescription": "Vue en temps réel des marketplaces sur lesquelles SaleLinx crosslist actuellement.",
       "eyebrow": "Statut",
       "title": "Statut des plateformes",
@@ -550,7 +687,7 @@
       }
     },
     "changelog": {
-      "metaTitle": "Changelog - Docs SaleLinx",
+      "metaTitle": "Changelog",
       "metaDescription": "Les changements des dernières versions de l'extension SaleLinx.",
       "eyebrow": "Changelog",
       "title": "Quoi de neuf dans SaleLinx",
@@ -569,7 +706,7 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ - SaleLinx",
+    "metaTitle": "FAQ",
     "metaDescription": "Réponses rapides aux questions courantes sur SaleLinx : facturation, compte, dépannage, confidentialité.",
     "eyebrow": "FAQ",
     "title": "Questions fréquentes.",

@@ -25,7 +25,7 @@ PK (tier_id, version)
 - Limit value `null` = unlimited
 - Limit missing entirely = not applicable for this tier
 
-RLS: public read, service-role-only write.
+RLS: public read, no client write policies. Writes happen via the service role (Supabase dashboard) or the `is_admin()`-gated `admin_set_tier_limit` / `admin_set_tier_feature` RPCs behind the admin console (migration `006_admin_console.sql`, see `docs/ADMIN.md`).
 
 ### `usage_counters`
 
@@ -79,15 +79,15 @@ Always derived from the user's local date at the moment of the check. Periods re
 
 ## Seed data (v1)
 
-See migration `011_billing.sql` in the extension repo (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1). Migration `015_add_linking_markdown_features.sql` adds `account_linking` (Pro+) and `auto_markdown` (Business). Migration `016_deadstock_starter.sql` moves `dead_stock` down to Starter+. Migration `017_shop_designer_messages_offers_starter.sql` moves `shop_designer` + `messages` down to Starter+ and adds a new `offers` (incoming-offers tab) feature gated at Starter+. Auto-offers (`auto_offer`) stays Pro+. Summary:
+See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. Summary:
 
 | Label                       | JSON key                 | Free | Starter | Pro       | Business  |
 | --------------------------- | ------------------------ | ---- | ------- | --------- | --------- |
-| Crosslists / mo             | `crosslists_per_month`   | 25   | 150     | 3,500     | Unlimited |
-| Relists / mo                | `relists_per_month`      | 25   | 150     | 3,500     | Unlimited |
-| Refreshes / day             | `refreshes_per_day`      | 50   | 100     | Unlimited | Unlimited |
-| Follows / day               | `follows_per_day`        | 100  | 500     | Unlimited | Unlimited |
-| Unfollows / day             | `unfollows_per_day`      | 100  | 500     | Unlimited | Unlimited |
+| Crosslists / mo             | `crosslists_per_month`   | 0    | 150     | 3,500     | Unlimited |
+| Relists / mo                | `relists_per_month`      | 0    | 150     | 3,500     | Unlimited |
+| Refreshes / day             | `refreshes_per_day`      | 0    | 100     | Unlimited | Unlimited |
+| Follows / day               | `follows_per_day`        | 0    | 500     | Unlimited | Unlimited |
+| Unfollows / day             | `unfollows_per_day`      | 0    | 500     | Unlimited | Unlimited |
 | Cloud storage               | `cloud_storage_bytes`    | -    | -       | 500 MB    | 1 GB      |
 | Support response (days)     | `support_response_days`  | 7    | 5       | -         | -         |
 | Support response (hours)    | `support_response_hours` | -    | -       | 48        | 24        |
@@ -105,7 +105,11 @@ See migration `011_billing.sql` in the extension repo (creates `subscriptions`, 
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 
+**Free is a fallback, not a plan.** The product model is a 7-day Starter trial (no card required) followed by a paid plan; there is no advertised free tier. The `free` row exists so signed-in users with no `subscriptions` row (never trialed, or trial expired without a card) resolve to a concrete tier config. Its metered limits are all 0, so bot / crosslist / relist actions surface the upgrade prompt while manual listing management keeps working. The extension additionally fails closed for signed-out users (see the extension repo's `docs/technical/ENTITLEMENTS.md`).
+
 ## Changing caps without a deploy
+
+Admins can edit existing caps and toggle existing feature flags from the admin console (`/admin/tiers` and `/admin/flags`, audit-logged). Introducing a brand-new key is still a SQL-editor operation:
 
 ```sql
 UPDATE tier_limits
@@ -137,7 +141,7 @@ INSERT INTO tier_limits (tier_id, version, features, limits) VALUES
 ('pro_custom_acme', 1, '{...}'::jsonb, '{...}'::jsonb);
 ```
 
-Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user. All the same gating code works.
+Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user - either from the admin console (`/admin/users` detail drawer, "Edit subscription"; custom tiers show up automatically because the form lists active `tier_limits` rows) or via SQL. All the same gating code works.
 
 ## Shared types (keep in sync with extension)
 

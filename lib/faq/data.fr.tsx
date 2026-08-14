@@ -1,3 +1,7 @@
+/* eslint-disable react/no-unescaped-entities --
+   French FAQ prose: literal apostrophes (l', d', n', qu'...) are pervasive and
+   correct in the JSX text below. Escaping each one would hurt readability of
+   this content file with no user-facing benefit. */
 import { Link } from '@/i18n/navigation';
 import type { FAQGroup } from './types';
 
@@ -40,14 +44,19 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         q: "Faut-il payer pour l'essayer ?",
         a: (
           <p>
-            Non. Le forfait gratuit vous permet d'essayer les flux principaux. Voir{' '}
+            Vous bénéficiez d'un essai gratuit de 7 jours du forfait Starter,
+            un par compte. Une carte bancaire est requise pour le démarrer,
+            mais rien n'est débité pendant l'essai et vous pouvez annuler à
+            tout moment depuis votre page de compte. Sans annulation, votre
+            abonnement Starter démarre automatiquement à la fin de l'essai.
+            Voir{' '}
             <Link href="/pricing" className="underline underline-offset-4">
               les tarifs
             </Link>{' '}
             pour ce que chaque niveau inclut.
           </p>
         ),
-        keywords: ['gratuit', 'essai', 'tarifs', 'forfait'],
+        keywords: ['gratuit', 'essai', 'tarifs', 'forfait', 'carte'],
       },
     ],
   },

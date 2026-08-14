@@ -39,14 +39,18 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         q: '¿Hace falta pagar para probarlo?',
         a: (
           <p>
-            No. El plan gratuito te deja probar los flujos principales. Consulta{' '}
+            Tienes una prueba gratuita de 7 días del plan Starter, una por
+            cuenta. Se requiere una tarjeta para empezarla, pero no se cobra
+            nada durante la prueba y puedes cancelar en cualquier momento
+            desde tu página de cuenta. Si no cancelas, tu suscripción Starter
+            empieza automáticamente al terminar la prueba. Consulta{' '}
             <Link href="/pricing" className="underline underline-offset-4">
               los precios
             </Link>{' '}
             para ver qué incluye cada nivel.
           </p>
         ),
-        keywords: ['gratis', 'prueba', 'precios', 'plan'],
+        keywords: ['gratis', 'prueba', 'precios', 'plan', 'tarjeta'],
       },
     ],
   },

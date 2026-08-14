@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -12,6 +12,7 @@ interface Labels {
   navFaq: string;
   navDocs: string;
   account: string;
+  support: string;
   signOut: string;
   signIn: string;
   getStarted: string;
@@ -27,9 +28,17 @@ interface Props {
 export function MobileMenu({ isAuthed, labels }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // Close the menu on navigation. We track the pathname the menu was last
+  // synced to and close in an event-driven way rather than calling setState
+  // synchronously in an effect body (which the React lint rule flags as a
+  // potential cascading render).
+  const lastPathRef = useRef(pathname);
 
   useEffect(() => {
-    setOpen(false);
+    if (lastPathRef.current !== pathname) {
+      lastPathRef.current = pathname;
+      setOpen(false);
+    }
   }, [pathname]);
 
   useEffect(() => {
@@ -112,7 +121,7 @@ export function MobileMenu({ isAuthed, labels }: Props) {
               <Link href="/features#roadmap" className={linkClass}>
                 {labels.navRoadmap}
               </Link>
-              <Link href="/faq" className={linkClass}>
+              <Link href="/help/faq" className={linkClass}>
                 {labels.navFaq}
               </Link>
               <Link href="/docs" className={linkClass}>
@@ -122,6 +131,9 @@ export function MobileMenu({ isAuthed, labels }: Props) {
               <div className="mt-2 border-t border-black/[0.06] pt-3 dark:border-white/10">
                 {isAuthed ? (
                   <div className="flex flex-col gap-2">
+                    <Link href="/help" className={linkClass}>
+                      {labels.support}
+                    </Link>
                     <Link href="/account" className={linkClass}>
                       {labels.account}
                     </Link>

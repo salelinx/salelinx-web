@@ -6,6 +6,7 @@ import {
   STATE_META,
   getMarketplaceStatus,
 } from '@/lib/docs/status';
+import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -16,10 +17,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Docs.status' });
-  return {
+  return pageMetadata({
+    locale,
+    path: '/docs/status',
     title: t('metaTitle'),
     description: t('metaDescription'),
-  };
+  });
 }
 
 export default async function StatusPage() {

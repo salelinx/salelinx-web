@@ -10,13 +10,14 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createServerClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    // A failed exchange used to fall through and redirect anyway, dropping the
+    // user on a page that needs a session without one. The reset form then
+    // failed on submit with an unrelated-looking message.
     if (error) {
-      // Expired or already-used link. Redirecting onward regardless would land
-      // the user on a page with no session, where the next action fails with a
-      // cryptic "Auth session missing" instead of "request a new link".
-      const failed = new URL("/auth/login", url.origin);
-      failed.searchParams.set("error", "link_invalid");
-      return NextResponse.redirect(failed);
+      const target = new URL("/auth/link-error", url.origin);
+      target.searchParams.set("error_code", "exchange_failed");
+      target.searchParams.set("error_description", error.message);
+      return NextResponse.redirect(target);
     }
   }
 

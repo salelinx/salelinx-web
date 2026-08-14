@@ -1,0 +1,250 @@
+// Supabase Edge Function: send-shipping-labels
+// ------------------------------------------------------------------------
+// Accepts a merged shipping-label PDF (base64) + recipient email from the
+// Resale Bot extension, attaches it to an email, and sends via Resend.
+//
+// Auth: requires a valid Supabase access_token (the extension passes the
+// signed-in user's JWT in the Authorization header). Unauthenticated
+// requests are rejected.
+//
+// Required secrets:
+//   RESEND_API_KEY   — from https://resend.com/api-keys
+//   RESEND_FROM      — verified sender address, e.g. "Resale Bot <labels@yourdomain.com>"
+//                      (Resend requires domain verification before production use)
+//
+// Deploy:
+//   supabase secrets set RESEND_API_KEY=re_... RESEND_FROM='Resale Bot <labels@example.com>'
+//   supabase functions deploy send-shipping-labels --no-verify-jwt
+//
+// The --no-verify-jwt flag is required: the edge runtime's built-in JWT
+// middleware doesn't support ES256 tokens on every project tier, so we
+// validate the JWT ourselves via auth.getUser() below.
+//
+// Request body:
+//   {
+//     to: string;          // recipient email
+//     pdfBase64: string;   // base64-encoded merged PDF
+//     filename: string;    // "labels-14-Apr-2026-3.pdf"
+//     count: number;       // label count, used in subject/body copy
+//     subject?: string;    // optional override
+//     body?: string;       // optional override
+//   }
+
+// @ts-nocheck — this file runs under Deno, not the extension's TS config.
+
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+import {
+  EMAIL_ASSETS,
+  emailLayout,
+  escapeHtml,
+  heading,
+  metaRow,
+  metaTable,
+  MONO_STACK,
+  paragraph,
+  theme,
+} from '../_shared/email-theme.ts';
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface SendRequest {
+  to: string;
+  pdfBase64: string;
+  filename: string;
+  count: number;
+  subject?: string;
+  body?: string;
+}
+
+function json(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+  });
+}
+
+function isEmail(s: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+}
+
+Deno.serve(async (req: Request) => {
+  try {
+    return await handleRequest(req);
+  } catch (err) {
+    // Always return JSON so the client can surface the reason instead of an
+    // NGINX 502 HTML page.
+    const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    const stack = err instanceof Error ? err.stack?.split('\n').slice(0, 5).join(' | ') : '';
+    console.error('send-shipping-labels uncaught:', msg, stack);
+    return json(500, { ok: false, error: `Function crashed: ${msg}` });
+  }
+});
+
+async function handleRequest(req: Request): Promise<Response> {
+  console.log(`[send-shipping-labels] ${req.method} invoked`);
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
+  if (req.method !== 'POST') return json(405, { ok: false, error: 'Method not allowed' });
+
+  // ── Verify the caller's Supabase session ─────────────────────────────────
+  // NOTE: This function must be deployed with `--no-verify-jwt` so the edge
+  // runtime's own JWT middleware is skipped — that middleware doesn't yet
+  // support ES256 tokens on all projects. We validate the token ourselves
+  // by calling /auth/v1/user explicitly below, which supports any algorithm.
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return json(401, { ok: false, error: 'Missing auth' });
+  }
+  const jwt = authHeader.slice('Bearer '.length).trim();
+  if (!jwt) return json(401, { ok: false, error: 'Empty token' });
+
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return json(500, { ok: false, error: 'Supabase env missing' });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  // Pass the JWT explicitly so supabase-js does the HTTP round-trip to
+  // /auth/v1/user — no local algorithm validation that could fail on ES256.
+  const {
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser(jwt);
+  if (userErr || !user) {
+    console.log('[send-shipping-labels] auth rejected:', userErr?.message);
+    return json(401, { ok: false, error: userErr?.message ?? 'Invalid session' });
+  }
+  console.log(`[send-shipping-labels] auth ok, user=${user.id}`);
+
+  // ── Validate body ────────────────────────────────────────────────────────
+  let body: SendRequest;
+  try {
+    body = (await req.json()) as SendRequest;
+  } catch {
+    return json(400, { ok: false, error: 'Invalid JSON' });
+  }
+
+  if (!body.to || !isEmail(body.to)) return json(400, { ok: false, error: 'Invalid recipient' });
+  if (!body.pdfBase64) return json(400, { ok: false, error: 'Missing pdfBase64' });
+  if (!body.filename) return json(400, { ok: false, error: 'Missing filename' });
+
+  // Rough size cap — Resend allows 40MB of attachments; we cap at 25MB to stay safe.
+  const approxBytes = (body.pdfBase64.length * 3) / 4;
+  if (approxBytes > 25 * 1024 * 1024) {
+    return json(413, { ok: false, error: 'Attachment too large (>25MB)' });
+  }
+
+  // ── Send via Resend ──────────────────────────────────────────────────────
+  const resendKey = Deno.env.get('RESEND_API_KEY');
+  const resendFrom = Deno.env.get('RESEND_FROM');
+  // RESEND_FROM is no-reply@, so a bare "reply to this email" would dead-end.
+  // Point replies at the support inbox instead. Secrets are project-wide, so
+  // this is the same address send-support-email uses.
+  const supportTo = Deno.env.get('SUPPORT_NOTIFY_TO');
+  console.log(
+    `[send-shipping-labels] secrets: RESEND_API_KEY=${resendKey ? 'set' : 'MISSING'}, RESEND_FROM=${resendFrom ? 'set' : 'MISSING'}`,
+  );
+  if (!resendKey || !resendFrom) {
+    return json(503, { ok: false, error: 'Email service not configured', code: 'not_configured' });
+  }
+  // Never log body.to: recipient email addresses are personal data and
+  // function logs are retained outside our control.
+  console.log(`[send-shipping-labels] sending, count=${body.count}`);
+
+  const labelWord = body.count === 1 ? 'label' : 'labels';
+  const dateStr = new Date().toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const subject = body.subject ?? `Shipping labels — ${body.count} ${labelWord} (${dateStr})`;
+
+  const text =
+    body.body ??
+    [
+      'Hi,',
+      '',
+      `Your shipping ${labelWord} ${body.count === 1 ? 'is' : 'are'} attached and ready to print.`,
+      '',
+      `  Count:  ${body.count} ${labelWord}`,
+      `  File:   ${body.filename}`,
+      `  Date:   ${dateStr}`,
+      '',
+      'For best results, print at 4 × 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
+      '',
+      supportTo
+        ? 'Reply to this email if anything looks off.'
+        : 'If anything looks off, contact us at salelinx.com/account/support.',
+      '',
+      'Thanks.',
+    ].join('\n');
+
+  // HTML version — most modern mail clients render this; plain-text fallback
+  // above covers the rest.
+  const html = emailLayout({
+    preheader: `${body.count} ${labelWord} attached, ready to print.`,
+    eyebrow: 'Shipping labels',
+    bodyHtml: `
+      ${heading(`Your ${labelWord} ${body.count === 1 ? 'is' : 'are'} ready`)}
+      ${paragraph(
+        `${body.count === 1 ? 'It is' : 'They are'} attached to this email and ready to print.`,
+        22,
+      )}
+      ${metaTable(
+        [
+          metaRow('Count', `${body.count} ${labelWord}`),
+          metaRow(
+            'File',
+            `<span style="font-family:${MONO_STACK};">${escapeHtml(body.filename)}</span>`,
+          ),
+          metaRow('Date', escapeHtml(dateStr)),
+        ].join(''),
+      )}
+      ${paragraph(
+        'For best results, print at 4 x 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
+        14,
+      )}
+      ${paragraph(
+        supportTo
+          ? 'Reply to this email if anything looks off.'
+          : 'If anything looks off, contact us at <a href="https://salelinx.com/account/support" style="color:' + theme.ink + ';">salelinx.com/account/support</a>.',
+        0,
+      )}
+    `,
+    footerNote: 'Generated automatically by your shipping workflow.',
+  });
+
+  const resp = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${resendKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: resendFrom,
+      to: body.to,
+      ...(supportTo ? { reply_to: supportTo } : {}),
+      subject,
+      text,
+      html,
+      // The label PDF the user asked for, plus the inline masthead logo.
+      attachments: [
+        { filename: body.filename, content: body.pdfBase64 },
+        ...EMAIL_ASSETS,
+      ],
+    }),
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    return json(502, { ok: false, error: `Resend ${resp.status}: ${errText.slice(0, 200)}` });
+  }
+
+  const result = (await resp.json().catch(() => ({}))) as { id?: string };
+  return json(200, { ok: true, messageId: result.id });
+}

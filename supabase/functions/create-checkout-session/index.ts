@@ -88,11 +88,14 @@ Deno.serve(async (req) => {
 
   // One subscription per user. Ordering matters because a user who cancelled
   // and re-subscribed has more than one row, so .single() would error.
-  const { data: existing } = await supabase
+  const { data: existing, error: subErr } = await supabase
     .from("subscriptions")
     .select("stripe_customer_id, status")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
+  if (subErr) {
+    return json({ error: subErr.message }, 500);
+  }
 
   const rows = existing ?? [];
   if (rows.some((r) => LIVE_STATUSES.includes(r.status))) {
@@ -108,6 +111,19 @@ Deno.serve(async (req) => {
   // its billing history instead of spawning a duplicate customer record.
   const customerId = rows.find((r) => r.stripe_customer_id)?.stripe_customer_id;
 
+  // Referred users get the first-month discount coupon auto-applied. The RPC
+  // runs as the user (anon client), so it can only ever report their own
+  // pending referral. Stripe rejects `discounts` together with
+  // `allow_promotion_codes`, so a referred checkout drops the promo-code
+  // field - a referred user cannot also enter a promo code (accepted
+  // trade-off; the referral discount wins).
+  let applyReferralDiscount = false;
+  const referralCouponId = Deno.env.get("REFERRAL_COUPON_ID") ?? "";
+  if (referralCouponId) {
+    const { data: hasReferral } = await supabase.rpc("has_pending_referral");
+    applyReferralDiscount = hasReferral === true;
+  }
+
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: price.id, quantity: 1 }],
@@ -115,7 +131,9 @@ Deno.serve(async (req) => {
     client_reference_id: user.id,
     success_url: SUCCESS_URL,
     cancel_url: CANCEL_URL,
-    allow_promotion_codes: true,
+    ...(applyReferralDiscount
+      ? { discounts: [{ coupon: referralCouponId }] }
+      : { allow_promotion_codes: true }),
     ...(trialEligible
       ? {
           subscription_data: {
