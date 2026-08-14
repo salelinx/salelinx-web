@@ -25,7 +25,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "20 July 2026";
+const LAST_UPDATED = "14 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -107,6 +107,7 @@ const SECTIONS: LegalSection[] = [
       "Stripe: subscription payments and invoicing.",
       "Resend: transactional email delivery (account and support emails, and shipping label emails you choose to send, which can include label PDFs containing buyer delivery details).",
       "Vercel: hosting for the salelinx.com website.",
+      "Google (Google Analytics): aggregated statistics about how the website is used, only if you consent to analytics cookies in the cookie banner.",
     ],
     trailing: [
       "Depending on the provider, data may be processed in the United Kingdom, the European Union, or the United States, with appropriate safeguards in place for international transfers.",
@@ -123,7 +124,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Legal bases",
     paragraphs: [
-      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for), our legitimate interests (securing and improving the service), and legal obligations (tax and accounting records).",
+      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for), our legitimate interests (securing and improving the service), legal obligations (tax and accounting records), and your consent (optional analytics cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
     ],
   },
   {
@@ -136,7 +137,10 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Cookies",
     paragraphs: [
-      "The salelinx.com website uses only essential and preference cookies: sign-in cookies that keep you logged in to your account, and a cookie that remembers your light or dark theme choice. We do not use advertising or cross-site tracking cookies.",
+      "Essential and preference cookies. salelinx.com sets sign-in cookies that keep you logged in to your account, a cookie that remembers your light or dark theme choice, and a cookie that records your cookie consent choice. These are needed for the site to work as you asked and do not track you across other sites.",
+      "Referral cookie. If you arrive through a referral share link (salelinx.com/r/...), we set a first-party cookie for up to 30 days so we can credit the person who referred you if you sign up. It contains only the referral code and is not used for advertising or cross-site tracking.",
+      "Analytics cookies (optional, with your consent). If you choose Accept in our cookie banner, we use Google Analytics to understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. These cookies are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
+      "We do not use advertising or cross-site tracking cookies.",
     ],
   },
   {
