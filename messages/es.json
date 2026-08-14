@@ -34,11 +34,11 @@
     "builtFor": "Creado para vendedores de Depop y Vinted."
   },
   "CookieBanner": {
-    "title": "Cookies",
-    "body": "Usamos Google Analytics para entender cómo los visitantes usan este sitio. Las cookies de análisis solo se instalan si aceptas. Las cookies esenciales para iniciar sesión y tu tema siempre están activas.",
-    "privacyLink": "Política de privacidad",
-    "accept": "Aceptar análisis",
-    "reject": "Rechazar",
+    "title": "Cookies en salelinx.com",
+    "body": "Usamos cookies esenciales para que este sitio funcione. También nos gustaría instalar cookies de Google Analytics para entender cómo se usa y mejorarlo.",
+    "privacyLink": "Cómo usamos las cookies",
+    "accept": "Aceptar cookies de análisis",
+    "reject": "Rechazar cookies de análisis",
     "settings": "Configuración de cookies"
   },
   "NotFound": {
