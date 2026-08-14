@@ -35,7 +35,7 @@
   },
   "CookieBanner": {
     "title": "Cookies on salelinx.com",
-    "body": "We use essential cookies to make this site work, for example to keep you signed in. We would also like to set Google Analytics cookies to understand how you use the site and improve it. We only set these if you accept, and you can change your choice at any time from Cookie settings in the footer.",
+    "body": "We use essential cookies to make this site work. We would also like to set Google Analytics cookies to help us understand how it is used and improve it.",
     "privacyLink": "How we use cookies",
     "accept": "Accept analytics cookies",
     "reject": "Reject analytics cookies",

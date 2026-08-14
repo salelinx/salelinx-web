@@ -35,7 +35,7 @@
   },
   "CookieBanner": {
     "title": "Cookies sur salelinx.com",
-    "body": "Nous utilisons des cookies essentiels au fonctionnement du site, par exemple pour vous garder connecté. Nous aimerions aussi installer des cookies Google Analytics pour comprendre comment vous utilisez le site et l'améliorer. Nous ne les installons que si vous acceptez, et vous pouvez changer d'avis à tout moment via Paramètres des cookies en bas de page.",
+    "body": "Nous utilisons des cookies essentiels au fonctionnement du site. Nous aimerions aussi installer des cookies Google Analytics pour comprendre son utilisation et l'améliorer.",
     "privacyLink": "Comment nous utilisons les cookies",
     "accept": "Accepter les cookies d'analyse",
     "reject": "Refuser les cookies d'analyse",
