@@ -20,28 +20,33 @@ export function ManageSubscriptionButton() {
       return;
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-portal-session`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+    // The portal return URL is decided by the Edge Function, not sent from here.
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-portal-session`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: "{}",
         },
-        body: JSON.stringify({
-          returnUrl: `${window.location.origin}/account`,
-        }),
-      },
-    );
+      );
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setLoading(false);
+        alert(t("errorAlert"));
+        return;
+      }
+
+      const { url } = (await res.json()) as { url: string };
+      window.location.href = url;
+    } catch {
+      // Network failure. Without this the button stays disabled on "loading".
       setLoading(false);
       alert(t("errorAlert"));
-      return;
     }
-
-    const { url } = (await res.json()) as { url: string };
-    window.location.href = url;
   }
 
   return (

@@ -107,6 +107,12 @@ supabase secrets set DELETE_ACCOUNT_TOKEN_SECRET='<random-string, 32+ bytes>'
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are **auto-injected** by the runtime - don't set them manually.
 
+`SITE_URL` is where `create-checkout-session` and `create-portal-session` send the
+customer afterwards (`/account?checkout=success`, `/pricing`, `/account`). These
+used to come from the request body, which let a caller redirect a paying customer
+to any site. It defaults to `https://salelinx.com` if unset, so set it on any
+non-production project or checkout will bounce users to the live site.
+
 ## Auth inside a function
 
 The `authed` functions use the caller's JWT:
