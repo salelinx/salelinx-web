@@ -136,35 +136,34 @@ export function CookieConsent() {
     setOpen(false);
   }
 
+  // ICO expects Accept and Reject to be equally prominent, so both buttons
+  // deliberately share the same style.
+  const buttonClass =
+    'rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200';
+
   return (
     <div
       role="region"
       aria-label={t('title')}
-      className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-xl rounded-2xl border border-black/10 bg-white p-5 shadow-xl dark:border-white/15 dark:bg-zinc-900"
+      className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-lg rounded-2xl border border-black/10 bg-white/90 p-5 shadow-2xl shadow-black/10 backdrop-blur-md motion-safe:animate-[popIn_0.45s_ease-out] sm:p-6 dark:border-white/15 dark:bg-zinc-900/90 dark:shadow-black/40"
     >
-      <h2 className="text-sm font-semibold">{t('title')}</h2>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <h2 className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500">
+        {t('title')}
+      </h2>
+      <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
         {t('body')}{' '}
         <Link
           href="/legal/privacy"
-          className="underline underline-offset-2 hover:text-black dark:hover:text-white"
+          className="underline underline-offset-2 transition hover:text-black dark:hover:text-white"
         >
           {t('privacyLink')}
         </Link>
       </p>
-      <div className="mt-4 flex gap-3">
-        <button
-          type="button"
-          onClick={accept}
-          className="flex-1 rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-        >
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <button type="button" onClick={accept} className={buttonClass}>
           {t('accept')}
         </button>
-        <button
-          type="button"
-          onClick={reject}
-          className="flex-1 rounded-full border border-black/15 px-4 py-2 text-sm font-medium transition hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/5"
-        >
+        <button type="button" onClick={reject} className={buttonClass}>
           {t('reject')}
         </button>
       </div>
