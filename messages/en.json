@@ -33,6 +33,14 @@
     "copyright": "© {year} SaleLinx. All rights reserved.",
     "builtFor": "Built for Depop and Vinted sellers."
   },
+  "CookieBanner": {
+    "title": "Cookies",
+    "body": "We use Google Analytics to understand how visitors use this site. Analytics cookies are set only if you accept. Essential cookies for signing in and your theme are always on.",
+    "privacyLink": "Privacy policy",
+    "accept": "Accept analytics",
+    "reject": "Reject",
+    "settings": "Cookie settings"
+  },
   "NotFound": {
     "metaTitle": "Page not found",
     "title": "Page not found",

@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { CookieSettingsButton } from '@/components/CookieConsent';
 
 const MONO =
   'font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500';
@@ -91,6 +92,9 @@ export async function Footer() {
                 <Link href="/legal/terms" className={linkClass}>
                   {t('linkTerms')}
                 </Link>
+              </li>
+              <li>
+                <CookieSettingsButton />
               </li>
             </ul>
           </div>

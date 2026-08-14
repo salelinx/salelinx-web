@@ -33,6 +33,14 @@
     "copyright": "© {year} SaleLinx. Tous droits réservés.",
     "builtFor": "Conçu pour les vendeurs Depop et Vinted."
   },
+  "CookieBanner": {
+    "title": "Cookies",
+    "body": "Nous utilisons Google Analytics pour comprendre comment les visiteurs utilisent ce site. Les cookies d'analyse ne sont installés que si vous acceptez. Les cookies essentiels pour la connexion et votre thème restent toujours actifs.",
+    "privacyLink": "Politique de confidentialité",
+    "accept": "Accepter l'analyse",
+    "reject": "Refuser",
+    "settings": "Paramètres des cookies"
+  },
   "NotFound": {
     "metaTitle": "Page introuvable",
     "title": "Page introuvable",

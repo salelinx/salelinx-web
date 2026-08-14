@@ -7,6 +7,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import '../globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { CookieConsent } from '@/components/CookieConsent';
 import { SmoothAnchorScroll } from '@/components/SmoothAnchorScroll';
 import { routing } from '@/i18n/routing';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
@@ -94,6 +95,7 @@ export default async function LocaleLayout({
             <ViewTransition>{children}</ViewTransition>
           </div>
           <Footer />
+          <CookieConsent />
         </NextIntlClientProvider>
       </body>
     </html>

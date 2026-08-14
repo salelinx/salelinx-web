@@ -1,23 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useHydrated } from '@/lib/use-hydrated';
 
 type Theme = 'light' | 'dark';
-
-// Whether we have hydrated on the client. Implemented with
-// useSyncExternalStore (server snapshot false, client snapshot true) instead of
-// a mount-effect setState, so it reads as a client-only value without
-// triggering a cascading render. Used to gate the icon, which can differ from
-// the server-rendered one.
-const noopSubscribe = () => () => {};
-function useHydrated(): boolean {
-  return useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  );
-}
 
 // View Transitions API isn't in the default TS DOM lib yet.
 interface ViewTransition {
