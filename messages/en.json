@@ -13,7 +13,8 @@
     "support": "Support",
     "signOut": "Sign out",
     "signIn": "Sign in",
-    "getStarted": "Get started"
+    "getStarted": "Get started",
+    "addToChrome": "Add to Chrome"
   },
   "Footer": {
     "tagline": "Sell across Depop and Vinted from one place.",
@@ -71,6 +72,7 @@
     "ctaSeePricing": "See pricing",
     "ctaSeeFeatures": "See features",
     "ctaGetStarted": "Get started",
+    "ctaAddToChrome": "Add to Chrome",
     "ctaSignIn": "Sign in",
     "previewEyebrow": "Try the live demo",
     "preview": {
@@ -106,7 +108,8 @@
       "title": "Run both shops from one panel.",
       "body": "Install in a click. Free for your first listings, no card needed.",
       "primary": "Get started free",
-      "secondary": "See pricing"
+      "secondary": "See pricing",
+      "tertiary": "Add to Chrome"
     },
     "howItWorks": {
       "eyebrow": "How it works",

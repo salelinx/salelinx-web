@@ -1,4 +1,6 @@
 import { Link } from '@/i18n/navigation';
+import { CHROME_WEB_STORE_URL } from '@/lib/site';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import type { FAQGroup } from './types';
 
 export const FAQ_GROUPS_EN: FAQGroup[] = [
@@ -11,17 +13,32 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         id: 'how-do-i-install',
         q: 'How do I install the SaleLinx extension?',
         a: (
-          <p>
-            Install from the Chrome Web Store and pin the extension to your
-            toolbar. Full walkthrough with screenshots in{' '}
-            <Link
-              href="/docs/getting-started/install-the-extension"
-              className="underline underline-offset-4"
-            >
-              Installing the SaleLinx extension
-            </Link>
-            .
-          </p>
+          <>
+            <p>
+              Install from the{' '}
+              <a
+                href={CHROME_WEB_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4"
+              >
+                Chrome Web Store
+              </a>{' '}
+              and pin the extension to your toolbar. Full walkthrough with
+              screenshots in{' '}
+              <Link
+                href="/docs/getting-started/install-the-extension"
+                className="underline underline-offset-4"
+              >
+                Installing the SaleLinx extension
+              </Link>
+              .
+            </p>
+            <InstallExtensionButton
+              label="Add to Chrome"
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+            />
+          </>
         ),
         keywords: ['install', 'setup', 'chrome', 'add'],
       },
