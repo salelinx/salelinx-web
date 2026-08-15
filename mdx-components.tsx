@@ -3,6 +3,7 @@ import { Callout } from '@/components/docs/mdx/Callout';
 import { Figure } from '@/components/docs/mdx/Figure';
 import { VideoEmbed } from '@/components/docs/mdx/VideoEmbed';
 import { InstallPinCallout } from '@/components/docs/mdx/InstallPinCallout';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -67,6 +68,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     Figure,
     VideoEmbed,
     InstallPinCallout,
+    InstallExtensionButton,
     ...components,
   };
 }

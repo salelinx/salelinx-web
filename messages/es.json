@@ -13,7 +13,8 @@
     "support": "Soporte",
     "signOut": "Cerrar sesión",
     "signIn": "Iniciar sesión",
-    "getStarted": "Empezar"
+    "getStarted": "Empezar",
+    "addToChrome": "Añadir a Chrome"
   },
   "Footer": {
     "tagline": "Vende en Depop y Vinted desde un solo lugar.",
@@ -69,6 +70,7 @@
       "vender con cabeza, no a la fuerza."
     ],
     "ctaSeePricing": "Ver precios",
+    "ctaAddToChrome": "Añadir a Chrome",
     "ctaSeeFeatures": "Ver funciones",
     "ctaGetStarted": "Empezar",
     "ctaSignIn": "Iniciar sesión",
@@ -106,7 +108,8 @@
       "title": "Gestiona ambas tiendas desde un solo panel.",
       "body": "Se instala en un clic. Gratis para tus primeros anuncios, sin tarjeta.",
       "primary": "Empezar gratis",
-      "secondary": "Ver precios"
+      "secondary": "Ver precios",
+      "tertiary": "Añadir a Chrome"
     },
     "howItWorks": {
       "eyebrow": "Cómo funciona",

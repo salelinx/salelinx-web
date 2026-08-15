@@ -13,7 +13,8 @@
     "support": "Support",
     "signOut": "Abmelden",
     "signIn": "Anmelden",
-    "getStarted": "Loslegen"
+    "getStarted": "Loslegen",
+    "addToChrome": "Zu Chrome hinzufügen"
   },
   "Footer": {
     "tagline": "Verkaufe auf Depop und Vinted von einem Ort aus.",
@@ -69,6 +70,7 @@
       "klüger verkaufen, nicht härter."
     ],
     "ctaSeePricing": "Preise ansehen",
+    "ctaAddToChrome": "Zu Chrome hinzufügen",
     "ctaSeeFeatures": "Funktionen ansehen",
     "ctaGetStarted": "Loslegen",
     "ctaSignIn": "Anmelden",
@@ -106,7 +108,8 @@
       "title": "Beide Shops aus einem Panel führen.",
       "body": "Mit einem Klick installiert. Für deine ersten Listings gratis, keine Karte nötig.",
       "primary": "Kostenlos starten",
-      "secondary": "Preise ansehen"
+      "secondary": "Preise ansehen",
+      "tertiary": "Zu Chrome hinzufügen"
     },
     "howItWorks": {
       "eyebrow": "So funktioniert es",

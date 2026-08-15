@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MobileMenu } from '@/components/MobileMenu';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 
 export async function Header() {
   const supabase = await createServerClient();
@@ -63,6 +64,10 @@ export async function Header() {
           >
             {t('navDocs')}
           </Link>
+          <InstallExtensionButton
+            label={t('addToChrome')}
+            className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-500/30 px-3 py-1.5 text-emerald-700 hover:bg-emerald-500/10 md:inline-flex dark:border-emerald-400/30 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
+          />
 
           {user ? (
             <>
@@ -123,6 +128,7 @@ export async function Header() {
             signOut: t('signOut'),
             signIn: t('signIn'),
             getStarted: t('getStarted'),
+            addToChrome: t('addToChrome'),
             openMenu: 'Open menu',
             closeMenu: 'Close menu',
           }}
