@@ -25,7 +25,9 @@ export default async function AdminAuditPage() {
   const entries = (auditData as AdminAuditRow[] | null) ?? [];
 
   const emails: Record<string, string> = {};
-  const actorIds = Array.from(new Set(entries.map((e) => e.actor_id)));
+  const actorIds = Array.from(
+    new Set(entries.map((e) => e.actor_id).filter((id): id is string => id !== null)),
+  );
   if (actorIds.length > 0) {
     const { data: emailRows } = await supabase.rpc("admin_user_emails", {
       p_user_ids: actorIds,
