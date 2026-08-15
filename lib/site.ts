@@ -7,6 +7,11 @@ export const SITE_URL = (
 
 export const SITE_NAME = 'SaleLinx';
 
+// Live listing: https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj
+export const CHROME_WEB_STORE_URL = process.env.NEXT_PUBLIC_EXTENSION_ID
+  ? `https://chromewebstore.google.com/detail/salelinx/${process.env.NEXT_PUBLIC_EXTENSION_ID}`
+  : 'https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj';
+
 export function localePathPrefix(locale: string): string {
   return locale === routing.defaultLocale ? '' : `/${locale}`;
 }

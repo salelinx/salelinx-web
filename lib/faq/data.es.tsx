@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import { CHROME_WEB_STORE_URL } from '@/lib/site';
 import type { FAQGroup } from './types';
 
 export const FAQ_GROUPS_ES: FAQGroup[] = [
@@ -12,7 +13,16 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         q: '¿Cómo instalo la extensión de SaleLinx?',
         a: (
           <p>
-            Instala desde Chrome Web Store y ancla la extensión en tu barra de herramientas. Tutorial completo con capturas en{' '}
+            Instala desde{' '}
+            <a
+              href={CHROME_WEB_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4"
+            >
+              Chrome Web Store
+            </a>{' '}
+            y ancla la extensión en tu barra de herramientas. Tutorial completo con capturas en{' '}
             <Link
               href="/docs/getting-started/install-the-extension"
               className="underline underline-offset-4"

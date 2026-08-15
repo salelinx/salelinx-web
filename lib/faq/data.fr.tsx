@@ -3,6 +3,7 @@
    correct in the JSX text below. Escaping each one would hurt readability of
    this content file with no user-facing benefit. */
 import { Link } from '@/i18n/navigation';
+import { CHROME_WEB_STORE_URL } from '@/lib/site';
 import type { FAQGroup } from './types';
 
 export const FAQ_GROUPS_FR: FAQGroup[] = [
@@ -16,7 +17,16 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         q: "Comment installer l'extension SaleLinx ?",
         a: (
           <p>
-            Installez depuis le Chrome Web Store et épinglez l'extension à votre barre d'outils. Tutoriel complet avec captures d'écran dans{' '}
+            Installez depuis le{' '}
+            <a
+              href={CHROME_WEB_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4"
+            >
+              Chrome Web Store
+            </a>{' '}
+            et épinglez l'extension à votre barre d'outils. Tutoriel complet avec captures d'écran dans{' '}
             <Link
               href="/docs/getting-started/install-the-extension"
               className="underline underline-offset-4"
