@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { safeNext } from "@/lib/auth/safe-next";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 function LoginForm() {
   const router = useRouter();
@@ -47,7 +48,17 @@ function LoginForm() {
         {t("login.title")}
       </h1>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      <div className="mt-8">
+        <GoogleSignInButton next={next} />
+      </div>
+
+      <div className="my-6 flex items-center gap-3 text-xs text-zinc-500">
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+        {t("orDivider")}
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-4">
         <input
           type="email"
           required

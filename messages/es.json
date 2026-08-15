@@ -148,6 +148,9 @@
     "pwTooShort": "La contraseña debe tener al menos 8 caracteres.",
     "pwMismatch": "Las contraseñas no coinciden.",
     "checkEmailTitle": "Revisa tu correo",
+    "continueWithGoogle": "Continuar con Google",
+    "continueWithGoogleLoading": "Redirigiendo…",
+    "orDivider": "o",
     "login": {
       "title": "Iniciar sesión",
       "metaDescription": "Inicia sesión en tu cuenta de SaleLinx para gestionar tu plan, la facturación y tus referidos.",
