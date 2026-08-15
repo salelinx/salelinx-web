@@ -145,6 +145,9 @@
     "pwTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
     "pwMismatch": "Les mots de passe ne correspondent pas.",
     "checkEmailTitle": "Vérifiez vos e-mails",
+    "continueWithGoogle": "Continuer avec Google",
+    "continueWithGoogleLoading": "Redirection…",
+    "orDivider": "ou",
     "login": {
       "title": "Se connecter",
       "metaDescription": "Connectez-vous à votre compte SaleLinx pour gérer votre offre, la facturation et vos parrainages.",

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
@@ -83,7 +84,17 @@ export default function SignupPage() {
         {t("signup.title")}
       </h1>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      <div className="mt-8">
+        <GoogleSignInButton />
+      </div>
+
+      <div className="my-6 flex items-center gap-3 text-xs text-zinc-500">
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+        {t("orDivider")}
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-4">
         <input
           type="email"
           required

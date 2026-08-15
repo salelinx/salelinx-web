@@ -145,6 +145,9 @@
     "pwTooShort": "Password must be at least 8 characters.",
     "pwMismatch": "Passwords don't match.",
     "checkEmailTitle": "Check your email",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithGoogleLoading": "Redirecting…",
+    "orDivider": "or",
     "login": {
       "title": "Sign in",
       "metaDescription": "Sign in to your SaleLinx account to manage your plan, billing, and referrals.",
