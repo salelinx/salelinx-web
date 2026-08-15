@@ -66,7 +66,8 @@ export async function Header() {
           </Link>
           <InstallExtensionButton
             label={t('addToChrome')}
-            className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-500/30 px-3 py-1.5 text-emerald-700 hover:bg-emerald-500/10 md:inline-flex dark:border-emerald-400/30 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
+            className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
+            showIcon={false}
           />
 
           {user ? (
