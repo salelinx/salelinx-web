@@ -20,7 +20,9 @@ function getInitialTheme(): Theme {
 }
 
 function writeThemeCookie(theme: Theme) {
-  document.cookie = `theme=${theme}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+  // Secure only over https so local dev over plain http still works.
+  const secure = location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `theme=${theme}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
 }
 
 function hasThemeCookie(): boolean {

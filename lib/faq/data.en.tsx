@@ -274,7 +274,13 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <p>
             Your SaleLinx account and listings index are stored in Supabase
-            (EU region). Marketplace data itself stays on the marketplace.
+            (EU region). Some of our service providers (for example Stripe for
+            payments) may process data in the UK, EU, or US with appropriate
+            safeguards, as described in our{' '}
+            <Link href="/legal/privacy" className="underline underline-offset-4">
+              privacy policy
+            </Link>
+            . Marketplace data itself stays on the marketplace.
           </p>
         ),
         keywords: ['data', 'storage', 'supabase', 'region', 'eu'],
@@ -284,15 +290,20 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'How do I delete my data?',
         a: (
           <p>
-            Email{' '}
+            The fastest way is self-serve: open{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              your account
+            </Link>
+            , scroll to the Danger zone, and confirm via the emailed link.
+            Deletion takes effect immediately. You can also email{' '}
             <a
               href="mailto:support@salelinx.com"
               className="underline underline-offset-4"
             >
               support@salelinx.com
             </a>{' '}
-            from the address on your account. We&rsquo;ll confirm and delete
-            within 7 days.
+            from the address on your account and we&rsquo;ll complete the
+            deletion within 30 days, usually much sooner.
           </p>
         ),
         keywords: ['delete', 'gdpr', 'remove', 'account', 'erase'],

@@ -252,7 +252,15 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         q: 'Wo werden meine Daten gespeichert?',
         a: (
           <p>
-            Dein SaleLinx-Konto und der Inserate-Index liegen in Supabase (EU-Region). Die Marktplatz-Daten selbst bleiben beim jeweiligen Marktplatz.
+            Dein SaleLinx-Konto und der Inserate-Index liegen in Supabase
+            (EU-Region). Einige unserer Dienstleister (zum Beispiel Stripe für
+            Zahlungen) können Daten im Vereinigten Königreich, in der EU oder
+            in den USA mit angemessenen Garantien verarbeiten, wie in unserer{' '}
+            <Link href="/legal/privacy" className="underline underline-offset-4">
+              Datenschutzerklärung
+            </Link>{' '}
+            beschrieben. Die Marktplatz-Daten selbst bleiben beim jeweiligen
+            Marktplatz.
           </p>
         ),
         keywords: ['daten', 'speicherung', 'supabase', 'region', 'eu'],
@@ -262,14 +270,21 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         q: 'Wie lösche ich meine Daten?',
         a: (
           <p>
-            Schreibe von der Adresse deines Kontos an{' '}
+            Am schnellsten geht es per Selbstbedienung: Öffne{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              dein Konto
+            </Link>
+            , gehe zur Gefahrenzone und bestätige über den Link in der E-Mail.
+            Die Löschung erfolgt sofort. Du kannst auch von der Adresse deines
+            Kontos an{' '}
             <a
               href="mailto:support@salelinx.com"
               className="underline underline-offset-4"
             >
               support@salelinx.com
-            </a>
-            . Wir bestätigen und löschen innerhalb von 7 Tagen.
+            </a>{' '}
+            schreiben. Wir schließen die Löschung innerhalb von 30 Tagen ab,
+            meist deutlich schneller.
           </p>
         ),
         keywords: ['löschen', 'dsgvo', 'entfernen', 'konto'],

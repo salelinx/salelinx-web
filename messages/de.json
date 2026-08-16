@@ -169,6 +169,7 @@
       "submitSubmitting": "Konto wird erstellt…",
       "haveAccount": "Hast du bereits ein Konto?",
       "signIn": "Anmelden",
+      "legalNotice": "Mit der Erstellung eines Kontos stimmst du unseren <terms>Nutzungsbedingungen</terms> zu und bestätigst, dass du unsere <privacy>Datenschutzerklärung</privacy> gelesen hast.",
       "checkEmailBody": "Wir haben einen Bestätigungslink an <email></email> gesendet. Klicke darauf, um die Kontoerstellung abzuschließen."
     },
     "forgotPassword": {

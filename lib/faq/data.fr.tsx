@@ -258,7 +258,16 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         q: 'Où sont stockées mes données ?',
         a: (
           <p>
-            Votre compte SaleLinx et l'index de vos annonces sont stockés dans Supabase (région UE). Les données des marketplaces elles-mêmes restent sur la marketplace.
+            Votre compte SaleLinx et l'index de vos annonces sont stockés dans
+            Supabase (région UE). Certains de nos prestataires (par exemple
+            Stripe pour les paiements) peuvent traiter des données au
+            Royaume-Uni, dans l'UE ou aux États-Unis avec des garanties
+            appropriées, comme décrit dans notre{' '}
+            <Link href="/legal/privacy" className="underline underline-offset-4">
+              politique de confidentialité
+            </Link>
+            . Les données des marketplaces elles-mêmes restent sur la
+            marketplace.
           </p>
         ),
         keywords: ['données', 'stockage', 'supabase', 'région', 'ue'],
@@ -268,14 +277,20 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         q: 'Comment supprimer mes données ?',
         a: (
           <p>
-            Écrivez à{' '}
+            Le plus rapide est l'option en libre-service : ouvrez{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              votre compte
+            </Link>
+            , allez dans la zone de danger et confirmez via le lien reçu par
+            e-mail. La suppression est immédiate. Vous pouvez aussi écrire à{' '}
             <a
               href="mailto:support@salelinx.com"
               className="underline underline-offset-4"
             >
               support@salelinx.com
             </a>{' '}
-            depuis l'adresse liée à votre compte. Nous confirmerons et supprimerons sous 7 jours.
+            depuis l'adresse liée à votre compte : nous effectuerons la
+            suppression sous 30 jours, généralement bien plus vite.
           </p>
         ),
         keywords: ['supprimer', 'rgpd', 'effacer', 'compte'],

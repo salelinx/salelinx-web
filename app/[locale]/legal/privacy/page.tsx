@@ -52,7 +52,7 @@ const SECTIONS: LegalSection[] = [
       "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
       "Usage counters. We record counts of metered actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan. These are numbers only, not the content of the actions.",
-      "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply.",
+      "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
     ],
   },
   {
@@ -130,14 +130,16 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Your rights",
     paragraphs: [
-      "You can ask us to access, correct, export, or delete the personal data we hold about you, or object to or restrict certain processing. Contact support@salelinx.com to exercise any of these rights.",
-      "If you are in the UK or EU you also have the right to lodge a complaint with your supervisory authority (in the UK, the Information Commissioner's Office).",
+      "You can ask us to access, correct, export, or delete the personal data we hold about you, or object to or restrict certain processing. Contact support@salelinx.com to exercise any of these rights. We respond within one month.",
+      "If you believe we have mishandled your personal data, you can lodge a data protection complaint with us directly: email support@salelinx.com with the subject line 'Data protection complaint'. We will acknowledge your complaint within 30 days and tell you the outcome of our review.",
+      "If you are in the UK or EU you also have the right to lodge a complaint with your supervisory authority (in the UK, the Information Commissioner's Office), whether or not you complain to us first.",
     ],
   },
   {
     heading: "Cookies",
+    id: "cookies",
     paragraphs: [
-      "Essential and preference cookies. salelinx.com sets sign-in cookies that keep you logged in to your account, a cookie that remembers your light or dark theme choice, and a cookie that records your cookie consent choice. These are needed for the site to work as you asked and do not track you across other sites.",
+      "Essential and preference cookies. salelinx.com sets sign-in cookies that keep you logged in to your account, a cookie that remembers your light or dark theme choice, a cookie that remembers your language choice, and a cookie that records your cookie consent choice. These are needed for the site to work as you asked and do not track you across other sites.",
       "Referral cookie. If you arrive through a referral share link (salelinx.com/r/...), we set a first-party cookie for up to 30 days so we can credit the person who referred you if you sign up. It contains only the referral code and is not used for advertising or cross-site tracking.",
       "Analytics cookies (optional, with your consent). If you choose Accept in our cookie banner, we use Google Analytics to understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. These cookies are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
       "We do not use advertising or cross-site tracking cookies.",
