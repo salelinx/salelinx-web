@@ -79,10 +79,10 @@ export function SubscribeButton({
       type="button"
       onClick={onClick}
       disabled={loading}
-      className={`mt-6 w-full rounded-full py-2.5 text-sm font-medium disabled:opacity-60 ${
+      className={`mt-6 w-full rounded-full py-2.5 text-sm font-medium transition disabled:opacity-60 ${
         highlight
-          ? "bg-black text-white dark:bg-white dark:text-black"
-          : "border border-black/10 dark:border-white/20"
+          ? "bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          : "border border-black/10 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
       }`}
     >
       {loading ? t("loading") : (label ?? t("label"))}
