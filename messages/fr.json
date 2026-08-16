@@ -31,8 +31,9 @@
     "linkStatus": "Statut des plateformes",
     "linkPrivacy": "Confidentialité",
     "linkTerms": "Conditions",
-    "copyright": "© {year} SaleLinx. Tous droits réservés.",
-    "builtFor": "Conçu pour les vendeurs Depop et Vinted."
+    "copyright": "© {year} SaleLinx Ltd. Tous droits réservés.",
+    "builtFor": "Conçu pour les vendeurs Depop et Vinted.",
+    "companyInfo": "SaleLinx Ltd est une société immatriculée en Angleterre et au Pays de Galles sous le numéro 17351832. Siège social : 34 Sussex Place, Londres, W2 2TH, Royaume-Uni."
   },
   "CookieBanner": {
     "title": "Cookies sur salelinx.com",
