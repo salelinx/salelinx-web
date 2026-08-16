@@ -31,8 +31,9 @@
     "linkStatus": "Statut des plateformes",
     "linkPrivacy": "Confidentialité",
     "linkTerms": "Conditions",
-    "copyright": "© {year} SaleLinx. Tous droits réservés.",
-    "builtFor": "Conçu pour les vendeurs Depop et Vinted."
+    "copyright": "© {year} SaleLinx Ltd. Tous droits réservés.",
+    "builtFor": "Conçu pour les vendeurs Depop et Vinted.",
+    "companyInfo": "SaleLinx Ltd est une société immatriculée en Angleterre et au Pays de Galles sous le numéro 17351832. Siège social : 34 Sussex Place, Londres, W2 2TH, Royaume-Uni."
   },
   "CookieBanner": {
     "title": "Cookies sur salelinx.com",
@@ -90,17 +91,50 @@
         "labels": "Étiquettes"
       },
       "headers": {
-        "listings": { "title": "Mes annonces", "meta": "128 en boutique" },
-        "crosslist": { "title": "Crosslist", "meta": "Vinted vers Depop" },
-        "shopDesigner": { "title": "Designer boutique", "meta": "Mise en page Depop" },
-        "restocker": { "title": "Restocker", "meta": "Toutes les 6h" },
-        "relister": { "title": "Relister", "meta": "Remontée du classement" },
-        "priceDrops": { "title": "Baisses de prix", "meta": "4 programmées" },
-        "followBot": { "title": "Bot d'abonnés", "meta": "218 / 500 aujourd'hui" },
-        "offers": { "title": "Offres", "meta": "6 en attente" },
-        "autoOffers": { "title": "Auto-offres", "meta": "En direct" },
-        "conversations": { "title": "Boîte", "meta": "3 non lus" },
-        "labels": { "title": "Étiquettes", "meta": "5 à imprimer" }
+        "listings": {
+          "title": "Mes annonces",
+          "meta": "128 en boutique"
+        },
+        "crosslist": {
+          "title": "Crosslist",
+          "meta": "Vinted vers Depop"
+        },
+        "shopDesigner": {
+          "title": "Designer boutique",
+          "meta": "Mise en page Depop"
+        },
+        "restocker": {
+          "title": "Restocker",
+          "meta": "Toutes les 6h"
+        },
+        "relister": {
+          "title": "Relister",
+          "meta": "Remontée du classement"
+        },
+        "priceDrops": {
+          "title": "Baisses de prix",
+          "meta": "4 programmées"
+        },
+        "followBot": {
+          "title": "Bot d'abonnés",
+          "meta": "218 / 500 aujourd'hui"
+        },
+        "offers": {
+          "title": "Offres",
+          "meta": "6 en attente"
+        },
+        "autoOffers": {
+          "title": "Auto-offres",
+          "meta": "En direct"
+        },
+        "conversations": {
+          "title": "Boîte",
+          "meta": "3 non lus"
+        },
+        "labels": {
+          "title": "Étiquettes",
+          "meta": "5 à imprimer"
+        }
       }
     },
     "finalCta": {
@@ -175,6 +209,7 @@
       "title": "Créer un compte",
       "metaDescription": "Créez un compte SaleLinx gratuit et commencez à crosslister, republier et actualiser vos annonces sur Depop et Vinted.",
       "emailInUse": "Un compte existe déjà avec cet email. Connectez-vous ci-dessous, ou réinitialisez votre mot de passe si vous l'avez oublié.",
+      "disposableEmail": "Veuillez utiliser une adresse e-mail permanente. Les services d'e-mail temporaires ne sont pas pris en charge.",
       "passwordPlaceholder": "Mot de passe (8 caractères minimum)",
       "confirmPlaceholder": "Confirmer le mot de passe",
       "submitIdle": "Créer un compte",
@@ -357,6 +392,7 @@
     "submitting": "Envoi...",
     "submitSuccess": "Envoyé. Nous revenons vers vous.",
     "submitError": "Échec de l'envoi. Veuillez réessayer.",
+    "submitRateLimited": "Vous avez atteint la limite de tickets. Attendez une réponse sur vos tickets ouverts ou réessayez demain.",
     "myTicketsTitle": "Vos demandes",
     "noTickets": "Vous n'avez pas encore envoyé de demande.",
     "noOpenTickets": "Aucune demande ouverte. Utilisez Afficher les fermées pour voir les demandes résolues.",
@@ -627,9 +663,15 @@
       "cta": "Démarrer l'essai gratuit"
     },
     "tier": {
-      "starter": { "tagline": "Amateurs" },
-      "pro": { "tagline": "Revendeurs actifs" },
-      "business": { "tagline": "Vendeurs pros et multi-boutiques" }
+      "starter": {
+        "tagline": "Amateurs"
+      },
+      "pro": {
+        "tagline": "Revendeurs actifs"
+      },
+      "business": {
+        "tagline": "Vendeurs pros et multi-boutiques"
+      }
     },
     "limit": {
       "crosslists_per_month": "Crosslistings / mois",

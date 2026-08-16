@@ -100,9 +100,12 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-black/5 pt-6 text-xs text-zinc-500 dark:border-white/5">
-          <span>{t('copyright', { year })}</span>
-          <span>{t('builtFor')}</span>
+        <div className="mt-10 border-t border-black/5 pt-6 text-xs text-zinc-500 dark:border-white/5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>{t('copyright', { year })}</span>
+            <span>{t('builtFor')}</span>
+          </div>
+          <p className="mt-3">{t('companyInfo')}</p>
         </div>
       </div>
     </footer>

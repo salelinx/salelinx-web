@@ -8,6 +8,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 });
 
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
+import { isDisposableEmail } from "../_shared/disposable-domains.ts";
 
 const corsHeaders = sharedCorsHeaders();
 
@@ -102,7 +103,26 @@ Deno.serve(async (req) => {
   // Trials are for first-time customers on the entry tier only. Any prior
   // subscription row, in any state, means this account has already been through
   // billing once and is not eligible again.
-  const trialEligible = tierId === TRIAL_TIER_ID && rows.length === 0;
+  let trialEligible = tierId === TRIAL_TIER_ID && rows.length === 0;
+
+  // Trial history also sticks to platform accounts, not just this user_id:
+  // if any Depop/Vinted account this user has linked was ever attached to a
+  // previously-billed SaleLinx account, no new trial (they can still pay).
+  // Closes the "new throwaway email + same Depop account" farming loop. The
+  // RPC runs as the caller and only inspects their own linked_accounts; the
+  // trial_history tombstones survive account deletion by design (migration
+  // 014). Same story for disposable email domains: signup is allowed, the
+  // free trial is not.
+  if (trialEligible) {
+    if (isDisposableEmail(user.email ?? "")) {
+      trialEligible = false;
+    } else {
+      const { data: platformTrialed } = await supabase.rpc(
+        "has_trialed_platform_account",
+      );
+      if (platformTrialed === true) trialEligible = false;
+    }
+  }
 
   // Reuse the Stripe customer if we already have one, so a re-subscribe keeps
   // its billing history instead of spawning a duplicate customer record.

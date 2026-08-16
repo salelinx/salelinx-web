@@ -74,7 +74,7 @@ export async function Header() {
               <form action="/auth/signout" method="post">
                 <button
                   type="submit"
-                  className="rounded-full border border-black/10 px-4 py-1.5 dark:border-white/20"
+                  className="rounded-full border border-black/10 px-4 py-1.5 transition hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
                 >
                   {t('signOut')}
                 </button>
