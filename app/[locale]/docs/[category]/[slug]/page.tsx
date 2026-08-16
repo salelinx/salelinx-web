@@ -12,6 +12,7 @@ import {
 import type { CategorySlug } from '@/lib/docs/types';
 import type { Locale } from '@/lib/i18n/locales';
 import { routing } from '@/i18n/routing';
+import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -35,10 +36,12 @@ export async function generateMetadata({
     const t = await getTranslations({ locale, namespace: 'Docs' });
     return { title: t('metaTitle') };
   }
-  return {
-    title: `${article.metadata.title} - SaleLinx docs`,
+  return pageMetadata({
+    locale,
+    path: `/docs/${category}/${slug}`,
+    title: article.metadata.title,
     description: article.metadata.description,
-  };
+  });
 }
 
 export default async function ArticlePage({

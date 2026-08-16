@@ -39,7 +39,7 @@ export function AdminAuditTable({ entries, emails, capped, limit }: Props) {
 
   const actorOptions = useMemo(() => {
     const set = new Set<string>();
-    for (const e of entries) set.add(e.actor_id);
+    for (const e of entries) if (e.actor_id) set.add(e.actor_id);
     return ["all", ...Array.from(set)];
   }, [entries]);
 
@@ -132,9 +132,9 @@ export function AdminAuditTable({ entries, emails, capped, limit }: Props) {
                       {formatWhen(e.created_at)}
                     </td>
                     <td className="max-w-[14rem] truncate px-3 py-2 text-zinc-700">
-                      {emails[e.actor_id] ?? (
+                      {(e.actor_id ? emails[e.actor_id] : null) ?? (
                         <span className="font-mono text-xs text-zinc-400">
-                          {e.actor_id}
+                          {e.actor_id ?? "Deleted admin"}
                         </span>
                       )}
                     </td>

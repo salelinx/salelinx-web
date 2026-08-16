@@ -24,12 +24,15 @@ export async function proxy(request: NextRequest) {
   }
 
   // Paths that must NOT be locale-prefixed by intlMiddleware but STILL need the
-  // Supabase cookie refresh below: auth route handlers (outside [locale]) and
-  // the top-level, non-localized /admin console tree.
+  // Supabase cookie refresh below: auth route handlers (outside [locale]), the
+  // referral share-link handler, and the top-level, non-localized /admin
+  // console tree.
   const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
   const skipIntl =
     pathname.startsWith("/auth/callback") ||
     pathname.startsWith("/auth/signout") ||
+    pathname === "/r" ||
+    pathname.startsWith("/r/") ||
     isAdminPath;
 
   let response = skipIntl
@@ -65,6 +68,23 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Referral claim. This lives here, not in /auth/callback, because signup
+  // verification never passes through the callback: /auth/confirm verifies
+  // client-side via verifyOtp and skips the callback hop entirely. Claiming
+  // on "signed-in request carrying the referral cookie" catches every auth
+  // path. The RPC self-guards (self-referral, 48h account age, duplicates,
+  // bad code) and returns false instead of raising, so this can never break
+  // a request; the cookie is cleared after one attempt either way.
+  const refCode = request.cookies.get("slx_ref")?.value;
+  if (user && refCode) {
+    try {
+      await supabase.rpc("claim_referral", { p_code: refCode });
+    } catch {
+      // never fail the request over a referral
+    }
+    response.cookies.set("slx_ref", "", { maxAge: 0, path: "/" });
+  }
 
   // Layer 1 of the admin gate (see docs/ADMIN.md): block non-admins before any
   // admin route code runs. Fail-closed - any error denies. RLS is still the
@@ -103,7 +123,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // robots.txt and sitemap.xml are served by app/robots.ts and app/sitemap.ts
+  // OUTSIDE the [locale] tree. They must be excluded here: intlMiddleware
+  // would locale-rewrite them into [locale]/[...rest], which 404s them with
+  // an HTML error page instead of their content.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg)$).*)",
   ],
 };

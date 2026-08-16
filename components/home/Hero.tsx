@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
 import { BrandWordmark } from '@/components/BrandWordmark';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import { HeroPreview } from './HeroPreview';
 import { RollingPhrase } from './RollingPhrase';
 
@@ -87,6 +88,10 @@ export async function Hero() {
             >
               {t('ctaSeePricing')}
             </Link>
+            <InstallExtensionButton
+              label={t('ctaAddToChrome')}
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-emerald-500/30 bg-emerald-500/[0.08] px-5 py-2.5 text-sm font-medium text-emerald-700 backdrop-blur transition hover:bg-emerald-500/[0.14] dark:border-emerald-400/30 dark:bg-emerald-400/[0.08] dark:text-emerald-200 dark:hover:bg-emerald-400/[0.14]"
+            />
           </div>
         </Reveal>
       </div>

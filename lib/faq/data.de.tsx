@@ -1,4 +1,6 @@
 import { Link } from '@/i18n/navigation';
+import { CHROME_WEB_STORE_URL } from '@/lib/site';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import type { FAQGroup } from './types';
 
 export const FAQ_GROUPS_DE: FAQGroup[] = [
@@ -11,16 +13,31 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         id: 'how-do-i-install',
         q: 'Wie installiere ich die SaleLinx-Erweiterung?',
         a: (
-          <p>
-            Installiere aus dem Chrome Web Store und hefte die Erweiterung an deine Symbolleiste. Vollständige Anleitung mit Screenshots in{' '}
-            <Link
-              href="/docs/getting-started/install-the-extension"
-              className="underline underline-offset-4"
-            >
-              SaleLinx-Erweiterung installieren
-            </Link>
-            .
-          </p>
+          <>
+            <p>
+              Installiere aus dem{' '}
+              <a
+                href={CHROME_WEB_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4"
+              >
+                Chrome Web Store
+              </a>{' '}
+              und hefte die Erweiterung an deine Symbolleiste. Vollständige Anleitung mit Screenshots in{' '}
+              <Link
+                href="/docs/getting-started/install-the-extension"
+                className="underline underline-offset-4"
+              >
+                SaleLinx-Erweiterung installieren
+              </Link>
+              .
+            </p>
+            <InstallExtensionButton
+              label="Zu Chrome hinzufügen"
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+            />
+          </>
         ),
         keywords: ['installieren', 'einrichten', 'chrome', 'hinzufügen'],
       },
@@ -235,7 +252,15 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         q: 'Wo werden meine Daten gespeichert?',
         a: (
           <p>
-            Dein SaleLinx-Konto und der Inserate-Index liegen in Supabase (EU-Region). Die Marktplatz-Daten selbst bleiben beim jeweiligen Marktplatz.
+            Dein SaleLinx-Konto und der Inserate-Index liegen in Supabase
+            (EU-Region). Einige unserer Dienstleister (zum Beispiel Stripe für
+            Zahlungen) können Daten im Vereinigten Königreich, in der EU oder
+            in den USA mit angemessenen Garantien verarbeiten, wie in unserer{' '}
+            <Link href="/legal/privacy" className="underline underline-offset-4">
+              Datenschutzerklärung
+            </Link>{' '}
+            beschrieben. Die Marktplatz-Daten selbst bleiben beim jeweiligen
+            Marktplatz.
           </p>
         ),
         keywords: ['daten', 'speicherung', 'supabase', 'region', 'eu'],
@@ -245,14 +270,21 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         q: 'Wie lösche ich meine Daten?',
         a: (
           <p>
-            Schreibe von der Adresse deines Kontos an{' '}
+            Am schnellsten geht es per Selbstbedienung: Öffne{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              dein Konto
+            </Link>
+            , gehe zur Gefahrenzone und bestätige über den Link in der E-Mail.
+            Die Löschung erfolgt sofort. Du kannst auch von der Adresse deines
+            Kontos an{' '}
             <a
               href="mailto:support@salelinx.com"
               className="underline underline-offset-4"
             >
               support@salelinx.com
-            </a>
-            . Wir bestätigen und löschen innerhalb von 7 Tagen.
+            </a>{' '}
+            schreiben. Wir schließen die Löschung innerhalb von 30 Tagen ab,
+            meist deutlich schneller.
           </p>
         ),
         keywords: ['löschen', 'dsgvo', 'entfernen', 'konto'],

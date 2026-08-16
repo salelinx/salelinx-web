@@ -6,15 +6,15 @@ End-to-end picture of how a user files a support ticket (from the website or the
 
 | Piece                            | Repo                       | Role                                                                                       |
 | -------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
-| Contact form `/help/support`     | `resale-bot-web`           | User-facing, login-gated: the "send us a message" new-ticket form. Reachable from the public `/help` hub. |
-| Ticket history `/account/tickets`| `resale-bot-web`           | User-facing: the user's own tickets + threads + reply box (track-only; no new-ticket form). |
-| Admin console `/admin/support`   | `resale-bot-web`           | Staff management surface (ticket table, detail/thread, reply/close/reopen/delete). Lives in the dedicated `/admin` console, NOT under `/account`. See `docs/ADMIN.md`. |
-| Extension Support tab            | `muiltiplatform-seller-bot`| New-ticket form (with diagnostics) + read-only "my tickets" list + a deep-link to the web hub |
+| Contact form `/help/support`     | `salelinx-web`           | User-facing, login-gated: the "send us a message" new-ticket form. Reachable from the public `/help` hub. |
+| Ticket history `/account/tickets`| `salelinx-web`           | User-facing: the user's own tickets + threads + reply box (track-only; no new-ticket form). |
+| Admin console `/admin/support`   | `salelinx-web`           | Staff management surface (ticket table, detail/thread, reply/close/reopen/delete). Lives in the dedicated `/admin` console, NOT under `/account`. See `docs/ADMIN.md`. |
+| Extension Support tab            | `salelinx-app`| New-ticket form (with diagnostics) + read-only "my tickets" list + a deep-link to the web hub |
 | `support_tickets` table          | shared Supabase            | One row per ticket. Columns: type, message, platform, status, diagnostics (app_version, tier_id, source, user_agent, locale), `notification_message_id` |
 | `support_ticket_replies` table   | shared Supabase            | One row per reply (user or admin), `is_admin` flag stamped server-side                     |
 | `admin_users` table + `is_admin()` | shared Supabase          | Admin membership + the RLS helper that gates the admin panel and admin writes              |
 | Database Webhook x2              | Supabase dashboard         | Fire on INSERT into each of the two tables                                                 |
-| `send-support-email`             | `resale-bot-web`           | Edge Function. Sends staff notifications, the user auto-ack, and admin-reply-to-user emails via Resend; persists Message-ID |
+| `send-support-email`             | `salelinx-web`           | Edge Function. Sends staff notifications, the user auto-ack, and admin-reply-to-user emails via Resend; persists Message-ID |
 | Resend + Google Workspace        | external                   | Resend sends From `support@salelinx.com`; Gmail receives at the same address               |
 
 ## Who does what
@@ -119,7 +119,7 @@ We use RFC 5322 `Message-ID` / `In-Reply-To` / `References` headers, not subject
 | Admin console support module                 | `app/admin/support/page.tsx` + `components/admin/support/*`     |
 | Admin detection helper                       | `lib/supabase/admin.ts` (`isAdmin`)                             |
 | Admin audit + identity RPCs                  | migration `006_admin_console.sql` (`log_admin_action`, `admin_user_emails`, `admin_audit_log`) |
-| Extension Support tab                        | `../muiltiplatform-seller-bot/src/panel/tabs/support.ts`        |
+| Extension Support tab                        | `../salelinx-app/src/panel/tabs/support.ts`        |
 | Database Webhook config                      | Supabase dashboard (Database -> Webhooks)                       |
 
 The function is deployed via the Supabase Dashboard's single-file upload, so the email templates live inline in `index.ts` rather than in a sibling `templates.ts`.
@@ -162,4 +162,4 @@ Set via `supabase secrets set` (NOT `.env.local`):
 
 - `docs/EDGE-FUNCTIONS.md` - the Edge Function table, Deno specifics, deploy steps
 - `docs/ARCHITECTURE.md` - the broader two-repo / one-Supabase picture
-- `../muiltiplatform-seller-bot/docs/` - the extension side (Support tab, write paths into the two tables)
+- `../salelinx-app/docs/` - the extension side (Support tab, write paths into the two tables)

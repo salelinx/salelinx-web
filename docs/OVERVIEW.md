@@ -2,7 +2,7 @@
 
 Marketing site, auth, and subscription management for the SaleLinx Chrome extension.
 
-Companion to the extension repo at `../muiltiplatform-seller-bot`. Both share a **single Supabase project** so users are one pool.
+Companion to the extension repo at `../salelinx-app`. Both share a **single Supabase project** so users are one pool.
 
 ## Stack
 
@@ -104,6 +104,7 @@ All defined in `.env.example`. Public-only by design - the website has no server
 | `NEXT_PUBLIC_STRIPE_PRICE_BUSINESS`  | client          | `price_...` for Business monthly                                 |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | client          | Unused today, kept for future Stripe Elements                    |
 | `NEXT_PUBLIC_EXTENSION_ID`           | client          | Chrome extension deep-link target (blank pre-launch)             |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID`      | client          | GA4 Measurement ID (`G-...`). Blank disables the cookie banner and GA entirely; when set, GA loads only after consent (`components/CookieConsent.tsx`) |
 
 ### Edge Functions (set via `supabase secrets set`, NOT in `.env.local`)
 

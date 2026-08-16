@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { NewTicketForm } from "@/components/support/NewTicketForm";
+import { pageMetadata } from "@/lib/site";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -11,10 +12,12 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Help" });
-  return {
+  return pageMetadata({
+    locale,
+    path: "/help/support",
     title: t("supportMetaTitle"),
     description: t("supportMetaDescription"),
-  };
+  });
 }
 
 // Login-gated contact form (create a ticket). Logged-out visitors are

@@ -13,7 +13,8 @@
     "support": "Support",
     "signOut": "Sign out",
     "signIn": "Sign in",
-    "getStarted": "Get started"
+    "getStarted": "Get started",
+    "addToChrome": "Add to Chrome"
   },
   "Footer": {
     "tagline": "Sell across Depop and Vinted from one place.",
@@ -32,6 +33,21 @@
     "linkTerms": "Terms",
     "copyright": "© {year} SaleLinx. All rights reserved.",
     "builtFor": "Built for Depop and Vinted sellers."
+  },
+  "CookieBanner": {
+    "title": "Cookies on salelinx.com",
+    "body": "We use essential cookies to make this site work. We would also like to set Google Analytics cookies to help us understand how it is used and improve it.",
+    "privacyLink": "How we use cookies",
+    "accept": "Accept analytics cookies",
+    "reject": "Reject analytics cookies",
+    "settings": "Cookie settings"
+  },
+  "NotFound": {
+    "metaTitle": "Page not found",
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist or has been moved.",
+    "goHome": "Back to home",
+    "getHelp": "Visit the help center"
   },
   "Home": {
     "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
@@ -56,6 +72,7 @@
     "ctaSeePricing": "See pricing",
     "ctaSeeFeatures": "See features",
     "ctaGetStarted": "Get started",
+    "ctaAddToChrome": "Add to Chrome",
     "ctaSignIn": "Sign in",
     "previewEyebrow": "Try the live demo",
     "preview": {
@@ -91,7 +108,8 @@
       "title": "Run both shops from one panel.",
       "body": "Install in a click. Free for your first listings, no card needed.",
       "primary": "Get started free",
-      "secondary": "See pricing"
+      "secondary": "See pricing",
+      "tertiary": "Add to Chrome"
     },
     "howItWorks": {
       "eyebrow": "How it works",
@@ -130,8 +148,12 @@
     "pwTooShort": "Password must be at least 8 characters.",
     "pwMismatch": "Passwords don't match.",
     "checkEmailTitle": "Check your email",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithGoogleLoading": "Redirecting…",
+    "orDivider": "or",
     "login": {
       "title": "Sign in",
+      "metaDescription": "Sign in to your SaleLinx account to manage your plan, billing, and referrals.",
       "submitIdle": "Sign in",
       "submitSubmitting": "Signing in…",
       "createAccount": "Create account",
@@ -150,6 +172,7 @@
     },
     "signup": {
       "title": "Create account",
+      "metaDescription": "Create a free SaleLinx account and start crosslisting, relisting, and refreshing your listings across Depop and Vinted.",
       "emailInUse": "An account with this email already exists. Sign in below, or reset your password if you have forgotten it.",
       "passwordPlaceholder": "Password (min 8 characters)",
       "confirmPlaceholder": "Confirm password",
@@ -157,10 +180,12 @@
       "submitSubmitting": "Creating account…",
       "haveAccount": "Already have an account?",
       "signIn": "Sign in",
+      "legalNotice": "By creating an account you agree to our <terms>Terms of Service</terms> and confirm you have read our <privacy>Privacy Policy</privacy>.",
       "checkEmailBody": "We sent a confirmation link to <email></email>. Click it to finish creating your account."
     },
     "forgotPassword": {
       "title": "Reset password",
+      "metaDescription": "Request a reset link and get back into your SaleLinx account.",
       "subtitle": "Enter your email and we'll send a reset link.",
       "submitIdle": "Send reset link",
       "submitSubmitting": "Sending…",
@@ -278,6 +303,39 @@
     "mfaDisablePrompt": "Enter a current 6-digit code from your app to confirm disabling two-factor authentication.",
     "mfaCodeError": "That code didn't work. Check your app and try again."
   },
+  "DeleteAccount": {
+    "title": "Delete account",
+    "body": "Permanently delete your account and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "cta": "Delete account",
+    "confirmBody": "We'll send a confirmation link to <email></email>. Nothing is deleted until you open that link and confirm one more time. Enter your password to continue.",
+    "passwordPlaceholder": "Your password",
+    "confirm": "Send confirmation email",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "sentBody": "Confirmation link sent to <email></email>. Open it to finish deleting your account. The link expires in 60 minutes.",
+    "errorWrongPassword": "Incorrect password.",
+    "errorAdmin": "Admin accounts cannot be deleted from here. Contact support@salelinx.com.",
+    "errorGeneric": "Something went wrong. Please try again, or email support@salelinx.com and we'll do it for you."
+  },
+  "DeleteAccountConfirm": {
+    "title": "Delete your account?",
+    "body": "This is the final step. Confirming permanently deletes <email></email> and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "confirm": "Permanently delete my account",
+    "deleting": "Deleting...",
+    "keepAccount": "Keep my account",
+    "errorInvalidToken": "This confirmation link is invalid or has expired. Go back to your account page and request a new one.",
+    "errorGeneric": "Deletion failed. Please try again, or email support@salelinx.com and we'll do it for you."
+  },
+  "Referrals": {
+    "title": "Refer a friend",
+    "body": "Share your link. Anyone who subscribes through it gets a discount on their first month, and you get one month free once they've paid.",
+    "copy": "Copy link",
+    "copied": "Copied",
+    "statSignedUp": "Signed up",
+    "statSubscribed": "Subscribed",
+    "statRewarded": "Months earned",
+    "creditEarned": "Credit earned so far: {amount}. It's applied automatically to your next invoice."
+  },
   "Support": {
     "title": "Support",
     "subtitle": "File a request and track our replies. We'll also email you when the team responds.",
@@ -353,14 +411,16 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Privacy Policy"
+      "title": "Privacy Policy",
+      "metaDescription": "How SaleLinx handles your data: what we collect, what stays on your device, and how to request a copy or deletion of your account."
     },
     "terms": {
-      "title": "Terms of Service"
+      "title": "Terms of Service",
+      "metaDescription": "The terms that cover your use of the SaleLinx extension and website: accounts, subscriptions, billing, and acceptable use."
     }
   },
   "Features": {
-    "metaTitle": "SaleLinx - Product, pricing, roadmap",
+    "metaTitle": "Product, pricing, roadmap",
     "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist, relist, refresh, and restock across Depop and Vinted from one panel.",
     "hero": {
       "eyebrow": "Product overview",
@@ -592,7 +652,7 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs - SaleLinx",
+    "metaTitle": "Docs",
     "metaDescription": "Step-by-step guides and walkthroughs for the SaleLinx Chrome extension.",
     "eyebrow": "Docs",
     "heroTitle": "Learn SaleLinx.",
@@ -645,7 +705,7 @@
       "next": "Next"
     },
     "status": {
-      "metaTitle": "Marketplace status - SaleLinx docs",
+      "metaTitle": "Marketplace status",
       "metaDescription": "Live view of which marketplaces SaleLinx is currently crosslisting to.",
       "eyebrow": "Status",
       "title": "Marketplace status",
@@ -667,7 +727,7 @@
       }
     },
     "changelog": {
-      "metaTitle": "Changelog - SaleLinx docs",
+      "metaTitle": "Changelog",
       "metaDescription": "What changed in recent releases of the SaleLinx extension.",
       "eyebrow": "Changelog",
       "title": "What's new in SaleLinx",
@@ -686,7 +746,7 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ - SaleLinx",
+    "metaTitle": "FAQ",
     "metaDescription": "Quick answers to common questions about SaleLinx: billing, account, troubleshooting, privacy.",
     "eyebrow": "FAQ",
     "title": "Frequently asked questions.",

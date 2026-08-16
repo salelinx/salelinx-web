@@ -7,9 +7,10 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import '../globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { CookieConsent } from '@/components/CookieConsent';
 import { SmoothAnchorScroll } from '@/components/SmoothAnchorScroll';
 import { routing } from '@/i18n/routing';
-import { SITE_NAME, SITE_URL, absoluteUrl, languageAlternates } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,8 +31,12 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'Layout' });
   const title = t('metaTitle');
   const description = t('metaDescription');
-  const canonical = absoluteUrl(locale, '/');
 
+  // Site-wide defaults only. Canonical, hreflang, and OpenGraph are
+  // deliberately NOT set here: metadata merges shallowly, so a layout-level
+  // canonical would be inherited verbatim by every page that does not
+  // override it, telling search engines each page is a duplicate of the
+  // homepage. Pages set their own via pageMetadata() in lib/site.ts.
   return {
     metadataBase: new URL(SITE_URL),
     title: {
@@ -40,32 +45,6 @@ export async function generateMetadata({
     },
     description,
     applicationName: SITE_NAME,
-    alternates: {
-      canonical,
-      languages: languageAlternates('/'),
-    },
-    openGraph: {
-      type: 'website',
-      siteName: SITE_NAME,
-      title,
-      description,
-      url: canonical,
-      locale,
-      images: [
-        {
-          url: '/og.png',
-          width: 1200,
-          height: 630,
-          alt: SITE_NAME,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: ['/og.png'],
-    },
     icons: {
       icon: [
         { url: '/salelinx-icon.png', type: 'image/png' },
@@ -116,6 +95,7 @@ export default async function LocaleLayout({
             <ViewTransition>{children}</ViewTransition>
           </div>
           <Footer />
+          <CookieConsent />
         </NextIntlClientProvider>
       </body>
     </html>

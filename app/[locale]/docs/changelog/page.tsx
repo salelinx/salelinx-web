@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import { formatChangelogDate, listChangelog } from '@/lib/docs/changelog';
 import type { Locale } from '@/lib/i18n/locales';
+import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
@@ -13,10 +14,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Docs.changelog' });
-  return {
+  return pageMetadata({
+    locale,
+    path: '/docs/changelog',
     title: t('metaTitle'),
     description: t('metaDescription'),
-  };
+  });
 }
 
 export default async function ChangelogPage({

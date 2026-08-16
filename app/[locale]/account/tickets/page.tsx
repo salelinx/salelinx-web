@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
@@ -7,6 +8,16 @@ import { TicketList } from "@/components/support/TicketList";
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+// Private, auth-gated page: keep it out of search results.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Support" });
+  return {
+    title: t("ticketsTitle"),
+    robots: { index: false, follow: false },
+  };
+}
 
 async function fetchReplies(
   supabase: Awaited<ReturnType<typeof createServerClient>>,

@@ -1,6 +1,6 @@
-# resale-bot-web
+# salelinx-web
 
-Marketing + billing website for the SaleLinx Chrome extension (sibling repo `../muiltiplatform-seller-bot`). Both share a single Supabase project.
+Marketing + billing website for the SaleLinx Chrome extension (sibling repo `../salelinx-app`). Both share a single Supabase project.
 
 ## Before making changes
 
@@ -24,6 +24,7 @@ docs/
 ├── STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
 ├── EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
 ├── SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
+├── REFERRALS.md        Referral program: share links, claims, conversions, reward grants
 └── GDPR.md             Data inventory (ROPA), retention, deletion/export runbooks, breach process
 ```
 
@@ -60,6 +61,8 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `send-shipping-labels` - `verify_jwt = false` (called by the extension with the user's JWT in `Authorization`; handler validates via `getUser(jwt)` and emails a merged label PDF via Resend)
 - `admin-change-plan` - `verify_jwt = false` (admin console changes a customer's paid Stripe plan; handler validates via `getUser()` plus `admin_users` membership through the service role, swaps the subscription price, and lets `stripe-webhook` sync the row)
 - `admin-delete-user` - `verify_jwt = false` (admin console runs the GDPR account deletion: storage objects, Stripe customer, then the auth user; same `getUser()` plus `admin_users` gate; see `docs/GDPR.md`)
+- `delete-account` - `verify_jwt = false` (self-serve GDPR deletion from the `/account` Danger zone; handler validates via `getUser()`; stage `request` emails a signed confirmation link, stage `confirm` verifies the token and deletes the caller's own account with the same steps as `admin-delete-user`; refuses admins; see `docs/GDPR.md`)
+- `process-referral-rewards` - `verify_jwt = false` (daily dashboard Cron job POSTs with the `x-referral-cron-secret` shared secret; grants referral rewards as Stripe balance credits; see `docs/REFERRALS.md`)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 
@@ -98,7 +101,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **`requireReauth()` must never use `signInWithPassword` for an MFA-enrolled admin** - it mints a fresh AAL1 session and locks them out of admin data mid-action. The TOTP branch runs first for that reason; keep it that way.
 - **`router.refresh()` after password login** - without it, the Header still shows signed-out state until navigation.
 - **`supabase/functions/` is excluded from `tsc`** - TS errors there won't surface until deploy. Use the Deno VSCode extension for inline checking.
-- **Stripe API version pinned at `2025-02-24.acacia`** in 6 places (`lib/stripe.ts` + 5 Edge Functions). Bump all or none.
+- **Stripe API version pinned at `2025-02-24.acacia`** in 7 places (`lib/stripe.ts` + 6 Edge Functions). Bump all or none.
 - **`constructEventAsync` in Deno**, never `constructEvent` - sync variant crashes.
 - **Webhook must read `req.text()` first, then verify** - JSON.parse breaks signature.
 - **Auth emails go through the `send-auth-email` Edge Function + Resend, not Supabase SMTP** - templates in `supabase/functions/send-auth-email/templates.ts`. A failing hook breaks signup/reset UX.
@@ -110,6 +113,11 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **`mdx-components.tsx` must live at the repo root**, not under `app/`. `@next/mdx` only looks there.
 - **Marketplace status** is a hardcoded constant in `lib/docs/status.ts`. Migration path to Supabase is noted in the file; consumers call `getMarketplaceStatus()` so the swap is local.
 - **Docs vs FAQ split.** `/docs` is for step-by-step guides and walkthroughs (learning-oriented prose). `/faq` is for quick Q&A (troubleshooting, billing, one-offs) in `lib/faq/data.tsx`. Don't add troubleshooting or billing articles to `/docs`; add FAQ entries instead.
+- **`robots.txt` and `sitemap.xml` must stay excluded in `proxy.ts`'s `matcher`** - otherwise intlMiddleware locale-rewrites them into `[locale]/[...rest]` and both serve the HTML 404 page instead of their content.
+- **Public pages must build metadata through `pageMetadata()` in `lib/site.ts`** - Next.js merges metadata shallowly, so a layout-level `alternates`/`openGraph` is inherited verbatim by every page beneath it (each page would claim the homepage as its canonical). The root layout deliberately sets neither. Also never put a plain-string `title` on a nested layout: it breaks the `%s | SaleLinx` title template chain for everything under it.
+- **`/r/CODE` referral links must stay in `proxy.ts`'s `skipIntl` allowlist** - without that line next-intl locale-rewrites the route and the handler never runs. The attribution cookie is `slx_ref` (HttpOnly, 30 days); the claim fires in `proxy.ts` on the first signed-in request carrying the cookie. Do NOT move it to `/auth/callback` - signup verification goes through `/auth/confirm` + `verifyOtp` and never hits the callback. See `docs/REFERRALS.md`.
+- **Referees must never get a SELECT policy on `referrals`** - it would expose the referrer's UUID. Referee-side reads go through the `has_pending_referral()` RPC.
+- **Google Analytics must only ever load through `components/CookieConsent.tsx`** - PECR requires prior consent, so never add a gtag/GTM `<script>` to a layout. The whole feature is gated on `NEXT_PUBLIC_GA_MEASUREMENT_ID`: blank means no banner and no GA. The consent choice lives in the `slx_consent` cookie (6 months); the footer Cookie settings button reopens the banner via the `slx:cookie-settings` window event.
 - **Features / Pricing / Roadmap are one page.** Canonical URL is `/features`, with in-page anchors `#features`, `#pricing`, `#roadmap` set on each section component. Cross-section navigation comes from the global sticky `Header` links. `/pricing` and `/roadmap` are one-line `redirect()` stubs pointing at the anchors - keep them in place (Stripe's `cancelUrl` still points at `/pricing`). Section components live under `components/features/`.
 
 ## Do NOT

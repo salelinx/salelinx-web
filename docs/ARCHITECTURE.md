@@ -21,8 +21,8 @@ extension.
 
 | Repo                             | Role                                                                                             | Distributed as                                    |
 | -------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
-| `resale-bot-web` (this repo)     | Marketing site, auth UI, Stripe billing, user account dashboard, Edge Functions                  | Vercel deploy - web URL                           |
-| `muiltiplatform-seller-bot`      | Chrome MV3 extension - content scripts, background worker, Depop/Vinted automation, linking UX   | Webpack-built `dist/` → zip → Chrome Web Store    |
+| `salelinx-web` (this repo)     | Marketing site, auth UI, Stripe billing, user account dashboard, Edge Functions                  | Vercel deploy - web URL                           |
+| `salelinx-app`      | Chrome MV3 extension - content scripts, background worker, Depop/Vinted automation, linking UX   | Webpack-built `dist/` → zip → Chrome Web Store    |
 
 **Both point at the same Supabase project** - one user pool, one auth
 store, one DB. A user created via the website is the same user the
@@ -30,7 +30,7 @@ extension sees, and vice versa.
 
 ```
 ┌──────────────────────────┐     ┌──────────────────────────┐
-│  resale-bot-web (Vercel) │     │  Extension (Chrome)      │
+│  salelinx-web (Vercel) │     │  Extension (Chrome)      │
 │  Next.js App Router      │     │  MV3 service worker +    │
 │  pricing / account / ... │     │  content scripts         │
 └──────────┬───────────────┘     └──────────┬───────────────┘
@@ -49,7 +49,7 @@ extension sees, and vice versa.
 
 ## What each repo owns
 
-### Website (`resale-bot-web`) owns
+### Website (`salelinx-web`) owns
 
 - Public marketing page (`/features` - one page that hosts features, pricing, and roadmap as scroll-linked sections)
 - Legal pages (`/legal/*`)
@@ -61,9 +61,10 @@ extension sees, and vice versa.
 - Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
 - **Support** - user-facing: a login-gated contact form at `/help/support` (create a ticket, reached from the public `/help` hub) and the ticket history at `/account/tickets` (track + reply). The extension only files + reads.
 - **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
-- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`
+- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `process-referral-rewards`
+- **Referral program** - share links (`/r/CODE`), the account Referrals card, and the reward pipeline (see `docs/REFERRALS.md`)
 
-### Extension (`muiltiplatform-seller-bot`) owns
+### Extension (`salelinx-app`) owns
 
 - Chrome MV3 manifest + service worker
 - Depop/Vinted content scripts (scraping, action dispatch)
@@ -76,7 +77,7 @@ extension sees, and vice versa.
 
 | Contract                                  | Where                                                                     |
 | ----------------------------------------- | ------------------------------------------------------------------------- |
-| `TierId` union + `TierConfig` type        | `resale-bot-web/lib/types/tiers.ts` ↔ `muiltiplatform-seller-bot/src/entitlements/types.ts` |
+| `TierId` union + `TierConfig` type        | `salelinx-web/lib/types/tiers.ts` ↔ `salelinx-app/src/entitlements/types.ts` |
 | `tier_limits.features` / `limits` keys    | JSON keys referenced by both repos (e.g. `auto_offer`, `crosslists_per_month`) |
 | Stripe price metadata                     | `tier_id` + `billing_cycle` on each Stripe Price - the webhook maps to `subscriptions.tier_id` |
 | Stripe API version `2025-02-24.acacia`    | Pinned in `supabase/functions/*` - bump all or none                       |
@@ -99,6 +100,8 @@ All in the shared Supabase project. Migrations live in this repo
 | `support_tickets`        | both               | both (web + extension) + `stripe-webhook` n/a | Support tickets - bug / feature / feedback, status, diagnostics         |
 | `support_ticket_replies` | both               | both (web users + web admins)                 | Ticket conversation thread; `is_admin` flag stamped server-side         |
 | `admin_users`            | both               | SQL/dashboard only                            | Support-admin membership; backs `is_admin()` RLS helper                 |
+| `referral_codes`         | website only       | `get_or_create_referral_code()` RPC           | One share code per user (/r/CODE links); see `docs/REFERRALS.md`        |
+| `referrals`              | website only       | RPCs + `stripe-webhook` + reward function     | Referral lifecycle: pending -> converted -> rewarded/void               |
 
 See `docs/ENTITLEMENTS.md` for the entitlement model (features, limits,
 quotas, grandfathering via `tier_version`).
@@ -183,7 +186,7 @@ See `docs/STRIPE.md` + `docs/EDGE-FUNCTIONS.md`.
 
 - **Website** - Vercel. Push to `main` → auto-deploy. Env vars set in Vercel dashboard.
 - **Edge Functions** - deployed to Supabase via Dashboard (paste) or CLI (`supabase functions deploy <name>`). Secrets set via `supabase secrets set`.
-- **Migrations** - applied to Supabase via Dashboard SQL Editor or CLI (`supabase db push`). Source of truth: `muiltiplatform-seller-bot/supabase/migrations/`.
+- **Migrations** - applied to Supabase via Dashboard SQL Editor or CLI (`supabase db push`). Source of truth: `salelinx-app/supabase/migrations/`.
 - **Extension** - `npm run build` in the extension repo → zip `dist/` → upload to Chrome Web Store developer dashboard. Users get the new version via Chrome's auto-update.
 
 ## Environments
@@ -207,4 +210,4 @@ split yet.
 - `docs/ENTITLEMENTS.md` - tier system, gating rules, period keys, grandfathering
 - `docs/STRIPE.md` - billing flow, webhook events, test cards
 - `docs/EDGE-FUNCTIONS.md` - Deno functions, deploy, secrets, gotchas
-- `../muiltiplatform-seller-bot/docs/ARCHITECTURE.md` - deep dive on the extension itself (content scripts, bot runtime, linking flow)
+- `../salelinx-app/docs/ARCHITECTURE.md` - deep dive on the extension itself (content scripts, bot runtime, linking flow)

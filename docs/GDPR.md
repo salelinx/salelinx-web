@@ -17,6 +17,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |
 | Support | Ticket message, replies, app version, user agent, locale; email resolved from auth at send time | Users | Contract / legitimate interest | Supabase `support_tickets`, `support_ticket_replies`; copies in the support inbox | 24 months after ticket closed (automated purge); inbox purged manually |
+| Referrals | Share code; referrer-referee account linkage, status, reward amounts | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes`, `referrals` | Life of account (both FKs cascade) |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
@@ -59,6 +60,19 @@ policy's "Service providers" section in the same change.
 
 ## Deletion runbook (right to erasure)
 
+Self-serve first: users can delete their own account from `/account` (Danger
+zone). The flow is deliberately high-friction: password re-entry, then a
+confirmation link emailed to the account address (60-minute expiry), then a
+final confirm on `/account/delete-confirm`. It runs the `delete-account` Edge
+Function, which performs the same steps as the staff paths below (storage,
+Stripe customer, auth user) with no staff involvement. Because staff are not
+notified, sweep the `support@salelinx.com` inbox periodically for threads
+whose senders no longer have accounts (the manual follow-up in step 3 below
+has no trigger for self-serve deletions).
+
+The staff runbook below remains for email requests (some users will still
+email instead) and for admin accounts, which the self-serve path refuses.
+
 Trigger: user emails a deletion request from their account email address
 (promised turnaround in the policy: 30 days).
 
@@ -90,7 +104,9 @@ On request from the account email:
 1. Auth profile: dashboard > Authentication > user (email, created, last sign-in).
 2. Rows for their `user_id` from: `listings`, `linked_accounts`, `user_settings`,
    `subscriptions`, `usage_counters`, `user_storage`, `support_tickets`,
-   `support_ticket_replies` (SQL editor, export as CSV or JSON).
+   `support_ticket_replies`, `referral_codes`, and `referrals` (where they are
+   referrer or referee; redact the OTHER party's UUID before sending - it is
+   someone else's personal data) (SQL editor, export as CSV or JSON).
 3. Storage: download `listing-images/{userId}/` if they want the images.
 4. Do not export `platform_credentials` content (it is encrypted client-side
    and useless outside their device); note its existence instead.
@@ -110,6 +126,20 @@ compromised admin account, processor breach):
    individuals, also notify the affected users directly without undue delay.
 4. Record: write up cause, scope, and fixes in an internal note even if no
    notification was required (Article 33(5) requires keeping a record).
+
+## Data protection complaints (DUAA s.164A, in force 19 June 2026)
+
+The Data (Use and Access) Act 2025 added a duty to facilitate data protection
+complaints and acknowledge them within 30 days. The privacy policy tells users
+to email `support@salelinx.com` with the subject "Data protection complaint".
+Handling:
+
+1. Acknowledge receipt within 30 days (sooner is better; a one-line reply
+   counts).
+2. Investigate and reply with the outcome. Keep the thread in the support
+   inbox as the record.
+3. The reply must mention the user's right to complain to the ICO regardless
+   of our outcome.
 
 ## Development rules
 

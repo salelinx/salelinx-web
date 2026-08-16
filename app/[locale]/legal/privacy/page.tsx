@@ -1,14 +1,31 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
   LegalSections,
   type LegalSection,
 } from "@/components/legal/LegalSections";
+import { pageMetadata } from "@/lib/site";
 
 // The policy body is intentionally English-only and hardcoded rather than
 // translated through next-intl: it is a legal document, and a mistranslated
 // clause is a liability. Only the page title comes from the Legal namespace.
 
-const LAST_UPDATED = "20 July 2026";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Legal.privacy" });
+  return pageMetadata({
+    locale,
+    path: "/legal/privacy",
+    title: t("title"),
+    description: t("metaDescription"),
+  });
+}
+
+const LAST_UPDATED = "14 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -35,7 +52,7 @@ const SECTIONS: LegalSection[] = [
       "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
       "Usage counters. We record counts of metered actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan. These are numbers only, not the content of the actions.",
-      "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply.",
+      "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
     ],
   },
   {
@@ -90,6 +107,7 @@ const SECTIONS: LegalSection[] = [
       "Stripe: subscription payments and invoicing.",
       "Resend: transactional email delivery (account and support emails, and shipping label emails you choose to send, which can include label PDFs containing buyer delivery details).",
       "Vercel: hosting for the salelinx.com website.",
+      "Google (Google Analytics): aggregated statistics about how the website is used, only if you consent to analytics cookies in the cookie banner.",
     ],
     trailing: [
       "Depending on the provider, data may be processed in the United Kingdom, the European Union, or the United States, with appropriate safeguards in place for international transfers.",
@@ -100,26 +118,31 @@ const SECTIONS: LegalSection[] = [
     paragraphs: [
       "We keep your account data for as long as your account exists. Cloud-synced listings and images can be removed at any time from within the extension, which deletes them from our storage.",
       "Support tickets and their replies are deleted 24 months after the ticket is closed.",
-      "To delete your account and all associated data, email support@salelinx.com from your account email address. We will complete the deletion within 30 days, except for records we are legally required to keep (for example invoices).",
+      "To delete your account and all associated data, use the Delete account section on your account page; deletion takes effect immediately. You can also email support@salelinx.com from your account email address and we will complete the deletion within 30 days. Either way, records we are legally required to keep (for example invoices) are retained.",
     ],
   },
   {
     heading: "Legal bases",
     paragraphs: [
-      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for), our legitimate interests (securing and improving the service), and legal obligations (tax and accounting records).",
+      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for), our legitimate interests (securing and improving the service), legal obligations (tax and accounting records), and your consent (optional analytics cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
     ],
   },
   {
     heading: "Your rights",
     paragraphs: [
-      "You can ask us to access, correct, export, or delete the personal data we hold about you, or object to or restrict certain processing. Contact support@salelinx.com to exercise any of these rights.",
-      "If you are in the UK or EU you also have the right to lodge a complaint with your supervisory authority (in the UK, the Information Commissioner's Office).",
+      "You can ask us to access, correct, export, or delete the personal data we hold about you, or object to or restrict certain processing. Contact support@salelinx.com to exercise any of these rights. We respond within one month.",
+      "If you believe we have mishandled your personal data, you can lodge a data protection complaint with us directly: email support@salelinx.com with the subject line 'Data protection complaint'. We will acknowledge your complaint within 30 days and tell you the outcome of our review.",
+      "If you are in the UK or EU you also have the right to lodge a complaint with your supervisory authority (in the UK, the Information Commissioner's Office), whether or not you complain to us first.",
     ],
   },
   {
     heading: "Cookies",
+    id: "cookies",
     paragraphs: [
-      "The salelinx.com website uses only essential and preference cookies: sign-in cookies that keep you logged in to your account, and a cookie that remembers your light or dark theme choice. We do not use advertising or cross-site tracking cookies.",
+      "Essential and preference cookies. salelinx.com sets sign-in cookies that keep you logged in to your account, a cookie that remembers your light or dark theme choice, a cookie that remembers your language choice, and a cookie that records your cookie consent choice. These are needed for the site to work as you asked and do not track you across other sites.",
+      "Referral cookie. If you arrive through a referral share link (salelinx.com/r/...), we set a first-party cookie for up to 30 days so we can credit the person who referred you if you sign up. It contains only the referral code and is not used for advertising or cross-site tracking.",
+      "Analytics cookies (optional, with your consent). If you choose Accept in our cookie banner, we use Google Analytics to understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. These cookies are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
+      "We do not use advertising or cross-site tracking cookies.",
     ],
   },
   {

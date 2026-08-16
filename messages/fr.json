@@ -13,7 +13,8 @@
     "support": "Assistance",
     "signOut": "Déconnexion",
     "signIn": "Connexion",
-    "getStarted": "Commencer"
+    "getStarted": "Commencer",
+    "addToChrome": "Ajouter à Chrome"
   },
   "Footer": {
     "tagline": "Vendez sur Depop et Vinted depuis un seul endroit.",
@@ -32,6 +33,21 @@
     "linkTerms": "Conditions",
     "copyright": "© {year} SaleLinx. Tous droits réservés.",
     "builtFor": "Conçu pour les vendeurs Depop et Vinted."
+  },
+  "CookieBanner": {
+    "title": "Cookies sur salelinx.com",
+    "body": "Nous utilisons des cookies essentiels au fonctionnement du site. Nous aimerions aussi installer des cookies Google Analytics pour comprendre son utilisation et l'améliorer.",
+    "privacyLink": "Comment nous utilisons les cookies",
+    "accept": "Accepter les cookies d'analyse",
+    "reject": "Refuser les cookies d'analyse",
+    "settings": "Paramètres des cookies"
+  },
+  "NotFound": {
+    "metaTitle": "Page introuvable",
+    "title": "Page introuvable",
+    "body": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "goHome": "Retour à l'accueil",
+    "getHelp": "Consulter le centre d'aide"
   },
   "Home": {
     "heroEyebrow": "Disponible pour <depop></depop> + <vinted></vinted>",
@@ -54,6 +70,7 @@
       "vendre malin, pas à la dure."
     ],
     "ctaSeePricing": "Voir les tarifs",
+    "ctaAddToChrome": "Ajouter à Chrome",
     "ctaSeeFeatures": "Voir les fonctionnalités",
     "ctaGetStarted": "Commencer",
     "ctaSignIn": "Se connecter",
@@ -91,7 +108,8 @@
       "title": "Pilotez vos deux boutiques depuis un seul panneau.",
       "body": "Installation en un clic. Gratuit pour vos premières annonces, sans carte.",
       "primary": "Commencer gratuitement",
-      "secondary": "Voir les tarifs"
+      "secondary": "Voir les tarifs",
+      "tertiary": "Ajouter à Chrome"
     },
     "howItWorks": {
       "eyebrow": "Comment ça marche",
@@ -130,8 +148,12 @@
     "pwTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
     "pwMismatch": "Les mots de passe ne correspondent pas.",
     "checkEmailTitle": "Vérifiez vos e-mails",
+    "continueWithGoogle": "Continuer avec Google",
+    "continueWithGoogleLoading": "Redirection…",
+    "orDivider": "ou",
     "login": {
       "title": "Se connecter",
+      "metaDescription": "Connectez-vous à votre compte SaleLinx pour gérer votre offre, la facturation et vos parrainages.",
       "submitIdle": "Se connecter",
       "submitSubmitting": "Connexion…",
       "createAccount": "Créer un compte",
@@ -150,6 +172,7 @@
     },
     "signup": {
       "title": "Créer un compte",
+      "metaDescription": "Créez un compte SaleLinx gratuit et commencez à crosslister, republier et actualiser vos annonces sur Depop et Vinted.",
       "emailInUse": "Un compte existe déjà avec cet email. Connectez-vous ci-dessous, ou réinitialisez votre mot de passe si vous l'avez oublié.",
       "passwordPlaceholder": "Mot de passe (8 caractères minimum)",
       "confirmPlaceholder": "Confirmer le mot de passe",
@@ -157,10 +180,12 @@
       "submitSubmitting": "Création du compte…",
       "haveAccount": "Vous avez déjà un compte ?",
       "signIn": "Se connecter",
+      "legalNotice": "En créant un compte, vous acceptez nos <terms>Conditions d'utilisation</terms> et confirmez avoir lu notre <privacy>Politique de confidentialité</privacy>.",
       "checkEmailBody": "Nous avons envoyé un lien de confirmation à <email></email>. Cliquez dessus pour finaliser la création de votre compte."
     },
     "forgotPassword": {
       "title": "Réinitialiser le mot de passe",
+      "metaDescription": "Demandez un lien de réinitialisation pour retrouver l'accès à votre compte SaleLinx.",
       "subtitle": "Saisissez votre adresse e-mail et nous vous enverrons un lien de réinitialisation.",
       "submitIdle": "Envoyer le lien",
       "submitSubmitting": "Envoi…",
@@ -278,6 +303,39 @@
     "mfaDisablePrompt": "Saisissez un code à 6 chiffres actuel de votre application pour confirmer la désactivation.",
     "mfaCodeError": "Ce code n'a pas fonctionné. Vérifiez votre application et réessayez."
   },
+  "DeleteAccount": {
+    "title": "Supprimer le compte",
+    "body": "Supprime définitivement votre compte et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
+    "cta": "Supprimer le compte",
+    "confirmBody": "Nous enverrons un lien de confirmation à <email></email>. Rien n'est supprimé tant que vous n'avez pas ouvert ce lien et confirmé une dernière fois. Saisissez votre mot de passe pour continuer.",
+    "passwordPlaceholder": "Votre mot de passe",
+    "confirm": "Envoyer l'e-mail de confirmation",
+    "sending": "Envoi...",
+    "cancel": "Annuler",
+    "sentBody": "Lien de confirmation envoyé à <email></email>. Ouvrez-le pour finaliser la suppression de votre compte. Le lien expire dans 60 minutes.",
+    "errorWrongPassword": "Mot de passe incorrect.",
+    "errorAdmin": "Les comptes administrateurs ne peuvent pas être supprimés ici. Contactez support@salelinx.com.",
+    "errorGeneric": "Une erreur est survenue. Réessayez ou écrivez à support@salelinx.com et nous nous en chargerons."
+  },
+  "DeleteAccountConfirm": {
+    "title": "Supprimer votre compte ?",
+    "body": "C'est la dernière étape. En confirmant, vous supprimez définitivement <email></email> et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
+    "confirm": "Supprimer définitivement mon compte",
+    "deleting": "Suppression...",
+    "keepAccount": "Conserver mon compte",
+    "errorInvalidToken": "Ce lien de confirmation est invalide ou a expiré. Retournez sur la page de votre compte pour en demander un nouveau.",
+    "errorGeneric": "La suppression a échoué. Réessayez ou écrivez à support@salelinx.com et nous nous en chargerons."
+  },
+  "Referrals": {
+    "title": "Parrainez un ami",
+    "body": "Partagez votre lien. Toute personne qui s'abonne via ce lien obtient une réduction sur son premier mois, et vous recevez un mois gratuit une fois qu'elle a payé.",
+    "copy": "Copier le lien",
+    "copied": "Copié",
+    "statSignedUp": "Inscrits",
+    "statSubscribed": "Abonnés",
+    "statRewarded": "Mois gagnés",
+    "creditEarned": "Crédit obtenu : {amount}. Il est appliqué automatiquement à votre prochaine facture."
+  },
   "Support": {
     "title": "Assistance",
     "subtitle": "Envoyez une demande et suivez nos réponses. Nous vous écrivons aussi par e-mail quand l'équipe répond.",
@@ -353,14 +411,16 @@
   },
   "Legal": {
     "privacy": {
-      "title": "Politique de confidentialité"
+      "title": "Politique de confidentialité",
+      "metaDescription": "Comment SaleLinx traite vos données : ce que nous collectons, ce qui reste sur votre appareil et comment demander une copie ou la suppression de votre compte."
     },
     "terms": {
-      "title": "Conditions d'utilisation"
+      "title": "Conditions d'utilisation",
+      "metaDescription": "Les conditions qui régissent l'utilisation de l'extension et du site SaleLinx : comptes, abonnements, facturation et usage acceptable."
     }
   },
   "Features": {
-    "metaTitle": "SaleLinx - Produit, tarifs, feuille de route",
+    "metaTitle": "Produit, tarifs, feuille de route",
     "metaDescription": "Tout ce que fait l'extension Chrome SaleLinx, son prix et ce qui arrive ensuite. Crosslistez, republiez, actualisez et réapprovisionnez sur Depop et Vinted depuis un seul panneau.",
     "hero": {
       "eyebrow": "Aperçu du produit",
@@ -592,7 +652,7 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs - SaleLinx",
+    "metaTitle": "Docs",
     "metaDescription": "Guides pas à pas et explications pour l'extension Chrome SaleLinx.",
     "eyebrow": "Docs",
     "heroTitle": "Apprendre SaleLinx.",
@@ -645,7 +705,7 @@
       "next": "Suivant"
     },
     "status": {
-      "metaTitle": "Statut des plateformes - Docs SaleLinx",
+      "metaTitle": "Statut des plateformes",
       "metaDescription": "Vue en temps réel des marketplaces sur lesquelles SaleLinx crosslist actuellement.",
       "eyebrow": "Statut",
       "title": "Statut des plateformes",
@@ -667,7 +727,7 @@
       }
     },
     "changelog": {
-      "metaTitle": "Changelog - Docs SaleLinx",
+      "metaTitle": "Changelog",
       "metaDescription": "Les changements des dernières versions de l'extension SaleLinx.",
       "eyebrow": "Changelog",
       "title": "Quoi de neuf dans SaleLinx",
@@ -686,7 +746,7 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ - SaleLinx",
+    "metaTitle": "FAQ",
     "metaDescription": "Réponses rapides aux questions courantes sur SaleLinx : facturation, compte, dépannage, confidentialité.",
     "eyebrow": "FAQ",
     "title": "Questions fréquentes.",

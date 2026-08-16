@@ -5,6 +5,10 @@
 
 export interface LegalSection {
   heading: string;
+  // Optional anchor so other pages can deep-link (e.g. /legal/privacy#cookies
+  // from the cookie banner). scroll-mt keeps the heading clear of the sticky
+  // header when jumped to.
+  id?: string;
   paragraphs?: string[];
   bullets?: string[];
   trailing?: string[];
@@ -14,7 +18,11 @@ export function LegalSections({ sections }: { sections: LegalSection[] }) {
   return (
     <>
       {sections.map((section) => (
-        <section key={section.heading} className="mt-10">
+        <section
+          key={section.heading}
+          id={section.id}
+          className="mt-10 scroll-mt-24"
+        >
           <h2 className="text-xl font-semibold">{section.heading}</h2>
           {section.paragraphs?.map((p) => (
             <p

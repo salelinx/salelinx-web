@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { safeNext } from "@/lib/auth/safe-next";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const t = useTranslations("Auth");
+  const searchParams = useSearchParams();
+  // Callers send users here with the page they were trying to reach, e.g.
+  // SubscribeButton uses ?next=/pricing so the purchase flow resumes after
+  // sign-in instead of dumping the buyer on the account page.
+  const next = safeNext(searchParams.get("next"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
@@ -30,7 +38,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/account");
+    router.push(next);
     router.refresh();
   }
 
@@ -40,13 +48,24 @@ export default function LoginPage() {
         {t("login.title")}
       </h1>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      <div className="mt-8">
+        <GoogleSignInButton next={next} />
+      </div>
+
+      <div className="my-6 flex items-center gap-3 text-xs text-zinc-500">
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+        {t("orDivider")}
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-4">
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t("emailPlaceholder")}
+          aria-label={t("emailPlaceholder")}
           autoComplete="email"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -56,6 +75,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder={t("passwordPlaceholder")}
+          aria-label={t("passwordPlaceholder")}
           autoComplete="current-password"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
@@ -81,5 +101,15 @@ export default function LoginPage() {
         </Link>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams needs a Suspense boundary or the route opts out of static
+  // rendering at build time.
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

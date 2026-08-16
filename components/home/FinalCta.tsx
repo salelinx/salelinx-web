@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.14em]';
 
@@ -64,6 +65,10 @@ export async function FinalCta() {
             >
               {t('secondary')}
             </Link>
+            <InstallExtensionButton
+              label={t('tertiary')}
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-emerald-400/40 bg-emerald-400/10 px-6 py-3 text-sm font-medium text-emerald-200 backdrop-blur transition hover:bg-emerald-400/20"
+            />
           </div>
         </Reveal>
       </div>
