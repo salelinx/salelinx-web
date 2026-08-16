@@ -210,6 +210,7 @@ function UserTicketCard({
               if (error) setError(null);
             }}
             rows={2}
+            maxLength={10000}
             placeholder={t("replyPlaceholder")}
             className="w-full rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/20 dark:bg-transparent"
           />

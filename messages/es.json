@@ -157,7 +157,8 @@
       "submitIdle": "Iniciar sesión",
       "submitSubmitting": "Iniciando sesión…",
       "createAccount": "Crear cuenta",
-      "forgotPassword": "¿Olvidaste tu contraseña?"
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "legalNotice": "Al continuar, aceptas nuestros <terms>Términos del servicio</terms> y confirmas que has leído nuestra <privacy>Política de privacidad</privacy>."
     },
     "mfa": {
       "title": "Verificación en dos pasos",
@@ -276,6 +277,8 @@
     "body": "Gestiona la contraseña y el correo de tu cuenta. Ambos cambios requieren confirmar un enlace que te enviamos.",
     "passwordHeading": "Contraseña",
     "passwordBody": "Enviaremos un enlace de restablecimiento a <email></email>.",
+    "passwordBodyGoogle": "Inicias sesión con Google, así que tu cuenta no tiene contraseña. Puedes establecer una como método alternativo de acceso: enviaremos un enlace a <email></email>.",
+    "setPasswordLink": "Enviar enlace para crear contraseña",
     "passwordSent": "Enlace enviado. Revisa <email></email> y haz clic en él para establecer una nueva contraseña.",
     "sendResetLink": "Enviar enlace",
     "sending": "Enviando...",
@@ -308,6 +311,7 @@
     "body": "Elimina permanentemente tu cuenta y todo su contenido: publicaciones, imágenes, cuentas de marketplaces vinculadas, historial de uso y tickets de soporte. Cualquier suscripción activa se cancela de inmediato, sin reembolso por el tiempo restante del período de facturación. Esta acción no se puede deshacer.",
     "cta": "Eliminar cuenta",
     "confirmBody": "Enviaremos un enlace de confirmación a <email></email>. No se elimina nada hasta que abras ese enlace y confirmes una vez más. Introduce tu contraseña para continuar.",
+    "confirmBodyNoPassword": "Enviaremos un enlace de confirmación a <email></email>. No se elimina nada hasta que abras ese enlace y confirmes una vez más. Tu cuenta usa el inicio de sesión con Google, así que no se necesita contraseña.",
     "passwordPlaceholder": "Tu contraseña",
     "confirm": "Enviar correo de confirmación",
     "sending": "Enviando...",

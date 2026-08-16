@@ -215,10 +215,13 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
             >
               salelinx.com/auth/forgot-password
             </Link>
-            . Dein Website- und Erweiterungskonto sind gleich, also funktioniert das neue Passwort bei beiden.
+            . Wenn du dich mit Google registriert hast, gibt es kein Passwort
+            zum Zurücksetzen: Nutze stattdessen den Button Mit Google
+            fortfahren auf der Anmeldeseite. Dein Website- und
+            Erweiterungskonto sind gleich, also funktioniert beides für beide.
           </p>
         ),
-        keywords: ['passwort', 'anmelden', 'zurücksetzen', 'gesperrt'],
+        keywords: ['passwort', 'anmelden', 'zurücksetzen', 'gesperrt', 'google'],
       },
       {
         id: 'listings-not-syncing',

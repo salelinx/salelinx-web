@@ -157,7 +157,8 @@
       "submitIdle": "Sign in",
       "submitSubmitting": "Signing in…",
       "createAccount": "Create account",
-      "forgotPassword": "Forgot password?"
+      "forgotPassword": "Forgot password?",
+      "legalNotice": "By continuing you agree to our <terms>Terms of Service</terms> and confirm you have read our <privacy>Privacy Policy</privacy>."
     },
     "mfa": {
       "title": "Two-step verification",
@@ -276,6 +277,8 @@
     "body": "Manage the password and email address on your account. Both changes require confirming a link we send to you.",
     "passwordHeading": "Password",
     "passwordBody": "We'll send a reset link to <email></email>.",
+    "passwordBodyGoogle": "You sign in with Google, so your account has no password. You can set one as an alternative way to sign in: we'll send a link to <email></email>.",
+    "setPasswordLink": "Send set-password link",
     "passwordSent": "Link sent. Check <email></email> and click the link to set a new password.",
     "sendResetLink": "Send reset link",
     "sending": "Sending...",
@@ -308,6 +311,7 @@
     "body": "Permanently delete your account and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
     "cta": "Delete account",
     "confirmBody": "We'll send a confirmation link to <email></email>. Nothing is deleted until you open that link and confirm one more time. Enter your password to continue.",
+    "confirmBodyNoPassword": "We'll send a confirmation link to <email></email>. Nothing is deleted until you open that link and confirm one more time. Your account uses Google sign-in, so no password is needed.",
     "passwordPlaceholder": "Your password",
     "confirm": "Send confirmation email",
     "sending": "Sending...",

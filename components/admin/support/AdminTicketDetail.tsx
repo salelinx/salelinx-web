@@ -239,6 +239,7 @@ export function AdminTicketDetail({
             if (error) setError(null);
           }}
           rows={3}
+          maxLength={10000}
           placeholder="Reply as SaleLinx Support..."
           className="w-full rounded-md border border-[var(--admin-border)] bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400"
         />

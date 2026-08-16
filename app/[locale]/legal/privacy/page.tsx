@@ -25,7 +25,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "14 August 2026";
+const LAST_UPDATED = "16 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -48,7 +48,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Information we collect",
     paragraphs: [
-      "Account information. When you create a SaleLinx account we collect your email address and a password. Passwords are hashed by our authentication provider (Supabase); we cannot read them.",
+      "Account information. When you create a SaleLinx account we collect your email address and a password, or, if you choose Sign in with Google, the email address and basic profile of your Google account instead of a password. Passwords are hashed by our authentication provider (Supabase); we cannot read them.",
       "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
       "Usage counters. We record counts of metered actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan. These are numbers only, not the content of the actions.",
@@ -107,6 +107,7 @@ const SECTIONS: LegalSection[] = [
       "Stripe: subscription payments and invoicing.",
       "Resend: transactional email delivery (account and support emails, and shipping label emails you choose to send, which can include label PDFs containing buyer delivery details).",
       "Vercel: hosting for the salelinx.com website.",
+      "Google (Sign in with Google): if you choose to sign in with Google, Google processes your sign-in to authenticate you and shares your Google account email and basic profile with us. This happens only when you use the Google sign-in option, is necessary to provide that sign-in method, and is separate from analytics cookies and cookie consent.",
       "Google (Google Analytics): aggregated statistics about how the website is used, only if you consent to analytics cookies in the cookie banner.",
     ],
     trailing: [
@@ -124,7 +125,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Legal bases",
     paragraphs: [
-      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for), our legitimate interests (securing and improving the service), legal obligations (tax and accounting records), and your consent (optional analytics cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
+      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for, including authenticating you when you sign in with your email and password or with Google), our legitimate interests (securing and improving the service), legal obligations (tax and accounting records), and your consent (optional analytics cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
     ],
   },
   {

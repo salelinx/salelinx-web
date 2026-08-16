@@ -157,7 +157,8 @@
       "submitIdle": "Se connecter",
       "submitSubmitting": "Connexion…",
       "createAccount": "Créer un compte",
-      "forgotPassword": "Mot de passe oublié ?"
+      "forgotPassword": "Mot de passe oublié ?",
+      "legalNotice": "En continuant, vous acceptez nos <terms>Conditions d'utilisation</terms> et confirmez avoir lu notre <privacy>Politique de confidentialité</privacy>."
     },
     "mfa": {
       "title": "Vérification en deux étapes",
@@ -276,6 +277,8 @@
     "body": "Gérez le mot de passe et l'adresse e-mail de votre compte. Les deux changements nécessitent la confirmation d'un lien que nous vous envoyons.",
     "passwordHeading": "Mot de passe",
     "passwordBody": "Nous enverrons un lien de réinitialisation à <email></email>.",
+    "passwordBodyGoogle": "Vous vous connectez avec Google, votre compte n'a donc pas de mot de passe. Vous pouvez en définir un comme méthode de connexion alternative : nous enverrons un lien à <email></email>.",
+    "setPasswordLink": "Envoyer le lien de création",
     "passwordSent": "Lien envoyé. Consultez <email></email> et cliquez sur le lien pour définir un nouveau mot de passe.",
     "sendResetLink": "Envoyer le lien",
     "sending": "Envoi...",
@@ -308,6 +311,7 @@
     "body": "Supprime définitivement votre compte et tout ce qu'il contient : annonces, images, comptes de places de marché liés, historique d'utilisation et tickets d'assistance. Tout abonnement actif est annulé immédiatement, sans remboursement du temps restant sur la période de facturation. Cette action est irréversible.",
     "cta": "Supprimer le compte",
     "confirmBody": "Nous enverrons un lien de confirmation à <email></email>. Rien n'est supprimé tant que vous n'avez pas ouvert ce lien et confirmé une dernière fois. Saisissez votre mot de passe pour continuer.",
+    "confirmBodyNoPassword": "Nous enverrons un lien de confirmation à <email></email>. Rien n'est supprimé tant que vous n'avez pas ouvert ce lien et confirmé une dernière fois. Votre compte utilise la connexion Google, aucun mot de passe n'est donc requis.",
     "passwordPlaceholder": "Votre mot de passe",
     "confirm": "Envoyer l'e-mail de confirmation",
     "sending": "Envoi...",

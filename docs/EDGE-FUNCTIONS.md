@@ -94,6 +94,10 @@ supabase secrets set SUPPORT_NOTIFY_FROM='SaleLinx Support <support@salelinx.com
 supabase secrets set SUPPORT_NOTIFY_TO='support@salelinx.com'
 supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # send-shipping-labels reuses RESEND_API_KEY and RESEND_FROM - no extra secrets.
+# Optional CORS pinning for all browser-called functions: unset = wildcard
+# (unchanged behavior); set to the site origin to stop other sites' frontends
+# reading responses. The extension is unaffected (host permissions bypass CORS).
+supabase secrets set ALLOWED_ORIGIN='https://www.salelinx.com'
 # Referrals (docs/REFERRALS.md): the referee first-month-discount coupon ID
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.

@@ -84,7 +84,24 @@ export default function SignupPage() {
         {t("signup.title")}
       </h1>
 
-      <div className="mt-8">
+      {/* Above BOTH account-creation paths on purpose: the Google button
+          creates an account in one click, so the notice must come first. */}
+      <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
+        {t.rich("signup.legalNotice", {
+          terms: (chunks) => (
+            <Link href="/legal/terms" className="underline">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/legal/privacy" className="underline">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
+
+      <div className="mt-6">
         <GoogleSignInButton />
       </div>
 
@@ -134,21 +151,6 @@ export default function SignupPage() {
             : t("signup.submitIdle")}
         </button>
       </form>
-
-      <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-        {t.rich("signup.legalNotice", {
-          terms: (chunks) => (
-            <Link href="/legal/terms" className="underline">
-              {chunks}
-            </Link>
-          ),
-          privacy: (chunks) => (
-            <Link href="/legal/privacy" className="underline">
-              {chunks}
-            </Link>
-          ),
-        })}
-      </p>
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 

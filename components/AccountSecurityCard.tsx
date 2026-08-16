@@ -11,7 +11,16 @@ type EmailStatus = "idle" | "open" | "sending" | "sent";
 // waiting for the first code), on, disabling (waiting for a code to confirm).
 type MfaStatus = "loading" | "off" | "enrolling" | "on" | "disabling";
 
-export function AccountSecurityCard({ email }: { email: string }) {
+export function AccountSecurityCard({
+  email,
+  hasPassword,
+}: {
+  email: string;
+  // False for Google-only accounts: the reset link then SETS a first
+  // password rather than replacing one, and the copy must say so instead of
+  // silently offering a "reset" for a password that does not exist.
+  hasPassword: boolean;
+}) {
   const t = useTranslations("AccountSecurity");
   const locale = useLocale();
   const [pwStatus, setPwStatus] = useState<PasswordStatus>("idle");
@@ -216,7 +225,7 @@ export function AccountSecurityCard({ email }: { email: string }) {
         <div>
           <h3 className="text-base font-medium">{t("passwordHeading")}</h3>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {t.rich("passwordBody", {
+            {t.rich(hasPassword ? "passwordBody" : "passwordBodyGoogle", {
               email: () => <strong>{email}</strong>,
             })}
           </p>
@@ -233,7 +242,11 @@ export function AccountSecurityCard({ email }: { email: string }) {
               disabled={pwStatus === "sending"}
               className="mt-3 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-black"
             >
-              {pwStatus === "sending" ? t("sending") : t("sendResetLink")}
+              {pwStatus === "sending"
+                ? t("sending")
+                : hasPassword
+                  ? t("sendResetLink")
+                  : t("setPasswordLink")}
             </button>
           )}
           {pwError && (

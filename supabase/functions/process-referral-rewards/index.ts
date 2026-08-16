@@ -17,6 +17,7 @@
 
 import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { timingSafeEqual } from "../_shared/security.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2025-02-24.acacia",
@@ -225,7 +226,8 @@ Deno.serve(async (req) => {
   }
 
   const secret = Deno.env.get("REFERRAL_CRON_SECRET");
-  if (!secret || req.headers.get("x-referral-cron-secret") !== secret) {
+  const presented = req.headers.get("x-referral-cron-secret") ?? "";
+  if (!secret || !(await timingSafeEqual(presented, secret))) {
     return new Response("Unauthorized", { status: 401 });
   }
 

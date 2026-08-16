@@ -157,7 +157,8 @@
       "submitIdle": "Anmelden",
       "submitSubmitting": "Anmeldung läuft…",
       "createAccount": "Konto erstellen",
-      "forgotPassword": "Passwort vergessen?"
+      "forgotPassword": "Passwort vergessen?",
+      "legalNotice": "Indem du fortfährst, stimmst du unseren <terms>Nutzungsbedingungen</terms> zu und bestätigst, dass du unsere <privacy>Datenschutzerklärung</privacy> gelesen hast."
     },
     "mfa": {
       "title": "Zwei-Schritt-Verifizierung",
@@ -276,6 +277,8 @@
     "body": "Verwalte das Passwort und die E-Mail-Adresse deines Kontos. Beide Änderungen erfordern die Bestätigung eines Links, den wir dir senden.",
     "passwordHeading": "Passwort",
     "passwordBody": "Wir senden einen Link zum Zurücksetzen an <email></email>.",
+    "passwordBodyGoogle": "Du meldest dich mit Google an, daher hat dein Konto kein Passwort. Du kannst eines als alternative Anmeldemethode festlegen: Wir senden einen Link an <email></email>.",
+    "setPasswordLink": "Link zum Festlegen senden",
     "passwordSent": "Link gesendet. Prüfe <email></email> und klicke auf den Link, um ein neues Passwort festzulegen.",
     "sendResetLink": "Link senden",
     "sending": "Wird gesendet...",
@@ -308,6 +311,7 @@
     "body": "Löscht dein Konto und alles darin dauerhaft: Angebote, Bilder, verknüpfte Marktplatz-Konten, Nutzungsverlauf und Support-Tickets. Ein aktives Abo wird sofort gekündigt, ohne Erstattung für die verbleibende Abrechnungszeit. Das lässt sich nicht rückgängig machen.",
     "cta": "Konto löschen",
     "confirmBody": "Wir senden einen Bestätigungslink an <email></email>. Es wird nichts gelöscht, bis du diesen Link öffnest und noch einmal bestätigst. Gib dein Passwort ein, um fortzufahren.",
+    "confirmBodyNoPassword": "Wir senden einen Bestätigungslink an <email></email>. Es wird nichts gelöscht, bis du diesen Link öffnest und noch einmal bestätigst. Dein Konto nutzt die Google-Anmeldung, daher ist kein Passwort nötig.",
     "passwordPlaceholder": "Dein Passwort",
     "confirm": "Bestätigungs-E-Mail senden",
     "sending": "Wird gesendet...",

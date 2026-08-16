@@ -232,11 +232,13 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             >
               salelinx.com/auth/forgot-password
             </Link>
-            . Your website account and extension account are the same, so the
-            new password works in both.
+            . If you signed up with Google, there is no password to reset: use
+            the Continue with Google button on the sign-in page instead. Your
+            website account and extension account are the same, so whichever
+            way you sign back in works in both.
           </p>
         ),
-        keywords: ['password', 'login', 'sign in', 'reset', 'locked out'],
+        keywords: ['password', 'login', 'sign in', 'reset', 'locked out', 'google'],
       },
       {
         id: 'listings-not-syncing',
