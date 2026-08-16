@@ -406,6 +406,7 @@
     "replyPlaceholder": "Add a reply...",
     "replySend": "Send reply",
     "replyError": "Could not send your reply. Please try again.",
+    "replyRateLimited": "You have sent a lot of replies today. Please wait for the team to respond before sending more.",
     "trackTicketsCta": "Track your tickets",
     "ticketsTitle": "Your tickets",
     "ticketsSubtitle": "Track the requests you've sent and reply to our responses.",

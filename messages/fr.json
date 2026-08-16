@@ -406,6 +406,7 @@
     "replyPlaceholder": "Ajouter une réponse...",
     "replySend": "Envoyer la réponse",
     "replyError": "Échec de l'envoi de votre réponse. Veuillez réessayer.",
+    "replyRateLimited": "Vous avez envoyé beaucoup de réponses aujourd'hui. Merci d'attendre la réponse de l'équipe avant d'en envoyer d'autres.",
     "trackTicketsCta": "Suivez vos tickets",
     "ticketsTitle": "Vos tickets",
     "ticketsSubtitle": "Suivez les demandes que vous avez envoyees et repondez a nos reponses.",
