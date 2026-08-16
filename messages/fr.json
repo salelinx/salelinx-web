@@ -326,6 +326,7 @@
     "cancel": "Annuler",
     "errorEnterEmail": "Saisissez la nouvelle adresse e-mail.",
     "errorSameEmail": "C'est déjà votre adresse e-mail actuelle.",
+    "errorRateLimited": "Trop de demandes de changement d'e-mail. Veuillez réessayer demain.",
     "mfaHeading": "Authentification à deux facteurs",
     "mfaBody": "Protégez votre compte avec un code à 6 chiffres d'une application d'authentification comme seconde étape de connexion.",
     "mfaLoading": "Chargement…",

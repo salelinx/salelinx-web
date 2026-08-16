@@ -61,9 +61,13 @@ interface SendRequest {
   count: number;
 }
 
-// Daily per-user cap on label emails. Generous for real batch workflows
-// (one email per merged batch) while making the function useless for spam.
-const DAILY_SEND_CAP = 50;
+// Daily per-user cap on label emails. Recipient is caller-chosen (users
+// legitimately email labels to a print shop or a VA), so the cap is the main
+// brake on using a paid account as an attacker-addressed email pump. 15/day
+// still covers a heavy real batching day (one email per merged batch) while
+// shrinking the blast radius per account. Trial farming, the way to get many
+// capped accounts cheaply, is closed separately (migration 017).
+const DAILY_SEND_CAP = 15;
 
 // "labels-14-Apr-2026-3.pdf" style names only: short, safe charset, .pdf.
 const FILENAME_RE = /^[\w][\w .()-]{0,79}\.pdf$/i;

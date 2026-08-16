@@ -198,6 +198,22 @@ export function AccountSecurityCard({
 
     setEmailStatus("sending");
     const supabase = createBrowserClient();
+
+    // updateUser({ email }) sends a confirmation to an attacker-CHOSEN
+    // address, so it is the one auth-email path that can pump mail to third
+    // parties. GoTrue has its own per-address limits, but add an app-level
+    // per-user cap as defense in depth (the RPC is auth.uid()-scoped).
+    const dayKey = new Date().toISOString().slice(0, 10);
+    const { data: changeCount, error: rlErr } = await supabase.rpc(
+      "increment_usage_counter",
+      { p_feature: "email_change_requests", p_period_key: dayKey },
+    );
+    if (rlErr || (typeof changeCount === "number" && changeCount > 5)) {
+      setEmailStatus("open");
+      setEmailError(t("errorRateLimited"));
+      return;
+    }
+
     const { error } = await supabase.auth.updateUser({
       email: target,
       data: { preferred_locale: locale },
