@@ -25,12 +25,9 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
+
+const corsHeaders = sharedCorsHeaders();
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -75,7 +72,13 @@ Deno.serve(async (req) => {
   if (adminErr || !adminRow)
     return new Response("Forbidden", { status: 403, headers: corsHeaders });
 
-  const { userId, tierId } = await req.json();
+  let userId: unknown;
+  let tierId: unknown;
+  try {
+    ({ userId, tierId } = await req.json());
+  } catch {
+    return json({ error: "missing_params" }, 400);
+  }
   if (typeof userId !== "string" || typeof tierId !== "string" || !tierId) {
     return json({ error: "missing_params" }, 400);
   }

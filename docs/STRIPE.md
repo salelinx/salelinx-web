@@ -137,6 +137,7 @@ Workflow to raise Pro from £14.99 to £17.99:
 
 - **Webhook signature verification needs raw body.** Edge Functions handle this naturally via `req.text()`. Don't JSON.parse before passing to `constructEvent`.
 - **`constructEventAsync` in Deno**, not `constructEvent` - the Deno crypto provider is async.
+- **Replay guard + livemode check.** The webhook skips events whose id is already in `stripe_webhook_events` (recorded after successful handling, so failed events still retry) and drops events whose `livemode` does not match the configured key. Migration `013_edge_hardening.sql`.
 - **API version pinned in code** - `2025-02-24.acacia`. Bumping is a breaking change; read Stripe's upgrade guide first.
 - **Test vs live keys are both `sk_*`** - easy to mix up. Prefix env vars with environment (`STRIPE_SECRET_KEY_TEST` / `..._LIVE`) if it becomes a problem.
 - **Never trust metadata from the client** - all tier mapping happens inside the webhook where Stripe's server has signed the payload.

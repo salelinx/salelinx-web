@@ -104,6 +104,7 @@ export function NewTicketForm({ userId }: Props) {
               if (formStatus !== "idle") setFormStatus("idle");
             }}
             rows={5}
+            maxLength={10000}
             placeholder={t("messagePlaceholder")}
             className="mt-1.5 w-full rounded-lg border border-black/10 px-3 py-2.5 text-sm dark:border-white/20 dark:bg-transparent"
           />

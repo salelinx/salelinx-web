@@ -50,12 +50,9 @@ import {
   paragraph,
   theme,
 } from '../_shared/email-theme.ts';
+import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const CORS_HEADERS = sharedCorsHeaders();
 
 interface SendRequest {
   to: string;

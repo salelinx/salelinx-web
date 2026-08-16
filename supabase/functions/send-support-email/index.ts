@@ -38,6 +38,7 @@ import {
   paragraph,
   theme,
 } from "../_shared/email-theme.ts";
+import { timingSafeEqual } from "../_shared/security.ts";
 
 // ============================================================================
 // Email rendering (subject + HTML + plaintext). Kept inline so the Supabase
@@ -550,7 +551,7 @@ Deno.serve(async (req) => {
   }
 
   const presented = req.headers.get("x-support-webhook-secret") ?? "";
-  if (presented !== HOOK_SECRET) {
+  if (!(await timingSafeEqual(presented, HOOK_SECRET))) {
     return jsonResponse(401, { error: "unauthorized" });
   }
 

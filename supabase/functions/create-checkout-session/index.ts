@@ -7,12 +7,9 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
+
+const corsHeaders = sharedCorsHeaders();
 
 // Checkout redirect targets are built here, never taken from the request.
 // A caller-supplied success_url can send a paying customer to any site.

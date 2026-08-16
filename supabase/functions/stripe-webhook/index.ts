@@ -215,6 +215,45 @@ Deno.serve(async (req) => {
 
   console.log(`[stripe-webhook] received ${event.type} id=${event.id}`);
 
+  // A signed event from the wrong Stripe mode (test event hitting the live
+  // project or vice versa) must never touch subscription rows.
+  const expectLive = (Deno.env.get("STRIPE_SECRET_KEY") ?? "").startsWith(
+    "sk_live_",
+  );
+  if (event.livemode !== expectLive) {
+    console.log(
+      `[stripe-webhook] ignoring ${event.id}: livemode=${event.livemode}, expected ${expectLive}`,
+    );
+    return new Response(
+      JSON.stringify({ received: true, ignored: "livemode_mismatch" }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  // Replay guard: a still-signed old event can be redelivered (or maliciously
+  // replayed within the signature tolerance window) and would regress
+  // tier/status. Processed ids are recorded AFTER successful handling below,
+  // so a 500 still lets Stripe's retry go through.
+  const { data: seen, error: seenErr } = await supabase
+    .from("stripe_webhook_events")
+    .select("id")
+    .eq("id", event.id)
+    .maybeSingle();
+  if (seenErr) {
+    console.error(`[stripe-webhook] dedup lookup failed:`, seenErr.message);
+    return new Response(JSON.stringify({ error: "dedup lookup failed" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  if (seen) {
+    console.log(`[stripe-webhook] duplicate ${event.id}, skipping`);
+    return new Response(
+      JSON.stringify({ received: true, ignored: "duplicate" }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {
@@ -259,6 +298,27 @@ Deno.serve(async (req) => {
       JSON.stringify({ error: (err as Error).message }),
       { status: 500, headers: { "Content-Type": "application/json" } },
     );
+  }
+
+  // Record success for the replay guard; prune entries past Stripe's retry
+  // horizon so the table stays tiny. Both best-effort: a failure here must
+  // not turn a processed event into a 500 (Stripe would redeliver it).
+  const { error: recordErr } = await supabase
+    .from("stripe_webhook_events")
+    .upsert(
+      { id: event.id, type: event.type },
+      { onConflict: "id", ignoreDuplicates: true },
+    );
+  if (recordErr) {
+    console.error(`[stripe-webhook] dedup record failed:`, recordErr.message);
+  } else {
+    await supabase
+      .from("stripe_webhook_events")
+      .delete()
+      .lt(
+        "received_at",
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      );
   }
 
   return new Response(JSON.stringify({ received: true }), {
