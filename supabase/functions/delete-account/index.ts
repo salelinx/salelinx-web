@@ -151,7 +151,7 @@ const EMAIL_COPY: Record<
     cta: "Review and confirm",
     expiry: "This link expires in 60 minutes and only works while you are signed in to the account it was requested for.",
     ignore:
-      "If you did not request this, no action is needed and nothing will be deleted, but since the request required your password we recommend changing it.",
+      "If you did not request this, no action is needed and nothing will be deleted, but we recommend reviewing your account security: change your password, or check your Google account if you sign in with Google.",
     fallback: "Or copy this link into your browser:",
   },
   fr: {
@@ -164,7 +164,7 @@ const EMAIL_COPY: Record<
     expiry:
       "Ce lien expire dans 60 minutes et ne fonctionne que si vous êtes connecté au compte concerné.",
     ignore:
-      "Si vous n'êtes pas à l'origine de cette demande, aucune action n'est nécessaire et rien ne sera supprimé, mais comme la demande exigeait votre mot de passe, nous vous recommandons de le changer.",
+      "Si vous n'êtes pas à l'origine de cette demande, aucune action n'est nécessaire et rien ne sera supprimé, mais nous vous recommandons de vérifier la sécurité de votre compte : changez votre mot de passe, ou vérifiez votre compte Google si vous vous connectez avec Google.",
     fallback: "Ou copiez ce lien dans votre navigateur :",
   },
   es: {
@@ -177,7 +177,7 @@ const EMAIL_COPY: Record<
     expiry:
       "Este enlace caduca en 60 minutos y solo funciona con la sesión iniciada en la cuenta para la que se solicitó.",
     ignore:
-      "Si no solicitaste esto, no hace falta hacer nada y no se eliminará nada, pero como la solicitud requería tu contraseña, te recomendamos cambiarla.",
+      "Si no solicitaste esto, no hace falta hacer nada y no se eliminará nada, pero te recomendamos revisar la seguridad de tu cuenta: cambia tu contraseña o revisa tu cuenta de Google si inicias sesión con Google.",
     fallback: "O copia este enlace en tu navegador:",
   },
   de: {
@@ -190,7 +190,7 @@ const EMAIL_COPY: Record<
     expiry:
       "Dieser Link läuft in 60 Minuten ab und funktioniert nur, solange du im betreffenden Konto angemeldet bist.",
     ignore:
-      "Falls du das nicht angefordert hast, musst du nichts tun und es wird nichts gelöscht. Da die Anfrage dein Passwort erforderte, empfehlen wir dir aber, es zu ändern.",
+      "Falls du das nicht angefordert hast, musst du nichts tun und es wird nichts gelöscht. Wir empfehlen dir aber, die Sicherheit deines Kontos zu prüfen: Ändere dein Passwort oder prüfe dein Google-Konto, falls du dich mit Google anmeldest.",
     fallback: "Oder kopiere diesen Link in deinen Browser:",
   },
 };

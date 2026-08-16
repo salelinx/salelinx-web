@@ -49,6 +49,10 @@ export default async function AccountPage({ params, searchParams }: Props) {
   }
 
   const unverified = !user.email_confirmed_at;
+  // Google-only accounts have no "email" (password) identity. The security
+  // and delete cards adapt: no password prompt to a user who has none.
+  const hasPassword =
+    user.identities?.some((i) => i.provider === "email") ?? true;
   const [{ subscription, tier }, referrals] = await Promise.all([
     getCurrentSubscription(user.id),
     getReferralSummary(),
@@ -215,7 +219,9 @@ export default async function AccountPage({ params, searchParams }: Props) {
         )}
       </section>
 
-      {user.email && <AccountSecurityCard email={user.email} />}
+      {user.email && (
+        <AccountSecurityCard email={user.email} hasPassword={hasPassword} />
+      )}
 
       {referrals.code && (
         <ReferralsCard
@@ -249,7 +255,9 @@ export default async function AccountPage({ params, searchParams }: Props) {
         </Link>
       </section>
 
-      {user.email && <DeleteAccountCard email={user.email} />}
+      {user.email && (
+        <DeleteAccountCard email={user.email} hasPassword={hasPassword} />
+      )}
     </main>
   );
 }

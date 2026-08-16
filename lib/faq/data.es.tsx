@@ -215,10 +215,13 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             >
               salelinx.com/auth/forgot-password
             </Link>
-            . Tu cuenta del sitio y de la extensión son la misma, así que la nueva contraseña vale para las dos.
+            . Si te registraste con Google, no hay contraseña que restablecer:
+            usa el botón Continuar con Google en la página de inicio de
+            sesión. Tu cuenta del sitio y de la extensión son la misma, así
+            que cualquiera de las dos formas de entrar vale para ambas.
           </p>
         ),
-        keywords: ['contraseña', 'acceso', 'restablecer', 'bloqueado'],
+        keywords: ['contraseña', 'acceso', 'restablecer', 'bloqueado', 'google'],
       },
       {
         id: 'listings-not-syncing',
