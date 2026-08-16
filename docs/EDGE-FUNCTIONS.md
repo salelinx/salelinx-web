@@ -319,3 +319,4 @@ If you want type safety locally, open individual function files in VSCode with t
 - **`email_change_new` uses `token_hash_new`**, not `token_hash`, when building the verify URL.
 - **A failing hook breaks auth UX** - if `send-auth-email` returns non-200, the user sees "failed to send" on signup / reset. Monitor function logs after every deploy.
 - **Never `console.log` personal data** - no email addresses, message bodies, or buyer data in function logs; user UUIDs are the ceiling. Function logs are retained by Supabase outside our control. See `docs/GDPR.md`.
+- **Per-user rate limits** (all via `increment_usage_counter`, keyed on the caller's auth.uid): `send-shipping-labels` 50/day, `delete-account` request stage 5/day, `create-checkout-session` 20/day, `create-portal-session` 20/day. Support ticket and reply creation are capped by DB triggers instead (migrations 014/015). Auth endpoints are rate limited by GoTrue (dashboard > Authentication > Rate Limits).

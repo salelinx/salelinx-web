@@ -406,6 +406,7 @@
     "replyPlaceholder": "Antwort hinzufügen...",
     "replySend": "Antwort senden",
     "replyError": "Deine Antwort konnte nicht gesendet werden. Bitte versuche es erneut.",
+    "replyRateLimited": "Du hast heute viele Antworten gesendet. Bitte warte auf die Antwort des Teams, bevor du weitere sendest.",
     "trackTicketsCta": "Tickets verfolgen",
     "ticketsTitle": "Deine Tickets",
     "ticketsSubtitle": "Verfolge deine gesendeten Anfragen und antworte auf unsere Antworten.",

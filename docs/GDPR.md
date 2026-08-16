@@ -12,7 +12,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | --- | --- | --- | --- | --- | --- |
 | Accounts and auth | Email, hashed password, locale, sign-in timestamps | Users | Contract | Supabase `auth.users` | Life of account |
 | Subscriptions | Stripe customer/subscription IDs, tier, status, period end | Users | Contract | Supabase `subscriptions`, Stripe | Life of account; invoices kept by Stripe for tax law |
-| Usage metering | Per-feature integer counts per period | Users | Contract | Supabase `usage_counters` | Life of account |
+| Usage metering | Per-feature integer counts per period | Users | Contract | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (migration 015); rest, life of account |
 | Cloud sync (opt-in) | Listing content: titles, descriptions, prices, attributes, photos, enriched marketplace payloads | Users | Contract | Supabase `listings` + `listing-images` bucket | Until user disables sync or deletes account |
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |

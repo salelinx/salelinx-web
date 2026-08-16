@@ -57,6 +57,28 @@ Deno.serve(async (req) => {
   } = await supabase.auth.getUser();
   if (!user) return json({ error: "Unauthorized" }, 401);
 
+  // Rate limit: checkout sessions are unmetered Stripe API calls in our
+  // name. The counter RPC is auth.uid()-scoped, so this charges the caller
+  // only. 20/day is far above any real purchase flow.
+  const dayKey = new Date().toISOString().slice(0, 10);
+  const { data: sessionCount, error: rlErr } = await supabase.rpc(
+    "increment_usage_counter",
+    { p_feature: "checkout_sessions", p_period_key: dayKey },
+  );
+  if (rlErr) {
+    console.error(
+      "[create-checkout-session] rate-limit counter failed:",
+      rlErr.message,
+    );
+    return json({ error: "Rate-limit check failed" }, 500);
+  }
+  if (typeof sessionCount === "number" && sessionCount > 20) {
+    return json(
+      { error: "Too many checkout attempts, try again tomorrow", code: "rate_limited" },
+      429,
+    );
+  }
+
   let priceId: unknown;
   try {
     ({ priceId } = await req.json());

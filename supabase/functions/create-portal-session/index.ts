@@ -40,6 +40,30 @@ Deno.serve(async (req) => {
   if (!user)
     return new Response("Unauthorized", { status: 401, headers: corsHeaders });
 
+  // Rate limit: portal sessions are unmetered Stripe API calls in our name.
+  // The counter RPC is auth.uid()-scoped, so this charges the caller only.
+  const dayKey = new Date().toISOString().slice(0, 10);
+  const { data: sessionCount, error: rlErr } = await supabase.rpc(
+    "increment_usage_counter",
+    { p_feature: "portal_sessions", p_period_key: dayKey },
+  );
+  if (rlErr) {
+    console.error(
+      "[create-portal-session] rate-limit counter failed:",
+      rlErr.message,
+    );
+    return new Response("Rate-limit check failed", {
+      status: 500,
+      headers: corsHeaders,
+    });
+  }
+  if (typeof sessionCount === "number" && sessionCount > 20) {
+    return new Response("Too many requests, try again tomorrow", {
+      status: 429,
+      headers: corsHeaders,
+    });
+  }
+
   // A user who cancelled and re-subscribed has more than one row, and .single()
   // errors on multiple matches, which would lock them out of the portal for
   // good. Take the newest row that actually carries a customer id.

@@ -167,4 +167,5 @@ Set via `supabase secrets set` (NOT `.env.local`):
 ## Abuse limits (migration 014)
 
 - A BEFORE INSERT trigger on `support_tickets` caps each user at **3 open tickets** and **5 tickets per rolling 24h** (raises `support_ticket_open_limit` / `support_ticket_daily_limit`; the web form maps these to a distinct "slow down" message).
+- A BEFORE INSERT trigger on `support_ticket_replies` caps each user at **20 non-admin replies per rolling 24h** (migration 015, raises `support_reply_daily_limit`; the reply box maps it to its own message). Admin replies are exempt so staff are never throttled.
 - `send-support-email` skips the **auto-ack** email for authors with zero `subscriptions` rows, so throwaway accounts cannot amplify inserts into outbound Resend sends. Staff notifications still go out (bounded by the trigger caps).

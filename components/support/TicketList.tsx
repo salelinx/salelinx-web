@@ -154,7 +154,13 @@ function UserTicketCard({
 
     setSending(false);
     if (insErr) {
-      setError(t("replyError"));
+      // The DB trigger raises this at 20 non-admin replies per 24h
+      // (migration 015); show "slow down" rather than "something broke".
+      setError(
+        insErr.message.includes("support_reply_daily_limit")
+          ? t("replyRateLimited")
+          : t("replyError"),
+      );
       return;
     }
     setBody("");
