@@ -4,6 +4,12 @@
 --   2. usage_counters could grow without bound: per-call deltas and key
 --      shapes are validated (012), but nothing stopped a user accumulating
 --      unlimited distinct rows, and legit daily-period rows never expired.
+--
+-- HISTORY: this file was originally numbered 015 and collided with
+-- 015_device_sessions. `db push` silently applied only one of the two, so on
+-- the live project these objects were applied by hand and the file renumbered
+-- to 018. The DDL below is now fully idempotent (IF NOT EXISTS / DROP-then-
+-- CREATE) so re-running over the manually-applied objects is a no-op.
 
 -- =============================================================================
 -- 1. Reply rate limit - 20 non-admin replies per user per rolling 24h
@@ -11,7 +17,7 @@
 -- Loose enough that a real back-and-forth never notices; admin replies are
 -- exempt (staff answering many tickets must not be throttled).
 
-CREATE INDEX idx_ticket_replies_user_created
+CREATE INDEX IF NOT EXISTS idx_ticket_replies_user_created
   ON public.support_ticket_replies(user_id, created_at);
 
 CREATE OR REPLACE FUNCTION public.enforce_support_reply_limits()
@@ -39,6 +45,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_enforce_support_reply_limits ON public.support_ticket_replies;
 CREATE TRIGGER trg_enforce_support_reply_limits
   BEFORE INSERT ON public.support_ticket_replies
   FOR EACH ROW
