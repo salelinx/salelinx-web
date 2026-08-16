@@ -161,3 +161,7 @@ When this repo's `tiers.ts` diverges from the extension's `src/entitlements/type
 - **Adding a limit key to a live tier requires a jsonb_set**, not `UPDATE`, or you'll wipe the other keys
 - **Storage bytes are a number in the jsonb limit** - website formats as GB for display, extension compares as bytes
 - **Don't hardcode tier IDs in enforcement code** - always look up via `tier_limits`. Code should treat `pro_custom_acme` the same as `pro`.
+
+## Concurrent-device cap (migration 015)
+
+Account sharing is capped by simultaneous ACTIVE use, not by logins: the extension heartbeats `claim_device_session(device_id)` while its panel is in use, and a claim is denied when other devices were active in the last 10 minutes beyond the tier's cap (`limits->>'max_active_devices'`, default 1 for every tier; raise per tier via jsonb_set if a multi-device allowance is ever sold). Denied devices show a gate with a "Use here instead" takeover that evicts the stalest active device. Rows live in `device_sessions` (user-readable, RPC-writable only, 30-day self-pruning).
