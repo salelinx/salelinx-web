@@ -161,3 +161,13 @@ When this repo's `tiers.ts` diverges from the extension's `src/entitlements/type
 - **Adding a limit key to a live tier requires a jsonb_set**, not `UPDATE`, or you'll wipe the other keys
 - **Storage bytes are a number in the jsonb limit** - website formats as GB for display, extension compares as bytes
 - **Don't hardcode tier IDs in enforcement code** - always look up via `tier_limits`. Code should treat `pro_custom_acme` the same as `pro`.
+
+## Trial abuse safeguards (migration 014)
+
+Trial eligibility is checked in `create-checkout-session` and is denied when ANY of:
+
+- the user has any prior `subscriptions` row (original rule, unchanged)
+- any Depop/Vinted account the user has linked appears in `trial_history` - permanent, hashed tombstones written whenever a platform account coexists with a billed user (both link-then-subscribe and subscribe-then-link orderings are covered by triggers). Tombstones deliberately have no FK to `auth.users`, so deleting the account does not reset them.
+- the account email is on the disposable-domain blocklist (`supabase/functions/_shared/disposable-domains.ts`, mirrored at `lib/auth/disposable-domains.ts`)
+
+`linked_accounts` also has `UNIQUE (platform, platform_user_id)`: one platform account can only be linked to one SaleLinx account at a time, and a BEFORE INSERT trigger rejects linking an already-trialed platform account to a trial-only user (`platform_account_already_trialed`). Paying and lapsed-paid users are never blocked from linking.

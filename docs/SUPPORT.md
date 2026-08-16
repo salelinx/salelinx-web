@@ -163,3 +163,8 @@ Set via `supabase secrets set` (NOT `.env.local`):
 - `docs/EDGE-FUNCTIONS.md` - the Edge Function table, Deno specifics, deploy steps
 - `docs/ARCHITECTURE.md` - the broader two-repo / one-Supabase picture
 - `../salelinx-app/docs/` - the extension side (Support tab, write paths into the two tables)
+
+## Abuse limits (migration 014)
+
+- A BEFORE INSERT trigger on `support_tickets` caps each user at **3 open tickets** and **5 tickets per rolling 24h** (raises `support_ticket_open_limit` / `support_ticket_daily_limit`; the web form maps these to a distinct "slow down" message).
+- `send-support-email` skips the **auto-ack** email for authors with zero `subscriptions` rows, so throwaway accounts cannot amplify inserts into outbound Resend sends. Staff notifications still go out (bounded by the trigger caps).

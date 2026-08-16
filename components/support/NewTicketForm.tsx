@@ -26,9 +26,9 @@ export function NewTicketForm({ userId }: Props) {
   const [type, setType] = useState<TicketType | "">("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [formStatus, setFormStatus] = useState<"idle" | "success" | "error">(
-    "idle",
-  );
+  const [formStatus, setFormStatus] = useState<
+    "idle" | "success" | "error" | "rate_limited"
+  >("idle");
 
   async function submitTicket() {
     const text = message.trim();
@@ -51,7 +51,15 @@ export function NewTicketForm({ userId }: Props) {
     setSubmitting(false);
 
     if (error) {
-      setFormStatus("error");
+      // The DB trigger raises these when the per-user caps are hit (max 3
+      // open, max 5 per 24h - migration 014). Distinct copy so a legit user
+      // hitting the cap sees "slow down" rather than "something broke".
+      setFormStatus(
+        error.message.includes("support_ticket_daily_limit") ||
+          error.message.includes("support_ticket_open_limit")
+          ? "rate_limited"
+          : "error",
+      );
       return;
     }
 
@@ -121,6 +129,11 @@ export function NewTicketForm({ userId }: Props) {
           </button>
           {formStatus === "error" && (
             <span className="text-sm text-red-600">{t("submitError")}</span>
+          )}
+          {formStatus === "rate_limited" && (
+            <span className="text-sm text-red-600">
+              {t("submitRateLimited")}
+            </span>
           )}
         </div>
 
