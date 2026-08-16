@@ -97,6 +97,8 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 
 - **`proxy.ts` must export `proxy()`, not `middleware()`** - Next 16 renamed the convention. Build fails with an unhelpful error otherwise.
 - **`setAll` cookie callbacks need an explicit `CookieEntry[]` type** - TS strict mode flags implicit `any`.
+- **Admin access requires MFA (AAL2).** `is_admin()` only returns true for sessions that verified a TOTP code (migration `009_admin_mfa.sql`). Deploy order matters: enroll every admin (Account > Security) BEFORE applying 009 or the console locks them out. Recovery: remove the factor in the Supabase dashboard. Never gate admin surfaces on a bare `admin_users` EXISTS - go through `is_admin()` so the AAL2 check is inherited.
+- **`requireReauth()` must never use `signInWithPassword` for an MFA-enrolled admin** - it mints a fresh AAL1 session and locks them out of admin data mid-action. The TOTP branch runs first for that reason; keep it that way.
 - **`router.refresh()` after password login** - without it, the Header still shows signed-out state until navigation.
 - **`supabase/functions/` is excluded from `tsc`** - TS errors there won't surface until deploy. Use the Deno VSCode extension for inline checking.
 - **Stripe API version pinned at `2025-02-24.acacia`** in 7 places (`lib/stripe.ts` + 6 Edge Functions). Bump all or none.

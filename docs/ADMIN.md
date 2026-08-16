@@ -50,19 +50,23 @@ Consequences:
 | Admin module data shapes | `lib/types/admin.ts` |
 | Layer-1 edge gate + locale bypass | `proxy.ts` |
 | Admin detection helper | `lib/supabase/admin.ts` (`isAdmin`) |
-| Step-up re-auth helper | `lib/admin/reauth.ts` (`requireReauth`) |
+| Step-up re-auth helper | `lib/admin/reauth.ts` (`requireReauth`, `getReauthKind`) |
+| Step-up re-auth modal (shared) | `components/admin/ReauthModal.tsx` |
+| MFA challenge page | `app/[locale]/auth/mfa/page.tsx` |
+| MFA enforcement in `is_admin()` | migration `009_admin_mfa.sql` |
 | Audit + identity RPCs, audit table, read/write RPCs | migration `006_admin_console.sql` |
 | Subscription write RPC | migration `008_admin_edit_subscription.sql` |
 
 ## Security model
 
-Defense in depth, fail-closed (any error or uncertainty denies). Five layers, each independent:
+Defense in depth, fail-closed (any error or uncertainty denies). Six layers, each independent:
 
 1. **Edge gate (`proxy.ts`).** For `/admin/*` the middleware calls `supabase.auth.getUser()` (a verified call - re-validates the JWT, unlike `getSession()`), then checks `admin_users` membership. No user -> redirect `/auth/login`; not an admin -> redirect `/account`; any error -> redirect `/account`. A non-admin never reaches admin route code.
 2. **Layout gate (`app/admin/layout.tsx`).** Re-runs the same check, fail-closed, so a missed matcher or bypassed middleware still denies. Uses `redirect` from `next/navigation` (NOT the localized `@/i18n/navigation`) with unprefixed paths.
 3. **RLS is the real boundary.** Both app gates are UX + defense in depth, never the security boundary (Next renders layouts and pages in parallel and layouts do not re-run on every soft-nav). Every read/write of admin data is gated by `public.is_admin()` in Postgres. If both app gates were bypassed, RLS still rejects.
 4. **Audit log.** `public.admin_audit_log` records every admin mutation. The only write path is the `log_admin_action(action, target_table, target_id, metadata)` SECURITY DEFINER RPC, which re-checks `is_admin()` and stamps `actor_id = auth.uid()` server-side (the client cannot forge the actor). The table has a SELECT-for-admins policy and no client write policies, so it is append-only and tamper-resistant.
-5. **`admin_users` hardening + step-up re-auth.** `admin_users` has no client INSERT/UPDATE/DELETE policies (no self-promotion); admin is granted via the Supabase dashboard only (see below). Destructive actions (currently: ticket delete) require step-up re-auth via `requireReauth()` - the admin re-enters their password and we re-verify it before proceeding; the audit entry records `reauthenticated: true`.
+5. **`admin_users` hardening + step-up re-auth.** `admin_users` has no client INSERT/UPDATE/DELETE policies (no self-promotion); admin is granted via the Supabase dashboard only (see below). Destructive actions (ticket delete, Stripe plan change, account deletion) require step-up re-auth via `requireReauth()`: a fresh TOTP code once the admin is enrolled (which also keeps the session at AAL2), or the password as a pre-enrollment fallback.
+6. **MFA (AAL2).** `is_admin()` only returns true for AAL2 sessions, so every admin policy, RPC, and Edge Function requires a verified second factor. See the MFA section below.
 
 ### Identity lookups
 
@@ -144,7 +148,7 @@ Every new module MUST satisfy all of these (no exceptions):
 - [ ] Every mutation calls `log_admin_action(...)` so it lands in the audit log.
 - [ ] Destructive/irreversible actions call `requireReauth()` first and abort cleanly on cancel/failure.
 - [ ] Any privileged read (e.g. across users) is a SECURITY DEFINER RPC that re-checks `is_admin()` itself - never assume the app gate.
-- [ ] Any new admin table gets the commented-out AAL2 RESTRICTIVE policy stub (see the end of `006_admin_console.sql`) so MFA enforcement is a one-step uncomment later.
+- [ ] Every gate/policy goes through `is_admin()` (never a bare `admin_users` EXISTS), so it inherits the AAL2 (MFA) requirement from migration `009_admin_mfa.sql` automatically.
 - [ ] The module's data fetch is RLS-scoped and does not trust a prior gate.
 
 ## Granting admin
@@ -159,13 +163,17 @@ on conflict do nothing;
 
 Revoke by deleting the row. Keep the admin set small; every member has full read of all tickets and user emails. Grants/revokes are deliberate, manual, and traceable in the dashboard's SQL history.
 
-## TODO(admin-mfa): require MFA (AAL2)
+## MFA (AAL2) enforcement
 
-The single biggest future hardening. **Deferred** only because no MFA enroll/challenge flow exists in the web app yet (enforcing now would lock admins out). It is designed-for, not forgotten:
+Implemented (was `TODO(admin-mfa)`). Every admin surface requires an AAL2 session: password login AND a verified TOTP code this session.
 
-- **Database:** the end of migration `006_admin_console.sql` contains the exact `RESTRICTIVE` policies, commented out, on `support_tickets`, `support_ticket_replies`, and `admin_audit_log`. They require `(select auth.jwt()->>'aal') = 'aal2'`, ANDed with the existing admin policies. Uncomment to enforce at the DB level.
-- **App gate:** `app/admin/layout.tsx` and `proxy.ts` each carry a `TODO(admin-mfa)` marker showing where to add a `supabase.auth.mfa.getAuthenticatorAssuranceLevel()` check that redirects to an MFA challenge/enroll page when `currentLevel !== 'aal2'`.
-- **Prerequisite:** build a TOTP enroll + challenge flow (Supabase `auth.mfa.enroll` / `challenge` / `verify`) reachable from `/account/security`, then enroll every admin before flipping the RESTRICTIVE policies on (otherwise admins lose access).
+- **Database (the boundary):** `is_admin()` itself requires `auth.jwt()->>'aal' = 'aal2'` (migration `009_admin_mfa.sql`). Every admin RLS policy and every admin SECURITY DEFINER RPC calls `is_admin()`, so this single function covers all of it, including the RPCs that bypass RLS. The commented RESTRICTIVE policies at the end of 006 are superseded and stay commented.
+- **Edge Functions:** `admin-change-plan` and `admin-delete-user` read the (already `getUser()`-validated) JWT's `aal` claim and return 403 `mfa_required` below AAL2. A stolen session token without the phone cannot change billing or delete accounts.
+- **App gates:** `proxy.ts` and `app/admin/layout.tsx` redirect non-AAL2 admin sessions to `/auth/mfa?next=<path>`. The membership check they run first uses the `admin_users` self-read policy, which intentionally stays AAL1-readable so the gates can tell admins apart and route them to the challenge instead of `/account`.
+- **Enroll / challenge UI:** enroll lives in the Account > Security card (all users may enroll; see `docs/AUTH.md`); the challenge page is `/auth/mfa`.
+- **Step-up reauth is TOTP now:** once a factor is enrolled, `requireReauth()` verifies a fresh 6-digit code (which also keeps the session at AAL2) instead of the password. The password path survives only as a pre-enrollment fallback - it must never be used by an enrolled admin because `signInWithPassword` mints a fresh AAL1 session.
+
+**Deploy order (lockout warning):** deploy the web app, enroll every admin via Account > Security, and only THEN apply migration 009 and redeploy the two admin Edge Functions. Applying 009 first locks all admins out of the console until they enroll. Recovery of last resort: remove a lost factor in the Supabase dashboard (Authentication > Users > factors) - dashboard access does not depend on app MFA. Supabase TOTP has no backup codes; the dashboard is the backup.
 
 ## Related docs
 

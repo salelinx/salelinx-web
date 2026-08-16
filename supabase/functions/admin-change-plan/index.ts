@@ -36,6 +36,19 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+// Read the aal claim from a JWT that getUser() has ALREADY validated (never
+// call this on an unverified token). base64url -> base64 padding for atob.
+function jwtAal(authHeader: string): string {
+  try {
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
+    return JSON.parse(atob(padded)).aal ?? "";
+  } catch {
+    return "";
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
@@ -56,6 +69,13 @@ Deno.serve(async (req) => {
   } = await authClient.auth.getUser();
   if (!user)
     return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+
+  // Admin sessions must be AAL2 (password + authenticator code), mirroring
+  // is_admin() in Postgres (migration 009). A stolen JWT without the second
+  // factor cannot change billing.
+  if (jwtAal(authHeader) !== "aal2") {
+    return json({ error: "mfa_required" }, 403);
+  }
 
   // Admin gate. The service role bypasses RLS, so this read is authoritative:
   // no admin_users row means 403 regardless of what the client claims.

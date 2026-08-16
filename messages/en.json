@@ -160,6 +160,17 @@
       "forgotPassword": "Forgot password?",
       "legalNotice": "By continuing you agree to our <terms>Terms of Service</terms> and confirm you have read our <privacy>Privacy Policy</privacy>."
     },
+    "mfa": {
+      "title": "Two-step verification",
+      "body": "Enter the 6-digit code from your authenticator app.",
+      "loading": "Loading…",
+      "codePlaceholder": "123456",
+      "submitIdle": "Verify",
+      "submitSubmitting": "Verifying…",
+      "codeError": "That code didn't work. Check your app and try again.",
+      "notEnrolled": "This area requires two-factor authentication, and your account doesn't have it set up yet. Enable it from the Security section of your account first.",
+      "goToSecurity": "Go to account settings"
+    },
     "signup": {
       "title": "Create account",
       "metaDescription": "Create a free SaleLinx account and start crosslisting, relisting, and refreshing your listings across Depop and Vinted.",
@@ -279,7 +290,21 @@
     "sendConfirmation": "Send confirmation",
     "cancel": "Cancel",
     "errorEnterEmail": "Enter the new email address.",
-    "errorSameEmail": "That's already your current email."
+    "errorSameEmail": "That's already your current email.",
+    "mfaHeading": "Two-factor authentication",
+    "mfaBody": "Protect your account with a 6-digit code from an authenticator app as a second sign-in step.",
+    "mfaLoading": "Loading…",
+    "mfaEnable": "Enable 2FA",
+    "mfaWorking": "Working…",
+    "mfaScan": "Scan this QR code with your authenticator app (Google Authenticator, 1Password, Authy…), then enter the 6-digit code it shows.",
+    "mfaQrAlt": "QR code for your authenticator app",
+    "mfaManual": "Or enter this key manually:",
+    "mfaCodePlaceholder": "123456",
+    "mfaActivate": "Activate",
+    "mfaOn": "Two-factor authentication is enabled.",
+    "mfaDisable": "Disable 2FA",
+    "mfaDisablePrompt": "Enter a current 6-digit code from your app to confirm disabling two-factor authentication.",
+    "mfaCodeError": "That code didn't work. Check your app and try again."
   },
   "DeleteAccount": {
     "title": "Delete account",

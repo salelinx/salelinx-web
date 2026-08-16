@@ -33,6 +33,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { requireReauth } from "@/lib/admin/reauth";
+import { ReauthModal } from "@/components/admin/ReauthModal";
 import type { TierConfig } from "@/lib/types/tiers";
 import type {
   AdminSubscriptionRow,
@@ -693,8 +694,7 @@ export function AdminUserDetail({
             <>
               This switches the customer&apos;s live Stripe subscription to{" "}
               <span className="font-medium capitalize">{planTierSel}</span> and
-              applies a prorated charge or credit immediately. Re-enter your
-              password to continue.
+              applies a prorated charge or credit immediately.
             </>
           }
           confirmLabel="Change plan"
@@ -717,7 +717,7 @@ export function AdminUserDetail({
               This permanently deletes{" "}
               <span className="font-medium">{user.email ?? user.user_id}</span>{" "}
               and everything they own, and cancels any Stripe subscription.
-              This cannot be undone. Re-enter your password to continue.
+              This cannot be undone.
             </>
           }
           confirmLabel="Delete account"
@@ -732,73 +732,6 @@ export function AdminUserDetail({
           onConfirm={(password) => void confirmAccountDelete(password)}
         />
       )}
-    </div>
-  );
-}
-
-// Step-up reauth for actions that bill the customer or destroy data (models
-// the ticket-delete modal in AdminTicketDetail.tsx), per docs/ADMIN.md.
-function ReauthModal({
-  title,
-  description,
-  confirmLabel,
-  busyLabel,
-  danger,
-  busy,
-  error,
-  onCancel,
-  onConfirm,
-}: {
-  title: string;
-  description: React.ReactNode;
-  confirmLabel: string;
-  busyLabel: string;
-  danger: boolean;
-  busy: boolean;
-  error: string | null;
-  onCancel: () => void;
-  onConfirm: (password: string) => void;
-}) {
-  const [password, setPassword] = useState("");
-
-  return (
-    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-lg border border-[var(--admin-border)] bg-white p-5 shadow-xl">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        <p className="mt-1 text-xs text-zinc-500">{description}</p>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-          placeholder="Your password"
-          className="mt-3 w-full rounded-md border border-[var(--admin-border)] bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400"
-        />
-        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
-        <div className="mt-4 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={busy}
-            className="rounded-md border border-[var(--admin-border)] px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => onConfirm(password)}
-            disabled={busy || !password}
-            className={
-              "rounded-md px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50 " +
-              (danger
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-zinc-900 hover:bg-zinc-700")
-            }
-          >
-            {busy ? busyLabel : confirmLabel}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { requireReauth } from "@/lib/admin/reauth";
+import { ReauthModal } from "@/components/admin/ReauthModal";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 
 type Props = {
@@ -276,6 +277,11 @@ export function AdminTicketDetail({
 
       {reauthOpen && (
         <ReauthModal
+          title="Confirm deletion"
+          description="Deleting a ticket removes it and all its replies. This cannot be undone."
+          confirmLabel="Delete ticket"
+          busyLabel="Deleting..."
+          danger
           busy={busy}
           error={error}
           onCancel={() => {
@@ -304,55 +310,3 @@ function Meta({
   );
 }
 
-function ReauthModal({
-  busy,
-  error,
-  onCancel,
-  onConfirm,
-}: {
-  busy: boolean;
-  error: string | null;
-  onCancel: () => void;
-  onConfirm: (password: string) => void;
-}) {
-  const [password, setPassword] = useState("");
-
-  return (
-    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-lg border border-[var(--admin-border)] bg-white p-5 shadow-xl">
-        <h2 className="text-sm font-semibold">Confirm deletion</h2>
-        <p className="mt-1 text-xs text-zinc-500">
-          Deleting a ticket removes it and all its replies. This cannot be
-          undone. Re-enter your password to continue.
-        </p>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-          placeholder="Your password"
-          className="mt-3 w-full rounded-md border border-[var(--admin-border)] bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400"
-        />
-        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
-        <div className="mt-4 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={busy}
-            className="rounded-md border border-[var(--admin-border)] px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => onConfirm(password)}
-            disabled={busy || !password}
-            className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
-          >
-            Delete ticket
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}

@@ -89,8 +89,6 @@ export async function proxy(request: NextRequest) {
   // Layer 1 of the admin gate (see docs/ADMIN.md): block non-admins before any
   // admin route code runs. Fail-closed - any error denies. RLS is still the
   // real boundary; this is defense in depth + a clean redirect for humans.
-  //
-  // TODO(admin-mfa): also require an AAL2 session here once MFA enrolment ships.
   if (isAdminPath) {
     try {
       if (!user) {
@@ -103,6 +101,18 @@ export async function proxy(request: NextRequest) {
         .maybeSingle();
       if (!adminRow) {
         return NextResponse.redirect(new URL("/account", request.url));
+      }
+      // Admin sessions must be AAL2 (password + authenticator code). The
+      // membership check above deliberately uses the self-read policy, which
+      // works at AAL1, so we can still tell admins apart and route them to
+      // the challenge page instead of bouncing them to /account. is_admin()
+      // in Postgres enforces the same requirement at the data layer
+      // (migration 009), so this gate is UX, not the boundary.
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.currentLevel !== "aal2") {
+        const challenge = new URL("/auth/mfa", request.url);
+        challenge.searchParams.set("next", pathname);
+        return NextResponse.redirect(challenge);
       }
     } catch {
       return NextResponse.redirect(new URL("/account", request.url));

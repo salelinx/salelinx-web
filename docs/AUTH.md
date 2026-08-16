@@ -12,6 +12,7 @@ Email + password auth via Supabase. No magic links, no social providers (for now
 | `/auth/reset-password`  | Client               | New password + confirm. Calls `updateUser({ password })`. User must have a session from clicking the reset link.            |
 | `/auth/callback`        | Route handler        | Exchanges `?code=...` for a session cookie. Used by signup verification, password recovery. Redirects to `?next=...` param. |
 | `/auth/signout`         | Route handler (POST) | Calls `signOut()` and redirects to `/`. Plain HTML form submit.                                                             |
+| `/auth/mfa`             | Client               | MFA challenge: 6-digit TOTP code upgrades the session AAL1 -> AAL2. Hard-navigates to `?next=...` (path-only, validated).   |
 
 ## Signup flow
 
@@ -44,6 +45,15 @@ Session cookie set
   ▼
 router.push('/account') + router.refresh() (triggers server component re-render so Header updates)
 ```
+
+## MFA (TOTP)
+
+Optional for regular users, required for admins (`is_admin()` in Postgres only returns true for AAL2 sessions - migration `009_admin_mfa.sql`, see `docs/ADMIN.md`).
+
+- **Enroll:** Account > Security card > "Enable 2FA". `mfa.enroll({ factorType: 'totp' })` -> QR + manual key -> user enters the first code -> `challenge()` + `verify()` activates the factor. Abandoned (unverified) factors are cleaned up before re-enrolling.
+- **Challenge:** a password login always starts at AAL1. `/auth/mfa` prompts for a code and upgrades the session to AAL2. The admin gates redirect there with `?next=<path>`.
+- **Disable:** requires entering a current code (verifying also raises the session to AAL2, which `unenroll` demands).
+- **Recovery:** Supabase TOTP has no backup codes. A lost factor is removed in the Supabase dashboard (Authentication > Users > the user > factors) - dashboard access does not depend on app MFA.
 
 ## Password reset flow
 

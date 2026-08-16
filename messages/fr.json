@@ -160,6 +160,17 @@
       "forgotPassword": "Mot de passe oublié ?",
       "legalNotice": "En continuant, vous acceptez nos <terms>Conditions d'utilisation</terms> et confirmez avoir lu notre <privacy>Politique de confidentialité</privacy>."
     },
+    "mfa": {
+      "title": "Vérification en deux étapes",
+      "body": "Saisissez le code à 6 chiffres de votre application d'authentification.",
+      "loading": "Chargement…",
+      "codePlaceholder": "123456",
+      "submitIdle": "Vérifier",
+      "submitSubmitting": "Vérification…",
+      "codeError": "Ce code n'a pas fonctionné. Vérifiez votre application et réessayez.",
+      "notEnrolled": "Cette zone exige l'authentification à deux facteurs, qui n'est pas encore configurée sur votre compte. Activez-la d'abord depuis la section Sécurité de votre compte.",
+      "goToSecurity": "Accéder aux paramètres du compte"
+    },
     "signup": {
       "title": "Créer un compte",
       "metaDescription": "Créez un compte SaleLinx gratuit et commencez à crosslister, republier et actualiser vos annonces sur Depop et Vinted.",
@@ -279,7 +290,21 @@
     "sendConfirmation": "Envoyer la confirmation",
     "cancel": "Annuler",
     "errorEnterEmail": "Saisissez la nouvelle adresse e-mail.",
-    "errorSameEmail": "C'est déjà votre adresse e-mail actuelle."
+    "errorSameEmail": "C'est déjà votre adresse e-mail actuelle.",
+    "mfaHeading": "Authentification à deux facteurs",
+    "mfaBody": "Protégez votre compte avec un code à 6 chiffres d'une application d'authentification comme seconde étape de connexion.",
+    "mfaLoading": "Chargement…",
+    "mfaEnable": "Activer la 2FA",
+    "mfaWorking": "Traitement…",
+    "mfaScan": "Scannez ce QR code avec votre application d'authentification (Google Authenticator, 1Password, Authy…), puis saisissez le code à 6 chiffres affiché.",
+    "mfaQrAlt": "QR code pour votre application d'authentification",
+    "mfaManual": "Ou saisissez cette clé manuellement :",
+    "mfaCodePlaceholder": "123456",
+    "mfaActivate": "Activer",
+    "mfaOn": "L'authentification à deux facteurs est activée.",
+    "mfaDisable": "Désactiver la 2FA",
+    "mfaDisablePrompt": "Saisissez un code à 6 chiffres actuel de votre application pour confirmer la désactivation.",
+    "mfaCodeError": "Ce code n'a pas fonctionné. Vérifiez votre application et réessayez."
   },
   "DeleteAccount": {
     "title": "Supprimer le compte",
