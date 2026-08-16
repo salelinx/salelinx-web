@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 
 interface Labels {
   navFeatures: string;
@@ -16,6 +17,7 @@ interface Labels {
   signOut: string;
   signIn: string;
   getStarted: string;
+  addToChrome: string;
   openMenu: string;
   closeMenu: string;
 }
@@ -127,6 +129,10 @@ export function MobileMenu({ isAuthed, labels }: Props) {
               <Link href="/docs" className={linkClass}>
                 {labels.navDocs}
               </Link>
+              <InstallExtensionButton
+                label={labels.addToChrome}
+                className={`${linkClass} flex items-center gap-2`}
+              />
 
               <div className="mt-2 border-t border-black/[0.06] pt-3 dark:border-white/10">
                 {isAuthed ? (

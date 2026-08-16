@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MobileMenu } from '@/components/MobileMenu';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 
 export async function Header() {
   const supabase = await createServerClient();
@@ -51,18 +52,10 @@ export async function Header() {
         </nav>
 
         <nav className="hidden flex-1 items-center justify-end gap-4 text-sm text-zinc-600 sm:flex dark:text-zinc-400">
-          <Link
-            href="/help/faq"
-            className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
-          >
-            {t('navFaq')}
-          </Link>
-          <Link
-            href="/docs"
-            className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
-          >
-            {t('navDocs')}
-          </Link>
+          <InstallExtensionButton
+            label={t('addToChrome')}
+            className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-500/30 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-500/10 md:inline-flex dark:border-emerald-400/30 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
+          />
 
           {user ? (
             <>
@@ -123,6 +116,7 @@ export async function Header() {
             signOut: t('signOut'),
             signIn: t('signIn'),
             getStarted: t('getStarted'),
+            addToChrome: t('addToChrome'),
             openMenu: 'Open menu',
             closeMenu: 'Close menu',
           }}

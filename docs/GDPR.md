@@ -127,6 +127,20 @@ compromised admin account, processor breach):
 4. Record: write up cause, scope, and fixes in an internal note even if no
    notification was required (Article 33(5) requires keeping a record).
 
+## Data protection complaints (DUAA s.164A, in force 19 June 2026)
+
+The Data (Use and Access) Act 2025 added a duty to facilitate data protection
+complaints and acknowledge them within 30 days. The privacy policy tells users
+to email `support@salelinx.com` with the subject "Data protection complaint".
+Handling:
+
+1. Acknowledge receipt within 30 days (sooner is better; a one-line reply
+   counts).
+2. Investigate and reply with the outcome. Keep the thread in the support
+   inbox as the record.
+3. The reply must mention the user's right to complain to the ICO regardless
+   of our outcome.
+
 ## Development rules
 
 - No PII (email addresses, message bodies, buyer data) in `console.log` inside

@@ -127,7 +127,10 @@ export function AdminDashboard({
                     </span>
                   )}
                   <span className="ml-auto text-xs text-zinc-500">
-                    {actorEmails[a.actor_id] ?? a.actor_id} |{" "}
+                    {(a.actor_id ? actorEmails[a.actor_id] : null) ??
+                      a.actor_id ??
+                      "Deleted admin"}{" "}
+                    |{" "}
                     {formatWhen(a.created_at)}
                   </span>
                 </li>

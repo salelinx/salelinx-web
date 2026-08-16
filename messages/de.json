@@ -13,7 +13,8 @@
     "support": "Support",
     "signOut": "Abmelden",
     "signIn": "Anmelden",
-    "getStarted": "Loslegen"
+    "getStarted": "Loslegen",
+    "addToChrome": "Zu Chrome hinzufügen"
   },
   "Footer": {
     "tagline": "Verkaufe auf Depop und Vinted von einem Ort aus.",
@@ -69,6 +70,7 @@
       "klüger verkaufen, nicht härter."
     ],
     "ctaSeePricing": "Preise ansehen",
+    "ctaAddToChrome": "Zu Chrome hinzufügen",
     "ctaSeeFeatures": "Funktionen ansehen",
     "ctaGetStarted": "Loslegen",
     "ctaSignIn": "Anmelden",
@@ -106,7 +108,8 @@
       "title": "Beide Shops aus einem Panel führen.",
       "body": "Mit einem Klick installiert. Für deine ersten Listings gratis, keine Karte nötig.",
       "primary": "Kostenlos starten",
-      "secondary": "Preise ansehen"
+      "secondary": "Preise ansehen",
+      "tertiary": "Zu Chrome hinzufügen"
     },
     "howItWorks": {
       "eyebrow": "So funktioniert es",
@@ -145,6 +148,9 @@
     "pwTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein.",
     "pwMismatch": "Die Passwörter stimmen nicht überein.",
     "checkEmailTitle": "Prüfe deine E-Mails",
+    "continueWithGoogle": "Mit Google fortfahren",
+    "continueWithGoogleLoading": "Weiterleitung…",
+    "orDivider": "oder",
     "login": {
       "title": "Anmelden",
       "metaDescription": "Melde dich bei deinem SaleLinx-Konto an, um Tarif, Abrechnung und Empfehlungen zu verwalten.",
@@ -163,6 +169,7 @@
       "submitSubmitting": "Konto wird erstellt…",
       "haveAccount": "Hast du bereits ein Konto?",
       "signIn": "Anmelden",
+      "legalNotice": "Mit der Erstellung eines Kontos stimmst du unseren <terms>Nutzungsbedingungen</terms> zu und bestätigst, dass du unsere <privacy>Datenschutzerklärung</privacy> gelesen hast.",
       "checkEmailBody": "Wir haben einen Bestätigungslink an <email></email> gesendet. Klicke darauf, um die Kontoerstellung abzuschließen."
     },
     "forgotPassword": {

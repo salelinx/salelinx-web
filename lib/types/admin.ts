@@ -77,7 +77,10 @@ export type AdminStorageRow = {
 // is_admin() SELECT policy, no RPC.
 export type AdminAuditRow = {
   id: string;
-  actor_id: string;
+  // Null when the admin who performed the action has since been deleted -
+  // the row itself is kept indefinitely (docs/GDPR.md), only the actor link
+  // is cleared.
+  actor_id: string | null;
   action: string;
   target_table: string | null;
   target_id: string | null;

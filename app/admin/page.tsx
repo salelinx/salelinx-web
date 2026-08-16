@@ -55,7 +55,9 @@ export default async function AdminHomePage() {
   const recentAudit = (auditData as AdminAuditRow[] | null) ?? [];
 
   // Resolve actor emails for the recent audit entries.
-  const actorIds = Array.from(new Set(recentAudit.map((a) => a.actor_id)));
+  const actorIds = Array.from(
+    new Set(recentAudit.map((a) => a.actor_id).filter((id): id is string => id !== null)),
+  );
   const actorEmails: Record<string, string> = {};
   if (actorIds.length > 0) {
     const { data: emailRows } = await supabase.rpc("admin_user_emails", {
