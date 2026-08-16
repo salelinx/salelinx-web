@@ -25,7 +25,13 @@ type EmailOtpType =
   | "email";
 
 function isSafePath(path: string): boolean {
-  return path.startsWith("/") && !path.startsWith("//");
+  // Reject protocol-relative ("//evil.com") and backslash ("/\evil.com")
+  // paths: browsers normalise both to an off-origin URL. See lib/auth/safe-next.
+  return (
+    path.startsWith("/") &&
+    !path.startsWith("//") &&
+    !path.startsWith("/\\")
+  );
 }
 
 // Only same-origin relative paths are safe to forward to. Anything else (a

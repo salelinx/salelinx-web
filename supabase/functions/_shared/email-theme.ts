@@ -186,7 +186,7 @@ export function emailLayout(input: LayoutInput): string {
     <title>SaleLinx</title>
   </head>
   <body style="margin:0;padding:0;background:${theme.page};color:${theme.ink};-webkit-font-smoothing:antialiased;">
-    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;height:0;width:0;">${preheader}</div>
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;height:0;width:0;">${escapeHtml(preheader)}</div>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${theme.page};">
       <tr>
