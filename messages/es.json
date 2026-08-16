@@ -90,17 +90,50 @@
         "labels": "Etiquetas"
       },
       "headers": {
-        "listings": { "title": "Mis anuncios", "meta": "128 en la tienda" },
-        "crosslist": { "title": "Crosslist", "meta": "Vinted a Depop" },
-        "shopDesigner": { "title": "Diseñador de tienda", "meta": "Diseño Depop" },
-        "restocker": { "title": "Restocker", "meta": "Cada 6h" },
-        "relister": { "title": "Relister", "meta": "Refrescando posición" },
-        "priceDrops": { "title": "Bajadas de precio", "meta": "4 programadas" },
-        "followBot": { "title": "Bot de seguidores", "meta": "218 / 500 hoy" },
-        "offers": { "title": "Ofertas", "meta": "6 pendientes" },
-        "autoOffers": { "title": "Auto-ofertas", "meta": "En vivo" },
-        "conversations": { "title": "Bandeja", "meta": "3 sin leer" },
-        "labels": { "title": "Etiquetas", "meta": "5 para imprimir" }
+        "listings": {
+          "title": "Mis anuncios",
+          "meta": "128 en la tienda"
+        },
+        "crosslist": {
+          "title": "Crosslist",
+          "meta": "Vinted a Depop"
+        },
+        "shopDesigner": {
+          "title": "Diseñador de tienda",
+          "meta": "Diseño Depop"
+        },
+        "restocker": {
+          "title": "Restocker",
+          "meta": "Cada 6h"
+        },
+        "relister": {
+          "title": "Relister",
+          "meta": "Refrescando posición"
+        },
+        "priceDrops": {
+          "title": "Bajadas de precio",
+          "meta": "4 programadas"
+        },
+        "followBot": {
+          "title": "Bot de seguidores",
+          "meta": "218 / 500 hoy"
+        },
+        "offers": {
+          "title": "Ofertas",
+          "meta": "6 pendientes"
+        },
+        "autoOffers": {
+          "title": "Auto-ofertas",
+          "meta": "En vivo"
+        },
+        "conversations": {
+          "title": "Bandeja",
+          "meta": "3 sin leer"
+        },
+        "labels": {
+          "title": "Etiquetas",
+          "meta": "5 para imprimir"
+        }
       }
     },
     "finalCta": {
@@ -175,6 +208,7 @@
       "title": "Crear cuenta",
       "metaDescription": "Crea una cuenta gratuita de SaleLinx y empieza a crosslistar, republicar y actualizar tus artículos en Depop y Vinted.",
       "emailInUse": "Ya existe una cuenta con este email. Inicia sesión abajo o restablece tu contraseña si la has olvidado.",
+      "disposableEmail": "Usa una dirección de correo permanente. Los servicios de correo temporal no son compatibles.",
       "passwordPlaceholder": "Contraseña (mín. 8 caracteres)",
       "confirmPlaceholder": "Confirmar contraseña",
       "submitIdle": "Crear cuenta",
@@ -357,6 +391,7 @@
     "submitting": "Enviando...",
     "submitSuccess": "Enviado. Nos pondremos en contacto.",
     "submitError": "No se pudo enviar. Inténtalo de nuevo.",
+    "submitRateLimited": "Has alcanzado el límite de tickets. Espera una respuesta en tus tickets abiertos o inténtalo mañana.",
     "myTicketsTitle": "Tus solicitudes",
     "noTickets": "Aún no has enviado ninguna solicitud.",
     "noOpenTickets": "No hay solicitudes abiertas. Usa Mostrar cerradas para ver las resueltas.",
@@ -627,9 +662,15 @@
       "cta": "Empezar prueba gratuita"
     },
     "tier": {
-      "starter": { "tagline": "Aficionados" },
-      "pro": { "tagline": "Revendedores activos" },
-      "business": { "tagline": "Vendedores pro y multitienda" }
+      "starter": {
+        "tagline": "Aficionados"
+      },
+      "pro": {
+        "tagline": "Revendedores activos"
+      },
+      "business": {
+        "tagline": "Vendedores pro y multitienda"
+      }
     },
     "limit": {
       "crosslists_per_month": "Crosslistings / mes",

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 export default function SignupPage() {
@@ -25,6 +26,13 @@ export default function SignupPage() {
     }
     if (password !== confirm) {
       setError(t("pwMismatch"));
+      return;
+    }
+    // Early, friendly feedback only - the enforcement that matters happens
+    // server-side in create-checkout-session, which denies the free trial to
+    // disposable domains regardless of how the account got created.
+    if (isDisposableEmail(email)) {
+      setError(t("signup.disposableEmail"));
       return;
     }
 

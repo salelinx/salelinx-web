@@ -422,7 +422,23 @@ async function handleNewTicket(
   // Auto-ack to the author. Best-effort: a failure here must NOT fail the
   // webhook after the staff notification + message-id persist already
   // succeeded, so it's wrapped and logged rather than thrown.
+  //
+  // Skipped for accounts with zero billing history: a throwaway account
+  // spamming tickets would otherwise turn every insert into a free outbound
+  // Resend email to an address the spammer controls (cost amplification +
+  // our domain sending to spam traps). Real customers - trialing, paying,
+  // or lapsed - always have a subscriptions row and still get the ack.
   try {
+    const { count: subCount } = await supabase
+      .from("subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", record.user_id);
+    if ((subCount ?? 0) === 0) {
+      console.log(
+        `[send-support-email] auto-ack skipped for ticket ${record.id}: no billing history`,
+      );
+      return jsonResponse(200, { ok: true });
+    }
     const ack = renderAck({
       ticketId: record.id,
       type: record.type,
