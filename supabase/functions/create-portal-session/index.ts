@@ -7,12 +7,9 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
+
+const corsHeaders = sharedCorsHeaders();
 
 // Built here rather than taken from the request body: a caller-supplied
 // return_url sends the customer wherever it likes once they leave the portal.

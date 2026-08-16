@@ -50,16 +50,18 @@ import {
   linkFallback,
   paragraph,
 } from "../_shared/email-theme.ts";
+import {
+  corsHeaders as sharedCorsHeaders,
+  timingSafeEqual,
+} from "../_shared/security.ts";
 
 const BUCKET = "listing-images";
 const TOKEN_TTL_SECONDS = 60 * 60; // 1 hour
+// Each request sends an email to the account owner; cap it so a hijacked
+// session cannot bomb their inbox.
+const DAILY_REQUEST_CAP = 5;
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+const corsHeaders = sharedCorsHeaders();
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -117,7 +119,9 @@ async function verifyToken(token: string): Promise<string | null> {
     key,
     new TextEncoder().encode(`${userId}.${exp}`),
   );
-  if (b64url(new Uint8Array(expected)) !== sig) return null;
+  if (!(await timingSafeEqual(b64url(new Uint8Array(expected)), sig))) {
+    return null;
+  }
   return userId;
 }
 
@@ -293,6 +297,22 @@ Deno.serve(async (req) => {
   // -------------------------------------------------------------------------
   if (body.stage === "request") {
     if (!user.email) return json({ error: "no_email" }, 400);
+
+    // Rate limit: the counter RPC is auth.uid()-scoped, so counting through
+    // the user's own client charges the right user and needs no new table.
+    const dayKey = new Date().toISOString().slice(0, 10);
+    const { data: reqCount, error: rlErr } = await authClient.rpc(
+      "increment_usage_counter",
+      { p_feature: "delete_account_requests", p_period_key: dayKey },
+    );
+    if (rlErr) {
+      console.error(`[delete-account] rate-limit counter failed:`, rlErr.message);
+      return json({ error: "rate_limit_check_failed" }, 500);
+    }
+    if (typeof reqCount === "number" && reqCount > DAILY_REQUEST_CAP) {
+      console.log(`[delete-account] request cap reached user=${userId}`);
+      return json({ error: "rate_limited" }, 429);
+    }
 
     const locale: Locale = SUPPORTED_LOCALES.includes(body.locale as Locale)
       ? (body.locale as Locale)
