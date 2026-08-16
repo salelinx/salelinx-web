@@ -65,6 +65,13 @@ html {
   scroll-behavior: auto;
 }
 
+/* Tailwind's preflight resets <button> to cursor: default (browsers default
+   it to pointer). Restore the expected click cursor everywhere except
+   disabled buttons, which should keep reading as unclickable. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 body {
   background-color: var(--background);
   background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 1.5px);
