@@ -221,10 +221,14 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             >
               salelinx.com/auth/forgot-password
             </Link>
-            . Votre compte site web et votre compte extension sont identiques, donc le nouveau mot de passe fonctionne sur les deux.
+            . Si vous vous êtes inscrit avec Google, il n'y a pas de mot de
+            passe à réinitialiser : utilisez le bouton Continuer avec Google
+            sur la page de connexion. Votre compte site web et votre compte
+            extension sont identiques, donc la reconnexion fonctionne sur les
+            deux.
           </p>
         ),
-        keywords: ['mot de passe', 'connexion', 'réinitialiser', 'verrouillé'],
+        keywords: ['mot de passe', 'connexion', 'réinitialiser', 'verrouillé', 'google'],
       },
       {
         id: 'listings-not-syncing',

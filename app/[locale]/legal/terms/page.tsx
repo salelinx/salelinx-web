@@ -24,7 +24,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "20 July 2026";
+const LAST_UPDATED = "16 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -44,7 +44,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Your account",
     bullets: [
-      "You must provide a valid email address and keep your login credentials secure. You are responsible for activity under your account.",
+      "You must provide a valid email address and keep your login credentials secure, whether that is your password or the third-party account you sign in with (such as Google). You are responsible for activity under your account.",
       "You must meet the minimum age required by the marketplaces you use with SaleLinx, and in any case be at least 16.",
       "One account is for one person. Do not share or resell access to your account.",
     ],

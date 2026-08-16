@@ -48,7 +48,24 @@ function LoginForm() {
         {t("login.title")}
       </h1>
 
-      <div className="mt-8">
+      {/* Sign-in with Google auto-provisions an account for first-time Google
+          users, so the terms notice must appear before the button here too. */}
+      <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
+        {t.rich("login.legalNotice", {
+          terms: (chunks) => (
+            <Link href="/legal/terms" className="underline">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/legal/privacy" className="underline">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
+
+      <div className="mt-6">
         <GoogleSignInButton next={next} />
       </div>
 

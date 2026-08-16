@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 type Props = {
@@ -12,15 +12,20 @@ type Props = {
 
 export function GoogleSignInButton({ next = "/account" }: Props) {
   const t = useTranslations("Auth");
+  const locale = useLocale();
   const [loading, setLoading] = useState(false);
 
   async function onClick() {
     setLoading(true);
     const supabase = createBrowserClient();
+    // signInWithOAuth cannot set user_metadata (unlike signUp), so the
+    // locale rides along to /auth/callback, which backfills
+    // preferred_locale after the code exchange. Without it, OAuth users get
+    // English auth emails (send-auth-email falls back when the key is absent).
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}&locale=${locale}`,
       },
     });
     // On success the browser navigates away to Google immediately; this only
