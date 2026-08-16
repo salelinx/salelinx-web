@@ -63,6 +63,11 @@ html {
   /* In-page anchor jumps (header nav -> #features, #pricing) snap instantly
      so navigating across long sections doesn't feel like a long scroll. */
   scroll-behavior: auto;
+  /* Without this, pulling past the top of the page (trackpad/touch
+     rubber-banding) drags the whole document - including the sticky
+     header - down with it before it springs back. This stops the bounce
+     at the document level so the header never visibly moves. */
+  overscroll-behavior-y: none;
 }
 
 /* Tailwind's preflight resets <button> to cursor: default (browsers default
