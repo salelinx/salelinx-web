@@ -23,7 +23,7 @@ Ten Supabase Edge Functions live in `supabase/functions/`. They run on Supabase'
 | `create-portal-session`   | false*       | Authed user requests a Stripe Customer Portal URL. Same pattern.                                         |
 | `send-auth-email`         | false        | Supabase Auth POSTs here for every auth email; signed, delivered via Resend                              |
 | `send-support-email`      | false        | Database Webhooks POST here on new ticket / new reply; emails staff, the auto-ack, and admin-reply-to-user via Resend |
-| `send-shipping-labels`    | false*       | Extension POSTs a base64 PDF + recipient; auth enforced by `getUser(jwt)`; delivered via Resend          |
+| `send-shipping-labels`    | false*       | Extension POSTs a base64 PDF + recipient; auth by `getUser(jwt)` + tier gate + daily cap; via Resend     |
 | `admin-change-plan`       | false*       | Admin console swaps a customer's paid plan in Stripe; auth by `getUser()` + `admin_users` membership     |
 | `admin-delete-user`       | false*       | Admin console runs the GDPR account deletion; auth by `getUser()` + `admin_users` membership             |
 | `delete-account`          | false*       | User deletes their own account: emails a signed confirm link and erases on confirm; auth by `getUser()`  |
@@ -273,9 +273,19 @@ User clicks "Email labels" in the extension
   ▼
 Extension POSTs to https://<project-ref>.supabase.co/functions/v1/send-shipping-labels
   Authorization: Bearer <user JWT>
-  body: { to, pdfBase64, filename, count, subject?, body? }
+  body: { to, pdfBase64, filename, count }
   ▼
 Function: validate JWT via supabase.auth.getUser(jwt) -> 401 if invalid
+  ▼
+Entitlement gate: caller's active/trialing subscription tier must have
+features.shipping_label_email = true (read via user-scoped client, RLS
+"own read") -> 403 upgrade_required otherwise
+  ▼
+Rate limit: increment_usage_counter('shipping_label_emails', YYYY-MM-DD)
+-> 429 rate_limited past 50 sends/day
+  ▼
+Validate payload: filename shape, count 1..500, attachment starts with
+%PDF magic bytes, <= 25MB
   ▼
 POST to Resend with the base64 PDF as an attachment
   ▼
@@ -283,6 +293,8 @@ Recipient receives the labels in their inbox
 ```
 
 The function lives in this repo (not the extension) because all Edge Functions deploy from a single workspace; the extension just calls the URL. It deploys with `--no-verify-jwt` for the same ES256 reason as the authed Stripe functions.
+
+Abuse posture: this function sends from our verified Resend domain to a recipient the caller chooses (users legitimately email labels to print shops or co-workers), so everything else is locked down. Subject and body are fixed server-side (no caller overrides), the attachment must actually be a PDF, the feature is gated to tiers with `shipping_label_email`, and sends are capped per user per day. Do not reintroduce subject/body overrides or drop the tier gate.
 
 ## Excluded from TypeScript checks
 

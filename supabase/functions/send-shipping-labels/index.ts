@@ -22,13 +22,19 @@
 //
 // Request body:
 //   {
-//     to: string;          // recipient email
+//     to: string;          // recipient email (user-chosen, e.g. a print shop)
 //     pdfBase64: string;   // base64-encoded merged PDF
 //     filename: string;    // "labels-14-Apr-2026-3.pdf"
 //     count: number;       // label count, used in subject/body copy
-//     subject?: string;    // optional override
-//     body?: string;       // optional override
 //   }
+//
+// Abuse controls (this function sends from our verified domain to an address
+// the caller chooses, so it must not be usable as a relay):
+//   - the caller's tier must have the shipping_label_email feature enabled
+//   - subject and body are fixed server-side; callers cannot override them
+//   - the attachment must actually be a PDF (magic-byte check)
+//   - filename and count are strictly validated
+//   - sends are capped per user per day via usage_counters
 
 // @ts-nocheck — this file runs under Deno, not the extension's TS config.
 
@@ -56,8 +62,23 @@ interface SendRequest {
   pdfBase64: string;
   filename: string;
   count: number;
-  subject?: string;
-  body?: string;
+}
+
+// Daily per-user cap on label emails. Generous for real batch workflows
+// (one email per merged batch) while making the function useless for spam.
+const DAILY_SEND_CAP = 50;
+
+// "labels-14-Apr-2026-3.pdf" style names only: short, safe charset, .pdf.
+const FILENAME_RE = /^[\w][\w .()-]{0,79}\.pdf$/i;
+
+function isPdfBase64(b64: string): boolean {
+  // First 8 base64 chars decode to the first 6 bytes; a real PDF starts
+  // with "%PDF-". Reject anything else so we never mail arbitrary files.
+  try {
+    return atob(b64.slice(0, 8)).startsWith('%PDF');
+  } catch {
+    return false;
+  }
 }
 
 function json(status: number, body: unknown): Response {
@@ -130,12 +151,77 @@ async function handleRequest(req: Request): Promise<Response> {
 
   if (!body.to || !isEmail(body.to)) return json(400, { ok: false, error: 'Invalid recipient' });
   if (!body.pdfBase64) return json(400, { ok: false, error: 'Missing pdfBase64' });
-  if (!body.filename) return json(400, { ok: false, error: 'Missing filename' });
+  if (typeof body.filename !== 'string' || !FILENAME_RE.test(body.filename)) {
+    return json(400, { ok: false, error: 'Invalid filename' });
+  }
+  if (!Number.isInteger(body.count) || body.count < 1 || body.count > 500) {
+    return json(400, { ok: false, error: 'Invalid count' });
+  }
+
+  const pdfBase64 = String(body.pdfBase64).replace(/\s+/g, '');
+  if (!isPdfBase64(pdfBase64)) {
+    return json(400, { ok: false, error: 'Attachment is not a PDF' });
+  }
 
   // Rough size cap — Resend allows 40MB of attachments; we cap at 25MB to stay safe.
-  const approxBytes = (body.pdfBase64.length * 3) / 4;
+  const approxBytes = (pdfBase64.length * 3) / 4;
   if (approxBytes > 25 * 1024 * 1024) {
     return json(413, { ok: false, error: 'Attachment too large (>25MB)' });
+  }
+
+  // ── Entitlement gate: shipping_label_email is a paid (Business) feature ──
+  // The extension gates client-side too, but the server check is the real
+  // boundary. Read via a user-scoped client so RLS "own read" applies.
+  const userScoped = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${jwt}` } },
+  });
+
+  const { data: sub, error: subErr } = await userScoped
+    .from('subscriptions')
+    .select('tier_id, tier_version')
+    .in('status', ['active', 'trialing'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (subErr) {
+    console.error('[send-shipping-labels] subscription lookup failed:', subErr.message);
+    return json(500, { ok: false, error: 'Entitlement check failed' });
+  }
+
+  let featureEnabled = false;
+  if (sub) {
+    const { data: tier, error: tierErr } = await userScoped
+      .from('tier_limits')
+      .select('features')
+      .eq('tier_id', sub.tier_id)
+      .eq('version', sub.tier_version)
+      .maybeSingle();
+    if (tierErr) {
+      console.error('[send-shipping-labels] tier lookup failed:', tierErr.message);
+      return json(500, { ok: false, error: 'Entitlement check failed' });
+    }
+    featureEnabled = tier?.features?.shipping_label_email === true;
+  }
+  if (!featureEnabled) {
+    console.log(`[send-shipping-labels] blocked: feature not on tier, user=${user.id}`);
+    return json(403, { ok: false, error: 'Your plan does not include emailed labels', code: 'upgrade_required' });
+  }
+
+  // ── Daily rate limit ─────────────────────────────────────────────────────
+  // increment_usage_counter is SECURITY DEFINER and scoped to auth.uid(), so
+  // calling it through the user-scoped client counts against this user only.
+  const dayKey = new Date().toISOString().slice(0, 10);
+  const { data: sendCount, error: rlErr } = await userScoped.rpc('increment_usage_counter', {
+    p_feature: 'shipping_label_emails',
+    p_period_key: dayKey,
+  });
+  if (rlErr) {
+    console.error('[send-shipping-labels] rate-limit counter failed:', rlErr.message);
+    return json(500, { ok: false, error: 'Rate-limit check failed' });
+  }
+  if (typeof sendCount === 'number' && sendCount > DAILY_SEND_CAP) {
+    console.log(`[send-shipping-labels] blocked: daily cap reached, user=${user.id}`);
+    return json(429, { ok: false, error: 'Daily label email limit reached, try again tomorrow', code: 'rate_limited' });
   }
 
   // ── Send via Resend ──────────────────────────────────────────────────────
@@ -162,10 +248,12 @@ async function handleRequest(req: Request): Promise<Response> {
     year: 'numeric',
   });
 
-  const subject = body.subject ?? `Shipping labels — ${body.count} ${labelWord} (${dateStr})`;
+  // Subject and body are fixed server-side. Do not add caller overrides:
+  // this function sends from our verified domain and caller-controlled copy
+  // would turn it into a phishing relay.
+  const subject = `Shipping labels - ${body.count} ${labelWord} (${dateStr})`;
 
   const text =
-    body.body ??
     [
       'Hi,',
       '',
@@ -234,7 +322,7 @@ async function handleRequest(req: Request): Promise<Response> {
       html,
       // The label PDF the user asked for, plus the inline masthead logo.
       attachments: [
-        { filename: body.filename, content: body.pdfBase64 },
+        { filename: body.filename, content: pdfBase64 },
         ...EMAIL_ASSETS,
       ],
     }),
