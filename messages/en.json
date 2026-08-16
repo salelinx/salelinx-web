@@ -326,6 +326,7 @@
     "cancel": "Cancel",
     "errorEnterEmail": "Enter the new email address.",
     "errorSameEmail": "That's already your current email.",
+    "errorRateLimited": "Too many email change requests. Please try again tomorrow.",
     "mfaHeading": "Two-factor authentication",
     "mfaBody": "Protect your account with a 6-digit code from an authenticator app as a second sign-in step.",
     "mfaLoading": "Loading…",

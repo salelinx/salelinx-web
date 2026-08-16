@@ -22,6 +22,13 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
 
+Anti-abuse tombstones: `trial_history` and `link_history` store only a salted
+SHA-256 hash of a marketplace account identity (no username, no email, nothing
+reversible) so trial eligibility survives account deletion. They deliberately
+have no FK to `auth.users`; deleting a user does not remove them, by design, and
+they hold nothing identifiable. Noted here so the deletion runbook does not add
+them.
+
 Not processed at all: analytics or tracking data, browsing history, marketplace
 passwords or session tokens in readable form, card details (Stripe-hosted
 checkout), buyer conversation content on our servers.
