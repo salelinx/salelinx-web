@@ -167,7 +167,7 @@ When this repo's `tiers.ts` diverges from the extension's `src/entitlements/type
 Trial eligibility is checked in `create-checkout-session` and is denied when ANY of:
 
 - the user has any prior `subscriptions` row (original rule, unchanged)
-- any Depop/Vinted account the user has linked appears in `trial_history` - permanent, hashed tombstones written whenever a platform account coexists with a billed user (both link-then-subscribe and subscribe-then-link orderings are covered by triggers). Tombstones deliberately have no FK to `auth.users`, so deleting the account does not reset them.
+- any Depop/Vinted account the user has EVER linked appears in `trial_history` - permanent, hashed tombstones written whenever a platform account coexists with a billed user (both link-then-subscribe and subscribe-then-link orderings are covered by triggers). Tombstones deliberately have no FK to `auth.users`, so deleting the account does not reset them. The eligibility check joins `trial_history` against `link_history` (migration 016), an append-only record of every platform account a user has linked, NOT against currently-linked accounts - otherwise unlinking before checkout would evade the gate.
 - the account email is on the disposable-domain blocklist (`supabase/functions/_shared/disposable-domains.ts`, mirrored at `lib/auth/disposable-domains.ts`)
 
 `linked_accounts` also has `UNIQUE (platform, platform_user_id)`: one platform account can only be linked to one SaleLinx account at a time, and a BEFORE INSERT trigger rejects linking an already-trialed platform account to a trial-only user (`platform_account_already_trialed`). Paying and lapsed-paid users are never blocked from linking.
