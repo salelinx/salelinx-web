@@ -30,7 +30,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Agreement",
     paragraphs: [
-      "These terms are a contract between you and SaleLinx (\"SaleLinx\", \"we\", \"us\") covering your use of the SaleLinx browser extension and the salelinx.com website (together, the \"service\"). By creating an account or using the service you agree to these terms. If you do not agree, do not use the service.",
+      "These terms are a contract between you and SaleLinx Ltd, a company registered in England and Wales with company number 17351832 and registered office at 34 Sussex Place, London, W2 2TH (\"SaleLinx\", \"we\", \"us\"), covering your use of the SaleLinx browser extension and the salelinx.com website (together, the \"service\"). By creating an account or using the service you agree to these terms. If you do not agree, do not use the service.",
       "Our privacy policy explains how we handle personal data and forms part of these terms.",
     ],
   },
@@ -133,7 +133,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Contact",
     paragraphs: [
-      "Questions about these terms: support@salelinx.com.",
+      "Questions about these terms: support@salelinx.com, or write to SaleLinx Ltd, 34 Sussex Place, London, W2 2TH, United Kingdom.",
     ],
   },
 ];

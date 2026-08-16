@@ -31,8 +31,8 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Who we are",
     paragraphs: [
-      "SaleLinx (\"SaleLinx\", \"we\", \"us\") provides a browser extension and the website salelinx.com that help resellers manage, cross-list, and automate tasks for their own listings on Depop and Vinted.",
-      "For any privacy question or request, contact us at support@salelinx.com.",
+      "SaleLinx Ltd (\"SaleLinx\", \"we\", \"us\") is a company registered in England and Wales, company number 17351832, with registered office at 34 Sussex Place, London, W2 2TH. We provide a browser extension and the website salelinx.com that help resellers manage, cross-list, and automate tasks for their own listings on Depop and Vinted.",
+      "For the personal data we hold about you as an account holder, SaleLinx Ltd is the data controller. For any privacy question or request, contact us at support@salelinx.com.",
     ],
   },
   {
