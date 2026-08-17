@@ -5,12 +5,18 @@ import * as initialReleaseEn from '@/content/changelog/en/2026-04-15-initial-rel
 import * as initialReleaseFr from '@/content/changelog/fr/2026-04-15-initial-release.mdx';
 import * as initialReleaseEs from '@/content/changelog/es/2026-04-15-initial-release.mdx';
 import * as initialReleaseDe from '@/content/changelog/de/2026-04-15-initial-release.mdx';
+import * as v110En from '@/content/changelog/en/2026-08-17-v1-1-0.mdx';
+import * as v110Fr from '@/content/changelog/fr/2026-08-17-v1-1-0.mdx';
+import * as v110Es from '@/content/changelog/es/2026-08-17-v1-1-0.mdx';
+import * as v110De from '@/content/changelog/de/2026-08-17-v1-1-0.mdx';
 
+// Entries are registered by hand, one import per locale. listChangelog sorts by
+// metadata.date descending, so the order here does not matter.
 const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
-  en: [initialReleaseEn as unknown as ChangelogModule],
-  fr: [initialReleaseFr as unknown as ChangelogModule],
-  es: [initialReleaseEs as unknown as ChangelogModule],
-  de: [initialReleaseDe as unknown as ChangelogModule],
+  en: [v110En as unknown as ChangelogModule, initialReleaseEn as unknown as ChangelogModule],
+  fr: [v110Fr as unknown as ChangelogModule, initialReleaseFr as unknown as ChangelogModule],
+  es: [v110Es as unknown as ChangelogModule, initialReleaseEs as unknown as ChangelogModule],
+  de: [v110De as unknown as ChangelogModule, initialReleaseDe as unknown as ChangelogModule],
 };
 
 function modulesFor(locale: Locale): ChangelogModule[] {

@@ -1,0 +1,63 @@
+export const metadata = {
+  title: 'Inicio de sesión con Google, Refer & Earn y una corrección en Depop Messages',
+  date: '2026-08-17',
+  summary:
+    'La versión 1.1.0 añade inicio de sesión con Google y una pestaña Refer & Earn propia, repara Depop Messages y corrige los anuncios crosslistados a Depop que usaban el Reino Unido por defecto.',
+  tags: ['release'],
+};
+
+# Versión 1.1.0
+
+La primera actualización importante desde el lanzamiento. Inicio de sesión con
+Google, un sitio propio para el programa de referidos y una serie de
+correcciones, una de ellas muy relevante si vendes fuera del Reino Unido.
+
+## Novedades
+
+- **Inicio de sesión con Google.** Sin una contraseña de SaleLinx aparte que
+  recordar. El acceso con correo y contraseña sigue funcionando igual que antes
+  si lo prefieres.
+- **Pestaña Refer &amp; Earn.** El programa de referidos ya tiene su propia
+  pestaña en el panel: comparte tu enlace y consulta quién se ha registrado y
+  cuánto has ganado sin salir de la extensión.
+- **Botones para recargar anuncios** en Relist y Dead Stock, para traer datos
+  actualizados sin cambiar de pestaña.
+- **Botones para abrir la plataforma.** Donde el panel indica que falta una
+  sesión de marketplace, el nombre de la plataforma es ahora un enlace que la
+  abre.
+
+## Corregido
+
+- **Depop Messages.** Las conversaciones que no cargaban, fallaban en silencio
+  o mostraban avatares en blanco vuelven a funcionar. Es la corrección más
+  grande de esta versión.
+- **El crosslisting a Depop usaba el Reino Unido sin importar dónde vendas.**
+  Cada anuncio creado por la extensión llevaba una dirección y un país
+  &laquo;United Kingdom&raquo;, y las tallas se resolvían contra el conjunto
+  británico. Para una persona que vende en Estados Unidos, una `US 8` podía
+  publicarse como `UK 8`, dos tallas menos, sin ningún aviso. Los anuncios usan
+  ahora tu propio país y tu región de tallas, y cuando la región no se puede
+  determinar la talla se deja vacía en lugar de adivinarla.
+- **La vinculación de cuentas mostraba un estado incorrecto.** El panel podía
+  dar una marketplace por conectada cuando la sesión ya había caducado. Ahora
+  distingue una sesión activa de una caducada y te dice cuál es.
+- **Las cuentas sin vincular se señalan** en el panel, en lugar de dejar que
+  las funciones fallen sin explicación más adelante.
+- **Price Drops** ya no mantiene una selección obsoleta tras actualizar la
+  lista, y separa los artículos que aún no toca de los que se omitieron.
+- **Las vistas previas de Shop Designer** se muestran dentro de maquetas de
+  teléfono y portátil, así se distinguen mejor las cuadrículas de móvil y
+  escritorio.
+
+## Además
+
+- La prueba gratuita pasa a **14 días**, frente a 7, para las cuentas nuevas.
+- Se aplica un límite de dispositivos simultáneos: una suscripción cubre a una
+  persona, no a un acceso compartido.
+
+## Cómo actualizar
+
+Chrome actualiza las extensiones automáticamente, normalmente pocas horas
+después de una publicación. Cuando la actualización esté preparada verás un
+aviso en el panel con un botón **Recargar para actualizar**, que la aplica al
+momento sin reiniciar el navegador.

@@ -1,0 +1,61 @@
+export const metadata = {
+  title: 'Google sign-in, Refer & Earn, and a Depop Messages fix',
+  date: '2026-08-17',
+  summary:
+    'Version 1.1.0 adds Google sign-in and a dedicated Refer & Earn tab, repairs Depop Messages, and fixes crosslisted Depop listings defaulting to the UK.',
+  tags: ['release'],
+};
+
+# Version 1.1.0
+
+The first substantial update since launch. Google sign-in, a home for the
+referral programme, and a set of fixes, one of which matters a lot if you
+sell outside the UK.
+
+## New
+
+- **Sign in with Google.** No separate SaleLinx password to remember. Email
+  and password still works exactly as before if you prefer it.
+- **Refer &amp; Earn tab.** The referral programme now has its own tab in the
+  panel: share your link, and see who has signed up and what you have earned
+  without leaving the extension.
+- **Reload listings buttons** on Relist and Dead Stock, so you can pull fresh
+  data without switching tabs.
+- **Open platform buttons.** Where the panel tells you a marketplace session is
+  missing, the platform name is now a link that opens it.
+
+## Fixed
+
+- **Depop Messages.** Conversations that failed to load, failed silently, or
+  showed blank avatars now work. This was the largest single fix in the
+  release.
+- **Crosslisting to Depop used the UK regardless of where you sell.** Every
+  listing the extension created was stamped with a United Kingdom address and
+  country, and sizes were resolved against the UK size set. For a US seller
+  that meant a `US 8` could be published as a `UK 8`, which is two sizes
+  smaller, with no warning. Listings now use your own country and size region,
+  and where the region cannot be matched the size is left unset rather than
+  guessed.
+- **Account linking showed the wrong state.** The panel could report a
+  marketplace as connected when the session had actually expired. It now
+  distinguishes a live session from an expired one and tells you which.
+- **Unlinked accounts are surfaced** across the panel rather than features
+  failing quietly further down the line.
+- **Price Drops** no longer keeps a stale selection after the list refreshes,
+  and separates items that are not due for a drop yet from those that were
+  skipped.
+- **Shop Designer previews** now render inside phone and laptop mockups, so the
+  mobile and desktop grids are easier to tell apart.
+
+## Also
+
+- The free trial is now **14 days**, up from 7, for new accounts.
+- A concurrent-device limit now applies, so one subscription covers one person
+  rather than a shared login.
+
+## Updating
+
+Chrome updates extensions automatically, usually within a few hours of a
+release. When the update is staged you will see a banner in the panel with a
+**Reload to update** button, which applies it immediately without restarting
+your browser.
