@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { safeNext } from "@/lib/auth/safe-next";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { OAuthSignInButton } from "@/components/auth/OAuthSignInButton";
 
 function LoginForm() {
   const router = useRouter();
@@ -65,8 +65,9 @@ function LoginForm() {
         })}
       </p>
 
-      <div className="mt-6">
-        <GoogleSignInButton next={next} />
+      <div className="mt-6 flex flex-col gap-3">
+        <OAuthSignInButton provider="google" next={next} />
+        <OAuthSignInButton provider="apple" next={next} />
       </div>
 
       <div className="my-6 flex items-center gap-3 text-xs text-zinc-500">

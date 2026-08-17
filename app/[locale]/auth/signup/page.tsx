@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { isDisposableEmail } from "@/lib/auth/disposable-domains";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { OAuthSignInButton } from "@/components/auth/OAuthSignInButton";
 import { TERMS_VERSION } from "@/lib/site";
 
 export default function SignupPage() {
@@ -116,8 +116,9 @@ export default function SignupPage() {
         })}
       </p>
 
-      <div className="mt-6">
-        <GoogleSignInButton />
+      <div className="mt-6 flex flex-col gap-3">
+        <OAuthSignInButton provider="google" />
+        <OAuthSignInButton provider="apple" />
       </div>
 
       <div className="my-6 flex items-center gap-3 text-xs text-zinc-500">

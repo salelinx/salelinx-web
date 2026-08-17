@@ -185,6 +185,9 @@
     "checkEmailTitle": "Prüfe deine E-Mails",
     "continueWithGoogle": "Mit Google fortfahren",
     "continueWithGoogleLoading": "Weiterleitung…",
+    "continueWithApple": "Mit Apple fortfahren",
+    "continueWithAppleLoading": "Weiterleitung…",
+    "providerNotEnabled": "Die Anmeldung mit {provider} ist noch nicht eingerichtet.",
     "orDivider": "oder",
     "login": {
       "title": "Anmelden",

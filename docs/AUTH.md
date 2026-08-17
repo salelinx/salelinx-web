@@ -46,6 +46,54 @@ Session cookie set
 router.push('/account') + router.refresh() (triggers server component re-render so Header updates)
 ```
 
+## Social sign-in (Google, Apple)
+
+One component for both: `components/auth/OAuthSignInButton.tsx`, rendered on
+the login and signup pages. There is no separate signup path - Supabase creates
+the account on first sign-in.
+
+```
+Button -> supabase.auth.signInWithOAuth({ provider, redirectTo: /auth/callback?next=..&locale=.. })
+  ▼
+Provider consent screen
+  ▼
+Provider redirects to Supabase's own callback (https://<ref>.supabase.co/auth/v1/callback)
+  ▼
+Supabase forwards to our redirectTo
+  ▼
+/auth/callback exchanges the code, backfills preferred_locale, redirects to `next`
+```
+
+`locale` rides along because `signInWithOAuth` cannot set `user_metadata` the
+way `signUp` can, so without it OAuth users get English auth emails.
+
+### Apple specifics
+
+Apple is stricter than Google, and these are not optional:
+
+- **Apple never sees `redirectTo`.** The only return URL registerable against a
+  Services ID is Supabase's own callback, so Apple returns there and Supabase
+  forwards on. Nothing extra is needed for the extension's
+  `chromiumapp.org` redirect beyond it already being on the Supabase allowlist.
+- **The client secret expires every 6 months.** It is a JWT derived from the
+  `.p8` signing key. When it lapses, Apple sign-in breaks with no code change
+  and no warning. Put a calendar reminder on it.
+- **Name and email come back on the FIRST authorization only.** Later sign-ins
+  carry just the subject id, so nothing may assume the name is present.
+- **Hide My Email.** Users can hand over a `@privaterelay.appleid.com` address.
+  Apple's relay only accepts mail from domains registered under _Email Sources_
+  in the Services section, so `salelinx.com` has to be registered there or auth,
+  support and referral mail to those users silently bounces. Worth checking what
+  happens to Stripe receipts too, since those are sent from Stripe's own
+  infrastructure rather than ours.
+- **Not a compliance requirement here.** Apple only mandates offering Sign in
+  with Apple alongside other social logins for iOS App Store apps, not for the
+  web or a Chrome extension.
+
+Until the provider is configured in Supabase, `signInWithOAuth` returns
+"provider is not enabled"; the button surfaces that as "Apple sign-in isn't set
+up yet" rather than a raw API string.
+
 ## MFA (TOTP)
 
 Optional for regular users, required for admins (`is_admin()` in Postgres only returns true for AAL2 sessions - migration `009_admin_mfa.sql`, see `docs/ADMIN.md`).
@@ -172,6 +220,19 @@ The fix is that the email link lands on our own `/auth/confirm` page, which hold
 ## Supabase config needed
 
 See `README.md` and the **"Supabase config needed"** checklist - Site URL, Redirect URLs, Confirm email, password min length, and the Send Email Hook registration.
+
+For Apple, additionally (Authentication > Providers > Apple):
+
+| Field       | Where it comes from                                                                 |
+| ----------- | ----------------------------------------------------------------------------------- |
+| Services ID | Apple Developer > Identifiers > Services IDs, reverse-domain form                   |
+| Team ID     | top right of the Apple Developer site                                               |
+| Secret Key  | JWT generated from the `.p8` signing key (Keys section); **expires every 6 months** |
+
+In the Services ID's _Website URLs_, the domain is `<ref>.supabase.co` and the
+return URL is `https://<ref>.supabase.co/auth/v1/callback` - exact match, and
+Apple accepts no other value. Sign in with Apple also requires a paid Apple
+Developer Program membership.
 
 ## Gotchas
 

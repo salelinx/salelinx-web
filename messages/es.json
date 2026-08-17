@@ -185,6 +185,9 @@
     "checkEmailTitle": "Revisa tu correo",
     "continueWithGoogle": "Continuar con Google",
     "continueWithGoogleLoading": "Redirigiendo…",
+    "continueWithApple": "Continuar con Apple",
+    "continueWithAppleLoading": "Redirigiendo…",
+    "providerNotEnabled": "El inicio de sesión con {provider} aún no está configurado.",
     "orDivider": "o",
     "login": {
       "title": "Iniciar sesión",

@@ -185,6 +185,9 @@
     "checkEmailTitle": "Vérifiez vos e-mails",
     "continueWithGoogle": "Continuer avec Google",
     "continueWithGoogleLoading": "Redirection…",
+    "continueWithApple": "Continuer avec Apple",
+    "continueWithAppleLoading": "Redirection…",
+    "providerNotEnabled": "La connexion {provider} n'est pas encore configurée.",
     "orDivider": "ou",
     "login": {
       "title": "Se connecter",

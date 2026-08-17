@@ -185,6 +185,9 @@
     "checkEmailTitle": "Check your email",
     "continueWithGoogle": "Continue with Google",
     "continueWithGoogleLoading": "Redirecting…",
+    "continueWithApple": "Continue with Apple",
+    "continueWithAppleLoading": "Redirecting…",
+    "providerNotEnabled": "{provider} sign-in isn't set up yet.",
     "orDivider": "or",
     "login": {
       "title": "Sign in",
