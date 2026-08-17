@@ -1,4 +1,5 @@
--- release_notes, take two.
+-- release_notes, take two. Numbered 022 to leave 021 for the leaderboard
+-- display-name migration already open in PR #71.
 --
 -- Migration 005 creates this table and is recorded as applied in
 -- supabase_migrations.schema_migrations, but the table was never actually
