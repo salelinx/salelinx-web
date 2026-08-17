@@ -10,7 +10,7 @@ Supabase Edge Function that attaches a merged shipping-label PDF and sends it vi
    ```sh
    supabase secrets set \
      RESEND_API_KEY=re_xxxxxxxxxxxxxxxx \
-     RESEND_FROM='Resale Bot <labels@yourdomain.com>'
+     RESEND_FROM='SaleLinx <labels@yourdomain.com>'
    ```
    `RESEND_FROM` must use a domain you verified in Resend. During development you can use Resend's `onboarding@resend.dev` sender (only lets you email the account owner).
 4. **Deploy the function** (the `--no-verify-jwt` flag is required — the

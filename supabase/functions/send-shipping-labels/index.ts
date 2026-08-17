@@ -1,7 +1,7 @@
 // Supabase Edge Function: send-shipping-labels
 // ------------------------------------------------------------------------
 // Accepts a merged shipping-label PDF (base64) + recipient email from the
-// Resale Bot extension, attaches it to an email, and sends via Resend.
+// SaleLinx extension, attaches it to an email, and sends via Resend.
 //
 // Auth: requires a valid Supabase access_token (the extension passes the
 // signed-in user's JWT in the Authorization header). Unauthenticated
@@ -9,11 +9,11 @@
 //
 // Required secrets:
 //   RESEND_API_KEY   — from https://resend.com/api-keys
-//   RESEND_FROM      — verified sender address, e.g. "Resale Bot <labels@yourdomain.com>"
+//   RESEND_FROM      — verified sender address, e.g. "SaleLinx <labels@yourdomain.com>"
 //                      (Resend requires domain verification before production use)
 //
 // Deploy:
-//   supabase secrets set RESEND_API_KEY=re_... RESEND_FROM='Resale Bot <labels@example.com>'
+//   supabase secrets set RESEND_API_KEY=re_... RESEND_FROM='SaleLinx <labels@example.com>'
 //   supabase functions deploy send-shipping-labels --no-verify-jwt
 //
 // The --no-verify-jwt flag is required: the edge runtime's built-in JWT
