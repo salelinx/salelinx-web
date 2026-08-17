@@ -4,7 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
-import { ReferralPrice } from "@/components/ReferralPrice";
+import { ReferralPrice, PRICE_BLOCK } from "@/components/ReferralPrice";
 import { Icon, type IconName } from "@/components/Icon";
 import type { TierConfig, TierId } from "@/lib/types/tiers";
 
@@ -249,16 +249,18 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
               {t("trial.tagline")}
             </p>
 
-            <p className="mt-6 text-4xl font-bold">
-              £0
-              <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
-                {" "}
-                {t("trial.priceSuffix", { days: TRIAL_DAYS })}
-              </span>
-            </p>
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-              {t("trial.thenPrice", { price: TIER_META.starter.price })}
-            </p>
+            <div className={PRICE_BLOCK}>
+              <p className="text-4xl font-bold">
+                £0
+                <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
+                  {" "}
+                  {t("trial.priceSuffix", { days: TRIAL_DAYS })}
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                {t("trial.thenPrice", { price: TIER_META.starter.price })}
+              </p>
+            </div>
 
             {starterPriceId ? (
               <SubscribeButton
