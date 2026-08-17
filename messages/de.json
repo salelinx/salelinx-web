@@ -474,6 +474,8 @@
     }
   },
   "Invited": {
+    "priceNoteFirstMonth": "im ersten Monat",
+    "priceNoteMonths": "für deine ersten {months} Monate",
     "discountOffFirstMonth": "Dein Empfehlungsrabatt: {value} Rabatt auf deinen ersten Monat, wird beim Bezahlen automatisch angewendet.",
     "discountOffMonths": "Dein Empfehlungsrabatt: {value} Rabatt auf deine ersten {months} Monate, wird beim Bezahlen automatisch angewendet.",
     "discountOffForever": "Dein Empfehlungsrabatt: {value} Rabatt jeden Monat, wird beim Bezahlen automatisch angewendet.",

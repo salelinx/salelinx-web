@@ -1,6 +1,11 @@
 "use client";
 
-import { useReferralDiscount, applyDiscount } from "@/lib/referral-discount";
+import { useTranslations } from "next-intl";
+import {
+  useReferralDiscount,
+  applyDiscount,
+  discountDurationKey,
+} from "@/lib/referral-discount";
 
 // Price line on a pricing card. Renders the plain price for everyone, and
 // strikes it through against the referred price once we know the visitor has
@@ -14,8 +19,23 @@ export function ReferralPrice({
   price: string;
   suffix: string;
 }) {
+  const t = useTranslations("Invited");
   const { pending, discount } = useReferralDiscount();
   const discounted = pending ? applyDiscount(price, discount) : null;
+
+  // A `once` coupon is the normal case, so the struck-through price must not
+  // read as the ongoing rate. Without this the card said "£7.99 £6.39 /month"
+  // while the banner directly above it said "off your first month".
+  const durationNote =
+    discounted && discount
+      ? {
+          "first-month": t("priceNoteFirstMonth"),
+          months: t("priceNoteMonths", {
+            months: discount.durationInMonths ?? 0,
+          }),
+          forever: null,
+        }[discountDurationKey(discount)]
+      : null;
 
   if (!discounted) {
     return (
@@ -39,6 +59,11 @@ export function ReferralPrice({
       <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
         {suffix}
       </span>
+      {durationNote && (
+        <span className="mt-1 block text-xs font-normal text-emerald-600 dark:text-emerald-400">
+          {durationNote}
+        </span>
+      )}
     </p>
   );
 }

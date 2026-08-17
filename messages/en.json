@@ -474,6 +474,8 @@
     }
   },
   "Invited": {
+    "priceNoteFirstMonth": "first month only",
+    "priceNoteMonths": "for your first {months} months",
     "discountOffFirstMonth": "Your referral discount: {value} off your first month, applied automatically at checkout.",
     "discountOffMonths": "Your referral discount: {value} off your first {months} months, applied automatically at checkout.",
     "discountOffForever": "Your referral discount: {value} off every month, applied automatically at checkout.",
