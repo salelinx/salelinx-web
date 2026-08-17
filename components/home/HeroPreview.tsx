@@ -5,6 +5,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
 } from 'react';
 
@@ -22,6 +23,27 @@ function useAnimationTick(intervalMs: number): number {
     return () => window.clearInterval(id);
   }, [intervalMs]);
   return tick;
+}
+
+/**
+ * True when the visitor asked for reduced motion. Panels that build a state up
+ * over several ticks need this: useAnimationTick holds at 0 for those users, so
+ * a tick-derived panel would otherwise freeze showing its *empty* first frame.
+ * Reading this lets a panel jump straight to its finished state instead.
+ */
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+      mq.addEventListener('change', onStoreChange);
+      return () => mq.removeEventListener('change', onStoreChange);
+    },
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    // Server render assumes motion is fine; the client corrects on hydration.
+    () => false,
+  );
 }
 import { useTranslations } from 'next-intl';
 import { Icon, type IconName } from '@/components/Icon';
@@ -394,6 +416,33 @@ function CrosslistPanel() {
   // mimic each platform: Vinted's teal accents + "heart + measurements"
   // sidebar style, Depop's red accents + "@user + tags" feed style. Same
   // item, two visibly different homes - that's the crosslist story.
+  //
+  // The target card builds itself field by field rather than arriving whole.
+  // This is the default tab, so it is the first thing most visitors see, and a
+  // finished card told them the outcome without ever showing the work. Five
+  // steps at roughly a second each plus a hold is about 7s, which fits inside
+  // the 8s auto-advance budget so a passive visitor sees a full pass.
+  const tick = useAnimationTick(100);
+  const reduced = usePrefersReducedMotion();
+
+  const CYCLE = 74;
+  const STEP_TICKS = [6, 16, 26, 36, 46];
+  const phase = tick % CYCLE;
+  // Reduced motion holds tick at 0, so show the completed card instead of an
+  // empty one.
+  const step = reduced ? STEP_TICKS.length : STEP_TICKS.filter((s) => phase >= s).length;
+  const done = step >= STEP_TICKS.length;
+  // The arrow flashes for ~400ms each time a field lands.
+  const landing =
+    !reduced && STEP_TICKS.some((s) => phase >= s && phase < s + 4);
+
+  // Fields fade up into place. Anything not yet mapped sits invisible but keeps
+  // its space, so the card never reflows and the outer height stays put.
+  const field = (at: number): string =>
+    `transition-all duration-300 ease-out ${
+      step >= at ? 'opacity-100 translate-y-0' : 'translate-y-1 opacity-0'
+    }`;
+
   return (
     <div className="cascade-list flex flex-col gap-3">
       <div className="cascade-list grid grid-cols-[1fr_auto_1fr] items-stretch gap-2">
@@ -451,7 +500,11 @@ function CrosslistPanel() {
           style={{ '--stagger-delay': `100ms` } as CSSProperties}
         >
           <svg
-            className="size-6 text-zinc-400 dark:text-zinc-500"
+            className={`size-6 transition-colors duration-200 ${
+              landing
+                ? 'text-emerald-500 dark:text-emerald-400'
+                : 'text-zinc-400 dark:text-zinc-500'
+            }`}
             viewBox="0 0 28 24"
             fill="none"
             aria-hidden="true"
@@ -464,8 +517,12 @@ function CrosslistPanel() {
               strokeLinejoin="round"
             />
           </svg>
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-emerald-600 dark:text-emerald-400">
-            mapped
+          {/* Fixed width on purpose. This sits in the grid's `auto` column, so
+              any change to its text would resize the column and squeeze the two
+              1fr cards either side. They are aspect-square, so that reads as the
+              cards shrinking when the run finishes. */}
+          <span className="block w-[46px] whitespace-nowrap text-center font-mono text-[8.5px] uppercase tracking-[0.1em] tabular-nums text-emerald-600 dark:text-emerald-400">
+            {done ? 'mapped' : `${step}/${STEP_TICKS.length}`}
           </span>
         </div>
 
@@ -480,14 +537,24 @@ function CrosslistPanel() {
               Target
             </span>
           </div>
-          <ProductImage
-            type="tee"
-            hue={220}
-            src={PHOTO.starBeanie}
-            className="aspect-square w-full"
-          />
+          <div className="relative aspect-square w-full overflow-hidden">
+            {/* Placeholder holds the frame until the photo is uploaded, so the
+                card has the same footprint empty as it does full. */}
+            <div
+              className={`absolute inset-0 bg-zinc-100 transition-opacity duration-300 dark:bg-white/[0.04] ${
+                step >= 1 ? 'opacity-0' : 'opacity-100'
+              }`}
+              aria-hidden="true"
+            />
+            <ProductImage
+              type="tee"
+              hue={220}
+              src={PHOTO.starBeanie}
+              className={`aspect-square w-full ${field(1)}`}
+            />
+          </div>
           <div className="flex flex-col gap-1 p-2">
-            <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
+            <div className={`flex items-center gap-1.5 text-[9px] text-zinc-500 ${field(1)}`}>
               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-[#ff7a66] to-[#ff2300] shadow-[0_0_0_1.5px_white,0_1px_2px_rgba(255,35,0,0.45)] dark:shadow-[0_0_0_1.5px_rgba(255,255,255,0.6),0_1px_2px_rgba(255,35,0,0.5)]">
                 <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="currentColor" aria-hidden="true">
                   <path d="M6 1l1.5 3.5L11 5l-2.7 2.3.8 3.5L6 9l-3.1 1.8.8-3.5L1 5l3.5-.5L6 1z" />
@@ -495,16 +562,18 @@ function CrosslistPanel() {
               </span>
               <span className="font-medium text-zinc-700 dark:text-zinc-300">@your_shop</span>
             </div>
-            <div className="truncate text-[11px] font-semibold text-zinc-900 dark:text-zinc-100">
+            <div
+              className={`truncate text-[11px] font-semibold text-zinc-900 dark:text-zinc-100 ${field(2)}`}
+            >
               Star beanie vintage y2k
             </div>
-            <div className="flex items-baseline justify-between">
+            <div className={`flex items-baseline justify-between ${field(3)}`}>
               <span className="font-mono text-[12px] font-bold text-[#ff2300]">
                 £22
               </span>
               <span className="text-[9px] font-medium text-zinc-500">+ POSTAGE</span>
             </div>
-            <div className="flex flex-wrap items-center gap-1">
+            <div className={`flex flex-wrap items-center gap-1 ${field(4)}`}>
               <span className="rounded-full bg-zinc-900/[0.06] px-1.5 py-[1px] text-[8.5px] text-zinc-700 dark:bg-white/10 dark:text-zinc-300">
                 #y2k
               </span>
@@ -529,17 +598,42 @@ function CrosslistPanel() {
           ['Category', 'Hats'],
           ['Size', 'One size'],
           ['Condition', 'Like new'],
-        ].map(([k, v]) => (
-          <span
-            key={k}
-            className="inline-flex items-center gap-1 rounded-full border border-black/[0.06] bg-white px-2 py-0.5 text-[10px] dark:border-white/10 dark:bg-white/[0.02]"
-          >
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.08em] text-zinc-500">
-              {k}
+        ].map(([k, v], i) => {
+          // Each chip resolves alongside the step that needs it, so the row
+          // reads as the mapper working rather than a static legend.
+          const resolved = step >= i + 1;
+          return (
+            <span
+              key={k}
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] transition-colors duration-300 ${
+                resolved
+                  ? 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
+                  : 'border-dashed border-black/[0.08] bg-transparent dark:border-white/10'
+              }`}
+            >
+              <span className="font-mono text-[8.5px] uppercase tracking-[0.08em] text-zinc-500">
+                {k}
+              </span>
+              {/* An invisible copy of the final value reserves the width, so a
+                  chip is the same size unresolved as resolved and the row can
+                  never reflow mid-run. */}
+              <span className="relative inline-block">
+                <span className="invisible" aria-hidden="true">
+                  {v}
+                </span>
+                <span
+                  className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                    resolved
+                      ? 'text-zinc-900 opacity-100 dark:text-zinc-100'
+                      : 'text-zinc-400 opacity-60 dark:text-zinc-600'
+                  }`}
+                >
+                  {resolved ? v : '...'}
+                </span>
+              </span>
             </span>
-            <span className="text-zinc-900 dark:text-zinc-100">{v}</span>
-          </span>
-        ))}
+          );
+        })}
       </div>
 
       {/* Active progress sweep: tells the user something is happening NOW */}
@@ -548,14 +642,29 @@ function CrosslistPanel() {
         style={{ '--stagger-delay': `380ms` } as CSSProperties}
       >
         <div className="relative z-10 flex items-center justify-between text-[11px]">
-          <span className="font-medium text-emerald-700 dark:text-emerald-300">
-            Posting to Depop
+          <span className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
+            {done && (
+              <svg
+                viewBox="0 0 12 12"
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+              </svg>
+            )}
+            {done ? 'Listed on Depop' : 'Posting to Depop'}
           </span>
           <span className="font-mono text-[10px] text-emerald-700/70 dark:text-emerald-300/70">
-            step 4 of 5
+            {done ? 'done' : `step ${step + 1} of ${STEP_TICKS.length}`}
           </span>
         </div>
-        <span className="hero-progress-sweep" aria-hidden="true" />
+        {/* The sweep is the "working" cue, so it stops once the item is live. */}
+        {!done && <span className="hero-progress-sweep" aria-hidden="true" />}
       </div>
     </div>
   );
