@@ -105,7 +105,7 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 
-**Free is a fallback, not a plan.** The product model is a 7-day Starter trial (no card required) followed by a paid plan; there is no advertised free tier. The `free` row exists so signed-in users with no `subscriptions` row (never trialed, or trial expired without a card) resolve to a concrete tier config. Its metered limits are all 0, so bot / crosslist / relist actions surface the upgrade prompt while manual listing management keeps working. The extension additionally fails closed for signed-out users (see the extension repo's `docs/technical/ENTITLEMENTS.md`).
+**Free is a fallback, not a plan.** The product model is a 14-day Starter trial (card required) followed by a paid plan; there is no advertised free tier. The `free` row exists so signed-in users with no `subscriptions` row (never trialed, or trial expired without a card) resolve to a concrete tier config. Its metered limits are all 0, so bot / crosslist / relist actions surface the upgrade prompt while manual listing management keeps working. The extension additionally fails closed for signed-out users (see the extension repo's `docs/technical/ENTITLEMENTS.md`).
 
 ## Changing caps without a deploy
 

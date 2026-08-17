@@ -11,7 +11,7 @@ const MONO = "font-mono text-[0.68rem] uppercase tracking-[0.12em]";
 
 // Display only. The trial actually granted is decided by the
 // create-checkout-session Edge Function; keep the two in step.
-const TRIAL_DAYS = 7;
+const TRIAL_DAYS = 14;
 const PAID_TIER_ORDER: TierId[] = ["starter", "pro", "business"];
 
 const PRICE_IDS: Partial<Record<TierId, string | undefined>> = {

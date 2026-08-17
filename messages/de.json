@@ -263,7 +263,7 @@
     "signOut": "Abmelden",
     "checkoutSuccess": "Abonnement aktiviert. Es kann einige Sekunden dauern, bis die Details unten aktualisiert sind.",
     "currentPlanTitle": "Aktuelles Paket",
-    "noSubscriptionBody": "Du hast kein aktives Paket. Starte deine kostenlose 7-tägige Testphase, um SaleLinx zu nutzen.",
+    "noSubscriptionBody": "Du hast kein aktives Paket. Starte deine kostenlose 14-tägige Testphase, um SaleLinx zu nutzen.",
     "startTrial": "Kostenlose Testphase starten",
     "trialEndsInDays": "Deine kostenlose Testphase endet in {days} Tagen. Danach wird das Starter-Paket berechnet.",
     "trialEndsTomorrow": "Deine kostenlose Testphase endet morgen. Danach wird das Starter-Paket berechnet.",
@@ -681,8 +681,8 @@
     "supportHours": "{value} Std.",
     "supportDays": "{value} Tage",
     "trial": {
-      "name": "Kostenlose 7-Tage-Testphase",
-      "tagline": "Voller Starter-Zugriff für 7 Tage. Karte erforderlich.",
+      "name": "Kostenlose 14-Tage-Testphase",
+      "tagline": "Voller Starter-Zugriff für 14 Tage. Karte erforderlich.",
       "priceSuffix": "für {days} Tage",
       "thenPrice": "Danach {price} / Monat, sofern nicht vor Ende der Testphase gekündigt",
       "cta": "Kostenlose Testphase starten"

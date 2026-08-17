@@ -67,7 +67,7 @@ RLS: referrers SELECT their own rows (the /account card). **Referees get no
 policy** - it would expose `referrer_id`, another user's UUID. The
 referee-side read surface is the `has_pending_referral()` RPC (a boolean).
 
-## Leaderboard (migration `014_referral_leaderboard.sql`)
+## Leaderboard (migration `020_referral_leaderboard.sql`)
 
 `referral_leaderboard(p_limit)` - SECURITY DEFINER RPC backing the
 extension's Refer & Earn tab (and any future website surface). Cross-user
@@ -177,7 +177,7 @@ frontend would drift silently the first time the coupon is edited in Stripe.
 the plain price rather than showing a number checkout will contradict.
 
 Coupon note: create it with `duration: 'once'` and verify with a Stripe
-test clock that the discount survives the 7-day trial's $0 invoice. If the
+test clock that the discount survives the 14-day trial's $0 invoice. If the
 trial invoice consumes it, recreate as `duration: 'repeating',
 duration_in_months: 2` (keeps the window open past the trial so the first
 paid invoice gets it). See `docs/STRIPE.md`.
@@ -187,7 +187,7 @@ paid invoice gets it). See `docs/STRIPE.md`.
 | Piece | File |
 | --- | --- |
 | Schema + RPCs | `supabase/migrations/010_referrals.sql` |
-| Leaderboard RPC | `supabase/migrations/014_referral_leaderboard.sql` |
+| Leaderboard RPC | `supabase/migrations/020_referral_leaderboard.sql` |
 | Share link | `app/r/[code]/route.ts` (+ `/r/` in `proxy.ts` skipIntl) |
 | Invite landing page | `app/[locale]/invited/page.tsx` (`Invited` namespace in `messages/*.json`) |
 | Referee-side discount UI | `components/ReferralDiscountBanner.tsx`, `components/ReferralPrice.tsx`, `lib/referral-discount.ts` |

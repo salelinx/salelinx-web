@@ -263,7 +263,7 @@
     "signOut": "Cerrar sesión",
     "checkoutSuccess": "Suscripción activada. Puede tardar unos segundos en actualizarse la información de abajo.",
     "currentPlanTitle": "Plan actual",
-    "noSubscriptionBody": "No tienes un plan activo. Empieza tu prueba gratuita de 7 días para usar SaleLinx.",
+    "noSubscriptionBody": "No tienes un plan activo. Empieza tu prueba gratuita de 14 días para usar SaleLinx.",
     "startTrial": "Empezar prueba gratuita",
     "trialEndsInDays": "Tu prueba gratuita termina en {days} días. Después se te cobrará el plan Starter.",
     "trialEndsTomorrow": "Tu prueba gratuita termina mañana. Después se te cobrará el plan Starter.",
@@ -681,8 +681,8 @@
     "supportHours": "{value} h",
     "supportDays": "{value} días",
     "trial": {
-      "name": "Prueba gratuita de 7 días",
-      "tagline": "Acceso completo a Starter durante 7 días. Se requiere tarjeta.",
+      "name": "Prueba gratuita de 14 días",
+      "tagline": "Acceso completo a Starter durante 14 días. Se requiere tarjeta.",
       "priceSuffix": "durante {days} días",
       "thenPrice": "Después {price} / mes salvo que canceles antes de que termine la prueba",
       "cta": "Empezar prueba gratuita"

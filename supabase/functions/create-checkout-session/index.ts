@@ -25,7 +25,7 @@ const CANCEL_URL = `${SITE_URL}/pricing`;
 // anyone POST {trialDays: 30, priceId: <business>} and self-issue a free month
 // on the top tier, repeatedly, since payment_method_collection is "if_required".
 const TRIAL_TIER_ID = "starter";
-const TRIAL_DAYS = 7;
+const TRIAL_DAYS = 14;
 
 // Statuses that mean "this user already has a subscription", so checkout should
 // send them to the Customer Portal instead of creating a second one.

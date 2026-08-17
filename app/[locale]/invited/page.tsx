@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { pageMetadata } from '@/lib/site';
 
-// Referral landing page — where /r/{code} sends a referred visitor after
+// Referral landing page - where /r/{code} sends a referred visitor after
 // setting the slx_ref attribution cookie. Explains the deal they were
 // promised (discounted first month) instead of dropping them on /features
 // with no context. The discount itself is applied automatically at checkout
