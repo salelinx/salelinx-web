@@ -46,7 +46,7 @@ export function ReferralsCard({
   return (
     <section
       id="referrals"
-      className="mt-6 rounded-2xl border border-black/10 p-6 dark:border-white/10"
+      className="mt-6 scroll-mt-24 rounded-2xl border border-black/10 p-6 dark:border-white/10"
     >
       <h2 className="text-xl font-semibold">{t("title")}</h2>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">

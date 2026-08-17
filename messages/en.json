@@ -14,7 +14,12 @@
     "signOut": "Sign out",
     "signIn": "Sign in",
     "getStarted": "Get started",
-    "addToChrome": "Add to Chrome"
+    "addToChrome": "Add to Chrome",
+    "accountPlan": "Plan & billing",
+    "accountSecurity": "Security",
+    "accountReferrals": "Referrals",
+    "accountSupport": "Support tickets",
+    "accountDanger": "Delete account"
   },
   "Footer": {
     "tagline": "Sell across Depop and Vinted from one place.",
