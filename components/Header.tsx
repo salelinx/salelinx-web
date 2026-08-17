@@ -108,7 +108,7 @@ export async function Header() {
             <>
               <Link
                 href="/auth/login"
-                className="hover:text-black hover:underline dark:hover:text-white"
+                className="transition-colors duration-200 hover:text-black dark:hover:text-white"
               >
                 {t('signIn')}
               </Link>
