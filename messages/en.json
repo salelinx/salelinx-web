@@ -424,6 +424,9 @@
     }
   },
   "Invited": {
+    "discountOffFirstMonth": "Your referral discount: {value} off your first month, applied automatically at checkout.",
+    "discountOffMonths": "Your referral discount: {value} off your first {months} months, applied automatically at checkout.",
+    "discountOffForever": "Your referral discount: {value} off every month, applied automatically at checkout.",
     "discountBanner": "Your referral discount is active - it will be applied automatically at checkout.",
     "metaTitle": "You're invited",
     "metaDescription": "A friend invited you to SaleLinx - sign up through their link and get a discount on your first month.",

@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
+import { ReferralPrice } from "@/components/ReferralPrice";
 import { Icon, type IconName } from "@/components/Icon";
 import type { TierConfig, TierId } from "@/lib/types/tiers";
 
@@ -279,12 +280,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 {t(`tier.${tier.tier_id}.tagline`)}
               </p>
 
-              <p className="mt-6 text-4xl font-bold">
-                {meta.price}
-                <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
-                  {t("perMonth")}
-                </span>
-              </p>
+              <ReferralPrice price={meta.price} suffix={t("perMonth")} />
 
               {PRICE_IDS[tier.tier_id] ? (
                 <SubscribeButton

@@ -424,6 +424,9 @@
     }
   },
   "Invited": {
+    "discountOffFirstMonth": "Dein Empfehlungsrabatt: {value} Rabatt auf deinen ersten Monat, wird beim Bezahlen automatisch angewendet.",
+    "discountOffMonths": "Dein Empfehlungsrabatt: {value} Rabatt auf deine ersten {months} Monate, wird beim Bezahlen automatisch angewendet.",
+    "discountOffForever": "Dein Empfehlungsrabatt: {value} Rabatt jeden Monat, wird beim Bezahlen automatisch angewendet.",
     "discountBanner": "Dein Empfehlungsrabatt ist aktiv - er wird beim Bezahlen automatisch angewendet.",
     "metaTitle": "Du bist eingeladen",
     "metaDescription": "Ein Freund hat dich zu SaleLinx eingeladen - registriere dich über den Link und erhalte einen Rabatt auf deinen ersten Monat.",

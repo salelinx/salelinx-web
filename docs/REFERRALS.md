@@ -158,6 +158,24 @@ the function is safe (see idempotency above).
 | Hold / expiry / cap / batch | constants in `process-referral-rewards/index.ts` |
 | Cookie | `slx_ref`, set by `app/r/[code]/route.ts` |
 
+### Showing the referee their discount
+
+The coupon is only applied inside Stripe checkout, so before this the offer
+was invisible on the site and read as broken. Two client islands fix that,
+both no-ops unless `has_pending_referral()` is true:
+
+- `ReferralDiscountBanner` - on `/account` and above the pricing grid.
+- `ReferralPrice` - strikes the list price through against the referred
+  price on each pricing card.
+
+Both read the coupon's TERMS from the public `get-referral-discount` Edge
+Function (percent/amount, duration - never the coupon id), so the displayed
+offer tracks whatever the coupon actually is. Hardcoding a percentage in the
+frontend would drift silently the first time the coupon is edited in Stripe.
+`applyDiscount` refuses to compute a price it cannot derive faithfully (an
+`amount_off` in a different currency to the listed price), falling back to
+the plain price rather than showing a number checkout will contradict.
+
 Coupon note: create it with `duration: 'once'` and verify with a Stripe
 test clock that the discount survives the 7-day trial's $0 invoice. If the
 trial invoice consumes it, recreate as `duration: 'repeating',
@@ -172,6 +190,8 @@ paid invoice gets it). See `docs/STRIPE.md`.
 | Leaderboard RPC | `supabase/migrations/014_referral_leaderboard.sql` |
 | Share link | `app/r/[code]/route.ts` (+ `/r/` in `proxy.ts` skipIntl) |
 | Invite landing page | `app/[locale]/invited/page.tsx` (`Invited` namespace in `messages/*.json`) |
+| Referee-side discount UI | `components/ReferralDiscountBanner.tsx`, `components/ReferralPrice.tsx`, `lib/referral-discount.ts` |
+| Coupon terms read | `supabase/functions/get-referral-discount/index.ts` |
 | Claim | `proxy.ts` (first signed-in request with the cookie) |
 | Conversion | `supabase/functions/stripe-webhook/index.ts` |
 | Referee discount | `supabase/functions/create-checkout-session/index.ts` |

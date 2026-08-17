@@ -424,6 +424,9 @@
     }
   },
   "Invited": {
+    "discountOffFirstMonth": "Votre réduction de parrainage : {value} de remise sur votre premier mois, appliquée automatiquement au paiement.",
+    "discountOffMonths": "Votre réduction de parrainage : {value} de remise sur vos {months} premiers mois, appliquée automatiquement au paiement.",
+    "discountOffForever": "Votre réduction de parrainage : {value} de remise chaque mois, appliquée automatiquement au paiement.",
     "discountBanner": "Votre réduction de parrainage est active - elle sera appliquée automatiquement au paiement.",
     "metaTitle": "Vous êtes invité",
     "metaDescription": "Un ami vous a invité sur SaleLinx - inscrivez-vous via son lien et obtenez une réduction sur votre premier mois.",

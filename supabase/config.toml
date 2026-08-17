@@ -46,3 +46,8 @@ verify_jwt = false
 
 [functions.process-referral-rewards]
 verify_jwt = false
+
+# Public on purpose: returns only the referee coupon's terms (percent/amount,
+# duration), never the coupon id. See the function header.
+[functions.get-referral-discount]
+verify_jwt = false
