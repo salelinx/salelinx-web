@@ -61,14 +61,14 @@ export async function Header() {
             <>
               <Link
                 href="/help"
-                className="hidden hover:text-black hover:underline md:inline dark:hover:text-white"
+                className="hidden transition-colors duration-200 hover:text-black md:inline dark:hover:text-white"
               >
                 {t('support')}
               </Link>
               <div className="group relative">
                 <Link
                   href="/account"
-                  className="hover:text-black hover:underline dark:hover:text-white"
+                  className="transition-colors duration-200 hover:text-black dark:hover:text-white"
                 >
                   {t('account')}
                 </Link>
@@ -108,7 +108,7 @@ export async function Header() {
             <>
               <Link
                 href="/auth/login"
-                className="hover:text-black hover:underline dark:hover:text-white"
+                className="transition-colors duration-200 hover:text-black dark:hover:text-white"
               >
                 {t('signIn')}
               </Link>
