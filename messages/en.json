@@ -466,6 +466,23 @@
       "metaDescription": "How SaleLinx processes buyer data on your behalf as your processor under Article 28 UK GDPR, and the subprocessors involved."
     }
   },
+  "Invited": {
+    "discountOffFirstMonth": "Your referral discount: {value} off your first month, applied automatically at checkout.",
+    "discountOffMonths": "Your referral discount: {value} off your first {months} months, applied automatically at checkout.",
+    "discountOffForever": "Your referral discount: {value} off every month, applied automatically at checkout.",
+    "discountBanner": "Your referral discount is active - it will be applied automatically at checkout.",
+    "metaTitle": "You're invited",
+    "metaDescription": "A friend invited you to SaleLinx - sign up through their link and get a discount on your first month.",
+    "eyebrow": "You've been invited",
+    "title": "Your friend runs their shop with SaleLinx.",
+    "description": "SaleLinx is a seller toolkit for Depop and Vinted - crosslist, relist, refresh and restock from one panel. Because a friend invited you, a discount is applied to your first month automatically.",
+    "claimCta": "Sign up & claim your discount",
+    "exploreCta": "See what SaleLinx does",
+    "note": "Your invite is remembered in this browser for 30 days - no code needed at checkout.",
+    "step1": "Create your free account - your invite is already attached.",
+    "step2": "Install the extension and link your Depop or Vinted shop.",
+    "step3": "Pick a plan - the discount is applied automatically at checkout."
+  },
   "Features": {
     "metaTitle": "Product, pricing, roadmap",
     "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist, relist, refresh, and restock across Depop and Vinted from one panel.",

@@ -10,6 +10,7 @@ import {
 import { getReferralSummary } from "@/lib/supabase/referrals";
 import { SITE_URL } from "@/lib/site";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
+import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
 import { DeleteAccountCard } from "@/components/DeleteAccountCard";
@@ -90,6 +91,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-16">
+      <ReferralDiscountBanner />
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">

@@ -86,7 +86,7 @@ export default async function Home({
           '@type': 'AggregateOffer',
           priceCurrency: 'GBP',
           lowPrice: '7.99',
-          highPrice: '29.99',
+          highPrice: '24.99',
         },
       },
     ],

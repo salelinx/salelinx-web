@@ -466,6 +466,23 @@
       "metaDescription": "Wie SaleLinx Käuferdaten in Ihrem Auftrag als Auftragsverarbeiter gemäß Artikel 28 DSGVO verarbeitet und welche Unterauftragsverarbeiter beteiligt sind."
     }
   },
+  "Invited": {
+    "discountOffFirstMonth": "Dein Empfehlungsrabatt: {value} Rabatt auf deinen ersten Monat, wird beim Bezahlen automatisch angewendet.",
+    "discountOffMonths": "Dein Empfehlungsrabatt: {value} Rabatt auf deine ersten {months} Monate, wird beim Bezahlen automatisch angewendet.",
+    "discountOffForever": "Dein Empfehlungsrabatt: {value} Rabatt jeden Monat, wird beim Bezahlen automatisch angewendet.",
+    "discountBanner": "Dein Empfehlungsrabatt ist aktiv - er wird beim Bezahlen automatisch angewendet.",
+    "metaTitle": "Du bist eingeladen",
+    "metaDescription": "Ein Freund hat dich zu SaleLinx eingeladen - registriere dich über den Link und erhalte einen Rabatt auf deinen ersten Monat.",
+    "eyebrow": "Du wurdest eingeladen",
+    "title": "Dein Freund führt seinen Shop mit SaleLinx.",
+    "description": "SaleLinx ist ein Verkäufer-Toolkit für Depop und Vinted - crosslisten, neu einstellen, aktualisieren und Bestände verwalten aus einem Panel. Weil dich ein Freund eingeladen hat, wird der Rabatt automatisch auf deinen ersten Monat angewendet.",
+    "claimCta": "Registrieren & Rabatt sichern",
+    "exploreCta": "SaleLinx entdecken",
+    "note": "Deine Einladung bleibt 30 Tage in diesem Browser gespeichert - kein Code beim Bezahlen nötig.",
+    "step1": "Erstelle dein kostenloses Konto - deine Einladung ist bereits verknüpft.",
+    "step2": "Installiere die Erweiterung und verknüpfe deinen Depop- oder Vinted-Shop.",
+    "step3": "Wähle einen Tarif - der Rabatt wird beim Bezahlen automatisch angewendet."
+  },
   "Features": {
     "metaTitle": "Produkt, Preise, Roadmap",
     "metaDescription": "Alles, was die SaleLinx Chrome-Erweiterung kann, was sie kostet und was als Nächstes kommt. Crossliste, poste erneut, aktualisiere und fülle auf Depop und Vinted von einem Panel aus auf.",

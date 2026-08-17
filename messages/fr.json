@@ -466,6 +466,23 @@
       "metaDescription": "Comment SaleLinx traite les données de vos acheteurs en votre nom en tant que sous-traitant au sens de l'article 28 du RGPD, et les sous-traitants ultérieurs concernés."
     }
   },
+  "Invited": {
+    "discountOffFirstMonth": "Votre réduction de parrainage : {value} de remise sur votre premier mois, appliquée automatiquement au paiement.",
+    "discountOffMonths": "Votre réduction de parrainage : {value} de remise sur vos {months} premiers mois, appliquée automatiquement au paiement.",
+    "discountOffForever": "Votre réduction de parrainage : {value} de remise chaque mois, appliquée automatiquement au paiement.",
+    "discountBanner": "Votre réduction de parrainage est active - elle sera appliquée automatiquement au paiement.",
+    "metaTitle": "Vous êtes invité",
+    "metaDescription": "Un ami vous a invité sur SaleLinx - inscrivez-vous via son lien et obtenez une réduction sur votre premier mois.",
+    "eyebrow": "Vous avez été invité",
+    "title": "Votre ami gère sa boutique avec SaleLinx.",
+    "description": "SaleLinx est une boîte à outils pour vendeurs Depop et Vinted - crosslistez, republiez, actualisez et gérez vos stocks depuis un seul panneau. Comme un ami vous a invité, une réduction est appliquée automatiquement à votre premier mois.",
+    "claimCta": "S'inscrire et profiter de la réduction",
+    "exploreCta": "Découvrir SaleLinx",
+    "note": "Votre invitation est mémorisée dans ce navigateur pendant 30 jours - aucun code nécessaire au paiement.",
+    "step1": "Créez votre compte gratuit - votre invitation est déjà associée.",
+    "step2": "Installez l'extension et liez votre boutique Depop ou Vinted.",
+    "step3": "Choisissez une offre - la réduction s'applique automatiquement au paiement."
+  },
   "Features": {
     "metaTitle": "Produit, tarifs, feuille de route",
     "metaDescription": "Tout ce que fait l'extension Chrome SaleLinx, son prix et ce qui arrive ensuite. Crosslistez, republiez, actualisez et réapprovisionnez sur Depop et Vinted depuis un seul panneau.",

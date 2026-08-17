@@ -466,6 +466,23 @@
       "metaDescription": "Cómo SaleLinx trata los datos de tus compradores en tu nombre como encargado del tratamiento según el artículo 28 del RGPD, y los subencargados implicados."
     }
   },
+  "Invited": {
+    "discountOffFirstMonth": "Tu descuento por invitación: {value} de descuento en tu primer mes, aplicado automáticamente al pagar.",
+    "discountOffMonths": "Tu descuento por invitación: {value} de descuento en tus primeros {months} meses, aplicado automáticamente al pagar.",
+    "discountOffForever": "Tu descuento por invitación: {value} de descuento cada mes, aplicado automáticamente al pagar.",
+    "discountBanner": "Tu descuento por invitación está activo: se aplicará automáticamente al pagar.",
+    "metaTitle": "Estás invitado",
+    "metaDescription": "Un amigo te ha invitado a SaleLinx: regístrate con su enlace y obtén un descuento en tu primer mes.",
+    "eyebrow": "Te han invitado",
+    "title": "Tu amigo gestiona su tienda con SaleLinx.",
+    "description": "SaleLinx es un kit de herramientas para vendedores de Depop y Vinted: publica en ambas, republica, actualiza y gestiona stock desde un solo panel. Como te ha invitado un amigo, el descuento se aplica automáticamente a tu primer mes.",
+    "claimCta": "Regístrate y consigue tu descuento",
+    "exploreCta": "Descubre SaleLinx",
+    "note": "Tu invitación se recuerda en este navegador durante 30 días; no necesitas ningún código al pagar.",
+    "step1": "Crea tu cuenta gratuita: tu invitación ya está vinculada.",
+    "step2": "Instala la extensión y vincula tu tienda de Depop o Vinted.",
+    "step3": "Elige un plan: el descuento se aplica automáticamente al pagar."
+  },
   "Features": {
     "metaTitle": "Producto, precios, hoja de ruta",
     "metaDescription": "Todo lo que hace la extensión de Chrome SaleLinx, cuánto cuesta y qué viene después. Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo panel.",

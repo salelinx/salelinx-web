@@ -13,7 +13,7 @@ Referrer opens /account -> Referrals card
   ▼
 Friend clicks the link -> app/r/[code]/route.ts
   sets slx_ref cookie (HttpOnly, 30 days, last-touch wins)
-  redirects to /features
+  redirects to /invited (landing page explaining the deal)
   ▼
 Friend signs up and confirms email (any auth path)
   proxy.ts sees a signed-in request still carrying slx_ref
@@ -66,6 +66,23 @@ pending ──(first paid invoice)──> converted ──(job claims row)──
 RLS: referrers SELECT their own rows (the /account card). **Referees get no
 policy** - it would expose `referrer_id`, another user's UUID. The
 referee-side read surface is the `has_pending_referral()` RPC (a boolean).
+
+## Leaderboard (migration `014_referral_leaderboard.sql`)
+
+`referral_leaderboard(p_limit)` - SECURITY DEFINER RPC backing the
+extension's Refer & Earn tab (and any future website surface). Cross-user
+aggregates can't come from RLS-scoped reads, so the RPC exposes ONLY
+`(rank, display_name, score, is_me)` - never UUIDs or full emails:
+
+- `display_name` - the referrer's linked shop username (Depop preferred,
+  then Vinted; it's the name buyers already see publicly), else the first
+  two characters of their email + `***`.
+- `score` - converted/rewarding/rewarded referrals only. pending is
+  excluded so spam signups never move the board; void never counts. Ties
+  break toward whoever converted first.
+- The caller's own row is always included even below the top N, so a UI
+  can show "your rank" without a second call.
+- `authenticated` only (`anon` revoked). `p_limit` clamps to 1..25.
 
 ## Claim guards (`claim_referral`)
 
@@ -141,6 +158,24 @@ the function is safe (see idempotency above).
 | Hold / expiry / cap / batch | constants in `process-referral-rewards/index.ts` |
 | Cookie | `slx_ref`, set by `app/r/[code]/route.ts` |
 
+### Showing the referee their discount
+
+The coupon is only applied inside Stripe checkout, so before this the offer
+was invisible on the site and read as broken. Two client islands fix that,
+both no-ops unless `has_pending_referral()` is true:
+
+- `ReferralDiscountBanner` - on `/account` and above the pricing grid.
+- `ReferralPrice` - strikes the list price through against the referred
+  price on each pricing card.
+
+Both read the coupon's TERMS from the public `get-referral-discount` Edge
+Function (percent/amount, duration - never the coupon id), so the displayed
+offer tracks whatever the coupon actually is. Hardcoding a percentage in the
+frontend would drift silently the first time the coupon is edited in Stripe.
+`applyDiscount` refuses to compute a price it cannot derive faithfully (an
+`amount_off` in a different currency to the listed price), falling back to
+the plain price rather than showing a number checkout will contradict.
+
 Coupon note: create it with `duration: 'once'` and verify with a Stripe
 test clock that the discount survives the 7-day trial's $0 invoice. If the
 trial invoice consumes it, recreate as `duration: 'repeating',
@@ -152,7 +187,11 @@ paid invoice gets it). See `docs/STRIPE.md`.
 | Piece | File |
 | --- | --- |
 | Schema + RPCs | `supabase/migrations/010_referrals.sql` |
+| Leaderboard RPC | `supabase/migrations/014_referral_leaderboard.sql` |
 | Share link | `app/r/[code]/route.ts` (+ `/r/` in `proxy.ts` skipIntl) |
+| Invite landing page | `app/[locale]/invited/page.tsx` (`Invited` namespace in `messages/*.json`) |
+| Referee-side discount UI | `components/ReferralDiscountBanner.tsx`, `components/ReferralPrice.tsx`, `lib/referral-discount.ts` |
+| Coupon terms read | `supabase/functions/get-referral-discount/index.ts` |
 | Claim | `proxy.ts` (first signed-in request with the cookie) |
 | Conversion | `supabase/functions/stripe-webhook/index.ts` |
 | Referee discount | `supabase/functions/create-checkout-session/index.ts` |
