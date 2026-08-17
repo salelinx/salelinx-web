@@ -67,6 +67,23 @@ RLS: referrers SELECT their own rows (the /account card). **Referees get no
 policy** - it would expose `referrer_id`, another user's UUID. The
 referee-side read surface is the `has_pending_referral()` RPC (a boolean).
 
+## Leaderboard (migration `014_referral_leaderboard.sql`)
+
+`referral_leaderboard(p_limit)` - SECURITY DEFINER RPC backing the
+extension's Refer & Earn tab (and any future website surface). Cross-user
+aggregates can't come from RLS-scoped reads, so the RPC exposes ONLY
+`(rank, display_name, score, is_me)` - never UUIDs or full emails:
+
+- `display_name` - the referrer's linked shop username (Depop preferred,
+  then Vinted; it's the name buyers already see publicly), else the first
+  two characters of their email + `***`.
+- `score` - converted/rewarding/rewarded referrals only. pending is
+  excluded so spam signups never move the board; void never counts. Ties
+  break toward whoever converted first.
+- The caller's own row is always included even below the top N, so a UI
+  can show "your rank" without a second call.
+- `authenticated` only (`anon` revoked). `p_limit` clamps to 1..25.
+
 ## Claim guards (`claim_referral`)
 
 The claim fires in `proxy.ts` on the first signed-in request that still
@@ -152,6 +169,7 @@ paid invoice gets it). See `docs/STRIPE.md`.
 | Piece | File |
 | --- | --- |
 | Schema + RPCs | `supabase/migrations/010_referrals.sql` |
+| Leaderboard RPC | `supabase/migrations/014_referral_leaderboard.sql` |
 | Share link | `app/r/[code]/route.ts` (+ `/r/` in `proxy.ts` skipIntl) |
 | Claim | `proxy.ts` (first signed-in request with the cookie) |
 | Conversion | `supabase/functions/stripe-webhook/index.ts` |
