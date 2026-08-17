@@ -7,6 +7,12 @@ export const SITE_URL = (
 
 export const SITE_NAME = 'SaleLinx';
 
+// Version of the Terms of Service a new account accepts at signup, recorded in
+// the user's metadata (terms_version + terms_accepted_at) as evidence of
+// acceptance. Bump this to the new LAST_UPDATED date whenever the Terms change
+// materially so future signups record the version they actually agreed to.
+export const TERMS_VERSION = '2026-08-17';
+
 // Live listing: https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj
 export const CHROME_WEB_STORE_URL = process.env.NEXT_PUBLIC_EXTENSION_ID
   ? `https://chromewebstore.google.com/detail/salelinx/${process.env.NEXT_PUBLIC_EXTENSION_ID}`

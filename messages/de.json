@@ -31,6 +31,7 @@
     "linkStatus": "Marktplatz-Status",
     "linkPrivacy": "Datenschutz",
     "linkTerms": "Nutzungsbedingungen",
+    "linkDpa": "Auftragsverarbeitungsvertrag",
     "copyright": "© {year} SaleLinx Ltd. Alle Rechte vorbehalten.",
     "builtFor": "Entwickelt für Depop- und Vinted-Verkäufer.",
     "companyInfo": "SaleLinx Ltd ist eine in England und Wales eingetragene Gesellschaft, Registernummer 17351832. Eingetragener Sitz: 34 Sussex Place, London, W2 2TH, Vereinigtes Königreich."
@@ -459,6 +460,10 @@
     "terms": {
       "title": "Nutzungsbedingungen",
       "metaDescription": "Die Bedingungen für die Nutzung der SaleLinx-Erweiterung und -Website: Konten, Abos, Abrechnung und zulässige Nutzung."
+    },
+    "dpa": {
+      "title": "Vertrag zur Auftragsverarbeitung",
+      "metaDescription": "Wie SaleLinx Käuferdaten in Ihrem Auftrag als Auftragsverarbeiter gemäß Artikel 28 DSGVO verarbeitet und welche Unterauftragsverarbeiter beteiligt sind."
     }
   },
   "Features": {
@@ -651,6 +656,7 @@
     "installExtension": "Erweiterung installieren",
     "comingSoon": "Bald verfügbar",
     "perMonth": "/Mon.",
+    "vatNote": "Die angezeigten Preise sind der Endpreis, den du zahlst. Es wird keine Mehrwertsteuer hinzugefuegt. Jederzeit kuendbar, mit einer 14-taegigen Geld-zurueck-Garantie auf deine erste Zahlung.",
     "unlimited": "Unbegrenzt",
     "cloudStorage": "Cloud-Speicher",
     "storageGb": "{value} GB",

@@ -31,6 +31,7 @@
     "linkStatus": "Estado de plataformas",
     "linkPrivacy": "Privacidad",
     "linkTerms": "Términos",
+    "linkDpa": "Anexo de tratamiento de datos",
     "copyright": "© {year} SaleLinx Ltd. Todos los derechos reservados.",
     "builtFor": "Creado para vendedores de Depop y Vinted.",
     "companyInfo": "SaleLinx Ltd es una sociedad registrada en Inglaterra y Gales con el número 17351832. Domicilio social: 34 Sussex Place, Londres, W2 2TH, Reino Unido."
@@ -459,6 +460,10 @@
     "terms": {
       "title": "Términos del servicio",
       "metaDescription": "Los términos que rigen el uso de la extensión y el sitio web de SaleLinx: cuentas, suscripciones, facturación y uso aceptable."
+    },
+    "dpa": {
+      "title": "Anexo de tratamiento de datos",
+      "metaDescription": "Cómo SaleLinx trata los datos de tus compradores en tu nombre como encargado del tratamiento según el artículo 28 del RGPD, y los subencargados implicados."
     }
   },
   "Features": {
@@ -651,6 +656,7 @@
     "installExtension": "Instalar extensión",
     "comingSoon": "Próximamente",
     "perMonth": "/mes",
+    "vatNote": "Los precios mostrados son el precio final que pagas. No se anade IVA. Cancela cuando quieras, con una garantia de reembolso de 14 dias sobre tu primer pago.",
     "unlimited": "Ilimitado",
     "cloudStorage": "Almacenamiento en la nube",
     "storageGb": "{value} GB",

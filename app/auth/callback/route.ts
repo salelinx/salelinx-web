@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/auth/safe-next";
 import { routing } from "@/i18n/routing";
+import { TERMS_VERSION } from "@/lib/site";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -35,6 +36,21 @@ export async function GET(request: Request) {
       // Best-effort: a failure here must not break sign-in.
       await supabase.auth
         .updateUser({ data: { preferred_locale: localeParam } })
+        .catch(() => {});
+    }
+
+    // Same reason for the Terms acceptance record: the Google button sits below
+    // the "by continuing you agree to the Terms" notice on the signup page, so
+    // first sign-in constitutes acceptance, but signInWithOAuth cannot stamp
+    // metadata up front. Backfill once and never overwrite an existing value.
+    if (!data.user?.user_metadata?.terms_accepted_at) {
+      await supabase.auth
+        .updateUser({
+          data: {
+            terms_version: TERMS_VERSION,
+            terms_accepted_at: new Date().toISOString(),
+          },
+        })
         .catch(() => {});
     }
   }
