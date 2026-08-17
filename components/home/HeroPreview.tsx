@@ -1033,7 +1033,14 @@ function RestockerPanel() {
           return (
             <li
               key={row.title}
-              className="cascade-item relative overflow-hidden rounded-md border border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]"
+              // The row being worked on gets an emerald edge so the eye lands on
+              // it. Previously every row carried identical chrome and the only
+              // cue was a faint progress fill, which is easy to miss entirely.
+              className={`cascade-item relative overflow-hidden rounded-md border bg-white transition-colors duration-300 dark:bg-white/[0.02] ${
+                showProgress || showRestocked
+                  ? 'border-emerald-500/40 dark:border-emerald-400/30'
+                  : 'border-black/[0.06] dark:border-white/10'
+              }`}
               style={{ '--stagger-delay': `${120 + i * 55}ms` } as CSSProperties}
             >
               {/* Progress bar overlay - fills the row from left to right */}
@@ -1055,10 +1062,33 @@ function RestockerPanel() {
                     {row.title}
                   </div>
                   {(showProgress || showRestocked) && (
-                    <div className="truncate text-[9.5px] text-zinc-500">
-                      {showProgress
-                        ? `Sold on ${row.soldOn === 'depop' ? 'Depop' : 'Vinted'} · restocking…`
-                        : `Sold on ${row.soldOn === 'depop' ? 'Depop' : 'Vinted'} · just now`}
+                    // Show the hand-off with the actual platform marks rather
+                    // than naming them in prose. "Sold here, relisted there" is
+                    // the whole mechanic, and two logos and an arrow carry it
+                    // faster than a sentence does.
+                    <div className="flex items-center gap-1 text-[9.5px] text-zinc-500">
+                      <PlatformBadge platform={row.soldOn} size={10} />
+                      <span>sold</span>
+                      <svg
+                        viewBox="0 0 12 8"
+                        className="h-2 w-3 flex-shrink-0 text-emerald-500 dark:text-emerald-400"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M1 4h9M7 1l3 3-3 3" />
+                      </svg>
+                      <PlatformBadge
+                        platform={row.soldOn === 'depop' ? 'vinted' : 'depop'}
+                        size={10}
+                      />
+                      {/* Fixed width so the word swap cannot shift the row. */}
+                      <span className="inline-block w-[52px] whitespace-nowrap">
+                        {showProgress ? 'relisting…' : 'relisted'}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -1073,12 +1103,39 @@ function RestockerPanel() {
                       LOW
                     </span>
                   )}
-                  <span className="flex items-baseline gap-0.5 rounded-md bg-zinc-900/[0.04] px-2 py-0.5 dark:bg-white/[0.06]">
-                    <span className={`font-mono text-[12px] font-semibold tabular-nums transition-colors ${lowStock ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
-                      {stock}
-                    </span>
-                    <span className="font-mono text-[8.5px] uppercase tracking-[0.08em] text-zinc-500">
-                      in stock
+                  {/* Stock as a gauge, not a number. This is a multi-quantity
+                      tool and "4 in stock" in a grey pill reads as metadata,
+                      where bars read as a level that visibly drops when one
+                      sells. Always renders initialStock bars and dims the spent
+                      ones, so the row shows capacity vs remaining and its width
+                      never changes as stock moves. */}
+                  <span
+                    className="flex items-center gap-[3px]"
+                    title={`${stock} of ${row.initialStock} in stock`}
+                  >
+                    {Array.from({ length: row.initialStock }).map((_, p) => (
+                      <span
+                        key={p}
+                        className={`h-3.5 w-[5px] rounded-[1.5px] transition-colors duration-300 ${
+                          p < stock
+                            ? lowStock
+                              ? 'bg-amber-500 dark:bg-amber-400'
+                              : 'bg-emerald-500 dark:bg-emerald-400'
+                            : 'bg-zinc-900/[0.09] dark:bg-white/[0.12]'
+                        }`}
+                      />
+                    ))}
+                  </span>
+                  <span
+                    className={`w-[26px] text-right font-mono text-[12px] font-semibold tabular-nums transition-colors ${
+                      lowStock
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'text-zinc-900 dark:text-zinc-100'
+                    }`}
+                  >
+                    {stock}
+                    <span className="text-[9px] text-zinc-400 dark:text-zinc-600">
+                      /{row.initialStock}
                     </span>
                   </span>
                 </div>
