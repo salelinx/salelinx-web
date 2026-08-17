@@ -874,18 +874,24 @@ function RestockerPanel() {
   // up that cycle so the user can follow what just happened.
   const TICKS_PER_CYCLE = 60;
   const tick = useAnimationTick(100);
+  const reduced = usePrefersReducedMotion();
   const cycleIndex = Math.floor(tick / TICKS_PER_CYCLE);
   const inCycle = tick % TICKS_PER_CYCLE;
 
   type Phase = 'idle' | 'sale' | 'restocking' | 'done';
-  const phase: Phase =
-    inCycle < 3
+  // Reduced motion holds tick at 0, which lands on 'idle': a banner dimmed to
+  // 50% reading "Watching for sales..." and no restock, ever. Those visitors
+  // would see a dead panel, so hold the finished state instead. It is the frame
+  // that carries the story anyway.
+  const phase: Phase = reduced
+    ? 'done'
+    : inCycle < 3
       ? 'idle'
       : inCycle < 12
-      ? 'sale'
-      : inCycle < 40
-      ? 'restocking'
-      : 'done';
+        ? 'sale'
+        : inCycle < 40
+          ? 'restocking'
+          : 'done';
   // Progress bar 0..1 across the 'restocking' window (ticks 12..40).
   const progress =
     phase === 'restocking'
@@ -919,7 +925,11 @@ function RestockerPanel() {
   const stocks = baseRows.map((r, i) => {
     const completedSalesForRow = Math.floor((cycleIndex + (baseRows.length - i)) / baseRows.length);
     const inflight = i === activeIdx && (phase === 'sale' || phase === 'restocking') ? 1 : 0;
-    return Math.max(0, r.initialStock - completedSalesForRow + inflight);
+    // Floor at 1 rather than 0. A visitor who clicks this tab and reads rather
+    // than letting the demo auto-advance stays here indefinitely, and the old
+    // floor of 0 drained the whole shop to "0 in stock" after a couple of
+    // minutes. A restocker demo ending in an empty shop tells the wrong story.
+    return Math.max(1, r.initialStock - completedSalesForRow + inflight);
   });
 
   // Stats counters tick up as the demo runs.
@@ -958,7 +968,10 @@ function RestockerPanel() {
             {phase === 'idle' && 'Watching for sales…'}
           </div>
         </div>
-        <span className="font-mono text-[9px] text-emerald-700/70 dark:text-emerald-300/70">
+        {/* Fixed width: this is the last child of a flex row, so letting it
+            collapse to an empty string re-flows the truncating text beside it
+            every cycle. */}
+        <span className="block w-[46px] flex-shrink-0 whitespace-nowrap text-right font-mono text-[9px] text-emerald-700/70 dark:text-emerald-300/70">
           {phase === 'idle' ? '' : 'just now'}
         </span>
       </div>
@@ -984,8 +997,23 @@ function RestockerPanel() {
             Sales today
           </div>
         </div>
+        {/* Oversells is the reason the feature exists, but a plain grey 0 reads
+            as an empty counter rather than a win. Treated as a positive result
+            so it lands as "none happened", not "nothing here yet". */}
         <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">
+          <div className="flex items-center justify-center gap-1 font-mono text-[14px] font-semibold text-emerald-600 tabular-nums dark:text-emerald-400">
+            <svg
+              viewBox="0 0 12 12"
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+            </svg>
             0
           </div>
           <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
