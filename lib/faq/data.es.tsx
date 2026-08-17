@@ -56,7 +56,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         q: '¿Hace falta pagar para probarlo?',
         a: (
           <p>
-            Tienes una prueba gratuita de 7 días del plan Starter, una por
+            Tienes una prueba gratuita de 14 días del plan Starter, una por
             cuenta. Se requiere una tarjeta para empezarla, pero no se cobra
             nada durante la prueba y puedes cancelar en cualquier momento
             desde tu página de cuenta. Si no cancelas, tu suscripción Starter

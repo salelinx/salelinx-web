@@ -175,13 +175,18 @@ Deno.serve(async (req) => {
       : { allow_promotion_codes: true }),
     ...(trialEligible
       ? {
+          // Card required up front (payment_method_collection defaults to
+          // "always"): the trial auto-converts to paid Starter at the end of
+          // TRIAL_DAYS unless the user cancels first. This is deliberate - it
+          // matches the disclosed UI/FAQ copy ("card required, then billed")
+          // and keeps trial farming expensive (a real chargeable card per
+          // cycle). Do NOT reintroduce payment_method_collection:"if_required"
+          // + missing_payment_method:"cancel": that makes the trial card-free,
+          // which contradicts the copy and doubles the farming payoff. See
+          // docs/STRIPE.md.
           subscription_data: {
             trial_period_days: TRIAL_DAYS,
-            trial_settings: {
-              end_behavior: { missing_payment_method: "cancel" },
-            },
           },
-          payment_method_collection: "if_required",
         }
       : {}),
   });

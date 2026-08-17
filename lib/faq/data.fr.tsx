@@ -61,7 +61,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         q: "Faut-il payer pour l'essayer ?",
         a: (
           <p>
-            Vous bénéficiez d'un essai gratuit de 7 jours du forfait Starter,
+            Vous bénéficiez d'un essai gratuit de 14 jours du forfait Starter,
             un par compte. Une carte bancaire est requise pour le démarrer,
             mais rien n'est débité pendant l'essai et vous pouvez annuler à
             tout moment depuis votre page de compte. Sans annulation, votre
