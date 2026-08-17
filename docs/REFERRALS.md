@@ -75,8 +75,10 @@ aggregates can't come from RLS-scoped reads, so the RPC exposes ONLY
 `(rank, display_name, score, is_me)` - never UUIDs or full emails:
 
 - `display_name` - the referrer's linked shop username (Depop preferred,
-  then Vinted; it's the name buyers already see publicly), else the first
-  two characters of their email + `***`.
+  then Vinted; it's the name buyers already see publicly), else a neutral
+  rank-based handle `Seller #<rank>`. The email-derived fallback that shipped
+  in 020 was removed in `021_leaderboard_display_name.sql`: a public
+  cross-user surface must never show email-derived data.
 - `score` - converted/rewarding/rewarded referrals only. pending is
   excluded so spam signups never move the board; void never counts. Ties
   break toward whoever converted first.

@@ -32,6 +32,7 @@
     "linkPrivacy": "Confidentialité",
     "linkTerms": "Conditions",
     "linkDpa": "Avenant de traitement des données",
+    "linkReferralTerms": "Conditions de parrainage",
     "copyright": "© {year} SaleLinx Ltd. Tous droits réservés.",
     "builtFor": "Conçu pour les vendeurs Depop et Vinted.",
     "companyInfo": "SaleLinx Ltd est une société immatriculée en Angleterre et au Pays de Galles sous le numéro 17351832. Siège social : 34 Sussex Place, Londres, W2 2TH, Royaume-Uni."
@@ -375,7 +376,9 @@
     "statSignedUp": "Inscrits",
     "statSubscribed": "Abonnés",
     "statRewarded": "Mois gagnés",
-    "creditEarned": "Crédit obtenu : {amount}. Il est appliqué automatiquement à votre prochaine facture."
+    "creditEarned": "Crédit obtenu : {amount}. Il est appliqué automatiquement à votre prochaine facture.",
+    "termsNote": "Les récompenses sont soumises à conditions (une période de blocage de 7 jours, un plafond mensuel et un abonnement actif).",
+    "termsLink": "Voir les conditions du programme de parrainage"
   },
   "Support": {
     "title": "Assistance",
@@ -464,6 +467,10 @@
     "dpa": {
       "title": "Avenant relatif au traitement des données",
       "metaDescription": "Comment SaleLinx traite les données de vos acheteurs en votre nom en tant que sous-traitant au sens de l'article 28 du RGPD, et les sous-traitants ultérieurs concernés."
+    },
+    "referralTerms": {
+      "title": "Conditions du programme de parrainage",
+      "metaDescription": "Les conditions du programme de parrainage SaleLinx : la réduction pour le filleul, comment le parrain gagne un mois gratuit, la période de blocage et le plafond des récompenses, et les règles d'usage loyal."
     }
   },
   "Invited": {
@@ -481,7 +488,9 @@
     "note": "Votre invitation est mémorisée dans ce navigateur pendant 30 jours - aucun code nécessaire au paiement.",
     "step1": "Créez votre compte gratuit - votre invitation est déjà associée.",
     "step2": "Installez l'extension et liez votre boutique Depop ou Vinted.",
-    "step3": "Choisissez une offre - la réduction s'applique automatiquement au paiement."
+    "step3": "Choisissez une offre - la réduction s'applique automatiquement au paiement.",
+    "termsNote": "La réduction s'applique à votre premier paiement sur une nouvelle offre payante et ne peut pas être cumulée avec d'autres codes promo.",
+    "termsLink": "Voir les conditions du programme de parrainage"
   },
   "Features": {
     "metaTitle": "Produit, tarifs, feuille de route",

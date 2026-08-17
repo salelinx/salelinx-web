@@ -32,6 +32,7 @@
     "linkPrivacy": "Datenschutz",
     "linkTerms": "Nutzungsbedingungen",
     "linkDpa": "Auftragsverarbeitungsvertrag",
+    "linkReferralTerms": "Empfehlungsprogramm-Bedingungen",
     "copyright": "© {year} SaleLinx Ltd. Alle Rechte vorbehalten.",
     "builtFor": "Entwickelt für Depop- und Vinted-Verkäufer.",
     "companyInfo": "SaleLinx Ltd ist eine in England und Wales eingetragene Gesellschaft, Registernummer 17351832. Eingetragener Sitz: 34 Sussex Place, London, W2 2TH, Vereinigtes Königreich."
@@ -375,7 +376,9 @@
     "statSignedUp": "Registriert",
     "statSubscribed": "Abonniert",
     "statRewarded": "Gratismonate",
-    "creditEarned": "Bisher erhaltenes Guthaben: {amount}. Es wird automatisch mit deiner nächsten Rechnung verrechnet."
+    "creditEarned": "Bisher erhaltenes Guthaben: {amount}. Es wird automatisch mit deiner nächsten Rechnung verrechnet.",
+    "termsNote": "Prämien unterliegen Bedingungen (einer 7-tägigen Haltefrist, einer monatlichen Obergrenze und einem aktiven Abo).",
+    "termsLink": "Bedingungen des Empfehlungsprogramms ansehen"
   },
   "Support": {
     "title": "Support",
@@ -464,6 +467,10 @@
     "dpa": {
       "title": "Vertrag zur Auftragsverarbeitung",
       "metaDescription": "Wie SaleLinx Käuferdaten in Ihrem Auftrag als Auftragsverarbeiter gemäß Artikel 28 DSGVO verarbeitet und welche Unterauftragsverarbeiter beteiligt sind."
+    },
+    "referralTerms": {
+      "title": "Bedingungen des Empfehlungsprogramms",
+      "metaDescription": "Die Bedingungen des SaleLinx-Empfehlungsprogramms: der Rabatt für Geworbene, wie Werbende einen Gratismonat verdienen, die Haltefrist und die Obergrenze für Prämien sowie die Fair-Use-Regeln."
     }
   },
   "Invited": {
@@ -481,7 +488,9 @@
     "note": "Deine Einladung bleibt 30 Tage in diesem Browser gespeichert - kein Code beim Bezahlen nötig.",
     "step1": "Erstelle dein kostenloses Konto - deine Einladung ist bereits verknüpft.",
     "step2": "Installiere die Erweiterung und verknüpfe deinen Depop- oder Vinted-Shop.",
-    "step3": "Wähle einen Tarif - der Rabatt wird beim Bezahlen automatisch angewendet."
+    "step3": "Wähle einen Tarif - der Rabatt wird beim Bezahlen automatisch angewendet.",
+    "termsNote": "Der Rabatt gilt für deine erste Zahlung in einem neuen kostenpflichtigen Tarif und ist nicht mit anderen Aktionscodes kombinierbar.",
+    "termsLink": "Bedingungen des Empfehlungsprogramms ansehen"
   },
   "Features": {
     "metaTitle": "Produkt, Preise, Roadmap",
