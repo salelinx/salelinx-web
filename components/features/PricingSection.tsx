@@ -304,6 +304,10 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
           );
         })}
       </div>
+
+      <p className="mt-8 max-w-2xl text-xs text-zinc-500 dark:text-zinc-400">
+        {t("vatNote")}
+      </p>
     </section>
   );
 }

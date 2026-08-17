@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { TERMS_VERSION } from "@/lib/site";
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
@@ -38,12 +39,18 @@ export default function SignupPage() {
 
     setStatus("submitting");
     const supabase = createBrowserClient();
+    // Record acceptance of the Terms shown above the form. Stored in user
+    // metadata as evidence of who accepted which version, and when.
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${location.origin}/auth/callback?next=/account`,
-        data: { preferred_locale: locale },
+        data: {
+          preferred_locale: locale,
+          terms_version: TERMS_VERSION,
+          terms_accepted_at: new Date().toISOString(),
+        },
       },
     });
 

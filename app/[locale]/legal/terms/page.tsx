@@ -24,7 +24,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "16 August 2026";
+const LAST_UPDATED = "17 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -53,12 +53,17 @@ const SECTIONS: LegalSection[] = [
     heading: "Subscriptions, trials, and billing",
     bullets: [
       "Paid plans are billed in advance on a recurring basis through Stripe. Your plan renews automatically until you cancel.",
-      "Free trials require a payment method and convert to a paid subscription at the end of the trial unless you cancel before it ends.",
+      "Free trials require a payment method and convert to a paid subscription at the end of the trial unless you cancel before it ends. During a free trial you are not charged, so you can cancel at any point before it ends and pay nothing.",
       "You can cancel at any time from the billing portal in your account. Cancellation takes effect at the end of the current billing period; you keep access until then.",
       "If we change the price of your plan we will give you at least 30 days notice by email, and the new price applies from your next renewal after the notice period.",
     ],
-    trailing: [
-      "Except where the law gives you a non-waivable right to a refund, payments are non-refundable and we do not give partial refunds for unused time. Nothing in these terms limits your statutory rights as a consumer.",
+  },
+  {
+    heading: "Your right to cancel and refunds",
+    paragraphs: [
+      "If you are a consumer, you have a legal right to cancel your paid subscription within 14 days and receive a refund, without giving a reason. This is your cooling-off period under the Consumer Contracts Regulations 2013.",
+      "Because a free trial is not a payment, this 14-day period runs from the day of your first actual charge (for a trial that converts, from the day the trial ends and the first payment is taken; for a plan bought without a trial, from the day you are charged). To cancel within the cooling-off period, cancel from the billing portal in your account or email support@salelinx.com, and we will refund your most recent payment.",
+      "After the 14-day cooling-off period, your subscription is non-refundable for the remainder of the current billing period and we do not give partial refunds for unused time; you can still cancel to stop future renewals, and you keep access until the end of the period you have paid for. Nothing in these terms limits your statutory rights as a consumer.",
     ],
   },
   {
@@ -89,7 +94,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Buyer data",
     paragraphs: [
       "Order features such as shipping labels involve personal data about your buyers (for example names and delivery details printed on labels). For that data, you are the data controller and SaleLinx acts as your processor: we process buyer data only on your instructions, only to provide the feature you invoked (for example delivering a label email to the address you chose), and we do not store it after delivery.",
-      "You are responsible for having a lawful basis to use your buyers' data and for sending labels only to recipients who legitimately need them. Details are in our privacy policy.",
+      "You are responsible for having a lawful basis to use your buyers' data and for sending labels only to recipients who legitimately need them. Details are in our privacy policy, and the terms on which we process buyer data as your processor are set out in our Data Processing Addendum.",
     ],
   },
   {

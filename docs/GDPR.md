@@ -20,6 +20,8 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Referrals | Share code; referrer-referee account linkage, status, reward amounts | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes`, `referrals` | Life of account (both FKs cascade) |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
+| Device sessions | Random per-install device ID, user agent, last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
+| Terms acceptance | Terms version and acceptance timestamp | Users | Legal obligation / legitimate interest (record of consent to contract) | Supabase `auth.users` user metadata | Life of account |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
 
 Anti-abuse tombstones: `trial_history` and `link_history` store only a salted
@@ -50,6 +52,14 @@ data server-side without revisiting the policy and terms first.
 
 Keep this table current. If a new processor is added, add it to the privacy
 policy's "Service providers" section in the same change.
+
+Customer-facing DPA: because sellers are controllers of their buyers' data and
+SaleLinx is their processor, we publish an Article 28 Data Processing Addendum at
+`/legal/dpa` (`app/[locale]/legal/dpa/page.tsx`). Its subprocessor list (Resend,
+Supabase, Vercel) is the buyer-data subset of the table above; if a subprocessor
+that touches buyer data changes, update that page before the change takes effect
+so sellers can object. Stripe is not on that list (it processes billing data as a
+separate controller, not buyer data on our behalf).
 
 ## Retention schedule
 

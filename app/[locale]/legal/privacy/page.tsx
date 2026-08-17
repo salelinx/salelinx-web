@@ -25,7 +25,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "16 August 2026";
+const LAST_UPDATED = "17 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -53,6 +53,7 @@ const SECTIONS: LegalSection[] = [
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
       "Usage counters. We record counts of metered actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan. These are numbers only, not the content of the actions.",
       "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
+      "Device sessions. To enforce the per-plan limit on how many devices use your account at the same time, the extension records a random identifier it generates for each install, your browser version (user agent string), and when that install was last active. This lets you (and us) see and manage your active devices; it does not identify you personally beyond linking to your account and is deleted when the account is deleted.",
     ],
   },
   {
@@ -67,7 +68,7 @@ const SECTIONS: LegalSection[] = [
     paragraphs: [
       "When you use order features such as shipping labels, the extension reads details about your sales from the marketplace, including your buyer's name, username, and the delivery details printed on the shipping label. This information belongs to your buyers, and it is processed on your device: it is held in memory while you use the feature, is not saved to our servers, and is not included in cloud sync.",
       "If you use the email shipping labels feature, the label PDF (which contains the buyer details the carrier prints on the label) is sent through our servers and our email provider (Resend) solely to deliver it to the email address you choose. We do not store the PDF or the buyer details it contains after the email is sent.",
-      "For your buyers' personal data, you are the data controller: you decide to fetch it from the marketplace and where to send it. SaleLinx acts only on your instructions to deliver the email. You are responsible for handling your buyers' details lawfully, for example not forwarding labels to people who have no business receiving them.",
+      "For your buyers' personal data, you are the data controller: you decide to fetch it from the marketplace and where to send it. SaleLinx acts only on your instructions to deliver the email. You are responsible for handling your buyers' details lawfully, for example not forwarding labels to people who have no business receiving them. The terms on which we process buyer data as your processor, including the subprocessors involved, are set out in our Data Processing Addendum at /legal/dpa.",
     ],
   },
   {

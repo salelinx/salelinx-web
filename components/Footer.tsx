@@ -94,6 +94,11 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/legal/dpa" className={linkClass}>
+                  {t('linkDpa')}
+                </Link>
+              </li>
+              <li>
                 <CookieSettingsButton />
               </li>
             </ul>
