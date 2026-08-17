@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
+import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
 import { ReferralPrice } from "@/components/ReferralPrice";
@@ -180,9 +181,13 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   const starterTier = paidTiers.find((tier) => tier.tier_id === "starter");
   const starterPriceId = PRICE_IDS.starter;
 
-  // The trial is one per account (enforced in create-checkout-session), so
-  // hide the trial card once the signed-in user has any subscription
-  // history. Signed-out visitors always see it.
+  // Mirror ALL THREE gates create-checkout-session applies, not just the
+  // subscription-history one. It also refuses a trial for disposable email
+  // domains and for any platform account that has trialled before (those
+  // tombstones survive account deletion by design). Checking only the
+  // subscription count showed "0 for 14 days" to a returning user who had
+  // deleted their account and re-linked the same Depop shop, and then charged
+  // them 7.99 immediately with no trial. Keep the two in step.
   let trialEligible = true;
   const supabase = await createServerClient();
   const {
@@ -194,6 +199,20 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id);
     trialEligible = (count ?? 0) === 0;
+
+    if (trialEligible && isDisposableEmail(user.email ?? ""))
+      trialEligible = false;
+
+    if (trialEligible) {
+      // Same RPC the Edge Function calls; runs as the caller and only inspects
+      // their own linked accounts. Fail OPEN on an error: showing the card to
+      // someone who turns out to be ineligible is a worse-but-recoverable
+      // outcome than hiding a genuine trial behind a transient RPC blip.
+      const { data: platformTrialed, error } = await supabase.rpc(
+        "has_trialed_platform_account",
+      );
+      if (!error && platformTrialed === true) trialEligible = false;
+    }
   }
 
   const showTrialCard = Boolean(starterTier) && trialEligible;
@@ -226,7 +245,9 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
             <div className="flex items-baseline justify-between">
               <h3 className="text-xl font-semibold">{t("trial.name")}</h3>
             </div>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{t("trial.tagline")}</p>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              {t("trial.tagline")}
+            </p>
 
             <p className="mt-6 text-4xl font-bold">
               £0

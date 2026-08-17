@@ -474,6 +474,8 @@
     }
   },
   "Invited": {
+    "priceNoteFirstMonth": "el primer mes",
+    "priceNoteMonths": "durante tus primeros {months} meses",
     "discountOffFirstMonth": "Tu descuento por invitación: {value} de descuento en tu primer mes, aplicado automáticamente al pagar.",
     "discountOffMonths": "Tu descuento por invitación: {value} de descuento en tus primeros {months} meses, aplicado automáticamente al pagar.",
     "discountOffForever": "Tu descuento por invitación: {value} de descuento cada mes, aplicado automáticamente al pagar.",

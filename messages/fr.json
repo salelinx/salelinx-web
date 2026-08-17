@@ -474,6 +474,8 @@
     }
   },
   "Invited": {
+    "priceNoteFirstMonth": "le premier mois",
+    "priceNoteMonths": "pendant vos {months} premiers mois",
     "discountOffFirstMonth": "Votre réduction de parrainage : {value} de remise sur votre premier mois, appliquée automatiquement au paiement.",
     "discountOffMonths": "Votre réduction de parrainage : {value} de remise sur vos {months} premiers mois, appliquée automatiquement au paiement.",
     "discountOffForever": "Votre réduction de parrainage : {value} de remise chaque mois, appliquée automatiquement au paiement.",

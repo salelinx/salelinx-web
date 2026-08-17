@@ -17,6 +17,22 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   eur: "€",
 };
 
+/** How long the coupon lasts, as a short label for the price card. A `once`
+ *  coupon is the normal case and must NOT be rendered as if it were the
+ *  ongoing price. */
+export function discountDurationKey(
+  discount: ReferralDiscount,
+): "first-month" | "months" | "forever" {
+  if (discount.duration === "forever") return "forever";
+  if (
+    discount.duration === "repeating" &&
+    (discount.durationInMonths ?? 0) > 1
+  ) {
+    return "months";
+  }
+  return "first-month";
+}
+
 // Coupon terms are the same for everyone, so one fetch per page load is
 // plenty - module scope dedupes it across the banner and every price card.
 let discountPromise: Promise<ReferralDiscount | null> | null = null;
@@ -52,13 +68,15 @@ export function useReferralDiscount(): {
 
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled || !data.user) return;
-      supabase.rpc("has_pending_referral").then(({ data: hasPending, error }) => {
-        if (cancelled || error || hasPending !== true) return;
-        setPending(true);
-        fetchDiscount().then((d) => {
-          if (!cancelled) setDiscount(d);
+      supabase
+        .rpc("has_pending_referral")
+        .then(({ data: hasPending, error }) => {
+          if (cancelled || error || hasPending !== true) return;
+          setPending(true);
+          fetchDiscount().then((d) => {
+            if (!cancelled) setDiscount(d);
+          });
         });
-      });
     });
 
     return () => {
@@ -91,10 +109,14 @@ export function applyDiscount(
   if (discount.percentOff != null) {
     discounted = amount * (1 - discount.percentOff / 100);
   } else if (discount.amountOff != null) {
+    // An amount_off is only meaningful in its own currency. Refuse whenever we
+    // cannot PROVE the currencies match - including a currency missing from the
+    // map above, which previously fell through the `expected &&` guard and
+    // subtracted e.g. 5 CAD from a GBP price.
     const expected = discount.currency
       ? CURRENCY_SYMBOLS[discount.currency.toLowerCase()]
       : undefined;
-    if (expected && symbol.trim() && expected !== symbol.trim()) return null;
+    if (!expected || !symbol.trim() || expected !== symbol.trim()) return null;
     discounted = amount - discount.amountOff / 100;
   } else {
     return null;
@@ -113,9 +135,12 @@ export function discountValueLabel(discount: ReferralDiscount): string | null {
     return `${pct}%`;
   }
   if (discount.amountOff != null) {
+    // Same rule as applyDiscount: an unknown currency would render a bare
+    // number ("5.00 off"), which reads as the site's own currency.
     const symbol = discount.currency
-      ? (CURRENCY_SYMBOLS[discount.currency.toLowerCase()] ?? "")
-      : "";
+      ? CURRENCY_SYMBOLS[discount.currency.toLowerCase()]
+      : undefined;
+    if (!symbol) return null;
     return `${symbol}${(discount.amountOff / 100).toFixed(2)}`;
   }
   return null;
