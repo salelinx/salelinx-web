@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 
 // Referral share link: /r/CODE sets the attribution cookie and forwards to
-// the marketing page. No DB lookup here - an unknown code fails silently at
-// claim time (claim_referral RPC), so this route is not an enumeration
-// oracle. Last-touch wins: a second link overwrites the cookie.
+// the invite landing page, which explains the deal the referred visitor was
+// promised. No DB lookup here - an unknown code fails silently at claim time
+// (claim_referral RPC), so this route is not an enumeration oracle.
+// Last-touch wins: a second link overwrites the cookie.
 //
 // Non-localized on purpose (sibling of app/auth/) - proxy.ts lists /r/ in
 // its skipIntl allowlist so next-intl does not rewrite it.
@@ -17,7 +18,7 @@ export async function GET(
 ) {
   const { code } = await params;
   const url = new URL(request.url);
-  const response = NextResponse.redirect(new URL("/features", url.origin));
+  const response = NextResponse.redirect(new URL("/invited", url.origin));
 
   if (CODE_SHAPE.test(code)) {
     response.cookies.set("slx_ref", code.toUpperCase(), {

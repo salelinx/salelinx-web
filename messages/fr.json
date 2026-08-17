@@ -423,6 +423,19 @@
       "metaDescription": "Les conditions qui régissent l'utilisation de l'extension et du site SaleLinx : comptes, abonnements, facturation et usage acceptable."
     }
   },
+  "Invited": {
+    "metaTitle": "Vous êtes invité",
+    "metaDescription": "Un ami vous a invité sur SaleLinx - inscrivez-vous via son lien et obtenez une réduction sur votre premier mois.",
+    "eyebrow": "Vous avez été invité",
+    "title": "Votre ami gère sa boutique avec SaleLinx.",
+    "description": "SaleLinx est une boîte à outils pour vendeurs Depop et Vinted - crosslistez, republiez, actualisez et gérez vos stocks depuis un seul panneau. Comme un ami vous a invité, une réduction est appliquée automatiquement à votre premier mois.",
+    "claimCta": "S'inscrire et profiter de la réduction",
+    "exploreCta": "Découvrir SaleLinx",
+    "note": "Votre invitation est mémorisée dans ce navigateur pendant 30 jours - aucun code nécessaire au paiement.",
+    "step1": "Créez votre compte gratuit - votre invitation est déjà associée.",
+    "step2": "Installez l'extension et liez votre boutique Depop ou Vinted.",
+    "step3": "Choisissez une offre - la réduction s'applique automatiquement au paiement."
+  },
   "Features": {
     "metaTitle": "Produit, tarifs, feuille de route",
     "metaDescription": "Tout ce que fait l'extension Chrome SaleLinx, son prix et ce qui arrive ensuite. Crosslistez, republiez, actualisez et réapprovisionnez sur Depop et Vinted depuis un seul panneau.",

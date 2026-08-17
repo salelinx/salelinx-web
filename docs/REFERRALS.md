@@ -13,7 +13,7 @@ Referrer opens /account -> Referrals card
   ▼
 Friend clicks the link -> app/r/[code]/route.ts
   sets slx_ref cookie (HttpOnly, 30 days, last-touch wins)
-  redirects to /features
+  redirects to /invited (landing page explaining the deal)
   ▼
 Friend signs up and confirms email (any auth path)
   proxy.ts sees a signed-in request still carrying slx_ref
@@ -171,6 +171,7 @@ paid invoice gets it). See `docs/STRIPE.md`.
 | Schema + RPCs | `supabase/migrations/010_referrals.sql` |
 | Leaderboard RPC | `supabase/migrations/014_referral_leaderboard.sql` |
 | Share link | `app/r/[code]/route.ts` (+ `/r/` in `proxy.ts` skipIntl) |
+| Invite landing page | `app/[locale]/invited/page.tsx` (`Invited` namespace in `messages/*.json`) |
 | Claim | `proxy.ts` (first signed-in request with the cookie) |
 | Conversion | `supabase/functions/stripe-webhook/index.ts` |
 | Referee discount | `supabase/functions/create-checkout-session/index.ts` |
