@@ -80,8 +80,12 @@ All in `supabase/functions/stripe-webhook/index.ts`. Priority:
 | `customer.subscription.deleted`                      | Set `status = 'canceled'`. Don't delete the row - keep history.                                                                                                                      |
 | `invoice.payment_failed`                             | Set `status = 'past_due'`. Trigger payment-failed email via Resend.                                                                                                                  |
 | `invoice.payment_succeeded`                          | Reset `status = 'active'` only if it was `past_due`. Also flips a pending referral to `converted` on the first invoice with `amount_paid > 0` (see `docs/REFERRALS.md`).             |
+| `charge.refunded`                                    | Referral clawback. Map charge → invoice → subscription → referee; void any pre-payout referral (`pending`/`converted`/`rewarding`) so a refunded first payment cannot still mint a referrer reward. Already-`rewarded` rows are logged for manual review, not auto-reversed (see `docs/REFERRALS.md`).             |
+| `charge.dispute.created`                             | Same clawback as `charge.refunded`, resolved via the dispute's charge id. A chargeback on the qualifying payment voids the pending referral.                                          |
 
 Any event not listed → respond 200 silently, don't 500.
+
+**Enabled events:** `charge.refunded` and `charge.dispute.created` must be added to the webhook endpoint's enabled-events list in the Stripe dashboard (both test and live). Without that, Stripe never delivers them and the clawback handler is dead code.
 
 **Why not `customer.subscription.created`?** `client_reference_id` only lives on the Checkout Session, not the Subscription object - so `checkout.session.completed` is the only event that carries the mapping back to our `user_id`. We use it for the initial insert and rely on `customer.subscription.updated` for subsequent lifecycle changes.
 

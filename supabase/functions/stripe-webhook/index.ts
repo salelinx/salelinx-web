@@ -194,6 +194,71 @@ async function markReferralConverted(
   if (error) throw new Error(`referral convert failed: ${error.message}`);
 }
 
+// A referral reward is granted 7 days after the referee's first paid invoice
+// (process-referral-rewards). If that payment is refunded or disputed inside
+// the hold, the reward should not pay out: void the referral before the daily
+// job reaches it. Without this, a referee could pay, trigger the conversion,
+// then reclaim the money via refund/chargeback while staying subscribed, and
+// the referrer would still collect a free month (the job only checks that the
+// referee is still entitled, not that the payment stuck).
+async function voidReferralForCharge(charge: Stripe.Charge): Promise<void> {
+  // charge -> invoice -> subscription -> our subscriptions row -> referee.
+  const invoiceId =
+    typeof charge.invoice === "string" ? charge.invoice : charge.invoice?.id;
+  if (!invoiceId) return; // one-off charge, not a subscription payment
+
+  const invoice = await stripe.invoices.retrieve(invoiceId);
+  const subId =
+    typeof invoice.subscription === "string" ? invoice.subscription : null;
+  if (!subId) return;
+
+  const { data: subRow, error: lookupError } = await supabase
+    .from("subscriptions")
+    .select("user_id")
+    .eq("stripe_subscription_id", subId)
+    .maybeSingle();
+  if (lookupError) {
+    throw new Error(`refund referral lookup failed: ${lookupError.message}`);
+  }
+  if (!subRow) return;
+
+  // Only void rewards that have NOT been paid out yet. A row already 'rewarded'
+  // means the credit was granted (and may already be spent on an invoice);
+  // reversing that is a money operation we do not do automatically. Flag it
+  // for manual review instead. The referral id is the only identifier logged.
+  const { data: alreadyRewarded } = await supabase
+    .from("referrals")
+    .select("id")
+    .eq("referee_id", subRow.user_id)
+    .eq("status", "rewarded")
+    .maybeSingle();
+  if (alreadyRewarded) {
+    console.warn(
+      `[stripe-webhook] refund/dispute on referee whose referral ` +
+        `${alreadyRewarded.id} was already rewarded; manual review needed`,
+    );
+    return;
+  }
+
+  // Void any pre-payout referral for this referee. The status guard makes this
+  // a no-op if there is nothing to void.
+  const { data: voided, error: voidError } = await supabase
+    .from("referrals")
+    .update({ status: "void" })
+    .eq("referee_id", subRow.user_id)
+    .in("status", ["pending", "converted", "rewarding"])
+    .select("id");
+  if (voidError) {
+    throw new Error(`refund referral void failed: ${voidError.message}`);
+  }
+  if ((voided ?? []).length > 0) {
+    console.log(
+      `[stripe-webhook] voided referral(s) after refund/dispute: ` +
+        voided!.map((r) => r.id).join(","),
+    );
+  }
+}
+
 Deno.serve(async (req) => {
   const signature = req.headers.get("Stripe-Signature");
   const body = await req.text();
@@ -287,6 +352,23 @@ Deno.serve(async (req) => {
       }
       case "invoice.payment_succeeded": {
         await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
+        break;
+      }
+      case "charge.refunded": {
+        await voidReferralForCharge(event.data.object as Stripe.Charge);
+        break;
+      }
+      case "charge.dispute.created": {
+        // The dispute carries the disputed charge id; resolve to the charge.
+        const dispute = event.data.object as Stripe.Dispute;
+        const chargeId =
+          typeof dispute.charge === "string"
+            ? dispute.charge
+            : dispute.charge?.id;
+        if (chargeId) {
+          const charge = await stripe.charges.retrieve(chargeId);
+          await voidReferralForCharge(charge);
+        }
         break;
       }
       default:
