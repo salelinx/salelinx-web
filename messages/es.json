@@ -693,7 +693,7 @@
     "supportDays": "{value} días",
     "trial": {
       "name": "Prueba gratuita de 14 días",
-      "tagline": "Acceso completo a Starter durante 14 días. Se requiere tarjeta.",
+      "tagline": "Acceso completo a Starter, con tarjeta.",
       "priceSuffix": "durante {days} días",
       "thenPrice": "Después {price} / mes salvo que canceles antes de que termine la prueba",
       "cta": "Empezar prueba gratuita"
