@@ -56,7 +56,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         q: 'Muss ich bezahlen, um es auszuprobieren?',
         a: (
           <p>
-            Du bekommst eine kostenlose 7-Tage-Testphase des Starter-Pakets,
+            Du bekommst eine kostenlose 14-Tage-Testphase des Starter-Pakets,
             eine pro Konto. Zum Start ist eine Karte erforderlich, während der
             Testphase wird aber nichts abgebucht, und du kannst jederzeit über
             deine Kontoseite kündigen. Ohne Kündigung startet dein Starter-Abo

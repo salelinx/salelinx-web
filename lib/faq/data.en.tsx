@@ -58,7 +58,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Do I need to pay to try it?',
         a: (
           <p>
-            You get a 7-day free trial of the Starter plan, one per account. A
+            You get a 14-day free trial of the Starter plan, one per account. A
             card is required to start it, but nothing is charged during the
             trial and you can cancel any time from your account page. If you
             don&rsquo;t cancel, your Starter subscription starts automatically
