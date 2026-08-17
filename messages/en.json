@@ -32,6 +32,7 @@
     "linkPrivacy": "Privacy",
     "linkTerms": "Terms",
     "linkDpa": "Data Processing Addendum",
+    "linkReferralTerms": "Referral Program Terms",
     "copyright": "© {year} SaleLinx Ltd. All rights reserved.",
     "builtFor": "Built for Depop and Vinted sellers.",
     "companyInfo": "SaleLinx Ltd is a company registered in England and Wales, company number 17351832. Registered office: 34 Sussex Place, London, W2 2TH, United Kingdom."
@@ -375,7 +376,9 @@
     "statSignedUp": "Signed up",
     "statSubscribed": "Subscribed",
     "statRewarded": "Months earned",
-    "creditEarned": "Credit earned so far: {amount}. It's applied automatically to your next invoice."
+    "creditEarned": "Credit earned so far: {amount}. It's applied automatically to your next invoice.",
+    "termsNote": "Rewards are subject to conditions (a 7-day hold, a monthly cap, and an active subscription).",
+    "termsLink": "See the referral program terms"
   },
   "Support": {
     "title": "Support",
@@ -464,6 +467,10 @@
     "dpa": {
       "title": "Data Processing Addendum",
       "metaDescription": "How SaleLinx processes buyer data on your behalf as your processor under Article 28 UK GDPR, and the subprocessors involved."
+    },
+    "referralTerms": {
+      "title": "Referral Program Terms",
+      "metaDescription": "The conditions of the SaleLinx referral program: the referee discount, how referrers earn a free month, the reward hold and cap, and fair-use rules."
     }
   },
   "Invited": {
@@ -481,7 +488,9 @@
     "note": "Your invite is remembered in this browser for 30 days - no code needed at checkout.",
     "step1": "Create your free account - your invite is already attached.",
     "step2": "Install the extension and link your Depop or Vinted shop.",
-    "step3": "Pick a plan - the discount is applied automatically at checkout."
+    "step3": "Pick a plan - the discount is applied automatically at checkout.",
+    "termsNote": "The discount applies to your first payment on a new paid plan and can't be combined with other promo codes.",
+    "termsLink": "See the referral program terms"
   },
   "Features": {
     "metaTitle": "Product, pricing, roadmap",

@@ -99,6 +99,11 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/legal/referral-terms" className={linkClass}>
+                  {t('linkReferralTerms')}
+                </Link>
+              </li>
+              <li>
                 <CookieSettingsButton />
               </li>
             </ul>

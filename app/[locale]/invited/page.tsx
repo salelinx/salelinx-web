@@ -66,6 +66,12 @@ export default async function InvitedPage({
           </Link>
         </div>
         <p className="mt-6 text-sm text-zinc-500">{t('note')}</p>
+        <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+          {t('termsNote')}{' '}
+          <Link href="/legal/referral-terms" className="underline">
+            {t('termsLink')}
+          </Link>
+        </p>
       </section>
 
       <section className="mx-auto w-full max-w-4xl px-6 pb-24">

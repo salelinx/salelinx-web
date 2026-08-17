@@ -32,6 +32,7 @@
     "linkPrivacy": "Privacidad",
     "linkTerms": "Términos",
     "linkDpa": "Anexo de tratamiento de datos",
+    "linkReferralTerms": "Términos de recomendación",
     "copyright": "© {year} SaleLinx Ltd. Todos los derechos reservados.",
     "builtFor": "Creado para vendedores de Depop y Vinted.",
     "companyInfo": "SaleLinx Ltd es una sociedad registrada en Inglaterra y Gales con el número 17351832. Domicilio social: 34 Sussex Place, Londres, W2 2TH, Reino Unido."
@@ -375,7 +376,9 @@
     "statSignedUp": "Registrados",
     "statSubscribed": "Suscritos",
     "statRewarded": "Meses ganados",
-    "creditEarned": "Crédito acumulado: {amount}. Se aplica automáticamente a tu próxima factura."
+    "creditEarned": "Crédito acumulado: {amount}. Se aplica automáticamente a tu próxima factura.",
+    "termsNote": "Las recompensas están sujetas a condiciones (una retención de 7 días, un límite mensual y una suscripción activa).",
+    "termsLink": "Ver los términos del programa de recomendación"
   },
   "Support": {
     "title": "Soporte",
@@ -464,6 +467,10 @@
     "dpa": {
       "title": "Anexo de tratamiento de datos",
       "metaDescription": "Cómo SaleLinx trata los datos de tus compradores en tu nombre como encargado del tratamiento según el artículo 28 del RGPD, y los subencargados implicados."
+    },
+    "referralTerms": {
+      "title": "Términos del programa de recomendación",
+      "metaDescription": "Las condiciones del programa de recomendación de SaleLinx: el descuento para el invitado, cómo el recomendador gana un mes gratis, el periodo de retención y el límite de recompensas, y las reglas de uso justo."
     }
   },
   "Invited": {
@@ -481,7 +488,9 @@
     "note": "Tu invitación se recuerda en este navegador durante 30 días; no necesitas ningún código al pagar.",
     "step1": "Crea tu cuenta gratuita: tu invitación ya está vinculada.",
     "step2": "Instala la extensión y vincula tu tienda de Depop o Vinted.",
-    "step3": "Elige un plan: el descuento se aplica automáticamente al pagar."
+    "step3": "Elige un plan: el descuento se aplica automáticamente al pagar.",
+    "termsNote": "El descuento se aplica a tu primer pago de un nuevo plan de pago y no puede combinarse con otros códigos promocionales.",
+    "termsLink": "Ver los términos del programa de recomendación"
   },
   "Features": {
     "metaTitle": "Producto, precios, hoja de ruta",

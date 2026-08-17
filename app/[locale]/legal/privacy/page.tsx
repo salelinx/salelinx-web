@@ -25,7 +25,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "17 August 2026";
+const LAST_UPDATED = "18 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -54,6 +54,7 @@ const SECTIONS: LegalSection[] = [
       "Usage counters. We record counts of metered actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan. These are numbers only, not the content of the actions.",
       "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
       "Device sessions. To enforce the per-plan limit on how many devices use your account at the same time, the extension records a random identifier it generates for each install, your browser version (user agent string), and when that install was last active. This lets you (and us) see and manage your active devices; it does not identify you personally beyond linking to your account and is deleted when the account is deleted.",
+      "Referrals. If you take part in our referral program, we record the link between you and the people you refer, the status of each referral, and any reward amounts. If you refer others, your linked shop username (or, if you have not linked a shop, a neutral placeholder rather than any part of your email) and your number of successful referrals may be shown to other participants on a referral leaderboard. The referral program and its conditions are described in our Referral Program Terms.",
     ],
   },
   {

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 type Props = {
   link: string;
@@ -79,6 +80,13 @@ export function ReferralsCard({
           {t("creditEarned", { amount: creditEarned })}
         </p>
       )}
+
+      <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+        {t("termsNote")}{" "}
+        <Link href="/legal/referral-terms" className="underline">
+          {t("termsLink")}
+        </Link>
+      </p>
     </section>
   );
 }
