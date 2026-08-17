@@ -12,12 +12,6 @@ import {
 // a pending referral AND the coupon can be applied faithfully (see
 // applyDiscount). PricingSection is a server component, so the per-user part
 // has to live in a client island like this one.
-/** Shared height for the price block on every pricing card, so the CTA below it
- *  lines up across all four. The trial card carries a "then £x/month" line and a
- *  referred card carries a duration note, which otherwise pushed their buttons
- *  down while the plain cards' buttons sat higher. */
-export const PRICE_BLOCK = "mt-6 min-h-[4.5rem]";
-
 export function ReferralPrice({
   price,
   suffix,
@@ -45,20 +39,17 @@ export function ReferralPrice({
 
   if (!discounted) {
     return (
-      <div className={PRICE_BLOCK}>
-        <p className="text-4xl font-bold">
-          {price}
-          <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
-            {suffix}
-          </span>
-        </p>
-      </div>
+      <p className="mt-6 text-4xl font-bold">
+        {price}
+        <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
+          {suffix}
+        </span>
+      </p>
     );
   }
 
   return (
-    <div className={PRICE_BLOCK}>
-      <p className="text-4xl font-bold">
+    <p className="mt-6 text-4xl font-bold">
         <span className="mr-2 text-2xl font-semibold text-zinc-400 line-through dark:text-zinc-500">
           {price}
         </span>
@@ -68,12 +59,11 @@ export function ReferralPrice({
         <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
           {suffix}
         </span>
-      </p>
       {durationNote && (
-        <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+        <span className="mt-1 block text-xs font-normal text-emerald-600 dark:text-emerald-400">
           {durationNote}
-        </p>
+        </span>
       )}
-    </div>
+    </p>
   );
 }

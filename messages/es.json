@@ -14,7 +14,12 @@
     "signOut": "Cerrar sesión",
     "signIn": "Iniciar sesión",
     "getStarted": "Empezar",
-    "addToChrome": "Añadir a Chrome"
+    "addToChrome": "Añadir a Chrome",
+    "accountPlan": "Plan y facturación",
+    "accountSecurity": "Seguridad",
+    "accountReferrals": "Referidos",
+    "accountSupport": "Tickets de soporte",
+    "accountDanger": "Eliminar cuenta"
   },
   "Footer": {
     "tagline": "Vende en Depop y Vinted desde un solo lugar.",
@@ -693,7 +698,7 @@
     "supportDays": "{value} días",
     "trial": {
       "name": "Prueba gratuita de 14 días",
-      "tagline": "Acceso completo a Starter durante 14 días. Se requiere tarjeta.",
+      "tagline": "Acceso completo a Starter, con tarjeta.",
       "priceSuffix": "durante {days} días",
       "thenPrice": "Después {price} / mes salvo que canceles antes de que termine la prueba",
       "cta": "Empezar prueba gratuita"

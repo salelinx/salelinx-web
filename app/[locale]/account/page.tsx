@@ -123,7 +123,10 @@ export default async function AccountPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      <section className="mt-10 rounded-2xl border border-black/10 p-6 dark:border-white/10">
+      <section
+        id="plan"
+        className="mt-10 scroll-mt-24 rounded-2xl border border-black/10 p-6 dark:border-white/10"
+      >
         <h2 className="text-xl font-semibold">{t("currentPlanTitle")}</h2>
 
         {!subscription ? (
@@ -242,7 +245,10 @@ export default async function AccountPage({ params, searchParams }: Props) {
         />
       )}
 
-      <section className="mt-6 flex flex-col items-start gap-4 rounded-2xl border border-black/10 p-6 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+      <section
+        id="support"
+        className="mt-6 flex scroll-mt-24 flex-col items-start gap-4 rounded-2xl border border-black/10 p-6 sm:flex-row sm:items-center sm:justify-between dark:border-white/10"
+      >
         <div>
           <h2 className="text-xl font-semibold">{t("supportTitle")}</h2>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">

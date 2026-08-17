@@ -80,8 +80,9 @@ Deno.serve(async (req) => {
   }
 
   let priceId: unknown;
+  let withTrial: unknown;
   try {
-    ({ priceId } = await req.json());
+    ({ priceId, withTrial } = await req.json());
   } catch {
     return json({ error: "Invalid request body" }, 400);
   }
@@ -122,10 +123,20 @@ Deno.serve(async (req) => {
     return json({ error: "You already have an active subscription" }, 409);
   }
 
-  // Trials are for first-time customers on the entry tier only. Any prior
-  // subscription row, in any state, means this account has already been through
-  // billing once and is not eligible again.
-  let trialEligible = tierId === TRIAL_TIER_ID && rows.length === 0;
+  // The trial is OPT-IN. The trial card and the Starter card post the same
+  // Starter price, so without this flag the server could not tell them apart
+  // and anyone pressing "Subscribe" on Starter was silently put on a trial
+  // instead of subscribing.
+  //
+  // Letting the client ask is safe in a way that letting it pass `trialDays`
+  // was not: this is a boolean, and every eligibility gate below still runs
+  // server-side. A caller can decline a trial or request the standard one - it
+  // can never lengthen it, nor attach it to Pro or Business.
+  //
+  // Absent flag means NO trial: "subscribe" should charge, and the only caller
+  // that wants a trial now says so explicitly.
+  let trialEligible =
+    withTrial === true && tierId === TRIAL_TIER_ID && rows.length === 0;
 
   // Trial history also sticks to platform accounts, not just this user_id:
   // if any Depop/Vinted account this user has linked was ever attached to a

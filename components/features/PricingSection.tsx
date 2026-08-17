@@ -4,7 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
-import { ReferralPrice, PRICE_BLOCK } from "@/components/ReferralPrice";
+import { ReferralPrice } from "@/components/ReferralPrice";
 import { Icon, type IconName } from "@/components/Icon";
 import type { TierConfig, TierId } from "@/lib/types/tiers";
 
@@ -249,23 +249,19 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
               {t("trial.tagline")}
             </p>
 
-            <div className={PRICE_BLOCK}>
-              <p className="text-4xl font-bold">
-                £0
-                <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
-                  {" "}
-                  {t("trial.priceSuffix", { days: TRIAL_DAYS })}
-                </span>
-              </p>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {t("trial.thenPrice", { price: TIER_META.starter.price })}
-              </p>
-            </div>
+            <p className="mt-6 text-4xl font-bold">
+              £0
+              <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
+                {" "}
+                {t("trial.priceSuffix", { days: TRIAL_DAYS })}
+              </span>
+            </p>
 
             {starterPriceId ? (
               <SubscribeButton
                 priceId={starterPriceId}
                 label={t("trial.cta")}
+                withTrial
               />
             ) : (
               <Link
@@ -277,6 +273,17 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
             )}
 
             <FeatureList tier={starterTier} formatLimit={formatLimit} t={t} />
+
+            {/* Last, so it adds no height ABOVE anything the other three cards
+                also render. This line is their only structural difference:
+                between price and button it knocked this card's CTA out of line,
+                and between button and features it knocked the feature rows out
+                of line. It stays on the card because "then you are billed" is a
+                material payment term, and the tagline above already leads with
+                "card required". */}
+            <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+              {t("trial.thenPrice", { price: TIER_META.starter.price })}
+            </p>
           </div>
         )}
 

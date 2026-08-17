@@ -14,7 +14,12 @@
     "signOut": "Sign out",
     "signIn": "Sign in",
     "getStarted": "Get started",
-    "addToChrome": "Add to Chrome"
+    "addToChrome": "Add to Chrome",
+    "accountPlan": "Plan & billing",
+    "accountSecurity": "Security",
+    "accountReferrals": "Referrals",
+    "accountSupport": "Support tickets",
+    "accountDanger": "Delete account"
   },
   "Footer": {
     "tagline": "Sell across Depop and Vinted from one place.",
@@ -693,7 +698,7 @@
     "supportDays": "{value} days",
     "trial": {
       "name": "Free 14-day trial",
-      "tagline": "Full Starter access for 14 days. Card required.",
+      "tagline": "Full Starter access, card required.",
       "priceSuffix": "for {days} days",
       "thenPrice": "Then {price} / month unless you cancel before the trial ends",
       "cta": "Start free trial"
