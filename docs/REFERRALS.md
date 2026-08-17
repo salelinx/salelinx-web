@@ -110,9 +110,13 @@ path and must never break anything:
 
 - Runs daily (dashboard Cron -> POST with `x-referral-cron-secret`).
 - Hold: 7 days after `converted_at`. Referee must still be entitled
-  (`active | trialing | past_due`) at payout or the row voids. A true Stripe
-  refund on a still-active subscription is NOT detected - accepted
-  limitation; handling `charge.refunded` is a future enhancement.
+  (`active | trialing | past_due`) at payout or the row voids. A refund or
+  chargeback on the qualifying payment is now caught separately: the
+  `stripe-webhook` handles `charge.refunded` and `charge.dispute.created` and
+  voids any pre-payout referral (`pending`/`converted`/`rewarding`) for that
+  referee, so a refund-but-stay-subscribed no longer mints a reward. Rows
+  already `rewarded` are logged for manual review, not auto-reversed (the
+  credit may already be spent on an invoice).
 - Reward: one month of the referrer's CURRENT plan - the unit_amount of
   their live Stripe subscription's price, credited as a negative customer
   balance transaction. Stripe applies it automatically to upcoming invoices.
@@ -148,8 +152,13 @@ the function is safe (see idempotency above).
   fraudster must actually pay to mint a reward).
 - Self-referral blocked; one referral per referee ever; 48h claim window.
 - 7-day hold absorbs quick refunds; monthly cap limits blast radius.
+- Refund/chargeback on the qualifying payment voids a pre-payout referral
+  (`charge.refunded` / `charge.dispute.created` in `stripe-webhook`), closing
+  the refund-but-stay-subscribed reward leak.
 - Not defended (accepted for now): stolen-card conversions inside the hold,
-  same-person multi-account with distinct cards.
+  same-person multi-account with distinct cards, and a refund that lands
+  AFTER a reward is already `rewarded` (logged for manual review, not
+  auto-reversed).
 
 ## Config
 
