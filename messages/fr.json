@@ -14,7 +14,12 @@
     "signOut": "Déconnexion",
     "signIn": "Connexion",
     "getStarted": "Commencer",
-    "addToChrome": "Ajouter à Chrome"
+    "addToChrome": "Ajouter à Chrome",
+    "accountPlan": "Forfait et facturation",
+    "accountSecurity": "Sécurité",
+    "accountReferrals": "Parrainage",
+    "accountSupport": "Tickets d'assistance",
+    "accountDanger": "Supprimer le compte"
   },
   "Footer": {
     "tagline": "Vendez sur Depop et Vinted depuis un seul endroit.",

@@ -97,7 +97,7 @@ export function DeleteAccountCard({
   }
 
   return (
-    <section className="mt-6 rounded-2xl border border-red-500/30 p-6">
+    <section id="danger" className="mt-6 scroll-mt-24 rounded-2xl border border-red-500/30 p-6">
       <h2 className="text-xl font-semibold text-red-600 dark:text-red-400">
         {t("title")}
       </h2>

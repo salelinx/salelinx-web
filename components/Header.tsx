@@ -65,12 +65,36 @@ export async function Header() {
               >
                 {t('support')}
               </Link>
-              <Link
-                href="/account"
-                className="hover:text-black hover:underline dark:hover:text-white"
-              >
-                {t('account')}
-              </Link>
+              <div className="group relative">
+                <Link
+                  href="/account"
+                  className="hover:text-black hover:underline dark:hover:text-white"
+                >
+                  {t('account')}
+                </Link>
+                {/* pt-2 keeps the hover area contiguous between trigger and panel */}
+                <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                  <div className="w-52 rounded-xl border border-black/10 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-zinc-900">
+                    {(
+                      [
+                        ['#plan', t('accountPlan')],
+                        ['#security', t('accountSecurity')],
+                        ['#referrals', t('accountReferrals')],
+                        ['#support', t('accountSupport')],
+                        ['#danger', t('accountDanger')],
+                      ] as const
+                    ).map(([hash, label]) => (
+                      <Link
+                        key={hash}
+                        href={`/account${hash}`}
+                        className="block rounded-lg px-3 py-2 text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
               <form action="/auth/signout" method="post">
                 <button
                   type="submit"

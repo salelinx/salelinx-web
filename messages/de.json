@@ -14,7 +14,12 @@
     "signOut": "Abmelden",
     "signIn": "Anmelden",
     "getStarted": "Loslegen",
-    "addToChrome": "Zu Chrome hinzufügen"
+    "addToChrome": "Zu Chrome hinzufügen",
+    "accountPlan": "Tarif und Abrechnung",
+    "accountSecurity": "Sicherheit",
+    "accountReferrals": "Empfehlungen",
+    "accountSupport": "Support-Tickets",
+    "accountDanger": "Konto löschen"
   },
   "Footer": {
     "tagline": "Verkaufe auf Depop und Vinted von einem Ort aus.",
