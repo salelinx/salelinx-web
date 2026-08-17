@@ -698,7 +698,7 @@
     "supportDays": "{value} Tage",
     "trial": {
       "name": "Kostenlose 14-Tage-Testphase",
-      "tagline": "Voller Starter-Zugriff für 14 Tage. Karte erforderlich.",
+      "tagline": "Voller Starter-Zugriff, Karte nötig.",
       "priceSuffix": "für {days} Tage",
       "thenPrice": "Danach {price} / Monat, sofern nicht vor Ende der Testphase gekündigt",
       "cta": "Kostenlose Testphase starten"

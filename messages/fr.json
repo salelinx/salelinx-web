@@ -698,7 +698,7 @@
     "supportDays": "{value} jours",
     "trial": {
       "name": "Essai gratuit de 14 jours",
-      "tagline": "Accès complet à Starter pendant 14 jours. Carte bancaire requise.",
+      "tagline": "Accès complet à Starter, carte requise.",
       "priceSuffix": "pendant {days} jours",
       "thenPrice": "Puis {price} / mois sauf annulation avant la fin de l'essai",
       "cta": "Démarrer l'essai gratuit"

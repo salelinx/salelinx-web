@@ -9,12 +9,17 @@ type Props = {
   priceId: string;
   label?: string;
   highlight?: boolean;
+  /** Ask for the free trial. The trial card and the Starter card post the same
+   *  price, so this is what tells them apart. Eligibility is still decided
+   *  entirely server-side; this only expresses intent. */
+  withTrial?: boolean;
 };
 
 export function SubscribeButton({
   priceId,
   label,
   highlight,
+  withTrial = false,
 }: Props) {
   const t = useTranslations("Subscribe");
   const [loading, setLoading] = useState(false);
@@ -32,9 +37,11 @@ export function SubscribeButton({
       return;
     }
 
-    // Redirect URLs and trial length are decided by the Edge Function, not
-    // sent from here: they control what the customer is charged and where they
-    // land afterwards, so the browser is not allowed a say.
+    // Redirect URLs and trial LENGTH are decided by the Edge Function, not sent
+    // from here: they control what the customer is charged and where they land
+    // afterwards, so the browser is not allowed a say. `withTrial` is only a
+    // request for the standard trial; the function still applies every
+    // eligibility gate and caps the length itself.
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-checkout-session`,
@@ -44,7 +51,7 @@ export function SubscribeButton({
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ priceId }),
+          body: JSON.stringify({ priceId, withTrial }),
         },
       );
 

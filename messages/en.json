@@ -698,7 +698,7 @@
     "supportDays": "{value} days",
     "trial": {
       "name": "Free 14-day trial",
-      "tagline": "Full Starter access for 14 days. Card required.",
+      "tagline": "Full Starter access, card required.",
       "priceSuffix": "for {days} days",
       "thenPrice": "Then {price} / month unless you cancel before the trial ends",
       "cta": "Start free trial"
