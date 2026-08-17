@@ -263,7 +263,7 @@
     "signOut": "Déconnexion",
     "checkoutSuccess": "Abonnement activé. Les détails ci-dessous peuvent prendre quelques secondes à se mettre à jour.",
     "currentPlanTitle": "Forfait actuel",
-    "noSubscriptionBody": "Vous n'avez pas de forfait actif. Démarrez votre essai gratuit de 7 jours pour utiliser SaleLinx.",
+    "noSubscriptionBody": "Vous n'avez pas de forfait actif. Démarrez votre essai gratuit de 14 jours pour utiliser SaleLinx.",
     "startTrial": "Démarrer l'essai gratuit",
     "trialEndsInDays": "Votre essai gratuit se termine dans {days} jours. Ensuite, le forfait Starter sera facturé.",
     "trialEndsTomorrow": "Votre essai gratuit se termine demain. Ensuite, le forfait Starter sera facturé.",
@@ -681,8 +681,8 @@
     "supportHours": "{value} h",
     "supportDays": "{value} jours",
     "trial": {
-      "name": "Essai gratuit de 7 jours",
-      "tagline": "Accès complet à Starter pendant 7 jours. Carte bancaire requise.",
+      "name": "Essai gratuit de 14 jours",
+      "tagline": "Accès complet à Starter pendant 14 jours. Carte bancaire requise.",
       "priceSuffix": "pendant {days} jours",
       "thenPrice": "Puis {price} / mois sauf annulation avant la fin de l'essai",
       "cta": "Démarrer l'essai gratuit"

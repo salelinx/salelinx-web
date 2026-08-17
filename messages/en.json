@@ -263,7 +263,7 @@
     "signOut": "Sign out",
     "checkoutSuccess": "Subscription activated. It may take a few seconds for the details below to refresh.",
     "currentPlanTitle": "Current plan",
-    "noSubscriptionBody": "You don't have an active plan. Start your free 7-day trial to use SaleLinx.",
+    "noSubscriptionBody": "You don't have an active plan. Start your free 14-day trial to use SaleLinx.",
     "startTrial": "Start free trial",
     "trialEndsInDays": "Your free trial ends in {days} days. After that you'll be billed for Starter.",
     "trialEndsTomorrow": "Your free trial ends tomorrow. After that you'll be billed for Starter.",
@@ -681,8 +681,8 @@
     "supportHours": "{value}h",
     "supportDays": "{value} days",
     "trial": {
-      "name": "Free 7-day trial",
-      "tagline": "Full Starter access for 7 days. Card required.",
+      "name": "Free 14-day trial",
+      "tagline": "Full Starter access for 14 days. Card required.",
       "priceSuffix": "for {days} days",
       "thenPrice": "Then {price} / month unless you cancel before the trial ends",
       "cta": "Start free trial"

@@ -104,7 +104,7 @@ export function applyDiscount(
   return `${symbol}${discounted.toFixed(2)}`;
 }
 
-/** "20%" / "£3.00" — the headline value, for the offer label. */
+/** "20%" / "£3.00" - the headline value, for the offer label. */
 export function discountValueLabel(discount: ReferralDiscount): string | null {
   if (discount.percentOff != null) {
     const pct = Number.isInteger(discount.percentOff)
