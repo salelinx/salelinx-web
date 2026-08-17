@@ -424,6 +424,7 @@
     }
   },
   "Invited": {
+    "discountBanner": "Your referral discount is active - it will be applied automatically at checkout.",
     "metaTitle": "You're invited",
     "metaDescription": "A friend invited you to SaleLinx - sign up through their link and get a discount on your first month.",
     "eyebrow": "You've been invited",

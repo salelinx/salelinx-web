@@ -424,6 +424,7 @@
     }
   },
   "Invited": {
+    "discountBanner": "Votre réduction de parrainage est active - elle sera appliquée automatiquement au paiement.",
     "metaTitle": "Vous êtes invité",
     "metaDescription": "Un ami vous a invité sur SaleLinx - inscrivez-vous via son lien et obtenez une réduction sur votre premier mois.",
     "eyebrow": "Vous avez été invité",

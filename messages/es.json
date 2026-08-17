@@ -424,6 +424,7 @@
     }
   },
   "Invited": {
+    "discountBanner": "Tu descuento por invitación está activo: se aplicará automáticamente al pagar.",
     "metaTitle": "Estás invitado",
     "metaDescription": "Un amigo te ha invitado a SaleLinx: regístrate con su enlace y obtén un descuento en tu primer mes.",
     "eyebrow": "Te han invitado",

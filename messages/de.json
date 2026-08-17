@@ -424,6 +424,7 @@
     }
   },
   "Invited": {
+    "discountBanner": "Dein Empfehlungsrabatt ist aktiv - er wird beim Bezahlen automatisch angewendet.",
     "metaTitle": "Du bist eingeladen",
     "metaDescription": "Ein Freund hat dich zu SaleLinx eingeladen - registriere dich über den Link und erhalte einen Rabatt auf deinen ersten Monat.",
     "eyebrow": "Du wurdest eingeladen",

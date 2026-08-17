@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { SubscribeButton } from "@/components/SubscribeButton";
+import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
 import { Icon, type IconName } from "@/components/Icon";
 import type { TierConfig, TierId } from "@/lib/types/tiers";
 
@@ -212,6 +213,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
           {t("sectionHeader.body")}
         </p>
       </div>
+      <ReferralDiscountBanner />
 
       <div
         className={`grid gap-6 md:grid-cols-2 ${

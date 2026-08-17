@@ -43,7 +43,7 @@ export default async function InvitedPage({
 
   return (
     <main>
-      <section className="mx-auto w-full max-w-7xl px-6 pt-20 pb-16 text-center sm:pt-28">
+      <section className="mx-auto w-full max-w-7xl px-6 pt-10 pb-16 text-center sm:pt-14">
         <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
         <h1 className="mx-auto mt-6 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl">
           {t('title')}
