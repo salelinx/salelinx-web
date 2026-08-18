@@ -20,6 +20,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Referrals | Share code; referrer-referee account linkage, status, reward amounts; leaderboard display name (linked shop username, else a neutral placeholder) and successful-referral count shown to other participants | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes`, `referrals`, `linked_accounts` (display name); leaderboard is a read-only RPC aggregate | Life of account (both FKs cascade) |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
+| Category resolution | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Transits the `resolve-category` Edge Function only; matched in memory, never logged or stored | Not stored |
 | Device sessions | Random per-install device ID, user agent, last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
 | Terms acceptance | Terms version and acceptance timestamp | Users | Legal obligation / legitimate interest (record of consent to contract) | Supabase `auth.users` user metadata | Life of account |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
@@ -162,7 +163,8 @@ Handling:
 ## Development rules
 
 - No PII (email addresses, message bodies, buyer data) in `console.log` inside
-  Edge Functions. User UUIDs are acceptable.
+  Edge Functions. User UUIDs are acceptable. This covers listing titles and
+  descriptions, which `resolve-category` receives: match them, never log them.
 - Every new user-owned table must reference `auth.users(id) ON DELETE CASCADE`
   so the deletion runbook keeps working.
 - `admin_audit_log.metadata` must never contain ticket content or user IDs.

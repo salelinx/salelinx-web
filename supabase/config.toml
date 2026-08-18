@@ -35,6 +35,9 @@ verify_jwt = false
 [functions.send-shipping-labels]
 verify_jwt = false
 
+[functions.resolve-category]
+verify_jwt = false
+
 [functions.admin-change-plan]
 verify_jwt = false
 
