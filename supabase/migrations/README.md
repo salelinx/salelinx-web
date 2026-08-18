@@ -6,8 +6,43 @@ extension repo reads the same database).
 ## How these files are applied
 
 By hand, in numeric order, via the Supabase dashboard SQL editor (or
-`supabase db push`). There is no CLI-tracked migration history; the live
-project already has everything here applied.
+`supabase db push`). There is no CLI-tracked migration history, so nothing
+verifies the live project against this folder: the numbered files here are
+assumed applied, but see the section below for two that are known not to be
+tracked either way.
+
+## Unreconciled migrations in the extension repo
+
+`salelinx-app/supabase/migrations/` still holds two dated SQL files, written
+there before this repo took over schema ownership. Neither has an equivalent in
+this numbered sequence:
+
+| File (extension repo) | What it does | Status here |
+| --- | --- | --- |
+| `20260813_usage_period_key_server_side.sql` | Derives the usage `period_key` from `now()` at UTC instead of trusting the caller, and adds a `usage_feature_periods` table | No equivalent. `018_rate_limit_gaps.sql` validates the shape of `p_period_key` but then writes whatever the caller sent |
+| `20260813_lock_internal_storage_functions.sql` | Revokes PUBLIC EXECUTE on `apply_storage_delta(uuid,bigint)` and `get_user_storage_cap(uuid)` | Partial. `019` covers the cap function and `024` covers the trigger functions, but nothing revokes `apply_storage_delta` |
+
+**Whether these are already live is unknown.** The dated files are from Aug 13;
+this repo's `018` was last touched Aug 17 and still has the caller-supplied key,
+so either the Aug 13 fix was applied to the live project and `018` is a stale
+file nobody reconciled, or it was never applied. The files alone cannot tell you
+which.
+
+Check before doing anything:
+
+```sql
+select prosrc from pg_proc where proname = 'increment_usage_counter';
+```
+
+If the live definition computes the key from `now()`, the fix is already applied
+and the correct cleanup is deleting the two dated files from the extension repo
+so the repos stop disagreeing. If it still writes `p_period_key`, decide then
+whether to port them into this sequence.
+
+Scope note if you do port them: the exposure is a signed-in user tampering with
+their own client to under-report their own usage (the RPC is already revoked
+from `anon`). Since the extension is the enforcement point and runs in the
+user's browser, this narrows one bypass route rather than closing the class.
 
 ## Consolidated baseline (July 2026)
 

@@ -102,7 +102,7 @@ const {
 if (!user) redirect("/auth/login");
 ```
 
-See `app/account/page.tsx`.
+See `app/[locale]/account/page.tsx`.
 
 `getUser()` is right here because a protected page wants the canonical, server-validated user record. When code only needs "is someone signed in" (the Header, `proxy.ts`), use `supabase.auth.getClaims()` instead: it verifies the JWT locally and skips the network round-trip.
 

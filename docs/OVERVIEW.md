@@ -22,7 +22,7 @@ browser ──▶ Vercel
   ▼
 proxy.ts (refreshes Supabase auth cookies)
   ▼
-app/account/page.tsx (Server Component)
+app/[locale]/account/page.tsx (Server Component)
   ▼
 lib/supabase/server.ts (reads cookies, creates server client)
   ▼
@@ -36,7 +36,7 @@ React stream ──▶ browser
 ## Folder map
 
 ```
-app/
+app/[locale]/                Every user-facing route is localized (next-intl).
 ├── page.tsx                 Landing
 ├── features/                Single page hosting Features + Pricing + Roadmap (tabs scroll to #features, #pricing, #roadmap). Tiers rendered from tier_limits.
 ├── pricing/                 Redirect stub -> /features#pricing (keeps Stripe cancelUrl compatibility)
@@ -46,21 +46,34 @@ app/
 │   ├── signup/              Password signup
 │   ├── forgot-password/
 │   ├── reset-password/
-│   ├── callback/            OAuth code exchange (route handler, not a page)
-│   └── signout/             POST → sign out + redirect
+│   ├── confirm/             Signup / recovery verifyOtp landing
+│   ├── mfa/                 TOTP challenge (admin AAL2)
+│   └── link-error/          Expired or already-used auth link
 ├── account/                 Protected dashboard
+│   ├── tickets/             Ticket history + reply
+│   └── delete-confirm/      GDPR self-serve deletion confirm landing
 ├── docs/                    Product docs (MDX) - learning-oriented guides
 │   ├── page.tsx             Landing: search, task pills, category grid, status, What's new, FAQ cross-link
-│   ├── [category]/          Category index
-│   ├── [category]/[slug]/   Article route
+│   ├── [category]/          Category index (+ [slug]/ article route)
 │   ├── status/              Marketplace status page
 │   └── changelog/           Release notes
+├── help/                    Support hub
+│   ├── page.tsx             Public /help landing
+│   ├── faq/                 FAQ under the help hub
+│   └── support/             Login-gated contact form (create a ticket)
 ├── faq/                     Frequently asked questions - accordion Q&A
-└── legal/                   ToS + Privacy
+├── invited/                 Referral invite landing (/r/CODE redirects here)
+├── legal/                   ToS + Privacy
+└── [...rest]/               Locale-scoped catch-all 404
 
-app/admin/                   Internal staff console. TOP-LEVEL (sibling of [locale], NOT localized);
-                             owns its own <html>/theme/shell so it escapes the marketing chrome.
-                             Gated to admin_users. First module: support. See docs/ADMIN.md.
+Top-level (NOT localized - siblings of [locale]):
+
+app/auth/callback/           OAuth code exchange (route handler, not a page)
+app/auth/signout/            POST -> sign out + redirect
+app/r/[code]/                Referral share links; must stay in proxy.ts's skipIntl allowlist
+app/admin/                   Internal staff console. Owns its own <html>/theme/shell so it
+                             escapes the marketing chrome. Gated to admin_users via is_admin()
+                             (AAL2). See docs/ADMIN.md.
 
 components/                  Shared React components (Header, VerifyEmailBanner, …)
 components/admin/            Admin console components (AdminSidebar, support/AdminTicketTable, …)
@@ -76,14 +89,26 @@ lib/
 ├── supabase/
 │   ├── client.ts            Browser client
 │   ├── server.ts            Server Component client
-│   └── tier-config.ts       Reads tier_limits rows
+│   ├── admin.ts             Service-role client (admin console reads)
+│   ├── subscription.ts      Current subscription / usage reads
+│   ├── referrals.ts         Referral RPC wrappers
+│   └── tier-config.ts       Reads tier_limits rows (cached + uncached variants)
 ├── docs/                    Article manifest, helpers, marketplace status, changelog
-├── stripe.ts                Stripe server SDK init
+├── faq/                     FAQ entries, one data file per locale (data.en.tsx, .fr, .es, .de)
+├── admin/                   Admin-console helpers (reauth, period, usage caps, formatting)
+├── i18n/locales.ts          Supported locales
+├── site.ts                  pageMetadata() - canonical/OG builder for public pages
 └── types/tiers.ts           TierConfig / GateResult (synced with extension)
+
+There is no server-side Stripe client here: all Stripe code lives in supabase/functions/.
 
 supabase/
 ├── config.toml              CLI config
+├── migrations/              Schema (this repo owns it)
 └── functions/               Edge Functions (Deno, not Node)
+
+i18n/                        next-intl request config + routing
+messages/                    UI translation catalogs, one JSON per locale
 
 proxy.ts                     Next.js 16 middleware - refreshes auth cookies
 middleware.ts                (Deprecated in Next 16 - don't recreate this file)
@@ -118,7 +143,7 @@ All defined in `.env.example`. Public-only by design - the website has no server
 
 ## Database schema ownership
 
-**Supabase migrations live in this repo** (`supabase/migrations/`). The extension reads the same database but no longer owns schema. The folder is a consolidated baseline of 6 files; see `supabase/migrations/README.md` for what maps where and how to apply.
+**Supabase migrations live in this repo** (`supabase/migrations/`). The extension reads the same database but no longer owns schema. The folder is a consolidated baseline (`001`-`006`) plus the incremental migrations added since; see `supabase/migrations/README.md` for what maps where and how to apply.
 
 Relevant tables:
 
