@@ -75,6 +75,33 @@ separate controller, not buyer data on our behalf).
 - Edge Function logs: must not contain email addresses or message content.
   User IDs are acceptable. This is enforced by convention; check any new
   `console.log` in `supabase/functions/`.
+- Endpoint health telemetry (`endpoint_health`, migration
+  `029_endpoint_health.sql`): 90 days, via `prune_endpoint_health()`. Schedule it
+  alongside the ticket purge:
+  `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
+
+### Endpoint health telemetry is not personal data
+
+`endpoint_health` deliberately has **no `user_id` column**. It stores counters
+only: a normalized endpoint key (`vinted:POST /api/v2/item_upload/drafts`), an
+outcome bucket, an HTTP status, a count, an extension version, and an hour
+bucket. No URLs with identifiers, no request bodies, no listing or buyer data,
+nothing that singles out a person.
+
+That is why it needs no consent gate and appears in no deletion or export
+runbook - there is nothing in it to erase or export. This is a deliberate design
+choice, not an oversight: a consent gate would put holes in exactly the dataset
+that has to be complete to detect a marketplace outage.
+
+**Do not add a `user_id`, install id, or any other identifier to this table.**
+Doing so converts it into personal data and drags it into the ROPA, the
+retention schedule, the deletion runbook, and arguably a consent requirement. If
+per-user endpoint debugging is ever needed, build it as a separate, consented
+table rather than widening this one.
+
+The `report-telemetry` Edge Function does validate the caller's JWT, but purely
+as an anti-spam gate - the identity is discarded and never stored. Anonymous
+data over authenticated transport.
 
 ## Deletion runbook (right to erasure)
 

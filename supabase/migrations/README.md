@@ -90,3 +90,12 @@ caveats:
 - Cross-user admin reads/writes are SECURITY DEFINER functions that re-check
   `public.is_admin()` themselves; RLS is the real security boundary, the
   app-level admin gate is defense in depth. See `docs/ADMIN.md`.
+
+## Post-apply steps
+
+Some migrations add a prune function but cannot schedule it themselves (pg_cron
+must be enabled on the project first, under Database > Extensions):
+
+- `029_endpoint_health.sql` - 90-day retention for the telemetry counters:
+  `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
+  Without it the table grows without bound. See `docs/GDPR.md`.

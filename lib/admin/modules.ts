@@ -59,6 +59,15 @@ export const ADMIN_MODULES: AdminModule[] = [
     href: "/admin/usage/web",
     enabled: true,
   },
+  // Marketplace endpoint health from passive extension telemetry. Sits next to
+  // the usage modules because it answers the other half of "what is the
+  // extension doing": usage is how much, health is whether it worked.
+  {
+    key: "health",
+    label: "Endpoint health",
+    href: "/admin/health",
+    enabled: true,
+  },
   { key: "storage", label: "Storage", href: "/admin/storage", enabled: true },
   { key: "audit", label: "Audit log", href: "/admin/audit", enabled: true },
 ];
