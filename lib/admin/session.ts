@@ -28,7 +28,8 @@ export const getAdminUser = cache(async () => {
 // the same requirement (migration 009), so this is UX, not the boundary.
 export const getIsAal2 = cache(async (): Promise<boolean> => {
   const supabase = await createServerClient();
-  const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  const { data, error } =
+    await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   if (error) return false;
   return data?.currentLevel === "aal2";
 });

@@ -7,6 +7,9 @@
 import { useMemo, useState } from "react";
 import type { AdminAuditRow } from "@/lib/types/admin";
 
+import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
+import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+
 type Props = {
   entries: AdminAuditRow[];
   emails: Record<string, string>;
@@ -56,6 +59,10 @@ export function AdminAuditTable({ entries, emails, capped, limit }: Props) {
       return true;
     });
   }, [entries, search, action, actor]);
+
+  // Cap how many rows reach the DOM. Filtering/sorting above still runs over
+  // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
+  const win = useWindowedRows(visible);
 
   function metaIsEmpty(meta: Record<string, unknown>): boolean {
     return !meta || Object.keys(meta).length === 0;
@@ -120,7 +127,7 @@ export function AdminAuditTable({ entries, emails, capped, limit }: Props) {
               </tr>
             </thead>
             <tbody>
-              {visible.map((e) => {
+              {win.windowed.map((e) => {
                 const empty = metaIsEmpty(e.metadata);
                 const isExpanded = expanded === e.id;
                 return (
@@ -178,6 +185,14 @@ export function AdminAuditTable({ entries, emails, capped, limit }: Props) {
           </table>
         )}
       </div>
+      <AdminTableFooter
+        shown={win.shown}
+        total={win.total}
+        hasMore={win.hasMore}
+        onShowMore={win.showMore}
+        onShowAll={win.showAll}
+        noun="entries"
+      />
     </div>
   );
 }

@@ -46,6 +46,7 @@ Consequences:
 | Shared needs-reply predicate | `lib/admin/needs-reply.ts` (support table + dashboard) |
 | Per-request memoized gate lookups | `lib/admin/session.ts` (`getAdminUser`, `getIsAal2`) |
 | Module loading skeletons | `components/admin/AdminSkeleton.tsx` + `app/admin/**/loading.tsx` |
+| Table row windowing | `lib/admin/use-windowed-rows.ts` + `components/admin/AdminTableFooter.tsx` |
 | Usage period keys / cap mapping | `lib/admin/period.ts`, `lib/admin/usage-caps.ts` |
 | Byte formatting (Storage module) | `lib/admin/format-bytes.ts` |
 | Marketplace profile URLs (Users module) | `lib/admin/platform-links.ts` |
@@ -222,20 +223,41 @@ tables:
   and the overview fetch replies by ticket id and order by `created_at`, which
   the composite index now satisfies end to end.
 
+**Windowed rendering.** Every table fetches its full result set but renders only
+the first `ADMIN_PAGE_SIZE` (100) rows into the DOM, via
+`lib/admin/use-windowed-rows.ts` plus the shared
+`components/admin/AdminTableFooter.tsx`. The important property is that this is a
+RENDERING boundary, not a data one:
+
+- Search, filters and sorting still run over the whole fetched set, so a search
+  can never miss a row that happens to be past the window.
+- Header counts and empty states still report the full filtered set
+  (`visible.length`); only the `.map` reads `win.windowed`.
+- The open detail drawer resolves its row from the full source array, so
+  filtering never closes a drawer.
+- The footer renders nothing when everything already fits, so tables below 100
+  rows look and behave exactly as before.
+
+The window resets when the filtered set changes identity. That reset is derived
+during render rather than in an effect, because the repo lints against
+`react-hooks/set-state-in-effect` (the same rule that shaped
+`lib/admin/use-client-now.ts`). Follow that pattern in new tables.
+
 Still outstanding if the base grows:
 
 - The Usage and Storage modules each call `admin_list_users()` +
   `admin_list_subscriptions()` purely to resolve a tier and version per row.
   Folding that into the respective RPC as a join would remove two full
   cross-user reads per page view.
-- **No module paginates.** Every table fetches all rows and renders all of them
-  into the DOM (`visible.map(...)` with no slice), and `admin_list_users()` runs
-  three correlated LATERAL subqueries per user. The per-user lookups are
+- **The fetch is still unpaginated**, even though the render no longer is. Each
+  module pulls its whole result set over the wire, and `admin_list_users()` runs
+  three correlated LATERAL subqueries per user. Those per-user lookups are
   index-backed (`user_id` leads the PK on `linked_accounts` and
-  `device_sessions`, and `subscriptions` has `idx_subscriptions_user_id`), so
-  this is linear rather than quadratic, but it is still the ceiling: the first
-  fix when a roster gets slow is a `LIMIT`/`OFFSET` on the RPC plus windowing in
-  the table, not more indexes.
+  `device_sessions`, and `subscriptions` has `idx_subscriptions_user_id`), so it
+  is linear rather than quadratic. When that becomes the bottleneck the next step
+  is `LIMIT`/`OFFSET` on the RPCs, which also means moving search and filtering
+  server-side: doing one without the other would silently reduce filters to
+  searching only the current page.
 
 ## Per-module security checklist
 

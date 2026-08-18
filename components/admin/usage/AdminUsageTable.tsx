@@ -8,6 +8,9 @@
 
 import { useMemo, useState } from "react";
 
+import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
+import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+
 export type UsageTableRow = {
   key: string;
   user_id: string;
@@ -67,6 +70,10 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
     return sorted;
   }, [rows, search, feature, sortKey]);
 
+  // Cap how many rows reach the DOM. Filtering/sorting above still runs over
+  // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
+  const win = useWindowedRows(visible);
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
@@ -122,7 +129,7 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
               </tr>
             </thead>
             <tbody>
-              {visible.map((r) => (
+              {win.windowed.map((r) => (
                 <tr
                   key={r.key}
                   className="border-b border-[var(--admin-border)] hover:bg-zinc-50"
@@ -172,6 +179,14 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
           </table>
         )}
       </div>
+      <AdminTableFooter
+        shown={win.shown}
+        total={win.total}
+        hasMore={win.hasMore}
+        onShowMore={win.showMore}
+        onShowAll={win.showAll}
+        noun="rows"
+      />
     </div>
   );
 }
