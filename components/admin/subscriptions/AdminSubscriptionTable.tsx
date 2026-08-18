@@ -8,6 +8,9 @@
 import { useMemo, useState } from "react";
 import type { AdminSubscriptionRow } from "@/lib/types/admin";
 
+import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
+import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+
 type Props = {
   initialSubscriptions: AdminSubscriptionRow[];
   emails: Record<string, string>;
@@ -80,6 +83,10 @@ export function AdminSubscriptionTable({
     return sorted;
   }, [subs, emails, search, status, tier, sortKey]);
 
+  // Cap how many rows reach the DOM. Filtering/sorting above still runs over
+  // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
+  const win = useWindowedRows(visible);
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
@@ -147,7 +154,7 @@ export function AdminSubscriptionTable({
               </tr>
             </thead>
             <tbody>
-              {visible.map((s) => {
+              {win.windowed.map((s) => {
                 const email = emails[s.user_id];
                 return (
                   <tr
@@ -200,6 +207,14 @@ export function AdminSubscriptionTable({
           </table>
         )}
       </div>
+      <AdminTableFooter
+        shown={win.shown}
+        total={win.total}
+        hasMore={win.hasMore}
+        onShowMore={win.showMore}
+        onShowAll={win.showAll}
+        noun="subscriptions"
+      />
     </div>
   );
 }

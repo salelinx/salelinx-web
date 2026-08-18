@@ -12,12 +12,16 @@ import { AdminUserTable } from "@/components/admin/users/AdminUserTable";
 export default async function AdminUsersPage() {
   const supabase = await createServerClient();
 
-  const { data: usersData } = await supabase.rpc("admin_list_users");
-  const users = (usersData as AdminUserRow[] | null) ?? [];
-
-  // Tier configs (public-read) so the detail drawer can show usage against caps
+  // The roster and the tier configs are independent, so they resolve together.
+  // admin_list_users() still re-checks is_admin() server-side.
+  //
+  // Tier configs (public-read) let the detail drawer show usage against caps
   // without another round-trip per open. Passed down to the table.
-  const tiers = await getTierConfigs();
+  const [usersRes, tiers] = await Promise.all([
+    supabase.rpc("admin_list_users"),
+    getTierConfigs(),
+  ]);
+  const users = (usersRes.data as AdminUserRow[] | null) ?? [];
 
   return <AdminUserTable initialUsers={users} tiers={tiers} />;
 }

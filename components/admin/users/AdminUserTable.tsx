@@ -23,7 +23,21 @@ import {
   STALENESS_TONE,
 } from "@/lib/admin/relative-time";
 import { useClientNow } from "@/lib/admin/use-client-now";
-import { AdminUserDetail } from "./AdminUserDetail";
+import dynamic from "next/dynamic";
+
+import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
+import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+
+// The detail drawer is ~1k lines (subscription editing, Stripe plan change,
+// account deletion, devices, listings) and only ever renders after a row click,
+// but a static import bundles it into the roster's own chunk, so every visit
+// downloaded and parsed it. Loading it on demand keeps the roster's first paint
+// to the table itself. ssr:false is correct here: the drawer is behind client
+// state (`selected`) and never part of the server-rendered markup.
+const AdminUserDetail = dynamic(
+  () => import("./AdminUserDetail").then((m) => m.AdminUserDetail),
+  { ssr: false },
+);
 
 type Props = {
   initialUsers: AdminUserRow[];
@@ -129,6 +143,10 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     return sorted;
   }, [users, search, tier, status, platform, activity, sortKey, now]);
 
+  // Cap how many rows reach the DOM. Filtering/sorting above still runs over
+  // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
+  const win = useWindowedRows(visible);
+
   const selected = selectedId
     ? (users.find((u) => u.user_id === selectedId) ?? null)
     : null;
@@ -233,7 +251,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
               </tr>
             </thead>
             <tbody>
-              {visible.map((u) => {
+              {win.windowed.map((u) => {
                 const lastActive = mostRecent(
                   u.last_sign_in_at,
                   u.last_device_seen_at,
@@ -300,6 +318,14 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           </table>
         )}
       </div>
+      <AdminTableFooter
+        shown={win.shown}
+        total={win.total}
+        hasMore={win.hasMore}
+        onShowMore={win.showMore}
+        onShowAll={win.showAll}
+        noun="users"
+      />
 
       {selected && (
         <AdminUserDetail

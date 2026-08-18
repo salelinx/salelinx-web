@@ -12,7 +12,18 @@ import { useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import { ticketNeedsReply } from "@/lib/admin/needs-reply";
-import { AdminTicketDetail } from "./AdminTicketDetail";
+import dynamic from "next/dynamic";
+
+import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
+import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+
+// Same reasoning as the users roster: the ticket drawer (reply box, status
+// controls, delete + reauth) only renders after a row click, so it is loaded on
+// demand instead of riding along in the table's chunk.
+const AdminTicketDetail = dynamic(
+  () => import("./AdminTicketDetail").then((m) => m.AdminTicketDetail),
+  { ssr: false },
+);
 
 type Props = {
   adminId: string;
@@ -160,6 +171,10 @@ export function AdminTicketTable({
     sortKey,
   ]);
 
+  // Cap how many rows reach the DOM. Filtering/sorting above still runs over
+  // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
+  const win = useWindowedRows(visible);
+
   const selected = selectedId
     ? (tickets.find((tk) => tk.id === selectedId) ?? null)
     : null;
@@ -265,7 +280,7 @@ export function AdminTicketTable({
               </tr>
             </thead>
             <tbody>
-              {visible.map((tk) => {
+              {win.windowed.map((tk) => {
                 const isClosed = tk.status === "closed";
                 const from = emails[tk.user_id];
                 return (
@@ -325,6 +340,14 @@ export function AdminTicketTable({
           </table>
         )}
       </div>
+      <AdminTableFooter
+        shown={win.shown}
+        total={win.total}
+        hasMore={win.hasMore}
+        onShowMore={win.showMore}
+        onShowAll={win.showAll}
+        noun="tickets"
+      />
 
       {selected && (
         <AdminTicketDetail

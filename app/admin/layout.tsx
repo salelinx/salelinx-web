@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { redirect } from "next/navigation";
-import { createServerClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/supabase/admin";
+import { getAdminUser, getIsAal2 } from "@/lib/admin/session";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import "./admin.css";
 
@@ -38,19 +38,22 @@ export default async function AdminLayout({
   // an AAL2 session (migration 009), mirroring the check below.
   let adminEmail = "";
   try {
-    const supabase = await createServerClient();
-    const { data } = await supabase.auth.getUser();
-    const user = data.user;
+    // These lookups are memoized per request (lib/admin/session.ts), so the
+    // pages underneath re-use them instead of re-querying. Same three checks,
+    // same order, same fail-closed behaviour - only the duplicate execution is
+    // gone.
+    const user = await getAdminUser();
 
     if (!user) {
       redirect("/auth/login");
     }
-    if (!(await isAdmin(user.id))) {
+    // Membership and AAL are independent of each other, so they can resolve
+    // together; both must pass and either one failing still denies below.
+    const [admin, isAal2] = await Promise.all([isAdmin(user.id), getIsAal2()]);
+    if (!admin) {
       redirect("/account");
     }
-    const { data: aal } =
-      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal?.currentLevel !== "aal2") {
+    if (!isAal2) {
       redirect("/auth/mfa?next=/admin");
     }
     adminEmail = user.email ?? "";

@@ -42,7 +42,23 @@ export const ADMIN_MODULES: AdminModule[] = [
     href: "/admin/flags",
     enabled: true,
   },
-  { key: "usage", label: "Usage", href: "/admin/usage", enabled: true },
+  // Two usage modules: extension product metering (capped by tier_limits) and
+  // web abuse rate limits (capped by constants in the Edge Functions). They
+  // read the same usage_counters table but answer different questions, so they
+  // are separate pages. See lib/admin/usage-sources.ts.
+  {
+    key: "usage",
+    label: "Extension usage",
+    href: "/admin/usage",
+    enabled: true,
+    exact: true,
+  },
+  {
+    key: "usage-web",
+    label: "Web usage",
+    href: "/admin/usage/web",
+    enabled: true,
+  },
   { key: "storage", label: "Storage", href: "/admin/storage", enabled: true },
   { key: "audit", label: "Audit log", href: "/admin/audit", enabled: true },
 ];

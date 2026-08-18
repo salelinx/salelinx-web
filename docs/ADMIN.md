@@ -12,7 +12,8 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
-| Usage | `/admin/usage` | Live, read-only | Cross-user consumption for the current period, sorted by percent-of-cap. |
+| Extension usage | `/admin/usage` | Live, read-only | Product metering for the current period (crosslist, relist, refresh, follow, unfollow), measured against the user's `tier_limits` caps. Sorted by percent-of-cap. |
+| Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for the current period (checkout / portal sessions, deletion requests, label emails, email changes), measured against the hardcoded per-day cap in the calling code. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
@@ -40,10 +41,16 @@ Consequences:
 | Subscriptions module | `app/admin/subscriptions/page.tsx` + `components/admin/subscriptions/*` |
 | Tier limits module | `app/admin/tiers/page.tsx` + `components/admin/tiers/*` |
 | Feature flags module | `app/admin/flags/page.tsx` + `components/admin/flags/*` |
-| Usage module | `app/admin/usage/page.tsx` + `components/admin/usage/*` |
+| Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/*` |
+| Web usage module | `app/admin/usage/web/page.tsx` (same table component) |
+| Usage source split + web caps | `lib/admin/usage-sources.ts` |
+| Shared usage loader | `lib/admin/usage-data.ts` |
 | Audit log module | `app/admin/audit/page.tsx` + `components/admin/audit/*` |
 | Storage module | `app/admin/storage/page.tsx` + `components/admin/storage/*` |
 | Shared needs-reply predicate | `lib/admin/needs-reply.ts` (support table + dashboard) |
+| Per-request memoized gate lookups | `lib/admin/session.ts` (`getAdminUser`, `getIsAal2`) |
+| Module loading skeletons | `components/admin/AdminSkeleton.tsx` + `app/admin/**/loading.tsx` |
+| Table row windowing | `lib/admin/use-windowed-rows.ts` + `components/admin/AdminTableFooter.tsx` |
 | Usage period keys / cap mapping | `lib/admin/period.ts`, `lib/admin/usage-caps.ts` |
 | Byte formatting (Storage module) | `lib/admin/format-bytes.ts` |
 | Marketplace profile URLs (Users module) | `lib/admin/platform-links.ts` |
@@ -167,6 +174,142 @@ The Storage module's data source is the `user_storage` gauge from migration `004
 - `admin_list_storage()` - every `user_storage` row (`user_id`, `bytes_used`, `updated_at`), largest first. One row per user who has ever uploaded, so the read stays bounded without pagination.
 
 Emails come from `admin_user_emails`, tiers from `admin_list_users` / `admin_list_subscriptions`, and the `cloud_storage_bytes` cap from the public-read `tier_limits` table via `getTierConfigs()`. Cap semantics differ from the count caps: `null` means unlimited, while an **absent** `cloud_storage_bytes` key means the tier has no storage allowance at all (Free/Starter) - shown as `-` with no percent.
+
+## Rendering performance
+
+The console is server-rendered per request and never cached (every route is
+dynamic, and must stay that way - the data is cross-user and admin-only). Two
+things keep it responsive:
+
+**Memoized gate lookups.** Layers 1 and 2 both still run, but rendering a single
+request used to repeat `getUser()`, the `admin_users` read, and the AAL check
+several times across the layout and the page. `lib/admin/session.ts` wraps them
+in React `cache()`, so each resolves once per request. This is per-request and
+per-render memoization: nothing is shared between users or across requests, and
+every helper returns the denying value on error, so the fail-closed behaviour is
+unchanged. It removes duplicate execution, never a check.
+
+**Parallel independent reads.** Each module's fetches are issued with
+`Promise.all` where they do not depend on each other (for example Usage runs
+`admin_list_usage`, `admin_list_users`, `admin_list_subscriptions` and
+`getTierConfigs` together). Every RPC still re-checks `is_admin()` server-side;
+concurrency changes only the order of the round-trips.
+
+**Loading skeletons.** Every route has a `loading.tsx` rendering
+`components/admin/AdminSkeleton.tsx`, so navigation paints the shell immediately
+instead of blocking on the queries. These are presentation-only components: they
+receive no data, perform no reads, and render before the gate resolves, so they
+must never be given real content.
+
+**Bounded reads.** The `/admin` overview needs only counts, so it selects just
+the columns the predicate reads (`id,status` and `ticket_id,is_admin`) and skips
+closed tickets, which can never need a reply. That keeps the read bounded as the
+archive grows and, incidentally, means ticket and reply message bodies are not
+fetched on the overview at all.
+
+**Deferred detail drawers.** `AdminUserDetail` (~1k lines) and
+`AdminTicketDetail` only render after a row click, but a static import bundled
+them into their table's own chunk, so every visit downloaded and parsed them.
+Both are now `next/dynamic` with `ssr: false` (they sit behind client state and
+were never in the server markup). This cut the users roster chunk from ~29 KB to
+~11 KB, with the drawer's ~22 KB fetched on first open. Keep new drawer-style
+components on the same pattern.
+
+**Indexes** (`028_admin_console_indexes.sql`). Two reads were scanning whole
+tables:
+
+- `usage_counters(period_key)` - the PK is `(user_id, feature, period_key)`, so
+  filtering on `period_key` alone (what `admin_list_usage` does) could not use
+  it. This is the fastest-growing table in the schema, so the scan got worse
+  every day.
+- `support_ticket_replies(ticket_id, created_at)` - `ticket_id` is a foreign
+  key, and Postgres does not index those automatically. Both the support module
+  and the overview fetch replies by ticket id and order by `created_at`, which
+  the composite index now satisfies end to end.
+
+**Windowed rendering.** Every table fetches its full result set but renders only
+the first `ADMIN_PAGE_SIZE` (100) rows into the DOM, via
+`lib/admin/use-windowed-rows.ts` plus the shared
+`components/admin/AdminTableFooter.tsx`. The important property is that this is a
+RENDERING boundary, not a data one:
+
+- Search, filters and sorting still run over the whole fetched set, so a search
+  can never miss a row that happens to be past the window.
+- Header counts and empty states still report the full filtered set
+  (`visible.length`); only the `.map` reads `win.windowed`.
+- The open detail drawer resolves its row from the full source array, so
+  filtering never closes a drawer.
+- The footer renders nothing when everything already fits, so tables below 100
+  rows look and behave exactly as before.
+
+The window resets when the filtered set changes identity. That reset is derived
+during render rather than in an effect, because the repo lints against
+`react-hooks/set-state-in-effect` (the same rule that shaped
+`lib/admin/use-client-now.ts`). Follow that pattern in new tables.
+
+Still outstanding if the base grows:
+
+- The Usage and Storage modules each call `admin_list_users()` +
+  `admin_list_subscriptions()` purely to resolve a tier and version per row.
+  Folding that into the respective RPC as a join would remove two full
+  cross-user reads per page view.
+- **The fetch is still unpaginated**, even though the render no longer is. Each
+  module pulls its whole result set over the wire, and `admin_list_users()` runs
+  three correlated LATERAL subqueries per user. Those per-user lookups are
+  index-backed (`user_id` leads the PK on `linked_accounts` and
+  `device_sessions`, and `subscriptions` has `idx_subscriptions_user_id`), so it
+  is linear rather than quadratic. When that becomes the bottleneck the next step
+  is `LIMIT`/`OFFSET` on the RPCs, which also means moving search and filtering
+  server-side: doing one without the other would silently reduce filters to
+  searching only the current page.
+
+## Two kinds of usage counter
+
+`usage_counters` holds two things that look alike and are not. Both are written
+through the same `increment_usage_counter` RPC, so they land in one table, but
+they are capped by different mechanisms and answer different questions. They are
+split across two modules for that reason.
+
+| | Extension usage (`/admin/usage`) | Web usage (`/admin/usage/web`) |
+| --- | --- | --- |
+| Counters | `crosslist`, `relist`, `refresh`, `follow`, `unfollow` | `checkout_sessions`, `portal_sessions`, `delete_account_requests`, `shipping_label_emails`, `email_change_requests` |
+| Written by | The extension, per metered action | Web Edge Functions + the account UI |
+| Cap source | The user's `tier_limits` row, so it varies by tier | A hardcoded constant in the calling function, identical for every tier |
+| Period | Monthly or daily depending on the limit key | Always daily |
+| A high number means | Approaching a plan limit: a billing / upgrade signal | Hit an abuse safety valve and was served a 429: a support / abuse signal |
+
+Mixing them on one page actively misled: a web counter has no `tier_limits` key,
+so `capForFeature()` returned null and the Cap column rendered **"unlimited"**
+for the counters that are in fact the most tightly capped in the system (5-20 per
+day). The Web usage page shows the real limit and a true percentage.
+
+The web caps are mirrored in `lib/admin/usage-sources.ts`. There is no runtime
+link between that table and the Edge Functions, so **changing a cap in a function
+means changing it there too** or the console will report the old number.
+
+Classification is by exception: anything not registered in `WEB_COUNTERS` is
+treated as extension metering, so a new extension feature appears on the
+Extension page automatically. A new web rate limit must be registered or it will
+be misfiled, which is the deliberate trade-off (new product features are common;
+new rate limits are rare and always involve a code change here anyway).
+
+## Client Component props must be serializable
+
+Every admin table is a Client Component rendered by a Server Component page, so
+their props cross the RSC boundary and must be serializable. **A function prop
+throws at request time and `npm run build` does NOT catch it** - the route
+compiles, then 500s on the first real visit.
+
+This bit the Web usage module: the page passed `labelFor={usageLabel}` to map
+counter names to friendly labels. The fix is to pass a serializable flag
+(`friendlyLabels`) and import the helper inside the client component instead.
+`lib/admin/usage-sources.ts` has no imports and no server-only dependencies, so
+the client can import it directly.
+
+When adding a module, pass data (strings, numbers, booleans, plain objects and
+arrays) and keep formatters, predicates and callbacks inside the client
+component. Verifying a new admin route means loading it in a browser as a real
+admin, not just a green build.
 
 ## Per-module security checklist
 

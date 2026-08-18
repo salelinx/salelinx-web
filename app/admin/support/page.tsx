@@ -1,4 +1,5 @@
 import { createServerClient } from "@/lib/supabase/server";
+import { getAdminUser } from "@/lib/admin/session";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import { AdminTicketTable } from "@/components/admin/support/AdminTicketTable";
 
@@ -10,14 +11,18 @@ import { AdminTicketTable } from "@/components/admin/support/AdminTicketTable";
 export default async function AdminSupportPage() {
   const supabase = await createServerClient();
 
-  const { data: auth } = await supabase.auth.getUser();
-  const adminId = auth.user?.id ?? "";
-
-  const { data: ticketsData } = await supabase
-    .from("support_tickets")
-    .select("*")
-    .order("updated_at", { ascending: false });
-  const tickets = (ticketsData as SupportTicket[] | null) ?? [];
+  // The signed-in admin's id and the ticket list are independent, so they
+  // resolve together. getAdminUser() is the per-request memoized read the
+  // layout gate already performed, so this costs no extra round-trip.
+  const [user, ticketsRes] = await Promise.all([
+    getAdminUser(),
+    supabase
+      .from("support_tickets")
+      .select("*")
+      .order("updated_at", { ascending: false }),
+  ]);
+  const adminId = user?.id ?? "";
+  const tickets = (ticketsRes.data as SupportTicket[] | null) ?? [];
 
   let replies: SupportReply[] = [];
   if (tickets.length > 0) {
