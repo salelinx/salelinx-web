@@ -63,6 +63,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `admin-delete-user` - `verify_jwt = false` (admin console runs the GDPR account deletion: storage objects, Stripe customer, then the auth user; same `getUser()` plus `admin_users` gate; see `docs/GDPR.md`)
 - `delete-account` - `verify_jwt = false` (self-serve GDPR deletion from the `/account` Danger zone; handler validates via `getUser()`; stage `request` emails a signed confirmation link, stage `confirm` verifies the token and deletes the caller's own account with the same steps as `admin-delete-user`; refuses admins; see `docs/GDPR.md`)
 - `process-referral-rewards` - `verify_jwt = false` (daily dashboard Cron job POSTs with the `x-referral-cron-secret` shared secret; grants referral rewards as Stripe balance credits; see `docs/REFERRALS.md`)
+- `resolve-category` - `verify_jwt = false` (the extension POSTs Depop/Vinted category lookups with the user's JWT; handler validates via `getUser(jwt)`, checks the caller's tier allows crosslisting and has monthly allowance left, then resolves against the tables in `_generated/`. Those tables are synced from the extension repo, which owns them and their tests: never edit `_generated/` here, run `npm run sync:category-maps` there and redeploy)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 
@@ -103,6 +104,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **`proxy.ts` and `Header.tsx` use `getClaims()`, not `getUser()`** - getClaims verifies the JWT locally against the ES256 signing keys; getUser is a network round-trip to Supabase Auth and both run on every page view. Keep `getUser()` only where the canonical user record matters (protected pages like `/account`, Edge Functions).
 - **Public pages read tiers via `getCachedTierConfigs()`** (60s `unstable_cache`, cookie-less client); admin pages use the uncached `getTierConfigs()` so edits show immediately. Don't point admin at the cached one.
 - **`supabase/functions/` is excluded from `tsc`** - TS errors there won't surface until deploy. Use the Deno VSCode extension for inline checking.
+- **`supabase/functions/resolve-category/_generated/` is generated, not authored.** It is the extension repo's category mapping tables, copied in by that repo's `npm run sync:category-maps` (which also rewrites relative imports to the `.ts` extensions Deno needs). Editing it here is silently reverted by the next sync, and the tests that guard the mappings live in the extension repo. Change the tables there, sync, then `supabase functions deploy resolve-category --no-verify-jwt`.
 - **Stripe API version pinned at `2025-02-24.acacia`** in 7 places (`lib/stripe.ts` + 6 Edge Functions). Bump all or none.
 - **`constructEventAsync` in Deno**, never `constructEvent` - sync variant crashes.
 - **Webhook must read `req.text()` first, then verify** - JSON.parse breaks signature.

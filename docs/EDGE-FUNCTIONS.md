@@ -12,9 +12,10 @@ Ten Supabase Edge Functions live in `supabase/functions/`. They run on Supabase'
 - **`admin-change-plan`** - the admin console's real Stripe plan change (swap the price on a customer's live subscription). Needs `STRIPE_SECRET_KEY` and the service role (admin gate + audit write), so it lives with the other Stripe-adjacent functions.
 - **`admin-delete-user`** - the admin console's account deletion (the GDPR erasure runbook: storage, Stripe customer, auth user). Needs the service role and `STRIPE_SECRET_KEY`; same home as the script it mirrors (`scripts/delete-user-account.mjs`).
 - **`delete-account`** - self-serve account deletion from `/account` (Danger zone). Two stages: `request` emails the account address a confirmation link (Resend, HMAC-signed token, 60-minute expiry, signed with `DELETE_ACCOUNT_TOKEN_SECRET`); `confirm` (from `/account/delete-confirm`) verifies the token was minted for the caller and then runs the same erasure steps as `admin-delete-user`. Refuses admins (their audit-log FKs would break) and writes no audit entry (the actor would not survive their own deletion).
+- **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. The mapping tables (~116KB) used to ship inside the extension bundle, where anyone who installed it could unzip the .crx and lift them; they now live only here, in `resolve-category/_generated/`. Also the one crosslist entitlement check the user cannot patch around, since a crosslist cannot produce a category without it.
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 
-## The ten functions
+## The eleven functions
 
 | Function                  | `verify_jwt` | Purpose                                                                                                  |
 | ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -27,11 +28,12 @@ Ten Supabase Edge Functions live in `supabase/functions/`. They run on Supabase'
 | `admin-change-plan`       | false*       | Admin console swaps a customer's paid plan in Stripe; auth by `getUser()` + `admin_users` membership     |
 | `admin-delete-user`       | false*       | Admin console runs the GDPR account deletion; auth by `getUser()` + `admin_users` membership             |
 | `delete-account`          | false*       | User deletes their own account: emails a signed confirm link and erases on confirm; auth by `getUser()`  |
+| `resolve-category`        | false*       | Extension POSTs category lookups; auth by `getUser(jwt)` + crosslist tier gate + monthly cap             |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in migration 009) and `admin_users` membership via the service role.
 
-`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` imports `@supabase/supabase-js` from `jsr:` and uses plain `fetch` for Resend. Deno uses URL imports, not `node_modules`.
+`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` and `resolve-category` import `@supabase/supabase-js` from `jsr:`. Deno needs explicit `.ts` extensions on relative imports, which is why `resolve-category/_generated/` is written with them by the extension repo's sync script. Deno uses URL imports, not `node_modules`.
 
 ## Deno specifics (don't copy Node patterns)
 
@@ -73,6 +75,7 @@ supabase functions deploy send-shipping-labels --no-verify-jwt
 supabase functions deploy admin-change-plan --no-verify-jwt
 supabase functions deploy admin-delete-user --no-verify-jwt
 supabase functions deploy delete-account --no-verify-jwt
+supabase functions deploy resolve-category --no-verify-jwt
 supabase functions deploy process-referral-rewards --no-verify-jwt
 ```
 
@@ -94,6 +97,8 @@ supabase secrets set SUPPORT_NOTIFY_FROM='SaleLinx Support <support@salelinx.com
 supabase secrets set SUPPORT_NOTIFY_TO='support@salelinx.com'
 supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # send-shipping-labels reuses RESEND_API_KEY and RESEND_FROM - no extra secrets.
+# resolve-category needs no secrets: it reads SUPABASE_URL / SUPABASE_ANON_KEY,
+# which the runtime injects.
 # Optional CORS pinning for all browser-called functions: unset = wildcard
 # (unchanged behavior); set to the site origin to stop other sites' frontends
 # reading responses. The extension is unaffected (host permissions bypass CORS).
