@@ -88,6 +88,13 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* React hoists this into <head>. Client-side Supabase calls (auth,
+            referral status, checkout) then skip DNS + TLS setup. */}
+        <link
+          rel="preconnect"
+          href={process.env.NEXT_PUBLIC_SUPABASE_URL!}
+          crossOrigin="anonymous"
+        />
         <NextIntlClientProvider>
           <SmoothAnchorScroll />
           <Header />

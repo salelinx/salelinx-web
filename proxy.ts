@@ -65,9 +65,15 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims verifies the JWT locally against the project's asymmetric
+  // (ES256) signing keys via a cached JWKS, instead of getUser()'s network
+  // round-trip to the Auth server on EVERY request. It still reads the token
+  // through the cookie adapter above, so near-expiry sessions get refreshed
+  // and re-set exactly as before. Do not swap this back to getUser(): that
+  // adds a blocking Supabase call to every page view. The claims are only
+  // used for routing here; RLS remains the real data boundary.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const claims = claimsData?.claims ?? null;
 
   // Referral claim. This lives here, not in /auth/callback, because signup
   // verification never passes through the callback: /auth/confirm verifies
@@ -77,7 +83,7 @@ export async function proxy(request: NextRequest) {
   // bad code) and returns false instead of raising, so this can never break
   // a request; the cookie is cleared after one attempt either way.
   const refCode = request.cookies.get("slx_ref")?.value;
-  if (user && refCode) {
+  if (claims && refCode) {
     try {
       await supabase.rpc("claim_referral", { p_code: refCode });
     } catch {
@@ -91,13 +97,13 @@ export async function proxy(request: NextRequest) {
   // real boundary; this is defense in depth + a clean redirect for humans.
   if (isAdminPath) {
     try {
-      if (!user) {
+      if (!claims) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
       }
       const { data: adminRow } = await supabase
         .from("admin_users")
         .select("user_id")
-        .eq("user_id", user.id)
+        .eq("user_id", claims.sub)
         .maybeSingle();
       if (!adminRow) {
         return NextResponse.redirect(new URL("/account", request.url));
@@ -127,7 +133,10 @@ export const config = {
   // OUTSIDE the [locale] tree. They must be excluded here: intlMiddleware
   // would locale-rewrite them into [locale]/[...rest], which 404s them with
   // an HTML error page instead of their content.
+  // Static assets are also excluded by extension: without the json entry,
+  // fetches of /docs/search-index.<locale>.json ran the full middleware
+  // (intl + Supabase auth) for a file that never varies per user.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|webmanifest)$).*)",
   ],
 };

@@ -4,7 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { RoadmapSection } from '@/components/features/RoadmapSection';
-import { getTierConfigs } from '@/lib/supabase/tier-config';
+import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 import { pageMetadata } from '@/lib/site';
 
 export const revalidate = 60;
@@ -35,7 +35,7 @@ export default async function FeaturesPage({
   setRequestLocale(locale);
   const [t, tiers] = await Promise.all([
     getTranslations('Features'),
-    getTierConfigs(),
+    getCachedTierConfigs(),
   ]);
 
   return (

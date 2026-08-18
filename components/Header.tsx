@@ -7,9 +7,11 @@ import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 
 export async function Header() {
   const supabase = await createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Local JWT verification (getClaims) instead of getUser(): the Header only
+  // needs "is someone signed in", and getUser() costs a network round-trip to
+  // Supabase Auth on every page view. proxy.ts handles token refresh.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const isAuthed = Boolean(claimsData?.claims);
   const t = await getTranslations('Header');
 
   return (
@@ -57,7 +59,7 @@ export async function Header() {
             className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-500/30 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-500/10 md:inline-flex dark:border-emerald-400/30 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
           />
 
-          {user ? (
+          {isAuthed ? (
             <>
               <Link
                 href="/help"
@@ -128,7 +130,7 @@ export async function Header() {
         </div>
 
         <MobileMenu
-          isAuthed={!!user}
+          isAuthed={isAuthed}
           labels={{
             navFeatures: t('navFeatures'),
             navPricing: t('navPricing'),
