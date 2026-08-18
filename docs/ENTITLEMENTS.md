@@ -70,6 +70,21 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 - `gateBotStart(...)` → the combined pre-flight used by bot handlers
 - Fails closed: no cached subscription or a signed-out user yields `auth_required`, never an allow
 
+## Not everything in usage_counters is a tier limit
+
+The website also writes `usage_counters` rows for per-day ABUSE RATE LIMITS that
+have nothing to do with entitlements: `checkout_sessions` and `portal_sessions`
+(20/day), `shipping_label_emails` (15/day), `delete_account_requests` and
+`email_change_requests` (5/day). They reuse the `increment_usage_counter` RPC
+because it is already `auth.uid()`-scoped and needs no new table.
+
+These caps are hardcoded constants in the calling Edge Function or component,
+NOT keys in `tier_limits`, and are identical for every tier. Do not add
+`tier_limits` entries for them, and do not assume a row in `usage_counters` is
+tier-metered: check `lib/admin/usage-sources.ts`, which is the registry the admin
+console uses to tell the two apart (Extension usage vs Web usage). See
+`docs/ADMIN.md`.
+
 ## Period keys
 
 | Feature kind | Period key format | Example      |

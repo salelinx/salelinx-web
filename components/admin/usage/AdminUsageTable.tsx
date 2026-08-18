@@ -5,6 +5,12 @@
 // their limit float to the top. Filter by feature, search by email. Rows are
 // pre-computed on the server (count / cap / percent); this is a pure renderer
 // with NO mutations.
+//
+// Shared by BOTH usage modules: /admin/usage (extension product metering,
+// capped by tier_limits) and /admin/usage/web (web abuse rate limits, capped by
+// hardcoded constants in the Edge Functions). The two differ only in which rows
+// they are handed and how the cap column is labelled, so `capKind` switches the
+// wording rather than forking the component. See lib/admin/usage-sources.ts.
 
 import { useMemo, useState } from "react";
 
@@ -26,11 +32,23 @@ export type UsageTableRow = {
 type Props = {
   rows: UsageTableRow[];
   periodLabel: string;
+  // "tier" = cap comes from the user's tier_limits row (extension metering).
+  // "limit" = cap is a fixed per-day safety valve in the calling code.
+  capKind?: "tier" | "limit";
+  emptyMessage?: string;
+  // Optional per-feature display label (web counters have friendly names).
+  labelFor?: (feature: string) => string;
 };
 
 type SortKey = "percent" | "count" | "feature";
 
-export function AdminUsageTable({ rows, periodLabel }: Props) {
+export function AdminUsageTable({
+  rows,
+  periodLabel,
+  capKind = "tier",
+  emptyMessage,
+  labelFor,
+}: Props) {
   const [search, setSearch] = useState("");
   const [feature, setFeature] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("percent");
@@ -78,7 +96,7 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
     <div className="flex h-screen flex-col">
       <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
         <h1 className="text-sm font-semibold">
-          Usage
+          {capKind === "limit" ? "Web usage" : "Extension usage"}
           <span className="ml-2 font-normal text-zinc-400">{periodLabel}</span>
         </h1>
         <input
@@ -94,7 +112,10 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
         <FilterGroup
           label="Feature"
           value={feature}
-          options={featureOptions.map((f) => [f, f === "all" ? "All" : f])}
+          options={featureOptions.map((f) => [
+            f,
+            f === "all" ? "All" : labelFor ? labelFor(f) : f,
+          ])}
           onChange={setFeature}
         />
       </div>
@@ -102,7 +123,7 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
       <div className="min-h-0 flex-1 overflow-auto">
         {visible.length === 0 ? (
           <p className="px-4 py-8 text-sm text-zinc-500">
-            No usage recorded for this period.
+            {emptyMessage ?? "No usage recorded for this period."}
           </p>
         ) : (
           <table className="w-full border-collapse text-sm">
@@ -120,9 +141,11 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
                   active={sortKey === "count"}
                   onClick={() => setSortKey("count")}
                 />
-                <th className="px-3 py-2 font-medium">Cap</th>
+                <th className="px-3 py-2 font-medium">
+                  {capKind === "limit" ? "Daily limit" : "Cap"}
+                </th>
                 <SortableTh
-                  label="% of cap"
+                  label={capKind === "limit" ? "% of limit" : "% of cap"}
                   active={sortKey === "percent"}
                   onClick={() => setSortKey("percent")}
                 />
@@ -147,13 +170,19 @@ export function AdminUsageTable({ rows, periodLabel }: Props) {
                     {r.tier_id}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-zinc-700">
-                    {r.feature}
+                    {labelFor ? labelFor(r.feature) : r.feature}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 font-mono tabular-nums text-zinc-800">
                     {r.count}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 font-mono text-zinc-500">
-                    {r.cap === null ? "unlimited" : r.cap}
+                    {r.cap === null
+                      ? capKind === "limit"
+                        ? "-"
+                        : "unlimited"
+                      : capKind === "limit"
+                        ? `${r.cap} / day`
+                        : r.cap}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2">
                     {r.percent === null ? (

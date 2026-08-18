@@ -12,7 +12,8 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
-| Usage | `/admin/usage` | Live, read-only | Cross-user consumption for the current period, sorted by percent-of-cap. |
+| Extension usage | `/admin/usage` | Live, read-only | Product metering for the current period (crosslist, relist, refresh, follow, unfollow), measured against the user's `tier_limits` caps. Sorted by percent-of-cap. |
+| Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for the current period (checkout / portal sessions, deletion requests, label emails, email changes), measured against the hardcoded per-day cap in the calling code. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
@@ -40,7 +41,10 @@ Consequences:
 | Subscriptions module | `app/admin/subscriptions/page.tsx` + `components/admin/subscriptions/*` |
 | Tier limits module | `app/admin/tiers/page.tsx` + `components/admin/tiers/*` |
 | Feature flags module | `app/admin/flags/page.tsx` + `components/admin/flags/*` |
-| Usage module | `app/admin/usage/page.tsx` + `components/admin/usage/*` |
+| Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/*` |
+| Web usage module | `app/admin/usage/web/page.tsx` (same table component) |
+| Usage source split + web caps | `lib/admin/usage-sources.ts` |
+| Shared usage loader | `lib/admin/usage-data.ts` |
 | Audit log module | `app/admin/audit/page.tsx` + `components/admin/audit/*` |
 | Storage module | `app/admin/storage/page.tsx` + `components/admin/storage/*` |
 | Shared needs-reply predicate | `lib/admin/needs-reply.ts` (support table + dashboard) |
@@ -258,6 +262,36 @@ Still outstanding if the base grows:
   is `LIMIT`/`OFFSET` on the RPCs, which also means moving search and filtering
   server-side: doing one without the other would silently reduce filters to
   searching only the current page.
+
+## Two kinds of usage counter
+
+`usage_counters` holds two things that look alike and are not. Both are written
+through the same `increment_usage_counter` RPC, so they land in one table, but
+they are capped by different mechanisms and answer different questions. They are
+split across two modules for that reason.
+
+| | Extension usage (`/admin/usage`) | Web usage (`/admin/usage/web`) |
+| --- | --- | --- |
+| Counters | `crosslist`, `relist`, `refresh`, `follow`, `unfollow` | `checkout_sessions`, `portal_sessions`, `delete_account_requests`, `shipping_label_emails`, `email_change_requests` |
+| Written by | The extension, per metered action | Web Edge Functions + the account UI |
+| Cap source | The user's `tier_limits` row, so it varies by tier | A hardcoded constant in the calling function, identical for every tier |
+| Period | Monthly or daily depending on the limit key | Always daily |
+| A high number means | Approaching a plan limit: a billing / upgrade signal | Hit an abuse safety valve and was served a 429: a support / abuse signal |
+
+Mixing them on one page actively misled: a web counter has no `tier_limits` key,
+so `capForFeature()` returned null and the Cap column rendered **"unlimited"**
+for the counters that are in fact the most tightly capped in the system (5-20 per
+day). The Web usage page shows the real limit and a true percentage.
+
+The web caps are mirrored in `lib/admin/usage-sources.ts`. There is no runtime
+link between that table and the Edge Functions, so **changing a cap in a function
+means changing it there too** or the console will report the old number.
+
+Classification is by exception: anything not registered in `WEB_COUNTERS` is
+treated as extension metering, so a new extension feature appears on the
+Extension page automatically. A new web rate limit must be registered or it will
+be misfiled, which is the deliberate trade-off (new product features are common;
+new rate limits are rare and always involve a code change here anyway).
 
 ## Per-module security checklist
 
