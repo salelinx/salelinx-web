@@ -6,7 +6,7 @@ import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
 import { HeadlineFeatures } from '@/components/features/HeadlineFeatures';
 import { PricingSection } from '@/components/features/PricingSection';
-import { getTierConfigs } from '@/lib/supabase/tier-config';
+import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 
 export const revalidate = 60;
 
@@ -36,7 +36,7 @@ export default async function Home({
   setRequestLocale(locale);
   const [tLayout, tiers] = await Promise.all([
     getTranslations('Layout'),
-    getTierConfigs(),
+    getCachedTierConfigs(),
   ]);
 
   // One @graph so the brand is a single connected entity rather than three

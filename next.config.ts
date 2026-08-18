@@ -55,6 +55,18 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      {
+        // The docs search index only changes on deploy (built by
+        // scripts/build-docs-index.mjs), so let browsers and the CDN hold it
+        // for an hour and serve stale while revalidating in the background.
+        source: '/docs/search-index.:locale.json',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
     ];
   },
 };

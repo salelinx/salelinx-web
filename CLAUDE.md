@@ -100,6 +100,8 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **Admin access requires MFA (AAL2).** `is_admin()` only returns true for sessions that verified a TOTP code (migration `009_admin_mfa.sql`). Deploy order matters: enroll every admin (Account > Security) BEFORE applying 009 or the console locks them out. Recovery: remove the factor in the Supabase dashboard. Never gate admin surfaces on a bare `admin_users` EXISTS - go through `is_admin()` so the AAL2 check is inherited.
 - **`requireReauth()` must never use `signInWithPassword` for an MFA-enrolled admin** - it mints a fresh AAL1 session and locks them out of admin data mid-action. The TOTP branch runs first for that reason; keep it that way.
 - **`router.refresh()` after password login** - without it, the Header still shows signed-out state until navigation.
+- **`proxy.ts` and `Header.tsx` use `getClaims()`, not `getUser()`** - getClaims verifies the JWT locally against the ES256 signing keys; getUser is a network round-trip to Supabase Auth and both run on every page view. Keep `getUser()` only where the canonical user record matters (protected pages like `/account`, Edge Functions).
+- **Public pages read tiers via `getCachedTierConfigs()`** (60s `unstable_cache`, cookie-less client); admin pages use the uncached `getTierConfigs()` so edits show immediately. Don't point admin at the cached one.
 - **`supabase/functions/` is excluded from `tsc`** - TS errors there won't surface until deploy. Use the Deno VSCode extension for inline checking.
 - **Stripe API version pinned at `2025-02-24.acacia`** in 7 places (`lib/stripe.ts` + 6 Edge Functions). Bump all or none.
 - **`constructEventAsync` in Deno**, never `constructEvent` - sync variant crashes.

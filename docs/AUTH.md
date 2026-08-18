@@ -104,6 +104,8 @@ if (!user) redirect("/auth/login");
 
 See `app/account/page.tsx`.
 
+`getUser()` is right here because a protected page wants the canonical, server-validated user record. When code only needs "is someone signed in" (the Header, `proxy.ts`), use `supabase.auth.getClaims()` instead: it verifies the JWT locally and skips the network round-trip.
+
 ### Edge Function
 
 ```ts
@@ -123,10 +125,12 @@ See `supabase/functions/create-checkout-session/index.ts`.
 Next.js 16 renamed `middleware.ts` → `proxy.ts`. The file MUST export a function called `proxy` (not `middleware`). It runs on every request and:
 
 1. Reads Supabase auth cookies from the incoming request
-2. Calls `supabase.auth.getUser()` (Supabase refreshes the token if it's close to expiry)
+2. Calls `supabase.auth.getClaims()` (verifies the JWT locally against the project's ES256 signing keys; the client still refreshes the token when it's close to expiry)
 3. Sets updated cookies on the response
 
 Without this, access tokens silently expire and users get unexpectedly logged out.
+
+`getClaims()` is deliberate: `getUser()` makes a network round-trip to the Supabase Auth server, and the proxy runs on every request, so swapping it back adds that latency to every page view. The claims are only used for routing decisions; RLS remains the real data boundary.
 
 ## Email verification banner
 
@@ -134,7 +138,7 @@ Without this, access tokens silently expire and users get unexpectedly logged ou
 
 ## Header state
 
-`components/Header.tsx` is a **Server Component** - it reads the user on every request. Means:
+`components/Header.tsx` is a **Server Component** - it checks for a signed-in session on every request (via `getClaims()`, locally verified, no network call). Means:
 
 - Signed-in and signed-out states render correctly without client-side JS
 - No flash of wrong UI on page load
