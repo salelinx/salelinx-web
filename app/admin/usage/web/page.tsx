@@ -1,5 +1,4 @@
 import { loadUsageRows } from "@/lib/admin/usage-data";
-import { usageLabel } from "@/lib/admin/usage-sources";
 import { AdminUsageTable } from "@/components/admin/usage/AdminUsageTable";
 
 // /admin/usage/web - WEB abuse rate limits for the current period. These are
@@ -26,7 +25,7 @@ export default async function AdminWebUsagePage() {
       rows={rows}
       periodLabel={periodLabel}
       capKind="limit"
-      labelFor={usageLabel}
+      friendlyLabels
       emptyMessage="No web activity recorded for this period."
     />
   );

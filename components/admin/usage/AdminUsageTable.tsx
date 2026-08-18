@@ -15,6 +15,7 @@
 import { useMemo, useState } from "react";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
+import { usageLabel } from "@/lib/admin/usage-sources";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
 
 export type UsageTableRow = {
@@ -36,8 +37,14 @@ type Props = {
   // "limit" = cap is a fixed per-day safety valve in the calling code.
   capKind?: "tier" | "limit";
   emptyMessage?: string;
-  // Optional per-feature display label (web counters have friendly names).
-  labelFor?: (feature: string) => string;
+  // Whether to map raw counter names to their friendly labels (web counters
+  // have them; extension verbs are already the display name).
+  //
+  // This is a BOOLEAN, not a formatter function, on purpose: this is a Client
+  // Component, and a function prop passed from a Server Component cannot be
+  // serialized across that boundary - it throws at request time, and the build
+  // does NOT catch it. Keep props here serializable.
+  friendlyLabels?: boolean;
 };
 
 type SortKey = "percent" | "count" | "feature";
@@ -47,8 +54,10 @@ export function AdminUsageTable({
   periodLabel,
   capKind = "tier",
   emptyMessage,
-  labelFor,
+  friendlyLabels = false,
 }: Props) {
+  const label = (feature: string) =>
+    friendlyLabels ? usageLabel(feature) : feature;
   const [search, setSearch] = useState("");
   const [feature, setFeature] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("percent");
@@ -114,7 +123,7 @@ export function AdminUsageTable({
           value={feature}
           options={featureOptions.map((f) => [
             f,
-            f === "all" ? "All" : labelFor ? labelFor(f) : f,
+            f === "all" ? "All" : label(f),
           ])}
           onChange={setFeature}
         />
@@ -170,7 +179,7 @@ export function AdminUsageTable({
                     {r.tier_id}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-zinc-700">
-                    {labelFor ? labelFor(r.feature) : r.feature}
+                    {label(r.feature)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 font-mono tabular-nums text-zinc-800">
                     {r.count}

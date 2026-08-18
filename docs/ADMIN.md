@@ -293,6 +293,24 @@ Extension page automatically. A new web rate limit must be registered or it will
 be misfiled, which is the deliberate trade-off (new product features are common;
 new rate limits are rare and always involve a code change here anyway).
 
+## Client Component props must be serializable
+
+Every admin table is a Client Component rendered by a Server Component page, so
+their props cross the RSC boundary and must be serializable. **A function prop
+throws at request time and `npm run build` does NOT catch it** - the route
+compiles, then 500s on the first real visit.
+
+This bit the Web usage module: the page passed `labelFor={usageLabel}` to map
+counter names to friendly labels. The fix is to pass a serializable flag
+(`friendlyLabels`) and import the helper inside the client component instead.
+`lib/admin/usage-sources.ts` has no imports and no server-only dependencies, so
+the client can import it directly.
+
+When adding a module, pass data (strings, numbers, booleans, plain objects and
+arrays) and keep formatters, predicates and callbacks inside the client
+component. Verifying a new admin route means loading it in a browser as a real
+admin, not just a green build.
+
 ## Per-module security checklist
 
 Every new module MUST satisfy all of these (no exceptions):
