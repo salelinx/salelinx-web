@@ -176,8 +176,36 @@ Set via `supabase secrets set` (NOT `.env.local`):
 - `docs/ARCHITECTURE.md` - the broader two-repo / one-Supabase picture
 - `../salelinx-app/docs/` - the extension side (Support tab, write paths into the two tables)
 
+## Closing and reopening (migration 027)
+
+Closing is not final for the user. A **non-admin reply on a closed ticket
+reopens it**: the `support_ticket_replies_touch_parent()` trigger flips
+`status` back to `'open'` in the same UPDATE that touches `updated_at`.
+Admin replies deliberately do NOT reopen, so staff can add a closing note
+without resurrecting the thread in their own queue; they reopen explicitly
+from the admin console.
+
+This exists because every user-facing support email is `Reply-To` no-reply
+and tells the reader to answer on their ticket. Without reopen that
+instruction dead-ended on a closed ticket: the reply box was hidden, closed
+tickets were collapsed out of the list, and the email itself bounced.
+Accordingly:
+
+- The reply box renders on closed tickets too, with a note that replying
+  reopens the request.
+- `/account/tickets` expands the closed section by default when the user has
+  no open tickets, so a thread linked from an email is never hidden behind a
+  toggle.
+- The RLS policy `Owners reply on own tickets` has no `status` condition, and
+  that is intentional. Do not add `AND t.status = 'open'` - it reinstates the
+  dead end.
+
+A reopen is an UPDATE, so it does not count against the 3-open-ticket
+BEFORE INSERT cap. Continuing an existing conversation is not the vector that
+cap exists for, and the 20-replies-per-24h limit still bounds the path.
+
 ## Abuse limits (migration 014)
 
 - A BEFORE INSERT trigger on `support_tickets` caps each user at **3 open tickets** and **5 tickets per rolling 24h** (raises `support_ticket_open_limit` / `support_ticket_daily_limit`; the web form maps these to a distinct "slow down" message).
-- A BEFORE INSERT trigger on `support_ticket_replies` caps each user at **20 non-admin replies per rolling 24h** (migration 015, raises `support_reply_daily_limit`; the reply box maps it to its own message). Admin replies are exempt so staff are never throttled.
+- A BEFORE INSERT trigger on `support_ticket_replies` caps each user at **20 non-admin replies per rolling 24h** (migration 018, raises `support_reply_daily_limit`; the reply box maps it to its own message). Admin replies are exempt so staff are never throttled.
 - `send-support-email` skips the **auto-ack** email for authors with zero `subscriptions` rows, so throwaway accounts cannot amplify inserts into outbound Resend sends. Staff notifications still go out (bounded by the trigger caps).

@@ -26,7 +26,16 @@ export function TicketList({ userId, initialTickets, initialReplies }: Props) {
 
   const [tickets, setTickets] = useState<SupportTicket[]>(initialTickets);
   const [replies, setReplies] = useState<SupportReply[]>(initialReplies);
-  const [showClosed, setShowClosed] = useState(false);
+
+  // Closed tickets are collapsed by default to keep the list short, EXCEPT
+  // when the user has nothing open: support emails link here telling the
+  // reader to answer on their ticket, and someone whose only ticket was just
+  // closed would otherwise land on "no open requests" with their thread
+  // hidden behind a toggle they have no reason to press.
+  const [showClosed, setShowClosed] = useState(
+    () => initialTickets.length > 0 &&
+      initialTickets.every((tk) => tk.status === "closed"),
+  );
 
   const closedCount = useMemo(
     () => tickets.filter((tk) => tk.status === "closed").length,
@@ -155,7 +164,7 @@ function UserTicketCard({
     setSending(false);
     if (insErr) {
       // The DB trigger raises this at 20 non-admin replies per 24h
-      // (migration 015); show "slow down" rather than "something broke".
+      // (migration 018); show "slow down" rather than "something broke".
       setError(
         insErr.message.includes("support_reply_daily_limit")
           ? t("replyRateLimited")
@@ -207,32 +216,39 @@ function UserTicketCard({
         </div>
       )}
 
-      {isOpen && (
-        <div className="mt-4 flex flex-col gap-2">
-          <textarea
-            value={body}
-            onChange={(e) => {
-              setBody(e.target.value);
-              if (error) setError(null);
-            }}
-            rows={2}
-            maxLength={10000}
-            placeholder={t("replyPlaceholder")}
-            className="w-full rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/20 dark:bg-transparent"
-          />
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={sendReply}
-              disabled={sending || !body.trim()}
-              className="self-start rounded-full bg-black px-4 py-2 text-xs font-medium text-white disabled:opacity-60 dark:bg-white dark:text-black"
-            >
-              {sending ? t("submitting") : t("replySend")}
-            </button>
-            {error && <span className="text-xs text-red-600">{error}</span>}
-          </div>
+      {/* The reply box stays available on CLOSED tickets too: every
+          user-facing support email tells the reader to answer on their ticket,
+          so hiding it here dead-ends anyone who follows that instruction.
+          A non-admin reply reopens the ticket (migration 027). */}
+      <div className="mt-4 flex flex-col gap-2">
+        {!isOpen && (
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            {t("replyReopensNote")}
+          </p>
+        )}
+        <textarea
+          value={body}
+          onChange={(e) => {
+            setBody(e.target.value);
+            if (error) setError(null);
+          }}
+          rows={2}
+          maxLength={10000}
+          placeholder={t("replyPlaceholder")}
+          className="w-full rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/20 dark:bg-transparent"
+        />
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={sendReply}
+            disabled={sending || !body.trim()}
+            className="self-start rounded-full bg-black px-4 py-2 text-xs font-medium text-white disabled:opacity-60 dark:bg-white dark:text-black"
+          >
+            {sending ? t("submitting") : t("replySend")}
+          </button>
+          {error && <span className="text-xs text-red-600">{error}</span>}
         </div>
-      )}
+      </div>
     </li>
   );
 }
