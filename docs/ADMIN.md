@@ -44,6 +44,8 @@ Consequences:
 | Audit log module | `app/admin/audit/page.tsx` + `components/admin/audit/*` |
 | Storage module | `app/admin/storage/page.tsx` + `components/admin/storage/*` |
 | Shared needs-reply predicate | `lib/admin/needs-reply.ts` (support table + dashboard) |
+| Per-request memoized gate lookups | `lib/admin/session.ts` (`getAdminUser`, `getIsAal2`) |
+| Module loading skeletons | `components/admin/AdminSkeleton.tsx` + `app/admin/**/loading.tsx` |
 | Usage period keys / cap mapping | `lib/admin/period.ts`, `lib/admin/usage-caps.ts` |
 | Byte formatting (Storage module) | `lib/admin/format-bytes.ts` |
 | Marketplace profile URLs (Users module) | `lib/admin/platform-links.ts` |
@@ -167,6 +169,43 @@ The Storage module's data source is the `user_storage` gauge from migration `004
 - `admin_list_storage()` - every `user_storage` row (`user_id`, `bytes_used`, `updated_at`), largest first. One row per user who has ever uploaded, so the read stays bounded without pagination.
 
 Emails come from `admin_user_emails`, tiers from `admin_list_users` / `admin_list_subscriptions`, and the `cloud_storage_bytes` cap from the public-read `tier_limits` table via `getTierConfigs()`. Cap semantics differ from the count caps: `null` means unlimited, while an **absent** `cloud_storage_bytes` key means the tier has no storage allowance at all (Free/Starter) - shown as `-` with no percent.
+
+## Rendering performance
+
+The console is server-rendered per request and never cached (every route is
+dynamic, and must stay that way - the data is cross-user and admin-only). Two
+things keep it responsive:
+
+**Memoized gate lookups.** Layers 1 and 2 both still run, but rendering a single
+request used to repeat `getUser()`, the `admin_users` read, and the AAL check
+several times across the layout and the page. `lib/admin/session.ts` wraps them
+in React `cache()`, so each resolves once per request. This is per-request and
+per-render memoization: nothing is shared between users or across requests, and
+every helper returns the denying value on error, so the fail-closed behaviour is
+unchanged. It removes duplicate execution, never a check.
+
+**Parallel independent reads.** Each module's fetches are issued with
+`Promise.all` where they do not depend on each other (for example Usage runs
+`admin_list_usage`, `admin_list_users`, `admin_list_subscriptions` and
+`getTierConfigs` together). Every RPC still re-checks `is_admin()` server-side;
+concurrency changes only the order of the round-trips.
+
+**Loading skeletons.** Every route has a `loading.tsx` rendering
+`components/admin/AdminSkeleton.tsx`, so navigation paints the shell immediately
+instead of blocking on the queries. These are presentation-only components: they
+receive no data, perform no reads, and render before the gate resolves, so they
+must never be given real content.
+
+**Bounded reads.** The `/admin` overview needs only counts, so it selects just
+the columns the predicate reads (`id,status` and `ticket_id,is_admin`) and skips
+closed tickets, which can never need a reply. That keeps the read bounded as the
+archive grows and, incidentally, means ticket and reply message bodies are not
+fetched on the overview at all.
+
+Still outstanding if the base grows: the Usage and Storage modules each call
+`admin_list_users()` + `admin_list_subscriptions()` purely to resolve a tier and
+version per row. Folding that into the respective RPC as a join would remove two
+full cross-user reads per page view.
 
 ## Per-module security checklist
 

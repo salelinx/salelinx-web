@@ -25,24 +25,26 @@ export default async function AdminUsagePage() {
   const supabase = await createServerClient();
   const { month, day } = currentPeriodKeys(new Date());
 
-  const { data: usageData } = await supabase.rpc("admin_list_usage", {
-    p_period_keys: [month, day],
-  });
-  const usage = (usageData as AdminUsageRow[] | null) ?? [];
+  // These four reads are independent of each other, so they resolve together
+  // rather than in series. Each RPC still re-checks is_admin() server-side.
+  const [usageRes, usersRes, subsRes, tiers] = await Promise.all([
+    supabase.rpc("admin_list_usage", { p_period_keys: [month, day] }),
+    supabase.rpc("admin_list_users"),
+    supabase.rpc("admin_list_subscriptions"),
+    getTierConfigs(),
+  ]);
+
+  const usage = (usageRes.data as AdminUsageRow[] | null) ?? [];
 
   // Map each user to their tier so we can resolve caps. Use the roster (already
   // joins subscriptions) plus the subscription versions for an exact tier match.
-  const { data: usersData } = await supabase.rpc("admin_list_users");
-  const users = (usersData as AdminUserRow[] | null) ?? [];
+  const users = (usersRes.data as AdminUserRow[] | null) ?? [];
   const tierByUser: Record<string, string> = {};
   for (const u of users) tierByUser[u.user_id] = u.tier_id ?? "free";
 
-  const { data: subsData } = await supabase.rpc("admin_list_subscriptions");
-  const subs = (subsData as AdminSubscriptionRow[] | null) ?? [];
+  const subs = (subsRes.data as AdminSubscriptionRow[] | null) ?? [];
   const versionByUser: Record<string, number> = {};
   for (const s of subs) versionByUser[s.user_id] = s.tier_version;
-
-  const tiers = await getTierConfigs();
 
   // Resolve emails for the users who have usage rows.
   const emails: Record<string, string> = {};

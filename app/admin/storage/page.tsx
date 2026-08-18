@@ -27,22 +27,26 @@ import {
 export default async function AdminStoragePage() {
   const supabase = await createServerClient();
 
-  const { data: storageData } = await supabase.rpc("admin_list_storage");
-  const storage = (storageData as AdminStorageRow[] | null) ?? [];
+  // These four reads are independent of each other, so they resolve together
+  // rather than in series. Each RPC still re-checks is_admin() server-side.
+  const [storageRes, usersRes, subsRes, tiers] = await Promise.all([
+    supabase.rpc("admin_list_storage"),
+    supabase.rpc("admin_list_users"),
+    supabase.rpc("admin_list_subscriptions"),
+    getTierConfigs(),
+  ]);
+
+  const storage = (storageRes.data as AdminStorageRow[] | null) ?? [];
 
   // Map each user to their tier so we can resolve caps. Same approach as the
   // Usage module: roster for tier_id, subscriptions for the exact version.
-  const { data: usersData } = await supabase.rpc("admin_list_users");
-  const users = (usersData as AdminUserRow[] | null) ?? [];
+  const users = (usersRes.data as AdminUserRow[] | null) ?? [];
   const tierByUser: Record<string, string> = {};
   for (const u of users) tierByUser[u.user_id] = u.tier_id ?? "free";
 
-  const { data: subsData } = await supabase.rpc("admin_list_subscriptions");
-  const subs = (subsData as AdminSubscriptionRow[] | null) ?? [];
+  const subs = (subsRes.data as AdminSubscriptionRow[] | null) ?? [];
   const versionByUser: Record<string, number> = {};
   for (const s of subs) versionByUser[s.user_id] = s.tier_version;
-
-  const tiers = await getTierConfigs();
 
   // Resolve emails for the users who have storage rows.
   const emails: Record<string, string> = {};
