@@ -40,7 +40,7 @@ extension sees, and vice versa.
            ▼                                ▼
      ┌──────────────────────────────────────────────────┐
      │  Postgres + GoTrue (auth) + Edge Functions       │
-     │  ↑ schema owned by the extension repo (for now)  │
+     │  ↑ schema owned by the website repo (migrations) │
      └──────────────────────────────────────────────────┘
                         │
                         ▼  (webhook events only)
@@ -61,7 +61,7 @@ extension sees, and vice versa.
 - Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
 - **Support** - user-facing: a login-gated contact form at `/help/support` (create a ticket, reached from the public `/help` hub) and the ticket history at `/account/tickets` (track + reply). The extension only files + reads.
 - **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
-- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `process-referral-rewards`
+- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `delete-account`, `process-referral-rewards`, `get-referral-discount`
 - **Referral program** - share links (`/r/CODE`), the account Referrals card, and the reward pipeline (see `docs/REFERRALS.md`)
 
 ### Extension (`salelinx-app`) owns
@@ -70,7 +70,7 @@ extension sees, and vice versa.
 - Depop/Vinted content scripts (scraping, action dispatch)
 - Shop linking flow (OAuth-style handshake to link platform accounts)
 - Bot runtime (action queue, delay/backoff, retry, cancellation)
-- Per-user feature enforcement (`tryConsume`, `check`, `checkQuota`)
+- Per-user feature enforcement (`checkFeature`, `preflightMetered`, `consumeMetered`, `gateBotStart` in `src/entitlements/gate.ts`)
 - Extension-facing cloud sync for listings
 
 ### Shared contracts (keep in sync - nothing enforces this)
@@ -97,11 +97,14 @@ All in the shared Supabase project. Migrations live in this repo
 | `linked_accounts`        | extension only     | extension                                     | Maps Supabase user → Depop/Vinted shop IDs                              |
 | `platform_credentials`   | extension only     | extension (encrypted)                         | Encrypted platform session tokens                                       |
 | `user_settings`          | extension only     | extension                                     | Per-user bot timing preferences                                         |
-| `support_tickets`        | both               | both (web + extension) + `stripe-webhook` n/a | Support tickets - bug / feature / feedback, status, diagnostics         |
+| `support_tickets`        | both               | both (web + extension)                        | Support tickets - bug / feature / feedback, status, diagnostics         |
 | `support_ticket_replies` | both               | both (web users + web admins)                 | Ticket conversation thread; `is_admin` flag stamped server-side         |
 | `admin_users`            | both               | SQL/dashboard only                            | Support-admin membership; backs `is_admin()` RLS helper                 |
-| `referral_codes`         | website only       | `get_or_create_referral_code()` RPC           | One share code per user (/r/CODE links); see `docs/REFERRALS.md`        |
-| `referrals`              | website only       | RPCs + `stripe-webhook` + reward function     | Referral lifecycle: pending -> converted -> rewarded/void               |
+| `referral_codes`         | both               | `get_or_create_referral_code()` RPC (web + extension) | One share code per user (/r/CODE links); see `docs/REFERRALS.md`  |
+| `referrals`              | both (extension reads own rows for its Referrals tab) | RPCs + `stripe-webhook` + reward function | Referral lifecycle: pending -> converted -> rewarded/void   |
+| `user_storage`           | both               | extension + storage triggers (`apply_storage_delta`) | Per-user cloud image storage usage, capped per tier              |
+| `release_notes`          | extension only     | SQL/dashboard only                            | Release notes shown in the extension's update banner                    |
+| `device_sessions`        | both               | `claim_device_session` RPC (extension heartbeat) | Concurrent-device cap; admin roster liveness. 30-day self-pruning    |
 
 See `docs/ENTITLEMENTS.md` for the entitlement model (features, limits,
 quotas, grandfathering via `tier_version`).
@@ -186,7 +189,7 @@ See `docs/STRIPE.md` + `docs/EDGE-FUNCTIONS.md`.
 
 - **Website** - Vercel. Push to `main` → auto-deploy. Env vars set in Vercel dashboard.
 - **Edge Functions** - deployed to Supabase via Dashboard (paste) or CLI (`supabase functions deploy <name>`). Secrets set via `supabase secrets set`.
-- **Migrations** - applied to Supabase via Dashboard SQL Editor or CLI (`supabase db push`). Source of truth: `salelinx-app/supabase/migrations/`.
+- **Migrations** - applied to Supabase via Dashboard SQL Editor or CLI (`supabase db push`). Source of truth: `salelinx-web/supabase/migrations/` (this repo).
 - **Extension** - `npm run build` in the extension repo → zip `dist/` → upload to Chrome Web Store developer dashboard. Users get the new version via Chrome's auto-update.
 
 ## Environments

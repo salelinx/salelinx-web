@@ -63,10 +63,12 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 
 ### Extension
 
-- `src/entitlements/` (not shipped yet) wraps every gateable action
-- `tryConsume(feature, delta)` → calls `increment_usage_counter` RPC, checks against tier limit
-- `check(feature)` → boolean feature gate
-- `checkQuota(feature, bytes)` → byte-based quota (cloud storage)
+- `src/entitlements/gate.ts` wraps every gateable action (shipped and live)
+- `checkFeature(featureKey)` → boolean feature gate
+- `preflightMetered(...)` → reads the cap and current period count, returns `{ allowed, cappedAmount, remaining }` without writing
+- `consumeMetered(...)` → calls the `increment_usage_counter` RPC with the delta actually completed, after the run
+- `gateBotStart(...)` → the combined pre-flight used by bot handlers
+- Fails closed: no cached subscription or a signed-out user yields `auth_required`, never an allow
 
 ## Period keys
 
@@ -75,7 +77,20 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 | Monthly      | `YYYY-MM`         | `2026-04`    |
 | Daily        | `YYYY-MM-DD`      | `2026-04-17` |
 
-Always derived from the user's local date at the moment of the check. Periods reset implicitly - a new period key just means a new row.
+**Computed by the client, in UTC.** The extension's `getPeriodKey`
+(`src/entitlements/gate.ts`) builds the key with `getUTCFullYear` /
+`getUTCMonth` / `getUTCDate` and passes it to `increment_usage_counter`, which
+writes to whatever key it receives (it validates the shape, not the value). So a
+user's period rolls over at UTC midnight, not local midnight. Periods reset
+implicitly - a new period key just means a new row.
+
+Because the bucket is chosen client-side, anything calling the RPC directly can
+name a period nothing reads, and that usage never counts against the current
+cap. The extension is the enforcement point and runs in the user's browser, so
+this is one bypass route among several rather than a distinct hole. A migration
+that derives the key server-side exists in the extension repo but was never
+reconciled into this repo's sequence; see `supabase/migrations/README.md` for
+what to check before acting on it.
 
 ## Seed data (v1)
 
@@ -149,7 +164,7 @@ Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user - either from
 
 - `TierId` - union of tier IDs (`free | starter | pro | business | ...`)
 - `TierConfig` - row shape
-- `GateResult` - return shape of `check()` / `tryConsume()` / `checkQuota()`
+- `GateResult` - return shape of `checkFeature()` / `preflightMetered()` / `consumeMetered()`
 - `FeatureKind` - `'boolean' | 'metered' | 'quota'`
 
 When this repo's `tiers.ts` diverges from the extension's `src/entitlements/types.ts`, either copy-paste or publish as an npm package. No tooling enforces it yet - be disciplined.

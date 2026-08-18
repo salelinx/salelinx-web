@@ -1,7 +1,10 @@
 // GENERATED FILE - DO NOT EDIT.
 //
-// Synced from the extension repo by scripts/sync-category-maps.mjs.
-// Edit the source there (and its tests), then re-run the sync and redeploy.
+// Copied from the extension repo (salelinx-app/src/data/), which owns the
+// source tables and the tests that guard them. NOTE: the sync script this
+// header used to name does not exist in either repo yet, so this copy is
+// maintained by hand and has already drifted from the extension's version.
+// See docs/EDGE-FUNCTIONS.md "Wiring up resolve-category" before editing.
 
 // Depop <-> Vinted category resolution.
 //

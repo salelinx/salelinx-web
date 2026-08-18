@@ -1,6 +1,6 @@
 # Edge Functions
 
-Ten Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
+Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supabase's Deno runtime, **not** Next.js / Vercel / Node.
 
 ## Why Edge Functions, not Next.js route handlers?
 
@@ -12,10 +12,10 @@ Ten Supabase Edge Functions live in `supabase/functions/`. They run on Supabase'
 - **`admin-change-plan`** - the admin console's real Stripe plan change (swap the price on a customer's live subscription). Needs `STRIPE_SECRET_KEY` and the service role (admin gate + audit write), so it lives with the other Stripe-adjacent functions.
 - **`admin-delete-user`** - the admin console's account deletion (the GDPR erasure runbook: storage, Stripe customer, auth user). Needs the service role and `STRIPE_SECRET_KEY`; same home as the script it mirrors (`scripts/delete-user-account.mjs`).
 - **`delete-account`** - self-serve account deletion from `/account` (Danger zone). Two stages: `request` emails the account address a confirmation link (Resend, HMAC-signed token, 60-minute expiry, signed with `DELETE_ACCOUNT_TOKEN_SECRET`); `confirm` (from `/account/delete-confirm`) verifies the token was minted for the caller and then runs the same erasure steps as `admin-delete-user`. Refuses admins (their audit-log FKs would break) and writes no audit entry (the actor would not survive their own deletion).
-- **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. The mapping tables (~116KB) used to ship inside the extension bundle, where anyone who installed it could unzip the .crx and lift them; they now live only here, in `resolve-category/_generated/`. Also the one crosslist entitlement check the user cannot patch around, since a crosslist cannot produce a category without it.
+- **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. **Deployed but not yet wired up: no extension build calls it.** The intent is to move the mapping tables (~116KB) out of the extension bundle, where anyone who installed it can unzip the .crx and lift them, and to make this the one crosslist entitlement check the user cannot patch around (a crosslist cannot produce a category without it). Neither benefit is realized yet: the extension still ships and reads its own copies in `src/data/category-maps-*.ts`, and this function is dead weight until that changes. See "Wiring up resolve-category" below.
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 
-## The eleven functions
+## The twelve functions
 
 | Function                  | `verify_jwt` | Purpose                                                                                                  |
 | ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -28,12 +28,13 @@ Ten Supabase Edge Functions live in `supabase/functions/`. They run on Supabase'
 | `admin-change-plan`       | false*       | Admin console swaps a customer's paid plan in Stripe; auth by `getUser()` + `admin_users` membership     |
 | `admin-delete-user`       | false*       | Admin console runs the GDPR account deletion; auth by `getUser()` + `admin_users` membership             |
 | `delete-account`          | false*       | User deletes their own account: emails a signed confirm link and erases on confirm; auth by `getUser()`  |
-| `resolve-category`        | false*       | Extension POSTs category lookups; auth by `getUser(jwt)` + crosslist tier gate + monthly cap             |
+| `resolve-category`        | false*       | Intended: extension POSTs category lookups; auth by `getUser(jwt)` + crosslist tier gate + monthly cap. **No caller yet** |
+| `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in migration 009) and `admin_users` membership via the service role.
 
-`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` and `resolve-category` import `@supabase/supabase-js` from `jsr:`. Deno needs explicit `.ts` extensions on relative imports, which is why `resolve-category/_generated/` is written with them by the extension repo's sync script. Deno uses URL imports, not `node_modules`.
+`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` and `resolve-category` import `@supabase/supabase-js` from `jsr:`. Deno needs explicit `.ts` extensions on relative imports, which is why `resolve-category/_generated/` is written with them. Deno uses URL imports, not `node_modules`.
 
 ## Deno specifics (don't copy Node patterns)
 
@@ -304,6 +305,34 @@ Recipient receives the labels in their inbox
 The function lives in this repo (not the extension) because all Edge Functions deploy from a single workspace; the extension just calls the URL. It deploys with `--no-verify-jwt` for the same ES256 reason as the authed Stripe functions.
 
 Abuse posture: this function sends from our verified Resend domain to a recipient the caller chooses (users legitimately email labels to print shops or co-workers), so everything else is locked down. Subject and body are fixed server-side (no caller overrides), the attachment must actually be a PDF, the feature is gated to tiers with `shipping_label_email`, and sends are capped per user per day. Do not reintroduce subject/body overrides or drop the tier gate.
+
+## Wiring up resolve-category
+
+The function is deployed and its `_generated/` tables are in place, but **nothing calls
+it**. `grep -rn "resolve-category"` across the extension repo returns nothing. Until the
+work below is done, the crosslister resolves categories from its own bundled copies in
+`src/data/category-maps-depop.ts` / `category-maps-vinted.ts`, so neither goal of the
+migration (tables out of the .crx, unpatchable crosslist gate) actually holds.
+
+Outstanding:
+
+1. **Write the sync script.** Both this repo's `CLAUDE.md` and the headers inside
+   `_generated/` refer to a script that does not exist in either repo, under two
+   different names (`npm run sync:category-maps` and `scripts/sync-category-maps.mjs`).
+   Nothing has ever generated these files automatically; the first copy was made by hand.
+2. **Reconcile the drift first.** `_generated/` has already been refactored server-side
+   in ways the extension source has not: shared types were hoisted into
+   `crosslist-category.ts` and the package-size defaults were split into
+   `package-size.ts`, neither of which exists in the extension. A naive copy would
+   regress those. Decide which side owns the shape before automating the copy.
+3. **Add the extension-side call** (`functions.invoke('resolve-category', ...)`, the same
+   pattern as `send-shipping-labels` in `src/background/handlers/shipping-handlers.ts`),
+   with a fallback path for offline / function-down.
+4. **Only then delete the bundled tables** from the extension, and update that repo's
+   `docs/technical/CROSSLISTING.md` and `DATA-MAPPINGS.md`, which currently describe
+   local resolution only.
+
+Until step 3 lands, treat any doc claiming the tables "live only here" as aspirational.
 
 ## Excluded from TypeScript checks
 

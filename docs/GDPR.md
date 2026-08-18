@@ -12,7 +12,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | --- | --- | --- | --- | --- | --- |
 | Accounts and auth | Email, hashed password, locale, sign-in timestamps | Users | Contract | Supabase `auth.users` | Life of account |
 | Subscriptions | Stripe customer/subscription IDs, tier, status, period end | Users | Contract | Supabase `subscriptions`, Stripe | Life of account; invoices kept by Stripe for tax law |
-| Usage metering | Per-feature integer counts per period | Users | Contract | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (migration 015); rest, life of account |
+| Usage metering | Per-feature integer counts per period | Users | Contract | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (migration 018); rest, life of account |
 | Cloud sync (opt-in) | Listing content: titles, descriptions, prices, attributes, photos, enriched marketplace payloads | Users | Contract | Supabase `listings` + `listing-images` bucket | Until user disables sync or deletes account |
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |
@@ -20,7 +20,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Referrals | Share code; referrer-referee account linkage, status, reward amounts; leaderboard display name (linked shop username, else a neutral placeholder) and successful-referral count shown to other participants | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes`, `referrals`, `linked_accounts` (display name); leaderboard is a read-only RPC aggregate | Life of account (both FKs cascade) |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
-| Category resolution | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Transits the `resolve-category` Edge Function only; matched in memory, never logged or stored | Not stored |
+| Category resolution (not yet live) | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Would transit the `resolve-category` Edge Function only; matched in memory, never logged or stored. **No extension build calls it yet, so this flow is not currently active** | Not stored |
 | Device sessions | Random per-install device ID, user agent, last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
 | Terms acceptance | Terms version and acceptance timestamp | Users | Legal obligation / legitimate interest (record of consent to contract) | Supabase `auth.users` user metadata | Life of account |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
