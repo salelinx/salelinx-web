@@ -12,7 +12,15 @@ import { useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import { ticketNeedsReply } from "@/lib/admin/needs-reply";
-import { AdminTicketDetail } from "./AdminTicketDetail";
+import dynamic from "next/dynamic";
+
+// Same reasoning as the users roster: the ticket drawer (reply box, status
+// controls, delete + reauth) only renders after a row click, so it is loaded on
+// demand instead of riding along in the table's chunk.
+const AdminTicketDetail = dynamic(
+  () => import("./AdminTicketDetail").then((m) => m.AdminTicketDetail),
+  { ssr: false },
+);
 
 type Props = {
   adminId: string;

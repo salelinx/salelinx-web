@@ -202,10 +202,40 @@ closed tickets, which can never need a reply. That keeps the read bounded as the
 archive grows and, incidentally, means ticket and reply message bodies are not
 fetched on the overview at all.
 
-Still outstanding if the base grows: the Usage and Storage modules each call
-`admin_list_users()` + `admin_list_subscriptions()` purely to resolve a tier and
-version per row. Folding that into the respective RPC as a join would remove two
-full cross-user reads per page view.
+**Deferred detail drawers.** `AdminUserDetail` (~1k lines) and
+`AdminTicketDetail` only render after a row click, but a static import bundled
+them into their table's own chunk, so every visit downloaded and parsed them.
+Both are now `next/dynamic` with `ssr: false` (they sit behind client state and
+were never in the server markup). This cut the users roster chunk from ~29 KB to
+~11 KB, with the drawer's ~22 KB fetched on first open. Keep new drawer-style
+components on the same pattern.
+
+**Indexes** (`028_admin_console_indexes.sql`). Two reads were scanning whole
+tables:
+
+- `usage_counters(period_key)` - the PK is `(user_id, feature, period_key)`, so
+  filtering on `period_key` alone (what `admin_list_usage` does) could not use
+  it. This is the fastest-growing table in the schema, so the scan got worse
+  every day.
+- `support_ticket_replies(ticket_id, created_at)` - `ticket_id` is a foreign
+  key, and Postgres does not index those automatically. Both the support module
+  and the overview fetch replies by ticket id and order by `created_at`, which
+  the composite index now satisfies end to end.
+
+Still outstanding if the base grows:
+
+- The Usage and Storage modules each call `admin_list_users()` +
+  `admin_list_subscriptions()` purely to resolve a tier and version per row.
+  Folding that into the respective RPC as a join would remove two full
+  cross-user reads per page view.
+- **No module paginates.** Every table fetches all rows and renders all of them
+  into the DOM (`visible.map(...)` with no slice), and `admin_list_users()` runs
+  three correlated LATERAL subqueries per user. The per-user lookups are
+  index-backed (`user_id` leads the PK on `linked_accounts` and
+  `device_sessions`, and `subscriptions` has `idx_subscriptions_user_id`), so
+  this is linear rather than quadratic, but it is still the ceiling: the first
+  fix when a roster gets slow is a `LIMIT`/`OFFSET` on the RPC plus windowing in
+  the table, not more indexes.
 
 ## Per-module security checklist
 
