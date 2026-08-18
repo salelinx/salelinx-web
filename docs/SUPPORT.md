@@ -74,9 +74,21 @@ Gmail threads the user reply under the original notification.
 | Trigger                         | To                  | From                 | Reply-To             | Threaded?                  |
 | ------------------------------- | ------------------- | -------------------- | -------------------- | -------------------------- |
 | New ticket (staff notif)        | `SUPPORT_NOTIFY_TO` | `SUPPORT_NOTIFY_FROM`| ticket author        | owns `notification_message_id` |
-| New ticket (auto-ack)           | ticket author       | `SUPPORT_NOTIFY_FROM`| `SUPPORT_NOTIFY_TO`  | no (standalone)            |
+| New ticket (auto-ack)           | ticket author       | `SUPPORT_NOTIFY_FROM`| `SUPPORT_NOTIFY_NOREPLY` | no (standalone)        |
 | User reply (staff notif)        | `SUPPORT_NOTIFY_TO` | `SUPPORT_NOTIFY_FROM`| user                 | under `notification_message_id` |
-| Admin reply (to user)           | ticket **owner**    | `SUPPORT_NOTIFY_FROM`| `SUPPORT_NOTIFY_TO`  | no (owner never saw the staff thread) |
+| Admin reply (to user)           | ticket **owner**    | `SUPPORT_NOTIFY_FROM`| `SUPPORT_NOTIFY_NOREPLY` | no (owner never saw the staff thread) |
+
+**User-facing mail is Reply-To no-reply on purpose.** There is no inbound email
+handler, so an emailed reply never becomes a `support_ticket_replies` row - it
+would land in a mailbox and be invisible in the extension, on the website, and
+in the admin console. Both user-facing templates therefore say replies aren't
+monitored and link to `salelinx.com/account/tickets` (and mention the extension's
+Support tab) instead. `SUPPORT_NOTIFY_NOREPLY` falls back to `SUPPORT_NOTIFY_FROM`
+when unset, so a missing secret can't silently route users back into the trap.
+
+Staff notifications keep `Reply-To: <user>` so the team can still mail a customer
+directly - note that doing so bypasses the ticket, and the customer's answer
+won't be recorded either.
 
 The admin-reply recipient is the **ticket owner** (`ticket.user_id`), never the admin who authored the reply (`record.user_id`). This is the single most important correctness detail in the function.
 

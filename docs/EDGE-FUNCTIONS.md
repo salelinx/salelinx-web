@@ -96,6 +96,11 @@ supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
 supabase secrets set SITE_URL='https://www.salelinx.com'
 supabase secrets set SUPPORT_NOTIFY_FROM='SaleLinx Support <support@salelinx.com>'
 supabase secrets set SUPPORT_NOTIFY_TO='support@salelinx.com'
+# Reply-To on USER-facing support mail. Emailed replies are not ingested
+# anywhere, so they point at an unmonitored address rather than the staffed
+# inbox; the templates tell users to answer on their ticket. Falls back to
+# SUPPORT_NOTIFY_FROM if unset.
+supabase secrets set SUPPORT_NOTIFY_NOREPLY='SaleLinx (no reply) <no-reply@salelinx.com>'
 supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # send-shipping-labels reuses RESEND_API_KEY and RESEND_FROM - no extra secrets.
 # resolve-category needs no secrets: it reads SUPABASE_URL / SUPABASE_ANON_KEY,
@@ -248,8 +253,8 @@ Function: verify header -> auth.admin.getUserById(record.user_id) -> render temp
    Synthesize Message-ID <{id}@{from-domain}> and
    UPDATE support_tickets SET notification_message_id = <message-id>
   ▼
-2. AUTO-ACK -> Resend (To: author, Reply-To: SUPPORT_NOTIFY_TO)  [best-effort; a
-   failure is logged but does not fail the webhook]
+2. AUTO-ACK -> Resend (To: author, Reply-To: SUPPORT_NOTIFY_NOREPLY)  [best-effort;
+   a failure is logged but does not fail the webhook]
 ```
 
 ```
@@ -263,7 +268,7 @@ SELECT id, type, message, user_id, notification_message_id FROM support_tickets 
   ▼
 if record.is_admin = true  (admin reply):
    look up the OWNER's email (ticket.user_id, NOT record.user_id)
-   POST to Resend (To: owner, From: SUPPORT_NOTIFY_FROM, Reply-To: SUPPORT_NOTIFY_TO)
+   POST to Resend (To: owner, From: SUPPORT_NOTIFY_FROM, Reply-To: SUPPORT_NOTIFY_NOREPLY)
    presented as "SaleLinx Support"; NOT threaded (owner never saw the staff thread)
 else  (user reply):
    POST staff notif (To: SUPPORT_NOTIFY_TO, Reply-To: user)

@@ -24,6 +24,15 @@
 //
 // One-way: replies that land in support@salelinx.com's Gmail do NOT loop
 // back into the panel yet. That's a future addition.
+//
+// Because of that, USER-FACING mail (auto-ack + admin reply) sets reply_to to
+// SUPPORT_NOTIFY_NOREPLY and tells the reader to answer on their ticket.
+// Previously it said "Reply to this email", which silently dropped the answer:
+// it reached a mailbox but never became a support_ticket_replies row, so it was
+// invisible in the extension, on the website, and in the admin console. Staff
+// notifications still carry reply_to: userEmail so the team can choose to mail
+// a customer directly.
+
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
@@ -37,6 +46,7 @@ import {
   panel,
   paragraph,
   theme,
+  button,
 } from "../_shared/email-theme.ts";
 import { timingSafeEqual } from "../_shared/security.ts";
 
@@ -47,6 +57,13 @@ import { timingSafeEqual } from "../_shared/security.ts";
 // (`supabase functions deploy`), feel free to extract this block back into
 // a sibling templates.ts - the CLI bundles whole folders.
 // ============================================================================
+
+const TICKETS_URL = "https://salelinx.com/account/tickets";
+
+// Replies by email are not ingested anywhere, so every user-facing template
+// says so once, in the same words, and links to the thread instead.
+const NO_REPLY_NOTE =
+  "Replies to this email aren't monitored - please answer on your ticket so the team sees it.";
 
 type TicketType = "bug" | "feature" | "feedback" | "other";
 
@@ -199,7 +216,7 @@ function renderAck(input: AckInput): Rendered {
     bodyHtml: `
       ${heading("Thanks, we got your message")}
       ${paragraph(
-        `We've logged your ${escapeHtml(typeLabel(input.type).toLowerCase())} and the team will follow up here. You can track and reply to this ticket any time at <a href="https://salelinx.com/account/tickets" style="color:${theme.ink};">salelinx.com/account/tickets</a>.`,
+        `We've logged your ${escapeHtml(typeLabel(input.type).toLowerCase())} and the team will follow up here. You can track and reply to this ticket any time at <a href="${TICKETS_URL}" style="color:${theme.ink};">salelinx.com/account/tickets</a> (it's also in the SaleLinx extension, under Support).`,
         20,
       )}
       ${metaTable(
@@ -212,13 +229,17 @@ function renderAck(input: AckInput): Rendered {
       <p style="margin:0 0 8px;font-family:${FONT_STACK};font-size:13px;color:${theme.muted};">Your message:</p>
       ${panel(formatBody(input.message))}
     `,
+    footerNote: NO_REPLY_NOTE,
   });
 
   const text = [
     `Thanks - we got your message`,
     ``,
     `We've logged your ${typeLabel(input.type).toLowerCase()} and the team will follow up here.`,
-    `Track and reply: https://salelinx.com/account/tickets`,
+    `Track and reply: ${TICKETS_URL}`,
+    `(also in the SaleLinx extension, under Support)`,
+    ``,
+    NO_REPLY_NOTE,
     ``,
     `Type:     ${typeLabel(input.type)}`,
     `Ticket:   ${input.ticketId}`,
@@ -242,8 +263,9 @@ function renderAdminReplyToUser(input: AdminReplyToUserInput): Rendered {
     bodyHtml: `
       ${heading("SaleLinx Support replied")}
       ${panel(formatBody(input.replyBody))}
+      ${button(TICKETS_URL, "Reply on your ticket")}
     `,
-    footerNote: `Reply to this email, or pick up the conversation at <a href="https://salelinx.com/account/tickets" style="color:${theme.muted};">salelinx.com/account/tickets</a> (Ticket ${escapeHtml(input.ticketId)}).`,
+    footerNote: `${NO_REPLY_NOTE} Open it at <a href="${TICKETS_URL}" style="color:${theme.muted};">salelinx.com/account/tickets</a> (Ticket ${escapeHtml(input.ticketId)}). It's also in the SaleLinx extension, under Support.`,
   });
 
   const text = [
@@ -252,7 +274,9 @@ function renderAdminReplyToUser(input: AdminReplyToUserInput): Rendered {
     input.replyBody,
     ``,
     `---`,
-    `Reply to this email, or continue at https://salelinx.com/account/tickets`,
+    NO_REPLY_NOTE,
+    `Reply on your ticket: ${TICKETS_URL}`,
+    `(also in the SaleLinx extension, under Support)`,
     `Ticket: ${input.ticketId}`,
     `Sent:   ${input.createdAt}`,
   ].join("\n");
@@ -307,6 +331,12 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const SUPPORT_NOTIFY_FROM = Deno.env.get("SUPPORT_NOTIFY_FROM") ?? "";
 const SUPPORT_NOTIFY_TO = Deno.env.get("SUPPORT_NOTIFY_TO") ?? "";
 const HOOK_SECRET = Deno.env.get("SUPPORT_NOTIFY_HOOK_SECRET") ?? "";
+// Replies to user-facing mail have nowhere to go (no inbound handler), so they
+// point at an unmonitored address rather than the staffed inbox: a visible
+// bounce beats a silent drop. Falls back to the From identity when unset, so a
+// missing secret can never route users back to support and recreate the trap.
+const SUPPORT_NOTIFY_NOREPLY =
+  Deno.env.get("SUPPORT_NOTIFY_NOREPLY") ?? SUPPORT_NOTIFY_FROM;
 
 function jsonResponse(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), {
@@ -450,7 +480,7 @@ async function handleNewTicket(
       subject: ack.subject,
       html: ack.html,
       text: ack.text,
-      replyTo: SUPPORT_NOTIFY_TO,
+      replyTo: SUPPORT_NOTIFY_NOREPLY,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -504,7 +534,7 @@ async function handleNewReply(
       subject,
       html,
       text,
-      replyTo: SUPPORT_NOTIFY_TO,
+      replyTo: SUPPORT_NOTIFY_NOREPLY,
     });
 
     console.log(
