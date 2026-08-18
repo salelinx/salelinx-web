@@ -1,7 +1,11 @@
 // Shapes for the admin console modules (Users, Subscriptions, Usage, Audit
 // log). These mirror the return types of the admin_* RPCs in migrations
-// 006_admin_console.sql and 008_admin_edit_subscription.sql (which also
-// returns an AdminSubscriptionRow).
+// 006_admin_console.sql, 008_admin_edit_subscription.sql (which also returns an
+// AdminSubscriptionRow) and 025_admin_user_observability.sql.
+
+// The platforms a linked account can belong to, matching the CHECK constraint
+// on linked_accounts.platform (migration 001_core_schema.sql).
+export type LinkedPlatform = "depop" | "vinted";
 
 // Row from admin_list_users(): one auth.users user joined to their current
 // subscription (tier/status may be null when the user has no subscription row).
@@ -14,6 +18,13 @@ export type AdminUserRow = {
   tier_id: string | null;
   status: string | null;
   is_admin: boolean;
+  // Which marketplaces this user has connected. Empty array (never null) for a
+  // user who has linked nothing.
+  linked_platforms: LinkedPlatform[];
+  // Freshest device_sessions heartbeat across their extension installs, or null
+  // if the extension has never checked in. A better liveness signal than
+  // last_sign_in_at, which a long-lived refresh token leaves stale.
+  last_device_seen_at: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.
@@ -49,6 +60,45 @@ export type AdminUserUsageEntry = {
   updated_at: string;
 };
 
+// One linked marketplace account inside the admin_user_detail() bundle
+// (linked_accounts, migration 001_core_schema.sql). platform_username is null
+// on rows written before the extension started capturing it; without it a Depop
+// profile cannot be linked (Depop URLs are keyed by username, not numeric id).
+export type AdminLinkedAccount = {
+  platform: LinkedPlatform;
+  platform_user_id: string;
+  platform_username: string | null;
+  linked_at: string;
+};
+
+// One extension install inside the admin_user_detail() bundle (device_sessions,
+// migration 015_device_sessions.sql). user_agent is self-reported by the
+// extension: display only, never parsed for a decision.
+export type AdminUserDevice = {
+  device_id: string;
+  user_agent: string | null;
+  created_at: string;
+  last_seen_at: string;
+};
+
+// Synced-listing counts for one (platform, status) pair.
+export type AdminListingBreakdown = {
+  platform: LinkedPlatform;
+  status: string;
+  count: number;
+};
+
+// The listings roll-up inside the admin_user_detail() bundle. last_synced_at is
+// an epoch-MILLISECONDS number written by the extension (0 or null both mean
+// "never synced"); last_cloud_update_at is a server-side ISO timestamp of the
+// last write to Supabase, so it is the trustworthy one of the pair.
+export type AdminUserListings = {
+  total: number;
+  by_platform_status: AdminListingBreakdown[];
+  last_synced_at: number | null;
+  last_cloud_update_at: string | null;
+};
+
 // The JSONB bundle returned by admin_user_detail(): everything the Users detail
 // drawer needs for one user in a single round-trip. `subscription` is the full
 // subscriptions row or null; `is_admin` is the TARGET user's admin status
@@ -62,6 +112,13 @@ export type AdminUserDetail = {
   usage: AdminUserUsageEntry[];
   ticket_count: number;
   is_admin: boolean;
+  linked_accounts: AdminLinkedAccount[];
+  // Capped at the 10 most recently active installs by the RPC.
+  devices: AdminUserDevice[];
+  listings: AdminUserListings;
+  // Null when the user has never uploaded (no user_storage row), which is not
+  // the same as zero bytes.
+  storage_bytes: number | null;
 };
 
 // Row from admin_list_storage() (migration 006_admin_console.sql): one

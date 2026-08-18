@@ -1,14 +1,28 @@
 "use client";
 
-// Dense user roster for the admin console: search by email, filter by tier and
-// status, sort, and open a detail drawer per user. Models the support table
+// Dense user roster for the admin console: search by email, filter by tier,
+// status, connected marketplace and recent activity, sort, and open a detail
+// drawer per user. Models the support table
 // (components/admin/support/AdminTicketTable.tsx). The drawer's subscription
 // edit reports back via onSubscriptionChange so the roster row updates without
 // a refetch.
+//
+// "Last active" is the more recent of the account's last sign-in and its
+// freshest extension heartbeat (device_sessions), not last_sign_in_at alone: a
+// long-lived refresh token means a signed-in-months-ago seller who uses the
+// extension daily looks dormant by sign-in date. The drawer shows the two
+// timestamps separately when the difference matters.
 
 import { useMemo, useState } from "react";
 import type { TierConfig } from "@/lib/types/tiers";
-import type { AdminUserRow } from "@/lib/types/admin";
+import type { AdminUserRow, LinkedPlatform } from "@/lib/types/admin";
+import {
+  mostRecent,
+  relativeAge,
+  staleness,
+  STALENESS_TONE,
+} from "@/lib/admin/relative-time";
+import { useClientNow } from "@/lib/admin/use-client-now";
 import { AdminUserDetail } from "./AdminUserDetail";
 
 type Props = {
@@ -16,7 +30,11 @@ type Props = {
   tiers: TierConfig[];
 };
 
-type SortKey = "created_at" | "last_sign_in_at" | "email" | "tier_id";
+type SortKey = "created_at" | "last_active" | "email" | "tier_id";
+
+// Activity buckets, evaluated against the same "last active" value the column
+// shows. Thresholds match lib/admin/relative-time.ts's staleness buckets.
+type ActivityFilter = "all" | "fresh" | "recent" | "stale" | "none";
 
 function formatDate(iso: string | null): string {
   if (!iso) return "-";
@@ -35,13 +53,24 @@ const STATUS_TONE: Record<string, string> = {
   incomplete: "bg-zinc-100 text-zinc-600",
 };
 
+const PLATFORM_TONE: Record<LinkedPlatform, string> = {
+  depop: "bg-rose-50 text-rose-700 border-rose-200",
+  vinted: "bg-teal-50 text-teal-700 border-teal-200",
+};
+
 export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [users, setUsers] = useState<AdminUserRow[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [tier, setTier] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+  const [platform, setPlatform] = useState<string>("all");
+  const [activity, setActivity] = useState<ActivityFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Null on the server and through hydration, a ticking timestamp afterwards,
+  // so relative ages cannot cause a mismatch. See lib/admin/use-client-now.ts.
+  const now = useClientNow();
 
   const tierOptions = useMemo(() => {
     const set = new Set<string>();
@@ -58,6 +87,21 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         const effectiveStatus = u.status ?? "none";
         if (effectiveStatus !== status) return false;
       }
+      if (platform !== "all") {
+        const linked = u.linked_platforms ?? [];
+        if (platform === "none") {
+          if (linked.length > 0) return false;
+        } else if (!linked.includes(platform as LinkedPlatform)) {
+          return false;
+        }
+      }
+      // Skipped until `now` exists, so the pre-hydration render keeps every row
+      // (the default filter is "all", so this only matters if someone could
+      // pick a bucket before mount, which they cannot).
+      if (activity !== "all" && now !== null) {
+        const active = mostRecent(u.last_sign_in_at, u.last_device_seen_at);
+        if (staleness(active, now) !== activity) return false;
+      }
       if (term) {
         const haystack = `${u.email ?? ""} ${u.user_id}`.toLowerCase();
         if (!haystack.includes(term)) return false;
@@ -71,9 +115,11 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           return (a.email ?? "").localeCompare(b.email ?? "");
         case "tier_id":
           return (a.tier_id ?? "free").localeCompare(b.tier_id ?? "free");
-        case "last_sign_in_at":
-          return (b.last_sign_in_at ?? "").localeCompare(
-            a.last_sign_in_at ?? "",
+        case "last_active":
+          return (
+            mostRecent(b.last_sign_in_at, b.last_device_seen_at) ?? ""
+          ).localeCompare(
+            mostRecent(a.last_sign_in_at, a.last_device_seen_at) ?? "",
           );
         case "created_at":
         default:
@@ -81,7 +127,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
     });
     return sorted;
-  }, [users, search, tier, status, sortKey]);
+  }, [users, search, tier, status, platform, activity, sortKey, now]);
 
   const selected = selectedId
     ? (users.find((u) => u.user_id === selectedId) ?? null)
@@ -92,7 +138,11 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
         <h1 className="text-sm font-semibold">
           Users
-          <span className="ml-2 font-normal text-zinc-400">{users.length}</span>
+          <span className="ml-2 font-normal text-zinc-400">
+            {visible.length === users.length
+              ? users.length
+              : `${visible.length} / ${users.length}`}
+          </span>
         </h1>
         <input
           type="search"
@@ -124,6 +174,29 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           ]}
           onChange={setStatus}
         />
+        <FilterGroup
+          label="Linked"
+          value={platform}
+          options={[
+            ["all", "All"],
+            ["depop", "Depop"],
+            ["vinted", "Vinted"],
+            ["none", "Nothing linked"],
+          ]}
+          onChange={setPlatform}
+        />
+        <FilterGroup
+          label="Active"
+          value={activity}
+          options={[
+            ["all", "All"],
+            ["fresh", "Last 7 days"],
+            ["recent", "Last 30 days"],
+            ["stale", "Dormant"],
+            ["none", "Never"],
+          ]}
+          onChange={(v) => setActivity(v as ActivityFilter)}
+        />
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
@@ -140,6 +213,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                   active={sortKey === "email"}
                   onClick={() => setSortKey("email")}
                 />
+                <th className="px-3 py-2 font-medium">Linked</th>
                 <SortableTh
                   label="Tier"
                   active={sortKey === "tier_id"}
@@ -152,61 +226,76 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                   onClick={() => setSortKey("created_at")}
                 />
                 <SortableTh
-                  label="Last sign-in"
-                  active={sortKey === "last_sign_in_at"}
-                  onClick={() => setSortKey("last_sign_in_at")}
+                  label="Last active"
+                  active={sortKey === "last_active"}
+                  onClick={() => setSortKey("last_active")}
                 />
               </tr>
             </thead>
             <tbody>
-              {visible.map((u) => (
-                <tr
-                  key={u.user_id}
-                  onClick={() => setSelectedId(u.user_id)}
-                  className={
-                    "cursor-pointer border-b border-[var(--admin-border)] hover:bg-zinc-50 " +
-                    (selectedId === u.user_id ? "bg-zinc-100" : "")
-                  }
-                >
-                  <td className="max-w-[18rem] px-3 py-2">
-                    <div className="flex items-center gap-1.5">
-                      {u.email ? (
-                        <span className="truncate text-zinc-800">
-                          {u.email}
+              {visible.map((u) => {
+                const lastActive = mostRecent(
+                  u.last_sign_in_at,
+                  u.last_device_seen_at,
+                );
+                const age = now === null ? null : relativeAge(lastActive, now);
+                const tone =
+                  now === null
+                    ? "text-zinc-500"
+                    : STALENESS_TONE[staleness(lastActive, now)];
+                return (
+                  <tr
+                    key={u.user_id}
+                    onClick={() => setSelectedId(u.user_id)}
+                    className={
+                      "cursor-pointer border-b border-[var(--admin-border)] hover:bg-zinc-50 " +
+                      (selectedId === u.user_id ? "bg-zinc-100" : "")
+                    }
+                  >
+                    <td className="max-w-[18rem] px-3 py-2">
+                      <div className="flex items-center gap-1.5">
+                        {u.email ? (
+                          <span className="truncate text-zinc-800">
+                            {u.email}
+                          </span>
+                        ) : (
+                          <span className="truncate font-mono text-xs text-zinc-400">
+                            {u.user_id}
+                          </span>
+                        )}
+                        {u.is_admin && <AdminTag />}
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <PlatformTags platforms={u.linked_platforms ?? []} />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 capitalize text-zinc-700">
+                      {u.tier_id ?? "free"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      {u.status ? (
+                        <span
+                          className={
+                            "rounded-full px-2 py-0.5 text-xs font-medium " +
+                            (STATUS_TONE[u.status] ??
+                              "bg-zinc-100 text-zinc-600")
+                          }
+                        >
+                          {u.status}
                         </span>
                       ) : (
-                        <span className="truncate font-mono text-xs text-zinc-400">
-                          {u.user_id}
-                        </span>
+                        <span className="text-zinc-400">-</span>
                       )}
-                      {u.is_admin && <AdminTag />}
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-2 capitalize text-zinc-700">
-                    {u.tier_id ?? "free"}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-2">
-                    {u.status ? (
-                      <span
-                        className={
-                          "rounded-full px-2 py-0.5 text-xs font-medium " +
-                          (STATUS_TONE[u.status] ?? "bg-zinc-100 text-zinc-600")
-                        }
-                      >
-                        {u.status}
-                      </span>
-                    ) : (
-                      <span className="text-zinc-400">-</span>
-                    )}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
-                    {formatDate(u.created_at)}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
-                    {formatDate(u.last_sign_in_at)}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
+                      {formatDate(u.created_at)}
+                    </td>
+                    <td className={"whitespace-nowrap px-3 py-2 " + tone}>
+                      {age ?? formatDate(lastActive)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -242,6 +331,31 @@ function AdminTag() {
   return (
     <span className="shrink-0 rounded-full border border-zinc-300 bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-600">
       Admin
+    </span>
+  );
+}
+
+// Which marketplaces the user has connected. The full username and a link to
+// the shop live in the detail drawer; the roster only needs the presence
+// signal, so this stays a single initial per platform.
+function PlatformTags({ platforms }: { platforms: LinkedPlatform[] }) {
+  if (platforms.length === 0) {
+    return <span className="text-zinc-300">-</span>;
+  }
+  return (
+    <span className="flex gap-1">
+      {platforms.map((p) => (
+        <span
+          key={p}
+          title={p === "depop" ? "Depop" : "Vinted"}
+          className={
+            "rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase " +
+            PLATFORM_TONE[p]
+          }
+        >
+          {p === "depop" ? "D" : "V"}
+        </span>
+      ))}
     </span>
   );
 }
