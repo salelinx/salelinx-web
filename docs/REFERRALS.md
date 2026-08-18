@@ -39,6 +39,53 @@ First PAID invoice (amount_paid > 0) -> stripe-webhook
   row -> rewarded, receipt stored (amount, currency, balance txn id)
 ```
 
+## Leaderboard display name (021)
+
+`referral_codes.display_name` is an optional self-chosen name for the
+extension's leaderboard. NULL falls back to the old derivation: linked shop
+username (Depop preferred), then a masked email prefix.
+
+Set it with `set_referral_display_name(p_name)`, which returns
+`{ok:true, display_name}` or `{ok:false, error:'code'}` rather than raising,
+so the caller can show a message per failure. Pass '' or NULL to clear it.
+Codes: too_short, too_long, bad_chars, no_letters, blocked_word,
+impersonation, taken, no_referral_code, not_authenticated.
+
+### Moderation
+
+Four layers, because a client-side check is only a suggestion (anyone with
+their own token can call the API directly):
+
+1. **CHECK constraint** on the column: 3-20 chars, ASCII-only charset, at
+   least one letter, no doubled or edge spaces. ASCII-only is what blocks
+   Cyrillic/Greek homoglyphs (an "admin" spelled with a Cyrillic a); no
+   wordlist catches those.
+2. **BEFORE trigger** (`referral_codes_display_name_guard`): normalises, then
+   runs the wordlist on every write path, so a future INSERT/UPDATE RLS
+   policy cannot open a side door round the RPC.
+3. **`referral_display_name_problem(text)`**: the wordlist itself. Matching
+   runs on a leet-folded, letters-only copy, so "5h1t" and "F.U.C.K" collapse
+   onto the plain word. Three rules, because one cannot serve every term:
+   match-anywhere for long unambiguous words, whole-word for terms that live
+   inside ordinary ones (a substring rule for "ass" rejects Cassie, class and
+   bass: the Scunthorpe problem), and contains-with-allowlist for the two
+   whose innocent carriers are countable ("dick" must reject BigD1ck while
+   accepting Dickinson). Impersonation terms (salelinx, admin, official,
+   support, staff, founder...) are checked separately so the UI can say why.
+4. **`admin_clear_referral_display_name(user_id)`**: the backstop. No wordlist
+   is complete, so an admin (gated on `is_admin()`, which inherits the AAL2
+   requirement from 009) can blank a name and let it fall back to the derived
+   one.
+
+A partial unique index on `lower(display_name)` stops someone taking the name
+of the person above them, which is the impersonation risk that actually
+matters on a leaderboard.
+
+The extension mirrors these rules in `src/utils/referral-name.ts` for instant
+feedback while typing, with tests covering the false-positive traps. That copy
+is convenience only: this function is the gate, and if the two ever disagree
+the user sees the field accept a name the save then rejects. Change both.
+
 ## State machine (`referrals.status`)
 
 ```
