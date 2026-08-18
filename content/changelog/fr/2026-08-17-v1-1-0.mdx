@@ -1,0 +1,67 @@
+export const metadata = {
+  title: 'Connexion Google, Refer & Earn, et correction de Depop Messages',
+  date: '2026-08-17',
+  summary:
+    "La version 1.1.0 ajoute la connexion Google et un onglet Refer & Earn dédié, répare Depop Messages, et corrige les annonces crosslistées vers Depop qui utilisaient le Royaume-Uni par défaut.",
+  tags: ['release'],
+};
+
+# Version 1.1.0
+
+La première mise à jour importante depuis le lancement. Connexion Google, un
+espace dédié au programme de parrainage, et une série de corrections dont une
+qui compte beaucoup si vous vendez hors du Royaume-Uni.
+
+## Nouveautés
+
+- **Connexion avec Google.** Plus de mot de passe SaleLinx séparé à retenir.
+  La connexion par e-mail et mot de passe fonctionne exactement comme avant si
+  vous la préférez.
+- **Onglet Refer &amp; Earn.** Le programme de parrainage a maintenant son
+  propre onglet dans le panneau : partagez votre lien et voyez qui s&rsquo;est
+  inscrit et ce que vous avez gagné, sans quitter l&rsquo;extension.
+- **Boutons de rechargement des annonces** sur Relist et Dead Stock, pour
+  récupérer des données fraîches sans changer d&rsquo;onglet.
+- **Boutons d&rsquo;ouverture des plateformes.** Là où le panneau indique
+  qu&rsquo;une session marketplace manque, le nom de la plateforme est
+  désormais un lien qui l&rsquo;ouvre.
+
+## Corrections
+
+- **Depop Messages.** Les conversations qui ne se chargeaient pas, échouaient
+  en silence, ou affichaient des avatars vides fonctionnent à nouveau. C&rsquo;est
+  la correction la plus importante de cette version.
+- **Le crosslisting vers Depop utilisait le Royaume-Uni quel que soit votre
+  pays.** Chaque annonce créée par l&rsquo;extension portait une adresse et un
+  pays « United Kingdom », et les tailles étaient résolues sur le référentiel
+  britannique. Pour un vendeur américain, un `US 8` pouvait être publié en
+  `UK 8`, soit deux tailles de moins, sans aucun avertissement. Les annonces
+  utilisent maintenant votre propre pays et votre référentiel de tailles, et
+  lorsque la région ne correspond pas, la taille est laissée vide plutôt que
+  devinée.
+- **La liaison de compte affichait un état erroné.** Le panneau pouvait
+  indiquer une marketplace comme connectée alors que la session avait expiré.
+  Il distingue désormais une session active d&rsquo;une session expirée et vous
+  dit laquelle.
+- **Les comptes non liés sont signalés** dans le panneau, au lieu de laisser
+  des fonctionnalités échouer discrètement plus loin.
+- **Price Drops** ne conserve plus une sélection obsolète après actualisation
+  de la liste, et sépare les articles pas encore éligibles de ceux qui ont été
+  ignorés.
+- **Les aperçus du Shop Designer** s&rsquo;affichent maintenant dans des
+  maquettes de téléphone et d&rsquo;ordinateur portable, ce qui rend les
+  grilles mobile et bureau plus faciles à distinguer.
+
+## Également
+
+- L&rsquo;essai gratuit passe à **14 jours**, contre 7 auparavant, pour les
+  nouveaux comptes.
+- Une limite d&rsquo;appareils simultanés s&rsquo;applique désormais : un
+  abonnement couvre une personne, pas un identifiant partagé.
+
+## Mise à jour
+
+Chrome met à jour les extensions automatiquement, généralement dans les heures
+qui suivent une publication. Une fois la mise à jour préparée, une bannière
+apparaît dans le panneau avec un bouton **Recharger pour mettre à jour**, qui
+l&rsquo;applique immédiatement sans redémarrer votre navigateur.

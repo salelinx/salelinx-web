@@ -1,0 +1,66 @@
+export const metadata = {
+  title: 'Google-Anmeldung, Refer & Earn und ein Fix für Depop Messages',
+  date: '2026-08-17',
+  summary:
+    'Version 1.1.0 bringt die Anmeldung mit Google und einen eigenen Refer & Earn-Tab, repariert Depop Messages und behebt, dass zu Depop crossgelistete Anzeigen standardmäßig Großbritannien verwendeten.',
+  tags: ['release'],
+};
+
+# Version 1.1.0
+
+Das erste größere Update seit dem Start. Anmeldung mit Google, ein eigener
+Platz für das Empfehlungsprogramm und eine Reihe von Korrekturen, von denen
+eine besonders wichtig ist, wenn du außerhalb Großbritanniens verkaufst.
+
+## Neu
+
+- **Anmeldung mit Google.** Kein separates SaleLinx-Passwort mehr, das du dir
+  merken musst. Die Anmeldung mit E-Mail und Passwort funktioniert weiterhin
+  genau wie bisher, wenn du sie bevorzugst.
+- **Refer &amp; Earn-Tab.** Das Empfehlungsprogramm hat jetzt einen eigenen Tab
+  im Panel: teile deinen Link und sieh, wer sich angemeldet hat und was du
+  verdient hast, ohne die Erweiterung zu verlassen.
+- **Buttons zum Neuladen der Anzeigen** in Relist und Dead Stock, um frische
+  Daten zu holen, ohne den Tab zu wechseln.
+- **Buttons zum Öffnen der Plattform.** Wo das Panel meldet, dass eine
+  Marketplace-Sitzung fehlt, ist der Plattformname jetzt ein Link, der sie
+  öffnet.
+
+## Behoben
+
+- **Depop Messages.** Unterhaltungen, die nicht luden, still fehlschlugen oder
+  leere Avatare zeigten, funktionieren wieder. Das ist die größte einzelne
+  Korrektur dieser Version.
+- **Crosslisting zu Depop nutzte Großbritannien, egal wo du verkaufst.** Jede
+  von der Erweiterung erstellte Anzeige trug Adresse und Land
+  &bdquo;United Kingdom&ldquo;, und Größen wurden gegen den britischen
+  Größensatz aufgelöst. Für Verkäufer in den USA konnte eine `US 8` als `UK 8`
+  veröffentlicht werden, also zwei Größen kleiner, ohne jede Warnung. Anzeigen
+  verwenden jetzt dein eigenes Land und deine Größenregion, und wenn die Region
+  nicht zugeordnet werden kann, bleibt die Größe leer statt geraten zu werden.
+- **Die Kontoverknüpfung zeigte den falschen Status.** Das Panel konnte einen
+  Marketplace als verbunden melden, obwohl die Sitzung abgelaufen war. Es
+  unterscheidet jetzt zwischen aktiver und abgelaufener Sitzung und sagt dir,
+  welche vorliegt.
+- **Nicht verknüpfte Konten werden im Panel angezeigt**, statt Funktionen
+  später stillschweigend fehlschlagen zu lassen.
+- **Price Drops** behält nach dem Aktualisieren der Liste keine veraltete
+  Auswahl mehr und trennt Artikel, die noch nicht fällig sind, von denen, die
+  übersprungen wurden.
+- **Die Shop Designer-Vorschauen** werden jetzt in Handy- und Laptop-Mockups
+  dargestellt, wodurch sich Mobil- und Desktop-Raster leichter unterscheiden
+  lassen.
+
+## Außerdem
+
+- Die kostenlose Testphase liegt für neue Konten jetzt bei **14 Tagen** statt
+  bei 7.
+- Es gilt ein Limit für gleichzeitige Geräte: ein Abo deckt eine Person ab,
+  nicht einen geteilten Zugang.
+
+## Aktualisieren
+
+Chrome aktualisiert Erweiterungen automatisch, meist innerhalb weniger Stunden
+nach einer Veröffentlichung. Sobald das Update bereitsteht, erscheint im Panel
+ein Hinweis mit der Schaltfläche **Zum Aktualisieren neu laden**, die es sofort
+anwendet, ohne den Browser neu zu starten.
