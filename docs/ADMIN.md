@@ -8,7 +8,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | --- | --- | --- | --- |
 | Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
-| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, usage vs caps this period, ticket count, admin badge). The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
+| Users | `/admin/users` | Live, read/write | Roster + per-user detail (subscription + tier, linked marketplace accounts, devices, listings + storage, usage vs caps this period, ticket count, admin badge). See "User observability" below. The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
@@ -46,6 +46,9 @@ Consequences:
 | Shared needs-reply predicate | `lib/admin/needs-reply.ts` (support table + dashboard) |
 | Usage period keys / cap mapping | `lib/admin/period.ts`, `lib/admin/usage-caps.ts` |
 | Byte formatting (Storage module) | `lib/admin/format-bytes.ts` |
+| Marketplace profile URLs (Users module) | `lib/admin/platform-links.ts` |
+| Relative ages + staleness tone | `lib/admin/relative-time.ts` |
+| Hydration-safe clock for relative ages | `lib/admin/use-client-now.ts` |
 | Tier grid helpers (ordering, key union) | `lib/admin/tiers.ts` |
 | Admin module data shapes | `lib/types/admin.ts` |
 | Layer-1 edge gate + locale bypass | `proxy.ts` |
@@ -56,6 +59,7 @@ Consequences:
 | MFA enforcement in `is_admin()` | migration `009_admin_mfa.sql` |
 | Audit + identity RPCs, audit table, read/write RPCs | migration `006_admin_console.sql` |
 | Subscription write RPC | migration `008_admin_edit_subscription.sql` |
+| Users observability widening (linked accounts, devices, listings, storage) | migration `025_admin_user_observability.sql` |
 
 ## Security model
 
@@ -76,12 +80,36 @@ Defense in depth, fail-closed (any error or uncertainty denies). Six layers, eac
 
 The Users / Subscriptions / Usage modules need data ACROSS users, but the billing tables are own-row-only under RLS (`subscriptions` and `usage_counters` both gate on `auth.uid() = user_id`) and `auth.users` is not directly readable. A plain `select("*")` as an admin would return only the admin's own rows. So, exactly like `admin_user_emails`, each cross-user read is a SECURITY DEFINER function that **re-checks `public.is_admin()` itself** (in the `WHERE`, or the body for the JSONB one), making non-admins get zero rows / an exception:
 
-- `admin_list_users()` - the roster: `auth.users` LEFT JOINed to `subscriptions` for current tier/status.
+- `admin_list_users()` - the roster: `auth.users` LEFT JOINed to `subscriptions` for current tier/status, plus `linked_platforms` and `last_device_seen_at` (migration `025_admin_user_observability.sql`).
 - `admin_list_subscriptions()` - every `subscriptions` row (emails resolved separately via `admin_user_emails`).
 - `admin_list_usage(period_keys[])` - `usage_counters` rows for the passed period keys. Scoped to the current period so the read stays bounded (the table grows ~ users x features x periods; daily rows accumulate one per user per day). If the base grows, add pagination / a top-N cap.
-- `admin_user_detail(user_id, period_keys[])` - a single JSONB bundle for the detail drawer: subscription + usage for the periods + ticket count + the **target** user's `is_admin` flag (display-only; the caller is still gated on being an admin).
+- `admin_user_detail(user_id, period_keys[])` - a single JSONB bundle for the detail drawer: subscription + usage for the periods + ticket count + the **target** user's `is_admin` flag (display-only; the caller is still gated on being an admin) + the observability keys below.
 
 All are READ-only and `GRANT EXECUTE ... TO authenticated` (safe because of the in-function `is_admin()` check). The audit module needs no RPC: `admin_audit_log` already has an `is_admin()` SELECT policy, so it reads directly. Tier caps for the usage views come from the public-read `tier_limits` table via `getTierConfigs()`.
+
+### User observability (migration `025_admin_user_observability.sql`)
+
+The Users module answers "what is this account actually doing", not just "what does it pay". Migration 025 records nothing new: every field below already existed in the schema and was simply never surfaced. No new table, no new RLS policy, no new write path, and both widened functions stay READ-only (so neither writes to `admin_audit_log` - the log records mutations, and a row per drawer open would bury the real entries).
+
+| Surface | Shows | Source table |
+| --- | --- | --- |
+| Roster: `Linked` column | Which marketplaces are connected (D / V badges), filterable, including "Nothing linked" | `linked_accounts` (001) |
+| Roster: `Last active` column | The more recent of last sign-in and freshest device heartbeat, sortable, with an activity filter (7 days / 30 days / dormant / never) | `auth.users` + `device_sessions` (015) |
+| Drawer: header | Joined, Last sign-in, Last seen, each with a relative age | same |
+| Drawer: Linked accounts | Per platform: username, marketplace account ID, linked date, and an "Open shop" link to the live profile | `linked_accounts` |
+| Drawer: Devices | Up to 10 installs, freshest first: browser, OS, truncated device ID, last seen | `device_sessions` |
+| Drawer: Listings and storage | Total synced listings, a per-platform breakdown by status, last sync, bytes used | `listings` (001), `user_storage` (004) |
+
+Things that are easy to get wrong here:
+
+- **Last sign-in is not liveness.** A refresh token keeps a session alive for weeks, so a daily user can have a months-old `last_sign_in_at`. The device heartbeat (written by `claim_device_session` whenever the extension panel is in use) is the truer signal, which is why the roster column is the max of the two and the drawer shows both separately.
+- **A missing device row is ambiguous.** `claim_device_session` prunes rows idle for 30+ days, so "no devices" means either never installed or long dormant. The drawer says so rather than implying the former.
+- **Depop profiles are keyed by username, Vinted by numeric ID.** `linked_accounts` stores both, but `platform_username` is null on older rows (the extension backfills it opportunistically), and a Depop row without one is genuinely not linkable. `lib/admin/platform-links.ts` returns null in that case and the UI degrades to plain text instead of a dead link. Vinted runs a domain per market and we do not record which; the UK domain is used and Vinted redirects a member ID to the right market itself.
+- **Two clocks on listings.** `listings.last_synced_at` is epoch **milliseconds** written by the extension (`0` is the column default, meaning never synced, not a 1970 date); `cloud_updated_at` is a server-side timestamp. The drawer leads with the server one and shows the extension's beside it, because a large gap between them is itself the diagnosis.
+- **`platform_credentials` is deliberately not exposed.** It is encrypted client-side and the console holds no key, so it would be unreadable noise. Whether a platform is connected is already answered by `linked_accounts`.
+- **Relative timestamps need a hydration-safe clock.** The tables are Client Components that Next also renders on the server; reading `Date.now()` independently on each side is a hydration mismatch, and reading it in an effect trips the repo's `react-hooks/set-state-in-effect` lint rule. `lib/admin/use-client-now.ts` uses `useSyncExternalStore` (null through hydration, ticking afterwards). Use it for any new relative timestamp rather than reinventing the pattern.
+
+No GDPR change: every category above is already in the `docs/GDPR.md` ROPA with the same lawful basis and retention, and all of it already cascades on account deletion. This widens who inside the company can see it (staff admins, who could already read it via the Supabase dashboard), not what is collected or how long it is kept.
 
 ### Tier write RPCs (migration `006_admin_console.sql`)
 

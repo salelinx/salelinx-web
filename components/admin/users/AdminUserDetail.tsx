@@ -28,6 +28,10 @@
 // then the auth user, which cascades every user-owned row - see
 // docs/GDPR.md). Irreversible, so step-up reauth. Hidden for admins (the
 // function refuses to delete admins or the caller themselves).
+//
+// The read-only observability sections (linked accounts, devices, listings +
+// storage) come from the same admin_user_detail() bundle, widened in migration
+// 025_admin_user_observability.sql. They add no round-trips and no mutations.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -36,12 +40,23 @@ import { requireReauth } from "@/lib/admin/reauth";
 import { ReauthModal } from "@/components/admin/ReauthModal";
 import type { TierConfig } from "@/lib/types/tiers";
 import type {
+  AdminLinkedAccount,
   AdminSubscriptionRow,
+  AdminUserDevice,
+  AdminUserListings,
   AdminUserRow,
   AdminUserDetail as Detail,
 } from "@/lib/types/admin";
 import { currentPeriodKeys, isMonthlyFeature } from "@/lib/admin/period";
 import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
+import { platformLabel, platformProfileUrl } from "@/lib/admin/platform-links";
+import { formatBytes } from "@/lib/admin/format-bytes";
+import {
+  relativeAge,
+  staleness,
+  STALENESS_TONE,
+} from "@/lib/admin/relative-time";
+import { useClientNow } from "@/lib/admin/use-client-now";
 
 type Props = {
   user: AdminUserRow;
@@ -72,6 +87,38 @@ function formatWhen(iso: string | null): string {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+// The extension writes listings.last_synced_at as epoch MILLISECONDS, and 0 is
+// the column default meaning "never synced" - so it is not a 1970 timestamp.
+function formatEpochMs(ms: number | null): string {
+  if (!ms) return "never";
+  return formatWhen(new Date(ms).toISOString());
+}
+
+// Shorten a self-reported user agent to something scannable. Deliberately
+// crude: this is a display hint in a staff tool, never a decision input, and
+// the full string is kept in the title attribute.
+function browserLabel(ua: string | null): string {
+  if (!ua) return "Unknown browser";
+  if (/Edg\//.test(ua)) return "Edge";
+  if (/OPR\//.test(ua)) return "Opera";
+  if (/Brave\//.test(ua)) return "Brave";
+  if (/Chrome\//.test(ua)) return "Chrome";
+  if (/Firefox\//.test(ua)) return "Firefox";
+  if (/Safari\//.test(ua)) return "Safari";
+  return ua.slice(0, 32);
+}
+
+// Which OS the install runs on, for telling one seller's two machines apart.
+function platformOsLabel(ua: string | null): string | null {
+  if (!ua) return null;
+  if (/Windows/.test(ua)) return "Windows";
+  if (/Mac OS X|Macintosh/.test(ua)) return "macOS";
+  if (/CrOS/.test(ua)) return "ChromeOS";
+  if (/Android/.test(ua)) return "Android";
+  if (/Linux/.test(ua)) return "Linux";
+  return null;
 }
 
 export function AdminUserDetail({
@@ -107,6 +154,10 @@ export function AdminUserDetail({
   // Bumped after a plan change so the effect refetches the detail bundle
   // (the webhook syncs the row a few seconds after Stripe accepts).
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Null on the server and through hydration, a ticking timestamp afterwards,
+  // so relative ages cannot cause a mismatch. See lib/admin/use-client-now.ts.
+  const now = useClientNow();
 
   // The parent gives this drawer a `key={user.user_id}`, so it remounts per
   // user and the initial state (loading, no detail) is already correct - no
@@ -385,13 +436,23 @@ export function AdminUserDetail({
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto p-4">
-        <dl className="grid grid-cols-[6rem_1fr] gap-x-3 gap-y-1 text-xs">
+        <dl className="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-1 text-xs">
           <Meta label="User ID">
             <span className="font-mono break-all">{user.user_id}</span>
           </Meta>
           {user.email && <Meta label="Email">{user.email}</Meta>}
-          <Meta label="Joined">{formatWhen(user.created_at)}</Meta>
-          <Meta label="Last sign-in">{formatWhen(user.last_sign_in_at)}</Meta>
+          <Meta label="Joined">
+            <When iso={user.created_at} now={now} />
+          </Meta>
+          <Meta label="Last sign-in">
+            <When iso={user.last_sign_in_at} now={now} tone />
+          </Meta>
+          {/* The freshest extension heartbeat. Usually more recent than the
+              sign-in above, because a refresh token keeps the session alive
+              without the user ever signing in again. */}
+          <Meta label="Last seen">
+            <When iso={user.last_device_seen_at} now={now} tone />
+          </Meta>
         </dl>
 
         {loading && (
@@ -591,6 +652,22 @@ export function AdminUserDetail({
               )}
             </Section>
 
+            <Section title="Linked accounts">
+              <LinkedAccounts accounts={detail.linked_accounts ?? []} />
+            </Section>
+
+            <Section title="Devices">
+              <Devices devices={detail.devices ?? []} now={now} />
+            </Section>
+
+            <Section title="Listings and storage">
+              <ListingsSummary
+                listings={detail.listings}
+                storageBytes={detail.storage_bytes}
+                now={now}
+              />
+            </Section>
+
             <Section title="Usage this period">
               {detail.usage.length === 0 ? (
                 <p className="text-sm text-zinc-500">
@@ -733,6 +810,245 @@ export function AdminUserDetail({
         />
       )}
     </div>
+  );
+}
+
+// An absolute timestamp with its age beside it. `now` is null until the parent
+// mounts, and until then only the absolute date renders, so the server and
+// client agree on the markup.
+function When({
+  iso,
+  now,
+  tone = false,
+}: {
+  iso: string | null;
+  now: number | null;
+  tone?: boolean;
+}) {
+  if (!iso) return <span className="text-zinc-400">never</span>;
+  const age = now === null ? null : relativeAge(iso, now);
+  return (
+    <>
+      {formatWhen(iso)}
+      {age && (
+        <span
+          className={
+            "ml-1.5 " +
+            (tone && now !== null
+              ? STALENESS_TONE[staleness(iso, now)]
+              : "text-zinc-400")
+          }
+        >
+          ({age})
+        </span>
+      )}
+    </>
+  );
+}
+
+// The seller's Depop / Vinted accounts, each linking out to the public shop so
+// an admin can see the storefront behind a ticket in one click. A Depop row
+// with no captured username is not linkable (Depop profile URLs are keyed by
+// username, never the numeric id), so it degrades to plain text rather than a
+// dead link. See lib/admin/platform-links.ts.
+function LinkedAccounts({ accounts }: { accounts: AdminLinkedAccount[] }) {
+  if (accounts.length === 0) {
+    return (
+      <p className="text-sm text-zinc-500">
+        No marketplace accounts linked. The extension links one the first time
+        it detects a signed-in Depop or Vinted session.
+      </p>
+    );
+  }
+
+  return (
+    <ul className="space-y-2">
+      {accounts.map((a) => {
+        const href = platformProfileUrl(
+          a.platform,
+          a.platform_user_id,
+          a.platform_username,
+        );
+        return (
+          <li
+            key={a.platform}
+            className="rounded-md border border-[var(--admin-border)] px-3 py-2"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-medium text-zinc-800">
+                {platformLabel(a.platform)}
+              </span>
+              {href ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="shrink-0 rounded border border-[var(--admin-border)] px-2 py-0.5 text-xs text-zinc-600 hover:bg-zinc-100"
+                >
+                  Open shop
+                </a>
+              ) : (
+                <span className="shrink-0 text-xs text-zinc-400">
+                  No username on record
+                </span>
+              )}
+            </div>
+            <dl className="mt-1.5 grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-0.5 text-xs">
+              <Meta label="Username">
+                {a.platform_username ?? (
+                  <span className="text-zinc-400">-</span>
+                )}
+              </Meta>
+              <Meta label="Account ID">
+                <span className="font-mono break-all text-zinc-500">
+                  {a.platform_user_id}
+                </span>
+              </Meta>
+              <Meta label="Linked">{formatWhen(a.linked_at)}</Meta>
+            </dl>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+// Extension installs, freshest first (the RPC caps this at 10). Two of these
+// heartbeating at the same time is what the concurrent-device cap acts on, so
+// several live rows here is the shape account sharing takes.
+function Devices({
+  devices,
+  now,
+}: {
+  devices: AdminUserDevice[];
+  now: number | null;
+}) {
+  if (devices.length === 0) {
+    return (
+      <p className="text-sm text-zinc-500">
+        No extension installs have checked in. Rows idle for 30 days are pruned
+        automatically, so this is also what a long-dormant account looks like.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <p className="mb-2 text-xs text-zinc-500">
+        {devices.length} {devices.length === 1 ? "install" : "installs"} seen
+        recently.
+      </p>
+      <ul className="space-y-1.5">
+        {devices.map((d) => {
+          const os = platformOsLabel(d.user_agent);
+          return (
+            <li
+              key={d.device_id}
+              className="flex items-start justify-between gap-3 text-xs"
+            >
+              <span className="min-w-0">
+                <span className="text-zinc-700" title={d.user_agent ?? ""}>
+                  {browserLabel(d.user_agent)}
+                  {os && <span className="text-zinc-400"> on {os}</span>}
+                </span>
+                <span className="ml-1.5 font-mono text-zinc-400">
+                  {d.device_id.slice(0, 8)}
+                </span>
+              </span>
+              <span
+                className={
+                  "shrink-0 " +
+                  (now === null
+                    ? "text-zinc-500"
+                    : STALENESS_TONE[staleness(d.last_seen_at, now)])
+                }
+              >
+                {(now !== null && relativeAge(d.last_seen_at, now)) ||
+                  formatWhen(d.last_seen_at)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}
+
+// What the account has actually synced: how many listings, split by platform
+// and status, and when the sync last ran. A paying user with zero listings, or
+// one whose last sync is weeks old, is the case worth spotting here.
+function ListingsSummary({
+  listings,
+  storageBytes,
+  now,
+}: {
+  listings: AdminUserListings | undefined;
+  storageBytes: number | null;
+  now: number | null;
+}) {
+  const total = listings?.total ?? 0;
+  const breakdown = listings?.by_platform_status ?? [];
+
+  // Group by platform so the statuses read as one line per marketplace.
+  const byPlatform = new Map<string, { status: string; count: number }[]>();
+  for (const row of breakdown) {
+    const existing = byPlatform.get(row.platform) ?? [];
+    existing.push({ status: row.status, count: row.count });
+    byPlatform.set(row.platform, existing);
+  }
+
+  return (
+    <>
+      <dl className="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-1 text-xs">
+        <Meta label="Listings">
+          {total === 0 ? (
+            <span className="text-zinc-400">none synced</span>
+          ) : (
+            <span className="text-zinc-800">{total}</span>
+          )}
+        </Meta>
+        <Meta label="Last sync">
+          {/* Server-side write time, so it is trustworthy. The extension's own
+              last_synced_at is shown beside it only when the two disagree
+              noticeably. */}
+          <When iso={listings?.last_cloud_update_at ?? null} now={now} tone />
+        </Meta>
+        <Meta label="Extension clock">
+          <span className="text-zinc-500">
+            {formatEpochMs(listings?.last_synced_at ?? null)}
+          </span>
+        </Meta>
+        <Meta label="Storage">
+          {storageBytes === null ? (
+            <span className="text-zinc-400">nothing uploaded</span>
+          ) : (
+            formatBytes(storageBytes)
+          )}
+        </Meta>
+      </dl>
+
+      {byPlatform.size > 0 && (
+        <ul className="mt-2 space-y-1">
+          {Array.from(byPlatform.entries())
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([platform, rows]) => (
+              <li key={platform} className="flex flex-wrap items-baseline gap-2 text-xs">
+                <span className="w-14 shrink-0 capitalize text-zinc-500">
+                  {platform}
+                </span>
+                {rows
+                  .sort((a, b) => b.count - a.count)
+                  .map((r) => (
+                    <span key={r.status} className="text-zinc-700">
+                      {r.count}{" "}
+                      <span className="text-zinc-400">{r.status}</span>
+                    </span>
+                  ))}
+              </li>
+            ))}
+        </ul>
+      )}
+    </>
   );
 }
 
