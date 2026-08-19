@@ -44,7 +44,38 @@ export type PublicFeatureStatus = {
   label: string;
   marketplace: Marketplace;
   state: StatusState;
+  // Set when an admin has switched this target to manual (migration 033). The
+  // public page renders the note; `manual` drives nothing visible on its own,
+  // but keeps the distinction available rather than collapsing it here.
+  manual: boolean;
+  note: string | null;
 };
+
+export type StatusOverride = {
+  target: string;
+  state: StatusState;
+  note: string | null;
+  updated_at: string;
+};
+
+/** Overrides keyed by target, e.g. `feature:crosslist-vinted`. */
+export async function loadStatusOverrides(): Promise<Map<string, StatusOverride>> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } },
+  );
+
+  const { data, error } = await supabase.rpc('public_status_overrides');
+  // Fail soft: losing overrides falls back to automatic, which is the normal
+  // state anyway. The opposite (failing the page) would take the status page
+  // down during exactly the incident it exists to describe.
+  if (error || !data) return new Map();
+
+  return new Map(
+    (data as StatusOverride[]).map((o) => [o.target, o]),
+  );
+}
 
 type HealthRow = {
   endpoint_key: string;
@@ -87,21 +118,38 @@ async function loadPublicFeatureStatus(): Promise<PublicFeatureStatus[]> {
     { auth: { persistSession: false } },
   );
 
-  const { data, error } = await supabase.rpc('public_endpoint_health', {
-    p_window_hours: WINDOW_HOURS,
-  });
+  // Independent reads. Overrides are fetched even when telemetry fails, since a
+  // manual "down" is most likely to be set during exactly the kind of incident
+  // that might also break the telemetry read.
+  const [healthRes, overrides] = await Promise.all([
+    supabase.rpc('public_endpoint_health', { p_window_hours: WINDOW_HOURS }),
+    loadStatusOverrides(),
+  ]);
+
+  /** Manual wins wherever it exists; absence means automatic. */
+  const withOverride = (
+    feature: (typeof FEATURE_ENDPOINTS)[number],
+    automatic: StatusState,
+  ): PublicFeatureStatus => {
+    const override = overrides.get(`feature:${feature.key}`);
+    return {
+      key: feature.key,
+      label: feature.label,
+      marketplace: feature.platform,
+      state: override ? override.state : automatic,
+      manual: !!override,
+      note: override?.note ?? null,
+    };
+  };
+
+  const { data, error } = healthRes;
 
   // Fail soft to all-operational. A status page that 500s, or that flips
   // everything to "down" because our own read failed, is worse than one that
   // briefly under-reports: the failure mode here should never be a false alarm
-  // about someone else's platform.
+  // about someone else's platform. Overrides still apply.
   if (error || !data) {
-    return FEATURE_ENDPOINTS.map((f) => ({
-      key: f.key,
-      label: f.label,
-      marketplace: f.platform,
-      state: 'ok' as StatusState,
-    }));
+    return FEATURE_ENDPOINTS.map((f) => withOverride(f, 'ok'));
   }
 
   const rows = data as HealthRow[];
@@ -129,12 +177,7 @@ async function loadPublicFeatureStatus(): Promise<PublicFeatureStatus[]> {
     // multiply one user across every endpoint their feature touched.
     const installs = matched.reduce((max, r) => Math.max(max, r.installs), 0);
 
-    return {
-      key: feature.key,
-      label: feature.label,
-      marketplace: feature.platform,
-      state: stateFor(failures, totalCalls, installs),
-    };
+    return withOverride(feature, stateFor(failures, totalCalls, installs));
   });
 }
 

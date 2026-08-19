@@ -119,19 +119,29 @@ export default async function StatusPage() {
                   return (
                     <li
                       key={f.key}
-                      className="flex items-center justify-between gap-4 border-b border-black/5 py-2.5 dark:border-white/5"
+                      className="border-b border-black/5 py-2.5 dark:border-white/5"
                     >
-                      <span className="flex items-center gap-2.5 text-sm">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="flex items-center gap-2.5 text-sm">
+                          <span
+                            className={`inline-block h-2 w-2 shrink-0 rounded-full ${meta.dot}`}
+                          />
+                          {f.label}
+                        </span>
                         <span
-                          className={`inline-block h-2 w-2 shrink-0 rounded-full ${meta.dot}`}
-                        />
-                        {f.label}
-                      </span>
-                      <span
-                        className={`${MONO} shrink-0 rounded-full border px-2 py-0.5 ${meta.badge}`}
-                      >
-                        {t(`status.state.${f.state}`)}
-                      </span>
+                          className={`${MONO} shrink-0 rounded-full border px-2 py-0.5 ${meta.badge}`}
+                        >
+                          {t(`status.state.${f.state}`)}
+                        </span>
+                      </div>
+                      {/* Only set on a manual override, and the most useful
+                          thing on the page when it is: it says what we know
+                          that the numbers cannot. */}
+                      {f.note ? (
+                        <p className="mt-1.5 pl-[1.125rem] text-sm text-zinc-600 dark:text-zinc-400">
+                          {f.note}
+                        </p>
+                      ) : null}
                     </li>
                   );
                 })}

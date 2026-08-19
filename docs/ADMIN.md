@@ -302,6 +302,36 @@ which ones. Per-user debugging stays on the existing extension logs.
 Useful for support triage: when a ticket says crosslisting is broken, this page
 distinguishes "everyone" from "just them" immediately.
 
+### Manual status overrides
+
+`/admin/health` carries a **Manual status** section: every feature and both
+marketplaces, each with Auto / Operational / Degraded / Down and an optional
+public note.
+
+Everything is **automatic by default**. A row in `status_overrides` (migration
+`033_status_overrides.sql`) switches one target to manual, and manual **wins
+until cleared** - it never auto-expires. That asymmetry is deliberate: an admin
+declaring an incident usually knows something telemetry cannot see (a
+marketplace announcement, one loud user report, a fix mid-deploy), so the
+numbers must not silently overrule them. Auto-expiry was considered and
+rejected because it would un-announce a real incident at an arbitrary hour. The
+cost is a stale override lingering, which the UI addresses by showing each
+override's age.
+
+Writes go through `admin_set_status_override()` / `admin_clear_status_override()`,
+both `is_admin()`-gated and both audit-logged - this changes what the PUBLIC
+site says, which is exactly what the audit log is for. The public page reads
+`public_status_overrides()`, which omits `set_by`.
+
+Note the public page caches for 60s, so an override takes up to a minute to
+appear on `/docs/status`. Dropping that cache would expose an uncached public
+read, so the delay is stated in the UI rather than engineered away.
+
+Platform-level overrides also replaced the hardcoded table in
+`lib/docs/status.ts`, taking the Supabase migration path that file had been
+flagged for. Marketplaces have no automatic signal of their own, so they default
+to operational and a real outage is declared here.
+
 ### Feature status rollup
 
 Above the endpoint table, the page groups endpoints into the **features a user

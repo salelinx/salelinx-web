@@ -2,6 +2,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import type { AdminEndpointHealthRow } from "@/lib/types/admin";
 import type { HealthTableRow } from "@/components/admin/health/AdminHealthTable";
 import { rollUpFeatures } from "@/lib/admin/feature-status";
+import type { OverrideRow } from "@/components/admin/health/StatusOverrideControls";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 
 // Loader for the Endpoint health module. Reads admin_endpoint_health() (which
@@ -70,6 +71,7 @@ export type ReportDeliveryRow = {
 export async function loadHealthRows(windowHours = 24): Promise<{
   rows: HealthTableRow[];
   features: FeatureStatus[];
+  overrides: OverrideRow[];
   brokenCount: number;
   warnCount: number;
   totalCalls: number;
@@ -80,13 +82,18 @@ export async function loadHealthRows(windowHours = 24): Promise<{
   const supabase = await createServerClient();
 
   // Independent reads, so they resolve together.
-  const [healthRes, deliveryRes] = await Promise.all([
+  const [healthRes, deliveryRes, overrideRes] = await Promise.all([
     supabase.rpc("admin_endpoint_health", {
       p_window_hours: windowHours,
       p_baseline_hours: 168,
     }),
     supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
+    supabase.rpc("admin_list_status_overrides"),
   ]);
+
+  // Manual status set on the public page (migration 033). Empty is the normal
+  // state - a row here means someone deliberately overrode telemetry.
+  const overrides = (overrideRes.data as OverrideRow[] | null) ?? [];
 
   const { data, error } = healthRes;
   const deliveries = (deliveryRes.data as ReportDeliveryRow[] | null) ?? [];
@@ -99,6 +106,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
     return {
       rows: [],
       features: rollUpFeatures([]),
+      overrides,
       brokenCount: 0,
       warnCount: 0,
       totalCalls: 0,
@@ -133,6 +141,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
   return {
     rows,
     features: rollUpFeatures(rows),
+    overrides,
     brokenCount: rows.filter((r) => r.severity === "broken").length,
     warnCount: rows.filter((r) => r.severity === "warn").length,
     totalCalls: rows.reduce((sum, r) => sum + r.total_calls, 0),
