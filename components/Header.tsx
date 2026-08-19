@@ -4,6 +4,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MobileMenu } from '@/components/MobileMenu';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
+import { HelpMenu } from '@/components/HelpMenu';
 
 export async function Header() {
   const supabase = await createServerClient();
@@ -61,12 +62,22 @@ export async function Header() {
 
           {isAuthed ? (
             <>
-              <Link
-                href="/help"
-                className="hidden transition-colors duration-200 hover:text-black md:inline dark:hover:text-white"
-              >
-                {t('support')}
-              </Link>
+              <div className="group relative hidden md:block">
+                <Link
+                  href="/help"
+                  className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+                >
+                  {t('support')}
+                </Link>
+                <HelpMenu
+                  labels={{
+                    faq: t('navFaq'),
+                    docs: t('navDocs'),
+                    status: t('navStatus'),
+                    contact: t('supportContact'),
+                  }}
+                />
+              </div>
               <div className="group relative">
                 <Link
                   href="/account"
@@ -108,6 +119,25 @@ export async function Header() {
             </>
           ) : (
             <>
+              {/* Support is reachable signed OUT too: someone who cannot log
+                  in is exactly the person who needs it, and /help/support
+                  itself redirects to login. */}
+              <div className="group relative hidden md:block">
+                <Link
+                  href="/help"
+                  className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+                >
+                  {t('support')}
+                </Link>
+                <HelpMenu
+                  labels={{
+                    faq: t('navFaq'),
+                    docs: t('navDocs'),
+                    status: t('navStatus'),
+                    contact: t('supportContact'),
+                  }}
+                />
+              </div>
               <Link
                 href="/auth/login"
                 className="transition-colors duration-200 hover:text-black dark:hover:text-white"

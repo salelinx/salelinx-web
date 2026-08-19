@@ -19,7 +19,9 @@
     "accountSecurity": "Sécurité",
     "accountReferrals": "Parrainage",
     "accountSupport": "Tickets d'assistance",
-    "accountDanger": "Supprimer le compte"
+    "accountDanger": "Supprimer le compte",
+    "navStatus": "Statut",
+    "supportContact": "Contacter le support"
   },
   "Footer": {
     "tagline": "Vendez sur Depop et Vinted depuis un seul endroit.",
@@ -454,7 +456,17 @@
     "supportMetaTitle": "Contacter l'assistance",
     "supportMetaDescription": "Envoyez un message a l'equipe SaleLinx.",
     "supportTitle": "Contacter l'assistance",
-    "supportBody": "Envoyez-nous un message et nous repondrons par e-mail et dans votre compte."
+    "supportBody": "Envoyez-nous un message et nous repondrons par e-mail et dans votre compte.",
+    "supportSignedOutBody": "Vous pouvez nous joindre par e-mail sans compte. La connexion vous permet de suivre les reponses au meme endroit.",
+    "supportEmailHeading": "Ecrivez-nous",
+    "supportEmailBody": "Ecrivez-nous directement et nous repondrons a cette adresse. Indiquez votre nom d'utilisateur marketplace si votre question porte sur une annonce.",
+    "supportSignInHeading": "Connectez-vous pour ouvrir un ticket",
+    "supportSignInBody": "Les tickets conservent toute la conversation dans votre compte, avec une notification a chaque reponse.",
+    "supportSignInCta": "Se connecter",
+    "supportSelfServe": "De nombreuses questions trouvent deja reponse dans la",
+    "supportFaqLink": "FAQ",
+    "supportDocsLink": "documentation",
+    "supportStatusLink": "page de statut"
   },
   "Subscribe": {
     "loading": "Chargement...",

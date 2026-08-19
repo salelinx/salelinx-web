@@ -19,7 +19,9 @@
     "accountSecurity": "Security",
     "accountReferrals": "Referrals",
     "accountSupport": "Support tickets",
-    "accountDanger": "Delete account"
+    "accountDanger": "Delete account",
+    "navStatus": "Status",
+    "supportContact": "Contact support"
   },
   "Footer": {
     "tagline": "Sell across Depop and Vinted from one place.",
@@ -454,7 +456,17 @@
     "supportMetaTitle": "Contact support",
     "supportMetaDescription": "Send the SaleLinx team a message.",
     "supportTitle": "Contact support",
-    "supportBody": "Send us a message and we'll reply by email and in your account."
+    "supportBody": "Send us a message and we'll reply by email and in your account.",
+    "supportSignedOutBody": "You can reach us by email without an account. Signing in lets you track replies in one place.",
+    "supportEmailHeading": "Email us",
+    "supportEmailBody": "Write to us directly and we will reply to that address. Include your marketplace username if your question is about a listing.",
+    "supportSignInHeading": "Sign in to open a ticket",
+    "supportSignInBody": "Tickets keep the whole conversation in your account, and you get a notification when we reply.",
+    "supportSignInCta": "Sign in",
+    "supportSelfServe": "Many questions are answered already in the",
+    "supportFaqLink": "FAQ",
+    "supportDocsLink": "docs",
+    "supportStatusLink": "status page"
   },
   "Subscribe": {
     "loading": "Loading...",
