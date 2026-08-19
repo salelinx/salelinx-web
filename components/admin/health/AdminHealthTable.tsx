@@ -16,6 +16,8 @@ import type {
   HealthSeverity,
   ReportDeliveryRow,
 } from "@/lib/admin/health-data";
+import type { FeatureStatus } from "@/lib/admin/feature-status";
+import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
 
 export type HealthTableRow = {
   endpoint_key: string;
@@ -41,6 +43,7 @@ type Props = {
   windowLabel: string;
   deliveries: ReportDeliveryRow[];
   lastReportAt: string | null;
+  features: FeatureStatus[];
 };
 
 type Filter = "all" | "problems" | "vinted" | "depop";
@@ -78,6 +81,7 @@ export function AdminHealthTable({
   windowLabel,
   deliveries,
   lastReportAt,
+  features,
 }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -174,24 +178,31 @@ export function AdminHealthTable({
         </div>
       )}
 
-      <div className="flex shrink-0 gap-1 px-4 py-2">
-        {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFilter(f)}
-            className={
-              filter === f
-                ? "rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white"
-                : "rounded-md px-2.5 py-1 text-xs text-zinc-600 hover:bg-zinc-100"
-            }
-          >
-            {FILTER_LABEL[f]}
-          </button>
-        ))}
-      </div>
-
+      {/* One scroll region for the rollup and the table together: features are
+          what a user would notice, endpoints are only how we measure, so the
+          rollup reads as a header for the detail rather than a separate pane.
+          Two nested scrollers here would trap the wheel in whichever one the
+          cursor happened to be over. */}
       <div className="min-h-0 flex-1 overflow-auto">
+        {reporting && <FeatureStatusGrid features={features} />}
+
+        <div className="flex gap-1 px-4 py-2">
+          {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFilter(f)}
+              className={
+                filter === f
+                  ? "rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white"
+                  : "rounded-md px-2.5 py-1 text-xs text-zinc-600 hover:bg-zinc-100"
+              }
+            >
+              {FILTER_LABEL[f]}
+            </button>
+          ))}
+        </div>
+
         {!reporting ? (
           <div className="px-4 py-8 text-sm text-zinc-500">
             <p className="font-medium text-zinc-700">

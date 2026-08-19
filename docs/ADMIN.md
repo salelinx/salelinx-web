@@ -302,6 +302,31 @@ which ones. Per-user debugging stays on the existing extension logs.
 Useful for support triage: when a ticket says crosslisting is broken, this page
 distinguishes "everyone" from "just them" immediately.
 
+### Feature status rollup
+
+Above the endpoint table, the page groups endpoints into the **features a user
+would actually name** (Crosslist, Relist, Refresh, Shipping labels, Messages,
+Offers, Follow, Auto-markdown, Restocker, My listings, Feedback bot, Account
+linking). Telemetry is keyed by endpoint because that is all the fetch wrappers
+can see, so the inverse mapping lives in `lib/admin/feature-endpoints.ts`.
+
+Two rules matter for reading it:
+
+- **A feature is as healthy as its WORST endpoint**, never an average. A
+  crosslist that uploads photos fine but cannot create the draft is broken, and
+  averaging would hide that behind the healthy majority.
+- **"No data" is its own state, never green.** A feature broken badly enough
+  that nobody can use it has zero traffic, which is indistinguishable from a
+  feature nobody happened to touch. Cards also show `n/m endpoints seen` so a
+  green card backed by one of ten endpoints does not read as a full all-clear.
+
+The map is hand-maintained, and its failure mode is silent: a typo means that
+feature reports "no data" forever while looking like a quiet period.
+`scripts/check-feature-endpoints.mjs` runs from `prebuild`/`predev` and fails the
+build on a pattern that could never match a real key (query strings, platform
+prefixes, literal ids, wrong method/path shape). Add to the map when a feature
+starts calling a new endpoint.
+
 ## Two kinds of usage counter
 
 `usage_counters` holds two things that look alike and are not. Both are written

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/build-docs-index.mjs",
+    "predev": "node scripts/build-docs-index.mjs && node scripts/check-feature-endpoints.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/build-docs-index.mjs",
+    "prebuild": "node scripts/build-docs-index.mjs && node scripts/check-feature-endpoints.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
