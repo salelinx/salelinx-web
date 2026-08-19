@@ -144,3 +144,23 @@ export type AdminAuditRow = {
   metadata: Record<string, unknown>;
   created_at: string;
 };
+
+// Row from admin_endpoint_health() (migration 030_endpoint_health.sql): one
+// marketplace endpoint's call outcomes over the recent window, aggregated
+// across all reporting installs. Anonymous by construction - endpoint_health
+// carries no user_id, so there is no per-user drill-down here by design.
+export type AdminEndpointHealthRow = {
+  endpoint_key: string;
+  platform: string;
+  total_calls: number;
+  failures: number;
+  // Percent, one decimal. Null when total_calls is 0 (division guarded in SQL).
+  failure_rate: number | null;
+  // Same rate over the preceding baseline window, excluding the recent window.
+  // Null when the endpoint has no history yet (new endpoint, or first days of
+  // telemetry) - the UI must treat that as "no baseline", not as zero.
+  baseline_rate: number | null;
+  installs: number;
+  top_status: number | null;
+  last_seen: string;
+};

@@ -15,7 +15,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. **Deployed but not yet wired up: no extension build calls it.** The intent is to move the mapping tables (~116KB) out of the extension bundle, where anyone who installed it can unzip the .crx and lift them, and to make this the one crosslist entitlement check the user cannot patch around (a crosslist cannot produce a category without it). Neither benefit is realized yet: the extension still ships and reads its own copies in `src/data/category-maps-*.ts`, and this function is dead weight until that changes. See "Wiring up resolve-category" below.
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 
-## The twelve functions
+## The fourteen functions
 
 | Function                  | `verify_jwt` | Purpose                                                                                                  |
 | ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -31,6 +31,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `resolve-category`        | false*       | Intended: extension POSTs category lookups; auth by `getUser(jwt)` + crosslist tier gate + monthly cap. **No caller yet** |
 | `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
+| `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in migration 009) and `admin_users` membership via the service role.
 
@@ -310,6 +311,51 @@ Recipient receives the labels in their inbox
 The function lives in this repo (not the extension) because all Edge Functions deploy from a single workspace; the extension just calls the URL. It deploys with `--no-verify-jwt` for the same ES256 reason as the authed Stripe functions.
 
 Abuse posture: this function sends from our verified Resend domain to a recipient the caller chooses (users legitimately email labels to print shops or co-workers), so everything else is locked down. Subject and body are fixed server-side (no caller overrides), the attachment must actually be a PDF, the feature is gated to tiers with `shipping_label_email`, and sends are capped per user per day. Do not reintroduce subject/body overrides or drop the tier gate.
+
+## Report telemetry (endpoint health)
+
+`report-telemetry` receives batched, anonymous endpoint-health counters from the
+extension. Roughly one request per install per day, each carrying a few dozen
+counter rows, so this is a low-volume endpoint.
+
+Request body:
+
+```json
+{
+  "entries": [
+    {
+      "endpoint_key": "vinted:POST /api/v2/item_upload/drafts",
+      "platform": "vinted",
+      "outcome": "client_error",
+      "status_code": 422,
+      "count": 11,
+      "extension_version": "1.1.0",
+      "bucket_hour": "2026-08-18T14:00:00.000Z"
+    }
+  ]
+}
+```
+
+The handler validates the caller's JWT with `getUser(jwt)` and then **discards
+the identity** - it exists to stop anonymous spam, not to attribute data. It
+forwards the batch to the `record_endpoint_health(jsonb)` RPC using the service
+role. That RPC re-validates every field and silently drops malformed entries
+rather than failing the batch, so one bad row from an old build cannot cost us
+the good rows reported alongside it.
+
+Caps: 500 entries per batch, 256KB body, 100,000 per individual counter. The
+per-counter cap matters - without it a single client could claim millions of
+calls and dominate the cross-user aggregate on its own.
+
+There are no new secrets: it uses `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
+`SUPABASE_SERVICE_ROLE_KEY`, which are already set.
+
+```bash
+supabase functions deploy report-telemetry --no-verify-jwt
+```
+
+Read side: `/admin/health` (see `docs/ADMIN.md`). Privacy rationale and the
+"never add a user_id" rule: `docs/GDPR.md`.
 
 ## Wiring up resolve-category
 

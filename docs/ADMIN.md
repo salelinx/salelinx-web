@@ -14,6 +14,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Extension usage | `/admin/usage` | Live, read-only | Product metering for the current period (crosslist, relist, refresh, follow, unfollow), measured against the user's `tier_limits` caps. Sorted by percent-of-cap. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for the current period (checkout / portal sessions, deletion requests, label emails, email changes), measured against the hardcoded per-day cap in the calling code. |
+| Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `030_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
@@ -262,6 +263,44 @@ Still outstanding if the base grows:
   is `LIMIT`/`OFFSET` on the RPCs, which also means moving search and filtering
   server-side: doing one without the other would silently reduce filters to
   searching only the current page.
+
+## Endpoint health telemetry
+
+`/admin/health` answers one question: has a marketplace shipped a change that
+broke us?
+
+**Why it is passive.** Every Vinted / Depop endpoint the extension calls needs a
+live logged-in browser session: a CSRF token captured by the webRequest
+listener, session cookies, requests routed through the MAIN-world content-script
+bridge, a real open tab, and clearance past DataDome. No server-side probe can
+reach any of it - `vintedFetch` throws `NO_VINTED_TAB` before a request is even
+attempted. A cron curling those URLs would fail every run and tell us nothing,
+while training DataDome to treat our infrastructure as hostile.
+
+So the users' own calls are the probe. The extension wraps its two fetch
+chokepoints (`vintedFetch`, `depopFetch` - all ~150 marketplace call sites go
+through them), counts outcomes locally, and reports once a day.
+
+**Reading the table.** Compare the failure rate against the BASELINE column, not
+against an absolute number: endpoints differ hugely in their normal error rate.
+`severityFor()` in `lib/admin/health-data.ts` marks an endpoint broken when it is
+3x its own baseline, at least 20% absolute, and backed by at least 5 distinct
+install reports. That last floor is what stops one user stuck in a CAPTCHA loop
+from lighting up the dashboard.
+
+**Outcome buckets.** Only `client_error` (400/422), `server_error` (5xx) and
+`network` count as failures. `auth`, `blocked` (DataDome) and `no_tab` are
+conditions of the user's own session and are deliberately excluded - counting
+them would make ordinary anti-bot pressure indistinguishable from a real
+breakage. A spike of 422s is the schema-drift signal worth acting on.
+
+**No per-user drill-down, by design.** `endpoint_health` has no `user_id`
+column, which is what keeps it non-personal (see `docs/GDPR.md`). The trade is
+deliberate: the dashboard can say "412 installs are failing this endpoint", never
+which ones. Per-user debugging stays on the existing extension logs.
+
+Useful for support triage: when a ticket says crosslisting is broken, this page
+distinguishes "everyone" from "just them" immediately.
 
 ## Two kinds of usage counter
 
