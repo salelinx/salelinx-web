@@ -1,5 +1,7 @@
 import { loadHealthRows } from "@/lib/admin/health-data";
 import { AdminHealthTable } from "@/components/admin/health/AdminHealthTable";
+import { SelfTestRuns } from "@/components/admin/health/SelfTestRuns";
+import { loadSelfTestRuns } from "@/lib/admin/selftest-data";
 
 // /admin/health - marketplace endpoint health, aggregated from passive
 // extension telemetry (migration 030_endpoint_health.sql).
@@ -33,6 +35,10 @@ export default async function AdminHealthPage() {
     crashes,
   } = await loadHealthRows(24);
 
+  // Independent of the telemetry read: a self-test history is useful even when
+  // no passive telemetry has arrived, and vice versa.
+  const selfTestRuns = await loadSelfTestRuns(10);
+
   return (
     <AdminHealthTable
       rows={rows}
@@ -46,6 +52,14 @@ export default async function AdminHealthPage() {
       features={features}
       overrides={overrides}
       crashes={crashes}
+      selfTestSummary={
+        selfTestRuns.length === 0
+          ? "none yet"
+          : selfTestRuns[0].failed > 0
+            ? `${selfTestRuns[0].failed} failed in last run`
+            : "last run clean"
+      }
+      selfTestRuns={<SelfTestRuns runs={selfTestRuns} />}
     />
   );
 }
