@@ -15,6 +15,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Extension usage | `/admin/usage` | Live, read-only | Product metering for the current period (crosslist, relist, refresh, follow, unfollow), measured against the user's `tier_limits` caps. Sorted by percent-of-cap. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for the current period (checkout / portal sessions, deletion requests, label emails, email changes), measured against the hardcoded per-day cap in the calling code. |
 | Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `030_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
+| Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `034_endpoint_selftest.sql`). Runs are started in the extension panel, not here. See "Endpoint self-test" below. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
@@ -482,3 +483,89 @@ Implemented (was `TODO(admin-mfa)`). Every admin surface requires an AAL2 sessio
 - `docs/SUPPORT.md` - the support ticket lifecycle and the email/notification flow
 - `docs/ARCHITECTURE.md` - the two-repo / one-Supabase picture
 - `docs/ENTITLEMENTS.md` - `tier_limits` / `usage_counters` (candidate future modules)
+
+## Endpoint self-test
+
+Passive telemetry answers *"did something break overnight?"*. It covers every
+endpoint but only sees what users happen to do, and needs enough traffic to be
+conclusive. The self-test answers the complementary question, *"is it fixed
+right now?"*, by having an admin drive the endpoints on demand from their own
+logged-in browser session.
+
+Runs are started **in the extension panel** (admin only), not here. This page
+shows the history, under a collapsed "Self-test runs" section.
+
+### What a run covers
+
+48 endpoints, classified in `src/utils/telemetry/selftest-endpoints.ts` in the
+extension repo:
+
+| Kind | Count | Run automatically? |
+|---|---|---|
+| `read` | 35 | yes |
+| `spine` | 4 | yes - reversible writes |
+| `throwaway` | 4 | opt-in only |
+| `terminal` | 5 | never |
+
+**Spine** is the shared write machinery: upload a photo, create a draft, delete
+it. The draft is never completed, so nothing is ever visible to a buyer. Because
+crosslist, relist, restocker and CSV import all run on the same spine,
+exercising it once covers the write path of all four.
+
+**Throwaway** creates a junk listing and destroys it. On Vinted the item is
+briefly **published and buyer-visible**, because `POST /items/:id/delete` only
+accepts published items - drafts use a different route. Runs that included it
+are flagged in the table, since it changes what the numbers cost.
+
+**Terminal** endpoints are the commit step, where testing and doing are the same
+call: accepting a real buyer's offer, following a real user, editing a real
+price, creating a real discount. These are never run and are recorded as
+`not_run`, so a green run cannot be misread as full coverage.
+
+### Reading the results
+
+- **Failed** means the endpoint itself is broken: `client_error`,
+  `server_error`, `network`.
+- **Skipped** is not a warning. It means a dependency could not be resolved (the
+  account has no listings, no sold order for a shipment id) or the endpoint is
+  deliberately excluded. Silence about an endpoint we could not reach is not
+  evidence it is broken.
+- `auth`, `blocked` and `no_tab` count as skipped, not failed - same reasoning
+  as passive telemetry, where treating DataDome pressure as an outage is the
+  fastest way to make the whole system untrustworthy.
+
+A green run means *the endpoints responded*, never *the feature works*. A 200
+from the drafts endpoint says our payload shape is still accepted; it says
+nothing about whether the resulting listing is correct. That is why results are
+per endpoint and are never rolled up into a feature verdict.
+
+### Why runs are per marketplace
+
+Each platform needs its own live logged-in tab, so a combined run would report a
+wall of `no_tab` results for whichever side is not open - noise that says
+nothing about endpoint health. Splitting them also keeps the risk decision
+separate, since the throwaway tier is buyer-visible on Vinted but not on Depop.
+
+### Storage and privacy
+
+Results live in `endpoint_selftest_runs` / `endpoint_selftest_results`
+(migration `034_endpoint_selftest.sql`), **separate from `endpoint_health`**.
+That table is deliberately anonymous, which is what keeps it out of GDPR scope;
+a self-test row is inherently "admin X ran this at time T" and the attribution
+is the point. So these carry `run_by`, cascade on account deletion, and have a
+ROPA entry (`docs/GDPR.md`). Retention is 180 days.
+
+Self-test traffic is also **excluded from `endpoint_health` at source** - the
+extension suppresses counting for the duration of a run. Without that, a run
+that deliberately probes a broken endpoint would inject failures into the
+aggregates behind the public status page, making `/docs/status` look worse
+during exactly the incident being investigated.
+
+### Authorisation
+
+The extension's `isCurrentUserAdmin()` is a bare `admin_users` lookup on the
+client, so it does **not** inherit the AAL2/MFA requirement. That is deliberate
+- the extension has no TOTP flow - which is why the real boundary is
+server-side: `report-selftest` re-checks membership with the service role
+against the id from the verified JWT, and it is write-only. Reading these rows
+still requires AAL2, via `admin_selftest_runs()` / `admin_selftest_results()`.
