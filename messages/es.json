@@ -818,13 +818,6 @@
         "degraded": "Degradado",
         "down": "Caído"
       },
-      "card": {
-        "eyebrow": "Estado",
-        "allOk": "Todas las marketplaces operativas",
-        "someDegraded": "Algunas marketplaces degradadas",
-        "someDown": "Una o más marketplaces caídas",
-        "body": "Vista en vivo de las marketplaces en las que SaleLinx publica actualmente."
-      },
       "featuresHeading": "Funciones de la extension",
       "featuresBody": "Vista en vivo de las funciones de la extension SaleLinx, por marketplace. Se actualiza automaticamente.",
       "selfHelpHeading": "Todo parece operativo, pero no me funciona",

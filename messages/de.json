@@ -818,13 +818,6 @@
         "degraded": "Eingeschränkt",
         "down": "Ausfall"
       },
-      "card": {
-        "eyebrow": "Status",
-        "allOk": "Alle Marktplätze betriebsbereit",
-        "someDegraded": "Einige Marktplätze eingeschränkt",
-        "someDown": "Ein oder mehrere Marktplätze ausgefallen",
-        "body": "Live-Ansicht der Marktplätze, auf denen SaleLinx derzeit veröffentlicht."
-      },
       "featuresHeading": "Erweiterungsfunktionen",
       "featuresBody": "Live-Ansicht der SaleLinx-Funktionen, nach Marktplatz gruppiert. Wird automatisch aktualisiert.",
       "selfHelpHeading": "Alles wirkt betriebsbereit, aber bei mir geht es nicht",

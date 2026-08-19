@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Breadcrumbs } from "@/components/docs/Breadcrumbs";
 import {
   MARKETPLACE_LABELS,
   STATE_META,
@@ -61,13 +60,11 @@ export default async function StatusPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-12">
-      <Breadcrumbs
-        trail={[
-          { label: t("breadcrumbDocs"), href: "/docs" },
-          { label: t("status.breadcrumb") },
-        ]}
-      />
-      <header className="mt-8">
+      {/* No breadcrumb: this page sits under /docs/status for URL-history
+          reasons, but it is not a docs article. A "Docs > Status" trail
+          offered to send someone reading an outage notice back to the
+          walkthroughs, which is not where they were headed. */}
+      <header>
         <span className={`${MONO} text-zinc-500`}>{t("status.eyebrow")}</span>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
           {t("status.title")}

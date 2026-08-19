@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DocsSearch } from '@/components/docs/DocsSearch';
 import { TaskPill } from '@/components/docs/TaskPill';
 import { CategoryCard } from '@/components/docs/CategoryCard';
-import { StatusCard } from '@/components/docs/StatusCard';
 import { MarketplaceLogoRow } from '@/components/docs/MarketplaceLogoRow';
 import { WhatsNewStrip } from '@/components/docs/WhatsNewStrip';
 import { DocsFAQLink } from '@/components/docs/DocsFAQLink';
@@ -103,10 +102,6 @@ export default async function DocsHomePage({
           </h2>
         </div>
         <MarketplaceLogoRow />
-      </section>
-
-      <section className="border-t border-black/10 py-16 dark:border-white/10">
-        <StatusCard />
       </section>
 
       <section className="border-t border-black/10 py-16 dark:border-white/10">
