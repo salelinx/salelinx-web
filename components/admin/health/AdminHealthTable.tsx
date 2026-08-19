@@ -18,6 +18,7 @@ import type {
 } from "@/lib/admin/health-data";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
+import { AdminSection } from "@/components/admin/AdminSection";
 import {
   StatusOverrideControls,
   type OverrideRow,
@@ -190,10 +191,43 @@ export function AdminHealthTable({
           Two nested scrollers here would trap the wheel in whichever one the
           cursor happened to be over. */}
       <div className="min-h-0 flex-1 overflow-auto">
-        {reporting && <FeatureStatusGrid features={features} />}
+        {reporting && (
+          <AdminSection
+            storageKey="health-features"
+            title="Feature status"
+            summary={
+              brokenCount > 0
+                ? `${brokenCount} broken`
+                : warnCount > 0
+                  ? `${warnCount} degraded`
+                  : "All operational"
+            }
+          >
+            <FeatureStatusGrid features={features} />
+          </AdminSection>
+        )}
 
-        <StatusOverrideControls features={features} overrides={overrides} />
+        {/* Closed by default: this is an incident tool, not something you read
+            on the way past, and an open row of controls above the data invites
+            mis-clicks on a page you visit to LOOK at things. */}
+        <AdminSection
+          storageKey="health-overrides"
+          title="Manual status"
+          defaultOpen={false}
+          summary={
+            overrides.length === 0
+              ? "All automatic"
+              : `${overrides.length} manually set`
+          }
+        >
+          <StatusOverrideControls features={features} overrides={overrides} />
+        </AdminSection>
 
+        <AdminSection
+          storageKey="health-endpoints"
+          title="Endpoints"
+          summary={`${rows.length} seen`}
+        >
         <div className="flex gap-1 px-4 py-2">
           {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
             <button
@@ -304,6 +338,7 @@ export function AdminHealthTable({
             </tbody>
           </table>
         )}
+        </AdminSection>
       </div>
 
       <AdminTableFooter
