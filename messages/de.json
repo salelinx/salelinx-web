@@ -19,7 +19,9 @@
     "accountSecurity": "Sicherheit",
     "accountReferrals": "Empfehlungen",
     "accountSupport": "Support-Tickets",
-    "accountDanger": "Konto löschen"
+    "accountDanger": "Konto löschen",
+    "navStatus": "Status",
+    "supportContact": "Support kontaktieren"
   },
   "Footer": {
     "tagline": "Verkaufe auf Depop und Vinted von einem Ort aus.",
@@ -33,7 +35,7 @@
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
-    "linkStatus": "Marktplatz-Status",
+    "linkStatus": "Status",
     "linkPrivacy": "Datenschutz",
     "linkTerms": "Nutzungsbedingungen",
     "linkDpa": "Auftragsverarbeitungsvertrag",
@@ -449,12 +451,22 @@
     "faqCardBody": "Schnelle Antworten auf häufige Fragen zu Einrichtung, Abrechnung und Fehlerbehebung.",
     "docsCardTitle": "Dokumentation",
     "docsCardBody": "Schritt-für-Schritt-Anleitungen für jede SaleLinx-Funktion.",
-    "statusCardTitle": "Marktplatz-Status",
-    "statusCardBody": "Prüfe, welche Marktplätze derzeit unterstützt werden und funktionieren.",
+    "statusCardTitle": "Status",
+    "statusCardBody": "Live-Status der Marktplatze und der Erweiterungsfunktionen, die darauf zugreifen.",
     "supportMetaTitle": "Support kontaktieren",
     "supportMetaDescription": "Sende dem SaleLinx-Team eine Nachricht.",
     "supportTitle": "Support kontaktieren",
-    "supportBody": "Sende uns eine Nachricht und wir antworten per E-Mail und in deinem Konto."
+    "supportBody": "Sende uns eine Nachricht und wir antworten per E-Mail und in deinem Konto.",
+    "supportSignedOutBody": "Sie erreichen uns auch ohne Konto per E-Mail. Mit einem Konto verfolgen Sie Antworten an einer Stelle.",
+    "supportEmailHeading": "Schreiben Sie uns",
+    "supportEmailBody": "Schreiben Sie uns direkt, wir antworten an diese Adresse. Nennen Sie Ihren Marktplatz-Benutzernamen, wenn es um ein Angebot geht.",
+    "supportSignInHeading": "Anmelden, um ein Ticket zu offnen",
+    "supportSignInBody": "Tickets bewahren das ganze Gesprach in Ihrem Konto, mit Benachrichtigung bei jeder Antwort.",
+    "supportSignInCta": "Anmelden",
+    "supportSelfServe": "Viele Fragen sind bereits beantwortet in den",
+    "supportFaqLink": "FAQ",
+    "supportDocsLink": "Anleitungen",
+    "supportStatusLink": "Statusseite"
   },
   "Subscribe": {
     "loading": "Wird geladen...",
@@ -793,26 +805,40 @@
       "next": "Weiter"
     },
     "status": {
-      "metaTitle": "Marktplatz-Status",
-      "metaDescription": "Live-Ansicht der Marktplätze, auf denen SaleLinx derzeit crosslistet.",
+      "metaTitle": "Status",
+      "metaDescription": "Live-Status der SaleLinx-Erweiterung und der verbundenen Marktplatze.",
       "eyebrow": "Status",
-      "title": "Marktplatz-Status",
+      "title": "SaleLinx-Status",
       "body": "Welche Marktplätze SaleLinx derzeit crosslisten kann. Wenn du Fehler siehst und ein Marktplatz hier markiert ist, arbeitet das Team bereits daran.",
       "updatedPrefix": "Aktualisiert am {date}",
-      "footnote": "Der Status wird vom SaleLinx-Team geprüft und aktualisiert, wenn bekannt ist, dass das Veröffentlichungsverhalten der Erweiterung durch eine Marktplatz-Änderung beeinträchtigt ist.",
-      "breadcrumb": "Marktplatz-Status",
+      "footnote": "Der Marktplatz-Status wird vom SaleLinx-Team gesetzt. Der Funktionsstatus aktualisiert sich automatisch, sofern das Team ihn nicht wahrend eines Vorfalls manuell gesetzt hat.",
+      "breadcrumb": "Status",
       "state": {
         "ok": "Betriebsbereit",
         "degraded": "Eingeschränkt",
         "down": "Ausfall"
       },
       "card": {
-        "eyebrow": "Marktplatz-Status",
+        "eyebrow": "Status",
         "allOk": "Alle Marktplätze betriebsbereit",
         "someDegraded": "Einige Marktplätze eingeschränkt",
         "someDown": "Ein oder mehrere Marktplätze ausgefallen",
         "body": "Live-Ansicht der Marktplätze, auf denen SaleLinx derzeit veröffentlicht."
-      }
+      },
+      "featuresHeading": "Erweiterungsfunktionen",
+      "featuresBody": "Live-Ansicht der SaleLinx-Funktionen, nach Marktplatz gruppiert. Wird automatisch aktualisiert.",
+      "selfHelpHeading": "Alles wirkt betriebsbereit, aber bei mir geht es nicht",
+      "selfHelpBody": "Dieser Status zeigt Probleme, die viele Verkaufer gleichzeitig betreffen. Ein Problem nur in Ihrem Konto hat meist eine dieser Ursachen:",
+      "selfHelpCaptcha": "Der Marktplatz zeigt ein CAPTCHA oder hat Ihre Sitzung vorubergehend eingeschrankt. Offnen Sie den Marktplatz in einem Tab, losen Sie die Prufung und versuchen Sie es erneut.",
+      "selfHelpLogin": "Ihre Marktplatz-Anmeldung ist abgelaufen. Melden Sie sich bei Depop oder Vinted in einem normalen Tab erneut an.",
+      "selfHelpTab": "Es ist kein Marktplatz-Tab geoffnet. SaleLinx arbeitet uber einen angemeldeten Tab, lassen Sie einen geoffnet.",
+      "selfHelpContact": "Immer noch blockiert? Kontaktieren Sie den Support.",
+      "inferredNote": "Der Status wird aus anonymen, aggregierten Nutzungsdaten abgeleitet. Es ist kein offizieller Kanal von Depop oder Vinted, und eine Funktion mit wenig Nutzung kann als betriebsbereit erscheinen.",
+      "featureColumn": "Funktion",
+      "notAvailable": "Nicht verfugbar",
+      "intro": "Live-Status der Marktplatze, mit denen SaleLinx arbeitet, und der Erweiterungsfunktionen.",
+      "marketplacesHeading": "Marktplatze",
+      "marketplacesBody": "Ob jeder Marktplatz erreichbar ist und normal funktioniert."
     },
     "changelog": {
       "metaTitle": "Changelog",

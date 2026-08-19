@@ -18,6 +18,10 @@ import type {
 } from "@/lib/admin/health-data";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
+import {
+  StatusOverrideControls,
+  type OverrideRow,
+} from "@/components/admin/health/StatusOverrideControls";
 
 export type HealthTableRow = {
   endpoint_key: string;
@@ -44,6 +48,7 @@ type Props = {
   deliveries: ReportDeliveryRow[];
   lastReportAt: string | null;
   features: FeatureStatus[];
+  overrides: OverrideRow[];
 };
 
 type Filter = "all" | "problems" | "vinted" | "depop";
@@ -82,6 +87,7 @@ export function AdminHealthTable({
   deliveries,
   lastReportAt,
   features,
+  overrides,
 }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -185,6 +191,8 @@ export function AdminHealthTable({
           cursor happened to be over. */}
       <div className="min-h-0 flex-1 overflow-auto">
         {reporting && <FeatureStatusGrid features={features} />}
+
+        <StatusOverrideControls features={features} overrides={overrides} />
 
         <div className="flex gap-1 px-4 py-2">
           {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (

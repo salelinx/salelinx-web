@@ -114,12 +114,21 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     endpoints: ["GET /api/v1/shipping/label/:id/", "GET /api/v1/receipts/"],
   },
 
-  // ── Messages (Vinted only) ─────────────────────────────────────────────────
+  // ── Messages ───────────────────────────────────────────────────────────────
   {
     key: "messages-vinted",
     label: "Messages",
     platform: "vinted",
     endpoints: ["GET /api/v2/inbox", "GET /api/v2/conversations/:id"],
+  },
+  {
+    key: "messages-depop",
+    label: "Messages",
+    platform: "depop",
+    endpoints: [
+      "GET /presentation/api/v1/conversations/",
+      "GET /presentation/api/v1/conversations/:id/messages/",
+    ],
   },
 
   // ── Offers ─────────────────────────────────────────────────────────────────
@@ -156,12 +165,21 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     ],
   },
 
-  // ── Auto-markdown (Depop only: Vinted has no discounts endpoint) ───────────
+  // ── Auto-markdown ──────────────────────────────────────────────────────────
+  // Two different mechanisms for the same user-facing feature: Depop has a
+  // discounts endpoint, Vinted has none, so a markdown there is a price edit
+  // through the normal item-update path (quickEditVinted).
   {
     key: "auto-markdown-depop",
     label: "Auto-markdown",
     platform: "depop",
     endpoints: ["POST /api/v2/discounts/", "GET /api/v2/discounts/"],
+  },
+  {
+    key: "auto-markdown-vinted",
+    label: "Auto-markdown",
+    platform: "vinted",
+    endpoints: ["GET /api/v2/item_upload/items/:id"],
   },
 
   // ── Restocker ──────────────────────────────────────────────────────────────
