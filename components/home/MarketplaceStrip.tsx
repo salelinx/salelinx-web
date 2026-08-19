@@ -43,11 +43,13 @@ export async function MarketplaceStrip() {
                     aria-label={`${MARKETPLACE_LABELS[s.marketplace]}: ${tStatus(`state.${s.state}`)}`}
                     className="group inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-5 py-2.5 backdrop-blur transition hover:border-black/25 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/25"
                   >
-                    <BrandWordmark
-                      brand={s.marketplace as Brand}
-                      variant="wordmark"
-                      height="1.05em"
-                    />
+                    <span className="grayscale opacity-70 transition group-hover:opacity-100 group-hover:grayscale-0">
+                      <BrandWordmark
+                        brand={s.marketplace as Brand}
+                        variant="wordmark"
+                        height="1.05em"
+                      />
+                    </span>
                     <span className="inline-flex items-center gap-1.5">
                       <span
                         className={`inline-block h-1.5 w-1.5 rounded-full ${meta.dot}`}

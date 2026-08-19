@@ -17,6 +17,9 @@ const HERO_BRAND_TAGS = {
   vinted: () => (
     <BrandWordmark brand="vinted" variant="wordmark" height="1em" className="mx-[0.06em]" />
   ),
+  accent: (chunks: React.ReactNode) => (
+    <span className="text-emerald-600 dark:text-emerald-400">{chunks}</span>
+  ),
 };
 
 const EYEBROW_BRAND_TAGS = {
@@ -45,13 +48,13 @@ export async function Hero() {
         </Reveal>
 
         <Reveal delay={120}>
-          <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-medium leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
+          <h1 className="mt-7 max-w-4xl text-balance text-[2.75rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-zinc-950 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
             {t.rich('heroTitle', HERO_BRAND_TAGS)}
           </h1>
         </Reveal>
 
         <Reveal delay={220}>
-          <p className="mt-6 max-w-xl text-balance text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-400">
+          <p className="mt-6 max-w-2xl text-balance text-lg font-medium leading-relaxed text-zinc-700 sm:text-xl dark:text-zinc-300">
             {t.rich('heroSubtitle', {
               word: () => <RollingPhrase words={t.raw('heroWords') as string[]} />,
             })}
@@ -62,7 +65,7 @@ export async function Hero() {
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/auth/signup"
-              className="group relative inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_10px_30px_-12px_rgba(0,0,0,0.45)] transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+              className="group relative inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-7 py-3.5 text-base font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_14px_36px_-14px_rgba(5,150,105,0.6)] transition hover:bg-emerald-500"
             >
               {t('ctaGetStarted')}
               <svg
@@ -84,13 +87,13 @@ export async function Hero() {
             </Link>
             <Link
               href="/features#pricing"
-              className="inline-flex items-center rounded-full border border-black/10 bg-white/60 px-5 py-2.5 text-sm font-medium text-zinc-900 backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:bg-white/[0.08]"
+              className="inline-flex items-center rounded-2xl border border-black/10 bg-white/60 px-6 py-3.5 text-base font-medium text-zinc-900 backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:bg-white/[0.08]"
             >
               {t('ctaSeePricing')}
             </Link>
             <InstallExtensionButton
               label={t('ctaAddToChrome')}
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-emerald-500/30 bg-emerald-500/[0.08] px-5 py-2.5 text-sm font-medium text-emerald-700 backdrop-blur transition hover:bg-emerald-500/[0.14] dark:border-emerald-400/30 dark:bg-emerald-400/[0.08] dark:text-emerald-200 dark:hover:bg-emerald-400/[0.14]"
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.08] px-6 py-3.5 text-base font-medium text-emerald-700 backdrop-blur transition hover:bg-emerald-500/[0.14] dark:border-emerald-400/30 dark:bg-emerald-400/[0.08] dark:text-emerald-200 dark:hover:bg-emerald-400/[0.14]"
             />
           </div>
         </Reveal>
