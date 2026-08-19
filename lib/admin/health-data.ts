@@ -1,6 +1,8 @@
 import { createServerClient } from "@/lib/supabase/server";
 import type { AdminEndpointHealthRow } from "@/lib/types/admin";
 import type { HealthTableRow } from "@/components/admin/health/AdminHealthTable";
+import { rollUpFeatures } from "@/lib/admin/feature-status";
+import type { FeatureStatus } from "@/lib/admin/feature-status";
 
 // Loader for the Endpoint health module. Reads admin_endpoint_health() (which
 // re-checks is_admin() itself) and turns raw counters into the severity the
@@ -67,6 +69,7 @@ export type ReportDeliveryRow = {
 
 export async function loadHealthRows(windowHours = 24): Promise<{
   rows: HealthTableRow[];
+  features: FeatureStatus[];
   brokenCount: number;
   warnCount: number;
   totalCalls: number;
@@ -95,6 +98,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
     // and this page is the thing you open WHEN something is wrong.
     return {
       rows: [],
+      features: rollUpFeatures([]),
       brokenCount: 0,
       warnCount: 0,
       totalCalls: 0,
@@ -128,6 +132,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
 
   return {
     rows,
+    features: rollUpFeatures(rows),
     brokenCount: rows.filter((r) => r.severity === "broken").length,
     warnCount: rows.filter((r) => r.severity === "warn").length,
     totalCalls: rows.reduce((sum, r) => sum + r.total_calls, 0),
