@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import {
   MARKETPLACE_LABELS,
   STATE_META,
   getMarketplaceStatus,
 } from '@/lib/docs/status';
+import { getPublicFeatureStatus } from '@/lib/docs/feature-status';
 import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
@@ -27,7 +29,12 @@ export async function generateMetadata({
 
 export default async function StatusPage() {
   const t = await getTranslations('Docs');
-  const statuses = await getMarketplaceStatus();
+  // Independent reads: the hand-maintained marketplace state and the
+  // telemetry-derived feature state do not depend on each other.
+  const [statuses, features] = await Promise.all([
+    getMarketplaceStatus(),
+    getPublicFeatureStatus(),
+  ]);
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-12">
@@ -86,9 +93,101 @@ export default async function StatusPage() {
         })}
       </ul>
 
-      <p className="mt-12 text-sm text-zinc-500">
-        {t('status.footnote')}
-      </p>
+      {/* Feature status, derived from anonymous aggregated telemetry. Grouped
+          by marketplace because that is how breakages actually land: a Vinted
+          change takes out Vinted crosslisting while Depop keeps working. */}
+      <section className="mt-14">
+        <h2 className="text-xl font-semibold tracking-tight">
+          {t('status.featuresHeading')}
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+          {t('status.featuresBody')}
+        </p>
+
+        {(['vinted', 'depop'] as const).map((marketplace) => {
+          const group = features.filter((f) => f.marketplace === marketplace);
+          if (group.length === 0) return null;
+
+          return (
+            <div key={marketplace} className="mt-8">
+              <h3 className={`${MONO} text-zinc-500`}>
+                {MARKETPLACE_LABELS[marketplace]}
+              </h3>
+              <ul className="mt-3 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+                {group.map((f) => {
+                  const meta = STATE_META[f.state];
+                  return (
+                    <li
+                      key={f.key}
+                      className="flex items-center justify-between gap-4 border-b border-black/5 py-2.5 dark:border-white/5"
+                    >
+                      <span className="flex items-center gap-2.5 text-sm">
+                        <span
+                          className={`inline-block h-2 w-2 shrink-0 rounded-full ${meta.dot}`}
+                        />
+                        {f.label}
+                      </span>
+                      <span
+                        className={`${MONO} shrink-0 rounded-full border px-2 py-0.5 ${meta.badge}`}
+                      >
+                        {t(`status.state.${f.state}`)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
+      </section>
+
+      {/* The section most visitors actually need. Everything above measures
+          problems affecting many sellers at once; the outcomes a single stuck
+          user hits (CAPTCHA, expired login, no open tab) are deliberately
+          excluded from those signals, so without this the page would tell them
+          "operational" and nothing else. */}
+      <section className="mt-14 rounded-lg border border-black/10 p-6 dark:border-white/10">
+        <h2 className="text-lg font-medium tracking-tight">
+          {t('status.selfHelpHeading')}
+        </h2>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          {t('status.selfHelpBody')}
+        </p>
+        <ul className="mt-4 space-y-3 text-sm text-zinc-600 dark:text-zinc-400">
+          <li className="flex gap-3">
+            <span aria-hidden="true" className="text-zinc-400">
+              -
+            </span>
+            {t('status.selfHelpCaptcha')}
+          </li>
+          <li className="flex gap-3">
+            <span aria-hidden="true" className="text-zinc-400">
+              -
+            </span>
+            {t('status.selfHelpLogin')}
+          </li>
+          <li className="flex gap-3">
+            <span aria-hidden="true" className="text-zinc-400">
+              -
+            </span>
+            {t('status.selfHelpTab')}
+          </li>
+        </ul>
+        <p className="mt-4 text-sm">
+          <Link
+            href="/help/support"
+            className="underline underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            {t('status.selfHelpContact')}
+          </Link>
+        </p>
+      </section>
+
+      <p className="mt-12 text-sm text-zinc-500">{t('status.footnote')}</p>
+      {/* Stated plainly: this is our inference from our own users' traffic, not
+          an official feed. Publishing a claim about someone else's
+          infrastructure without saying so would be dishonest. */}
+      <p className="mt-3 text-sm text-zinc-500">{t('status.inferredNote')}</p>
     </main>
   );
 }

@@ -812,7 +812,16 @@
         "someDegraded": "Some marketplaces degraded",
         "someDown": "One or more marketplaces down",
         "body": "Live view of which marketplaces SaleLinx is currently posting to."
-      }
+      },
+      "featuresHeading": "Extension features",
+      "featuresBody": "Live view of the features in the SaleLinx extension, grouped by marketplace. Updated automatically from real usage.",
+      "selfHelpHeading": "Everything looks operational, but it's not working for me",
+      "selfHelpBody": "Status here reflects problems affecting many sellers at once. A problem affecting only your account usually has one of these causes:",
+      "selfHelpCaptcha": "The marketplace is showing a CAPTCHA or has temporarily restricted your session. Open the marketplace in a tab, solve any challenge, then retry.",
+      "selfHelpLogin": "Your marketplace login has expired. Sign in to Depop or Vinted again in a normal browser tab.",
+      "selfHelpTab": "No marketplace tab is open. SaleLinx runs actions through a logged-in tab, so keep one open while it works.",
+      "selfHelpContact": "Still stuck? Contact support and we'll take a look.",
+      "inferredNote": "Marketplace and feature status is inferred from anonymous, aggregated usage across SaleLinx installs. It is not an official status feed from Depop or Vinted, and a feature with little recent usage may show as operational."
     },
     "changelog": {
       "metaTitle": "Changelog",

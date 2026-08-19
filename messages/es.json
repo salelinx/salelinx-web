@@ -812,7 +812,16 @@
         "someDegraded": "Algunas marketplaces degradadas",
         "someDown": "Una o más marketplaces caídas",
         "body": "Vista en vivo de las marketplaces en las que SaleLinx publica actualmente."
-      }
+      },
+      "featuresHeading": "Funciones de la extension",
+      "featuresBody": "Vista en vivo de las funciones de la extension SaleLinx, por marketplace. Se actualiza automaticamente.",
+      "selfHelpHeading": "Todo parece operativo, pero no me funciona",
+      "selfHelpBody": "Este estado refleja problemas que afectan a muchos vendedores a la vez. Un problema solo en tu cuenta suele deberse a:",
+      "selfHelpCaptcha": "El marketplace muestra un CAPTCHA o ha restringido temporalmente tu sesion. Abre el marketplace en una pestana, resuelve el desafio y reintenta.",
+      "selfHelpLogin": "Tu sesion del marketplace ha caducado. Vuelve a iniciar sesion en Depop o Vinted en una pestana normal.",
+      "selfHelpTab": "No hay ninguna pestana del marketplace abierta. SaleLinx actua a traves de una pestana con sesion iniciada, manten una abierta.",
+      "selfHelpContact": "Sigues bloqueado? Contacta con soporte y lo revisaremos.",
+      "inferredNote": "El estado se deduce de datos de uso anonimos y agregados. No es un canal oficial de Depop ni Vinted, y una funcion con poco uso reciente puede aparecer como operativa."
     },
     "changelog": {
       "metaTitle": "Changelog",

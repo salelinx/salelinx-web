@@ -812,7 +812,16 @@
         "someDegraded": "Einige Marktplätze eingeschränkt",
         "someDown": "Ein oder mehrere Marktplätze ausgefallen",
         "body": "Live-Ansicht der Marktplätze, auf denen SaleLinx derzeit veröffentlicht."
-      }
+      },
+      "featuresHeading": "Erweiterungsfunktionen",
+      "featuresBody": "Live-Ansicht der SaleLinx-Funktionen, nach Marktplatz gruppiert. Wird automatisch aktualisiert.",
+      "selfHelpHeading": "Alles wirkt betriebsbereit, aber bei mir geht es nicht",
+      "selfHelpBody": "Dieser Status zeigt Probleme, die viele Verkaufer gleichzeitig betreffen. Ein Problem nur in Ihrem Konto hat meist eine dieser Ursachen:",
+      "selfHelpCaptcha": "Der Marktplatz zeigt ein CAPTCHA oder hat Ihre Sitzung vorubergehend eingeschrankt. Offnen Sie den Marktplatz in einem Tab, losen Sie die Prufung und versuchen Sie es erneut.",
+      "selfHelpLogin": "Ihre Marktplatz-Anmeldung ist abgelaufen. Melden Sie sich bei Depop oder Vinted in einem normalen Tab erneut an.",
+      "selfHelpTab": "Es ist kein Marktplatz-Tab geoffnet. SaleLinx arbeitet uber einen angemeldeten Tab, lassen Sie einen geoffnet.",
+      "selfHelpContact": "Immer noch blockiert? Kontaktieren Sie den Support.",
+      "inferredNote": "Der Status wird aus anonymen, aggregierten Nutzungsdaten abgeleitet. Es ist kein offizieller Kanal von Depop oder Vinted, und eine Funktion mit wenig Nutzung kann als betriebsbereit erscheinen."
     },
     "changelog": {
       "metaTitle": "Changelog",
