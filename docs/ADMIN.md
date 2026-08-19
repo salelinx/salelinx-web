@@ -302,6 +302,24 @@ which ones. Per-user debugging stays on the existing extension logs.
 Useful for support triage: when a ticket says crosslisting is broken, this page
 distinguishes "everyone" from "just them" immediately.
 
+### Collapsible sections
+
+`/admin/health` stacks three tall blocks (feature rollup, manual status
+controls, endpoint table) and the Overview carries the rollup too. Each is
+wrapped in `AdminSection` (`components/admin/AdminSection.tsx`), which persists
+open/closed per section in `localStorage` under `admin-section:<key>`.
+
+Defaults differ by intent: Feature status and Endpoints open, Manual status and
+the Overview rollup closed. An incident tool should not sit open on a page you
+visit to look at things, and the Overview is read top-down for tickets and
+subscriptions - the health detail lives in the module.
+
+Collapsed sections still show a summary in the header ("3 broken", "All
+automatic"), so nothing is hidden that you would need to open the section to
+learn. The component renders `{open && children}` rather than using
+`<details>`: keeping a collapsed endpoint table in the DOM would mean rendering
+hundreds of rows nobody is looking at.
+
 ### Manual status overrides
 
 `/admin/health` carries a **Manual status** section: every feature and both

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { AdminAuditRow } from "@/lib/types/admin";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
+import { AdminSection } from "@/components/admin/AdminSection";
 
 // The /admin home dashboard. Pure presentation (server component): summary
 // cards that link into each live module, plus a recent-activity list from the
@@ -43,6 +44,9 @@ export function AdminDashboard({
   const tierEntries = Object.entries(tierCounts).sort((a, b) =>
     a[0].localeCompare(b[0]),
   );
+  // Shown in the collapsed header, so a breakage is visible without opening it.
+  const healthBroken = features.filter((f) => f.status === "broken").length;
+  const healthDegraded = features.filter((f) => f.status === "warn").length;
 
   return (
     <div className="flex h-screen flex-col">
@@ -51,24 +55,6 @@ export function AdminDashboard({
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        {/* Marketplace health leads the page: a breakage is the one thing here
-            that is actively on fire, and it should not need someone to think to
-            open /admin/health. Hidden entirely when nothing is reporting, since
-            a wall of "no data" cards above the real summaries would be noise. */}
-        {healthReporting && (
-          <div className="relative">
-            <FeatureStatusGrid features={features} />
-            {/* Whole band links into the module. An overlay rather than
-                wrapping the grid in an <a>: the grid is shared with
-                /admin/health, where it must NOT be a link to itself. */}
-            <Link
-              href="/admin/health"
-              aria-label="Open endpoint health"
-              className="absolute inset-0"
-            />
-          </div>
-        )}
-
         <div className="p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
@@ -166,6 +152,39 @@ export function AdminDashboard({
               </ul>
             )}
           </section>
+
+          {/* Below the summaries and collapsed by default: the grid is tall,
+              and this page is read top-down for tickets and subscriptions. The
+              detail lives at /admin/health; this is a glance, not the module. */}
+          {healthReporting && (
+            <div className="mt-6 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
+              <AdminSection
+                storageKey="overview-health"
+                title="Marketplace feature status"
+                defaultOpen={false}
+                summary={
+                  healthBroken > 0
+                    ? `${healthBroken} broken`
+                    : healthDegraded > 0
+                      ? `${healthDegraded} degraded`
+                      : "All operational"
+                }
+              >
+                <FeatureStatusGrid features={features} />
+                {/* Link lives INSIDE the panel, not in the header: the header
+                    is a <button>, and nesting an anchor in it is invalid and
+                    swallows the click. */}
+                <div className="px-4 pb-3">
+                  <Link
+                    href="/admin/health"
+                    className="text-xs text-zinc-500 underline-offset-2 hover:text-zinc-900 hover:underline"
+                  >
+                    Open endpoint health
+                  </Link>
+                </div>
+              </AdminSection>
+            </div>
+          )}
         </div>
       </div>
     </div>
