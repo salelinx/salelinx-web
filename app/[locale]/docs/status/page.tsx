@@ -1,16 +1,17 @@
-import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
-import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { Breadcrumbs } from "@/components/docs/Breadcrumbs";
 import {
   MARKETPLACE_LABELS,
   STATE_META,
   getMarketplaceStatus,
-} from '@/lib/docs/status';
-import { getPublicFeatureStatus } from '@/lib/docs/feature-status';
-import { pageMetadata } from '@/lib/site';
+} from "@/lib/docs/status";
+import { getPublicFeatureStatus } from "@/lib/docs/feature-status";
+import type { Marketplace } from "@/lib/docs/types";
+import { pageMetadata } from "@/lib/site";
 
-const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
+const MONO = "font-mono text-[0.68rem] uppercase tracking-[0.12em]";
 
 export async function generateMetadata({
   params,
@@ -18,17 +19,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'Docs.status' });
+  const t = await getTranslations({ locale, namespace: "Docs.status" });
   return pageMetadata({
     locale,
-    path: '/docs/status',
-    title: t('metaTitle'),
-    description: t('metaDescription'),
+    path: "/docs/status",
+    title: t("metaTitle"),
+    description: t("metaDescription"),
   });
 }
 
 export default async function StatusPage() {
-  const t = await getTranslations('Docs');
+  const t = await getTranslations("Docs");
   // Independent reads: the hand-maintained marketplace state and the
   // telemetry-derived feature state do not depend on each other.
   const [statuses, features] = await Promise.all([
@@ -36,21 +37,43 @@ export default async function StatusPage() {
     getPublicFeatureStatus(),
   ]);
 
+  // Pair the two platform-scoped entries per feature into one row, keyed by the
+  // shared label. Insertion order is preserved, so the row order still follows
+  // FEATURE_ENDPOINTS (roughly "how visible a breakage would be").
+  const featureRows = features.reduce<
+    Array<{
+      label: string;
+      byMarketplace: Partial<Record<Marketplace, (typeof features)[number]>>;
+      notes: Array<{ marketplace: Marketplace; note: string }>;
+    }>
+  >((rows, feature) => {
+    let row = rows.find((r) => r.label === feature.label);
+    if (!row) {
+      row = { label: feature.label, byMarketplace: {}, notes: [] };
+      rows.push(row);
+    }
+    row.byMarketplace[feature.marketplace] = feature;
+    if (feature.note) {
+      row.notes.push({ marketplace: feature.marketplace, note: feature.note });
+    }
+    return rows;
+  }, []);
+
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-12">
       <Breadcrumbs
         trail={[
-          { label: t('breadcrumbDocs'), href: '/docs' },
-          { label: t('status.breadcrumb') },
+          { label: t("breadcrumbDocs"), href: "/docs" },
+          { label: t("status.breadcrumb") },
         ]}
       />
       <header className="mt-8">
-        <span className={`${MONO} text-zinc-500`}>{t('status.eyebrow')}</span>
+        <span className={`${MONO} text-zinc-500`}>{t("status.eyebrow")}</span>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
-          {t('status.title')}
+          {t("status.title")}
         </h1>
         <p className="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
-          {t('status.body')}
+          {t("status.body")}
         </p>
       </header>
 
@@ -86,69 +109,108 @@ export default async function StatusPage() {
                 </div>
               </div>
               <span className="shrink-0 text-xs text-zinc-500 sm:text-right">
-                {t('status.updatedPrefix', { date: s.updatedAt })}
+                {t("status.updatedPrefix", { date: s.updatedAt })}
               </span>
             </li>
           );
         })}
       </ul>
 
-      {/* Feature status, derived from anonymous aggregated telemetry. Grouped
-          by marketplace because that is how breakages actually land: a Vinted
-          change takes out Vinted crosslisting while Depop keeps working. */}
+      {/* Feature status, derived from anonymous aggregated telemetry. Each
+          feature is measured per marketplace, since that is how breakages land:
+          a Vinted change takes out Vinted crosslisting while Depop keeps
+          working. */}
       <section className="mt-14">
         <h2 className="text-xl font-semibold tracking-tight">
-          {t('status.featuresHeading')}
+          {t("status.featuresHeading")}
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          {t('status.featuresBody')}
+          {t("status.featuresBody")}
         </p>
 
-        {(['vinted', 'depop'] as const).map((marketplace) => {
-          const group = features.filter((f) => f.marketplace === marketplace);
-          if (group.length === 0) return null;
-
-          return (
-            <div key={marketplace} className="mt-8">
-              <h3 className={`${MONO} text-zinc-500`}>
-                {MARKETPLACE_LABELS[marketplace]}
-              </h3>
-              <ul className="mt-3 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-                {group.map((f) => {
-                  const meta = STATE_META[f.state];
-                  return (
-                    <li
-                      key={f.key}
-                      className="border-b border-black/5 py-2.5 dark:border-white/5"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="flex items-center gap-2.5 text-sm">
+        {/* One row per feature, both marketplaces side by side. Grouping by
+            platform put "Crosslist" in two places several screens apart, which
+            is the wrong shape for the question people arrive with: not "how is
+            Vinted" but "is crosslisting working, and where". */}
+        <div className="mt-8 overflow-x-auto">
+          <table className="w-full min-w-[32rem] border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-black/10 dark:border-white/10">
+                <th
+                  className={`${MONO} py-2 text-left font-normal text-zinc-500`}
+                >
+                  {t("status.featureColumn")}
+                </th>
+                {(["vinted", "depop"] as const).map((marketplace) => (
+                  <th
+                    key={marketplace}
+                    className={`${MONO} py-2 text-left font-normal text-zinc-500`}
+                  >
+                    {MARKETPLACE_LABELS[marketplace]}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {featureRows.map((row) => (
+                <tr
+                  key={row.label}
+                  className="border-b border-black/5 dark:border-white/5"
+                >
+                  <th
+                    scope="row"
+                    className="py-3 pr-4 text-left align-top font-normal"
+                  >
+                    {row.label}
+                    {/* Notes come only from a manual override, and are the most
+                        useful thing on the page when present. Shown once per
+                        row, prefixed when the two sides differ. */}
+                    {row.notes.map((n) => (
+                      <span
+                        key={n.marketplace}
+                        className="mt-1 block text-xs text-zinc-600 dark:text-zinc-400"
+                      >
+                        {row.notes.length > 1
+                          ? `${MARKETPLACE_LABELS[n.marketplace]}: ${n.note}`
+                          : n.note}
+                      </span>
+                    ))}
+                  </th>
+                  {(["vinted", "depop"] as const).map((marketplace) => {
+                    const cell = row.byMarketplace[marketplace];
+                    if (!cell) {
+                      // The feature does not exist on this marketplace at all.
+                      // An empty cell would read as "unknown"; this says so.
+                      return (
+                        <td
+                          key={marketplace}
+                          className="py-3 pr-4 align-top text-xs text-zinc-400"
+                        >
+                          {t("status.notAvailable")}
+                        </td>
+                      );
+                    }
+                    const meta = STATE_META[cell.state];
+                    return (
+                      <td key={marketplace} className="py-3 pr-4 align-top">
+                        <span className="flex items-center gap-2">
                           <span
                             className={`inline-block h-2 w-2 shrink-0 rounded-full ${meta.dot}`}
                           />
-                          {f.label}
+                          <span
+                            className={`${MONO} rounded-full border px-2 py-0.5 ${meta.badge}`}
+                          >
+                            {t(`status.state.${cell.state}`)}
+                          </span>
                         </span>
-                        <span
-                          className={`${MONO} shrink-0 rounded-full border px-2 py-0.5 ${meta.badge}`}
-                        >
-                          {t(`status.state.${f.state}`)}
-                        </span>
-                      </div>
-                      {/* Only set on a manual override, and the most useful
-                          thing on the page when it is: it says what we know
-                          that the numbers cannot. */}
-                      {f.note ? (
-                        <p className="mt-1.5 pl-[1.125rem] text-sm text-zinc-600 dark:text-zinc-400">
-                          {f.note}
-                        </p>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          );
-        })}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {/* The section most visitors actually need. Everything above measures
@@ -158,29 +220,29 @@ export default async function StatusPage() {
           "operational" and nothing else. */}
       <section className="mt-14 rounded-lg border border-black/10 p-6 dark:border-white/10">
         <h2 className="text-lg font-medium tracking-tight">
-          {t('status.selfHelpHeading')}
+          {t("status.selfHelpHeading")}
         </h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          {t('status.selfHelpBody')}
+          {t("status.selfHelpBody")}
         </p>
         <ul className="mt-4 space-y-3 text-sm text-zinc-600 dark:text-zinc-400">
           <li className="flex gap-3">
             <span aria-hidden="true" className="text-zinc-400">
               -
             </span>
-            {t('status.selfHelpCaptcha')}
+            {t("status.selfHelpCaptcha")}
           </li>
           <li className="flex gap-3">
             <span aria-hidden="true" className="text-zinc-400">
               -
             </span>
-            {t('status.selfHelpLogin')}
+            {t("status.selfHelpLogin")}
           </li>
           <li className="flex gap-3">
             <span aria-hidden="true" className="text-zinc-400">
               -
             </span>
-            {t('status.selfHelpTab')}
+            {t("status.selfHelpTab")}
           </li>
         </ul>
         <p className="mt-4 text-sm">
@@ -188,16 +250,16 @@ export default async function StatusPage() {
             href="/help/support"
             className="underline underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100"
           >
-            {t('status.selfHelpContact')}
+            {t("status.selfHelpContact")}
           </Link>
         </p>
       </section>
 
-      <p className="mt-12 text-sm text-zinc-500">{t('status.footnote')}</p>
+      <p className="mt-12 text-sm text-zinc-500">{t("status.footnote")}</p>
       {/* Stated plainly: this is our inference from our own users' traffic, not
           an official feed. Publishing a claim about someone else's
           infrastructure without saying so would be dishonest. */}
-      <p className="mt-3 text-sm text-zinc-500">{t('status.inferredNote')}</p>
+      <p className="mt-3 text-sm text-zinc-500">{t("status.inferredNote")}</p>
     </main>
   );
 }

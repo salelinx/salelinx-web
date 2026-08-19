@@ -821,7 +821,9 @@
       "selfHelpLogin": "Your marketplace login has expired. Sign in to Depop or Vinted again in a normal browser tab.",
       "selfHelpTab": "No marketplace tab is open. SaleLinx runs actions through a logged-in tab, so keep one open while it works.",
       "selfHelpContact": "Still stuck? Contact support and we'll take a look.",
-      "inferredNote": "Marketplace and feature status is inferred from anonymous, aggregated usage across SaleLinx installs. It is not an official status feed from Depop or Vinted, and a feature with little recent usage may show as operational."
+      "inferredNote": "Marketplace and feature status is inferred from anonymous, aggregated usage across SaleLinx installs. It is not an official status feed from Depop or Vinted, and a feature with little recent usage may show as operational.",
+      "featureColumn": "Feature",
+      "notAvailable": "Not available"
     },
     "changelog": {
       "metaTitle": "Changelog",

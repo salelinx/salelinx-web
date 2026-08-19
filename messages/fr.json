@@ -821,7 +821,9 @@
       "selfHelpLogin": "Votre session marketplace a expire. Reconnectez-vous a Depop ou Vinted dans un onglet normal.",
       "selfHelpTab": "Aucun onglet marketplace n'est ouvert. SaleLinx agit via un onglet connecte, gardez-en un ouvert.",
       "selfHelpContact": "Toujours bloque ? Contactez le support et nous regarderons.",
-      "inferredNote": "Le statut est deduit de donnees d'usage anonymes et agregees. Ce n'est pas un flux officiel de Depop ou Vinted, et une fonctionnalite peu utilisee recemment peut apparaitre comme operationnelle."
+      "inferredNote": "Le statut est deduit de donnees d'usage anonymes et agregees. Ce n'est pas un flux officiel de Depop ou Vinted, et une fonctionnalite peu utilisee recemment peut apparaitre comme operationnelle.",
+      "featureColumn": "Fonctionnalite",
+      "notAvailable": "Non disponible"
     },
     "changelog": {
       "metaTitle": "Changelog",

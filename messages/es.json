@@ -821,7 +821,9 @@
       "selfHelpLogin": "Tu sesion del marketplace ha caducado. Vuelve a iniciar sesion en Depop o Vinted en una pestana normal.",
       "selfHelpTab": "No hay ninguna pestana del marketplace abierta. SaleLinx actua a traves de una pestana con sesion iniciada, manten una abierta.",
       "selfHelpContact": "Sigues bloqueado? Contacta con soporte y lo revisaremos.",
-      "inferredNote": "El estado se deduce de datos de uso anonimos y agregados. No es un canal oficial de Depop ni Vinted, y una funcion con poco uso reciente puede aparecer como operativa."
+      "inferredNote": "El estado se deduce de datos de uso anonimos y agregados. No es un canal oficial de Depop ni Vinted, y una funcion con poco uso reciente puede aparecer como operativa.",
+      "featureColumn": "Funcion",
+      "notAvailable": "No disponible"
     },
     "changelog": {
       "metaTitle": "Changelog",

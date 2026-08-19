@@ -340,7 +340,13 @@ Offers, Follow, Auto-markdown, Restocker, My listings, Feedback bot, Account
 linking). Telemetry is keyed by endpoint because that is all the fetch wrappers
 can see, so the inverse mapping lives in `lib/admin/feature-endpoints.ts`.
 
-**Every entry is scoped to ONE marketplace**, and the grid groups by platform.
+**Every entry is scoped to ONE marketplace**, and both the admin grid and the
+public page render one row per feature with Vinted and Depop **side by side**.
+Grouping by platform instead put "Crosslist" in two places, when the question is
+nearly always "is crosslisting working, and on which side". Features that exist
+on only one marketplace (Refresh and Auto-markdown are Depop-only; Messages,
+Follow and the Feedback bot are Vinted-only) show an explicit "Not available"
+cell rather than a blank, which would read as "no data".
 A feature that exists on both is two entries, because that is how it actually
 breaks: Vinted changing its draft schema takes out Vinted crosslisting while
 Depop keeps working, and a merged card would show that as a partial failure with

@@ -47,6 +47,23 @@ export function FeatureStatusGrid({ features }: Props) {
   const broken = features.filter((f) => f.status === "broken");
   const degraded = features.filter((f) => f.status === "warn");
 
+  // Pair the two platform-scoped entries per feature into one row, keyed by the
+  // shared label. Insertion order preserves the FEATURE_ENDPOINTS ordering.
+  const rows = features.reduce<
+    Array<{
+      label: string;
+      byPlatform: Partial<Record<FeatureStatus["platform"], FeatureStatus>>;
+    }>
+  >((acc, feature) => {
+    let row = acc.find((r) => r.label === feature.label);
+    if (!row) {
+      row = { label: feature.label, byPlatform: {} };
+      acc.push(row);
+    }
+    row.byPlatform[feature.platform] = feature;
+    return acc;
+  }, []);
+
   return (
     <section className="border-b border-[var(--admin-border)] px-4 py-4">
       <div className="mb-3 flex items-baseline justify-between">
@@ -60,26 +77,52 @@ export function FeatureStatusGrid({ features }: Props) {
         </p>
       </div>
 
-      {/* Grouped by marketplace, because that is how these actually break: a
-          Vinted schema change takes out Vinted crosslisting while Depop keeps
-          working, and the first question is always "which one". */}
-      {(["vinted", "depop"] as const).map((platform) => {
-        const group = features.filter((f) => f.platform === platform);
-        if (group.length === 0) return null;
-
-        return (
-          <div key={platform} className="mb-4 last:mb-0">
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+      {/* One row per feature, both marketplaces side by side. Grouping by
+          platform put "Crosslist" in two places, when the question is nearly
+          always "is crosslisting working, and on which side". Mirrors the
+          public page at /docs/status. */}
+      <div className="space-y-1.5">
+        <div className="grid grid-cols-[minmax(120px,1fr)_1fr_1fr] gap-2 px-1 pb-1">
+          <span className="text-[10px] uppercase tracking-wide text-zinc-400">
+            Feature
+          </span>
+          {(["vinted", "depop"] as const).map((platform) => (
+            <span
+              key={platform}
+              className="text-[10px] uppercase tracking-wide text-zinc-400"
+            >
               {PLATFORM_LABEL[platform]}
-            </h3>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-2">
-              {group.map((f) => (
-                <FeatureCard key={f.key} feature={f} />
-              ))}
-            </div>
+            </span>
+          ))}
+        </div>
+
+        {rows.map((row) => (
+          <div
+            key={row.label}
+            className="grid grid-cols-[minmax(120px,1fr)_1fr_1fr] items-stretch gap-2"
+          >
+            <span className="self-center truncate text-sm font-medium">
+              {row.label}
+            </span>
+            {(["vinted", "depop"] as const).map((platform) => {
+              const cell = row.byPlatform[platform];
+              if (!cell) {
+                // Feature does not exist on this marketplace. An empty cell
+                // would read as "no data"; this says why it is blank.
+                return (
+                  <div
+                    key={platform}
+                    className="flex items-center rounded-md border border-dashed border-[var(--admin-border)] px-3 py-2 text-[11px] text-zinc-400"
+                  >
+                    Not available
+                  </div>
+                );
+              }
+              return <FeatureCard key={platform} feature={cell} />;
+            })}
           </div>
-        );
-      })}
+        ))}
+      </div>
     </section>
   );
 }
@@ -87,20 +130,18 @@ export function FeatureStatusGrid({ features }: Props) {
 function FeatureCard({ feature: f }: { feature: FeatureStatus }) {
   return (
     <div className={`rounded-md border px-3 py-2.5 ${CARD_TONE[f.status]}`}>
+      {/* No feature label here: the row already names it, and repeating it in
+          both cells doubled the width of the widest column for no gain. */}
       <div className="flex items-center gap-2">
         <span
           className={`inline-block h-2 w-2 shrink-0 rounded-full ${DOT_TONE[f.status]}`}
           aria-hidden="true"
         />
-        <span className="truncate text-sm font-medium">{f.label}</span>
-      </div>
-
-      <div className="mt-1">
         <span
           className={
             f.status === "unknown"
               ? "text-xs text-zinc-400"
-              : "text-xs text-zinc-600"
+              : "text-xs font-medium text-zinc-700"
           }
         >
           {STATUS_LABEL[f.status]}

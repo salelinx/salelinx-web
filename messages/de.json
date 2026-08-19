@@ -821,7 +821,9 @@
       "selfHelpLogin": "Ihre Marktplatz-Anmeldung ist abgelaufen. Melden Sie sich bei Depop oder Vinted in einem normalen Tab erneut an.",
       "selfHelpTab": "Es ist kein Marktplatz-Tab geoffnet. SaleLinx arbeitet uber einen angemeldeten Tab, lassen Sie einen geoffnet.",
       "selfHelpContact": "Immer noch blockiert? Kontaktieren Sie den Support.",
-      "inferredNote": "Der Status wird aus anonymen, aggregierten Nutzungsdaten abgeleitet. Es ist kein offizieller Kanal von Depop oder Vinted, und eine Funktion mit wenig Nutzung kann als betriebsbereit erscheinen."
+      "inferredNote": "Der Status wird aus anonymen, aggregierten Nutzungsdaten abgeleitet. Es ist kein offizieller Kanal von Depop oder Vinted, und eine Funktion mit wenig Nutzung kann als betriebsbereit erscheinen.",
+      "featureColumn": "Funktion",
+      "notAvailable": "Nicht verfugbar"
     },
     "changelog": {
       "metaTitle": "Changelog",
