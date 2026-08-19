@@ -793,21 +793,21 @@
       "next": "Weiter"
     },
     "status": {
-      "metaTitle": "Marktplatz-Status",
-      "metaDescription": "Live-Ansicht der Marktplätze, auf denen SaleLinx derzeit crosslistet.",
+      "metaTitle": "Status",
+      "metaDescription": "Live-Status der SaleLinx-Erweiterung und der verbundenen Marktplatze.",
       "eyebrow": "Status",
-      "title": "Marktplatz-Status",
+      "title": "SaleLinx-Status",
       "body": "Welche Marktplätze SaleLinx derzeit crosslisten kann. Wenn du Fehler siehst und ein Marktplatz hier markiert ist, arbeitet das Team bereits daran.",
       "updatedPrefix": "Aktualisiert am {date}",
-      "footnote": "Der Status wird vom SaleLinx-Team geprüft und aktualisiert, wenn bekannt ist, dass das Veröffentlichungsverhalten der Erweiterung durch eine Marktplatz-Änderung beeinträchtigt ist.",
-      "breadcrumb": "Marktplatz-Status",
+      "footnote": "Der Marktplatz-Status wird vom SaleLinx-Team gesetzt. Der Funktionsstatus aktualisiert sich automatisch, sofern das Team ihn nicht wahrend eines Vorfalls manuell gesetzt hat.",
+      "breadcrumb": "Status",
       "state": {
         "ok": "Betriebsbereit",
         "degraded": "Eingeschränkt",
         "down": "Ausfall"
       },
       "card": {
-        "eyebrow": "Marktplatz-Status",
+        "eyebrow": "Status",
         "allOk": "Alle Marktplätze betriebsbereit",
         "someDegraded": "Einige Marktplätze eingeschränkt",
         "someDown": "Ein oder mehrere Marktplätze ausgefallen",
@@ -823,7 +823,10 @@
       "selfHelpContact": "Immer noch blockiert? Kontaktieren Sie den Support.",
       "inferredNote": "Der Status wird aus anonymen, aggregierten Nutzungsdaten abgeleitet. Es ist kein offizieller Kanal von Depop oder Vinted, und eine Funktion mit wenig Nutzung kann als betriebsbereit erscheinen.",
       "featureColumn": "Funktion",
-      "notAvailable": "Nicht verfugbar"
+      "notAvailable": "Nicht verfugbar",
+      "intro": "Live-Status der Marktplatze, mit denen SaleLinx arbeitet, und der Erweiterungsfunktionen.",
+      "marketplacesHeading": "Marktplatze",
+      "marketplacesBody": "Ob jeder Marktplatz erreichbar ist und normal funktioniert."
     },
     "changelog": {
       "metaTitle": "Changelog",

@@ -73,11 +73,22 @@ export default async function StatusPage() {
           {t("status.title")}
         </h1>
         <p className="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
-          {t("status.body")}
+          {t("status.intro")}
         </p>
       </header>
 
-      <ul className="mt-10 divide-y divide-black/10 dark:divide-white/10">
+      {/* Two peer sections: marketplace reachability, and the extension
+          features running against them. Neither is a subheading of the other -
+          a user arriving here wants whichever one matches their symptom. */}
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold tracking-tight">
+          {t("status.marketplacesHeading")}
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+          {t("status.marketplacesBody")}
+        </p>
+
+        <ul className="mt-6 divide-y divide-black/10 dark:divide-white/10">
         {statuses.map((s) => {
           const meta = STATE_META[s.state];
           return (
@@ -114,13 +125,14 @@ export default async function StatusPage() {
             </li>
           );
         })}
-      </ul>
+        </ul>
+      </section>
 
       {/* Feature status, derived from anonymous aggregated telemetry. Each
           feature is measured per marketplace, since that is how breakages land:
           a Vinted change takes out Vinted crosslisting while Depop keeps
           working. */}
-      <section className="mt-14">
+      <section className="mt-12">
         <h2 className="text-xl font-semibold tracking-tight">
           {t("status.featuresHeading")}
         </h2>

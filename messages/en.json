@@ -793,21 +793,21 @@
       "next": "Next"
     },
     "status": {
-      "metaTitle": "Marketplace status",
-      "metaDescription": "Live view of which marketplaces SaleLinx is currently crosslisting to.",
+      "metaTitle": "Status",
+      "metaDescription": "Live status of the SaleLinx extension and the marketplaces it connects to.",
       "eyebrow": "Status",
-      "title": "Marketplace status",
+      "title": "SaleLinx status",
       "body": "Which marketplaces SaleLinx is currently able to crosslist to. If you're seeing errors and a marketplace is flagged here, the team is already on it.",
       "updatedPrefix": "Updated {date}",
-      "footnote": "Status is checked by the SaleLinx team and updated when the extension's posting behaviour is known to be impacted by a marketplace change.",
-      "breadcrumb": "Marketplace status",
+      "footnote": "Marketplace status is set by the SaleLinx team. Feature status updates automatically from real usage, unless the team has set it manually during an incident.",
+      "breadcrumb": "Status",
       "state": {
         "ok": "Operational",
         "degraded": "Degraded",
         "down": "Outage"
       },
       "card": {
-        "eyebrow": "Marketplace status",
+        "eyebrow": "Status",
         "allOk": "All marketplaces operational",
         "someDegraded": "Some marketplaces degraded",
         "someDown": "One or more marketplaces down",
@@ -823,7 +823,10 @@
       "selfHelpContact": "Still stuck? Contact support and we'll take a look.",
       "inferredNote": "Marketplace and feature status is inferred from anonymous, aggregated usage across SaleLinx installs. It is not an official status feed from Depop or Vinted, and a feature with little recent usage may show as operational.",
       "featureColumn": "Feature",
-      "notAvailable": "Not available"
+      "notAvailable": "Not available",
+      "intro": "Live status of the marketplaces SaleLinx connects to and the extension features that run against them.",
+      "marketplacesHeading": "Marketplaces",
+      "marketplacesBody": "Whether each marketplace is reachable and behaving normally."
     },
     "changelog": {
       "metaTitle": "Changelog",

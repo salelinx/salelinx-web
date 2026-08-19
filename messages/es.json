@@ -793,21 +793,21 @@
       "next": "Siguiente"
     },
     "status": {
-      "metaTitle": "Estado de plataformas",
-      "metaDescription": "Vista en vivo de las marketplaces en las que SaleLinx está haciendo crosslisting actualmente.",
+      "metaTitle": "Estado",
+      "metaDescription": "Estado en vivo de la extension SaleLinx y de los marketplaces conectados.",
       "eyebrow": "Estado",
-      "title": "Estado de plataformas",
+      "title": "Estado de SaleLinx",
       "body": "Las marketplaces en las que SaleLinx puede hacer crosslisting ahora mismo. Si ves errores y una marketplace aparece marcada aquí, el equipo ya está en ello.",
       "updatedPrefix": "Actualizado el {date}",
-      "footnote": "El estado lo revisa el equipo de SaleLinx y se actualiza cuando se sabe que el comportamiento de publicación de la extensión se ve afectado por un cambio en una marketplace.",
-      "breadcrumb": "Estado de plataformas",
+      "footnote": "El estado de los marketplaces lo define el equipo de SaleLinx. El estado de las funciones se actualiza automaticamente, salvo que el equipo lo haya fijado manualmente durante una incidencia.",
+      "breadcrumb": "Estado",
       "state": {
         "ok": "Operativo",
         "degraded": "Degradado",
         "down": "Caído"
       },
       "card": {
-        "eyebrow": "Estado de plataformas",
+        "eyebrow": "Estado",
         "allOk": "Todas las marketplaces operativas",
         "someDegraded": "Algunas marketplaces degradadas",
         "someDown": "Una o más marketplaces caídas",
@@ -823,7 +823,10 @@
       "selfHelpContact": "Sigues bloqueado? Contacta con soporte y lo revisaremos.",
       "inferredNote": "El estado se deduce de datos de uso anonimos y agregados. No es un canal oficial de Depop ni Vinted, y una funcion con poco uso reciente puede aparecer como operativa.",
       "featureColumn": "Funcion",
-      "notAvailable": "No disponible"
+      "notAvailable": "No disponible",
+      "intro": "Estado en vivo de los marketplaces a los que se conecta SaleLinx y de las funciones de la extension.",
+      "marketplacesHeading": "Marketplaces",
+      "marketplacesBody": "Si cada marketplace es accesible y funciona con normalidad."
     },
     "changelog": {
       "metaTitle": "Changelog",
