@@ -28,6 +28,7 @@ export default async function AdminHealthPage() {
     reporting,
     deliveries,
     lastReportAt,
+    features,
   } = await loadHealthRows(24);
 
   return (
@@ -40,6 +41,7 @@ export default async function AdminHealthPage() {
       windowLabel="last 24h vs 7-day baseline"
       deliveries={deliveries}
       lastReportAt={lastReportAt}
+      features={features}
     />
   );
 }

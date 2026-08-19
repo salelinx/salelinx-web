@@ -302,6 +302,44 @@ which ones. Per-user debugging stays on the existing extension logs.
 Useful for support triage: when a ticket says crosslisting is broken, this page
 distinguishes "everyone" from "just them" immediately.
 
+### Feature status rollup
+
+Above the endpoint table, the page groups endpoints into the **features a user
+would actually name** (Crosslist, Relist, Refresh, Shipping labels, Messages,
+Offers, Follow, Auto-markdown, Restocker, My listings, Feedback bot, Account
+linking). Telemetry is keyed by endpoint because that is all the fetch wrappers
+can see, so the inverse mapping lives in `lib/admin/feature-endpoints.ts`.
+
+**Every entry is scoped to ONE marketplace**, and the grid groups by platform.
+A feature that exists on both is two entries, because that is how it actually
+breaks: Vinted changing its draft schema takes out Vinted crosslisting while
+Depop keeps working, and a merged card would show that as a partial failure with
+no way to tell which side. The roll-up matches on `platform|endpoint` rather
+than the path alone - several paths (`/api/v2/products/:slug/`,
+`/api/v2/drafts/`) exist on both marketplaces, so matching on path would credit
+Vinted traffic to a Depop feature.
+
+The same grid renders on `/admin` (the Overview landing page), where the whole
+band links into this module. It is hidden entirely there when nothing is
+reporting, since a wall of "no data" cards above the real summaries is noise.
+
+Two rules matter for reading it:
+
+- **A feature is as healthy as its WORST endpoint**, never an average. A
+  crosslist that uploads photos fine but cannot create the draft is broken, and
+  averaging would hide that behind the healthy majority.
+- **"No data" is its own state, never green.** A feature broken badly enough
+  that nobody can use it has zero traffic, which is indistinguishable from a
+  feature nobody happened to touch. Cards also show `n/m endpoints seen` so a
+  green card backed by one of ten endpoints does not read as a full all-clear.
+
+The map is hand-maintained, and its failure mode is silent: a typo means that
+feature reports "no data" forever while looking like a quiet period.
+`scripts/check-feature-endpoints.mjs` runs from `prebuild`/`predev` and fails the
+build on a pattern that could never match a real key (query strings, platform
+prefixes, literal ids, wrong method/path shape). Add to the map when a feature
+starts calling a new endpoint.
+
 ## Two kinds of usage counter
 
 `usage_counters` holds two things that look alike and are not. Both are written
