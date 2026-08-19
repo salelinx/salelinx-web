@@ -12,7 +12,10 @@ import { useMemo, useState } from "react";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
-import type { HealthSeverity } from "@/lib/admin/health-data";
+import type {
+  HealthSeverity,
+  ReportDeliveryRow,
+} from "@/lib/admin/health-data";
 
 export type HealthTableRow = {
   endpoint_key: string;
@@ -36,6 +39,8 @@ type Props = {
   totalCalls: number;
   reporting: boolean;
   windowLabel: string;
+  deliveries: ReportDeliveryRow[];
+  lastReportAt: string | null;
 };
 
 type Filter = "all" | "problems" | "vinted" | "depop";
@@ -71,6 +76,8 @@ export function AdminHealthTable({
   totalCalls,
   reporting,
   windowLabel,
+  deliveries,
+  lastReportAt,
 }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -127,7 +134,45 @@ export function AdminHealthTable({
           value={totalCalls.toLocaleString("en-US")}
           tone="neutral"
         />
+        {/* Ingest health, distinct from endpoint health. Without it, "nothing
+            is broken" and "nothing is reporting" render identically. */}
+        <Stat
+          label="Reports (7d)"
+          value={deliveries
+            .reduce((sum, d) => sum + d.reports, 0)
+            .toLocaleString("en-US")}
+          tone={deliveries.length === 0 ? "warn" : "neutral"}
+        />
+        <div>
+          <div className="text-lg font-semibold tabular-nums text-zinc-900">
+            {lastReportAt
+              ? new Date(lastReportAt).toLocaleString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "never"}
+          </div>
+          <div className="text-xs text-zinc-500">Last report</div>
+        </div>
       </div>
+
+      {/* A batch arriving but being rejected wholesale means the payload shape
+          is wrong - a distinct failure from nothing arriving, and invisible on
+          the endpoint table. */}
+      {deliveries.some((d) => d.entries_accepted < d.entries_sent) && (
+        <div className="shrink-0 border-b border-[var(--admin-border)] bg-amber-50 px-4 py-2 text-xs text-amber-800">
+          Some reported counters were rejected by validation (
+          {deliveries.reduce(
+            (sum, d) => sum + (d.entries_sent - d.entries_accepted),
+            0,
+          )}{" "}
+          of{" "}
+          {deliveries.reduce((sum, d) => sum + d.entries_sent, 0)} in the last 7
+          days). Check the payload shape against record_endpoint_health.
+        </div>
+      )}
 
       <div className="flex shrink-0 gap-1 px-4 py-2">
         {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
@@ -148,10 +193,17 @@ export function AdminHealthTable({
 
       <div className="min-h-0 flex-1 overflow-auto">
         {!reporting ? (
-          <p className="px-4 py-8 text-sm text-zinc-500">
-            No telemetry received yet. Endpoint health appears once extension
-            builds with telemetry enabled start reporting.
-          </p>
+          <div className="px-4 py-8 text-sm text-zinc-500">
+            <p className="font-medium text-zinc-700">
+              No telemetry received yet.
+            </p>
+            <p className="mt-1">
+              Nothing has reached the ingest, so this is upstream of the server:
+              either no build carrying telemetry is running, every install is
+              signed out (the report needs a valid session), or a day has not
+              elapsed since the last report.
+            </p>
+          </div>
         ) : visible.length === 0 ? (
           <p className="px-4 py-8 text-sm text-zinc-500">
             No endpoints match this filter.

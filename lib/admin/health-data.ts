@@ -53,19 +53,42 @@ export function severityFor(row: AdminEndpointHealthRow): HealthSeverity {
   return "ok";
 }
 
+// One hour of report deliveries (migration 031). Shown so an empty dashboard is
+// never ambiguous: "no endpoints failing" and "nothing is reporting" look
+// identical on the endpoint table alone.
+export type ReportDeliveryRow = {
+  bucket_hour: string;
+  reports: number;
+  entries_sent: number;
+  entries_accepted: number;
+  calls_reported: number;
+  versions: string[];
+};
+
 export async function loadHealthRows(windowHours = 24): Promise<{
   rows: HealthTableRow[];
   brokenCount: number;
   warnCount: number;
   totalCalls: number;
   reporting: boolean;
+  deliveries: ReportDeliveryRow[];
+  lastReportAt: string | null;
 }> {
   const supabase = await createServerClient();
 
-  const { data, error } = await supabase.rpc("admin_endpoint_health", {
-    p_window_hours: windowHours,
-    p_baseline_hours: 168,
-  });
+  // Independent reads, so they resolve together.
+  const [healthRes, deliveryRes] = await Promise.all([
+    supabase.rpc("admin_endpoint_health", {
+      p_window_hours: windowHours,
+      p_baseline_hours: 168,
+    }),
+    supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
+  ]);
+
+  const { data, error } = healthRes;
+  const deliveries = (deliveryRes.data as ReportDeliveryRow[] | null) ?? [];
+  // Rows come back newest-first from the RPC.
+  const lastReportAt = deliveries[0]?.bucket_hour ?? null;
 
   if (error) {
     // Fail soft: an empty dashboard with a clear "no data" state beats a 500,
@@ -76,6 +99,8 @@ export async function loadHealthRows(windowHours = 24): Promise<{
       warnCount: 0,
       totalCalls: 0,
       reporting: false,
+      deliveries,
+      lastReportAt,
     };
   }
 
@@ -106,6 +131,11 @@ export async function loadHealthRows(windowHours = 24): Promise<{
     brokenCount: rows.filter((r) => r.severity === "broken").length,
     warnCount: rows.filter((r) => r.severity === "warn").length,
     totalCalls: rows.reduce((sum, r) => sum + r.total_calls, 0),
-    reporting: rows.length > 0,
+    // Reports arriving, not endpoints seen: an install can report a batch of
+    // all-healthy counters outside the endpoint window, and that still means
+    // telemetry is working.
+    reporting: rows.length > 0 || deliveries.length > 0,
+    deliveries,
+    lastReportAt,
   };
 }

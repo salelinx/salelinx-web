@@ -107,5 +107,26 @@ Deno.serve(async (req: Request) => {
     return json({ error: "insert failed" }, 500);
   }
 
-  return json({ inserted: data ?? 0 });
+  const inserted = (data as number | null) ?? 0;
+
+  // Delivery log (migration 031). Without this an empty dashboard is ambiguous:
+  // no builds reporting, everyone signed out, and every row being rejected all
+  // look identical. Best-effort - a failure here must not fail an ingest that
+  // already succeeded.
+  const callsReported = cleaned.reduce((sum, e) => {
+    const n = Number(e.count);
+    return sum + (Number.isFinite(n) && n > 0 ? n : 0);
+  }, 0);
+  const version = cleaned.find((e) => typeof e.extension_version === "string")
+    ?.extension_version ?? "unknown";
+
+  const { error: logErr } = await admin.rpc("record_endpoint_health_report", {
+    p_entries_sent: cleaned.length,
+    p_entries_accepted: inserted,
+    p_calls_reported: callsReported,
+    p_extension_version: version,
+  });
+  if (logErr) console.error("record_endpoint_health_report failed:", logErr.message);
+
+  return json({ inserted });
 });

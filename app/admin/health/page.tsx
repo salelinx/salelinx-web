@@ -20,8 +20,15 @@ import { AdminHealthTable } from "@/components/admin/health/AdminHealthTable";
 export const dynamic = "force-dynamic";
 
 export default async function AdminHealthPage() {
-  const { rows, brokenCount, warnCount, totalCalls, reporting } =
-    await loadHealthRows(24);
+  const {
+    rows,
+    brokenCount,
+    warnCount,
+    totalCalls,
+    reporting,
+    deliveries,
+    lastReportAt,
+  } = await loadHealthRows(24);
 
   return (
     <AdminHealthTable
@@ -31,6 +38,8 @@ export default async function AdminHealthPage() {
       totalCalls={totalCalls}
       reporting={reporting}
       windowLabel="last 24h vs 7-day baseline"
+      deliveries={deliveries}
+      lastReportAt={lastReportAt}
     />
   );
 }
