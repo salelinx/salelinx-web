@@ -66,6 +66,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `resolve-category` - `verify_jwt = false` (handler validates via `getUser(jwt)`, checks the caller's tier allows crosslisting and has monthly allowance left, then resolves against the tables in `_generated/`. **Deployed but not yet called by any extension build** - the crosslister still uses its own bundled tables. See `docs/EDGE-FUNCTIONS.md` "Wiring up resolve-category" for what is left to do)
 - `get-referral-discount` - `verify_jwt = false` (public on purpose: returns only the referee coupon's terms (percent/amount, duration), never the coupon id)
 - `report-telemetry` - `verify_jwt = false` (extension POSTs anonymous endpoint-health counters once a day; handler validates via `getUser(jwt)` as a spam gate only and discards the identity, then forwards to `record_endpoint_health`; read side is `/admin/health`)
+- `report-selftest` - `verify_jwt = false` (admin console self-test; extension POSTs one endpoint self-test run with the user's JWT. Handler validates via `getUser(jwt)`, KEEPS the identity, and re-checks `admin_users` with the service role before writing. Cannot gate on `is_admin()` because that needs AAL2 and the extension has no MFA flow - it is write-only and exposes no read path, so reads still require AAL2 via `admin_selftest_runs()`)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 
