@@ -18,7 +18,11 @@ const source = fs.readFileSync(file, "utf8");
 // Pull the string literals out of each endpoints: [...] block. Parsing the TS
 // properly would mean pulling in a compiler; the file is a plain literal array
 // and this script fails loudly if that ever stops being true.
-const blocks = [...source.matchAll(/key:\s*"([^"]+)"[\s\S]*?endpoints:\s*\[([\s\S]*?)\]/g)];
+const blocks = [
+  ...source.matchAll(
+    /key:\s*"([^"]+)"[\s\S]*?platform:\s*"([^"]+)"[\s\S]*?endpoints:\s*\[([\s\S]*?)\]/g,
+  ),
+];
 
 if (blocks.length === 0) {
   console.error(
@@ -32,9 +36,15 @@ const METHOD_PATH = /^(GET|POST|PUT|DELETE|PATCH) \//;
 const problems = [];
 const seenKeys = new Set();
 
-for (const [, key, body] of blocks) {
+for (const [, key, platform, body] of blocks) {
   if (seenKeys.has(key)) problems.push(`duplicate feature key "${key}"`);
   seenKeys.add(key);
+
+  // The roll-up matches on `platform|endpoint`, so an unknown platform here
+  // means the feature can never match a row - the same silent "no data".
+  if (platform !== "depop" && platform !== "vinted") {
+    problems.push(`"${key}": platform "${platform}" must be depop or vinted`);
+  }
 
   const endpoints = [...body.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
   if (endpoints.length === 0) problems.push(`"${key}" lists no endpoints`);

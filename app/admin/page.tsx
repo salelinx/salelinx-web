@@ -3,6 +3,7 @@ import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import type { AdminSubscriptionRow, AdminAuditRow } from "@/lib/types/admin";
 import { countNeedsReply } from "@/lib/admin/needs-reply";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { loadHealthRows } from "@/lib/admin/health-data";
 
 // /admin home dashboard. The admin layout has already gated access (and RLS /
 // the is_admin()-gated RPCs gate the reads below regardless). We gather a few
@@ -20,7 +21,7 @@ export default async function AdminHomePage() {
 
   // Independent reads: tickets, subscriptions and the audit log do not depend
   // on each other, so they resolve together instead of in series.
-  const [ticketsRes, subsRes, auditRes] = await Promise.all([
+  const [ticketsRes, subsRes, auditRes, health] = await Promise.all([
     supabase
       .from("support_tickets")
       .select("id,status")
@@ -32,12 +33,14 @@ export default async function AdminHomePage() {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(10),
+    // Marketplace health, so a breakage is visible on the landing page rather
+    // than only to someone who thought to open /admin/health. Fails soft to an
+    // all-unknown rollup, matching the module itself.
+    loadHealthRows(24),
   ]);
 
-  const tickets = (ticketsRes.data as Pick<
-    SupportTicket,
-    "id" | "status"
-  >[] | null) ?? [];
+  const tickets =
+    (ticketsRes.data as Pick<SupportTicket, "id" | "status">[] | null) ?? [];
 
   // Replies are only needed to tell which OPEN ticket was last spoken on by the
   // user, so the fetch is scoped to those ticket ids and to the two columns the
@@ -76,7 +79,11 @@ export default async function AdminHomePage() {
 
   // Resolve actor emails for the recent audit entries.
   const actorIds = Array.from(
-    new Set(recentAudit.map((a) => a.actor_id).filter((id): id is string => id !== null)),
+    new Set(
+      recentAudit
+        .map((a) => a.actor_id)
+        .filter((id): id is string => id !== null),
+    ),
   );
   const actorEmails: Record<string, string> = {};
   if (actorIds.length > 0) {
@@ -84,8 +91,7 @@ export default async function AdminHomePage() {
       p_user_ids: actorIds,
     });
     for (const row of (emailRows as
-      | { user_id: string; email: string }[]
-      | null) ?? []) {
+      { user_id: string; email: string }[] | null) ?? []) {
       actorEmails[row.user_id] = row.email;
     }
   }
@@ -99,6 +105,8 @@ export default async function AdminHomePage() {
       tierCounts={tierCounts}
       recentAudit={recentAudit}
       actorEmails={actorEmails}
+      features={health.features}
+      healthReporting={health.reporting}
     />
   );
 }

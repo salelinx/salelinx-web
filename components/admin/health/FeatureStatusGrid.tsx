@@ -41,7 +41,6 @@ const STATUS_LABEL: Record<FeatureStatus["status"], string> = {
 const PLATFORM_LABEL: Record<FeatureStatus["platform"], string> = {
   depop: "Depop",
   vinted: "Vinted",
-  both: "Both",
 };
 
 export function FeatureStatusGrid({ features }: Props) {
@@ -61,64 +60,79 @@ export function FeatureStatusGrid({ features }: Props) {
         </p>
       </div>
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-2">
-        {features.map((f) => (
-          <div
-            key={f.key}
-            className={`rounded-md border px-3 py-2.5 ${CARD_TONE[f.status]}`}
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className={`inline-block h-2 w-2 shrink-0 rounded-full ${DOT_TONE[f.status]}`}
-                aria-hidden="true"
-              />
-              <span className="truncate text-sm font-medium">{f.label}</span>
+      {/* Grouped by marketplace, because that is how these actually break: a
+          Vinted schema change takes out Vinted crosslisting while Depop keeps
+          working, and the first question is always "which one". */}
+      {(["vinted", "depop"] as const).map((platform) => {
+        const group = features.filter((f) => f.platform === platform);
+        if (group.length === 0) return null;
+
+        return (
+          <div key={platform} className="mb-4 last:mb-0">
+            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              {PLATFORM_LABEL[platform]}
+            </h3>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-2">
+              {group.map((f) => (
+                <FeatureCard key={f.key} feature={f} />
+              ))}
             </div>
-
-            <div className="mt-1 flex items-baseline justify-between gap-2">
-              <span
-                className={
-                  f.status === "unknown"
-                    ? "text-xs text-zinc-400"
-                    : "text-xs text-zinc-600"
-                }
-              >
-                {STATUS_LABEL[f.status]}
-              </span>
-              <span className="text-[10px] uppercase tracking-wide text-zinc-400">
-                {PLATFORM_LABEL[f.platform]}
-              </span>
-            </div>
-
-            {f.status === "unknown" ? (
-              <p className="mt-1 text-[11px] text-zinc-400">
-                No calls in this window
-              </p>
-            ) : (
-              <p className="mt-1 text-[11px] tabular-nums text-zinc-500">
-                {f.totalCalls.toLocaleString("en-US")} calls
-                {f.failureRate !== null && f.failureRate > 0
-                  ? ` - ${f.failureRate}% failing`
-                  : ""}
-                {/* Coverage, so a green card backed by one of ten endpoints
-                    does not read as a full all-clear. */}
-                {f.endpointsSeen < f.endpointsTotal
-                  ? ` (${f.endpointsSeen}/${f.endpointsTotal} endpoints seen)`
-                  : ""}
-              </p>
-            )}
-
-            {f.worstEndpoint && (
-              <p
-                className="mt-1 truncate font-mono text-[10px] text-zinc-500"
-                title={f.worstEndpoint}
-              >
-                {f.worstEndpoint}
-              </p>
-            )}
           </div>
-        ))}
-      </div>
+        );
+      })}
     </section>
+  );
+}
+
+function FeatureCard({ feature: f }: { feature: FeatureStatus }) {
+  return (
+    <div className={`rounded-md border px-3 py-2.5 ${CARD_TONE[f.status]}`}>
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-block h-2 w-2 shrink-0 rounded-full ${DOT_TONE[f.status]}`}
+          aria-hidden="true"
+        />
+        <span className="truncate text-sm font-medium">{f.label}</span>
+      </div>
+
+      <div className="mt-1">
+        <span
+          className={
+            f.status === "unknown"
+              ? "text-xs text-zinc-400"
+              : "text-xs text-zinc-600"
+          }
+        >
+          {STATUS_LABEL[f.status]}
+        </span>
+      </div>
+
+      {f.status === "unknown" ? (
+        <p className="mt-1 text-[11px] text-zinc-400">
+          No calls in this window
+        </p>
+      ) : (
+        <p className="mt-1 text-[11px] tabular-nums text-zinc-500">
+          {f.totalCalls.toLocaleString("en-US")} calls
+          {f.failureRate !== null && f.failureRate > 0
+            ? ` - ${f.failureRate}% failing`
+            : ""}
+          {/* Coverage, so a green card backed by one of ten endpoints does not
+              read as a full all-clear. */}
+          {f.endpointsSeen < f.endpointsTotal
+            ? ` (${f.endpointsSeen}/${f.endpointsTotal} endpoints seen)`
+            : ""}
+        </p>
+      )}
+
+      {f.worstEndpoint && (
+        <p
+          className="mt-1 truncate font-mono text-[10px] text-zinc-500"
+          title={f.worstEndpoint}
+        >
+          {f.worstEndpoint}
+        </p>
+      )}
+    </div>
   );
 }

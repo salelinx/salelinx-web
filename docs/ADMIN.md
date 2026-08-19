@@ -310,6 +310,19 @@ Offers, Follow, Auto-markdown, Restocker, My listings, Feedback bot, Account
 linking). Telemetry is keyed by endpoint because that is all the fetch wrappers
 can see, so the inverse mapping lives in `lib/admin/feature-endpoints.ts`.
 
+**Every entry is scoped to ONE marketplace**, and the grid groups by platform.
+A feature that exists on both is two entries, because that is how it actually
+breaks: Vinted changing its draft schema takes out Vinted crosslisting while
+Depop keeps working, and a merged card would show that as a partial failure with
+no way to tell which side. The roll-up matches on `platform|endpoint` rather
+than the path alone - several paths (`/api/v2/products/:slug/`,
+`/api/v2/drafts/`) exist on both marketplaces, so matching on path would credit
+Vinted traffic to a Depop feature.
+
+The same grid renders on `/admin` (the Overview landing page), where the whole
+band links into this module. It is hidden entirely there when nothing is
+reporting, since a wall of "no data" cards above the real summaries is noise.
+
 Two rules matter for reading it:
 
 - **A feature is as healthy as its WORST endpoint**, never an average. A

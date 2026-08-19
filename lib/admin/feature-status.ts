@@ -40,20 +40,23 @@ function endpointPart(endpointKey: string): string {
 }
 
 export function rollUpFeatures(rows: HealthTableRow[]): FeatureStatus[] {
-  // Index once: with ~12 features x ~10 endpoints this would otherwise be a
-  // scan of every row per endpoint.
+  // Indexed by `platform|METHOD /path`, not by path alone. Several endpoints
+  // exist on BOTH marketplaces under the same path - '/api/v2/products/:slug/'
+  // and '/api/v2/drafts/' among them - so matching on the path would credit
+  // Vinted traffic to a Depop feature and vice versa, which is exactly the
+  // confusion splitting by platform is meant to remove.
   const byEndpoint = new Map<string, HealthTableRow[]>();
   for (const row of rows) {
-    const part = endpointPart(row.endpoint_key);
-    const existing = byEndpoint.get(part);
+    const key = `${row.platform}|${endpointPart(row.endpoint_key)}`;
+    const existing = byEndpoint.get(key);
     if (existing) existing.push(row);
-    else byEndpoint.set(part, [row]);
+    else byEndpoint.set(key, [row]);
   }
 
   return FEATURE_ENDPOINTS.map((feature) => {
     const matched: HealthTableRow[] = [];
     for (const endpoint of feature.endpoints) {
-      const hits = byEndpoint.get(endpoint);
+      const hits = byEndpoint.get(`${feature.platform}|${endpoint}`);
       if (hits) matched.push(...hits);
     }
 
@@ -80,7 +83,8 @@ export function rollUpFeatures(rows: HealthTableRow[]): FeatureStatus[] {
     // and averaging would hide that behind the healthy majority.
     let worst: HealthTableRow = matched[0];
     for (const row of matched) {
-      if (SEVERITY_RANK[row.severity] > SEVERITY_RANK[worst.severity]) worst = row;
+      if (SEVERITY_RANK[row.severity] > SEVERITY_RANK[worst.severity])
+        worst = row;
     }
 
     return {
@@ -93,7 +97,8 @@ export function rollUpFeatures(rows: HealthTableRow[]): FeatureStatus[] {
       failureRate:
         totalCalls > 0 ? Math.round((failures / totalCalls) * 1000) / 10 : null,
       // Distinct endpoints, since one endpoint can produce several rows.
-      endpointsSeen: new Set(matched.map((r) => endpointPart(r.endpoint_key))).size,
+      endpointsSeen: new Set(matched.map((r) => endpointPart(r.endpoint_key)))
+        .size,
       endpointsTotal: feature.endpoints.length,
       worstEndpoint: worst.severity === "ok" ? null : worst.endpoint_key,
     };
