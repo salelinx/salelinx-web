@@ -818,13 +818,6 @@
         "degraded": "Degraded",
         "down": "Outage"
       },
-      "card": {
-        "eyebrow": "Status",
-        "allOk": "All marketplaces operational",
-        "someDegraded": "Some marketplaces degraded",
-        "someDown": "One or more marketplaces down",
-        "body": "Live view of which marketplaces SaleLinx is currently posting to."
-      },
       "featuresHeading": "Extension features",
       "featuresBody": "Live view of the features in the SaleLinx extension, grouped by marketplace. Updated automatically from real usage.",
       "selfHelpHeading": "Everything looks operational, but it's not working for me",
