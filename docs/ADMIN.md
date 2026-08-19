@@ -14,7 +14,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Extension usage | `/admin/usage` | Live, read-only | Product metering for the current period (crosslist, relist, refresh, follow, unfollow), measured against the user's `tier_limits` caps. Sorted by percent-of-cap. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for the current period (checkout / portal sessions, deletion requests, label emails, email changes), measured against the hardcoded per-day cap in the calling code. |
-| Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `029_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
+| Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `030_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 

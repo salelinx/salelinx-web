@@ -145,7 +145,7 @@ export type AdminAuditRow = {
   created_at: string;
 };
 
-// Row from admin_endpoint_health() (migration 029_endpoint_health.sql): one
+// Row from admin_endpoint_health() (migration 030_endpoint_health.sql): one
 // marketplace endpoint's call outcomes over the recent window, aggregated
 // across all reporting installs. Anonymous by construction - endpoint_health
 // carries no user_id, so there is no per-user drill-down here by design.

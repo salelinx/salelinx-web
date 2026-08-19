@@ -76,7 +76,7 @@ separate controller, not buyer data on our behalf).
   User IDs are acceptable. This is enforced by convention; check any new
   `console.log` in `supabase/functions/`.
 - Endpoint health telemetry (`endpoint_health`, migration
-  `029_endpoint_health.sql`): 90 days, via `prune_endpoint_health()`. Schedule it
+  `030_endpoint_health.sql`): 90 days, via `prune_endpoint_health()`. Schedule it
   alongside the ticket purge:
   `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
 

@@ -9,7 +9,7 @@
 // AUTH: the caller sends the user's Supabase JWT in Authorization, validated
 // with getUser(jwt) - the same pattern as send-shipping-labels. This is only
 // used to prove the caller is a real signed-in user, as a spam gate. The user
-// id is deliberately NOT stored: see the header comment on migration 029 for
+// id is deliberately NOT stored: see the header comment on migration 030 for
 // why endpoint_health is anonymous. Anonymous data, authenticated transport.
 //
 // verify_jwt = false at the gateway (Supabase cannot verify our ES256 tokens),
