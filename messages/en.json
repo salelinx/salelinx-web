@@ -83,6 +83,10 @@
     "ctaAddToChrome": "Add to Chrome",
     "ctaSignIn": "Sign in",
     "previewEyebrow": "Try the live demo",
+    "marketplaces": {
+      "worksWith": "Works with",
+      "roadmap": "More marketplaces on the roadmap"
+    },
     "preview": {
       "tabs": {
         "listings": "Listings",

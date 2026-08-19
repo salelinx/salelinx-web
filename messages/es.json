@@ -83,6 +83,10 @@
     "ctaGetStarted": "Empezar",
     "ctaSignIn": "Iniciar sesión",
     "previewEyebrow": "Prueba la demo interactiva",
+    "marketplaces": {
+      "worksWith": "Funciona con",
+      "roadmap": "Más marketplaces en la hoja de ruta"
+    },
     "preview": {
       "tabs": {
         "listings": "Anuncios",
