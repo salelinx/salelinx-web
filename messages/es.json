@@ -939,5 +939,26 @@
       "body": "¿Falta una marketplace o una función? Dinos qué necesitas y la pesaremos en la próxima ronda de planificación.",
       "cta": "Escribe a hello@salelinx.com"
     }
+  },
+  "Uninstall": {
+    "metaTitle": "Sentimos que te vayas",
+    "metaDescription": "Cuéntanos por qué desinstalaste SaleLinx para ayudarnos a mejorar.",
+    "title": "SaleLinx se ha desinstalado",
+    "subtitle": "Sentimos que te vayas. Un clic sobre lo que falló nos ayudaría mucho.",
+    "reason": {
+      "too_expensive": "Demasiado caro",
+      "missing_feature": "Le faltaba una función que necesito",
+      "not_working": "Algo no funcionaba",
+      "stopped_selling": "Dejé de vender",
+      "switched_tool": "Me cambié a otra herramienta",
+      "other": "Otro"
+    },
+    "commentPlaceholder": "¿Algo más que quieras contarnos? (opcional)",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "thanks": "Gracias. Cada respuesta define lo próximo que arreglamos.",
+    "error": "No se pudo enviar ahora mismo. No se perdió nada, vuelve a intentarlo.",
+    "reinstallHint": "¿Lo quitaste porque algo falló?",
+    "helpLink": "Nuestras páginas de ayuda pueden tener la solución."
   }
 }
