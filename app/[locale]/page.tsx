@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { SITE_NAME, SITE_URL, absoluteUrl, pageMetadata } from '@/lib/site';
 import { Hero } from '@/components/home/Hero';
-import { MarketplaceStrip } from '@/components/home/MarketplaceStrip';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
 import { HeadlineFeatures } from '@/components/features/HeadlineFeatures';
@@ -100,7 +99,6 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
-      <MarketplaceStrip />
       <div className="section-band">
         <HowItWorks />
       </div>

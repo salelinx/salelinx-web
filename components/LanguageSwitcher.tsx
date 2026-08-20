@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
-import { LOCALES, type Locale } from '@/lib/i18n/locales';
+import { LOCALES, LOCALE_LABELS, type Locale } from '@/lib/i18n/locales';
 
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
@@ -54,9 +54,10 @@ export function LanguageSwitcher() {
         aria-label={t('label')}
         disabled={isPending}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-7 w-7 items-center justify-center rounded-full border border-black/10 transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:hover:bg-white/5"
+        className="flex h-8 items-center gap-1 rounded-full border border-black/10 px-2.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:text-zinc-300 dark:hover:bg-white/5"
       >
-        <Flag code={locale} className="h-4 w-4" />
+        <span>{LOCALE_LABELS[locale].short}</span>
+        <ChevronDown className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open ? (
@@ -77,8 +78,10 @@ export function LanguageSwitcher() {
                     active ? 'font-medium' : 'text-zinc-700 dark:text-zinc-300'
                   }`}
                 >
-                  <span className="flex items-center gap-2.5">
-                    <Flag code={code} className="h-4 w-4" />
+                  <span className="flex items-center gap-2">
+                    <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500">
+                      {LOCALE_LABELS[code].short}
+                    </span>
                     <span>{t(nameKey[code])}</span>
                   </span>
                   {active ? <CheckIcon className="h-3.5 w-3.5" /> : null}
@@ -92,49 +95,20 @@ export function LanguageSwitcher() {
   );
 }
 
-/* Tiny SVG flags kept inline so they render identically on every OS
-   (emoji flags fall back to plain letters on Windows). Each draws on a
-   30x20 canvas and is slice-cropped to a circle by the viewBox offset. */
-function Flag({ code, className }: { code: Locale; className?: string }) {
+function ChevronDown({ className }: { className?: string }) {
   return (
-    <span
-      className={`inline-block shrink-0 overflow-hidden rounded-full ring-1 ring-black/10 dark:ring-white/20 ${className ?? ''}`}
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
       aria-hidden
     >
-      <svg
-        viewBox="5 0 20 20"
-        preserveAspectRatio="xMidYMid slice"
-        className="h-full w-full"
-        aria-hidden
-      >
-        {code === 'en' ? (
-          <>
-            <rect width="30" height="20" fill="#012169" />
-            <path d="M0 0 30 20M30 0 0 20" stroke="#ffffff" strokeWidth="4" />
-            <path d="M0 0 30 20M30 0 0 20" stroke="#C8102E" strokeWidth="2" />
-            <path d="M15 0v20M0 10h30" stroke="#ffffff" strokeWidth="6.5" />
-            <path d="M15 0v20M0 10h30" stroke="#C8102E" strokeWidth="4" />
-          </>
-        ) : code === 'fr' ? (
-          <>
-            <rect width="10" height="20" fill="#002395" />
-            <rect x="10" width="10" height="20" fill="#ffffff" />
-            <rect x="20" width="10" height="20" fill="#ED2939" />
-          </>
-        ) : code === 'es' ? (
-          <>
-            <rect width="30" height="20" fill="#AA151B" />
-            <rect y="5" width="30" height="10" fill="#F1BF00" />
-          </>
-        ) : (
-          <>
-            <rect width="30" height="6.67" fill="#000000" />
-            <rect y="6.67" width="30" height="6.67" fill="#DD0000" />
-            <rect y="13.33" width="30" height="6.67" fill="#FFCE00" />
-          </>
-        )}
-      </svg>
-    </span>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   );
 }
 
