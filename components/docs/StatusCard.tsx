@@ -32,7 +32,7 @@ export async function StatusCard() {
     >
       <div className="flex items-start justify-between gap-6">
         <div className="min-w-0">
-          <span className={`${MONO} text-zinc-500`}>{t('card.eyebrow')}</span>
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('card.eyebrow')}</span>
           <div className="mt-2 flex items-center gap-2.5">
             <span className={`inline-block h-2.5 w-2.5 rounded-full ${meta.dot}`} />
             <h3 className="text-lg font-semibold tracking-tight">

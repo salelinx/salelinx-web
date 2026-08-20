@@ -2473,9 +2473,17 @@ export function HeroPreview() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 -bottom-8 flex justify-center">
-        <div className="font-mono text-[0.66rem] uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-500">
-          Runs in your browser · Depop + Vinted
+      {/* Caption tracks the active tab so the panel narrates itself as it
+          auto-cycles. Reuses the tab's own translated header strings, so it
+          follows the page locale instead of the hardcoded English this used
+          to show on every locale. */}
+      <div className="pointer-events-none absolute inset-x-0 -bottom-9 flex justify-center px-6">
+        <div
+          key={activeTab}
+          className="panel-swap text-center font-mono text-[0.66rem] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-400"
+        >
+          {headerTitle} <span className="text-zinc-400 dark:text-zinc-500">·</span>{' '}
+          {headerMeta}
         </div>
       </div>
     </div>

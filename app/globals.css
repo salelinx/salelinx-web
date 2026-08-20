@@ -71,13 +71,17 @@ body {
      sideways. `clip` rather than `hidden` because `hidden` would make body a
      scroll container and break the sticky header. */
   overflow-x: clip;
-  /* Faint large-cell grid, the light theme's only texture. Kept subtle so
-     white cards still read as surfaces on top of it. */
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 112px 112px;
-  background-position: 0 0;
+  /* Vertical column guides only, the light theme's only texture.
+     Horizontal lines are deliberately absent: the background is
+     viewport-fixed, so horizontal rules would slide against the content as
+     you scroll and never line up with a section edge (the footer's rule
+     being the obvious one). Vertical guides do not move on scroll, so they
+     stay aligned.
+     80px cells centred on the viewport means the 1280px (max-w-7xl) content
+     container lands exactly on a guide at both edges: 1280 / 80 = 16. */
+  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 100%;
+  background-position: center top;
   background-attachment: fixed;
   background-repeat: repeat;
   color: var(--foreground);

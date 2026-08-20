@@ -38,7 +38,7 @@ export default async function StatusPage() {
         ]}
       />
       <header className="mt-8">
-        <span className={`${MONO} text-zinc-500`}>{t('status.eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('status.eyebrow')}</span>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
           {t('status.title')}
         </h1>

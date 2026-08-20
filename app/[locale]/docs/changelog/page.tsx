@@ -40,7 +40,7 @@ export default async function ChangelogPage({
         ]}
       />
       <header className="mt-8">
-        <span className={`${MONO} text-zinc-500`}>{t('changelog.eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('changelog.eyebrow')}</span>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
           {t('changelog.title')}
         </h1>
@@ -55,7 +55,7 @@ export default async function ChangelogPage({
             key={metadata.date}
             className="border-t border-black/10 pt-10 dark:border-white/10"
           >
-            <span className={`${MONO} text-zinc-500`}>
+            <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
               {formatChangelogDate(metadata.date, locale as Locale)}
             </span>
             <div className="mt-2">

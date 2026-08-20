@@ -65,7 +65,7 @@ export function FAQList({ groups }: { groups: FAQGroup[] }) {
           {filteredGroups.map((group) => (
             <section key={group.slug} id={group.slug}>
               <div>
-                <span className={`${MONO} text-zinc-500`}>{group.slug}</span>
+                <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{group.slug}</span>
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight">
                   {group.title}
                 </h2>

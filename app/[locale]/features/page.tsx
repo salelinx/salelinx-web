@@ -40,8 +40,10 @@ export default async function FeaturesPage({
 
   return (
     <main>
-      <section className="mx-auto w-full max-w-7xl px-6 pt-20 pb-20 text-center sm:pt-28 sm:pb-24">
-        <span className={`${MONO} text-zinc-500`}>{t('hero.eyebrow')}</span>
+      {/* Bottom padding is small on purpose: the section below opens with its
+          own pt-20, so a matching pb here stacked into a ~200px dead gap. */}
+      <section className="mx-auto w-full max-w-7xl px-6 pt-20 pb-6 text-center sm:pt-28 sm:pb-8">
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('hero.eyebrow')}</span>
         <h1 className="mx-auto mt-6 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">
           {t('hero.title')}
         </h1>
@@ -69,8 +71,8 @@ export default async function FeaturesPage({
         <PricingSection tiers={tiers} />
         <RoadmapSection />
 
-        <section className="border-t border-black/10 py-24 text-center dark:border-white/10">
-          <span className={`${MONO} text-zinc-500`}>{t('ctaSection.eyebrow')}</span>
+        <section className="border-t border-black/10 py-20 text-center dark:border-white/10">
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('ctaSection.eyebrow')}</span>
           <h2 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
             {t('ctaSection.title')}
           </h2>

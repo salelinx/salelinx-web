@@ -51,7 +51,7 @@ export async function RoadmapCard({ item }: { item: RoadmapItem }) {
       </p>
 
       <div className="mt-4 border-t border-black/5 pt-3 dark:border-white/5">
-        <span className={`${MONO} text-zinc-500`}>{t(`meta.${item.metaKey}`)}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t(`meta.${item.metaKey}`)}</span>
       </div>
     </li>
   );

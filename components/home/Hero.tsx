@@ -45,7 +45,7 @@ export async function Hero() {
         </Reveal>
 
         <Reveal delay={120}>
-          <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-medium leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
+          <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
             {t.rich('heroTitle', HERO_BRAND_TAGS)}
           </h1>
         </Reveal>
@@ -96,7 +96,10 @@ export async function Hero() {
         </Reveal>
       </div>
 
-      <div className="mx-auto max-w-5xl px-6 pb-24">
+      {/* Wider than the copy above it (max-w-5xl) so the demo reads as the
+          hero moment rather than another block of page content. Extra bottom
+          padding clears the caption that now sits under the panel. */}
+      <div className="mx-auto max-w-6xl px-6 pb-28">
         <Reveal delay={420}>
           <div className="mb-7 flex justify-center">
             <span className="group relative inline-flex items-center gap-2.5 rounded-full border border-emerald-500/30 bg-white/70 px-4 py-2 text-sm font-medium text-emerald-700 shadow-[0_8px_30px_-12px_rgba(16,185,129,0.45)] backdrop-blur dark:border-emerald-400/30 dark:bg-emerald-400/[0.06] dark:text-emerald-200 dark:shadow-[0_8px_30px_-12px_rgba(16,185,129,0.55)]">

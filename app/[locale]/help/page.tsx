@@ -40,7 +40,7 @@ export default async function HelpPage({
   return (
     <main className="mx-auto w-full max-w-4xl px-6">
       <section className="pt-20 pb-10 sm:pt-24">
-        <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
           {t('title')}
         </h1>

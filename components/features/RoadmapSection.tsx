@@ -10,7 +10,7 @@ export async function RoadmapSection() {
   return (
     <section id="roadmap" className="scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10">
       <div className="pb-12">
-        <span className={`${MONO} text-zinc-500`}>{t('sectionHeader.eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('sectionHeader.eyebrow')}</span>
         <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
           {t('sectionHeader.title')}
         </h2>
@@ -31,7 +31,7 @@ export async function RoadmapSection() {
 
       <div className="mt-16 flex flex-col items-start gap-4 border-t border-black/10 pt-10 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
         <div>
-          <span className={`${MONO} text-zinc-500`}>{t('request.eyebrow')}</span>
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('request.eyebrow')}</span>
           <p className="mt-2 max-w-xl text-zinc-600 dark:text-zinc-400">
             {t('request.body')}
           </p>

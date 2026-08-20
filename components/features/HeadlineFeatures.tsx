@@ -124,7 +124,7 @@ export async function HeadlineFeatures() {
   return (
     <div className="pt-16 pb-4">
       <Reveal as="div" className="pb-10">
-        <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
         <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
           {t('title')}
         </h2>
@@ -180,7 +180,10 @@ export async function HeadlineFeatures() {
                   {t(`items.${item.id}.body`)}
                 </p>
 
-                <div className="mt-6 flex items-center gap-3 pt-1">
+                {/* mt-auto pins this row to the bottom of the card, so the
+                    "learn more" line sits level across cards whose body copy
+                    runs to different lengths. */}
+                <div className="mt-auto flex items-center gap-3 pt-7">
                   <span className="inline-flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
                     {t.rich(`items.${item.id}.works`, BRAND_TAGS)}
                   </span>

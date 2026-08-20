@@ -64,7 +64,7 @@ export default async function CategoryPage({
               <Icon name={cat.icon} className="h-6 w-6" />
             </span>
             <div>
-              <span className={`${MONO} text-zinc-500`}>{t('categoryPageEyebrow')}</span>
+              <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('categoryPageEyebrow')}</span>
               <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
                 {t(`category.${cat.slug}.title`)}
               </h1>

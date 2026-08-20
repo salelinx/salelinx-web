@@ -75,7 +75,7 @@ export default async function ArticlePage({
             ]}
           />
           <div className="mt-6 flex items-center gap-3">
-            <span className={`${MONO} text-zinc-500`}>{categoryTitle}</span>
+            <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{categoryTitle}</span>
             <span className={`${MONO} text-zinc-400`}>
               {t('articleUpdated', { date: article.metadata.updated })}
             </span>

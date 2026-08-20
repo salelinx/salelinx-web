@@ -21,7 +21,7 @@ export async function RoadmapColumn({
   return (
     <section className="flex flex-col">
       <header className="pb-6">
-        <span className={`${MONO} text-zinc-500`}>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
           {t(`columns.${column.status}.eyebrow`)}
         </span>
         <div className="mt-3 flex items-center gap-2.5">

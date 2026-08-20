@@ -197,11 +197,11 @@ export async function FeaturesSection() {
   const t = await getTranslations("Features");
 
   return (
-    <section id="features" className="scroll-mt-20 pt-16 pb-8">
+    <section id="features" className="scroll-mt-20 py-20">
       <HeadlineFeatures />
 
       <Reveal as="div" className="mt-24 border-t border-black/10 pt-16 pb-4 dark:border-white/10">
-        <span className={`${MONO} text-zinc-500`}>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
           {t("sectionHeader.eyebrow")}
         </span>
         <h2 className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl">
