@@ -39,6 +39,18 @@ export type HealthTableRow = {
   severity: HealthSeverity;
 };
 
+// One aggregated crash bucket (admin_crash_health, migration 037). Error
+// constructor names only - the table can never show a message or stack
+// because the pipeline never collects one.
+export type CrashHealthRow = {
+  context: string;
+  kind: string;
+  error_name: string;
+  crashes: number;
+  versions: string[];
+  last_seen: string;
+};
+
 type Props = {
   rows: HealthTableRow[];
   brokenCount: number;
@@ -50,6 +62,7 @@ type Props = {
   lastReportAt: string | null;
   features: FeatureStatus[];
   overrides: OverrideRow[];
+  crashes: CrashHealthRow[];
 };
 
 type Filter = "all" | "problems" | "vinted" | "depop";
@@ -89,6 +102,7 @@ export function AdminHealthTable({
   lastReportAt,
   features,
   overrides,
+  crashes,
 }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -338,6 +352,74 @@ export function AdminHealthTable({
             </tbody>
           </table>
         )}
+        </AdminSection>
+
+        {/* Our own code's health, distinct from marketplace endpoints: rows
+            here mean the EXTENSION threw, not that Depop or Vinted broke.
+            Names only by design (see crash_health migration header). */}
+        <AdminSection
+          storageKey="health-crashes"
+          title="Extension crashes"
+          summary={
+            crashes.length === 0
+              ? "None reported (7d)"
+              : `${crashes
+                  .reduce((sum, c) => sum + c.crashes, 0)
+                  .toLocaleString("en-US")} in 7d`
+          }
+        >
+          {crashes.length === 0 ? (
+            <p className="px-4 py-6 text-sm text-zinc-500">
+              No uncaught errors reported in the last 7 days.
+            </p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Where</th>
+                  <th className="px-4 py-2 font-medium">Kind</th>
+                  <th className="px-4 py-2 font-medium">Error</th>
+                  <th className="px-4 py-2 text-right font-medium">Count</th>
+                  <th className="px-4 py-2 font-medium">Versions</th>
+                  <th className="px-4 py-2 text-right font-medium">Last seen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {crashes.map((c) => (
+                  <tr
+                    key={`${c.context}|${c.kind}|${c.error_name}`}
+                    className="border-t border-[var(--admin-border)]"
+                  >
+                    <td className="px-4 py-2">
+                      <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] uppercase text-zinc-600">
+                        {c.context}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-xs text-zinc-500">
+                      {c.kind}
+                    </td>
+                    <td className="px-4 py-2 font-mono text-xs">
+                      {c.error_name}
+                    </td>
+                    <td className="px-4 py-2 text-right font-semibold tabular-nums text-red-700">
+                      {c.crashes.toLocaleString("en-US")}
+                    </td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-500">
+                      {c.versions.join(", ")}
+                    </td>
+                    <td className="px-4 py-2 text-right text-xs tabular-nums text-zinc-500">
+                      {new Date(c.last_seen).toLocaleString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </AdminSection>
       </div>
 
