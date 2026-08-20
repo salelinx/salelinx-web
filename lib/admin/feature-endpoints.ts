@@ -240,9 +240,11 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     key: "account-depop",
     label: "Account linking",
     platform: "depop",
+    // /api/v1/shop/me/ is deliberately absent: it runs against the MOBILE host
+    // via depopMobileFetch, which is not instrumented, so the key could never
+    // appear in telemetry and the pattern would match nothing forever.
     endpoints: [
       "GET /presentation/api/v1/users/me/",
-      "GET /api/v1/shop/me/",
       "GET /api/v1/shop/:id/",
     ],
   },
