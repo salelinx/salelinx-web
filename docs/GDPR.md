@@ -81,6 +81,12 @@ separate controller, not buyer data on our behalf).
   alongside the ticket purge:
   `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
 
+The same reasoning covers `crash_health` (migration 036): context, kind and
+error CONSTRUCTOR NAME only - never the message or stack, since either can
+embed whatever user data was being interpolated when the code threw. Prune
+alongside: `SELECT cron.schedule('prune-crash-health', '29 3 * * *', 'SELECT
+public.prune_crash_health()');`
+
 ### Endpoint health telemetry is not personal data
 
 `endpoint_health` deliberately has **no `user_id` column**. It stores counters

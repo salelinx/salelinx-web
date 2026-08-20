@@ -74,9 +74,6 @@ Deno.serve(async (req: Request) => {
   if (!Array.isArray(entries)) {
     return json({ error: "entries must be an array" }, 400);
   }
-  if (entries.length === 0) {
-    return json({ inserted: 0 });
-  }
   if (entries.length > MAX_ENTRIES) {
     return json({ error: "too many entries" }, 413);
   }
@@ -96,18 +93,67 @@ Deno.serve(async (req: Request) => {
     };
   });
 
-  const admin = createClient(supabaseUrl, serviceRoleKey);
-  const { data, error } = await admin.rpc("record_endpoint_health", {
-    p_batch: cleaned,
-  });
+  // Crash counters (migration 036) ride the same daily report. Optional:
+  // older extension builds send only `entries`. Same anonymity contract -
+  // the RPC accepts an error NAME, never a message or stack.
+  const crashesRaw = (payload as { crashes?: unknown })?.crashes;
+  const crashes = Array.isArray(crashesRaw)
+    ? crashesRaw.slice(0, MAX_ENTRIES).map((c) => {
+        const crash = c as Record<string, unknown>;
+        return {
+          context: crash.context,
+          kind: crash.kind,
+          error_name: crash.error_name,
+          count: crash.count,
+          extension_version: crash.extension_version,
+          bucket_hour: crash.bucket_hour,
+        };
+      })
+    : [];
 
-  if (error) {
-    // No user id, no endpoint payload in the log - just the failure reason.
-    console.error("record_endpoint_health failed:", error.message);
-    return json({ error: "insert failed" }, 500);
+  // A report with neither side is a no-op, not an error - old builds send
+  // {entries: []} on quiet days.
+  if (cleaned.length === 0 && crashes.length === 0) {
+    return json({ inserted: 0, crashesInserted: 0 });
   }
 
-  const inserted = (data as number | null) ?? 0;
+  const admin = createClient(supabaseUrl, serviceRoleKey);
+
+  let inserted = 0;
+  let endpointErr: string | null = null;
+  if (cleaned.length > 0) {
+    const { data, error } = await admin.rpc("record_endpoint_health", {
+      p_batch: cleaned,
+    });
+    if (error) {
+      // No user id, no endpoint payload in the log - just the failure reason.
+      console.error("record_endpoint_health failed:", error.message);
+      endpointErr = error.message;
+    } else {
+      inserted = (data as number | null) ?? 0;
+    }
+  }
+
+  let crashesInserted = 0;
+  if (crashes.length > 0) {
+    const { data: crashData, error: crashErr } = await admin.rpc(
+      "record_crash_health",
+      { p_batch: crashes },
+    );
+    if (crashErr) {
+      // Independent of the endpoint ingest: one failing must not lose the
+      // other's batch. The extension retries whichever side reported zero.
+      console.error("record_crash_health failed:", crashErr.message);
+    } else {
+      crashesInserted = (crashData as number | null) ?? 0;
+    }
+  }
+
+  // Endpoint ingest failure still 500s as before (the extension keeps its
+  // counters and retries) - but only after the crash batch got its chance.
+  if (endpointErr) {
+    return json({ error: "insert failed" }, 500);
+  }
 
   // Delivery log (migration 031). Without this an empty dashboard is ambiguous:
   // no builds reporting, everyone signed out, and every row being rejected all
@@ -120,13 +166,18 @@ Deno.serve(async (req: Request) => {
   const version = cleaned.find((e) => typeof e.extension_version === "string")
     ?.extension_version ?? "unknown";
 
-  const { error: logErr } = await admin.rpc("record_endpoint_health_report", {
-    p_entries_sent: cleaned.length,
-    p_entries_accepted: inserted,
-    p_calls_reported: callsReported,
-    p_extension_version: version,
-  });
-  if (logErr) console.error("record_endpoint_health_report failed:", logErr.message);
+  // Crash-only reports skip the delivery log: it counts endpoint-health
+  // delivery, and a zero-entry row per crash report would read as "a build
+  // reporting nothing", the exact ambiguity the log exists to remove.
+  if (cleaned.length > 0) {
+    const { error: logErr } = await admin.rpc("record_endpoint_health_report", {
+      p_entries_sent: cleaned.length,
+      p_entries_accepted: inserted,
+      p_calls_reported: callsReported,
+      p_extension_version: version,
+    });
+    if (logErr) console.error("record_endpoint_health_report failed:", logErr.message);
+  }
 
-  return json({ inserted });
+  return json({ inserted, crashesInserted });
 });
