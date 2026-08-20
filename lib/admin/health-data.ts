@@ -1,6 +1,9 @@
 import { createServerClient } from "@/lib/supabase/server";
 import type { AdminEndpointHealthRow } from "@/lib/types/admin";
-import type { HealthTableRow } from "@/components/admin/health/AdminHealthTable";
+import type {
+  HealthTableRow,
+  CrashHealthRow,
+} from "@/components/admin/health/AdminHealthTable";
 import { rollUpFeatures } from "@/lib/admin/feature-status";
 import type { OverrideRow } from "@/components/admin/health/StatusOverrideControls";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
@@ -78,17 +81,21 @@ export async function loadHealthRows(windowHours = 24): Promise<{
   reporting: boolean;
   deliveries: ReportDeliveryRow[];
   lastReportAt: string | null;
+  crashes: CrashHealthRow[];
 }> {
   const supabase = await createServerClient();
 
   // Independent reads, so they resolve together.
-  const [healthRes, deliveryRes, overrideRes] = await Promise.all([
+  const [healthRes, deliveryRes, overrideRes, crashRes] = await Promise.all([
     supabase.rpc("admin_endpoint_health", {
       p_window_hours: windowHours,
       p_baseline_hours: 168,
     }),
     supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
     supabase.rpc("admin_list_status_overrides"),
+    // Extension crash buckets (migration 037). 7-day window like deliveries:
+    // "did the new build start throwing" needs a few days of context.
+    supabase.rpc("admin_crash_health", { p_window_hours: 168 }),
   ]);
 
   // Manual status set on the public page (migration 033). Empty is the normal
@@ -97,6 +104,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
 
   const { data, error } = healthRes;
   const deliveries = (deliveryRes.data as ReportDeliveryRow[] | null) ?? [];
+  const crashes = (crashRes.data as CrashHealthRow[] | null) ?? [];
   // Rows come back newest-first from the RPC.
   const lastReportAt = deliveries[0]?.bucket_hour ?? null;
 
@@ -113,6 +121,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
       reporting: false,
       deliveries,
       lastReportAt,
+      crashes,
     };
   }
 
@@ -151,5 +160,6 @@ export async function loadHealthRows(windowHours = 24): Promise<{
     reporting: rows.length > 0 || deliveries.length > 0,
     deliveries,
     lastReportAt,
+    crashes,
   };
 }

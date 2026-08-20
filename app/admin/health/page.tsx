@@ -30,6 +30,7 @@ export default async function AdminHealthPage() {
     lastReportAt,
     features,
     overrides,
+    crashes,
   } = await loadHealthRows(24);
 
   return (
@@ -44,6 +45,7 @@ export default async function AdminHealthPage() {
       lastReportAt={lastReportAt}
       features={features}
       overrides={overrides}
+      crashes={crashes}
     />
   );
 }

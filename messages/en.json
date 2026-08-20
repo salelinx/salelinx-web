@@ -939,5 +939,42 @@
       "body": "Missing a marketplace or feature? Tell us what you need and we'll weigh it in the next planning round.",
       "cta": "Email hello@salelinx.com"
     }
+  },
+  "Uninstall": {
+    "metaTitle": "Sorry to see you go",
+    "metaDescription": "Tell us why you uninstalled SaleLinx so we can make it better.",
+    "title": "SaleLinx has been uninstalled",
+    "subtitle": "Sorry to see you go. One click on what went wrong would help us a lot.",
+    "reason": {
+      "too_expensive": "Too expensive",
+      "missing_feature": "Missing a feature I need",
+      "not_working": "Something did not work",
+      "stopped_selling": "I stopped selling",
+      "switched_tool": "Switched to another tool",
+      "other": "Other"
+    },
+    "commentPlaceholder": "Anything else you want us to know? (optional)",
+    "send": "Send feedback",
+    "sending": "Sending...",
+    "thanks": "Thank you. Every answer here shapes what we fix next.",
+    "error": "Could not send right now. Nothing was lost, feel free to try again.",
+    "reinstallHint": "Removed it because something broke?",
+    "helpLink": "Our help pages might have the fix."
+  },
+  "Welcome": {
+    "metaTitle": "Welcome to SaleLinx",
+    "metaDescription": "Three steps to get your Depop and Vinted shop running in SaleLinx.",
+    "eyebrow": "Installed",
+    "title": "You are all set up",
+    "subtitle": "SaleLinx lives inside Depop and Vinted, not in a separate app. Here is how to find it.",
+    "step1Title": "Pin the extension",
+    "step1Text": "Click the puzzle icon in the Chrome toolbar and pin SaleLinx so it is always in reach.",
+    "step2Title": "Open Depop or Vinted",
+    "step2Text": "Go to the marketplace you sell on. The SaleLinx launcher appears on the page automatically.",
+    "step3Title": "Open the panel and link your shop",
+    "step3Text": "Click the launcher, create your free account, and link your shop. Everything runs from there.",
+    "openDepop": "Open Depop",
+    "openVinted": "Open Vinted",
+    "docsLink": "Or read the guides"
   }
 }

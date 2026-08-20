@@ -939,5 +939,42 @@
       "body": "¿Falta una marketplace o una función? Dinos qué necesitas y la pesaremos en la próxima ronda de planificación.",
       "cta": "Escribe a hello@salelinx.com"
     }
+  },
+  "Uninstall": {
+    "metaTitle": "Sentimos que te vayas",
+    "metaDescription": "Cuéntanos por qué desinstalaste SaleLinx para ayudarnos a mejorar.",
+    "title": "SaleLinx se ha desinstalado",
+    "subtitle": "Sentimos que te vayas. Un clic sobre lo que falló nos ayudaría mucho.",
+    "reason": {
+      "too_expensive": "Demasiado caro",
+      "missing_feature": "Le faltaba una función que necesito",
+      "not_working": "Algo no funcionaba",
+      "stopped_selling": "Dejé de vender",
+      "switched_tool": "Me cambié a otra herramienta",
+      "other": "Otro"
+    },
+    "commentPlaceholder": "¿Algo más que quieras contarnos? (opcional)",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "thanks": "Gracias. Cada respuesta define lo próximo que arreglamos.",
+    "error": "No se pudo enviar ahora mismo. No se perdió nada, vuelve a intentarlo.",
+    "reinstallHint": "¿Lo quitaste porque algo falló?",
+    "helpLink": "Nuestras páginas de ayuda pueden tener la solución."
+  },
+  "Welcome": {
+    "metaTitle": "Bienvenido a SaleLinx",
+    "metaDescription": "Tres pasos para conectar tu tienda de Depop y Vinted con SaleLinx.",
+    "eyebrow": "Instalado",
+    "title": "Todo listo",
+    "subtitle": "SaleLinx vive dentro de Depop y Vinted, no en una aplicación aparte. Así se encuentra.",
+    "step1Title": "Fija la extensión",
+    "step1Text": "Haz clic en el icono del puzle de la barra de Chrome y fija SaleLinx para tenerlo siempre a mano.",
+    "step2Title": "Abre Depop o Vinted",
+    "step2Text": "Ve al marketplace donde vendes. El lanzador de SaleLinx aparece en la página automáticamente.",
+    "step3Title": "Abre el panel y vincula tu tienda",
+    "step3Text": "Haz clic en el lanzador, crea tu cuenta gratuita y vincula tu tienda. Todo funciona desde ahí.",
+    "openDepop": "Abrir Depop",
+    "openVinted": "Abrir Vinted",
+    "docsLink": "O lee las guías"
   }
 }
