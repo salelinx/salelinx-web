@@ -173,7 +173,10 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     key: "auto-markdown-depop",
     label: "Auto-markdown",
     platform: "depop",
-    endpoints: ["POST /api/v2/discounts/", "GET /api/v2/discounts/"],
+    // PATCH, not POST or GET. depopSetDiscounts is the only call site and it
+    // sends PATCH, so the two forms previously listed here could never match a
+    // real telemetry key - Auto-markdown would have read as "no data" forever.
+    endpoints: ["PATCH /api/v2/discounts/"],
   },
   {
     key: "auto-markdown-vinted",
