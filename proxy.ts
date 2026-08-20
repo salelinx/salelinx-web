@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "@/i18n/routing";
+import {
+  acceptLanguageMatches,
+  hasLocalePrefix,
+  localeFromCountry,
+} from "@/lib/i18n/geo";
 
 type CookieEntry = { name: string; value: string; options?: CookieOptions };
 
@@ -34,6 +39,29 @@ export async function proxy(request: NextRequest) {
     pathname === "/r" ||
     pathname.startsWith("/r/") ||
     isAdminPath;
+
+  // Language prediction. next-intl already picks a locale from the NEXT_LOCALE
+  // cookie and then Accept-Language, which is the better signal: it is the
+  // language the visitor actually chose in their browser. This only covers the
+  // gap - somebody in France or Spain whose browser asks for a language we
+  // don't publish - by falling back to the country Vercel geolocates them to.
+  // A previous explicit choice always wins, because the cookie is checked
+  // first and set as soon as anyone uses the language switcher.
+  if (
+    !skipIntl &&
+    !hasLocalePrefix(pathname) &&
+    !request.cookies.get(routing.localeCookie.name) &&
+    !acceptLanguageMatches(request.headers.get("accept-language"))
+  ) {
+    const predicted = localeFromCountry(
+      request.headers.get("x-vercel-ip-country"),
+    );
+    if (predicted) {
+      const target = request.nextUrl.clone();
+      target.pathname = `/${predicted}${pathname === "/" ? "" : pathname}`;
+      return NextResponse.redirect(target);
+    }
+  }
 
   let response = skipIntl
     ? NextResponse.next({ request })
