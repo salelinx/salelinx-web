@@ -81,15 +81,19 @@ export default async function WelcomePage({
           href="https://www.depop.com"
           aria-label={t('openDepop')}
           title={t('openDepop')}
-          className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
+          className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:bg-zinc-900"
         >
           <BrandWordmark brand="depop" variant="wordmark" height="1.05rem" />
         </a>
+        {/* Vinted's brand teal (#007782) is too dark to read on the dark
+            theme, so the mark lifts to the brighter dark-mode variant the
+            extension itself uses for Vinted (#09b1ba). CSS fill beats the
+            SVG's fill attribute, so no BrandWordmark change is needed. */}
         <a
           href="https://www.vinted.co.uk"
           aria-label={t('openVinted')}
           title={t('openVinted')}
-          className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
+          className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:bg-zinc-900 dark:[&_svg]:fill-[#09b1ba]"
         >
           <BrandWordmark brand="vinted" variant="wordmark" height="1.35rem" />
         </a>
