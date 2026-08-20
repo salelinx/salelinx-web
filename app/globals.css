@@ -50,11 +50,11 @@ html {
   /* In-page anchor jumps (header nav -> #features, #pricing) snap instantly
      so navigating across long sections doesn't feel like a long scroll. */
   scroll-behavior: auto;
-  /* Without this, pulling past the top of the page (trackpad/touch
+  /* Without this, pulling past the edge of the page (trackpad/touch
      rubber-banding) drags the whole document - including the sticky
-     header - down with it before it springs back. This stops the bounce
-     at the document level so the header never visibly moves. */
-  overscroll-behavior-y: none;
+     header - with it before it springs back. Both axes are pinned so the
+     page never slides sideways either. */
+  overscroll-behavior: none;
 }
 
 /* Tailwind's preflight resets <button> to cursor: default (browsers default
@@ -66,6 +66,11 @@ button:not(:disabled) {
 
 body {
   background-color: var(--background);
+  /* Belt and braces with overscroll-behavior above: if any section ever
+     overflows a few pixels, clip it rather than letting the whole page scroll
+     sideways. `clip` rather than `hidden` because `hidden` would make body a
+     scroll container and break the sticky header. */
+  overflow-x: clip;
   /* Faint large-cell grid, the light theme's only texture. Kept subtle so
      white cards still read as surfaces on top of it. */
   background-image:
