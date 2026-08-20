@@ -45,9 +45,7 @@ export async function loadSelfTestRuns(limit = 10): Promise<SelfTestRunRow[]> {
   return data as SelfTestRunRow[];
 }
 
-/** Per-run drill-down. Not yet rendered - the runs table is the useful view
- *  first, and admin_selftest_results() exists for the detail view that follows.
- *  Kept here so the RPC has exactly one caller when that lands. */
+/** Per-run drill-down: every endpoint the run touched, failures first. */
 export async function loadSelfTestResults(
   runId: string,
 ): Promise<SelfTestResultRow[]> {
@@ -57,4 +55,21 @@ export async function loadSelfTestResults(
   });
   if (error || !data) return [];
   return data as SelfTestResultRow[];
+}
+
+/**
+ * Results for several runs at once, keyed by run id.
+ *
+ * Fetched with the runs rather than on click: the admin page is already a
+ * server component, a run holds ~25 rows, and ten runs is a few hundred rows in
+ * total - far cheaper than a round trip per expand, and it makes the drill-down
+ * instant. Queries run concurrently since they are independent.
+ */
+export async function loadSelfTestResultsFor(
+  runIds: string[],
+): Promise<Record<string, SelfTestResultRow[]>> {
+  const entries = await Promise.all(
+    runIds.map(async (id) => [id, await loadSelfTestResults(id)] as const),
+  );
+  return Object.fromEntries(entries);
 }

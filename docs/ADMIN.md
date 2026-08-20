@@ -522,6 +522,11 @@ call: accepting a real buyer's offer, following a real user, editing a real
 price, creating a real discount. These are never run and are recorded as
 `not_run`, so a green run cannot be misread as full coverage.
 
+Click a run to expand it: every endpoint it touched, with the outcome, HTTP
+status, any skip reason, and how long the call took. Failures sort first.
+Results are loaded with the runs rather than on click, so expanding costs no
+round trip - ten runs is a few hundred rows in total.
+
 ### Reading the results
 
 - **Failed** means the endpoint itself is broken: `client_error`,
