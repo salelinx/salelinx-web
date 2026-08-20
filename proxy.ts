@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import createIntlMiddleware from "next-intl/middleware";
-import { routing } from "@/i18n/routing";
+import { LOCALE_COOKIE_NAME, routing } from "@/i18n/routing";
 import {
   acceptLanguageMatches,
   hasLocalePrefix,
@@ -50,7 +50,7 @@ export async function proxy(request: NextRequest) {
   if (
     !skipIntl &&
     !hasLocalePrefix(pathname) &&
-    !request.cookies.get(routing.localeCookie.name) &&
+    !request.cookies.get(LOCALE_COOKIE_NAME) &&
     !acceptLanguageMatches(request.headers.get("accept-language"))
   ) {
     const predicted = localeFromCountry(
