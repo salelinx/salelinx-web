@@ -27,29 +27,15 @@
    and sets the inherited text colour. The `dark` custom-variant above
    skips elements inside `.light`, so `dark:` utilities don't apply. */
 .light {
-  --background: #ececef;
-  --background-band: #e0e0e3;
+  /* The shell sits a touch below pure white so the panel still reads as a
+     distinct app window against the white page, while the cards inside it
+     stay true white. */
+  --background: #f4f4f5;
+  --background-band: #ebebed;
   --band-hairline: rgba(0, 0, 0, 0.08);
   --dot-color: rgba(24, 24, 27, 0.09);
   --foreground: #1f1f1f;
   color: var(--foreground);
-}
-
-/* Soften every white-ish surface inside the light island so the panel
-   reads as a neutral light-grey card. The attribute selector catches
-   every `bg-white`, `bg-white/95`, etc. without having to enumerate
-   each slash-escaped Tailwind class. We exclude very-low-alpha variants
-   (`bg-white/[0.0X]`, `bg-white/10`, `bg-white/15`) so those subtle
-   overlays still read as accents on top of the grey surface. */
-.light [class~="bg-white"],
-.light [class~="bg-white/95"],
-.light [class~="bg-white/90"],
-.light [class~="bg-white/80"],
-.light [class~="bg-white/70"],
-.light [class~="bg-white/60"],
-.light [class~="bg-zinc-50"],
-.light [class~="bg-zinc-50/60"] {
-  background-color: #e4e4e7 !important;
 }
 
 @theme inline {
@@ -120,22 +106,15 @@ body {
    viewport-fixed corner glow flows through it. It used to paint its own
    opaque copy of the body gradient + glows, which created a hard seam at
    its top edge and a second, misaligned glow while scrolling. */
+/* Transparent in both themes: the light page shows through as white, and in
+   dark mode the body's corner glow flows through unbroken. Text colours live
+   on the elements themselves so each theme picks its own. */
 .cta-band {
   position: relative;
-  color: #f5f5f4;
-  /* Everything inside this band is styled for a dark surface (white headline,
-     translucent white borders and buttons). On the light theme the page behind
-     it is white, so the band paints its own dark ground to keep that legible. */
-  background:
-    radial-gradient(60vw 60vh at 12% 0%, rgba(16, 185, 129, 0.28), transparent 62%),
-    radial-gradient(55vw 60vh at 90% 100%, rgba(16, 185, 129, 0.22), transparent 62%),
-    linear-gradient(135deg, #0a0a0d 0%, #131322 55%, #0a0a0d 100%);
 }
 
-/* In dark mode the body already paints that gradient and its corner glows, so
-   the band goes transparent again and lets them flow through unbroken. */
 .dark .cta-band {
-  background: none;
+  color: #f5f5f4;
 }
 
 /* Motion primitives ported from the extension panel.
