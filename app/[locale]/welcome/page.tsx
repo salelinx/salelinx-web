@@ -81,7 +81,7 @@ export default async function WelcomePage({
           href="https://www.depop.com"
           aria-label={t('openDepop')}
           title={t('openDepop')}
-          className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
+          className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
         >
           <BrandWordmark brand="depop" variant="wordmark" height="1.05rem" />
         </a>
@@ -89,7 +89,7 @@ export default async function WelcomePage({
           href="https://www.vinted.co.uk"
           aria-label={t('openVinted')}
           title={t('openVinted')}
-          className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
+          className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
         >
           <BrandWordmark brand="vinted" variant="wordmark" height="1.35rem" />
         </a>
