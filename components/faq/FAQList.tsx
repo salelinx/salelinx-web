@@ -83,7 +83,7 @@ export function FAQList({ groups }: { groups: FAQGroup[] }) {
                         onClick={() => setOpenId(isOpen ? null : item.id)}
                         aria-expanded={isOpen}
                         aria-controls={`faq-a-${item.id}`}
-                        className="flex w-full items-center justify-between gap-6 bg-white px-5 py-4 text-left transition hover:bg-black/[0.03] dark:bg-zinc-950 dark:hover:bg-white/[0.03]"
+                        className="flex w-full items-center justify-between gap-6 bg-white px-5 py-4 text-start transition hover:bg-black/[0.03] dark:bg-zinc-950 dark:hover:bg-white/[0.03]"
                       >
                         <span
                           className="font-medium"

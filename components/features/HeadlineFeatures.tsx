@@ -185,7 +185,7 @@ export async function HeadlineFeatures() {
                     {t.rich(`items.${item.id}.works`, BRAND_TAGS)}
                   </span>
                   <span
-                    className="ml-auto text-sm text-zinc-500 transition-transform group-hover:translate-x-0.5 dark:text-zinc-400"
+                    className="ms-auto text-sm text-zinc-500 transition-transform group-hover:translate-x-0.5 dark:text-zinc-400"
                     aria-hidden
                   >
                     {t('learnMore')} {'->'}

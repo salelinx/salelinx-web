@@ -85,7 +85,7 @@ export async function Header() {
                     <form action="/auth/signout" method="post">
                       <button
                         type="submit"
-                        className="block w-full rounded-lg px-3 py-2 text-left text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        className="block w-full rounded-lg px-3 py-2 text-start text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
                       >
                         {t('signOut')}
                       </button>
@@ -105,7 +105,7 @@ export async function Header() {
           <LanguageSwitcher />
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 sm:hidden">
+        <div className="ms-auto flex items-center gap-2 sm:hidden">
           <LanguageSwitcher />
         </div>
 

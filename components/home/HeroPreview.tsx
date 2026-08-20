@@ -2363,7 +2363,10 @@ export function HeroPreview() {
   };
 
   return (
-    <div className="relative mx-auto w-full">
+    // Pinned LTR: this is a mockup of the extension panel, whose own UI is
+    // laid out left to right. Mirroring it under an RTL locale would misdraw
+    // the sidebar, progress bars and column alignment rather than translate it.
+    <div dir="ltr" className="relative mx-auto w-full">
       <div className="relative rounded-2xl bg-gradient-to-b from-black/15 via-black/5 to-transparent p-px shadow-[0_40px_100px_-30px_rgba(0,0,0,0.45)] dark:from-white/20 dark:via-white/5 dark:to-white/0 dark:shadow-[0_40px_120px_-30px_rgba(0,0,0,0.7)]">
         <div className="relative overflow-hidden rounded-[15px] bg-white/95 backdrop-blur-xl dark:bg-zinc-950/95">
           <div className="flex items-center justify-between border-b border-black/[0.06] px-4 py-3 dark:border-white/10">
