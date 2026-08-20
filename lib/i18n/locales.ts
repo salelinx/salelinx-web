@@ -10,4 +10,17 @@ export const LOCALE_LABELS: Record<Locale, { short: string; name: string }> = {
   fr: { short: 'FR', name: 'Français' },
   es: { short: 'ES', name: 'Español' },
   de: { short: 'DE', name: 'Deutsch' },
+  ar: { short: 'AR', name: 'العربية' },
+  zh: { short: 'ZH', name: '简体中文' },
 };
+
+/** Locales written right to left. Drives the <html dir> attribute. */
+export const RTL_LOCALES: readonly Locale[] = ['ar'];
+
+export function isRtlLocale(locale: string): boolean {
+  return (RTL_LOCALES as readonly string[]).includes(locale);
+}
+
+export function dirForLocale(locale: string): 'rtl' | 'ltr' {
+  return isRtlLocale(locale) ? 'rtl' : 'ltr';
+}

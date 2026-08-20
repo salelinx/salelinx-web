@@ -38,11 +38,16 @@ export function LanguageSwitcher() {
     });
   }
 
-  const nameKey: Record<Locale, 'english' | 'french' | 'spanish' | 'german'> = {
+  const nameKey: Record<
+    Locale,
+    'english' | 'french' | 'spanish' | 'german' | 'arabic' | 'chinese'
+  > = {
     en: 'english',
     fr: 'french',
     es: 'spanish',
     de: 'german',
+    ar: 'arabic',
+    zh: 'chinese',
   };
 
   return (
@@ -62,7 +67,7 @@ export function LanguageSwitcher() {
       {open ? (
         <ul
           role="listbox"
-          className="absolute right-0 top-full z-20 mt-2 min-w-[10rem] overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-zinc-950"
+          className="absolute end-0 top-full z-20 mt-2 min-w-[10rem] overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-zinc-950"
         >
           {LOCALES.map((code) => {
             const active = code === locale;
@@ -73,7 +78,7 @@ export function LanguageSwitcher() {
                   role="option"
                   aria-selected={active}
                   onClick={() => select(code)}
-                  className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${
+                  className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-start text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${
                     active ? 'font-medium' : 'text-zinc-700 dark:text-zinc-300'
                   }`}
                 >
@@ -94,8 +99,23 @@ export function LanguageSwitcher() {
 
 /* Tiny SVG flags kept inline so they render identically on every OS
    (emoji flags fall back to plain letters on Windows). Each draws on a
-   30x20 canvas and is slice-cropped to a circle by the viewBox offset. */
+   30x20 canvas and is slice-cropped to a circle by the viewBox offset.
+
+   Arabic deliberately gets a lettermark rather than a flag: it is spoken
+   across more than twenty countries, so any single flag would be wrong for
+   most of the people who read it. */
 function Flag({ code, className }: { code: Locale; className?: string }) {
+  if (code === 'ar') {
+    return (
+      <span
+        className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-[0.6rem] font-semibold leading-none text-white ring-1 ring-black/10 dark:bg-white dark:text-zinc-900 dark:ring-white/20 ${className ?? ''}`}
+        aria-hidden
+      >
+        ع
+      </span>
+    );
+  }
+
   return (
     <span
       className={`inline-block shrink-0 overflow-hidden rounded-full ring-1 ring-black/10 dark:ring-white/20 ${className ?? ''}`}
@@ -107,7 +127,18 @@ function Flag({ code, className }: { code: Locale; className?: string }) {
         className="h-full w-full"
         aria-hidden
       >
-        {code === 'en' ? (
+        {code === 'zh' ? (
+          <>
+            <rect width="30" height="20" fill="#DE2910" />
+            <g fill="#FFDE00">
+              <path d="M5 3.2 5.94 6.1 3.48 4.31h3.04L4.06 6.1z" />
+              <path d="m10.2 1.6.35 1.08-.92-.67h1.14l-.92.67z" />
+              <path d="m11.9 3.9.35 1.08-.92-.67h1.14l-.92.67z" />
+              <path d="m11.9 6.7.35 1.08-.92-.67h1.14l-.92.67z" />
+              <path d="m10.2 8.9.35 1.08-.92-.67h1.14l-.92.67z" />
+            </g>
+          </>
+        ) : code === 'en' ? (
           <>
             <rect width="30" height="20" fill="#012169" />
             <path d="M0 0 30 20M30 0 0 20" stroke="#ffffff" strokeWidth="4" />

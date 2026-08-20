@@ -10,6 +10,7 @@ import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { SmoothAnchorScroll } from '@/components/SmoothAnchorScroll';
 import { routing } from '@/i18n/routing';
+import { dirForLocale } from '@/lib/i18n/locales';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 const geistSans = Geist({
@@ -85,6 +86,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
+      dir={dirForLocale(locale)}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

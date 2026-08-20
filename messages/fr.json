@@ -181,7 +181,9 @@
     "english": "English",
     "french": "Français",
     "spanish": "Español",
-    "german": "Deutsch"
+    "german": "Deutsch",
+    "arabic": "العربية",
+    "chinese": "简体中文"
   },
   "Auth": {
     "emailPlaceholder": "vous@exemple.com",
@@ -585,7 +587,7 @@
           },
           "multilanguage": {
             "label": "Dans votre langue",
-            "detail": "Disponible en anglais, français, espagnol et allemand, avec thèmes clair et sombre."
+            "detail": "Disponible en anglais, français, espagnol, allemand, arabe et chinois, avec thèmes clair et sombre."
           }
         }
       },

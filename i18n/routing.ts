@@ -5,7 +5,7 @@ import { defineRouting } from 'next-intl/routing';
 export const LOCALE_COOKIE_NAME = 'NEXT_LOCALE';
 
 export const routing = defineRouting({
-  locales: ['en', 'fr', 'es', 'de'],
+  locales: ['en', 'fr', 'es', 'de', 'ar', 'zh'],
   defaultLocale: 'en',
   localePrefix: 'as-needed',
   localeCookie: {

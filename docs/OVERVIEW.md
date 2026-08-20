@@ -33,6 +33,14 @@ React stream ──▶ browser
 
 **Key rule:** Server Components use `lib/supabase/server.ts`. Client Components use `lib/supabase/client.ts`. Never cross the boundary.
 
+## Locales
+
+Six locales ship: `en`, `fr`, `es`, `de`, `ar`, `zh`.
+
+`ar` and `zh` are only partly translated. Their UI strings (`messages/`) and FAQ (`lib/faq/data.*.tsx`) are done, but the long-form docs and changelog are not, so `ARTICLE_MODULES_BY_LOCALE` and `CHANGELOG_MODULES_BY_LOCALE` map them to the English articles and `build-docs-index.mjs` falls back to the English search records. To finish either language, add `content/docs/<locale>/` and `content/changelog/<locale>/` and point those two maps at the new imports; nothing else changes.
+
+`ar` is right to left. `dirForLocale()` in `lib/i18n/locales.ts` drives the `dir` attribute on `<html>`. Use logical Tailwind utilities (`text-start`, `ms-auto`, `end-0`) in anything localized, not `text-left`/`ml-auto`/`right-0`, or it will not mirror. The hero demo panel is deliberately pinned `dir="ltr"`: it mockups the extension's own left-to-right UI.
+
 ## Locale detection
 
 A visitor with no locale in the URL gets one predicted for them, in this order:
