@@ -82,15 +82,9 @@ export async function Hero() {
                 />
               </svg>
             </Link>
-            <Link
-              href="/features#pricing"
-              className="inline-flex items-center rounded-full border border-black/10 bg-white/60 px-5 py-2.5 text-sm font-medium text-zinc-900 backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:bg-white/[0.08]"
-            >
-              {t('ctaSeePricing')}
-            </Link>
             <InstallExtensionButton
               label={t('ctaAddToChrome')}
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-emerald-500/30 bg-emerald-500/[0.08] px-5 py-2.5 text-sm font-medium text-emerald-700 backdrop-blur transition hover:bg-emerald-500/[0.14] dark:border-emerald-400/30 dark:bg-emerald-400/[0.08] dark:text-emerald-200 dark:hover:bg-emerald-400/[0.14]"
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-black/10 bg-white/70 px-5 py-2.5 text-sm font-medium text-zinc-900 backdrop-blur transition hover:border-black/20 hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:border-white/25 dark:hover:bg-white/[0.08]"
             />
           </div>
         </Reveal>
@@ -101,20 +95,20 @@ export async function Hero() {
           padding clears the caption that now sits under the panel. */}
       <div className="mx-auto max-w-6xl px-6 pb-28">
         <Reveal delay={420}>
-          <div className="mb-7 flex justify-center">
-            <span className="group relative inline-flex items-center gap-2.5 rounded-full border border-emerald-500/30 bg-white/70 px-4 py-2 text-sm font-medium text-emerald-700 shadow-[0_8px_30px_-12px_rgba(16,185,129,0.45)] backdrop-blur dark:border-emerald-400/30 dark:bg-emerald-400/[0.06] dark:text-emerald-200 dark:shadow-[0_8px_30px_-12px_rgba(16,185,129,0.55)]">
-              <span className="relative inline-flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-              </span>
-              <span>{t('previewEyebrow')}</span>
+          {/* Signposts the demo below in the same mono label language the
+              section headings use, rather than as a glowing pill. The nudging
+              chevron carries the "look down here" job on its own. */}
+          <div className="mb-8 flex justify-center">
+            <span className="inline-flex items-center gap-2.5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-zinc-600 dark:text-zinc-400">
+              <span aria-hidden className="h-px w-8 bg-black/15 dark:bg-white/20" />
+              {t('previewEyebrow')}
               <svg
-                width="14"
-                height="14"
+                width="13"
+                height="13"
                 viewBox="0 0 14 14"
                 fill="none"
                 aria-hidden="true"
-                className="hero-preview-arrow text-emerald-600 dark:text-emerald-300"
+                className="hero-preview-arrow text-zinc-500 dark:text-zinc-400"
               >
                 <path
                   d="M7 3.5v6.5M4 7l3 3 3-3"
@@ -124,6 +118,7 @@ export async function Hero() {
                   strokeLinejoin="round"
                 />
               </svg>
+              <span aria-hidden className="h-px w-8 bg-black/15 dark:bg-white/20" />
             </span>
           </div>
         </Reveal>

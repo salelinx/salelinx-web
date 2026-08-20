@@ -20,8 +20,8 @@ export async function FinalCta() {
             className={`${MONO} inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.03] px-3 py-1.5 text-zinc-600 backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300`}
           >
             <span className="relative inline-flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60 dark:bg-emerald-400" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zinc-400 opacity-60 dark:bg-zinc-500" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-zinc-500 dark:bg-zinc-400" />
             </span>
             {t('eyebrow')}
           </span>
@@ -71,7 +71,7 @@ export async function FinalCta() {
             </Link>
             <InstallExtensionButton
               label={t('tertiary')}
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-emerald-500/30 bg-emerald-500/[0.08] px-6 py-3 text-sm font-medium text-emerald-700 backdrop-blur transition hover:bg-emerald-500/[0.14] dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-200 dark:hover:bg-emerald-400/20"
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-black/10 bg-white/70 px-6 py-3 text-sm font-medium text-zinc-900 backdrop-blur transition hover:border-black/20 hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:border-white/25 dark:hover:bg-white/[0.08]"
             />
           </div>
         </Reveal>
