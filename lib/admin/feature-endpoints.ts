@@ -160,7 +160,10 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     platform: "vinted",
     endpoints: [
       "GET /api/v2/users/:id/followed_users",
-      "POST /api/v2/users/:id/followed_users",
+      // The write is the toggle, not a POST to the list path. The POST form
+      // listed here before does not exist - that path is only ever a GET - so
+      // it could never match a real telemetry key.
+      "POST /api/v2/followed_users/toggle",
       "GET /api/v2/users/:id/followers",
     ],
   },
