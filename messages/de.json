@@ -960,5 +960,21 @@
     "error": "Senden gerade nicht möglich. Nichts ist verloren, versuch es einfach nochmal.",
     "reinstallHint": "Entfernt, weil etwas kaputt war?",
     "helpLink": "Unsere Hilfeseiten haben vielleicht die Lösung."
+  },
+  "Welcome": {
+    "metaTitle": "Willkommen bei SaleLinx",
+    "metaDescription": "Drei Schritte, um deinen Depop- und Vinted-Shop mit SaleLinx zu verbinden.",
+    "eyebrow": "Installiert",
+    "title": "Alles bereit",
+    "subtitle": "SaleLinx lebt direkt in Depop und Vinted, nicht in einer eigenen App. So findest du es.",
+    "step1Title": "Erweiterung anpinnen",
+    "step1Text": "Klicke auf das Puzzle-Symbol in der Chrome-Leiste und pinne SaleLinx an, damit es immer griffbereit ist.",
+    "step2Title": "Depop oder Vinted öffnen",
+    "step2Text": "Geh zu dem Marktplatz, auf dem du verkaufst. Der SaleLinx-Launcher erscheint automatisch auf der Seite.",
+    "step3Title": "Panel öffnen und Shop verknüpfen",
+    "step3Text": "Klicke auf den Launcher, erstelle dein kostenloses Konto und verknüpfe deinen Shop. Alles läuft von dort.",
+    "openDepop": "Depop öffnen",
+    "openVinted": "Vinted öffnen",
+    "docsLink": "Oder lies die Anleitungen"
   }
 }

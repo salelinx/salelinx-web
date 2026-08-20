@@ -7,7 +7,7 @@ import { createBrowserClient } from '@/lib/supabase/client';
 // Exit survey on /uninstall, where chrome.runtime.setUninstallURL lands
 // people the moment they remove the extension. One click on a reason chip is
 // the whole ask; the comment is optional. Deliberately anonymous (see
-// migration 030): no auth, no email field, nothing identifying.
+// migration 035): no auth, no email field, nothing identifying.
 const REASONS = [
   'too_expensive',
   'missing_feature',

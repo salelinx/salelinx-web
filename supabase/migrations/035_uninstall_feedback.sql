@@ -1,5 +1,5 @@
 -- =============================================================================
--- 030: Uninstall feedback
+-- 035: Uninstall feedback
 -- =============================================================================
 -- The extension sets chrome.runtime.setUninstallURL to /uninstall, the only
 -- exit signal Chrome gives us. The page offers one-click reasons plus an
