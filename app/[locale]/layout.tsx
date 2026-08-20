@@ -100,7 +100,11 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <SmoothAnchorScroll />
           <Header />
-          <div className="flex flex-1 flex-col">
+          {/* grid-rows draws the horizontal guides. It lives here, on the
+              content area above the footer, rather than on body: anchored to
+              this element's bottom edge, the last guide lands exactly on the
+              footer's top rule. See globals.css. */}
+          <div className="grid-rows flex flex-1 flex-col">
             <ViewTransition>{children}</ViewTransition>
           </div>
           <Footer />

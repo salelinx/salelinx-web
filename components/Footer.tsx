@@ -12,8 +12,10 @@ export async function Footer() {
   const t = await getTranslations('Footer');
   const year = new Date().getFullYear();
 
+  // bg-background keeps the page's column guides from striping the footer:
+  // they stop at the footer's top rule.
   return (
-    <footer className="border-t border-black/10 dark:border-white/10">
+    <footer className="relative border-t border-black/10 bg-background dark:border-white/10">
       <div className="mx-auto w-full max-w-7xl px-6 py-12">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
