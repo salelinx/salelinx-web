@@ -10,6 +10,7 @@
   --background-band: #f7f7f8;
   --band-hairline: rgba(0, 0, 0, 0.08);
   --dot-color: rgba(24, 24, 27, 0.09);
+  --grid-line: rgba(24, 24, 27, 0.055);
   --foreground: #171717;
 }
 
@@ -65,8 +66,12 @@ button:not(:disabled) {
 
 body {
   background-color: var(--background);
-  background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 1.5px);
-  background-size: 22px 22px;
+  /* Faint large-cell grid, the light theme's only texture. Kept subtle so
+     white cards still read as surfaces on top of it. */
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 112px 112px;
   background-position: 0 0;
   background-attachment: fixed;
   background-repeat: repeat;
@@ -76,6 +81,9 @@ body {
 
 .dark body {
   background-color: #0a0a0d;
+  /* Dark keeps the original dot texture; the grid reads too harsh on black. */
+  background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 1.5px);
+  background-size: 22px 22px;
 }
 
 /* Viewport-fixed corner glow + diagonal gradient drawn via a pseudo so it
