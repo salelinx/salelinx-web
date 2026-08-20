@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { pageMetadata } from '@/lib/site';
+import { BrandWordmark } from '@/components/BrandWordmark';
 
 // Getting-started page the extension opens on first install (onInstalled,
 // reason === 'install'). The panel only exists inside Depop/Vinted tabs, so
@@ -72,18 +73,25 @@ export default async function WelcomePage({
         ))}
       </ol>
 
+      {/* Logo chips, not text buttons: the brand wordmarks in their own
+          colours are how sellers recognise the two marketplaces at a glance.
+          The action stays in the accessible name via aria-label. */}
       <div className="flex flex-wrap items-center gap-3">
         <a
           href="https://www.depop.com"
-          className="rounded-full bg-zinc-900 px-6 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-zinc-900"
+          aria-label={t('openDepop')}
+          title={t('openDepop')}
+          className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
         >
-          {t('openDepop')}
+          <BrandWordmark brand="depop" variant="wordmark" height="1.05rem" />
         </a>
         <a
           href="https://www.vinted.co.uk"
-          className="rounded-full border border-zinc-300 px-6 py-2.5 text-sm font-medium hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
+          aria-label={t('openVinted')}
+          title={t('openVinted')}
+          className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 dark:border-zinc-700 dark:hover:border-zinc-500"
         >
-          {t('openVinted')}
+          <BrandWordmark brand="vinted" variant="wordmark" height="1.35rem" />
         </a>
         <Link
           href="/docs"
