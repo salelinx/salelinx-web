@@ -3,7 +3,6 @@ import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
-import { HeroPreview } from './HeroPreview';
 import { RollingPhrase } from './RollingPhrase';
 
 // Sizes chosen so each wordmark's cap-height optically matches the
@@ -90,40 +89,28 @@ export async function Hero() {
         </Reveal>
       </div>
 
-      {/* Wider than the copy above it (max-w-5xl) so the demo reads as the
-          hero moment rather than another block of page content. Extra bottom
-          padding clears the caption that now sits under the panel. */}
-      <div className="mx-auto max-w-6xl px-6 pb-28">
+      {/* The demo itself now lives in ScrollWorldDemo, mounted as its own
+          section in page.tsx. It has to sit outside this element because the
+          hero clips overflow, and a clipping ancestor kills position: sticky.
+          This chevron is the handoff into it. */}
+      <div className="flex justify-center px-6 pb-16">
         <Reveal delay={420}>
-          {/* Signposts the demo below in the same mono label language the
-              section headings use, rather than as a glowing pill. The nudging
-              chevron carries the "look down here" job on its own. */}
-          <div className="mb-8 flex justify-center">
-            <span className="inline-flex items-center gap-2.5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-zinc-600 dark:text-zinc-400">
-              <span aria-hidden className="h-px w-8 bg-black/15 dark:bg-white/20" />
-              {t('previewEyebrow')}
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 14 14"
-                fill="none"
-                aria-hidden="true"
-                className="hero-preview-arrow text-zinc-500 dark:text-zinc-400"
-              >
-                <path
-                  d="M7 3.5v6.5M4 7l3 3 3-3"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span aria-hidden className="h-px w-8 bg-black/15 dark:bg-white/20" />
-            </span>
-          </div>
-        </Reveal>
-        <Reveal delay={450} pop className="hero-preview-reveal light">
-          <HeroPreview />
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 14 14"
+            fill="none"
+            aria-hidden="true"
+            className="hero-preview-arrow text-zinc-400 dark:text-zinc-500"
+          >
+            <path
+              d="M7 3.5v6.5M4 7l3 3 3-3"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Reveal>
       </div>
     </section>

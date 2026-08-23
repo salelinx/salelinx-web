@@ -50,7 +50,7 @@ import { Icon, type IconName } from '@/components/Icon';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { ProductImage, type ProductType } from './ProductImage';
 
-type TabId =
+export type TabId =
   | 'listings'
   | 'crosslist'
   | 'shopDesigner'
@@ -71,7 +71,7 @@ interface SideTab {
 // Labels and headers (title + meta) come from Home.preview translations
 // in messages/*.json so the demo localises with the site language. Order
 // here is the rendering order of the sidebar.
-const SIDE_TABS: SideTab[] = [
+export const SIDE_TABS: SideTab[] = [
   { id: 'crosslist', icon: 'swap' },
   { id: 'restocker', icon: 'refresh' },
   { id: 'shopDesigner', icon: 'layout' },
@@ -2259,9 +2259,25 @@ function OffersPanel({ onInteract }: { onInteract?: () => void }) {
 
 // ── Main ────────────────────────────────────────────────────────────
 
-export function HeroPreview() {
+interface HeroPreviewProps {
+  /**
+   * When supplied, the panel stops owning which tab is showing and renders
+   * whatever it is handed. ScrollWorldDemo uses this to drive the demo from
+   * scroll position; the auto-cycle timers below stand down in that mode so
+   * the two aren't fighting over the same state.
+   */
+  activeTab?: TabId;
+  onTabChange?: (id: TabId) => void;
+}
+
+export function HeroPreview({
+  activeTab: controlledTab,
+  onTabChange,
+}: HeroPreviewProps = {}) {
   const t = useTranslations('Home.preview');
-  const [activeTab, setActiveTab] = useState<TabId>('crosslist');
+  const isControlled = controlledTab !== undefined;
+  const [uncontrolledTab, setUncontrolledTab] = useState<TabId>('crosslist');
+  const activeTab = isControlled ? controlledTab : uncontrolledTab;
   const [userInteracted, setUserInteracted] = useState(false);
   const [interactionTick, setInteractionTick] = useState(0);
   const bumpInteraction = () => {
@@ -2323,6 +2339,7 @@ export function HeroPreview() {
   // as the user clicks any sidebar tab (so we don't fight their interaction)
   // and is skipped entirely if the user has reduced-motion enabled.
   useEffect(() => {
+    if (isControlled) return;
     if (userInteracted) return;
     if (typeof window === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -2341,13 +2358,13 @@ export function HeroPreview() {
       'labels',
     ];
     const timer = window.setInterval(() => {
-      setActiveTab((curr) => {
+      setUncontrolledTab((curr) => {
         const idx = order.indexOf(curr);
         return order[(idx + 1) % order.length];
       });
     }, 8000);
     return () => window.clearInterval(timer);
-  }, [userInteracted]);
+  }, [userInteracted, isControlled]);
 
   // Resume auto-cycling after a stretch of inactivity. Each interaction
   // bumps interactionTick, which resets this timer.
@@ -2359,7 +2376,13 @@ export function HeroPreview() {
 
   const handleTabClick = (id: TabId) => {
     bumpInteraction();
-    setActiveTab(id);
+    // In controlled mode the owner decides what a tab click means (the scroll
+    // stage scrolls the page to that segment, which feeds the tab back down).
+    if (isControlled) {
+      onTabChange?.(id);
+      return;
+    }
+    setUncontrolledTab(id);
   };
 
   return (
