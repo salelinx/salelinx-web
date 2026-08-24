@@ -252,7 +252,11 @@ const SCENES: Scene[] = [
   {
     id: 'restocker',
     icon: 'refresh',
-    titleKey: 'chapter.sales.items.restocker.label',
+    // Named rather than described: "Restocker" is what the feature is called
+    // in the panel and the pricing table, so the scene teaches the word. Its
+    // own key rather than the plain `name` because the scene wants the
+    // cross-platform framing that the grid tile doesn't have room for.
+    titleKey: 'chapter.sales.items.restocker.sceneTitle',
     bodyKey: 'chapter.sales.items.restocker.detail',
     render: () => <RestockerScene />,
   },
@@ -526,7 +530,10 @@ export function ScrollWorldDemo() {
 
   const scene = SCENES[index] ?? SCENES[0];
   // Alternate which side the animation sits on as you move down the scenes.
-  const visualFirst = index % 2 === 1;
+  // Split layouts only: the closing overview stacks vertically, so the same
+  // CSS order would push its heading underneath the grid instead of swapping
+  // columns.
+  const visualFirst = scene.layout !== 'full' && index % 2 === 1;
 
   // Copy block for a scene. Shared by the pinned stage and the stacked
   // fallback so the two can't drift apart.

@@ -711,6 +711,7 @@
           },
           "restocker": {
             "name": "库存同步",
+            "sceneTitle": "跨平台库存同步",
             "label": "两个店铺都不会超卖",
             "detail": "在一个平台卖出商品后，SaleLinx 会自动把另一个平台上对应的商品下架。"
           }

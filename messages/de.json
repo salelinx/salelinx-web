@@ -711,6 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
+            "sceneTitle": "Plattformübergreifender Restocker",
             "label": "Nie mehr doppelt verkaufen",
             "detail": "Verkaufst du einen Artikel auf einem Marktplatz, entfernt SaleLinx das passende Inserat auf dem anderen automatisch."
           }

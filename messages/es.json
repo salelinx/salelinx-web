@@ -711,6 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
+            "sceneTitle": "Restocker multiplataforma",
             "label": "Nunca vendas dos veces",
             "detail": "Vende un artículo en una marketplace y SaleLinx retira el anuncio equivalente de la otra, automáticamente."
           }

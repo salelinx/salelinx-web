@@ -711,6 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
+            "sceneTitle": "Restocker multiplateforme",
             "label": "Plus jamais de double vente",
             "detail": "Vendez un article sur une marketplace et SaleLinx retire l'annonce correspondante de l'autre, automatiquement."
           }

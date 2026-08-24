@@ -711,6 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
+            "sceneTitle": "Cross-platform restocker",
             "label": "Never oversell across shops",
             "detail": "Sell an item on one marketplace and SaleLinx pulls the matching listing from the other, automatically."
           }
