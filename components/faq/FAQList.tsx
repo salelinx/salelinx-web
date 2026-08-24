@@ -57,7 +57,7 @@ export function FAQList({ groups }: { groups: FAQGroup[] }) {
       </div>
 
       {empty ? (
-        <p className="mt-10 text-center text-sm text-zinc-500">
+        <p className="mt-10 text-center text-sm text-zinc-600 dark:text-zinc-400">
           {t('noResults', { query })}
         </p>
       ) : (

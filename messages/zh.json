@@ -520,6 +520,7 @@
     },
     "marketplaceOnly": "仅 <marketplace></marketplace>",
     "sectionNavAria": "页面章节",
+    "overviewBody": "上面展示了部分功能。以下是完整列表。",
     "headlines": {
       "eyebrow": "从这里开始",
       "title": "卖家安装 SaleLinx 的理由。",
@@ -571,22 +572,27 @@
         "blurb": "两个店铺的所有商品集中在一处，安全保存，并在你使用 SaleLinx 的每台设备上保持同步。",
         "items": {
           "dashboard": {
+            "name": "商品",
             "label": "全部库存，一个列表",
             "detail": "两个店铺并排显示。可以按日期、价格或状态排序，也可以精确筛选出你需要的内容。"
           },
           "linkAccounts": {
+            "name": "账号关联",
             "label": "店铺只需连接一次",
             "detail": "像平时一样登录 Depop 和 Vinted。SaleLinx 会沿用当前的登录状态，不需要重新输入密码。"
           },
           "backup": {
+            "name": "云备份",
             "label": "你的店铺，安全备份",
             "detail": "每个商品都会加密存储在云端，就算电脑关了或者平台出错，也不会让你丢掉一单生意。"
           },
           "sync": {
+            "name": "设备同步",
             "label": "换电脑，设置照旧",
             "detail": "你的设置、规则和店铺连接会跟着你走，登录任何设备都还在。"
           },
           "multilanguage": {
+            "name": "语言",
             "label": "用你的语言使用它",
             "detail": "提供英语、法语、西班牙语、德语、阿拉伯语和中文版本，并支持浅色和深色主题。"
           }
@@ -598,18 +604,22 @@
         "blurb": "商品信息只写一次，同时发布到两个平台。分类和尺码这些麻烦的部分会替你转换好。",
         "items": {
           "bidirectional": {
+            "name": "跨平台上架",
             "label": "Depop 和 Vinted 双向跨平台上架",
             "detail": "在任一平台选中任意商品，SaleLinx 都会替你填好另一边的表单。"
           },
           "autoMap": {
+            "name": "类目映射",
             "label": "分类和尺码替你转换",
             "detail": "Depop 的标签会变成 Vinted 的，反过来也一样。不用设置任何对应表。"
           },
           "csvImport": {
+            "name": "CSV 导入",
             "label": "用 CSV 批量导入",
             "detail": "已经有表格版的库存清单？上传一次，SaleLinx 会自动匹配字段。"
           },
           "shopDesigner": {
+            "name": "店铺设计器",
             "label": "拖放设计你的 Depop 店铺",
             "detail": "在面板里重新排列 Depop 个人主页的布局，不用打开 Depop 网站本身。"
           }
@@ -621,30 +631,37 @@
         "blurb": "让商品保持在搜索前列，触达最有可能下单的买家，而且不用手动去做。",
         "items": {
           "refresher": {
+            "name": "刷新工具",
             "label": "把每个商品都顶回最前面",
             "detail": "一键从最下面开始重新保存你的库存，你精心排好的顺序不会被打乱。"
           },
           "scheduler": {
+            "name": "定时任务",
             "label": "设置一次，之后不用管",
             "detail": "刷新可以每 4、6、8、12 或 24 小时自动运行。选好频率，剩下的交给它。"
           },
           "followBot": {
+            "name": "关注机器人",
             "label": "自动增长你的粉丝",
             "detail": "关注竞争对手的粉丝、你的老买家，或者点赞过某件商品的人。五种方式帮你找到对的人。"
           },
           "filters": {
+            "name": "关注过滤",
             "label": "跳过或始终保留特定账号",
             "detail": "把用户名加入黑名单或白名单，让机器人不去动朋友、品牌或竞争对手。"
           },
           "deadStock": {
+            "name": "滞销库存",
             "label": "找出卖不动的商品",
             "detail": "SaleLinx 会标出滞销商品，并建议下一步怎么做：刷新、降价，还是重新上架。"
           },
           "autoMarkdown": {
+            "name": "降价",
             "label": "自动给滞销商品降价",
             "detail": "为放置太久的商品安排按百分比降价，把它们重新推回搜索结果里。"
           },
           "activityLog": {
+            "name": "活动日志",
             "label": "实时看到每一个动作",
             "detail": "实时看着 SaleLinx 干活。可以筛选、暂停、随时中止，需要的话还能导出日志。"
           }
@@ -656,26 +673,32 @@
         "blurb": "报价、消息、面单和售后收尾都在一处，还能用规则处理重复的事情。",
         "items": {
           "offersInbox": {
+            "name": "报价",
             "label": "接受、还价或拒绝，都在一处",
             "detail": "两个店铺的每一条报价都出现在同一个收件箱，不用在标签页之间来回跳。"
           },
           "autoOffers": {
+            "name": "自动报价",
             "label": "自动回复报价",
             "detail": "设置像“高于 80% 就接受”或“一律按 90% 还价”这样的规则，剩下的交给 SaleLinx。"
           },
           "messages": {
+            "name": "对话",
             "label": "所有买家消息，一个列表",
             "detail": "Depop 和 Vinted 的对话合并到同一个收件箱，什么都不会漏掉。"
           },
           "shipping": {
+            "name": "面单",
             "label": "批量打印快递面单",
             "detail": "下载并合并一整天订单的面单 PDF，直接打印粘贴。"
           },
           "relister": {
+            "name": "重新上架",
             "label": "刷新商品的搜索排名",
             "detail": "用调整过的图片和标题重建陈旧的商品，然后删掉原来的，让它重新爬回搜索结果前面。"
           },
           "restocker": {
+            "name": "库存同步",
             "label": "两个店铺都不会超卖",
             "detail": "在一个平台卖出商品后，SaleLinx 会自动把另一个平台上对应的商品下架。"
           }

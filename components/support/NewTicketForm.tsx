@@ -89,7 +89,7 @@ export function NewTicketForm({ userId }: Props) {
             {/* Options render in a native OS popup (always light), so give them
                 explicit dark-on-white colors; without this they inherit the
                 page's light text and are unreadable on the white menu. */}
-            <option value="" disabled className="bg-white text-zinc-500">
+            <option value="" disabled className="bg-white text-zinc-600 dark:text-zinc-400">
               {t("typePlaceholder")}
             </option>
             {TICKET_TYPES.map((tt) => (

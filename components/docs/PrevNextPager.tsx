@@ -33,7 +33,7 @@ export async function PrevNextPager({
       {next ? (
         <Link
           href={`/docs/${next.category}/${next.slug}`}
-          className="group flex flex-col rounded-xl border border-black/10 p-5 text-right transition hover:border-black/30 sm:col-start-2 dark:border-white/10 dark:hover:border-white/30"
+          className="group flex flex-col rounded-xl border border-black/10 p-5 text-end transition hover:border-black/30 sm:col-start-2 dark:border-white/10 dark:hover:border-white/30"
         >
           <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('next')}</span>
           <span className="mt-2 flex items-center justify-end gap-2 font-medium">

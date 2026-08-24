@@ -78,7 +78,7 @@ export default async function StatusPage() {
                   ) : null}
                 </div>
               </div>
-              <span className="shrink-0 text-xs text-zinc-500 sm:text-right">
+              <span className="shrink-0 text-xs text-zinc-600 sm:text-end dark:text-zinc-400">
                 {t('status.updatedPrefix', { date: s.updatedAt })}
               </span>
             </li>
@@ -86,7 +86,7 @@ export default async function StatusPage() {
         })}
       </ul>
 
-      <p className="mt-12 text-sm text-zinc-500">
+      <p className="mt-12 text-sm text-zinc-600 dark:text-zinc-400">
         {t('status.footnote')}
       </p>
     </main>

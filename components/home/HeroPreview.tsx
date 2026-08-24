@@ -50,7 +50,7 @@ import { Icon, type IconName } from '@/components/Icon';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { ProductImage, type ProductType } from './ProductImage';
 
-export type TabId =
+type TabId =
   | 'listings'
   | 'crosslist'
   | 'shopDesigner'
@@ -71,7 +71,7 @@ interface SideTab {
 // Labels and headers (title + meta) come from Home.preview translations
 // in messages/*.json so the demo localises with the site language. Order
 // here is the rendering order of the sidebar.
-export const SIDE_TABS: SideTab[] = [
+const SIDE_TABS: SideTab[] = [
   { id: 'crosslist', icon: 'swap' },
   { id: 'restocker', icon: 'refresh' },
   { id: 'shopDesigner', icon: 'layout' },
@@ -138,7 +138,7 @@ function PlatformBadge({
 
 // ── Tab panels ──────────────────────────────────────────────────────
 
-function ListingsPanel() {
+export function ListingsPanel() {
   // Mirrors the actual app's listings tab: a row-based table with
   // thumbnail, title + brand chip, platform logos (stacked for cross-listed
   // items), price (stacked when prices differ across platforms), views,
@@ -411,7 +411,7 @@ function ListingsPanel() {
   );
 }
 
-function CrosslistPanel() {
+export function CrosslistPanel() {
   // Vinted (source) and Depop (target) cards are deliberately styled to
   // mimic each platform: Vinted's teal accents + "heart + measurements"
   // sidebar style, Depop's red accents + "@user + tags" feed style. Same
@@ -670,7 +670,7 @@ function CrosslistPanel() {
   );
 }
 
-function AutoOffersPanel() {
+export function AutoOffersPanel() {
   // Live demo: every ~6s a new like comes in on one of your listings, the
   // bot picks it up and sends the liker a private offer at a configurable
   // discount (here 15% off listed). The active card cycles through three
@@ -865,7 +865,7 @@ function AutoOffersPanel() {
   );
 }
 
-function RestockerPanel() {
+export function RestockerPanel() {
   // Live demo: every ~6 seconds, one item gets a sale event, the bar fills
   // showing the restock in progress, then the listing pops back to "RESTOCKED"
   // and its stock decrements by 1. The cycle rotates through the inventory.
@@ -1148,7 +1148,7 @@ function RestockerPanel() {
   );
 }
 
-function ConversationsPanel() {
+export function ConversationsPanel() {
   // Live demo: messages appear one by one with a "typing" indicator from
   // whichever side is about to speak next. After all messages are visible,
   // the thread holds for a beat then restarts. Slowed to read realistically:
@@ -1211,68 +1211,84 @@ function ConversationsPanel() {
         <span className="font-mono text-[9.5px] text-zinc-500">re: offer</span>
       </div>
 
+      {/* Every message is always laid out; the ones that haven't "arrived" yet
+          are hidden with visibility rather than left unmounted. Mounting them
+          one at a time grew the panel on every phase, which shifted the page
+          under the reader and, inside the scroll section, re-triggered the
+          fit-to-viewport measurement mid-animation. The typing indicator is
+          absolutely positioned over the next message's slot for the same
+          reason: as a row of its own it added height that then disappeared. */}
       <ul className="cascade-list flex flex-col gap-1.5">
-        {messages.slice(0, visibleCount).map((m, i) => (
-          <li
-            key={`msg-${i}`}
-            className={`cascade-item flex items-end gap-1.5 ${m.mine ? 'flex-row-reverse' : ''}`}
-            style={{ '--stagger-delay': `0ms` } as CSSProperties}
-          >
-            <span
-              className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-              style={avatarStyle(m.hue)}
+        {messages.map((m, i) => {
+          const shown = i < visibleCount;
+          const isTypingSlot = typingFrom !== null && i === visibleCount;
+          const typingMine = typingFrom === 'me';
+          return (
+            <li
+              key={`msg-${i}`}
+              className={`cascade-item relative flex items-end gap-1.5 ${m.mine ? 'flex-row-reverse' : ''}`}
+              style={{ '--stagger-delay': `0ms` } as CSSProperties}
+              aria-hidden={!shown}
             >
-              {m.initial}
-            </span>
-            <div
-              className={
-                m.mine
-                  ? 'max-w-[70%] rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-1.5 text-[11px] text-white dark:bg-white dark:text-zinc-900'
-                  : 'max-w-[70%] rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-1.5 text-[11px] text-zinc-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-100'
-              }
-            >
-              {m.text}
-            </div>
-            <span className="self-center font-mono text-[9px] text-zinc-400">{m.time}</span>
-          </li>
-        ))}
-        {typingFrom && (
-          <li
-            key={`typing-${phase}`}
-            className={`cascade-item flex items-end gap-1.5 ${typingFrom === 'me' ? 'flex-row-reverse' : ''}`}
-            style={{ '--stagger-delay': `0ms` } as CSSProperties}
-          >
-            <span
-              className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-              style={avatarStyle(typingFrom === 'me' ? 0 : 178)}
-            >
-              {typingFrom === 'me' ? 'Y' : 'L'}
-            </span>
-            <div
-              className={
-                typingFrom === 'me'
-                  ? 'rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-2 dark:bg-white'
-                  : 'rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.04]'
-              }
-              aria-label="typing"
-            >
-              <span className="flex items-center gap-1">
-                <span
-                  className={`hero-typing-dot size-1.5 rounded-full ${typingFrom === 'me' ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
-                  style={{ animationDelay: '0ms' }}
-                />
-                <span
-                  className={`hero-typing-dot size-1.5 rounded-full ${typingFrom === 'me' ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
-                  style={{ animationDelay: '180ms' }}
-                />
-                <span
-                  className={`hero-typing-dot size-1.5 rounded-full ${typingFrom === 'me' ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
-                  style={{ animationDelay: '360ms' }}
-                />
+              <span
+                className={`flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white ${shown ? '' : 'invisible'}`}
+                style={avatarStyle(m.hue)}
+              >
+                {m.initial}
               </span>
-            </div>
-          </li>
-        )}
+              <div
+                className={`${
+                  m.mine
+                    ? 'max-w-[70%] rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-1.5 text-[11px] text-white dark:bg-white dark:text-zinc-900'
+                    : 'max-w-[70%] rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-1.5 text-[11px] text-zinc-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-100'
+                } ${shown ? '' : 'invisible'}`}
+              >
+                {m.text}
+              </div>
+              <span
+                className={`self-center font-mono text-[9px] text-zinc-400 ${shown ? '' : 'invisible'}`}
+              >
+                {m.time}
+              </span>
+
+              {isTypingSlot ? (
+                <span
+                  className={`absolute inset-0 flex items-end gap-1.5 ${typingMine ? 'flex-row-reverse' : ''}`}
+                >
+                  <span
+                    className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
+                    style={avatarStyle(typingMine ? 0 : 178)}
+                  >
+                    {typingMine ? 'Y' : 'L'}
+                  </span>
+                  <span
+                    className={
+                      typingMine
+                        ? 'rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-2 dark:bg-white'
+                        : 'rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.04]'
+                    }
+                    aria-label="typing"
+                  >
+                    <span className="flex items-center gap-1">
+                      <span
+                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
+                        style={{ animationDelay: '0ms' }}
+                      />
+                      <span
+                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
+                        style={{ animationDelay: '180ms' }}
+                      />
+                      <span
+                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
+                        style={{ animationDelay: '360ms' }}
+                      />
+                    </span>
+                  </span>
+                </span>
+              ) : null}
+            </li>
+          );
+        })}
       </ul>
 
       <div className="mt-auto flex items-center justify-between border-t border-black/[0.06] pt-2 font-mono text-[9.5px] uppercase tracking-[0.1em] text-zinc-500 dark:border-white/10">
@@ -1290,17 +1306,18 @@ function ConversationsPanel() {
   );
 }
 
-function LabelsPanel() {
+export function LabelsPanel() {
   // Mix of Depop and Vinted orders so the panel reads as "labels for both
   // marketplaces in one place". Depop orders use Evri (the integration's
   // Depop-only carrier); Vinted orders split between Royal Mail and InPost.
+  type Carrier = 'rm' | 'evri' | 'inpost' | 'dhl' | 'fedex';
   const orders: {
     buyer: string;
     item: string;
     type: ProductType;
     photo: string;
     platform: 'depop' | 'vinted';
-    carrier: 'rm' | 'evri' | 'inpost';
+    carrier: Carrier;
     hue: number;
   }[] = [
     {
@@ -1321,13 +1338,14 @@ function LabelsPanel() {
       carrier: 'rm',
       hue: 200,
     },
+      // the carriers Vinted France and Depop US sellers actually post with.
     {
       buyer: 'mia_v',
       item: 'Rose charm',
       type: 'tee',
       photo: PHOTO.roseCharm,
       platform: 'vinted',
-      carrier: 'inpost',
+      carrier: 'dhl',
       hue: 22,
     },
     {
@@ -1336,17 +1354,29 @@ function LabelsPanel() {
       type: 'tee',
       photo: PHOTO.sportSunglasses,
       platform: 'depop',
-      carrier: 'evri',
+      carrier: 'fedex',
       hue: 210,
+    },
+    {
+      buyer: 'ella_kw',
+      item: 'Cat ring',
+      type: 'tee',
+      photo: PHOTO.catRing,
+      platform: 'vinted',
+      carrier: 'inpost',
+      hue: 260,
     },
   ];
   // Carrier badges: brand favicon inside a small white rounded chip + the
   // carrier name. Icons live under /public/brand/ (downloaded from each
   // carrier's site) so the demo reads as "we support Royal Mail / Evri /
   // InPost" at a glance.
+  //
+  // The chip renders label-only when iconSrc is null; every carrier here has
+  // a logo, so that branch is currently unused but kept for adding one later.
   const CARRIER: Record<
-    'rm' | 'evri' | 'inpost',
-    { label: string; iconSrc: string; chipClass: string }
+    Carrier,
+    { label: string; iconSrc: string | null; chipClass: string }
   > = {
     rm: {
       label: 'Royal Mail',
@@ -1365,6 +1395,18 @@ function LabelsPanel() {
       iconSrc: '/brand/inpost.png',
       chipClass:
         'bg-[rgba(238,219,0,0.18)] text-[rgb(132,118,0)] dark:bg-[rgba(238,219,0,0.18)] dark:text-[rgb(238,219,0)]',
+    },
+    dhl: {
+      label: 'DHL',
+      iconSrc: '/brand/dhl.svg',
+      chipClass:
+        'bg-[rgba(255,204,0,0.20)] text-[rgb(140,100,0)] dark:bg-[rgba(255,204,0,0.20)] dark:text-[rgb(255,204,0)]',
+    },
+    fedex: {
+      label: 'FedEx',
+      iconSrc: '/brand/fedex.svg',
+      chipClass:
+        'bg-[rgba(77,20,140,0.10)] text-[rgb(77,20,140)] dark:bg-[rgba(77,20,140,0.30)] dark:text-[rgb(197,160,240)]',
     },
   };
   return (
@@ -1404,17 +1446,21 @@ function LabelsPanel() {
               <div className="truncate font-mono text-[9.5px] text-zinc-500">{o.item}</div>
             </div>
             <span
-              className={`flex flex-shrink-0 items-center gap-1.5 rounded-full py-[2px] pl-[2px] pr-2 font-mono text-[10px] font-semibold tracking-[0.04em] ${CARRIER[o.carrier].chipClass}`}
+              className={`flex flex-shrink-0 items-center gap-1.5 rounded-full py-[2px] pr-2 font-mono text-[10px] font-semibold tracking-[0.04em] ${
+                CARRIER[o.carrier].iconSrc ? 'pl-[2px]' : 'pl-2'
+              } ${CARRIER[o.carrier].chipClass}`}
             >
-              <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.06)] dark:bg-white">
-                {/* eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size carrier icon; next/image adds no value here */}
-                <img
-                  src={CARRIER[o.carrier].iconSrc}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-4 w-4 object-contain"
-                />
-              </span>
+              {CARRIER[o.carrier].iconSrc ? (
+                <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.06)] dark:bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size carrier icon; next/image adds no value here */}
+                  <img
+                    src={CARRIER[o.carrier].iconSrc as string}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-4 w-4 object-contain"
+                  />
+                </span>
+              ) : null}
               {CARRIER[o.carrier].label}
             </span>
           </li>
@@ -1436,13 +1482,13 @@ function LabelsPanel() {
             strokeLinejoin="round"
           />
         </svg>
-        Download merged PDF (4 labels)
+        Download merged PDF ({orders.length} labels)
       </button>
     </div>
   );
 }
 
-function FollowBotPanel() {
+export function FollowBotPanel() {
   // Live demo: every ~2.5s the bot follows a new account. The counter ticks
   // up smoothly, the progress bar advances, and a new card slides in at the
   // top of the recent-activity list (with stable keys, React only mounts the
@@ -1594,7 +1640,7 @@ function FollowBotPanel() {
   );
 }
 
-function RelisterPanel() {
+export function RelisterPanel() {
   return (
     <div className="cascade-list flex flex-col gap-2.5">
       <div
@@ -1706,7 +1752,7 @@ function RelisterPanel() {
   );
 }
 
-function PriceDropsPanel() {
+export function PriceDropsPanel() {
   // Live demo: every 3 seconds, one tracked item ticks its price down by the
   // next-cycle amount, flashes green briefly, then settles. Cycles through
   // the tracked list. Tick = 100ms so the green-flash window can be tight.
@@ -1896,7 +1942,7 @@ const INITIAL_SHOP_TILES: ShopTile[] = [
   { id: 'strawberryRings', title: 'Strawberry rings', type: 'tee', photo: PHOTO.strawberryRings, hue: 0, price: '£16' },
 ];
 
-function ShopDesignerPanel() {
+export function ShopDesignerPanel() {
   // Functional drag-and-drop: native HTML5 DnD, light enough for a preview.
   // Reorder by inserting the dragged tile into the drop target's slot and
   // shifting the rest.
@@ -2084,7 +2130,7 @@ function ShopDesignerPanel() {
   );
 }
 
-function OffersPanel({ onInteract }: { onInteract?: () => void }) {
+export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
   type Offer = {
     id: string;
     platform: 'depop' | 'vinted';
@@ -2175,6 +2221,10 @@ function OffersPanel({ onInteract }: { onInteract?: () => void }) {
                 />
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <div className="flex items-center gap-1.5">
+                    {/* The coloured left border alone was too quiet to tell
+                        visitors these offers arrive from two different
+                        marketplaces, which is the whole point of the inbox. */}
+                    <PlatformBadge platform={o.platform} size={13} />
                     <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
                       @{o.username}
                     </span>
@@ -2259,25 +2309,9 @@ function OffersPanel({ onInteract }: { onInteract?: () => void }) {
 
 // ── Main ────────────────────────────────────────────────────────────
 
-interface HeroPreviewProps {
-  /**
-   * When supplied, the panel stops owning which tab is showing and renders
-   * whatever it is handed. ScrollWorldDemo uses this to drive the demo from
-   * scroll position; the auto-cycle timers below stand down in that mode so
-   * the two aren't fighting over the same state.
-   */
-  activeTab?: TabId;
-  onTabChange?: (id: TabId) => void;
-}
-
-export function HeroPreview({
-  activeTab: controlledTab,
-  onTabChange,
-}: HeroPreviewProps = {}) {
+export function HeroPreview() {
   const t = useTranslations('Home.preview');
-  const isControlled = controlledTab !== undefined;
-  const [uncontrolledTab, setUncontrolledTab] = useState<TabId>('crosslist');
-  const activeTab = isControlled ? controlledTab : uncontrolledTab;
+  const [activeTab, setActiveTab] = useState<TabId>('crosslist');
   const [userInteracted, setUserInteracted] = useState(false);
   const [interactionTick, setInteractionTick] = useState(0);
   const bumpInteraction = () => {
@@ -2339,7 +2373,6 @@ export function HeroPreview({
   // as the user clicks any sidebar tab (so we don't fight their interaction)
   // and is skipped entirely if the user has reduced-motion enabled.
   useEffect(() => {
-    if (isControlled) return;
     if (userInteracted) return;
     if (typeof window === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -2358,13 +2391,13 @@ export function HeroPreview({
       'labels',
     ];
     const timer = window.setInterval(() => {
-      setUncontrolledTab((curr) => {
+      setActiveTab((curr) => {
         const idx = order.indexOf(curr);
         return order[(idx + 1) % order.length];
       });
     }, 8000);
     return () => window.clearInterval(timer);
-  }, [userInteracted, isControlled]);
+  }, [userInteracted]);
 
   // Resume auto-cycling after a stretch of inactivity. Each interaction
   // bumps interactionTick, which resets this timer.
@@ -2376,13 +2409,7 @@ export function HeroPreview({
 
   const handleTabClick = (id: TabId) => {
     bumpInteraction();
-    // In controlled mode the owner decides what a tab click means (the scroll
-    // stage scrolls the page to that segment, which feeds the tab back down).
-    if (isControlled) {
-      onTabChange?.(id);
-      return;
-    }
-    setUncontrolledTab(id);
+    setActiveTab(id);
   };
 
   return (

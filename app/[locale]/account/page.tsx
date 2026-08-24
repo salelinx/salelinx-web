@@ -145,19 +145,19 @@ export default async function AccountPage({ params, searchParams }: Props) {
           <>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-zinc-500">{t("tier")}</dt>
+                <dt className="text-zinc-600 dark:text-zinc-400">{t("tier")}</dt>
                 <dd className="mt-0.5 text-base font-medium">
                   {tierLabel(subscription.tier_id)}
                 </dd>
               </div>
               <div>
-                <dt className="text-zinc-500">{t("status")}</dt>
+                <dt className="text-zinc-600 dark:text-zinc-400">{t("status")}</dt>
                 <dd className="mt-0.5 text-base font-medium">
                   {statusLabel(subscription.status)}
                 </dd>
               </div>
               <div>
-                <dt className="text-zinc-500">
+                <dt className="text-zinc-600 dark:text-zinc-400">
                   {subscription.status === "canceled"
                     ? t("ended")
                     : subscription.cancel_at_period_end
@@ -170,7 +170,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
               </div>
               {tier && (
                 <div>
-                  <dt className="text-zinc-500">{t("planVersion")}</dt>
+                  <dt className="text-zinc-600 dark:text-zinc-400">{t("planVersion")}</dt>
                   <dd className="mt-0.5 text-base font-medium">
                     v{tier.version}
                   </dd>

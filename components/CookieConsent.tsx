@@ -149,7 +149,7 @@ export function CookieConsent() {
       aria-label={t('title')}
       className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-md rounded-2xl border border-black/10 bg-white/90 p-4 text-center shadow-2xl shadow-black/10 backdrop-blur-md motion-safe:animate-[popIn_0.45s_ease-out] dark:border-white/15 dark:bg-zinc-900/90 dark:shadow-black/40"
     >
-      <h2 className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500">
+      <h2 className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
         {t('title')}
       </h2>
       <p className="mt-2 text-sm leading-snug text-zinc-600 dark:text-zinc-400">

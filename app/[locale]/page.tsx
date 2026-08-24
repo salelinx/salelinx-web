@@ -5,7 +5,6 @@ import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
-import { HeadlineFeatures } from '@/components/features/HeadlineFeatures';
 import { PricingSection } from '@/components/features/PricingSection';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 
@@ -104,9 +103,11 @@ export default async function Home({
       <div className="section-band">
         <HowItWorks />
       </div>
-      <section id="features" className="mx-auto w-full max-w-7xl scroll-mt-20 px-6">
-        <HeadlineFeatures />
-      </section>
+      {/* The HeadlineFeatures block used to sit here. The scroll section above
+          now covers the same ground (and closes on a grid of every feature),
+          so this was saying it twice. The `#features` anchor the header and
+          mobile menu link to moved onto ScrollWorldDemo with it.
+          HeadlineFeatures itself is still used by the /features page. */}
       <div className="section-band">
         <div className="mx-auto w-full max-w-7xl px-6">
           <PricingSection tiers={tiers} />

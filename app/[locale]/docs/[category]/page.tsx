@@ -87,7 +87,7 @@ export default async function CategoryPage({
                         {a.metadata.title}
                       </h2>
                       {a.metadata.status === 'stub' ? (
-                        <span className={`${MONO} rounded border border-black/10 px-1.5 py-0.5 text-zinc-500 dark:border-white/15`}>
+                        <span className={`${MONO} rounded border border-black/10 px-1.5 py-0.5 text-zinc-600 dark:border-white/15 dark:text-zinc-400`}>
                           {t('articleStub')}
                         </span>
                       ) : null}

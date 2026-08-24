@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { CookieSettingsButton } from '@/components/CookieConsent';
 
 const MONO =
-  'font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500';
+  'font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400';
 
 const linkClass =
   'text-zinc-600 transition hover:text-black dark:text-zinc-400 dark:hover:text-white';
@@ -112,7 +112,7 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-black/5 pt-6 text-xs text-zinc-500 dark:border-white/5">
+        <div className="mt-10 border-t border-black/5 pt-6 text-xs text-zinc-600 dark:border-white/5 dark:text-zinc-400">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span>{t('copyright', { year })}</span>
             <span>{t('builtFor')}</span>

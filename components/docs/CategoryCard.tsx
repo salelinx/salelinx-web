@@ -21,7 +21,7 @@ export async function CategoryCard({
           <Icon name={category.icon} />
         </span>
         {typeof articleCount === 'number' ? (
-          <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500">
+          <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
             {t(articleCount === 1 ? 'articleCountOne' : 'articleCountOther', {
               count: articleCount,
             })}

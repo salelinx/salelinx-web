@@ -26,13 +26,17 @@ const EYEBROW_BRAND_TAGS = {
 export async function Hero() {
   const t = await getTranslations('Home');
 
+  // The hero holds the viewport on its own. The headline is what the page
+  // opens on, so it fills the screen below the header and centres in it,
+  // rather than being trimmed to let the scroll section peek up from below.
+  // 72px is the sticky header's height.
   return (
-    <section className="relative isolate overflow-hidden">
+    <section className="relative isolate flex min-h-[calc(100svh-72px)] flex-col items-center justify-center overflow-hidden">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_1.5px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)]" />
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 pt-8 pb-10 text-center sm:pt-12">
+      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 py-10 text-center">
         <Reveal delay={0}>
           <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-700 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
             <span className="relative inline-flex h-1.5 w-1.5">
@@ -93,7 +97,7 @@ export async function Hero() {
           section in page.tsx. It has to sit outside this element because the
           hero clips overflow, and a clipping ancestor kills position: sticky.
           This chevron is the handoff into it. */}
-      <div className="flex justify-center px-6 pb-16">
+      <div className="flex justify-center px-6 pb-10">
         <Reveal delay={420}>
           <svg
             width="18"

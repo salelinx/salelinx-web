@@ -148,7 +148,7 @@ export function DocsSearch() {
                       <span className="truncate font-medium">
                         {hit.item.title}
                       </span>
-                      <span className="shrink-0 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500">
+                      <span className="shrink-0 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
                         {hit.item.category.replace(/-/g, ' ')}
                       </span>
                     </div>
@@ -162,7 +162,7 @@ export function DocsSearch() {
               ))}
             </ul>
           ) : (
-            <div className="px-5 py-6 text-sm text-zinc-500">
+            <div className="px-5 py-6 text-sm text-zinc-600 dark:text-zinc-400">
               {t('noResults', { query })}
             </div>
           )}

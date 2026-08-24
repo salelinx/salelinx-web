@@ -57,7 +57,7 @@ export async function StatusCard() {
               <span className="text-zinc-700 dark:text-zinc-300">
                 {MARKETPLACE_LABELS[s.marketplace]}
               </span>
-              <span className="ml-auto text-xs text-zinc-500">{t(`state.${s.state}`)}</span>
+              <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">{t(`state.${s.state}`)}</span>
             </li>
           );
         })}

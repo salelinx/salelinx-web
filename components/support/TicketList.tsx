@@ -191,7 +191,7 @@ function UserTicketCard({
         >
           {isOpen ? t("statusOpen") : t("statusClosed")}
         </span>
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-zinc-600 dark:text-zinc-400">
           {formatWhen(ticket.created_at)}
         </span>
       </div>
@@ -204,7 +204,7 @@ function UserTicketCard({
         <div className="mt-4 space-y-3 border-t border-black/10 pt-4 dark:border-white/10">
           {replies.map((r) => (
             <div key={r.id}>
-              <div className="text-xs font-medium text-zinc-500">
+              <div className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                 {r.is_admin ? t("authorSupport") : t("authorYou")} ·{" "}
                 {formatWhen(r.created_at)}
               </div>
