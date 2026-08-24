@@ -32,6 +32,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
+| `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in migration 009) and `admin_users` membership via the service role.
 
@@ -352,6 +353,7 @@ There are no new secrets: it uses `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
 
 ```bash
 supabase functions deploy report-telemetry --no-verify-jwt
+supabase functions deploy report-selftest --no-verify-jwt
 ```
 
 Read side: `/admin/health` (see `docs/ADMIN.md`). Privacy rationale and the
@@ -406,3 +408,50 @@ If you want type safety locally, open individual function files in VSCode with t
 - **Never `console.log` personal data** - no email addresses, message bodies, or buyer data in function logs; user UUIDs are the ceiling. Function logs are retained by Supabase outside our control. See `docs/GDPR.md`.
 - **Per-user rate limits** (all via `increment_usage_counter`, keyed on the caller's auth.uid): `send-shipping-labels` 15/day, `delete-account` request stage 5/day, `create-checkout-session` 20/day, `create-portal-session` 20/day, account email-change 5/day. Support ticket and reply creation are capped by DB triggers instead (migration 014 tickets, `018_rate_limit_gaps` replies); `listings` and `linked_accounts` by row-count triggers (017).
 - **Auth emails depend on GoTrue's dashboard limits, not this repo.** Password reset, email verification resend, magic link, and email change all send via the `send-auth-email` hook and are rate limited by Supabase GoTrue (dashboard > Authentication > Rate Limits), which is NOT visible in-repo. The email-change path additionally has an app-level 5/day counter because it emails a user-chosen (attacker-controllable) address, but a stolen token calling GoTrue directly is bounded only by the dashboard limits. Review those limits; the defaults are permissive.
+
+
+## report-selftest
+
+Stores one admin endpoint self-test run (migration `034_endpoint_selftest.sql`).
+
+The contrast with `report-telemetry` is the point. That function validates the
+JWT purely as a spam gate and then discards the identity, because
+`endpoint_health` is deliberately anonymous. This one keeps the identity: a run
+history with no runner attached is not an audit trail.
+
+That makes its admin check a real security boundary, not a UI nicety. The
+extension's `isCurrentUserAdmin()` is a bare `admin_users` lookup on the client
+- fine for deciding whether to show a panel section, worthless as authorisation.
+So membership is re-checked in the handler with the service role, against the id
+from the **verified JWT** (never from the request body), and again inside
+`record_selftest_run`.
+
+**Why not `is_admin()`:** it requires AAL2 (migration `009_admin_mfa.sql`),
+which means a TOTP challenge. The extension has no MFA flow and cannot mint an
+aal2 session, so gating on it would make the function permanently uncallable.
+The compensating control is that this function is write-only - it exposes no
+read path and no destructive action, so a non-MFA admin session cannot use it to
+reach admin data. The read side (`admin_selftest_runs()`,
+`admin_selftest_results()`) still requires AAL2.
+
+Payload:
+
+```json
+{
+  "platform": "vinted",
+  "extension_version": "1.4.2",
+  "included_throwaway": false,
+  "started_at": "2026-08-19T10:00:00Z",
+  "finished_at": "2026-08-19T10:04:12Z",
+  "results": [
+    { "endpoint_key": "vinted:GET /api/v2/users/current",
+      "outcome": "ok", "status_code": 200, "duration_ms": 142 }
+  ]
+}
+```
+
+Run counts (`total` / `passed` / `failed` / `skipped`) are derived server-side
+from the rows actually stored, never taken from the client - a client-supplied
+summary that disagreed with its own results would make the dashboard lie.
+
+Deploy: `supabase functions deploy report-selftest --no-verify-jwt`

@@ -59,3 +59,9 @@ verify_jwt = false
 
 [functions.report-telemetry]
 verify_jwt = false
+
+# `report-selftest` also validates via getUser(), but KEEPS the identity and
+# re-checks admin_users with the service role before writing. See the header
+# comment in its index.ts for why it cannot gate on is_admin() (AAL2).
+[functions.report-selftest]
+verify_jwt = false

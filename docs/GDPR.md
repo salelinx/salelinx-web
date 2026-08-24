@@ -80,6 +80,11 @@ separate controller, not buyer data on our behalf).
   `030_endpoint_health.sql`): 90 days, via `prune_endpoint_health()`. Schedule it
   alongside the ticket purge:
   `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
+- Endpoint self-test runs (`endpoint_selftest_runs` /
+  `endpoint_selftest_results`, migration `034_endpoint_selftest.sql`): 180 days,
+  via `prune_endpoint_selftest()`. Scheduled by the migration when pg_cron is
+  available; otherwise
+  `SELECT cron.schedule('prune-endpoint-selftest', '30 3 * * *', 'SELECT public.prune_endpoint_selftest()');`
 
 The same reasoning covers `crash_health` (migration 036): context, kind and
 error CONSTRUCTOR NAME only - never the message or stack, since either can
@@ -105,6 +110,34 @@ Doing so converts it into personal data and drags it into the ROPA, the
 retention schedule, the deletion runbook, and arguably a consent requirement. If
 per-user endpoint debugging is ever needed, build it as a separate, consented
 table rather than widening this one.
+
+### Endpoint self-test results ARE personal data
+
+`endpoint_selftest_runs` (migration `034_endpoint_selftest.sql`) is the separate
+table that section calls for. It records an **admin-triggered** diagnostic run:
+who ran it (`run_by`), when, against which marketplace, and what each endpoint
+returned.
+
+It is in scope where `endpoint_health` is not, and that is deliberate rather
+than an oversight - a run history with no runner attached is not an audit trail.
+Concretely:
+
+- **Lawful basis:** legitimate interest (operating and debugging the service).
+  Data subjects are SaleLinx admins, not customers.
+- **Contents:** admin user id, extension version, marketplace, timestamps, and
+  per-endpoint outcome / HTTP status / duration. The `note` column is capped at
+  200 characters and must only ever carry a skip reason. **Never put a response
+  body in it** - these endpoints return buyer names, addresses and message
+  content.
+- **Deletion:** `run_by` is `REFERENCES auth.users(id) ON DELETE CASCADE`, and
+  results cascade from runs, so account deletion clears both tables with no
+  extra runbook step.
+- **Access:** RLS deny-all. Reads go through `admin_selftest_runs()` /
+  `admin_selftest_results()`, which require `is_admin()` and therefore AAL2.
+
+Self-test traffic is also excluded from `endpoint_health` at source (the
+extension suppresses counting for the duration of a run), so the anonymous
+dataset stays a record of real user traffic only.
 
 The `report-telemetry` Edge Function does validate the caller's JWT, but purely
 as an anti-spam gate - the identity is discarded and never stored. Anonymous

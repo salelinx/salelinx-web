@@ -63,6 +63,10 @@ type Props = {
   features: FeatureStatus[];
   overrides: OverrideRow[];
   crashes: CrashHealthRow[];
+  /** Rendered server-side and passed through, so this client component does
+   *  not need the self-test data or a second round trip. */
+  selfTestRuns: React.ReactNode;
+  selfTestSummary: string;
 };
 
 type Filter = "all" | "problems" | "vinted" | "depop";
@@ -103,6 +107,8 @@ export function AdminHealthTable({
   features,
   overrides,
   crashes,
+  selfTestRuns,
+  selfTestSummary,
 }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -193,9 +199,8 @@ export function AdminHealthTable({
             (sum, d) => sum + (d.entries_sent - d.entries_accepted),
             0,
           )}{" "}
-          of{" "}
-          {deliveries.reduce((sum, d) => sum + d.entries_sent, 0)} in the last 7
-          days). Check the payload shape against record_endpoint_health.
+          of {deliveries.reduce((sum, d) => sum + d.entries_sent, 0)} in the
+          last 7 days). Check the payload shape against record_endpoint_health.
         </div>
       )}
 
@@ -237,121 +242,134 @@ export function AdminHealthTable({
           <StatusOverrideControls features={features} overrides={overrides} />
         </AdminSection>
 
+        {/* Closed by default: a run happens on demand from the extension, so
+            this is history rather than something to watch. */}
+        <AdminSection
+          storageKey="health-selftest"
+          title="Self-test runs"
+          defaultOpen={false}
+          summary={selfTestSummary}
+        >
+          {selfTestRuns}
+        </AdminSection>
+
         <AdminSection
           storageKey="health-endpoints"
           title="Endpoints"
           summary={`${rows.length} seen`}
         >
-        <div className="flex gap-1 px-4 py-2">
-          {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              className={
-                filter === f
-                  ? "rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white"
-                  : "rounded-md px-2.5 py-1 text-xs text-zinc-600 hover:bg-zinc-100"
-              }
-            >
-              {FILTER_LABEL[f]}
-            </button>
-          ))}
-        </div>
-
-        {!reporting ? (
-          <div className="px-4 py-8 text-sm text-zinc-500">
-            <p className="font-medium text-zinc-700">
-              No telemetry received yet.
-            </p>
-            <p className="mt-1">
-              Nothing has reached the ingest, so this is upstream of the server:
-              either no build carrying telemetry is running, every install is
-              signed out (the report needs a valid session), or a day has not
-              elapsed since the last report.
-            </p>
+          <div className="flex gap-1 px-4 py-2">
+            {(Object.keys(FILTER_LABEL) as Filter[]).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
+                className={
+                  filter === f
+                    ? "rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white"
+                    : "rounded-md px-2.5 py-1 text-xs text-zinc-600 hover:bg-zinc-100"
+                }
+              >
+                {FILTER_LABEL[f]}
+              </button>
+            ))}
           </div>
-        ) : visible.length === 0 ? (
-          <p className="px-4 py-8 text-sm text-zinc-500">
-            No endpoints match this filter.
-          </p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-[var(--admin-surface)] text-left text-xs uppercase tracking-wide text-zinc-500">
-              <tr>
-                <th className="px-4 py-2 font-medium">Status</th>
-                <th className="px-4 py-2 font-medium">Endpoint</th>
-                <th className="px-4 py-2 text-right font-medium">Calls</th>
-                <th className="px-4 py-2 text-right font-medium">Fail rate</th>
-                <th className="px-4 py-2 text-right font-medium">Baseline</th>
-                <th className="px-4 py-2 text-right font-medium">Installs</th>
-                <th className="px-4 py-2 text-right font-medium">Code</th>
-              </tr>
-            </thead>
-            <tbody>
-              {win.windowed.map((r) => (
-                <tr
-                  key={r.endpoint_key}
-                  className="border-t border-[var(--admin-border)]"
-                >
-                  <td className="px-4 py-2">
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={
-                          "inline-block h-2 w-2 rounded-full " +
-                          SEVERITY_DOT[r.severity]
-                        }
-                        aria-hidden="true"
-                      />
-                      <span
-                        className={
-                          r.severity === "broken"
-                            ? "font-medium text-red-700"
-                            : r.severity === "warn"
-                              ? "font-medium text-amber-700"
-                              : "text-zinc-500"
-                        }
-                      >
-                        {SEVERITY_LABEL[r.severity]}
-                      </span>
-                    </span>
-                  </td>
-                  <td className="px-4 py-2">
-                    <span className="mr-2 rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] uppercase text-zinc-600">
-                      {r.platform}
-                    </span>
-                    <span className="font-mono text-xs text-zinc-500">
-                      {r.method}
-                    </span>{" "}
-                    <span className="font-mono text-xs">{r.path}</span>
-                  </td>
-                  <td className="px-4 py-2 text-right tabular-nums">
-                    {r.total_calls.toLocaleString("en-US")}
-                  </td>
-                  <td
-                    className={
-                      "px-4 py-2 text-right tabular-nums " +
-                      (r.severity === "broken"
-                        ? "font-semibold text-red-700"
-                        : "")
-                    }
-                  >
-                    {formatRate(r.failure_rate)}
-                  </td>
-                  <td className="px-4 py-2 text-right tabular-nums text-zinc-500">
-                    {formatRate(r.baseline_rate)}
-                  </td>
-                  <td className="px-4 py-2 text-right tabular-nums text-zinc-500">
-                    {r.installs.toLocaleString("en-US")}
-                  </td>
-                  <td className="px-4 py-2 text-right tabular-nums text-zinc-500">
-                    {r.top_status ?? "-"}
-                  </td>
+
+          {!reporting ? (
+            <div className="px-4 py-8 text-sm text-zinc-500">
+              <p className="font-medium text-zinc-700">
+                No telemetry received yet.
+              </p>
+              <p className="mt-1">
+                Nothing has reached the ingest, so this is upstream of the
+                server: either no build carrying telemetry is running, every
+                install is signed out (the report needs a valid session), or a
+                day has not elapsed since the last report.
+              </p>
+            </div>
+          ) : visible.length === 0 ? (
+            <p className="px-4 py-8 text-sm text-zinc-500">
+              No endpoints match this filter.
+            </p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[var(--admin-surface)] text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Status</th>
+                  <th className="px-4 py-2 font-medium">Endpoint</th>
+                  <th className="px-4 py-2 text-right font-medium">Calls</th>
+                  <th className="px-4 py-2 text-right font-medium">
+                    Fail rate
+                  </th>
+                  <th className="px-4 py-2 text-right font-medium">Baseline</th>
+                  <th className="px-4 py-2 text-right font-medium">Installs</th>
+                  <th className="px-4 py-2 text-right font-medium">Code</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {win.windowed.map((r) => (
+                  <tr
+                    key={r.endpoint_key}
+                    className="border-t border-[var(--admin-border)]"
+                  >
+                    <td className="px-4 py-2">
+                      <span className="flex items-center gap-2">
+                        <span
+                          className={
+                            "inline-block h-2 w-2 rounded-full " +
+                            SEVERITY_DOT[r.severity]
+                          }
+                          aria-hidden="true"
+                        />
+                        <span
+                          className={
+                            r.severity === "broken"
+                              ? "font-medium text-red-700"
+                              : r.severity === "warn"
+                                ? "font-medium text-amber-700"
+                                : "text-zinc-500"
+                          }
+                        >
+                          {SEVERITY_LABEL[r.severity]}
+                        </span>
+                      </span>
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className="mr-2 rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] uppercase text-zinc-600">
+                        {r.platform}
+                      </span>
+                      <span className="font-mono text-xs text-zinc-500">
+                        {r.method}
+                      </span>{" "}
+                      <span className="font-mono text-xs">{r.path}</span>
+                    </td>
+                    <td className="px-4 py-2 text-right tabular-nums">
+                      {r.total_calls.toLocaleString("en-US")}
+                    </td>
+                    <td
+                      className={
+                        "px-4 py-2 text-right tabular-nums " +
+                        (r.severity === "broken"
+                          ? "font-semibold text-red-700"
+                          : "")
+                      }
+                    >
+                      {formatRate(r.failure_rate)}
+                    </td>
+                    <td className="px-4 py-2 text-right tabular-nums text-zinc-500">
+                      {formatRate(r.baseline_rate)}
+                    </td>
+                    <td className="px-4 py-2 text-right tabular-nums text-zinc-500">
+                      {r.installs.toLocaleString("en-US")}
+                    </td>
+                    <td className="px-4 py-2 text-right tabular-nums text-zinc-500">
+                      {r.top_status ?? "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </AdminSection>
 
         {/* Our own code's health, distinct from marketplace endpoints: rows

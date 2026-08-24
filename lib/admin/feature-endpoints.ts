@@ -160,7 +160,10 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     platform: "vinted",
     endpoints: [
       "GET /api/v2/users/:id/followed_users",
-      "POST /api/v2/users/:id/followed_users",
+      // The write is the toggle, not a POST to the list path. The POST form
+      // listed here before does not exist - that path is only ever a GET - so
+      // it could never match a real telemetry key.
+      "POST /api/v2/followed_users/toggle",
       "GET /api/v2/users/:id/followers",
     ],
   },
@@ -173,7 +176,10 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     key: "auto-markdown-depop",
     label: "Auto-markdown",
     platform: "depop",
-    endpoints: ["POST /api/v2/discounts/", "GET /api/v2/discounts/"],
+    // PATCH, not POST or GET. depopSetDiscounts is the only call site and it
+    // sends PATCH, so the two forms previously listed here could never match a
+    // real telemetry key - Auto-markdown would have read as "no data" forever.
+    endpoints: ["PATCH /api/v2/discounts/"],
   },
   {
     key: "auto-markdown-vinted",
@@ -237,9 +243,11 @@ export const FEATURE_ENDPOINTS: FeatureDefinition[] = [
     key: "account-depop",
     label: "Account linking",
     platform: "depop",
+    // /api/v1/shop/me/ is deliberately absent: it runs against the MOBILE host
+    // via depopMobileFetch, which is not instrumented, so the key could never
+    // appear in telemetry and the pattern would match nothing forever.
     endpoints: [
       "GET /presentation/api/v1/users/me/",
-      "GET /api/v1/shop/me/",
       "GET /api/v1/shop/:id/",
     ],
   },
