@@ -84,9 +84,27 @@ caveats:
 ## Conventions
 
 - New migrations continue the numbering (`007_...`) and state their intent in
-  a header comment.
+  a header comment. **Claim the number when you open the PR, not when you
+  merge.** Two branches numbering off the same main both pick the same next
+  number, and the CLI keys the ledger on the version alone - so the second
+  one applied silently OVERWRITES the first's row in
+  `supabase_migrations.schema_migrations`. Both sets of objects exist, but
+  one becomes invisible to `supabase migration list`, and a from-scratch
+  rebuild is then unreliable. This happened with 029 (endpoint_health vs
+  referral_display_name); the recovery is to renumber the unmerged one and
+  `supabase migration repair --status applied <n>` so the already-applied
+  objects are recorded rather than re-run.
 - Never overwrite whole `tier_limits` jsonb columns; use `jsonb_set` /
   `||` merges (see CLAUDE.md gotchas).
 - Cross-user admin reads/writes are SECURITY DEFINER functions that re-check
   `public.is_admin()` themselves; RLS is the real security boundary, the
   app-level admin gate is defense in depth. See `docs/ADMIN.md`.
+
+## Post-apply steps
+
+Some migrations add a prune function but cannot schedule it themselves (pg_cron
+must be enabled on the project first, under Database > Extensions):
+
+- `030_endpoint_health.sql` - 90-day retention for the telemetry counters:
+  `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
+  Without it the table grows without bound. See `docs/GDPR.md`.

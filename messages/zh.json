@@ -19,7 +19,9 @@
     "accountSecurity": "安全",
     "accountReferrals": "推荐好友",
     "accountSupport": "支持工单",
-    "accountDanger": "删除账户"
+    "accountDanger": "删除账户",
+    "navStatus": "状态",
+    "supportContact": "联系客服"
   },
   "Footer": {
     "tagline": "在一个地方同时经营 Depop 和 Vinted。",
@@ -457,7 +459,17 @@
     "supportMetaTitle": "联系支持",
     "supportMetaDescription": "给 SaleLinx 团队发消息。",
     "supportTitle": "联系支持",
-    "supportBody": "给我们发消息，我们会通过邮件和你的账户回复。"
+    "supportBody": "给我们发消息，我们会通过邮件和你的账户回复。",
+    "supportDocsLink": "使用指南",
+    "supportEmailBody": "直接发邮件给我们，我们会回复到该邮箱。如果问题与某个商品有关，请附上你的平台用户名。",
+    "supportEmailHeading": "发邮件给我们",
+    "supportFaqLink": "常见问题",
+    "supportSelfServe": "很多问题已经解答于",
+    "supportSignInBody": "工单会将完整对话保存在你的账户中，我们回复时你会收到通知。",
+    "supportSignInCta": "登录",
+    "supportSignInHeading": "登录以创建工单",
+    "supportSignedOutBody": "无需账户也可以通过邮件联系我们。登录后可在一处跟进所有回复。",
+    "supportStatusLink": "状态页面"
   },
   "Subscribe": {
     "loading": "加载中...",
@@ -832,13 +844,20 @@
         "degraded": "运行异常",
         "down": "服务中断"
       },
-      "card": {
-        "eyebrow": "平台状态",
-        "allOk": "所有平台运行正常",
-        "someDegraded": "部分平台运行异常",
-        "someDown": "一个或多个平台无法使用",
-        "body": "实时查看 SaleLinx 目前可以发布到哪些平台。"
-      }
+      "featureColumn": "功能",
+      "featuresBody": "SaleLinx 扩展各项功能的实时状态，按平台分组，根据真实使用情况自动更新。",
+      "featuresHeading": "扩展功能",
+      "inferredNote": "平台与功能状态是根据所有 SaleLinx 安装的匿名汇总使用数据推断得出的，并非 Depop 或 Vinted 的官方状态源。近期使用较少的功能可能会显示为正常。",
+      "intro": "SaleLinx 所连接平台的实时状态，以及在其上运行的扩展功能。",
+      "marketplacesBody": "各平台是否可访问且运行正常。",
+      "marketplacesHeading": "平台",
+      "notAvailable": "不适用",
+      "selfHelpBody": "此处的状态反映的是同时影响大量卖家的问题。只影响你个人账户的问题，通常由以下原因之一造成：",
+      "selfHelpCaptcha": "平台正在显示人机验证，或已临时限制你的会话。请打开该平台的标签页，完成验证后重试。",
+      "selfHelpContact": "仍然无法解决？联系客服，我们会帮你查看。",
+      "selfHelpHeading": "显示一切正常，但我这里用不了",
+      "selfHelpLogin": "你的平台登录已过期。请在普通标签页中重新登录 Depop 或 Vinted。",
+      "selfHelpTab": "没有打开平台标签页。SaleLinx 通过已登录的标签页执行操作，运行期间请保持一个标签页打开。"
     },
     "changelog": {
       "metaTitle": "更新日志",
@@ -946,5 +965,42 @@
       "body": "缺少某个平台或功能？告诉我们你需要什么，我们会在下一轮规划中评估。",
       "cta": "发邮件到 hello@salelinx.com"
     }
+  },
+  "Uninstall": {
+    "metaTitle": "很遗憾你要离开",
+    "metaDescription": "告诉我们你卸载 SaleLinx 的原因，帮助我们做得更好。",
+    "title": "SaleLinx 已卸载",
+    "subtitle": "很遗憾你要离开。点一下哪里出了问题，会对我们帮助很大。",
+    "reason": {
+      "too_expensive": "价格太高",
+      "missing_feature": "缺少我需要的功能",
+      "not_working": "有功能无法使用",
+      "stopped_selling": "我不再销售了",
+      "switched_tool": "换用了其他工具",
+      "other": "其他"
+    },
+    "commentPlaceholder": "还有什么想告诉我们的吗？（选填）",
+    "send": "发送反馈",
+    "sending": "发送中...",
+    "thanks": "谢谢。你的每一条反馈都会影响我们接下来修复什么。",
+    "error": "目前无法发送。内容没有丢失，可以再试一次。",
+    "reinstallHint": "是因为出了故障才卸载的吗？",
+    "helpLink": "帮助页面里也许有解决方法。"
+  },
+  "Welcome": {
+    "metaTitle": "欢迎使用 SaleLinx",
+    "metaDescription": "三步让你的 Depop 和 Vinted 店铺在 SaleLinx 中运行起来。",
+    "eyebrow": "已安装",
+    "title": "一切就绪",
+    "subtitle": "SaleLinx 运行在 Depop 和 Vinted 页面内，而不是独立应用。以下是找到它的方法。",
+    "step1Title": "固定扩展程序",
+    "step1Text": "点击 Chrome 工具栏中的拼图图标，将 SaleLinx 固定，随时可用。",
+    "step2Title": "打开 Depop 或 Vinted",
+    "step2Text": "前往你销售的平台，SaleLinx 启动器会自动出现在页面上。",
+    "step3Title": "打开面板并关联店铺",
+    "step3Text": "点击启动器，创建免费账户并关联店铺。之后一切都在这里操作。",
+    "openDepop": "打开 Depop",
+    "openVinted": "打开 Vinted",
+    "docsLink": "或阅读使用指南"
   }
 }

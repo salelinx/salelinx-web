@@ -19,6 +19,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Support | Ticket message, replies, app version, user agent, locale; email resolved from auth at send time | Users | Contract / legitimate interest | Supabase `support_tickets`, `support_ticket_replies`; copies in the support inbox | 24 months after ticket closed (automated purge); inbox purged manually |
 | Referrals | Share code; referrer-referee account linkage, status, reward amounts; leaderboard display name (linked shop username, else a neutral placeholder) and successful-referral count shown to other participants | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes`, `referrals`, `linked_accounts` (display name); leaderboard is a read-only RPC aggregate | Life of account (both FKs cascade) |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
+| Uninstall feedback | Reason chip, optional free-text comment, extension version, panel locale. Anonymous by design: no user id, email, or IP (migration 035; /uninstall page) | Former users, unidentifiable | Legitimate interest | Supabase `uninstall_feedback` (anon insert-only) | Indefinite; contains no personal data unless a commenter volunteers it, in which case delete on request |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
 | Category resolution (not yet live) | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Would transit the `resolve-category` Edge Function only; matched in memory, never logged or stored. **No extension build calls it yet, so this flow is not currently active** | Not stored |
 | Device sessions | Random per-install device ID, user agent, last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
@@ -75,6 +76,72 @@ separate controller, not buyer data on our behalf).
 - Edge Function logs: must not contain email addresses or message content.
   User IDs are acceptable. This is enforced by convention; check any new
   `console.log` in `supabase/functions/`.
+- Endpoint health telemetry (`endpoint_health`, migration
+  `030_endpoint_health.sql`): 90 days, via `prune_endpoint_health()`. Schedule it
+  alongside the ticket purge:
+  `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
+- Endpoint self-test runs (`endpoint_selftest_runs` /
+  `endpoint_selftest_results`, migration `034_endpoint_selftest.sql`): 180 days,
+  via `prune_endpoint_selftest()`. Scheduled by the migration when pg_cron is
+  available; otherwise
+  `SELECT cron.schedule('prune-endpoint-selftest', '30 3 * * *', 'SELECT public.prune_endpoint_selftest()');`
+
+The same reasoning covers `crash_health` (migration 036): context, kind and
+error CONSTRUCTOR NAME only - never the message or stack, since either can
+embed whatever user data was being interpolated when the code threw. Prune
+alongside: `SELECT cron.schedule('prune-crash-health', '29 3 * * *', 'SELECT
+public.prune_crash_health()');`
+
+### Endpoint health telemetry is not personal data
+
+`endpoint_health` deliberately has **no `user_id` column**. It stores counters
+only: a normalized endpoint key (`vinted:POST /api/v2/item_upload/drafts`), an
+outcome bucket, an HTTP status, a count, an extension version, and an hour
+bucket. No URLs with identifiers, no request bodies, no listing or buyer data,
+nothing that singles out a person.
+
+That is why it needs no consent gate and appears in no deletion or export
+runbook - there is nothing in it to erase or export. This is a deliberate design
+choice, not an oversight: a consent gate would put holes in exactly the dataset
+that has to be complete to detect a marketplace outage.
+
+**Do not add a `user_id`, install id, or any other identifier to this table.**
+Doing so converts it into personal data and drags it into the ROPA, the
+retention schedule, the deletion runbook, and arguably a consent requirement. If
+per-user endpoint debugging is ever needed, build it as a separate, consented
+table rather than widening this one.
+
+### Endpoint self-test results ARE personal data
+
+`endpoint_selftest_runs` (migration `034_endpoint_selftest.sql`) is the separate
+table that section calls for. It records an **admin-triggered** diagnostic run:
+who ran it (`run_by`), when, against which marketplace, and what each endpoint
+returned.
+
+It is in scope where `endpoint_health` is not, and that is deliberate rather
+than an oversight - a run history with no runner attached is not an audit trail.
+Concretely:
+
+- **Lawful basis:** legitimate interest (operating and debugging the service).
+  Data subjects are SaleLinx admins, not customers.
+- **Contents:** admin user id, extension version, marketplace, timestamps, and
+  per-endpoint outcome / HTTP status / duration. The `note` column is capped at
+  200 characters and must only ever carry a skip reason. **Never put a response
+  body in it** - these endpoints return buyer names, addresses and message
+  content.
+- **Deletion:** `run_by` is `REFERENCES auth.users(id) ON DELETE CASCADE`, and
+  results cascade from runs, so account deletion clears both tables with no
+  extra runbook step.
+- **Access:** RLS deny-all. Reads go through `admin_selftest_runs()` /
+  `admin_selftest_results()`, which require `is_admin()` and therefore AAL2.
+
+Self-test traffic is also excluded from `endpoint_health` at source (the
+extension suppresses counting for the duration of a run), so the anonymous
+dataset stays a record of real user traffic only.
+
+The `report-telemetry` Edge Function does validate the caller's JWT, but purely
+as an anti-spam gate - the identity is discarded and never stored. Anonymous
+data over authenticated transport.
 
 ## Deletion runbook (right to erasure)
 

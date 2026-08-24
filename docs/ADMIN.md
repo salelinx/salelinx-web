@@ -14,6 +14,8 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Extension usage | `/admin/usage` | Live, read-only | Product metering for the current period (crosslist, relist, refresh, follow, unfollow), measured against the user's `tier_limits` caps. Sorted by percent-of-cap. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for the current period (checkout / portal sessions, deletion requests, label emails, email changes), measured against the hardcoded per-day cap in the calling code. |
+| Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `030_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
+| Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `034_endpoint_selftest.sql`). Runs are started in the extension panel, not here. See "Endpoint self-test" below. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
@@ -263,6 +265,136 @@ Still outstanding if the base grows:
   server-side: doing one without the other would silently reduce filters to
   searching only the current page.
 
+## Endpoint health telemetry
+
+`/admin/health` answers one question: has a marketplace shipped a change that
+broke us?
+
+**Why it is passive.** Every Vinted / Depop endpoint the extension calls needs a
+live logged-in browser session: a CSRF token captured by the webRequest
+listener, session cookies, requests routed through the MAIN-world content-script
+bridge, a real open tab, and clearance past DataDome. No server-side probe can
+reach any of it - `vintedFetch` throws `NO_VINTED_TAB` before a request is even
+attempted. A cron curling those URLs would fail every run and tell us nothing,
+while training DataDome to treat our infrastructure as hostile.
+
+So the users' own calls are the probe. The extension wraps its two fetch
+chokepoints (`vintedFetch`, `depopFetch` - all ~150 marketplace call sites go
+through them), counts outcomes locally, and reports once a day.
+
+**Reading the table.** Compare the failure rate against the BASELINE column, not
+against an absolute number: endpoints differ hugely in their normal error rate.
+`severityFor()` in `lib/admin/health-data.ts` marks an endpoint broken when it is
+3x its own baseline, at least 20% absolute, and backed by at least 5 distinct
+install reports. That last floor is what stops one user stuck in a CAPTCHA loop
+from lighting up the dashboard.
+
+**Outcome buckets.** Only `client_error` (400/422), `server_error` (5xx) and
+`network` count as failures. `auth`, `blocked` (DataDome) and `no_tab` are
+conditions of the user's own session and are deliberately excluded - counting
+them would make ordinary anti-bot pressure indistinguishable from a real
+breakage. A spike of 422s is the schema-drift signal worth acting on.
+
+**No per-user drill-down, by design.** `endpoint_health` has no `user_id`
+column, which is what keeps it non-personal (see `docs/GDPR.md`). The trade is
+deliberate: the dashboard can say "412 installs are failing this endpoint", never
+which ones. Per-user debugging stays on the existing extension logs.
+
+Useful for support triage: when a ticket says crosslisting is broken, this page
+distinguishes "everyone" from "just them" immediately.
+
+### Collapsible sections
+
+`/admin/health` stacks three tall blocks (feature rollup, manual status
+controls, endpoint table) and the Overview carries the rollup too. Each is
+wrapped in `AdminSection` (`components/admin/AdminSection.tsx`), which persists
+open/closed per section in `localStorage` under `admin-section:<key>`.
+
+Defaults differ by intent: Feature status and Endpoints open, Manual status and
+the Overview rollup closed. An incident tool should not sit open on a page you
+visit to look at things, and the Overview is read top-down for tickets and
+subscriptions - the health detail lives in the module.
+
+Collapsed sections still show a summary in the header ("3 broken", "All
+automatic"), so nothing is hidden that you would need to open the section to
+learn. The component renders `{open && children}` rather than using
+`<details>`: keeping a collapsed endpoint table in the DOM would mean rendering
+hundreds of rows nobody is looking at.
+
+### Manual status overrides
+
+`/admin/health` carries a **Manual status** section: every feature and both
+marketplaces, each with Auto / Operational / Degraded / Down and an optional
+public note.
+
+Everything is **automatic by default**. A row in `status_overrides` (migration
+`033_status_overrides.sql`) switches one target to manual, and manual **wins
+until cleared** - it never auto-expires. That asymmetry is deliberate: an admin
+declaring an incident usually knows something telemetry cannot see (a
+marketplace announcement, one loud user report, a fix mid-deploy), so the
+numbers must not silently overrule them. Auto-expiry was considered and
+rejected because it would un-announce a real incident at an arbitrary hour. The
+cost is a stale override lingering, which the UI addresses by showing each
+override's age.
+
+Writes go through `admin_set_status_override()` / `admin_clear_status_override()`,
+both `is_admin()`-gated and both audit-logged - this changes what the PUBLIC
+site says, which is exactly what the audit log is for. The public page reads
+`public_status_overrides()`, which omits `set_by`.
+
+Note the public page caches for 60s, so an override takes up to a minute to
+appear on `/docs/status`. Dropping that cache would expose an uncached public
+read, so the delay is stated in the UI rather than engineered away.
+
+Platform-level overrides also replaced the hardcoded table in
+`lib/docs/status.ts`, taking the Supabase migration path that file had been
+flagged for. Marketplaces have no automatic signal of their own, so they default
+to operational and a real outage is declared here.
+
+### Feature status rollup
+
+Above the endpoint table, the page groups endpoints into the **features a user
+would actually name** (Crosslist, Relist, Refresh, Shipping labels, Messages,
+Offers, Follow, Auto-markdown, Restocker, My listings, Feedback bot, Account
+linking). Telemetry is keyed by endpoint because that is all the fetch wrappers
+can see, so the inverse mapping lives in `lib/admin/feature-endpoints.ts`.
+
+**Every entry is scoped to ONE marketplace**, and both the admin grid and the
+public page render one row per feature with Vinted and Depop **side by side**.
+Grouping by platform instead put "Crosslist" in two places, when the question is
+nearly always "is crosslisting working, and on which side". Features that exist
+on only one marketplace (Refresh and Auto-markdown are Depop-only; Messages,
+Follow and the Feedback bot are Vinted-only) show an explicit "Not available"
+cell rather than a blank, which would read as "no data".
+A feature that exists on both is two entries, because that is how it actually
+breaks: Vinted changing its draft schema takes out Vinted crosslisting while
+Depop keeps working, and a merged card would show that as a partial failure with
+no way to tell which side. The roll-up matches on `platform|endpoint` rather
+than the path alone - several paths (`/api/v2/products/:slug/`,
+`/api/v2/drafts/`) exist on both marketplaces, so matching on path would credit
+Vinted traffic to a Depop feature.
+
+The same grid renders on `/admin` (the Overview landing page), where the whole
+band links into this module. It is hidden entirely there when nothing is
+reporting, since a wall of "no data" cards above the real summaries is noise.
+
+Two rules matter for reading it:
+
+- **A feature is as healthy as its WORST endpoint**, never an average. A
+  crosslist that uploads photos fine but cannot create the draft is broken, and
+  averaging would hide that behind the healthy majority.
+- **"No data" is its own state, never green.** A feature broken badly enough
+  that nobody can use it has zero traffic, which is indistinguishable from a
+  feature nobody happened to touch. Cards also show `n/m endpoints seen` so a
+  green card backed by one of ten endpoints does not read as a full all-clear.
+
+The map is hand-maintained, and its failure mode is silent: a typo means that
+feature reports "no data" forever while looking like a quiet period.
+`scripts/check-feature-endpoints.mjs` runs from `prebuild`/`predev` and fails the
+build on a pattern that could never match a real key (query strings, platform
+prefixes, literal ids, wrong method/path shape). Add to the map when a feature
+starts calling a new endpoint.
+
 ## Two kinds of usage counter
 
 `usage_counters` holds two things that look alike and are not. Both are written
@@ -351,3 +483,94 @@ Implemented (was `TODO(admin-mfa)`). Every admin surface requires an AAL2 sessio
 - `docs/SUPPORT.md` - the support ticket lifecycle and the email/notification flow
 - `docs/ARCHITECTURE.md` - the two-repo / one-Supabase picture
 - `docs/ENTITLEMENTS.md` - `tier_limits` / `usage_counters` (candidate future modules)
+
+## Endpoint self-test
+
+Passive telemetry answers *"did something break overnight?"*. It covers every
+endpoint but only sees what users happen to do, and needs enough traffic to be
+conclusive. The self-test answers the complementary question, *"is it fixed
+right now?"*, by having an admin drive the endpoints on demand from their own
+logged-in browser session.
+
+Runs are started **in the extension panel** (admin only), not here. This page
+shows the history, under a collapsed "Self-test runs" section.
+
+### What a run covers
+
+48 endpoints, classified in `src/utils/telemetry/selftest-endpoints.ts` in the
+extension repo:
+
+| Kind | Count | Run automatically? |
+|---|---|---|
+| `read` | 35 | yes |
+| `spine` | 4 | yes - reversible writes |
+| `throwaway` | 4 | opt-in only |
+| `terminal` | 5 | never |
+
+**Spine** is the shared write machinery: upload a photo, create a draft, delete
+it. The draft is never completed, so nothing is ever visible to a buyer. Because
+crosslist, relist, restocker and CSV import all run on the same spine,
+exercising it once covers the write path of all four.
+
+**Throwaway** creates a junk listing and destroys it. On Vinted the item is
+briefly **published and buyer-visible**, because `POST /items/:id/delete` only
+accepts published items - drafts use a different route. Runs that included it
+are flagged in the table, since it changes what the numbers cost.
+
+**Terminal** endpoints are the commit step, where testing and doing are the same
+call: accepting a real buyer's offer, following a real user, editing a real
+price, creating a real discount. These are never run and are recorded as
+`not_run`, so a green run cannot be misread as full coverage.
+
+Click a run to expand it: every endpoint it touched, with the outcome, HTTP
+status, any skip reason, and how long the call took. Failures sort first.
+Results are loaded with the runs rather than on click, so expanding costs no
+round trip - ten runs is a few hundred rows in total.
+
+### Reading the results
+
+- **Failed** means the endpoint itself is broken: `client_error`,
+  `server_error`, `network`.
+- **Skipped** is not a warning. It means a dependency could not be resolved (the
+  account has no listings, no sold order for a shipment id) or the endpoint is
+  deliberately excluded. Silence about an endpoint we could not reach is not
+  evidence it is broken.
+- `auth`, `blocked` and `no_tab` count as skipped, not failed - same reasoning
+  as passive telemetry, where treating DataDome pressure as an outage is the
+  fastest way to make the whole system untrustworthy.
+
+A green run means *the endpoints responded*, never *the feature works*. A 200
+from the drafts endpoint says our payload shape is still accepted; it says
+nothing about whether the resulting listing is correct. That is why results are
+per endpoint and are never rolled up into a feature verdict.
+
+### Why runs are per marketplace
+
+Each platform needs its own live logged-in tab, so a combined run would report a
+wall of `no_tab` results for whichever side is not open - noise that says
+nothing about endpoint health. Splitting them also keeps the risk decision
+separate, since the throwaway tier is buyer-visible on Vinted but not on Depop.
+
+### Storage and privacy
+
+Results live in `endpoint_selftest_runs` / `endpoint_selftest_results`
+(migration `034_endpoint_selftest.sql`), **separate from `endpoint_health`**.
+That table is deliberately anonymous, which is what keeps it out of GDPR scope;
+a self-test row is inherently "admin X ran this at time T" and the attribution
+is the point. So these carry `run_by`, cascade on account deletion, and have a
+ROPA entry (`docs/GDPR.md`). Retention is 180 days.
+
+Self-test traffic is also **excluded from `endpoint_health` at source** - the
+extension suppresses counting for the duration of a run. Without that, a run
+that deliberately probes a broken endpoint would inject failures into the
+aggregates behind the public status page, making `/docs/status` look worse
+during exactly the incident being investigated.
+
+### Authorisation
+
+The extension's `isCurrentUserAdmin()` is a bare `admin_users` lookup on the
+client, so it does **not** inherit the AAL2/MFA requirement. That is deliberate
+- the extension has no TOTP flow - which is why the real boundary is
+server-side: `report-selftest` re-checks membership with the service role
+against the id from the verified JWT, and it is write-only. Reading these rows
+still requires AAL2, via `admin_selftest_runs()` / `admin_selftest_results()`.

@@ -154,6 +154,12 @@ export function MobileMenu({ isAuthed, labels }: Props) {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
+                    {/* Same reasoning as the desktop Header: someone who cannot
+                        sign in is exactly who needs support, so this must not
+                        be behind the auth branch. */}
+                    <Link href="/help" className={linkClass}>
+                      {labels.support}
+                    </Link>
                     <Link
                       href="/auth/login"
                       className="rounded-md border border-black/10 px-3 py-2.5 text-center text-base font-medium dark:border-white/15"

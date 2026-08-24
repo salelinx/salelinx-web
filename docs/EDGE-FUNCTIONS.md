@@ -15,7 +15,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. **Deployed but not yet wired up: no extension build calls it.** The intent is to move the mapping tables (~116KB) out of the extension bundle, where anyone who installed it can unzip the .crx and lift them, and to make this the one crosslist entitlement check the user cannot patch around (a crosslist cannot produce a category without it). Neither benefit is realized yet: the extension still ships and reads its own copies in `src/data/category-maps-*.ts`, and this function is dead weight until that changes. See "Wiring up resolve-category" below.
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 
-## The twelve functions
+## The fourteen functions
 
 | Function                  | `verify_jwt` | Purpose                                                                                                  |
 | ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -31,6 +31,8 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `resolve-category`        | false*       | Intended: extension POSTs category lookups; auth by `getUser(jwt)` + crosslist tier gate + monthly cap. **No caller yet** |
 | `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
+| `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
+| `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in migration 009) and `admin_users` membership via the service role.
 
@@ -311,6 +313,52 @@ The function lives in this repo (not the extension) because all Edge Functions d
 
 Abuse posture: this function sends from our verified Resend domain to a recipient the caller chooses (users legitimately email labels to print shops or co-workers), so everything else is locked down. Subject and body are fixed server-side (no caller overrides), the attachment must actually be a PDF, the feature is gated to tiers with `shipping_label_email`, and sends are capped per user per day. Do not reintroduce subject/body overrides or drop the tier gate.
 
+## Report telemetry (endpoint health)
+
+`report-telemetry` receives batched, anonymous endpoint-health counters from the
+extension. Roughly one request per install per day, each carrying a few dozen
+counter rows, so this is a low-volume endpoint.
+
+Request body:
+
+```json
+{
+  "entries": [
+    {
+      "endpoint_key": "vinted:POST /api/v2/item_upload/drafts",
+      "platform": "vinted",
+      "outcome": "client_error",
+      "status_code": 422,
+      "count": 11,
+      "extension_version": "1.1.0",
+      "bucket_hour": "2026-08-18T14:00:00.000Z"
+    }
+  ]
+}
+```
+
+The handler validates the caller's JWT with `getUser(jwt)` and then **discards
+the identity** - it exists to stop anonymous spam, not to attribute data. It
+forwards the batch to the `record_endpoint_health(jsonb)` RPC using the service
+role. That RPC re-validates every field and silently drops malformed entries
+rather than failing the batch, so one bad row from an old build cannot cost us
+the good rows reported alongside it.
+
+Caps: 500 entries per batch, 256KB body, 100,000 per individual counter. The
+per-counter cap matters - without it a single client could claim millions of
+calls and dominate the cross-user aggregate on its own.
+
+There are no new secrets: it uses `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
+`SUPABASE_SERVICE_ROLE_KEY`, which are already set.
+
+```bash
+supabase functions deploy report-telemetry --no-verify-jwt
+supabase functions deploy report-selftest --no-verify-jwt
+```
+
+Read side: `/admin/health` (see `docs/ADMIN.md`). Privacy rationale and the
+"never add a user_id" rule: `docs/GDPR.md`.
+
 ## Wiring up resolve-category
 
 The function is deployed and its `_generated/` tables are in place, but **nothing calls
@@ -360,3 +408,50 @@ If you want type safety locally, open individual function files in VSCode with t
 - **Never `console.log` personal data** - no email addresses, message bodies, or buyer data in function logs; user UUIDs are the ceiling. Function logs are retained by Supabase outside our control. See `docs/GDPR.md`.
 - **Per-user rate limits** (all via `increment_usage_counter`, keyed on the caller's auth.uid): `send-shipping-labels` 15/day, `delete-account` request stage 5/day, `create-checkout-session` 20/day, `create-portal-session` 20/day, account email-change 5/day. Support ticket and reply creation are capped by DB triggers instead (migration 014 tickets, `018_rate_limit_gaps` replies); `listings` and `linked_accounts` by row-count triggers (017).
 - **Auth emails depend on GoTrue's dashboard limits, not this repo.** Password reset, email verification resend, magic link, and email change all send via the `send-auth-email` hook and are rate limited by Supabase GoTrue (dashboard > Authentication > Rate Limits), which is NOT visible in-repo. The email-change path additionally has an app-level 5/day counter because it emails a user-chosen (attacker-controllable) address, but a stolen token calling GoTrue directly is bounded only by the dashboard limits. Review those limits; the defaults are permissive.
+
+
+## report-selftest
+
+Stores one admin endpoint self-test run (migration `034_endpoint_selftest.sql`).
+
+The contrast with `report-telemetry` is the point. That function validates the
+JWT purely as a spam gate and then discards the identity, because
+`endpoint_health` is deliberately anonymous. This one keeps the identity: a run
+history with no runner attached is not an audit trail.
+
+That makes its admin check a real security boundary, not a UI nicety. The
+extension's `isCurrentUserAdmin()` is a bare `admin_users` lookup on the client
+- fine for deciding whether to show a panel section, worthless as authorisation.
+So membership is re-checked in the handler with the service role, against the id
+from the **verified JWT** (never from the request body), and again inside
+`record_selftest_run`.
+
+**Why not `is_admin()`:** it requires AAL2 (migration `009_admin_mfa.sql`),
+which means a TOTP challenge. The extension has no MFA flow and cannot mint an
+aal2 session, so gating on it would make the function permanently uncallable.
+The compensating control is that this function is write-only - it exposes no
+read path and no destructive action, so a non-MFA admin session cannot use it to
+reach admin data. The read side (`admin_selftest_runs()`,
+`admin_selftest_results()`) still requires AAL2.
+
+Payload:
+
+```json
+{
+  "platform": "vinted",
+  "extension_version": "1.4.2",
+  "included_throwaway": false,
+  "started_at": "2026-08-19T10:00:00Z",
+  "finished_at": "2026-08-19T10:04:12Z",
+  "results": [
+    { "endpoint_key": "vinted:GET /api/v2/users/current",
+      "outcome": "ok", "status_code": 200, "duration_ms": 142 }
+  ]
+}
+```
+
+Run counts (`total` / `passed` / `failed` / `skipped`) are derived server-side
+from the rows actually stored, never taken from the client - a client-supplied
+summary that disagreed with its own results would make the dashboard lie.
+
+Deploy: `supabase functions deploy report-selftest --no-verify-jwt`

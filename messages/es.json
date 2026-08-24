@@ -19,7 +19,9 @@
     "accountSecurity": "Seguridad",
     "accountReferrals": "Referidos",
     "accountSupport": "Tickets de soporte",
-    "accountDanger": "Eliminar cuenta"
+    "accountDanger": "Eliminar cuenta",
+    "navStatus": "Estado",
+    "supportContact": "Contactar con soporte"
   },
   "Footer": {
     "tagline": "Vende en Depop y Vinted desde un solo lugar.",
@@ -33,7 +35,7 @@
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
     "linkChangelog": "Changelog",
-    "linkStatus": "Estado de plataformas",
+    "linkStatus": "Estado",
     "linkPrivacy": "Privacidad",
     "linkTerms": "Términos",
     "linkDpa": "Anexo de tratamiento de datos",
@@ -452,12 +454,22 @@
     "faqCardBody": "Respuestas rapidas a preguntas habituales sobre configuracion, facturacion y resolucion de problemas.",
     "docsCardTitle": "Documentacion",
     "docsCardBody": "Guias paso a paso para cada funcion de SaleLinx.",
-    "statusCardTitle": "Estado de plataformas",
-    "statusCardBody": "Comprueba que marketplaces son compatibles y funcionan actualmente.",
+    "statusCardTitle": "Estado",
+    "statusCardBody": "Estado en vivo de los marketplaces y de las funciones de la extension que trabajan con ellos.",
     "supportMetaTitle": "Contactar con soporte",
     "supportMetaDescription": "Envia un mensaje al equipo de SaleLinx.",
     "supportTitle": "Contactar con soporte",
-    "supportBody": "Envianos un mensaje y responderemos por correo electronico y en tu cuenta."
+    "supportBody": "Envianos un mensaje y responderemos por correo electronico y en tu cuenta.",
+    "supportSignedOutBody": "Puedes escribirnos por correo sin tener cuenta. Iniciar sesion te permite seguir las respuestas en un solo sitio.",
+    "supportEmailHeading": "Escribenos",
+    "supportEmailBody": "Escribenos directamente y responderemos a esa direccion. Incluye tu nombre de usuario del marketplace si tu consulta es sobre un anuncio.",
+    "supportSignInHeading": "Inicia sesion para abrir un ticket",
+    "supportSignInBody": "Los tickets guardan toda la conversacion en tu cuenta y te avisamos cuando respondemos.",
+    "supportSignInCta": "Iniciar sesion",
+    "supportSelfServe": "Muchas preguntas ya estan resueltas en las",
+    "supportFaqLink": "FAQ",
+    "supportDocsLink": "guias",
+    "supportStatusLink": "pagina de estado"
   },
   "Subscribe": {
     "loading": "Cargando...",
@@ -819,26 +831,33 @@
       "next": "Siguiente"
     },
     "status": {
-      "metaTitle": "Estado de plataformas",
-      "metaDescription": "Vista en vivo de las marketplaces en las que SaleLinx está haciendo crosslisting actualmente.",
+      "metaTitle": "Estado",
+      "metaDescription": "Estado en vivo de la extension SaleLinx y de los marketplaces conectados.",
       "eyebrow": "Estado",
-      "title": "Estado de plataformas",
+      "title": "Estado de SaleLinx",
       "body": "Las marketplaces en las que SaleLinx puede hacer crosslisting ahora mismo. Si ves errores y una marketplace aparece marcada aquí, el equipo ya está en ello.",
       "updatedPrefix": "Actualizado el {date}",
-      "footnote": "El estado lo revisa el equipo de SaleLinx y se actualiza cuando se sabe que el comportamiento de publicación de la extensión se ve afectado por un cambio en una marketplace.",
-      "breadcrumb": "Estado de plataformas",
+      "footnote": "El estado de los marketplaces lo define el equipo de SaleLinx. El estado de las funciones se actualiza automaticamente, salvo que el equipo lo haya fijado manualmente durante una incidencia.",
+      "breadcrumb": "Estado",
       "state": {
         "ok": "Operativo",
         "degraded": "Degradado",
         "down": "Caído"
       },
-      "card": {
-        "eyebrow": "Estado de plataformas",
-        "allOk": "Todas las marketplaces operativas",
-        "someDegraded": "Algunas marketplaces degradadas",
-        "someDown": "Una o más marketplaces caídas",
-        "body": "Vista en vivo de las marketplaces en las que SaleLinx publica actualmente."
-      }
+      "featuresHeading": "Funciones de la extension",
+      "featuresBody": "Vista en vivo de las funciones de la extension SaleLinx, por marketplace. Se actualiza automaticamente.",
+      "selfHelpHeading": "Todo parece operativo, pero no me funciona",
+      "selfHelpBody": "Este estado refleja problemas que afectan a muchos vendedores a la vez. Un problema solo en tu cuenta suele deberse a:",
+      "selfHelpCaptcha": "El marketplace muestra un CAPTCHA o ha restringido temporalmente tu sesion. Abre el marketplace en una pestana, resuelve el desafio y reintenta.",
+      "selfHelpLogin": "Tu sesion del marketplace ha caducado. Vuelve a iniciar sesion en Depop o Vinted en una pestana normal.",
+      "selfHelpTab": "No hay ninguna pestana del marketplace abierta. SaleLinx actua a traves de una pestana con sesion iniciada, manten una abierta.",
+      "selfHelpContact": "Sigues bloqueado? Contacta con soporte y lo revisaremos.",
+      "inferredNote": "El estado se deduce de datos de uso anonimos y agregados. No es un canal oficial de Depop ni Vinted, y una funcion con poco uso reciente puede aparecer como operativa.",
+      "featureColumn": "Funcion",
+      "notAvailable": "No disponible",
+      "intro": "Estado en vivo de los marketplaces a los que se conecta SaleLinx y de las funciones de la extension.",
+      "marketplacesHeading": "Marketplaces",
+      "marketplacesBody": "Si cada marketplace es accesible y funciona con normalidad."
     },
     "changelog": {
       "metaTitle": "Changelog",
@@ -946,5 +965,42 @@
       "body": "¿Falta una marketplace o una función? Dinos qué necesitas y la pesaremos en la próxima ronda de planificación.",
       "cta": "Escribe a hello@salelinx.com"
     }
+  },
+  "Uninstall": {
+    "metaTitle": "Sentimos que te vayas",
+    "metaDescription": "Cuéntanos por qué desinstalaste SaleLinx para ayudarnos a mejorar.",
+    "title": "SaleLinx se ha desinstalado",
+    "subtitle": "Sentimos que te vayas. Un clic sobre lo que falló nos ayudaría mucho.",
+    "reason": {
+      "too_expensive": "Demasiado caro",
+      "missing_feature": "Le faltaba una función que necesito",
+      "not_working": "Algo no funcionaba",
+      "stopped_selling": "Dejé de vender",
+      "switched_tool": "Me cambié a otra herramienta",
+      "other": "Otro"
+    },
+    "commentPlaceholder": "¿Algo más que quieras contarnos? (opcional)",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "thanks": "Gracias. Cada respuesta define lo próximo que arreglamos.",
+    "error": "No se pudo enviar ahora mismo. No se perdió nada, vuelve a intentarlo.",
+    "reinstallHint": "¿Lo quitaste porque algo falló?",
+    "helpLink": "Nuestras páginas de ayuda pueden tener la solución."
+  },
+  "Welcome": {
+    "metaTitle": "Bienvenido a SaleLinx",
+    "metaDescription": "Tres pasos para conectar tu tienda de Depop y Vinted con SaleLinx.",
+    "eyebrow": "Instalado",
+    "title": "Todo listo",
+    "subtitle": "SaleLinx vive dentro de Depop y Vinted, no en una aplicación aparte. Así se encuentra.",
+    "step1Title": "Fija la extensión",
+    "step1Text": "Haz clic en el icono del puzle de la barra de Chrome y fija SaleLinx para tenerlo siempre a mano.",
+    "step2Title": "Abre Depop o Vinted",
+    "step2Text": "Ve al marketplace donde vendes. El lanzador de SaleLinx aparece en la página automáticamente.",
+    "step3Title": "Abre el panel y vincula tu tienda",
+    "step3Text": "Haz clic en el lanzador, crea tu cuenta gratuita y vincula tu tienda. Todo funciona desde ahí.",
+    "openDepop": "Abrir Depop",
+    "openVinted": "Abrir Vinted",
+    "docsLink": "O lee las guías"
   }
 }

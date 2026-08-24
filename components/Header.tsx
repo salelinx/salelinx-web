@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MobileMenu } from '@/components/MobileMenu';
+import { HelpMenu } from '@/components/HelpMenu';
 
 export async function Header() {
   const supabase = await createServerClient();
@@ -55,6 +56,22 @@ export async function Header() {
         <nav className="hidden flex-1 items-center justify-end gap-4 text-sm text-zinc-600 sm:flex dark:text-zinc-400">
           {isAuthed ? (
             <>
+              <div className="group relative hidden md:block">
+                <Link
+                  href="/help"
+                  className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+                >
+                  {t('support')}
+                </Link>
+                <HelpMenu
+                  labels={{
+                    faq: t('navFaq'),
+                    docs: t('navDocs'),
+                    status: t('navStatus'),
+                    contact: t('supportContact'),
+                  }}
+                />
+              </div>
               <div className="group relative">
                 <Link
                   href="/account"
@@ -95,12 +112,39 @@ export async function Header() {
               </div>
             </>
           ) : (
-            <Link
-              href="/auth/login"
-              className="transition-colors duration-200 hover:text-black dark:hover:text-white"
-            >
-              {t('signIn')}
-            </Link>
+            <>
+              {/* Support is reachable signed OUT too: someone who cannot log
+                  in is exactly the person who needs it, and /help/support
+                  itself redirects to login. */}
+              <div className="group relative hidden md:block">
+                <Link
+                  href="/help"
+                  className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+                >
+                  {t('support')}
+                </Link>
+                <HelpMenu
+                  labels={{
+                    faq: t('navFaq'),
+                    docs: t('navDocs'),
+                    status: t('navStatus'),
+                    contact: t('supportContact'),
+                  }}
+                />
+              </div>
+              {/* The redesign deliberately dropped the header's Get started
+                  button and Add to Chrome pill to slim this side down; the
+                  hero carries both CTAs. Support survives that trim because
+                  it is navigation rather than a CTA, and the Footer, /help
+                  and several FAQ answers all point at /docs/status through
+                  this menu. */}
+              <Link
+                href="/auth/login"
+                className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+              >
+                {t('signIn')}
+              </Link>
+            </>
           )}
           <LanguageSwitcher />
         </nav>
