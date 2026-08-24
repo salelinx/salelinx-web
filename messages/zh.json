@@ -1,0 +1,1007 @@
+{
+  "Layout": {
+    "metaTitle": "SaleLinx - 在 Depop 和 Vinted 上同时销售",
+    "metaDescription": "在一个面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。"
+  },
+  "Header": {
+    "navFeatures": "功能",
+    "navPricing": "价格",
+    "navRoadmap": "路线图",
+    "navFaq": "常见问题",
+    "navDocs": "文档",
+    "account": "账户",
+    "support": "支持",
+    "signOut": "退出登录",
+    "signIn": "登录",
+    "getStarted": "开始使用",
+    "addToChrome": "添加到 Chrome",
+    "accountPlan": "套餐与账单",
+    "accountSecurity": "安全",
+    "accountReferrals": "推荐好友",
+    "accountSupport": "支持工单",
+    "accountDanger": "删除账户",
+    "navStatus": "状态",
+    "supportContact": "联系客服"
+  },
+  "Footer": {
+    "tagline": "在一个地方同时经营 Depop 和 Vinted。",
+    "sectionProduct": "产品",
+    "sectionResources": "资源",
+    "sectionLegal": "法律",
+    "linkFeatures": "功能",
+    "linkPricing": "价格",
+    "linkRoadmap": "路线图",
+    "linkHelp": "帮助",
+    "linkDocs": "文档",
+    "linkFaq": "常见问题",
+    "linkChangelog": "更新日志",
+    "linkStatus": "平台状态",
+    "linkPrivacy": "隐私政策",
+    "linkTerms": "服务条款",
+    "linkDpa": "数据处理附录",
+    "linkReferralTerms": "推荐计划条款",
+    "copyright": "© {year} SaleLinx Ltd. 保留所有权利。",
+    "builtFor": "为 Depop 和 Vinted 卖家打造。",
+    "companyInfo": "SaleLinx Ltd 是在英格兰和威尔士注册的公司，公司编号 17351832。注册地址：34 Sussex Place, London, W2 2TH, United Kingdom。"
+  },
+  "CookieBanner": {
+    "title": "salelinx.com 上的 Cookie",
+    "body": "我们使用必要 Cookie 来保证网站正常运行。我们也希望设置 Google Analytics Cookie，帮助我们了解网站的使用情况并加以改进。",
+    "privacyLink": "我们如何使用 Cookie",
+    "accept": "接受分析 Cookie",
+    "reject": "拒绝分析 Cookie",
+    "settings": "Cookie 设置"
+  },
+  "NotFound": {
+    "metaTitle": "页面未找到",
+    "title": "页面未找到",
+    "body": "你要找的页面不存在，或者已经被移动。",
+    "goHome": "返回首页",
+    "getHelp": "前往帮助中心"
+  },
+  "Home": {
+    "heroEyebrow": "已支持 <depop></depop> + <vinted></vinted>",
+    "heroTitle": "为每一位 <depop></depop> 和 <vinted></vinted> 卖家准备的工具。",
+    "heroSubtitle": "让你可以<word></word>",
+    "heroWords": [
+      "几秒内跨平台上架商品。",
+      "自动重新上架商品。",
+      "立即刷新商品。",
+      "一键同步库存！",
+      "一键回复买家。",
+      "上架速度快 10 倍。",
+      "每周省下好几个小时。",
+      "不再错过任何一单！",
+      "随时掌握消息动态。",
+      "轻松把店铺做大。",
+      "省掉重复的手动操作。",
+      "专注在卖得动的商品上。",
+      "多发货，少焦虑。",
+      "更聪明地卖，而不是更累地卖。"
+    ],
+    "ctaSeePricing": "查看价格",
+    "ctaSeeFeatures": "查看功能",
+    "ctaGetStarted": "开始使用",
+    "ctaAddToChrome": "添加到 Chrome",
+    "ctaSignIn": "登录",
+    "previewEyebrow": "试用在线演示",
+    "previewScrollHint": "滚动浏览",
+    "preview": {
+      "tabs": {
+        "listings": "商品",
+        "crosslist": "跨平台上架",
+        "shopDesigner": "店铺设计器",
+        "restocker": "库存同步",
+        "relister": "重新上架",
+        "priceDrops": "降价",
+        "followBot": "关注机器人",
+        "offers": "报价",
+        "autoOffers": "自动报价",
+        "conversations": "对话",
+        "labels": "面单"
+      },
+      "headers": {
+        "listings": {
+          "title": "我的商品",
+          "meta": "店内 128 件"
+        },
+        "crosslist": {
+          "title": "跨平台上架",
+          "meta": "Vinted 到 Depop"
+        },
+        "shopDesigner": {
+          "title": "店铺设计器",
+          "meta": "Depop 布局"
+        },
+        "restocker": {
+          "title": "库存同步",
+          "meta": "每 6 小时"
+        },
+        "relister": {
+          "title": "重新上架",
+          "meta": "刷新排名"
+        },
+        "priceDrops": {
+          "title": "降价",
+          "meta": "已安排 4 项"
+        },
+        "followBot": {
+          "title": "关注机器人",
+          "meta": "今日 218 / 500"
+        },
+        "offers": {
+          "title": "报价",
+          "meta": "6 条待处理"
+        },
+        "autoOffers": {
+          "title": "自动报价",
+          "meta": "运行中"
+        },
+        "conversations": {
+          "title": "收件箱",
+          "meta": "3 条未读"
+        },
+        "labels": {
+          "title": "面单",
+          "meta": "5 张待打印"
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "别再来回切标签页",
+      "title": "在一个面板里管理两个店铺。",
+      "body": "一键安装。开始 14 天 Starter 免费试用，需要绑定支付卡。",
+      "primary": "免费开始使用",
+      "secondary": "查看价格",
+      "tertiary": "添加到 Chrome"
+    },
+    "howItWorks": {
+      "eyebrow": "使用方法",
+      "title": "两分钟就能用起来。",
+      "body": "安装扩展，连接你的店铺，面板就会出现在每一个 Depop 和 Vinted 页面上。",
+      "steps": {
+        "install": {
+          "title": "安装扩展",
+          "body": "在 Chrome Web Store 一键安装。不用注册新账号，也不用调整设置。"
+        },
+        "link": {
+          "title": "连接你的店铺",
+          "body": "像平时一样登录 Depop 和 Vinted。SaleLinx 会沿用当前的登录状态，不需要重新输入任何信息。"
+        },
+        "crosslist": {
+          "title": "多卖货，少点击",
+          "body": "在一个面板里完成跨平台上架、重新上架、库存同步和买家回复。做大店铺需要的每个工具，都在你卖货的地方。"
+        }
+      }
+    }
+  },
+  "ThemeToggle": {
+    "switchToLight": "切换到浅色模式",
+    "switchToDark": "切换到深色模式"
+  },
+  "LanguageSwitcher": {
+    "label": "语言",
+    "english": "English",
+    "french": "Français",
+    "spanish": "Español",
+    "german": "Deutsch",
+    "arabic": "العربية",
+    "chinese": "简体中文"
+  },
+  "Auth": {
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "密码",
+    "pwTooShort": "密码至少需要 8 个字符。",
+    "pwMismatch": "两次输入的密码不一致。",
+    "checkEmailTitle": "请查收邮件",
+    "continueWithGoogle": "使用 Google 继续",
+    "continueWithGoogleLoading": "正在跳转…",
+    "orDivider": "或",
+    "login": {
+      "title": "登录",
+      "metaDescription": "登录你的 SaleLinx 账户，管理套餐、账单和推荐奖励。",
+      "submitIdle": "登录",
+      "submitSubmitting": "正在登录…",
+      "createAccount": "创建账户",
+      "forgotPassword": "忘记密码？",
+      "legalNotice": "继续即表示你同意我们的<terms>服务条款</terms>，并确认已阅读我们的<privacy>隐私政策</privacy>。"
+    },
+    "mfa": {
+      "title": "两步验证",
+      "body": "请输入身份验证器应用中的 6 位验证码。",
+      "loading": "加载中…",
+      "codePlaceholder": "123456",
+      "submitIdle": "验证",
+      "submitSubmitting": "正在验证…",
+      "codeError": "验证码不正确。请检查应用后重试。",
+      "notEnrolled": "这个区域需要双重验证，而你的账户还没有设置。请先在账户的“安全”部分开启。",
+      "goToSecurity": "前往账户设置"
+    },
+    "signup": {
+      "title": "创建账户",
+      "metaDescription": "创建免费的 SaleLinx 账户，开始在 Depop 和 Vinted 上跨平台上架、重新上架和刷新商品。",
+      "emailInUse": "这个邮箱已经注册过账户。请在下方登录，如果忘记密码可以重置。",
+      "disposableEmail": "请使用长期有效的邮箱地址。不支持临时邮箱服务。",
+      "passwordPlaceholder": "密码（至少 8 个字符）",
+      "confirmPlaceholder": "确认密码",
+      "submitIdle": "创建账户",
+      "submitSubmitting": "正在创建账户…",
+      "haveAccount": "已经有账户了？",
+      "signIn": "登录",
+      "legalNotice": "创建账户即表示你同意我们的<terms>服务条款</terms>，并确认已阅读我们的<privacy>隐私政策</privacy>。",
+      "checkEmailBody": "我们已向 <email></email> 发送了确认链接。点击链接即可完成账户创建。"
+    },
+    "forgotPassword": {
+      "title": "重置密码",
+      "metaDescription": "申请重置链接，重新登录你的 SaleLinx 账户。",
+      "subtitle": "输入你的邮箱，我们会发送一个重置链接。",
+      "submitIdle": "发送重置链接",
+      "submitSubmitting": "正在发送…",
+      "backToSignIn": "返回登录",
+      "checkEmailBody": "我们已向 <email></email> 发送了密码重置链接。"
+    },
+    "resetPassword": {
+      "title": "设置新密码",
+      "newPwPlaceholder": "新密码（至少 8 个字符）",
+      "confirmPlaceholder": "确认新密码",
+      "submitIdle": "保存新密码",
+      "submitSubmitting": "正在保存…",
+      "noSessionTitle": "链接已失效",
+      "noSessionBody": "我们无法通过这个链接确认你的身份。请重新申请一个链接来设置密码。"
+    },
+    "confirm": {
+      "title": "确认你的邮箱",
+      "body": "点击下方按钮完成确认。只有你点击时我们才会执行，这样收件箱里的链接扫描程序就不会提前把它用掉。",
+      "submit": "确认",
+      "recoveryTitle": "重置你的密码",
+      "recoveryBody": "点击下方按钮继续。只有你点击时我们才会执行，这样收件箱里的链接扫描程序就不会提前把它用掉。",
+      "recoverySubmit": "继续重置密码",
+      "submitSubmitting": "正在验证…",
+      "invalidTitle": "链接不完整",
+      "invalidBody": "这个链接缺少我们需要的信息，可能被你的邮件客户端改动过。",
+      "requestNew": "申请一个新链接"
+    },
+    "linkError": {
+      "title": "这个链接无法使用",
+      "body": "我们无法验证这个链接，它可能已经被使用过了。",
+      "expiredTitle": "这个链接已过期",
+      "expiredBody": "密码重置链接只能使用一次。重新申请一个，马上就能用。",
+      "requestNew": "给我发送新链接"
+    }
+  },
+  "Account": {
+    "title": "你的账户",
+    "signOut": "退出登录",
+    "checkoutSuccess": "订阅已开通。下方的详情可能需要几秒钟才会刷新。",
+    "currentPlanTitle": "当前套餐",
+    "noSubscriptionBody": "你还没有生效的套餐。开始 14 天免费试用即可使用 SaleLinx。",
+    "startTrial": "开始免费试用",
+    "trialEndsInDays": "你的免费试用将在 {days} 天后结束。之后会按 Starter 套餐扣费。",
+    "trialEndsTomorrow": "你的免费试用将在明天结束。之后会按 Starter 套餐扣费。",
+    "lockedNote": "你的订阅未生效。重新订阅即可继续使用 SaleLinx。",
+    "seePricing": "查看价格",
+    "tier": "级别",
+    "status": "状态",
+    "renews": "续订日期",
+    "ends": "结束日期",
+    "ended": "已结束",
+    "planVersion": "套餐版本",
+    "pastDueNote": "最近一次扣款失败。请在下方更新支付方式，以免失去使用权限。",
+    "scheduledCancel": "已安排在 {date} 取消。在那之前，你可以随时通过“管理订阅”恢复。",
+    "managePortalBody": "在 Stripe 的账单门户中更新套餐、更换支付方式、下载发票或取消订阅。",
+    "dateFallback": "-",
+    "tierLabel": {
+      "free": "免费",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business"
+    },
+    "statusLabel": {
+      "active": "生效中",
+      "trialing": "试用中",
+      "past_due": "扣款失败",
+      "canceled": "已取消",
+      "incomplete": "未完成"
+    },
+    "supportTitle": "支持",
+    "supportBody": "查看你的支持工单和我们的回复。",
+    "supportCta": "你的工单"
+  },
+  "VerifyEmailBanner": {
+    "title": "验证你的邮箱",
+    "body": "我们已向 <email></email> 发送了一个链接。点击它即可激活账户。",
+    "resend": "重新发送链接",
+    "sending": "正在发送…",
+    "sent": "已发送，请查收邮件"
+  },
+  "ManageSubscription": {
+    "loading": "加载中...",
+    "cta": "管理订阅",
+    "errorAlert": "无法打开账单门户，请重试。"
+  },
+  "AccountSecurity": {
+    "title": "安全",
+    "body": "管理账户的密码和邮箱地址。这两项修改都需要点击我们发给你的链接来确认。",
+    "passwordHeading": "密码",
+    "passwordBody": "我们会向 <email></email> 发送重置链接。",
+    "passwordBodyGoogle": "你使用 Google 登录，所以账户没有密码。你可以设置一个密码作为另一种登录方式：我们会向 <email></email> 发送链接。",
+    "setPasswordLink": "发送设置密码链接",
+    "passwordSent": "链接已发送。请查看 <email></email>，点击链接设置新密码。",
+    "sendResetLink": "发送重置链接",
+    "sending": "正在发送...",
+    "emailHeading": "邮箱",
+    "emailCurrent": "当前：<email></email>",
+    "emailSent": "确认邮件已发送至 <email></email>。点击邮件中的链接即可完成修改。",
+    "changeEmail": "更换邮箱",
+    "newEmailPlaceholder": "new@example.com",
+    "sendConfirmation": "发送确认邮件",
+    "cancel": "取消",
+    "errorEnterEmail": "请输入新的邮箱地址。",
+    "errorSameEmail": "这已经是你当前的邮箱了。",
+    "errorRateLimited": "更换邮箱的请求太频繁了。请明天再试。",
+    "mfaHeading": "双重验证",
+    "mfaBody": "用身份验证器应用生成的 6 位验证码作为第二步登录验证，保护你的账户。",
+    "mfaLoading": "加载中…",
+    "mfaEnable": "启用双重验证",
+    "mfaWorking": "处理中…",
+    "mfaScan": "用身份验证器应用（Google Authenticator、1Password、Authy 等）扫描这个二维码，然后输入它显示的 6 位验证码。",
+    "mfaQrAlt": "供身份验证器应用扫描的二维码",
+    "mfaManual": "或者手动输入这个密钥：",
+    "mfaCodePlaceholder": "123456",
+    "mfaActivate": "激活",
+    "mfaOn": "双重验证已启用。",
+    "mfaDisable": "关闭双重验证",
+    "mfaDisablePrompt": "请输入应用中当前的 6 位验证码，以确认关闭双重验证。",
+    "mfaCodeError": "验证码不正确。请检查应用后重试。"
+  },
+  "DeleteAccount": {
+    "title": "删除账户",
+    "body": "永久删除你的账户以及其中的一切：商品、图片、已连接的平台账号、使用记录和支持工单。生效中的订阅会立即取消，账单周期内剩余的时间不予退款。此操作无法撤销。",
+    "cta": "删除账户",
+    "confirmBody": "我们会向 <email></email> 发送确认链接。在你打开链接并再确认一次之前，不会删除任何内容。请输入密码以继续。",
+    "confirmBodyNoPassword": "我们会向 <email></email> 发送确认链接。在你打开链接并再确认一次之前，不会删除任何内容。你的账户使用 Google 登录，所以不需要密码。",
+    "passwordPlaceholder": "你的密码",
+    "confirm": "发送确认邮件",
+    "sending": "正在发送...",
+    "cancel": "取消",
+    "sentBody": "确认链接已发送至 <email></email>。打开它即可完成账户删除。链接将在 60 分钟后过期。",
+    "errorWrongPassword": "密码不正确。",
+    "errorAdmin": "管理员账户无法在这里删除。请联系 support@salelinx.com。",
+    "errorGeneric": "出了点问题。请重试，或者发邮件到 support@salelinx.com，我们会帮你处理。"
+  },
+  "DeleteAccountConfirm": {
+    "title": "确定删除你的账户吗？",
+    "body": "这是最后一步。确认后将永久删除 <email></email> 以及其中的一切：商品、图片、已连接的平台账号、使用记录和支持工单。生效中的订阅会立即取消，账单周期内剩余的时间不予退款。此操作无法撤销。",
+    "confirm": "永久删除我的账户",
+    "deleting": "正在删除...",
+    "keepAccount": "保留我的账户",
+    "errorInvalidToken": "这个确认链接无效或已过期。请回到账户页面重新申请一个。",
+    "errorGeneric": "删除失败。请重试，或者发邮件到 support@salelinx.com，我们会帮你处理。"
+  },
+  "Referrals": {
+    "title": "推荐好友",
+    "body": "分享你的链接。任何通过它订阅的人首月都能享受折扣，等他们付款后，你可以获得一个月免费。",
+    "copy": "复制链接",
+    "copied": "已复制",
+    "statSignedUp": "已注册",
+    "statSubscribed": "已订阅",
+    "statRewarded": "已获得月数",
+    "creditEarned": "目前累计获得的抵扣：{amount}。它会自动抵扣到你的下一张账单上。",
+    "termsNote": "奖励需满足一定条件（7 天的锁定期、每月上限，以及订阅处于生效状态）。",
+    "termsLink": "查看推荐计划条款"
+  },
+  "Support": {
+    "title": "支持",
+    "subtitle": "提交请求并查看我们的回复。团队回复时，我们也会给你发邮件。",
+    "newTicketTitle": "新建请求",
+    "newTicketBody": "告诉我们发生了什么，我们会在这里和邮件里回复你。",
+    "typeLabel": "类型",
+    "typePlaceholder": "选择一个类型...",
+    "type_bug": "缺陷",
+    "type_feature": "功能建议",
+    "type_feedback": "反馈",
+    "type_other": "其他",
+    "messageLabel": "内容",
+    "messagePlaceholder": "描述问题或想法...",
+    "submit": "提交请求",
+    "submitting": "正在发送...",
+    "submitSuccess": "已发送。我们会尽快联系你。",
+    "submitError": "发送失败。请重试。",
+    "submitRateLimited": "你已达到工单数量上限。请等待已有工单的回复，或者明天再试。",
+    "myTicketsTitle": "你的请求",
+    "noTickets": "你还没有提交过任何请求。",
+    "noOpenTickets": "没有进行中的请求。点击“显示已关闭”查看已解决的请求，回复其中一条会重新打开它。",
+    "showClosed": "显示已关闭（{count}）",
+    "hideClosed": "隐藏已关闭",
+    "statusOpen": "进行中",
+    "statusClosed": "已关闭",
+    "authorYou": "你",
+    "authorUser": "用户",
+    "authorSupport": "SaleLinx 支持团队",
+    "replyPlaceholder": "添加回复...",
+    "replyReopensNote": "这条请求已关闭。发送回复会重新打开它。",
+    "replySend": "发送回复",
+    "replyError": "回复发送失败。请重试。",
+    "replyRateLimited": "你今天已经发送了很多回复。请等团队回复后再继续发送。",
+    "trackTicketsCta": "查看你的工单",
+    "ticketsTitle": "你的工单",
+    "ticketsSubtitle": "查看你提交的请求，并回复我们的答复。",
+    "contactSupportCta": "联系支持",
+    "adminTitle": "全部工单（管理员）",
+    "adminFilter_open": "进行中",
+    "adminFilter_closed": "已关闭",
+    "adminFilter_all": "全部",
+    "adminEmpty": "没有符合这个筛选条件的工单。",
+    "adminFromUser": "来自",
+    "adminPlatform": "平台",
+    "adminTier": "级别",
+    "adminVersion": "版本",
+    "adminReplyPlaceholder": "以 SaleLinx 支持团队的身份回复...",
+    "adminReplySend": "回复",
+    "adminClose": "关闭",
+    "adminReopen": "重新打开",
+    "adminDelete": "删除",
+    "adminDeleteConfirm": "删除这条工单和它的所有回复？此操作无法撤销。",
+    "adminActionError": "操作失败。请重试。"
+  },
+  "Help": {
+    "metaTitle": "帮助",
+    "metaDescription": "查找答案、浏览文档，或者联系 SaleLinx 团队。",
+    "eyebrow": "帮助中心",
+    "title": "需要什么帮助？",
+    "body": "搜索常见问题、阅读文档，或者给我们发消息。我们会通过邮件和你的账户回复。",
+    "faqCardTitle": "常见问题",
+    "faqCardBody": "关于安装、账单和故障排查的常见问题快速解答。",
+    "docsCardTitle": "文档",
+    "docsCardBody": "SaleLinx 每项功能的分步指南和操作演示。",
+    "statusCardTitle": "平台状态",
+    "statusCardBody": "查看目前支持哪些平台，以及它们是否运行正常。",
+    "supportMetaTitle": "联系支持",
+    "supportMetaDescription": "给 SaleLinx 团队发消息。",
+    "supportTitle": "联系支持",
+    "supportBody": "给我们发消息，我们会通过邮件和你的账户回复。",
+    "supportDocsLink": "使用指南",
+    "supportEmailBody": "直接发邮件给我们，我们会回复到该邮箱。如果问题与某个商品有关，请附上你的平台用户名。",
+    "supportEmailHeading": "发邮件给我们",
+    "supportFaqLink": "常见问题",
+    "supportSelfServe": "很多问题已经解答于",
+    "supportSignInBody": "工单会将完整对话保存在你的账户中，我们回复时你会收到通知。",
+    "supportSignInCta": "登录",
+    "supportSignInHeading": "登录以创建工单",
+    "supportSignedOutBody": "无需账户也可以通过邮件联系我们。登录后可在一处跟进所有回复。",
+    "supportStatusLink": "状态页面"
+  },
+  "Subscribe": {
+    "loading": "加载中...",
+    "label": "订阅",
+    "errorAlert": "无法开始结账。请重试。"
+  },
+  "Legal": {
+    "privacy": {
+      "title": "隐私政策",
+      "metaDescription": "SaleLinx 如何处理你的数据：我们收集什么、哪些只留在你的设备上，以及如何申请数据副本或删除账户。"
+    },
+    "terms": {
+      "title": "服务条款",
+      "metaDescription": "适用于你使用 SaleLinx 扩展和网站的条款：账户、订阅、账单和可接受的使用方式。"
+    },
+    "dpa": {
+      "title": "数据处理附录",
+      "metaDescription": "SaleLinx 如何依据英国 GDPR 第 28 条，作为处理者代你处理买家数据，以及涉及哪些次级处理者。"
+    },
+    "referralTerms": {
+      "title": "推荐计划条款",
+      "metaDescription": "SaleLinx 推荐计划的条件：被推荐人的折扣、推荐人如何获得免费月份、奖励的锁定期和上限，以及合理使用规则。"
+    }
+  },
+  "Invited": {
+    "priceNoteFirstMonth": "仅限首月",
+    "priceNoteMonths": "适用于前 {months} 个月",
+    "discountOffFirstMonth": "你的推荐折扣：首月立减 {value}，结账时自动应用。",
+    "discountOffMonths": "你的推荐折扣：前 {months} 个月每月立减 {value}，结账时自动应用。",
+    "discountOffForever": "你的推荐折扣：每月立减 {value}，结账时自动应用。",
+    "discountBanner": "你的推荐折扣已生效，结账时会自动应用。",
+    "metaTitle": "你收到了邀请",
+    "metaDescription": "有朋友邀请你使用 SaleLinx，通过他的链接注册即可享受首月折扣。",
+    "eyebrow": "你收到了邀请",
+    "title": "你的朋友用 SaleLinx 经营店铺。",
+    "description": "SaleLinx 是给 Depop 和 Vinted 卖家用的工具箱，在一个面板里完成跨平台上架、重新上架、刷新和库存同步。因为有朋友邀请你，首月折扣会自动应用。",
+    "claimCta": "注册并领取折扣",
+    "exploreCta": "看看 SaleLinx 能做什么",
+    "note": "你的邀请会在这个浏览器里保留 30 天，结账时不需要输入优惠码。",
+    "step1": "创建你的免费账户，邀请已经自动关联好了。",
+    "step2": "安装扩展，并连接你的 Depop 或 Vinted 店铺。",
+    "step3": "选择套餐，折扣会在结账时自动应用。",
+    "termsNote": "折扣适用于新付费套餐的首次付款，不能与其他优惠码叠加。",
+    "termsLink": "查看推荐计划条款"
+  },
+  "Features": {
+    "metaTitle": "产品、价格、路线图",
+    "metaDescription": "SaleLinx Chrome 扩展的全部功能、价格，以及接下来的计划。在一个面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。",
+    "hero": {
+      "eyebrow": "产品概览",
+      "title": "SaleLinx 的全部功能、价格和下一步计划。",
+      "description": "在一个浏览器面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。",
+      "installExtension": "安装扩展",
+      "seePricing": "查看价格"
+    },
+    "sectionHeader": {
+      "eyebrow": "第 01 部分 / 功能",
+      "title": "SaleLinx 还能做的其他事。",
+      "body": "按你实际的使用场景分组。可以快速浏览各个分类，也可以直接跳到你想找的功能。"
+    },
+    "marketplaceOnly": "仅 <marketplace></marketplace>",
+    "sectionNavAria": "页面章节",
+    "overviewBody": "上面展示了部分功能。以下是完整列表。",
+    "headlines": {
+      "eyebrow": "从这里开始",
+      "title": "卖家安装 SaleLinx 的理由。",
+      "description": "大多数人是为了其中之一而来。其余功能都在下面。",
+      "learnMore": "了解更多",
+      "items": {
+        "crosslist": {
+          "short": "跨平台上架",
+          "title": "一键在 Depop 和 Vinted 之间跨平台上架",
+          "body": "选中一个商品，点击跨平台上架，另一个平台的表单就会自动填好。分类、尺码和成色都会替你转换，同一件商品几秒钟就能在两个店铺同时上架。",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "relist": {
+          "short": "重新上架",
+          "title": "重新上架，保持靠前",
+          "body": "用调整过的图片和标题重建陈旧的商品，然后删掉原来的，让它重新爬回搜索结果前面。可以自己动手运行，也可以让它每隔几小时自动运行。",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "restocker": {
+          "short": "库存同步",
+          "title": "两个店铺都不会超卖",
+          "body": "在 Depop 卖出了？SaleLinx 会在同一分钟内把 Vinted 上的同款下架。反过来也一样，所以同一批库存可以放心同时挂在两个店铺。",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "oneInbox": {
+          "short": "统一收件箱",
+          "title": "报价和消息都在一个收件箱",
+          "body": "两个店铺的每一条报价和每一条买家消息，都汇总到同一个列表。设置规则自动接受或还价，你只需要处理真正重要的对话。",
+          "works": "<depop></depop> + <vinted></vinted>"
+        },
+        "labels": {
+          "short": "快递面单",
+          "title": "快递面单，可以批量打印",
+          "body": "把一整天订单的面单 PDF 下载并合并，一次性送进打印机，不用挨个订单去点。",
+          "works": "<depop></depop> + <vinted></vinted>"
+        }
+      }
+    },
+    "ctaSection": {
+      "eyebrow": "你随时可以开始",
+      "title": "就在你平时卖货的浏览器里开始。",
+      "getStarted": "开始使用",
+      "seePricing": "查看价格"
+    },
+    "chapter": {
+      "listings": {
+        "number": "01",
+        "title": "商品与库存",
+        "blurb": "两个店铺的所有商品集中在一处，安全保存，并在你使用 SaleLinx 的每台设备上保持同步。",
+        "items": {
+          "dashboard": {
+            "name": "商品",
+            "label": "全部库存，一个列表",
+            "detail": "两个店铺并排显示。可以按日期、价格或状态排序，也可以精确筛选出你需要的内容。"
+          },
+          "linkAccounts": {
+            "name": "账号关联",
+            "label": "店铺只需连接一次",
+            "detail": "像平时一样登录 Depop 和 Vinted。SaleLinx 会沿用当前的登录状态，不需要重新输入密码。"
+          },
+          "backup": {
+            "name": "云备份",
+            "label": "你的店铺，安全备份",
+            "detail": "每个商品都会加密存储在云端，就算电脑关了或者平台出错，也不会让你丢掉一单生意。"
+          },
+          "sync": {
+            "name": "设备同步",
+            "label": "换电脑，设置照旧",
+            "detail": "你的设置、规则和店铺连接会跟着你走，登录任何设备都还在。"
+          },
+          "multilanguage": {
+            "name": "语言",
+            "label": "用你的语言使用它",
+            "detail": "提供英语、法语、西班牙语、德语、阿拉伯语和中文版本，并支持浅色和深色主题。"
+          }
+        }
+      },
+      "crosslisting": {
+        "number": "02",
+        "title": "跨平台上架",
+        "blurb": "商品信息只写一次，同时发布到两个平台。分类和尺码这些麻烦的部分会替你转换好。",
+        "items": {
+          "bidirectional": {
+            "name": "跨平台上架",
+            "label": "Depop 和 Vinted 双向跨平台上架",
+            "detail": "在任一平台选中任意商品，SaleLinx 都会替你填好另一边的表单。"
+          },
+          "autoMap": {
+            "name": "类目映射",
+            "label": "分类和尺码替你转换",
+            "detail": "Depop 的标签会变成 Vinted 的，反过来也一样。不用设置任何对应表。"
+          },
+          "csvImport": {
+            "name": "CSV 导入",
+            "label": "用 CSV 批量导入",
+            "detail": "已经有表格版的库存清单？上传一次，SaleLinx 会自动匹配字段。"
+          },
+          "shopDesigner": {
+            "name": "店铺设计器",
+            "label": "拖放设计你的 Depop 店铺",
+            "detail": "在面板里重新排列 Depop 个人主页的布局，不用打开 Depop 网站本身。"
+          }
+        }
+      },
+      "visibility": {
+        "number": "03",
+        "title": "曝光与受众",
+        "blurb": "让商品保持在搜索前列，触达最有可能下单的买家，而且不用手动去做。",
+        "items": {
+          "refresher": {
+            "name": "刷新工具",
+            "label": "把每个商品都顶回最前面",
+            "detail": "一键从最下面开始重新保存你的库存，你精心排好的顺序不会被打乱。"
+          },
+          "scheduler": {
+            "name": "定时任务",
+            "label": "设置一次，之后不用管",
+            "detail": "刷新可以每 4、6、8、12 或 24 小时自动运行。选好频率，剩下的交给它。"
+          },
+          "followBot": {
+            "name": "关注机器人",
+            "label": "自动增长你的粉丝",
+            "detail": "关注竞争对手的粉丝、你的老买家，或者点赞过某件商品的人。五种方式帮你找到对的人。"
+          },
+          "filters": {
+            "name": "关注过滤",
+            "label": "跳过或始终保留特定账号",
+            "detail": "把用户名加入黑名单或白名单，让机器人不去动朋友、品牌或竞争对手。"
+          },
+          "deadStock": {
+            "name": "滞销库存",
+            "label": "找出卖不动的商品",
+            "detail": "SaleLinx 会标出滞销商品，并建议下一步怎么做：刷新、降价，还是重新上架。"
+          },
+          "autoMarkdown": {
+            "name": "降价",
+            "label": "自动给滞销商品降价",
+            "detail": "为放置太久的商品安排按百分比降价，把它们重新推回搜索结果里。"
+          },
+          "activityLog": {
+            "name": "活动日志",
+            "label": "实时看到每一个动作",
+            "detail": "实时看着 SaleLinx 干活。可以筛选、暂停、随时中止，需要的话还能导出日志。"
+          }
+        }
+      },
+      "sales": {
+        "number": "04",
+        "title": "销售与沟通",
+        "blurb": "报价、消息、面单和售后收尾都在一处，还能用规则处理重复的事情。",
+        "items": {
+          "offersInbox": {
+            "name": "报价",
+            "label": "接受、还价或拒绝，都在一处",
+            "detail": "两个店铺的每一条报价都出现在同一个收件箱，不用在标签页之间来回跳。"
+          },
+          "autoOffers": {
+            "name": "自动报价",
+            "label": "自动回复报价",
+            "detail": "设置像“高于 80% 就接受”或“一律按 90% 还价”这样的规则，剩下的交给 SaleLinx。"
+          },
+          "messages": {
+            "name": "对话",
+            "label": "所有买家消息，一个列表",
+            "detail": "Depop 和 Vinted 的对话合并到同一个收件箱，什么都不会漏掉。"
+          },
+          "shipping": {
+            "name": "面单",
+            "label": "批量打印快递面单",
+            "detail": "下载并合并一整天订单的面单 PDF，直接打印粘贴。"
+          },
+          "relister": {
+            "name": "重新上架",
+            "label": "刷新商品的搜索排名",
+            "detail": "用调整过的图片和标题重建陈旧的商品，然后删掉原来的，让它重新爬回搜索结果前面。"
+          },
+          "restocker": {
+            "name": "库存同步",
+            "sceneTitle": "跨平台库存同步",
+            "label": "两个店铺都不会超卖",
+            "detail": "在一个平台卖出商品后，SaleLinx 会自动把另一个平台上对应的商品下架。"
+          }
+        }
+      }
+    }
+  },
+  "Pricing": {
+    "sectionHeader": {
+      "eyebrow": "第 02 部分 / 价格",
+      "title": "选一个套餐。随时切换，随时取消。",
+      "body": "每个套餐用的都是同一个扩展。级别越高，每月额度越大，还会解锁自动报价、库存同步这类更重的自动化功能。"
+    },
+    "popular": "热门",
+    "installExtension": "安装扩展",
+    "comingSoon": "即将推出",
+    "perMonth": "/月",
+    "vatNote": "显示的价格就是你最终支付的金额，不额外收取增值税。可随时取消，首次付款享有 14 天退款保证。",
+    "unlimited": "无限",
+    "cloudStorage": "云端存储",
+    "storageGb": "{value} GB",
+    "storageMb": "{value} MB",
+    "supportHours": "{value} 小时",
+    "supportDays": "{value} 天",
+    "trial": {
+      "name": "14 天免费试用",
+      "tagline": "完整的 Starter 权限，需要绑定支付卡。",
+      "priceSuffix": "共 {days} 天",
+      "thenPrice": "之后按 {price} / 月收费，除非你在试用结束前取消",
+      "cta": "开始免费试用"
+    },
+    "tier": {
+      "starter": {
+        "tagline": "业余卖家"
+      },
+      "pro": {
+        "tagline": "活跃的转卖者"
+      },
+      "business": {
+        "tagline": "高产卖家和多店铺经营者"
+      }
+    },
+    "limit": {
+      "crosslists_per_month": "跨平台上架 / 月",
+      "relists_per_month": "重新上架 / 月",
+      "refreshes_per_day": "刷新 / 天",
+      "follows_per_day": "关注 / 天",
+      "unfollows_per_day": "取消关注 / 天",
+      "cloud_storage_bytes": "云端存储",
+      "support_response_days": "支持响应",
+      "support_response_hours": "支持响应"
+    },
+    "feature": {
+      "auto_refresh": "自动刷新",
+      "cloud_sync": "云端同步",
+      "shop_designer": "店铺设计器",
+      "dead_stock": "滞销商品分析",
+      "restocker": "库存同步",
+      "auto_offer": "自动报价",
+      "shipping_labels": "快递面单",
+      "messages": "消息",
+      "offers": "报价",
+      "auto_markdown": "降价",
+      "account_linking": "账号连接"
+    }
+  },
+  "Docs": {
+    "metaTitle": "文档",
+    "metaDescription": "SaleLinx Chrome 扩展的分步指南和操作演示。",
+    "eyebrow": "文档",
+    "heroTitle": "学会使用 SaleLinx。",
+    "heroBody": "SaleLinx Chrome 扩展的分步指南和操作演示。如果只是想快速找到常见问题的答案，请前往<faq>常见问题</faq>。",
+    "browseByTopic": "按主题浏览",
+    "byMarketplaceEyebrow": "按平台",
+    "byMarketplaceTitle": "查找特定平台的帮助",
+    "faqLinkPrompt": "只想快速得到答案？",
+    "faqLinkCta": "浏览常见问题",
+    "category": {
+      "getting-started": {
+        "title": "快速上手",
+        "blurb": "安装扩展、登录，并发布你的第一个商品。"
+      },
+      "inventory": {
+        "title": "库存与发布",
+        "blurb": "商品、机器人、重新上架、刷新、跨平台上架、店铺设计器、CSV 导入、云端同步。"
+      },
+      "automate": {
+        "title": "自动化",
+        "blurb": "滞销商品、自动报价、账号连接、库存同步、降价。"
+      },
+      "buyers": {
+        "title": "买家消息",
+        "blurb": "报价、消息、快递面单和评价。"
+      }
+    },
+    "task": {
+      "install": "安装扩展",
+      "connect": "连接一个平台",
+      "crosslist": "跨平台上架一个商品",
+      "manage": "管理你的库存"
+    },
+    "categoryPageEyebrow": "分类",
+    "categoryCardBrowse": "浏览",
+    "articleCountOne": "{count} 篇文章",
+    "articleCountOther": "{count} 篇文章",
+    "articleStub": "占位",
+    "articleUpdated": "更新于 {date}",
+    "sidebarAria": "文档导航",
+    "search": {
+      "placeholder": "搜索文档...",
+      "aria": "搜索文档",
+      "noResults": "没有与“{query}”相关的结果。"
+    },
+    "breadcrumbAria": "面包屑导航",
+    "breadcrumbDocs": "文档",
+    "prevNext": {
+      "previous": "上一篇",
+      "next": "下一篇"
+    },
+    "status": {
+      "metaTitle": "平台状态",
+      "metaDescription": "实时查看 SaleLinx 目前可以跨平台上架到哪些平台。",
+      "eyebrow": "状态",
+      "title": "平台状态",
+      "body": "查看 SaleLinx 目前能够跨平台上架到哪些平台。如果你遇到报错，而某个平台在这里被标记出来，说明团队已经在处理了。",
+      "updatedPrefix": "更新于 {date}",
+      "footnote": "状态由 SaleLinx 团队检查，并在已知平台改动影响扩展的发布行为时更新。",
+      "breadcrumb": "平台状态",
+      "state": {
+        "ok": "运行正常",
+        "degraded": "运行异常",
+        "down": "服务中断"
+      },
+      "featureColumn": "功能",
+      "featuresBody": "SaleLinx 扩展各项功能的实时状态，按平台分组，根据真实使用情况自动更新。",
+      "featuresHeading": "扩展功能",
+      "inferredNote": "平台与功能状态是根据所有 SaleLinx 安装的匿名汇总使用数据推断得出的，并非 Depop 或 Vinted 的官方状态源。近期使用较少的功能可能会显示为正常。",
+      "intro": "SaleLinx 所连接平台的实时状态，以及在其上运行的扩展功能。",
+      "marketplacesBody": "各平台是否可访问且运行正常。",
+      "marketplacesHeading": "平台",
+      "notAvailable": "不适用",
+      "selfHelpBody": "此处的状态反映的是同时影响大量卖家的问题。只影响你个人账户的问题，通常由以下原因之一造成：",
+      "selfHelpCaptcha": "平台正在显示人机验证，或已临时限制你的会话。请打开该平台的标签页，完成验证后重试。",
+      "selfHelpContact": "仍然无法解决？联系客服，我们会帮你查看。",
+      "selfHelpHeading": "显示一切正常，但我这里用不了",
+      "selfHelpLogin": "你的平台登录已过期。请在普通标签页中重新登录 Depop 或 Vinted。",
+      "selfHelpTab": "没有打开平台标签页。SaleLinx 通过已登录的标签页执行操作，运行期间请保持一个标签页打开。"
+    },
+    "changelog": {
+      "metaTitle": "更新日志",
+      "metaDescription": "SaleLinx 扩展近期版本的更新内容。",
+      "eyebrow": "更新日志",
+      "title": "SaleLinx 的新变化",
+      "body": "SaleLinx 扩展的版本说明。最新的一条在最上面。",
+      "breadcrumb": "更新日志"
+    },
+    "whatsNew": {
+      "eyebrow": "新变化",
+      "title": "近期更新",
+      "fullChangelog": "完整更新日志"
+    },
+    "support": {
+      "title": "还是卡住了？",
+      "body": "找不到需要的内容？直接联系团队，我们会尽快回复你。",
+      "cta": "联系支持"
+    }
+  },
+  "Faq": {
+    "metaTitle": "常见问题",
+    "metaDescription": "关于 SaleLinx 的常见问题快速解答：账单、账户、故障排查、隐私。",
+    "eyebrow": "常见问题",
+    "title": "常见问题。",
+    "body": "我们被问得最多的问题的快速解答。想看完整的操作步骤？<docs>浏览文档</docs>。",
+    "search": {
+      "placeholder": "搜索常见问题...",
+      "aria": "搜索常见问题",
+      "noResults": "没有与“{query}”匹配的问题。换个说法试试，或者发邮件联系支持。"
+    },
+    "docsLink": "想看分步指南？浏览文档"
+  },
+  "Roadmap": {
+    "sectionHeader": {
+      "eyebrow": "第 03 部分 / 路线图",
+      "title": "SaleLinx 要往哪里走。",
+      "body": "公开展示正在评估、正在开发和已经发布的内容。日期是目标，不是承诺。"
+    },
+    "empty": "这里还没有内容。",
+    "columns": {
+      "exploring": {
+        "eyebrow": "01 / 以后",
+        "title": "探索中",
+        "blurb": "我们正在评估的想法。时间上不做承诺。"
+      },
+      "building": {
+        "eyebrow": "02 / 接下来",
+        "title": "开发中",
+        "blurb": "正在积极开发，即将推出。"
+      },
+      "shipped": {
+        "eyebrow": "03 / 已完成",
+        "title": "已发布",
+        "blurb": "已在最新版扩展中提供。"
+      }
+    },
+    "tag": {
+      "inventory": "库存",
+      "automation": "自动化",
+      "ai": "AI",
+      "insights": "数据洞察"
+    },
+    "meta": {
+      "scoping": "评估中",
+      "targetQ2_2026": "目标 2026 年第二季度",
+      "shippedApr_2026": "2026 年 4 月发布"
+    },
+    "items": {
+      "csv-bulk-import": {
+        "title": "CSV 批量导入",
+        "description": "上传现有库存的 CSV 文件，让 SaleLinx 创建草稿商品。"
+      },
+      "scheduled-relisting": {
+        "title": "定时重新上架",
+        "description": "把重新上架排进你设定的时间表，不用手动操作。"
+      },
+      "ai-description-polish": {
+        "title": "AI 描述润色",
+        "description": "一键改写标题和描述，读起来像手写的，而不是套模板的。"
+      },
+      "analytics-dashboard": {
+        "title": "数据看板",
+        "description": "售出率、每个商品的浏览量，以及跨平台的销售趋势。"
+      },
+      "depop-vinted-crosslist": {
+        "title": "Depop 和 Vinted 跨平台上架",
+        "description": "双向跨平台上架，自动匹配分类、尺码和成色。"
+      },
+      "shop-designer": {
+        "title": "Depop 店铺设计器",
+        "description": "Depop 店铺主页的拖放布局工具。"
+      },
+      "auto-offers": {
+        "title": "自动回复报价",
+        "description": "在两个平台上按规则接受、还价或拒绝收到的报价。"
+      },
+      "follow-bot": {
+        "title": "关注与取消关注机器人",
+        "description": "以粉丝、关注的人、买家、评价者或点赞者为目标，节奏拟人化。"
+      }
+    },
+    "request": {
+      "eyebrow": "有想提的需求？",
+      "body": "缺少某个平台或功能？告诉我们你需要什么，我们会在下一轮规划中评估。",
+      "cta": "发邮件到 hello@salelinx.com"
+    }
+  },
+  "Uninstall": {
+    "metaTitle": "很遗憾你要离开",
+    "metaDescription": "告诉我们你卸载 SaleLinx 的原因，帮助我们做得更好。",
+    "title": "SaleLinx 已卸载",
+    "subtitle": "很遗憾你要离开。点一下哪里出了问题，会对我们帮助很大。",
+    "reason": {
+      "too_expensive": "价格太高",
+      "missing_feature": "缺少我需要的功能",
+      "not_working": "有功能无法使用",
+      "stopped_selling": "我不再销售了",
+      "switched_tool": "换用了其他工具",
+      "other": "其他"
+    },
+    "commentPlaceholder": "还有什么想告诉我们的吗？（选填）",
+    "send": "发送反馈",
+    "sending": "发送中...",
+    "thanks": "谢谢。你的每一条反馈都会影响我们接下来修复什么。",
+    "error": "目前无法发送。内容没有丢失，可以再试一次。",
+    "reinstallHint": "是因为出了故障才卸载的吗？",
+    "helpLink": "帮助页面里也许有解决方法。"
+  },
+  "Welcome": {
+    "metaTitle": "欢迎使用 SaleLinx",
+    "metaDescription": "三步让你的 Depop 和 Vinted 店铺在 SaleLinx 中运行起来。",
+    "eyebrow": "已安装",
+    "title": "一切就绪",
+    "subtitle": "SaleLinx 运行在 Depop 和 Vinted 页面内，而不是独立应用。以下是找到它的方法。",
+    "step1Title": "固定扩展程序",
+    "step1Text": "点击 Chrome 工具栏中的拼图图标，将 SaleLinx 固定，随时可用。",
+    "step2Title": "打开 Depop 或 Vinted",
+    "step2Text": "前往你销售的平台，SaleLinx 启动器会自动出现在页面上。",
+    "step3Title": "打开面板并关联店铺",
+    "step3Text": "点击启动器，创建免费账户并关联店铺。之后一切都在这里操作。",
+    "openDepop": "打开 Depop",
+    "openVinted": "打开 Vinted",
+    "docsLink": "或阅读使用指南"
+  }
+}

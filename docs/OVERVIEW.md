@@ -33,6 +33,24 @@ React stream ──▶ browser
 
 **Key rule:** Server Components use `lib/supabase/server.ts`. Client Components use `lib/supabase/client.ts`. Never cross the boundary.
 
+## Locales
+
+Six locales ship: `en`, `fr`, `es`, `de`, `ar`, `zh`.
+
+`ar` and `zh` are only partly translated. Their UI strings (`messages/`) and FAQ (`lib/faq/data.*.tsx`) are done, but the long-form docs and changelog are not, so `ARTICLE_MODULES_BY_LOCALE` and `CHANGELOG_MODULES_BY_LOCALE` map them to the English articles and `build-docs-index.mjs` falls back to the English search records. To finish either language, add `content/docs/<locale>/` and `content/changelog/<locale>/` and point those two maps at the new imports; nothing else changes.
+
+`ar` is right to left. `dirForLocale()` in `lib/i18n/locales.ts` drives the `dir` attribute on `<html>`. Use logical Tailwind utilities (`text-start`, `ms-auto`, `end-0`) in anything localized, not `text-left`/`ml-auto`/`right-0`, or it will not mirror. The hero demo panel is deliberately pinned `dir="ltr"`: it mockups the extension's own left-to-right UI.
+
+## Locale detection
+
+A visitor with no locale in the URL gets one predicted for them, in this order:
+
+1. `NEXT_LOCALE` cookie - a previous explicit choice from the language switcher, so it always wins.
+2. `Accept-Language` - the languages set in their browser. Handled by next-intl.
+3. Country - only when steps 1 and 2 name nothing we publish. `proxy.ts` reads Vercel's `x-vercel-ip-country` and maps it through `lib/i18n/geo.ts`.
+
+Step 3 is a fallback on purpose: browser language is what someone chose, country is only where they are, and the two disagree often (an English speaker living in Berlin). The country map skips places with no single dominant language among our four (Belgium, Switzerland, Canada). `x-vercel-ip-country` is absent in local dev, so step 3 only ever fires in production; send the header by hand with curl to test it.
+
 ## Folder map
 
 ```

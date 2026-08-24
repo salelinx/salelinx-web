@@ -6,10 +6,11 @@
 @custom-variant dark (&:where(.dark, .dark *):not(.light, .light *));
 
 :root {
-  --background: #faf8f3;
-  --background-band: #efece3;
+  --background: #ffffff;
+  --background-band: #f7f7f8;
   --band-hairline: rgba(0, 0, 0, 0.08);
   --dot-color: rgba(24, 24, 27, 0.09);
+  --grid-line: rgba(24, 24, 27, 0.055);
   --foreground: #171717;
 }
 
@@ -27,29 +28,15 @@
    and sets the inherited text colour. The `dark` custom-variant above
    skips elements inside `.light`, so `dark:` utilities don't apply. */
 .light {
-  --background: #ececef;
-  --background-band: #e0e0e3;
+  /* The shell sits a touch below pure white so the panel still reads as a
+     distinct app window against the white page, while the cards inside it
+     stay true white. */
+  --background: #f4f4f5;
+  --background-band: #ebebed;
   --band-hairline: rgba(0, 0, 0, 0.08);
   --dot-color: rgba(24, 24, 27, 0.09);
   --foreground: #1f1f1f;
   color: var(--foreground);
-}
-
-/* Soften every white-ish surface inside the light island so the panel
-   reads as a neutral light-grey card. The attribute selector catches
-   every `bg-white`, `bg-white/95`, etc. without having to enumerate
-   each slash-escaped Tailwind class. We exclude very-low-alpha variants
-   (`bg-white/[0.0X]`, `bg-white/10`, `bg-white/15`) so those subtle
-   overlays still read as accents on top of the grey surface. */
-.light [class~="bg-white"],
-.light [class~="bg-white/95"],
-.light [class~="bg-white/90"],
-.light [class~="bg-white/80"],
-.light [class~="bg-white/70"],
-.light [class~="bg-white/60"],
-.light [class~="bg-zinc-50"],
-.light [class~="bg-zinc-50/60"] {
-  background-color: #e4e4e7 !important;
 }
 
 @theme inline {
@@ -63,11 +50,11 @@ html {
   /* In-page anchor jumps (header nav -> #features, #pricing) snap instantly
      so navigating across long sections doesn't feel like a long scroll. */
   scroll-behavior: auto;
-  /* Without this, pulling past the top of the page (trackpad/touch
+  /* Without this, pulling past the edge of the page (trackpad/touch
      rubber-banding) drags the whole document - including the sticky
-     header - down with it before it springs back. This stops the bounce
-     at the document level so the header never visibly moves. */
-  overscroll-behavior-y: none;
+     header - with it before it springs back. Both axes are pinned so the
+     page never slides sideways either. */
+  overscroll-behavior: none;
 }
 
 /* Tailwind's preflight resets <button> to cursor: default (browsers default
@@ -79,17 +66,85 @@ button:not(:disabled) {
 
 body {
   background-color: var(--background);
-  background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 1.5px);
-  background-size: 22px 22px;
-  background-position: 0 0;
+  /* Belt and braces with overscroll-behavior above: if any section ever
+     overflows a few pixels, clip it rather than letting the whole page scroll
+     sideways. `clip` rather than `hidden` because `hidden` would make body a
+     scroll container and break the sticky header. */
+  overflow-x: clip;
+  /* Guides are drawn by body::before and .grid-rows::before, not here: both
+     carry a mask that fades them out behind the centre of the page, and a
+     mask on body itself would fade the page content with them. */
   background-attachment: fixed;
   background-repeat: repeat;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* The guides fade toward the middle of the viewport, where the copy sits, and
+   stay strongest out at the margins. Shared by both guide layers so the
+   vertical and horizontal lines fade together. */
+:root {
+  --guide-fade: radial-gradient(
+    ellipse 62% 58% at 50% 45%,
+    transparent 0%,
+    transparent 38%,
+    black 100%
+  );
+}
+
+/* Vertical column guides. Viewport-fixed, so they never slide sideways.
+   80px cells centred on the viewport means the 1280px (max-w-7xl) content
+   container lands exactly on a guide at both edges: 1280 / 80 = 16. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 100%;
+  background-position: center top;
+  -webkit-mask-image: var(--guide-fade);
+  mask-image: var(--guide-fade);
+}
+
+/* Horizontal guides for the content area above the footer.
+   Anchored to the element's BOTTOM edge and scrolling with the document, so
+   the final guide sits exactly on the footer's top rule and the spacing stays
+   put while scrolling. Anchoring to the top instead would leave the last gap
+   as whatever remainder the page height happened to produce, and a
+   viewport-fixed background would slide against the content entirely. */
+.grid-rows {
+  position: relative;
+}
+
+.grid-rows::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 100% 80px;
+  background-position: left bottom;
+  background-repeat: repeat;
+  /* Fades with the viewport, matching the fixed vertical guides. */
+  -webkit-mask-image: var(--guide-fade);
+  mask-image: var(--guide-fade);
+  -webkit-mask-attachment: fixed;
+  mask-attachment: fixed;
+}
+
+/* Dark keeps its dot texture alone; guides on near-black read as banding. */
+.dark .grid-rows::before {
+  background-image: none;
+}
+
 .dark body {
   background-color: #0a0a0d;
+  /* Dark keeps the original dot texture; the grid reads too harsh on black. */
+  background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 1.5px);
+  background-size: 22px 22px;
 }
 
 /* Viewport-fixed corner glow + diagonal gradient drawn via a pseudo so it
@@ -106,6 +161,10 @@ body {
     radial-gradient(65vw 55vh at 10% -5%, rgba(16, 185, 129, 0.5), transparent 60%),
     radial-gradient(60vw 55vh at 92% 105%, rgba(16, 185, 129, 0.5), transparent 60%),
     linear-gradient(135deg, #0a0a0d 0%, #131322 55%, #0a0a0d 100%);
+  /* This pseudo carries the light theme's column guides and their fade mask.
+     Dark reuses it for the corner glow, which must not be masked. */
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 /* Section wrapper, kept as a layout primitive so existing pages keep the
@@ -120,8 +179,14 @@ body {
    viewport-fixed corner glow flows through it. It used to paint its own
    opaque copy of the body gradient + glows, which created a hard seam at
    its top edge and a second, misaligned glow while scrolling. */
+/* Transparent in both themes: the light page shows through as white, and in
+   dark mode the body's corner glow flows through unbroken. Text colours live
+   on the elements themselves so each theme picks its own. */
 .cta-band {
   position: relative;
+}
+
+.dark .cta-band {
   color: #f5f5f4;
 }
 

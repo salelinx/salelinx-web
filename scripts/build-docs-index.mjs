@@ -5,7 +5,10 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const CONTENT_DIR = path.join(ROOT, 'content', 'docs');
 const OUT_DIR = path.join(ROOT, 'public', 'docs');
-const LOCALES = ['en', 'fr', 'es', 'de'];
+// ar and zh have no translated articles yet; buildLocaleIndex falls back to an
+// empty index for a missing content dir, and the docs pages read the English
+// articles via ARTICLE_MODULES_BY_LOCALE in the meantime.
+const LOCALES = ['en', 'fr', 'es', 'de', 'ar', 'zh'];
 
 async function walk(dir) {
   const out = [];
@@ -109,11 +112,21 @@ async function main() {
 
   await mkdir(OUT_DIR, { recursive: true });
 
+  // Locales with no content dir fall back to the English records rather than an
+  // empty index, because ARTICLE_MODULES_BY_LOCALE serves them the English
+  // articles. An empty index would mean search found nothing on pages that
+  // visibly exist.
+  const englishRecords = await buildLocaleIndex('en');
+
   for (const locale of LOCALES) {
-    const records = await buildLocaleIndex(locale);
+    const own = locale === 'en' ? englishRecords : await buildLocaleIndex(locale);
+    const records = own.length > 0 ? own : englishRecords;
+    const fellBack = own.length === 0 && records.length > 0;
     const outFile = path.join(OUT_DIR, `search-index.${locale}.json`);
     await writeFile(outFile, JSON.stringify({ records }, null, 2), 'utf8');
-    console.log(`[docs-index] wrote ${records.length} records to ${outFile}`);
+    console.log(
+      `[docs-index] wrote ${records.length} records to ${outFile}${fellBack ? ' (English fallback)' : ''}`,
+    );
   }
 }
 

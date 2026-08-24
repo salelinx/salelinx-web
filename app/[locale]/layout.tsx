@@ -10,6 +10,7 @@ import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { SmoothAnchorScroll } from '@/components/SmoothAnchorScroll';
 import { routing } from '@/i18n/routing';
+import { dirForLocale } from '@/lib/i18n/locales';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 const geistSans = Geist({
@@ -85,7 +86,8 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      dir={dirForLocale(locale)}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* React hoists this into <head>. Client-side Supabase calls (auth,
@@ -98,7 +100,11 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <SmoothAnchorScroll />
           <Header />
-          <div className="flex flex-1 flex-col">
+          {/* grid-rows draws the horizontal guides. It lives here, on the
+              content area above the footer, rather than on body: anchored to
+              this element's bottom edge, the last guide lands exactly on the
+              footer's top rule. See globals.css. */}
+          <div className="grid-rows flex flex-1 flex-col">
             <ViewTransition>{children}</ViewTransition>
           </div>
           <Footer />

@@ -38,7 +38,7 @@ export default async function FAQPage({
   return (
     <main className="mx-auto w-full max-w-4xl px-6">
       <section className="pt-20 pb-10 sm:pt-24">
-        <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
           {t('title')}
         </h1>
@@ -60,7 +60,7 @@ export default async function FAQPage({
               className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-4 py-1.5 text-sm text-zinc-700 transition hover:border-black/30 dark:border-white/15 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-white/40"
             >
               {g.title}
-              <span className="text-xs text-zinc-500">{g.items.length}</span>
+              <span className="text-xs text-zinc-600 dark:text-zinc-400">{g.items.length}</span>
             </a>
           ))}
         </nav>

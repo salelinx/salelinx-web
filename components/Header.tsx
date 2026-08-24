@@ -3,7 +3,6 @@ import { Link } from '@/i18n/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MobileMenu } from '@/components/MobileMenu';
-import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import { HelpMenu } from '@/components/HelpMenu';
 
 export async function Header() {
@@ -55,11 +54,6 @@ export async function Header() {
         </nav>
 
         <nav className="hidden flex-1 items-center justify-end gap-4 text-sm text-zinc-600 sm:flex dark:text-zinc-400">
-          <InstallExtensionButton
-            label={t('addToChrome')}
-            className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-500/30 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-500/10 md:inline-flex dark:border-emerald-400/30 dark:text-emerald-300 dark:hover:bg-emerald-400/10"
-          />
-
           {isAuthed ? (
             <>
               <div className="group relative hidden md:block">
@@ -105,17 +99,17 @@ export async function Header() {
                         {label}
                       </Link>
                     ))}
+                    <form action="/auth/signout" method="post">
+                      <button
+                        type="submit"
+                        className="block w-full rounded-lg px-3 py-2 text-start text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
+                      >
+                        {t('signOut')}
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
-              <form action="/auth/signout" method="post">
-                <button
-                  type="submit"
-                  className="rounded-full border border-black/10 px-4 py-1.5 transition hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
-                >
-                  {t('signOut')}
-                </button>
-              </form>
             </>
           ) : (
             <>
@@ -138,24 +132,24 @@ export async function Header() {
                   }}
                 />
               </div>
+              {/* The redesign deliberately dropped the header's Get started
+                  button and Add to Chrome pill to slim this side down; the
+                  hero carries both CTAs. Support survives that trim because
+                  it is navigation rather than a CTA, and the Footer, /help
+                  and several FAQ answers all point at /docs/status through
+                  this menu. */}
               <Link
                 href="/auth/login"
                 className="transition-colors duration-200 hover:text-black dark:hover:text-white"
               >
                 {t('signIn')}
               </Link>
-              <Link
-                href="/auth/signup"
-                className="rounded-full bg-black px-4 py-1.5 text-white dark:bg-white dark:text-black"
-              >
-                {t('getStarted')}
-              </Link>
             </>
           )}
           <LanguageSwitcher />
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 sm:hidden">
+        <div className="ms-auto flex items-center gap-2 sm:hidden">
           <LanguageSwitcher />
         </div>
 

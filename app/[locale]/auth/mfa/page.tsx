@@ -85,7 +85,7 @@ function MfaChallengeForm() {
       </h1>
 
       {state === "loading" && (
-        <p className="mt-8 text-sm text-zinc-500">{t("mfa.loading")}</p>
+        <p className="mt-8 text-sm text-zinc-600 dark:text-zinc-400">{t("mfa.loading")}</p>
       )}
 
       {state === "notEnrolled" && (

@@ -17,6 +17,10 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   fr: [v110Fr as unknown as ChangelogModule, initialReleaseFr as unknown as ChangelogModule],
   es: [v110Es as unknown as ChangelogModule, initialReleaseEs as unknown as ChangelogModule],
   de: [v110De as unknown as ChangelogModule, initialReleaseDe as unknown as ChangelogModule],
+  // Changelog entries are not translated into Arabic or Chinese yet, so both
+  // read the English ones. Add locale dirs under content/changelog to change that.
+  ar: [v110En as unknown as ChangelogModule, initialReleaseEn as unknown as ChangelogModule],
+  zh: [v110En as unknown as ChangelogModule, initialReleaseEn as unknown as ChangelogModule],
 };
 
 function modulesFor(locale: Locale): ChangelogModule[] {

@@ -65,7 +65,9 @@ export default async function StatusPage() {
           offered to send someone reading an outage notice back to the
           walkthroughs, which is not where they were headed. */}
       <header>
-        <span className={`${MONO} text-zinc-500`}>{t("status.eyebrow")}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
+          {t('status.eyebrow')}
+        </span>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
           {t("status.title")}
         </h1>
@@ -116,8 +118,8 @@ export default async function StatusPage() {
                   ) : null}
                 </div>
               </div>
-              <span className="shrink-0 text-xs text-zinc-500 sm:text-right">
-                {t("status.updatedPrefix", { date: s.updatedAt })}
+              <span className="shrink-0 text-xs text-zinc-600 sm:text-end dark:text-zinc-400">
+                {t('status.updatedPrefix', { date: s.updatedAt })}
               </span>
             </li>
           );
@@ -146,14 +148,14 @@ export default async function StatusPage() {
             <thead>
               <tr className="border-b border-black/10 dark:border-white/10">
                 <th
-                  className={`${MONO} py-2 text-left font-normal text-zinc-500`}
+                  className={`${MONO} py-2 text-start font-normal text-zinc-600 dark:text-zinc-400`}
                 >
                   {t("status.featureColumn")}
                 </th>
                 {(["vinted", "depop"] as const).map((marketplace) => (
                   <th
                     key={marketplace}
-                    className={`${MONO} py-2 text-left font-normal text-zinc-500`}
+                    className={`${MONO} py-2 text-start font-normal text-zinc-600 dark:text-zinc-400`}
                   >
                     {MARKETPLACE_LABELS[marketplace]}
                   </th>
@@ -168,7 +170,7 @@ export default async function StatusPage() {
                 >
                   <th
                     scope="row"
-                    className="py-3 pr-4 text-left align-top font-normal"
+                    className="py-3 pr-4 text-start align-top font-normal"
                   >
                     {row.label}
                     {/* Notes come only from a manual override, and are the most
@@ -264,11 +266,11 @@ export default async function StatusPage() {
         </p>
       </section>
 
-      <p className="mt-12 text-sm text-zinc-500">{t("status.footnote")}</p>
+      <p className="mt-12 text-sm text-zinc-600 dark:text-zinc-400">{t("status.footnote")}</p>
       {/* Stated plainly: this is our inference from our own users' traffic, not
           an official feed. Publishing a claim about someone else's
           infrastructure without saying so would be dishonest. */}
-      <p className="mt-3 text-sm text-zinc-500">{t("status.inferredNote")}</p>
+      <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">{t("status.inferredNote")}</p>
     </main>
   );
 }

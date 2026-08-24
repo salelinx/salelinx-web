@@ -69,7 +69,7 @@ export function ReferralsCard({
       <dl className="mt-6 grid grid-cols-3 gap-3 border-t border-black/10 pt-5 text-sm dark:border-white/10">
         {stats.map((s) => (
           <div key={s.label}>
-            <dt className="text-zinc-500">{s.label}</dt>
+            <dt className="text-zinc-600 dark:text-zinc-400">{s.label}</dt>
             <dd className="mt-0.5 text-base font-medium">{s.value}</dd>
           </div>
         ))}

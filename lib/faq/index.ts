@@ -3,6 +3,8 @@ import { FAQ_GROUPS_EN } from './data.en';
 import { FAQ_GROUPS_FR } from './data.fr';
 import { FAQ_GROUPS_ES } from './data.es';
 import { FAQ_GROUPS_DE } from './data.de';
+import { FAQ_GROUPS_AR } from './data.ar';
+import { FAQ_GROUPS_ZH } from './data.zh';
 import type { FAQGroup, FAQItem } from './types';
 
 const BY_LOCALE: Record<Locale, FAQGroup[]> = {
@@ -10,6 +12,8 @@ const BY_LOCALE: Record<Locale, FAQGroup[]> = {
   fr: FAQ_GROUPS_FR,
   es: FAQ_GROUPS_ES,
   de: FAQ_GROUPS_DE,
+  ar: FAQ_GROUPS_AR,
+  zh: FAQ_GROUPS_ZH,
 };
 
 export function getFaqGroups(locale: Locale): FAQGroup[] {

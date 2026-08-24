@@ -352,7 +352,7 @@ export function AccountSecurityCard({
           </p>
 
           {mfaStatus === "loading" && (
-            <p className="mt-3 text-sm text-zinc-500">{t("mfaLoading")}</p>
+            <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">{t("mfaLoading")}</p>
           )}
 
           {mfaStatus === "off" && (
@@ -378,7 +378,7 @@ export function AccountSecurityCard({
                 className="h-40 w-40 rounded-lg bg-white p-2"
               />
               {totpSecret && (
-                <p className="break-all text-xs text-zinc-500">
+                <p className="break-all text-xs text-zinc-600 dark:text-zinc-400">
                   {t("mfaManual")}{" "}
                   <code className="font-mono">{totpSecret}</code>
                 </p>

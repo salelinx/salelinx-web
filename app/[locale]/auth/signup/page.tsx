@@ -120,7 +120,7 @@ export default function SignupPage() {
         <GoogleSignInButton />
       </div>
 
-      <div className="my-6 flex items-center gap-3 text-xs text-zinc-500">
+      <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">
         <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
         {t("orDivider")}
         <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />

@@ -44,7 +44,7 @@ export default async function InvitedPage({
   return (
     <main>
       <section className="mx-auto w-full max-w-7xl px-6 pt-10 pb-16 text-center sm:pt-14">
-        <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
         <h1 className="mx-auto mt-6 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl">
           {t('title')}
         </h1>
@@ -65,7 +65,7 @@ export default async function InvitedPage({
             {t('exploreCta')}
           </Link>
         </div>
-        <p className="mt-6 text-sm text-zinc-500">{t('note')}</p>
+        <p className="mt-6 text-sm text-zinc-600 dark:text-zinc-400">{t('note')}</p>
         <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
           {t('termsNote')}{' '}
           <Link href="/legal/referral-terms" className="underline">
@@ -79,7 +79,7 @@ export default async function InvitedPage({
           {steps.map((step) => (
             <div
               key={step.num}
-              className="rounded-2xl border border-black/10 p-6 text-left dark:border-white/10"
+              className="rounded-2xl border border-black/10 p-6 text-start dark:border-white/10"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-sm font-semibold text-white dark:bg-white dark:text-black">
                 {step.num}

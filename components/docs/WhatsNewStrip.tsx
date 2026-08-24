@@ -19,7 +19,7 @@ export async function WhatsNewStrip() {
     <div>
       <div className="mb-6 flex items-baseline justify-between">
         <div>
-          <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
             {t('title')}
           </h2>
@@ -40,7 +40,7 @@ export async function WhatsNewStrip() {
               className="group flex items-start justify-between gap-6 py-5"
             >
               <div className="min-w-0">
-                <span className={`${MONO} text-zinc-500`}>
+                <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
                   {formatChangelogDate(entry.date, locale)}
                 </span>
                 <h3 className="mt-2 text-base font-medium tracking-tight group-hover:underline">

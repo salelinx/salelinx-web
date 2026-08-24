@@ -105,28 +105,30 @@ import * as offersDe from '@/content/docs/de/buyers/offers.mdx';
 import * as messagesDe from '@/content/docs/de/buyers/messages.mdx';
 import * as labelsDe from '@/content/docs/de/buyers/labels.mdx';
 
+const ARTICLE_MODULES_EN: ArticleModule[] = [
+  installExtEn as unknown as ArticleModule,
+  connectMarketplaceEn as unknown as ArticleModule,
+  accountSubEn as unknown as ArticleModule,
+  listingsEn as unknown as ArticleModule,
+  botsEn as unknown as ArticleModule,
+  relistEn as unknown as ArticleModule,
+  refreshEn as unknown as ArticleModule,
+  crosslistEn as unknown as ArticleModule,
+  shopDesignerEn as unknown as ArticleModule,
+  csvImportEn as unknown as ArticleModule,
+  cloudSyncEn as unknown as ArticleModule,
+  deadStockEn as unknown as ArticleModule,
+  autoOffersEn as unknown as ArticleModule,
+  linkingEn as unknown as ArticleModule,
+  restockerEn as unknown as ArticleModule,
+  priceDropsEn as unknown as ArticleModule,
+  offersEn as unknown as ArticleModule,
+  messagesEn as unknown as ArticleModule,
+  labelsEn as unknown as ArticleModule,
+];
+
 export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
-  en: [
-    installExtEn as unknown as ArticleModule,
-    connectMarketplaceEn as unknown as ArticleModule,
-    accountSubEn as unknown as ArticleModule,
-    listingsEn as unknown as ArticleModule,
-    botsEn as unknown as ArticleModule,
-    relistEn as unknown as ArticleModule,
-    refreshEn as unknown as ArticleModule,
-    crosslistEn as unknown as ArticleModule,
-    shopDesignerEn as unknown as ArticleModule,
-    csvImportEn as unknown as ArticleModule,
-    cloudSyncEn as unknown as ArticleModule,
-    deadStockEn as unknown as ArticleModule,
-    autoOffersEn as unknown as ArticleModule,
-    linkingEn as unknown as ArticleModule,
-    restockerEn as unknown as ArticleModule,
-    priceDropsEn as unknown as ArticleModule,
-    offersEn as unknown as ArticleModule,
-    messagesEn as unknown as ArticleModule,
-    labelsEn as unknown as ArticleModule,
-  ],
+  en: ARTICLE_MODULES_EN,
   fr: [
     installExtFr as unknown as ArticleModule,
     connectMarketplaceFr as unknown as ArticleModule,
@@ -190,4 +192,10 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     messagesDe as unknown as ArticleModule,
     labelsDe as unknown as ArticleModule,
   ],
+  // Arabic and Chinese ship with the UI and FAQ translated but the long-form
+  // docs still in English, so they read the English articles for now. Swap
+  // these to `content/docs/ar` and `content/docs/zh` imports once those
+  // articles are written; nothing else needs to change.
+  ar: ARTICLE_MODULES_EN,
+  zh: ARTICLE_MODULES_EN,
 };

@@ -21,7 +21,7 @@ export async function PrevNextPager({
           href={`/docs/${prev.category}/${prev.slug}`}
           className="group flex flex-col rounded-xl border border-black/10 p-5 transition hover:border-black/30 dark:border-white/10 dark:hover:border-white/30"
         >
-          <span className={`${MONO} text-zinc-500`}>{t('previous')}</span>
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('previous')}</span>
           <span className="mt-2 flex items-center gap-2 font-medium">
             <Icon name="arrow-right" className="h-4 w-4 rotate-180" />
             {prev.title}
@@ -33,9 +33,9 @@ export async function PrevNextPager({
       {next ? (
         <Link
           href={`/docs/${next.category}/${next.slug}`}
-          className="group flex flex-col rounded-xl border border-black/10 p-5 text-right transition hover:border-black/30 sm:col-start-2 dark:border-white/10 dark:hover:border-white/30"
+          className="group flex flex-col rounded-xl border border-black/10 p-5 text-end transition hover:border-black/30 sm:col-start-2 dark:border-white/10 dark:hover:border-white/30"
         >
-          <span className={`${MONO} text-zinc-500`}>{t('next')}</span>
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('next')}</span>
           <span className="mt-2 flex items-center justify-end gap-2 font-medium">
             {next.title}
             <Icon name="arrow-right" className="h-4 w-4" />

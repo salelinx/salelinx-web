@@ -52,7 +52,7 @@ export default async function DocsHomePage({
   return (
     <main className="mx-auto w-full max-w-6xl px-6">
       <section className="pt-20 pb-12 sm:pt-24">
-        <span className={`${MONO} text-zinc-500`}>{t('eyebrow')}</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
           {t('heroTitle')}
         </h1>
@@ -96,7 +96,7 @@ export default async function DocsHomePage({
 
       <section className="border-t border-black/10 py-16 dark:border-white/10">
         <div className="mb-6">
-          <span className={`${MONO} text-zinc-500`}>{t('byMarketplaceEyebrow')}</span>
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('byMarketplaceEyebrow')}</span>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
             {t('byMarketplaceTitle')}
           </h2>

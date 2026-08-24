@@ -33,7 +33,7 @@ export async function DocsSidebar({
                 className={`font-mono text-[0.68rem] uppercase tracking-[0.12em] ${
                   activeCategory === cat.slug
                     ? 'text-black dark:text-white'
-                    : 'text-zinc-500 hover:text-black dark:hover:text-white'
+                    : 'text-zinc-600 hover:text-black dark:hover:text-white dark:text-zinc-400'
                 }`}
               >
                 {t(`category.${cat.slug}.title`)}

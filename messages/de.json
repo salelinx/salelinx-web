@@ -85,6 +85,7 @@
     "ctaGetStarted": "Loslegen",
     "ctaSignIn": "Anmelden",
     "previewEyebrow": "Live-Demo ausprobieren",
+    "previewScrollHint": "Zum Entdecken scrollen",
     "preview": {
       "tabs": {
         "listings": "Inserate",
@@ -183,7 +184,9 @@
     "english": "English",
     "french": "Français",
     "spanish": "Español",
-    "german": "Deutsch"
+    "german": "Deutsch",
+    "arabic": "العربية",
+    "chinese": "简体中文"
   },
   "Auth": {
     "emailPlaceholder": "du@beispiel.com",
@@ -529,6 +532,7 @@
     },
     "marketplaceOnly": "Nur <marketplace></marketplace>",
     "sectionNavAria": "Seitenabschnitte",
+    "overviewBody": "Oben stehen einige Funktionen. Hier ist der komplette Satz.",
     "headlines": {
       "eyebrow": "Hier anfangen",
       "title": "Wofür Verkäufer SaleLinx installieren.",
@@ -580,24 +584,29 @@
         "blurb": "Jedes Inserat aus beiden Shops an einem Ort, sicher gespeichert und überall synchronisiert, wo du SaleLinx nutzt.",
         "items": {
           "dashboard": {
+            "name": "Inserate",
             "label": "Dein gesamter Bestand in einem Raster",
             "detail": "Beide Shops nebeneinander. Sortiere nach Datum, Preis oder Status und filtere genau das raus, was du brauchst."
           },
           "linkAccounts": {
+            "name": "Konten verknuepfen",
             "label": "Verknüpfe deine Shops einmal",
             "detail": "Melde dich wie gewohnt bei Depop und Vinted an. SaleLinx erkennt die Sitzung, keine Passwörter erneut eingeben."
           },
           "backup": {
+            "name": "Cloud-Backup",
             "label": "Dein Shop, sicher gesichert",
             "detail": "Jedes Inserat wird verschlüsselt in der Cloud gespeichert, damit ein zugeklappter Laptop oder ein Marktplatzfehler dich nie einen Verkauf kostet."
           },
           "sync": {
+            "name": "Geraetesync",
             "label": "Laptop wechseln, Setup mitnehmen",
             "detail": "Deine Einstellungen, Regeln und Shop-Verknüpfungen folgen dir auf jedes Gerät, auf dem du dich anmeldest."
           },
           "multilanguage": {
+            "name": "Sprachen",
             "label": "In deiner Sprache",
-            "detail": "Verfügbar in Englisch, Französisch, Spanisch und Deutsch, mit hellem und dunklem Design."
+            "detail": "Verfügbar in Englisch, Französisch, Spanisch, Deutsch, Arabisch und Chinesisch, mit hellem und dunklem Design."
           }
         }
       },
@@ -607,18 +616,22 @@
         "blurb": "Schreibe ein Inserat einmal und poste es gleichzeitig auf beiden Marktplätzen. Die knifflige Arbeit wie Kategorien und Größen erledigt SaleLinx für dich.",
         "items": {
           "bidirectional": {
+            "name": "Crosslisten",
             "label": "Depop und Vinted crosslisten, in beide Richtungen",
             "detail": "Wähle ein Inserat auf einem der Marktplätze und SaleLinx füllt das Formular auf der anderen Seite für dich aus."
           },
           "autoMap": {
+            "name": "Kategorie-Zuordnung",
             "label": "Kategorien und Größen automatisch übersetzt",
             "detail": "Depop-Tags werden zu Vinted-Tags und umgekehrt. Keine manuellen Zuordnungstabellen."
           },
           "csvImport": {
+            "name": "CSV-Import",
             "label": "Massenimport aus einer CSV",
             "detail": "Du hast schon eine Bestandsliste in einer Tabelle? Lade sie hoch und SaleLinx ordnet die Felder automatisch zu."
           },
           "shopDesigner": {
+            "name": "Shop-Designer",
             "label": "Gestalte deinen Depop-Shop per Drag-and-Drop",
             "detail": "Ordne dein Depop-Profil im Panel neu an, ohne die Depop-Seite selbst anfassen zu müssen."
           }
@@ -630,30 +643,37 @@
         "blurb": "Bleib oben in der Suche und erreich die Käufer, die am ehesten bei dir kaufen, ohne es per Hand zu tun.",
         "items": {
           "refresher": {
+            "name": "Refresher",
             "label": "Jedes Inserat zurück nach oben holen",
             "detail": "Speichert deinen Bestand mit einem Klick von unten nach oben neu, damit die sorgfältig gewählte Reihenfolge bleibt."
           },
           "scheduler": {
+            "name": "Zeitplaner",
             "label": "Einrichten und vergessen",
             "detail": "Die Aktualisierung läuft von selbst, alle 4, 6, 8, 12 oder 24 Stunden. Takt wählen, fertig."
           },
           "followBot": {
+            "name": "Follow-Bot",
             "label": "Mehr Follower, ganz automatisch",
             "detail": "Folge der Zielgruppe eines Mitbewerbers, deinen früheren Käufern oder allen, die einen Artikel geliked haben. Fünf Wege, die richtigen Leute zu erreichen."
           },
           "filters": {
+            "name": "Follow-Filter",
             "label": "Bestimmte Konten überspringen oder immer behalten",
             "detail": "Füge Nutzernamen zu einer Schwarz- oder Weißliste hinzu, damit der Bot Freunde, Marken oder Rivalen in Ruhe lässt."
           },
           "deadStock": {
+            "name": "Ladenhueter",
             "label": "Sieh, was sich nicht verkauft",
             "detail": "SaleLinx erkennt veraltete Inserate und schlägt vor, was du tun kannst: auffrischen, Preis senken oder neu listen."
           },
           "autoMarkdown": {
+            "name": "Preisabschläge",
             "label": "Preissenkungen auf alten Bestand, automatisch",
             "detail": "Plane prozentuale Preissenkungen für Inserate, die schon zu lange liegen, damit sie wieder in der Suche auftauchen."
           },
           "activityLog": {
+            "name": "Aktivitaetsprotokoll",
             "label": "Sieh jede Aktion live",
             "detail": "Beobachte SaleLinx in Echtzeit. Filtere, pausiere, stoppe jederzeit und exportiere das Protokoll, wenn du es brauchst."
           }
@@ -665,26 +685,33 @@
         "blurb": "Angebote, Nachrichten, Etiketten und Aufräumen nach dem Verkauf an einem Ort, mit Regeln für die Routine.",
         "items": {
           "offersInbox": {
+            "name": "Angebote",
             "label": "Annehmen, kontern oder ablehnen an einem Ort",
             "detail": "Jedes Angebot aus beiden Shops landet in einem Posteingang, damit du nicht zwischen Tabs hin und her springst."
           },
           "autoOffers": {
+            "name": "Auto-Angebote",
             "label": "Automatische Antworten auf Angebote",
             "detail": "Lege Regeln fest wie 'alles über 80 Prozent annehmen' oder 'immer mit 90 Prozent kontern' und SaleLinx übernimmt den Rest."
           },
           "messages": {
+            "name": "Unterhaltungen",
             "label": "Alle Käufernachrichten in einer Liste",
             "detail": "Depop- und Vinted-Konversationen in einem Posteingang, damit nichts untergeht."
           },
           "shipping": {
+            "name": "Etiketten",
             "label": "Versandetiketten in Stapeln drucken",
             "detail": "Lade Etiketten-PDFs für einen ganzen Tag voller Bestellungen herunter und führe sie zusammen, bereit zum Drucken."
           },
           "relister": {
+            "name": "Relister",
             "label": "Suchplatzierung eines Inserats auffrischen",
             "detail": "Erstelle ein müdes Inserat mit angepassten Fotos und Titel neu und lösche das Original, damit es wieder nach oben rutscht."
           },
           "restocker": {
+            "name": "Restocker",
+            "sceneTitle": "Plattformübergreifender Restocker",
             "label": "Nie mehr doppelt verkaufen",
             "detail": "Verkaufst du einen Artikel auf einem Marktplatz, entfernt SaleLinx das passende Inserat auf dem anderen automatisch."
           }

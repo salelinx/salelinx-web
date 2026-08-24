@@ -3,7 +3,6 @@ import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
 import { BrandWordmark } from '@/components/BrandWordmark';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
-import { HeroPreview } from './HeroPreview';
 import { RollingPhrase } from './RollingPhrase';
 
 // Sizes chosen so each wordmark's cap-height optically matches the
@@ -27,13 +26,17 @@ const EYEBROW_BRAND_TAGS = {
 export async function Hero() {
   const t = await getTranslations('Home');
 
+  // The hero holds the viewport on its own. The headline is what the page
+  // opens on, so it fills the screen below the header and centres in it,
+  // rather than being trimmed to let the scroll section peek up from below.
+  // 72px is the sticky header's height.
   return (
-    <section className="relative isolate overflow-hidden">
+    <section className="relative isolate flex min-h-[calc(100svh-72px)] flex-col items-center justify-center overflow-hidden">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_1.5px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)]" />
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 pt-8 pb-10 text-center sm:pt-12">
+      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 py-10 text-center">
         <Reveal delay={0}>
           <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-700 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
             <span className="relative inline-flex h-1.5 w-1.5">
@@ -45,7 +48,7 @@ export async function Hero() {
         </Reveal>
 
         <Reveal delay={120}>
-          <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-medium leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
+          <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
             {t.rich('heroTitle', HERO_BRAND_TAGS)}
           </h1>
         </Reveal>
@@ -82,50 +85,36 @@ export async function Hero() {
                 />
               </svg>
             </Link>
-            <Link
-              href="/features#pricing"
-              className="inline-flex items-center rounded-full border border-black/10 bg-white/60 px-5 py-2.5 text-sm font-medium text-zinc-900 backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:bg-white/[0.08]"
-            >
-              {t('ctaSeePricing')}
-            </Link>
             <InstallExtensionButton
               label={t('ctaAddToChrome')}
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-emerald-500/30 bg-emerald-500/[0.08] px-5 py-2.5 text-sm font-medium text-emerald-700 backdrop-blur transition hover:bg-emerald-500/[0.14] dark:border-emerald-400/30 dark:bg-emerald-400/[0.08] dark:text-emerald-200 dark:hover:bg-emerald-400/[0.14]"
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-black/10 bg-white/70 px-5 py-2.5 text-sm font-medium text-zinc-900 backdrop-blur transition hover:border-black/20 hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:border-white/25 dark:hover:bg-white/[0.08]"
             />
           </div>
         </Reveal>
       </div>
 
-      <div className="mx-auto max-w-5xl px-6 pb-24">
+      {/* The demo itself now lives in ScrollWorldDemo, mounted as its own
+          section in page.tsx. It has to sit outside this element because the
+          hero clips overflow, and a clipping ancestor kills position: sticky.
+          This chevron is the handoff into it. */}
+      <div className="flex justify-center px-6 pb-10">
         <Reveal delay={420}>
-          <div className="mb-7 flex justify-center">
-            <span className="group relative inline-flex items-center gap-2.5 rounded-full border border-emerald-500/30 bg-white/70 px-4 py-2 text-sm font-medium text-emerald-700 shadow-[0_8px_30px_-12px_rgba(16,185,129,0.45)] backdrop-blur dark:border-emerald-400/30 dark:bg-emerald-400/[0.06] dark:text-emerald-200 dark:shadow-[0_8px_30px_-12px_rgba(16,185,129,0.55)]">
-              <span className="relative inline-flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-              </span>
-              <span>{t('previewEyebrow')}</span>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                aria-hidden="true"
-                className="hero-preview-arrow text-emerald-600 dark:text-emerald-300"
-              >
-                <path
-                  d="M7 3.5v6.5M4 7l3 3 3-3"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </div>
-        </Reveal>
-        <Reveal delay={450} pop className="hero-preview-reveal light">
-          <HeroPreview />
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 14 14"
+            fill="none"
+            aria-hidden="true"
+            className="hero-preview-arrow text-zinc-400 dark:text-zinc-500"
+          >
+            <path
+              d="M7 3.5v6.5M4 7l3 3 3-3"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Reveal>
       </div>
     </section>
