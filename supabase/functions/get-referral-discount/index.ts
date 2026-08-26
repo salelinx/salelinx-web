@@ -2,6 +2,10 @@
 import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
+import {
+  COUPON_TIERS,
+  referralCouponFor,
+} from "../_shared/referral-coupons.ts";
 
 // Public read of the referee discount coupon's TERMS - never the coupon id.
 //
@@ -36,35 +40,70 @@ function json(body: unknown, status: number, cache = false): Response {
   });
 }
 
+type Terms = {
+  percentOff: number | null;
+  amountOff: number | null;
+  currency: string | null;
+  duration: string;
+  durationInMonths: number | null;
+};
+
+// Retrieve once per distinct coupon id, not once per tier: the three tiers
+// commonly share one coupon (during rollout, or whenever the offer is a flat
+// percentage), and this runs on every cold pricing-page render.
+async function loadTerms(
+  id: string,
+  cache: Map<string, Terms | null>,
+): Promise<Terms | null> {
+  if (!id) return null;
+  if (cache.has(id)) return cache.get(id) ?? null;
+
+  let terms: Terms | null = null;
+  try {
+    const coupon = await stripe.coupons.retrieve(id);
+    if (coupon.valid) {
+      terms = {
+        percentOff: coupon.percent_off ?? null,
+        amountOff: coupon.amount_off ?? null,
+        currency: coupon.currency ?? null,
+        duration: coupon.duration, // 'once' | 'repeating' | 'forever'
+        durationInMonths: coupon.duration_in_months ?? null,
+      };
+    }
+  } catch {
+    // A deleted or mistyped coupon must not break the pricing page. Null here
+    // means the card shows the plain list price, and checkout still applies
+    // whatever Stripe actually holds.
+    terms = null;
+  }
+
+  cache.set(id, terms);
+  return terms;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  const couponId = Deno.env.get("REFERRAL_COUPON_ID") ?? "";
-  // No coupon configured is a valid state (the program runs without a
-  // referee-side discount), not an error - the UI just says nothing.
-  if (!couponId) return json({ discount: null }, 200, true);
+  const cache = new Map<string, Terms | null>();
 
-  try {
-    const coupon = await stripe.coupons.retrieve(couponId);
-    if (!coupon.valid) return json({ discount: null }, 200, true);
+  // `discount` is the shared coupon, kept for older clients that predate
+  // per-tier pricing (and for a cached response being read by newer code).
+  // `byTier` is what the pricing cards use now. Both resolve through
+  // referralCouponFor, so the advertised price always matches the coupon
+  // create-checkout-session will apply for that plan.
+  const shared = await loadTerms(
+    Deno.env.get("REFERRAL_COUPON_ID") ?? "",
+    cache,
+  );
 
-    return json(
-      {
-        discount: {
-          percentOff: coupon.percent_off ?? null,
-          amountOff: coupon.amount_off ?? null,
-          currency: coupon.currency ?? null,
-          duration: coupon.duration, // 'once' | 'repeating' | 'forever'
-          durationInMonths: coupon.duration_in_months ?? null,
-        },
-      },
-      200,
-      true,
-    );
-  } catch {
-    // A deleted or mistyped coupon must not break the pricing page.
-    return json({ discount: null }, 200);
+  const byTier: Record<string, Terms | null> = {};
+  for (const tier of COUPON_TIERS) {
+    byTier[tier] = await loadTerms(referralCouponFor(tier), cache);
   }
+
+  // No coupon configured anywhere is a valid state (the program can run with
+  // no referee-side discount), not an error - the UI just says nothing.
+  return json({ discount: shared, byTier }, 200, true);
 });

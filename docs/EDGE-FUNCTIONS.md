@@ -111,9 +111,17 @@ supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # (unchanged behavior); set to the site origin to stop other sites' frontends
 # reading responses. The extension is unaffected (host permissions bypass CORS).
 supabase secrets set ALLOWED_ORIGIN='https://www.salelinx.com'
-# Referrals (docs/REFERRALS.md): the referee first-month-discount coupon ID
+# Referrals (docs/REFERRALS.md): the referee first-month-discount coupons
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.
+#
+# One coupon PER TIER, because the offer is a first-month price per plan and
+# not a single percentage (see the price table in docs/STRIPE.md).
+supabase secrets set REFERRAL_COUPON_STARTER='<coupon id>'
+supabase secrets set REFERRAL_COUPON_PRO='<coupon id>'
+supabase secrets set REFERRAL_COUPON_BUSINESS='<coupon id>'
+# Fallback for any tier whose secret above is not set. Lets the three roll out
+# one at a time; unset once all three are live.
 supabase secrets set REFERRAL_COUPON_ID='<coupon id>'
 supabase secrets set REFERRAL_CRON_SECRET='<random-string, 32+ bytes>'
 # delete-account: HMAC key for the emailed deletion-confirmation tokens.
