@@ -15,6 +15,18 @@ const intlMiddleware = createIntlMiddleware(routing);
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // Local preview of geo-dependent rendering (currency on the pricing page,
+  // locale prediction). Vercel sets x-vercel-ip-country in production; there
+  // is no such header locally, so `?country=US` stands in for it. Gated to
+  // development: in production the header is set by the platform ahead of
+  // this code and a query param must never be able to forge it.
+  if (process.env.NODE_ENV === "development") {
+    const devCountry = request.nextUrl.searchParams.get("country");
+    if (devCountry) {
+      request.headers.set("x-vercel-ip-country", devCountry.toUpperCase());
+    }
+  }
+
   // Supabase reports auth link failures by redirecting to the Site URL with
   // ?error=...&error_code=... (it also repeats them in the hash, which the
   // server cannot see). Nothing read these, so an expired or already-consumed
