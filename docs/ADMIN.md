@@ -12,7 +12,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
-| Extension usage | `/admin/usage` | Live, read-only | Product metering for the current period (crosslist, relist, refresh, follow, unfollow), measured against the user's `tier_limits` caps. Sorted by percent-of-cap. |
+| Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for the current period, grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. The five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); the rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for the current period (checkout / portal sessions, deletion requests, label emails, email changes), measured against the hardcoded per-day cap in the calling code. |
 | Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `030_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
 | Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `034_endpoint_selftest.sql`). Runs are started in the extension panel, not here. See "Endpoint self-test" below. |
@@ -43,8 +43,9 @@ Consequences:
 | Subscriptions module | `app/admin/subscriptions/page.tsx` + `components/admin/subscriptions/*` |
 | Tier limits module | `app/admin/tiers/page.tsx` + `components/admin/tiers/*` |
 | Feature flags module | `app/admin/flags/page.tsx` + `components/admin/flags/*` |
-| Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/*` |
-| Web usage module | `app/admin/usage/web/page.tsx` (same table component) |
+| Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/AdminUserUsageGroups.tsx` |
+| Extension feature roster | `lib/admin/extension-features.ts` (keep in step with salelinx-app usage-tracking.ts) |
+| Web usage module | `app/admin/usage/web/page.tsx` + `components/admin/usage/AdminUsageTable.tsx` (flat table) |
 | Usage source split + web caps | `lib/admin/usage-sources.ts` |
 | Shared usage loader | `lib/admin/usage-data.ts` |
 | Audit log module | `app/admin/audit/page.tsx` + `components/admin/audit/*` |
