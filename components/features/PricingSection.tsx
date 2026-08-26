@@ -1,4 +1,5 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { headers } from "next/headers";
 import { Link } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { isDisposableEmail } from "@/lib/auth/disposable-domains";
@@ -7,6 +8,11 @@ import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
 import { ReferralPrice } from "@/components/ReferralPrice";
 import { Icon, type IconName } from "@/components/Icon";
 import type { TierConfig, TierId } from "@/lib/types/tiers";
+import {
+  CURRENCY_SYMBOL,
+  resolveCurrency,
+  TIER_PRICES,
+} from "@/lib/pricing";
 
 const MONO = "font-mono text-[0.68rem] uppercase tracking-[0.12em]";
 
@@ -21,13 +27,15 @@ const PRICE_IDS: Partial<Record<TierId, string | undefined>> = {
   business: process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS,
 };
 
+// Prices live in lib/pricing.ts, per currency, mirroring the Stripe
+// currency_options - the card resolves them by the visitor's currency.
 const TIER_META: Record<
   Exclude<TierId, "free">,
-  { name: string; price: string; highlight?: boolean }
+  { name: string; highlight?: boolean }
 > = {
-  starter: { name: "Starter", price: "£7.99" },
-  pro: { name: "Pro", price: "£14.99", highlight: true },
-  business: { name: "Business", price: "£24.99" },
+  starter: { name: "Starter" },
+  pro: { name: "Pro", highlight: true },
+  business: { name: "Business" },
 };
 
 const FEATURE_ICONS: Record<string, IconName> = {
@@ -174,6 +182,11 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   const t = await getTranslations("Pricing");
   const formatLimit = makeFormatLimit(t);
 
+  // Match the currency Stripe Checkout will pick for this visitor (IP-based),
+  // falling back to the locale when there is no geo header (local dev).
+  const country = (await headers()).get("x-vercel-ip-country");
+  const currency = resolveCurrency(country, await getLocale());
+
   const paidTiers = PAID_TIER_ORDER.map((id) =>
     tiers.find((tier) => tier.tier_id === id),
   ).filter((tier): tier is NonNullable<typeof tier> => Boolean(tier));
@@ -250,7 +263,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
             </p>
 
             <p className="mt-6 text-4xl font-bold">
-              £0
+              {CURRENCY_SYMBOL[currency]}0
               <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
                 {" "}
                 {t("trial.priceSuffix", { days: TRIAL_DAYS })}
@@ -282,7 +295,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 material payment term, and the tagline above already leads with
                 "card required". */}
             <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-              {t("trial.thenPrice", { price: TIER_META.starter.price })}
+              {t("trial.thenPrice", { price: TIER_PRICES.starter[currency] })}
             </p>
           </div>
         )}
@@ -311,7 +324,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
               </p>
 
               <ReferralPrice
-                price={meta.price}
+                price={TIER_PRICES[tier.tier_id as keyof typeof TIER_PRICES][currency]}
                 suffix={t("perMonth")}
                 tier={tier.tier_id}
               />
