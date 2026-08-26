@@ -1,8 +1,10 @@
 # Referrals
 
 User-to-user referral program. Referrers share a link; referees get a
-first-month discount at checkout; referrers earn one free month per referral
-that converts to a paid subscription.
+first-month discount at checkout; referrers earn free time on their own plan
+per referral that converts to a paid subscription. How much time depends on
+the tier the REFEREE bought (see Reward rules): Starter = 1 week, Pro =
+2 weeks, Business = 1 month.
 
 ## The flow
 
@@ -20,7 +22,7 @@ Friend signs up and confirms email (any auth path)
   claim_referral(code) RPC inserts a referrals row (pending), cookie cleared
   ▼
 Friend subscribes -> create-checkout-session
-  has_pending_referral() true -> REFERRAL_COUPON_ID auto-applied
+  has_pending_referral() true -> that tier's coupon auto-applied
   (allow_promotion_codes omitted; Stripe rejects the pair)
   ▼
 First PAID invoice (amount_paid > 0) -> stripe-webhook
@@ -34,12 +36,20 @@ First PAID invoice (amount_paid > 0) -> stripe-webhook
   ▼
 7 days later -> process-referral-rewards (daily Cron)
   referee still entitled? referrer has a live subscription?
-  stripe.customers.createBalanceTransaction: MINUS one month of the
-  referrer's current plan price = credit on their next invoice(s)
+  stripe.customers.createBalanceTransaction: MINUS a fraction of the
+  referrer's current plan price (fraction set by the referee's tier)
+  = credit on their next invoice(s)
   row -> rewarded, receipt stored (amount, currency, balance txn id)
 ```
 
-## Leaderboard display name (021)
+## Leaderboard display name (021) - UNUSED since Aug 2026
+
+The extension removed its leaderboard and display-name UI in Aug 2026 (its
+Refer & Earn tab now shows a reward explainer instead), so nothing calls
+`set_referral_display_name` or `referral_leaderboard` any more. The DB
+objects below still exist and still enforce their rules; dropping them is a
+pending product decision. Everything in this section and the Leaderboard
+section describes what they do while they remain.
 
 `referral_codes.display_name` is an optional self-chosen name for the
 extension's leaderboard. NULL falls back to the old derivation: linked shop
@@ -81,10 +91,9 @@ A partial unique index on `lower(display_name)` stops someone taking the name
 of the person above them, which is the impersonation risk that actually
 matters on a leaderboard.
 
-The extension mirrors these rules in `src/utils/referral-name.ts` for instant
-feedback while typing, with tests covering the false-positive traps. That copy
-is convenience only: this function is the gate, and if the two ever disagree
-the user sees the field accept a name the save then rejects. Change both.
+The extension used to mirror these rules in `src/utils/referral-name.ts` for
+instant feedback while typing; that mirror was deleted with the extension's
+leaderboard UI. This function remains the gate for any future caller.
 
 ## State machine (`referrals.status`)
 
@@ -116,8 +125,9 @@ referee-side read surface is the `has_pending_referral()` RPC (a boolean).
 
 ## Leaderboard (migration `020_referral_leaderboard.sql`)
 
-`referral_leaderboard(p_limit)` - SECURITY DEFINER RPC backing the
-extension's Refer & Earn tab (and any future website surface). Cross-user
+`referral_leaderboard(p_limit)` - SECURITY DEFINER RPC that backed the
+extension's Refer & Earn tab until Aug 2026 (currently unused; kept for any
+future surface). Cross-user
 aggregates can't come from RLS-scoped reads, so the RPC exposes ONLY
 `(rank, display_name, score, is_me)` - never UUIDs or full emails:
 
@@ -164,16 +174,51 @@ path and must never break anything:
   referee, so a refund-but-stay-subscribed no longer mints a reward. Rows
   already `rewarded` are logged for manual review, not auto-reversed (the
   credit may already be spent on an invoice).
-- Reward: one month of the referrer's CURRENT plan - the unit_amount of
-  their live Stripe subscription's price, credited as a negative customer
+- Reward: a FRACTION of one month of the referrer's CURRENT plan - the
+  unit_amount of their live Stripe subscription's price times the fraction
+  for the tier the referee is on at payout, credited as a negative customer
   balance transaction. Stripe applies it automatically to upcoming invoices.
+
+  | Referee's tier | Fraction | Reads as |
+  | --- | --- | --- |
+  | starter | 25% | 1 week |
+  | pro | 50% | 2 weeks |
+  | business | 100% | 1 month |
+
+  "A week" is a quarter of a month by design, not 7/30.44 days: 4 Starter
+  referrals, 2 Pro or 1 Business come to exactly one free month on every
+  plan. The referee's tier is read from their newest subscriptions row AT
+  PAYOUT (a plan change inside the hold moves the reward with it). The
+  fraction table and rounding rule (`REWARD_FRACTION_BP`,
+  `computeReferralReward`) live in `_shared/referral-reward-math.ts` - pure,
+  no Deno APIs, so the vitest suite (`tests/referral-reward-math.test.ts`)
+  imports the very module the function runs; an unknown referee tier has no
+  priced reward, so the row defers with an error log rather than guessing
+  (same policy as a non-monthly referrer price). The fraction and referee
+  tier are stamped into the balance transaction's metadata; the row's
+  `reward_amount_cents` receipt stores the actual credited amount, so the
+  /account credit total stays correct across rule changes.
+- Full matrix at today's GBP prices (referrer down, referee across):
+
+  | Referrer \ Referee | starter (25%) | pro (50%) | business (100%) |
+  | --- | --- | --- | --- |
+  | starter (£7.99) | £2.00 | £4.00 | £7.99 |
+  | pro (£14.99) | £3.75 | £7.50 | £14.99 |
+  | business (£24.99) | £6.25 | £12.50 | £24.99 |
+
+  `Math.round` on the fraction; 799 * 25% = 199.75 -> 200 is the only pair
+  that rounds at these prices. Payback is at most 2 months of referee list
+  price for every combination (the flat one-month rule cost up to 4).
 - Referrer has no live subscription: the row stays `converted` and retries
   daily; after 90 days it voids.
 - Cap: 10 rewarded referrals per referrer per month; excess conversions
   defer to the next month (never void).
-- Non-monthly referrer price: deferred with an error log ("one free month"
-  needs a product decision for annual billing; only monthly prices exist
-  today).
+- Non-monthly referrer price: deferred with an error log ("a fraction of a
+  month" needs a product decision for annual billing; only monthly prices
+  exist today).
+- Unknown referee tier (not in `REWARD_FRACTION_BP`): deferred with an error
+  log, same policy - a new tier must be given a fraction before its
+  referrals pay out.
 
 ### Idempotency (why a credit can never double-grant)
 
@@ -211,7 +256,7 @@ the function is safe (see idempotency above).
 
 | What | Where |
 | --- | --- |
-| Referee discount coupon | Stripe dashboard (test + live), ID in `REFERRAL_COUPON_ID` secret |
+| Referee discount coupons | Stripe dashboard (test + live), one per tier, IDs in `REFERRAL_COUPON_STARTER` / `_PRO` / `_BUSINESS` secrets (`REFERRAL_COUPON_ID` is the fallback for any tier without one). Resolved by `_shared/referral-coupons.ts`; see `docs/STRIPE.md` for the price table |
 | Cron auth | `REFERRAL_CRON_SECRET` secret + dashboard Cron job header |
 | Hold / expiry / cap / batch | constants in `process-referral-rewards/index.ts` |
 | Cookie | `slx_ref`, set by `app/r/[code]/route.ts` |
@@ -230,6 +275,16 @@ Both read the coupon's TERMS from the public `get-referral-discount` Edge
 Function (percent/amount, duration - never the coupon id), so the displayed
 offer tracks whatever the coupon actually is. Hardcoding a percentage in the
 frontend would drift silently the first time the coupon is edited in Stripe.
+
+Because the offer is now a first-month price PER TIER, the endpoint returns
+`{ discount, byTier: { starter, pro, business } }`: `byTier` is what the cards
+use (`ReferralPrice` takes a `tier` prop and calls
+`useReferralDiscount(tier)`), while `discount` stays as the shared/legacy
+coupon so a response cached from before this change still renders something.
+`ReferralDiscountBanner` asks for no tier, so once every tier has its own
+coupon it gets `null` and falls back to its numberless copy
+(`discountBanner`) - which is the honest thing to say when there is no single
+figure to quote. The per-card struck-through prices carry the actual numbers.
 `applyDiscount` refuses to compute a price it cannot derive faithfully (an
 `amount_off` in a different currency to the listed price), falling back to
 the plain price rather than showing a number checkout will contradict.

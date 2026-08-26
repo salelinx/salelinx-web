@@ -380,12 +380,12 @@
   },
   "Referrals": {
     "title": "推荐好友",
-    "body": "分享你的链接。任何通过它订阅的人首月都能享受折扣，等他们付款后，你可以获得一个月免费。",
+    "body": "分享你的链接。任何通过它订阅的人首月都能享受折扣，等他们付款后，你将在自己的套餐上获得免费时长：Starter 一周，Pro 两周，Business 整整一个月。",
     "copy": "复制链接",
     "copied": "已复制",
     "statSignedUp": "已注册",
     "statSubscribed": "已订阅",
-    "statRewarded": "已获得月数",
+    "statRewarded": "已获得奖励",
     "creditEarned": "目前累计获得的抵扣：{amount}。它会自动抵扣到你的下一张账单上。",
     "termsNote": "奖励需满足一定条件（7 天的锁定期、每月上限，以及订阅处于生效状态）。",
     "termsLink": "查看推荐计划条款"
@@ -491,7 +491,7 @@
     },
     "referralTerms": {
       "title": "推荐计划条款",
-      "metaDescription": "SaleLinx 推荐计划的条件：被推荐人的折扣、推荐人如何获得免费月份、奖励的锁定期和上限，以及合理使用规则。"
+      "metaDescription": "SaleLinx 推荐计划的条件：被推荐人的折扣、推荐人如何在其套餐上获得免费时长、奖励的锁定期和上限，以及合理使用规则。"
     }
   },
   "Invited": {

@@ -380,12 +380,12 @@
   },
   "Referrals": {
     "title": "Freunde werben",
-    "body": "Teile deinen Link. Wer sich darüber anmeldet, erhält einen Rabatt auf den ersten Monat, und du bekommst einen Gratismonat, sobald die Person bezahlt hat.",
+    "body": "Teile deinen Link. Wer sich darüber anmeldet, erhält einen Rabatt auf den ersten Monat, und du bekommst Gratiszeit auf deinem eigenen Tarif, sobald die Person bezahlt hat: eine Woche für Starter, zwei Wochen für Pro, einen ganzen Monat für Business.",
     "copy": "Link kopieren",
     "copied": "Kopiert",
     "statSignedUp": "Registriert",
     "statSubscribed": "Abonniert",
-    "statRewarded": "Gratismonate",
+    "statRewarded": "Verdiente Prämien",
     "creditEarned": "Bisher erhaltenes Guthaben: {amount}. Es wird automatisch mit deiner nächsten Rechnung verrechnet.",
     "termsNote": "Prämien unterliegen Bedingungen (einer 7-tägigen Haltefrist, einer monatlichen Obergrenze und einem aktiven Abo).",
     "termsLink": "Bedingungen des Empfehlungsprogramms ansehen"
@@ -491,7 +491,7 @@
     },
     "referralTerms": {
       "title": "Bedingungen des Empfehlungsprogramms",
-      "metaDescription": "Die Bedingungen des SaleLinx-Empfehlungsprogramms: der Rabatt für Geworbene, wie Werbende einen Gratismonat verdienen, die Haltefrist und die Obergrenze für Prämien sowie die Fair-Use-Regeln."
+      "metaDescription": "Die Bedingungen des SaleLinx-Empfehlungsprogramms: der Rabatt für Geworbene, wie Werbende Gratiszeit auf ihrem Tarif verdienen, die Haltefrist und die Obergrenze für Prämien sowie die Fair-Use-Regeln."
     }
   },
   "Invited": {
