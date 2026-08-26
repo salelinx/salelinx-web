@@ -139,6 +139,17 @@ export function codeBlock(code: string): string {
   </table>`;
 }
 
+/**
+ * Companies Act 2006 disclosure: business emails must state the registered
+ * name, number, place of registration and registered office. Rendered in the
+ * shared footer so every outgoing email carries it; exported for plain-text
+ * variants. Keep in step with the site footer (messages/*.json companyInfo)
+ * and the legal pages.
+ */
+export const COMPANY_INFO =
+  "SaleLinx Ltd, registered in England and Wales, company no. 17351832. " +
+  "Registered office: 34 Sussex Place, London, W2 2TH, United Kingdom.";
+
 type LayoutInput = {
   /** Inbox preview line. Without it, clients scrape the first body text. */
   preheader: string;
@@ -248,9 +259,12 @@ export function emailLayout(input: LayoutInput): string {
                     <td style="font-family:${FONT_STACK};font-size:12px;color:${theme.muted};">Vinted</td>
                   </tr>
                 </table>
-                <p style="margin:0;font-family:${FONT_STACK};font-size:12px;line-height:1.65;color:${theme.faint};">
+                <p style="margin:0 0 10px;font-family:${FONT_STACK};font-size:12px;line-height:1.65;color:${theme.faint};">
                   Run both shops from one panel.<br />
                   <a href="${siteUrl}" style="color:${theme.muted};text-decoration:none;">salelinx.com</a>
+                </p>
+                <p style="margin:0;font-family:${FONT_STACK};font-size:11px;line-height:1.65;color:${theme.faint};">
+                  ${COMPANY_INFO}
                 </p>
               </td>
             </tr>

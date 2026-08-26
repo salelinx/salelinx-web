@@ -44,6 +44,7 @@ import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   button,
+  COMPANY_INFO,
   EMAIL_ASSETS,
   emailLayout,
   heading,
@@ -221,7 +222,7 @@ async function sendConfirmationEmail(args: {
     ].join("\n"),
     footerNote: c.expiry,
   });
-  const text = `${c.heading}\n\n${c.body}\n\n${c.cta}: ${args.confirmUrl}\n\n${c.expiry}\n${c.ignore}\n`;
+  const text = `${c.heading}\n\n${c.body}\n\n${c.cta}: ${args.confirmUrl}\n\n${c.expiry}\n${c.ignore}\n\n${COMPANY_INFO}\n`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",

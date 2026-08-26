@@ -19,6 +19,7 @@ export type EmailActionType =
 import {
   button,
   codeBlock,
+  COMPANY_INFO,
   emailLayout,
   heading,
   linkFallback,
@@ -400,7 +401,7 @@ export function renderEmail(input: RenderInput): RenderedEmail {
         `,
         footerNote: pack.ignoreFooter,
       }),
-      text: fillText(strings.text, { token }),
+      text: fillText(strings.text, { token }) + "\n\n" + COMPANY_INFO,
     };
   }
 
@@ -421,6 +422,6 @@ export function renderEmail(input: RenderInput): RenderedEmail {
       `,
       footerNote: pack.ignoreFooter,
     }),
-    text: fillText(strings.text, { url: verifyUrl }),
+    text: fillText(strings.text, { url: verifyUrl }) + "\n\n" + COMPANY_INFO,
   };
 }
