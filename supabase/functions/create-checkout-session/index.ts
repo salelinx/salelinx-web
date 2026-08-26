@@ -9,6 +9,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
 import { isDisposableEmail } from "../_shared/disposable-domains.ts";
+import { referralCouponFor } from "../_shared/referral-coupons.ts";
 
 const corsHeaders = sharedCorsHeaders();
 
@@ -74,7 +75,10 @@ Deno.serve(async (req) => {
   }
   if (typeof sessionCount === "number" && sessionCount > 20) {
     return json(
-      { error: "Too many checkout attempts, try again tomorrow", code: "rate_limited" },
+      {
+        error: "Too many checkout attempts, try again tomorrow",
+        code: "rate_limited",
+      },
       429,
     );
   }
@@ -167,8 +171,12 @@ Deno.serve(async (req) => {
   // `allow_promotion_codes`, so a referred checkout drops the promo-code
   // field - a referred user cannot also enter a promo code (accepted
   // trade-off; the referral discount wins).
+  //
+  // The coupon is chosen PER TIER (see _shared/referral-coupons.ts): the offer
+  // is a first-month price per plan, which is three different reductions and
+  // so cannot be one coupon.
   let applyReferralDiscount = false;
-  const referralCouponId = Deno.env.get("REFERRAL_COUPON_ID") ?? "";
+  const referralCouponId = referralCouponFor(tierId);
   if (referralCouponId) {
     const { data: hasReferral } = await supabase.rpc("has_pending_referral");
     applyReferralDiscount = hasReferral === true;

@@ -380,12 +380,12 @@
   },
   "Referrals": {
     "title": "Recomienda a un amigo",
-    "body": "Comparte tu enlace. Quien se suscriba a través de él obtiene un descuento en su primer mes, y tú recibes un mes gratis cuando haya pagado.",
+    "body": "Comparte tu enlace. Quien se suscriba a través de él obtiene un descuento en su primer mes, y tú ganas tiempo gratis en tu propio plan cuando haya pagado: una semana por Starter, dos semanas por Pro, un mes completo por Business.",
     "copy": "Copiar enlace",
     "copied": "Copiado",
     "statSignedUp": "Registrados",
     "statSubscribed": "Suscritos",
-    "statRewarded": "Meses ganados",
+    "statRewarded": "Recompensas ganadas",
     "creditEarned": "Crédito acumulado: {amount}. Se aplica automáticamente a tu próxima factura.",
     "termsNote": "Las recompensas están sujetas a condiciones (una retención de 7 días, un límite mensual y una suscripción activa).",
     "termsLink": "Ver los términos del programa de recomendación"
@@ -491,7 +491,7 @@
     },
     "referralTerms": {
       "title": "Términos del programa de recomendación",
-      "metaDescription": "Las condiciones del programa de recomendación de SaleLinx: el descuento para el invitado, cómo el recomendador gana un mes gratis, el periodo de retención y el límite de recompensas, y las reglas de uso justo."
+      "metaDescription": "Las condiciones del programa de recomendación de SaleLinx: el descuento para el invitado, cómo el recomendador gana tiempo gratis en su plan, el periodo de retención y el límite de recompensas, y las reglas de uso justo."
     }
   },
   "Invited": {

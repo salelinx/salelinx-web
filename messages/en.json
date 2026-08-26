@@ -380,12 +380,12 @@
   },
   "Referrals": {
     "title": "Refer a friend",
-    "body": "Share your link. Anyone who subscribes through it gets a discount on their first month, and you get one month free once they've paid.",
+    "body": "Share your link. Anyone who subscribes through it gets a discount on their first month, and you earn free time on your own plan once they've paid: a week for Starter, two weeks for Pro, a full month for Business.",
     "copy": "Copy link",
     "copied": "Copied",
     "statSignedUp": "Signed up",
     "statSubscribed": "Subscribed",
-    "statRewarded": "Months earned",
+    "statRewarded": "Rewards earned",
     "creditEarned": "Credit earned so far: {amount}. It's applied automatically to your next invoice.",
     "termsNote": "Rewards are subject to conditions (a 7-day hold, a monthly cap, and an active subscription).",
     "termsLink": "See the referral program terms"
@@ -491,7 +491,7 @@
     },
     "referralTerms": {
       "title": "Referral Program Terms",
-      "metaDescription": "The conditions of the SaleLinx referral program: the referee discount, how referrers earn a free month, the reward hold and cap, and fair-use rules."
+      "metaDescription": "The conditions of the SaleLinx referral program: the referee discount, how referrers earn free time on their plan, the reward hold and cap, and fair-use rules."
     }
   },
   "Invited": {

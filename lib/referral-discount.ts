@@ -33,20 +33,37 @@ export function discountDurationKey(
   return "first-month";
 }
 
-// Coupon terms are the same for everyone, so one fetch per page load is
-// plenty - module scope dedupes it across the banner and every price card.
-let discountPromise: Promise<ReferralDiscount | null> | null = null;
+/** What the coupon endpoint returns: the shared coupon (legacy, and still the
+ *  fallback for any tier without its own) plus the per-tier terms. */
+export type ReferralDiscountTerms = {
+  shared: ReferralDiscount | null;
+  byTier: Partial<Record<string, ReferralDiscount | null>>;
+};
 
-function fetchDiscount(): Promise<ReferralDiscount | null> {
+// Coupon terms are the same for every visitor, so one fetch per page load is
+// plenty - module scope dedupes it across the banner and every price card.
+let discountPromise: Promise<ReferralDiscountTerms> | null = null;
+
+const NO_TERMS: ReferralDiscountTerms = { shared: null, byTier: {} };
+
+function fetchDiscount(): Promise<ReferralDiscountTerms> {
   if (discountPromise) return discountPromise;
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!base) return Promise.resolve(null);
+  if (!base) return Promise.resolve(NO_TERMS);
   discountPromise = fetch(`${base}/functions/v1/get-referral-discount`)
     .then((r) => (r.ok ? r.json() : null))
-    .then((body) => (body?.discount as ReferralDiscount | null) ?? null)
+    .then((body) => ({
+      // `discount` is the endpoint's original single-coupon field. It is still
+      // read here so a response cached from before per-tier pricing shipped
+      // renders the old offer rather than nothing.
+      shared: (body?.discount as ReferralDiscount | null) ?? null,
+      byTier:
+        (body?.byTier as Record<string, ReferralDiscount | null> | undefined) ??
+        {},
+    }))
     // A discount we cannot read is shown as no discount - the coupon is
     // still applied server-side at checkout either way.
-    .catch(() => null);
+    .catch(() => NO_TERMS);
   return discountPromise;
 }
 
@@ -54,13 +71,19 @@ function fetchDiscount(): Promise<ReferralDiscount | null> {
  * Whether the signed-in user has an unconverted referral, and what the
  * coupon is worth. Both null/false until resolved, so nothing flashes in
  * for users without a referral.
+ *
+ * Pass `tier` on a pricing card: the offer is a first-month price per plan,
+ * so each card needs its own coupon. Called without one (the banner), it
+ * reports the shared coupon, which is null once every tier has its own - the
+ * banner then falls back to its numberless copy, which is the honest thing to
+ * say when there is no single figure to quote.
  */
-export function useReferralDiscount(): {
+export function useReferralDiscount(tier?: string): {
   pending: boolean;
   discount: ReferralDiscount | null;
 } {
   const [pending, setPending] = useState(false);
-  const [discount, setDiscount] = useState<ReferralDiscount | null>(null);
+  const [terms, setTerms] = useState<ReferralDiscountTerms>(NO_TERMS);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +97,7 @@ export function useReferralDiscount(): {
           if (cancelled || error || hasPending !== true) return;
           setPending(true);
           fetchDiscount().then((d) => {
-            if (!cancelled) setDiscount(d);
+            if (!cancelled) setTerms(d);
           });
         });
     });
@@ -83,6 +106,11 @@ export function useReferralDiscount(): {
       cancelled = true;
     };
   }, []);
+
+  // Same resolution order as the server's referralCouponFor: the tier's own
+  // coupon, then the shared one. Anything else would advertise a price
+  // checkout disagrees with.
+  const discount = (tier ? terms.byTier[tier] : null) ?? terms.shared;
 
   return { pending, discount };
 }

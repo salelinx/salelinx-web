@@ -1,11 +1,22 @@
 // deno-lint-ignore-file
 // Deployed to Supabase Edge Functions. Runs in Deno, not Node.
 //
-// Grants referral rewards: one free month (a negative Stripe customer-balance
-// transaction, i.e. a credit) to the referrer, 7 days after the referee's
-// first paid invoice. Invoked daily by a Supabase Cron job (dashboard
-// configured, see docs/EDGE-FUNCTIONS.md) with a shared secret header -
-// never by browsers, so no CORS.
+// Grants referral rewards: free time on the referrer's own plan (a negative
+// Stripe customer-balance transaction, i.e. a credit), 7 days after the
+// referee's first paid invoice. Invoked daily by a Supabase Cron job
+// (dashboard configured, see docs/EDGE-FUNCTIONS.md) with a shared secret
+// header - never by browsers, so no CORS.
+//
+// How much: a FRACTION of the referrer's own monthly price, where the
+// fraction is set by the TIER THE REFEREE BOUGHT (see REWARD_FRACTION).
+// Starter = a week, Pro = two weeks, Business = a month. Two consequences
+// that are the whole point of the design:
+//   * The referrer always earns the same amount of TIME for a given referee
+//     tier, whatever plan they are on themselves; only its cash value
+//     differs, because it is a slice of their own bill.
+//   * Payout can never outrun what the referee actually pays us. Under the
+//     old flat "one month of the referrer's plan" rule, a Business referrer
+//     who sent us a Starter cost 4 months of that Starter's revenue.
 //
 // Idempotency layers (in order of defense):
 //   1. Atomic claim: UPDATE ... WHERE status='converted' - a concurrent run
@@ -18,6 +29,7 @@
 import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { timingSafeEqual } from "../_shared/security.ts";
+import { computeReferralReward } from "../_shared/referral-reward-math.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2025-02-24.acacia",
@@ -47,6 +59,7 @@ type ReferralRow = {
 
 type SubRow = {
   status: string;
+  tier_id: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
 };
@@ -61,7 +74,7 @@ function json(body: unknown, status = 200): Response {
 async function newestSubscription(userId: string): Promise<SubRow | null> {
   const { data, error } = await supabase
     .from("subscriptions")
-    .select("status, stripe_customer_id, stripe_subscription_id")
+    .select("status, tier_id, stripe_customer_id, stripe_subscription_id")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -75,7 +88,7 @@ async function newestEntitledSubscription(
 ): Promise<SubRow | null> {
   const { data, error } = await supabase
     .from("subscriptions")
-    .select("status, stripe_customer_id, stripe_subscription_id")
+    .select("status, tier_id, stripe_customer_id, stripe_subscription_id")
     .eq("user_id", userId)
     .in("status", [...ENTITLED])
     .not("stripe_customer_id", "is", null)
@@ -121,16 +134,19 @@ async function processRow(row: ReferralRow): Promise<
 > {
   // 1. Referee still in good standing? Lapsing inside the hold voids the
   //    reward (our refund-window proxy - a true refund on a still-active
-  //    subscription is not detected, documented limitation).
+  //    subscription is not detected, documented limitation). The referee's
+  //    sub is also where the reward fraction comes from, so it is read for
+  //    stale 'rewarding' rows too - those are past the void gate (already
+  //    claimed by a crashed run) but still need the fraction to re-grant.
+  const refereeSub = await newestSubscription(row.referee_id);
   if (row.status === "converted") {
-    const refereeSub = await newestSubscription(row.referee_id);
     if (!refereeSub || !ENTITLED.has(refereeSub.status)) {
       await setStatus(row.id, ["converted"], { status: "void" });
       return "voided";
     }
   }
 
-  // 2. The reward is one month of the referrer's CURRENT plan, credited to
+  // 2. The reward is a fraction of the referrer's CURRENT plan, credited to
   //    their Stripe customer - both need a live subscription. Without one
   //    the row stays 'converted' and is retried daily until it expires.
   const referrerSub = await newestEntitledSubscription(row.referrer_id);
@@ -161,7 +177,8 @@ async function processRow(row: ReferralRow): Promise<
     return "deferred";
   }
 
-  // 4. One month of the referrer's current plan, in their own currency.
+  // 4. The referrer's current monthly price, in their own currency - the
+  //    base the fraction is taken of.
   const sub = await stripe.subscriptions.retrieve(
     referrerSub.stripe_subscription_id,
     { expand: ["items.data.price"] },
@@ -172,16 +189,35 @@ async function processRow(row: ReferralRow): Promise<
     price.recurring?.interval !== "month"
   ) {
     // Non-monthly prices don't exist today (docs/STRIPE.md); if one appears,
-    // "one free month" needs a product decision - defer rather than guess.
+    // "a fraction of a month" needs a product decision - defer, don't guess.
     console.error(
       `[process-referral-rewards] referral ${row.id}: unsupported price, deferring`,
     );
     return "deferred";
   }
 
+  // 4b. The reward: a fraction of the referrer's price, keyed on the tier
+  //     the referee is on AT PAYOUT (an upgrade or downgrade during the
+  //     7-day hold moves the reward with it - the tier they settled on is
+  //     the revenue we actually keep). An unknown tier has no priced
+  //     reward, so computeReferralReward returns null and the row defers.
+  const reward = computeReferralReward(
+    price.unit_amount,
+    refereeSub?.tier_id ?? null,
+  );
+
   // 5. Claim the row so a concurrent run cannot double-grant. Stale
   //    'rewarding' rows are already claimed (this is their recovery pass).
+  //    A row with no derivable reward is NOT claimed - it stays 'converted'
+  //    and defers, so it retries daily like the other gates.
   if (row.status === "converted") {
+    if (!reward) {
+      console.error(
+        `[process-referral-rewards] referral ${row.id}: no reward for ` +
+          `referee tier "${refereeSub?.tier_id ?? "none"}", deferring`,
+      );
+      return "deferred";
+    }
     const claimed = await setStatus(row.id, ["converted"], {
       status: "rewarding",
       rewarding_claimed_at: new Date().toISOString(),
@@ -189,21 +225,37 @@ async function processRow(row: ReferralRow): Promise<
     if (!claimed) return "deferred";
   }
 
-  // 6. Recovery: if a crashed run already created the credit, just finalize.
+  // 6. Recovery: if a crashed run already created the credit, just finalize
+  //    with ITS amount - never re-derive it, the fraction inputs may have
+  //    changed since the grant.
   let txn =
     row.status === "rewarding"
       ? await findExistingCredit(referrerSub.stripe_customer_id, row.id)
       : null;
+
+  // 6b. Granting fresh needs the reward after all (a stale row can reach
+  //     here if its crashed run died before Stripe accepted the credit).
+  if (!txn && !reward) {
+    console.error(
+      `[process-referral-rewards] referral ${row.id}: no reward for ` +
+        `referee tier "${refereeSub?.tier_id ?? "none"}", deferring`,
+    );
+    return "deferred";
+  }
 
   // 7. Grant. Negative amount = credit, auto-applied to upcoming invoices.
   if (!txn) {
     txn = await stripe.customers.createBalanceTransaction(
       referrerSub.stripe_customer_id,
       {
-        amount: -price.unit_amount,
+        amount: -reward!.amountCents,
         currency: price.currency,
-        description: "Referral reward: 1 free month",
-        metadata: { referral_id: row.id },
+        description: `Referral reward: ${reward!.label}`,
+        metadata: {
+          referral_id: row.id,
+          referee_tier: refereeSub?.tier_id ?? "",
+          fraction_bp: String(reward!.fractionBp),
+        },
       },
       { idempotencyKey: `referral-reward-${row.id}` },
     );

@@ -85,6 +85,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - `npm run dev` - local dev
 - `npm run build` - production build (run this to verify TS errors before committing)
 - `npm run lint` - ESLint
+- `npm test` - vitest (referral reward math, coupon resolution, discount display; `tests/` and `vitest.config.mts` are excluded from the Next.js tsconfig so tests can import `supabase/functions/` code)
 
 ## Code style
 

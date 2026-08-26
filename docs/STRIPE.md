@@ -109,9 +109,36 @@ It prints a temporary `whsec_...` that you set as `STRIPE_WEBHOOK_SECRET` while 
 
 Two Stripe features back the referral program (`docs/REFERRALS.md`):
 
-- **Referee first-month discount**: a hand-created Coupon whose ID lives in the
-  `REFERRAL_COUPON_ID` Edge Function secret. `create-checkout-session` passes it
-  via `discounts: [{ coupon }]` when the buyer has a pending referral.
+- **Referee first-month discount**: hand-created Coupons, **one per tier**,
+  whose IDs live in the `REFERRAL_COUPON_STARTER` / `REFERRAL_COUPON_PRO` /
+  `REFERRAL_COUPON_BUSINESS` Edge Function secrets.
+  `create-checkout-session` passes the one matching the price's `tier_id`
+  metadata via `discounts: [{ coupon }]` when the buyer has a pending referral.
+  The offer is a first-month PRICE per plan, not a single percentage:
+
+  | Tier | List | First month | Coupon |
+  | --- | --- | --- | --- |
+  | Starter | £7.99 | £4.99 | `amount_off: 300` GBP |
+  | Pro | £14.99 | £9.99 | `amount_off: 500` GBP |
+  | Business | £24.99 | £14.99 | `amount_off: 1000` GBP |
+
+  Three different reductions (37.5% / 33.4% / 40.0%), which is why one coupon
+  cannot express it. Resolution lives in `_shared/referral-coupons.ts` and is
+  used by BOTH `create-checkout-session` (applies the coupon) and
+  `get-referral-discount` (tells the pricing page what to show). Never resolve
+  a coupon anywhere else: the two must agree, or the site advertises a price
+  checkout then contradicts.
+
+  `REFERRAL_COUPON_ID` is still read as the fallback for any tier without its
+  own secret, so the three can be rolled out one at a time and an unset secret
+  degrades to the old shared coupon rather than to no discount. Unset it once
+  all three per-tier secrets are live.
+
+  **`amount_off` is currency-specific.** These coupons are GBP, matching the
+  hardcoded `£` prices in `PricingSection`. If tier prices ever go
+  multi-currency, either add a currency option per coupon or switch to
+  `percent_off`: `applyDiscount` deliberately refuses to render an `amount_off`
+  against a price in another currency rather than show a wrong number.
   **`discounts` and `allow_promotion_codes` are mutually exclusive** on a
   Checkout Session - the function drops the promo-code field for referred
   checkouts, so a referred user cannot also enter a promo code.
@@ -120,7 +147,9 @@ Two Stripe features back the referral program (`docs/REFERRALS.md`):
   consumes it, recreate as `duration: 'repeating', duration_in_months: 2`.
 - **Referrer reward**: `process-referral-rewards` calls
   `stripe.customers.createBalanceTransaction` with a **negative** amount (=
-  credit) equal to one month of the referrer's current plan price. Stripe
+  credit) equal to a fraction of the referrer's current plan price, set by
+  the tier the referee bought (25% / 50% / 100% for Starter / Pro /
+  Business; table in `docs/REFERRALS.md`). Stripe
   applies customer balance automatically to upcoming invoices; no plan or
   subscription change is involved. The transaction carries
   `metadata.referral_id` and an idempotency key so retries can never

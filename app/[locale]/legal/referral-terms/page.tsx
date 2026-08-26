@@ -27,14 +27,14 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "17 August 2026";
+const LAST_UPDATED = "26 August 2026";
 
 const SECTIONS: LegalSection[] = [
   {
     heading: "About the referral program",
     paragraphs: [
       "These terms govern the SaleLinx referral program, operated by SaleLinx Ltd (\"SaleLinx\", \"we\", \"us\"). They apply in addition to our Terms of Service and privacy policy. By sharing a referral link or signing up through one, you agree to these terms.",
-      "The program lets an existing customer (the \"referrer\") invite a new user (the \"referee\") with a personal link. If the referee subscribes to a paid plan, the referee gets a discount on their first month and the referrer earns account credit worth one month of their plan. The specific conditions below apply.",
+      "The program lets an existing customer (the \"referrer\") invite a new user (the \"referee\") with a personal link. If the referee subscribes to a paid plan, the referee gets a discount on their first month and the referrer earns account credit worth a period of their own plan, set by the plan the referee subscribed to. The specific conditions below apply.",
     ],
   },
   {
@@ -50,10 +50,11 @@ const SECTIONS: LegalSection[] = [
     heading: "The referrer reward",
     bullets: [
       "You earn a reward when someone you referred subscribes to a paid plan and makes their first successful payment. A free trial alone does not earn a reward; the referee must make a real payment.",
-      "The reward is account credit equal to one month of your own current plan price, applied automatically by Stripe to your upcoming invoices. It is not a cash payment and is not transferable or redeemable for cash.",
+      "The reward is account credit worth a period of your own current plan price, set by the plan the referee is on when the reward is granted: one week (25% of your monthly price) if they are on Starter, two weeks (50%) if they are on Pro, and one month (100%) if they are on Business. The credit is applied automatically by Stripe to your upcoming invoices. It is not a cash payment and is not transferable or redeemable for cash.",
       "Rewards are held for 7 days after the referee's first payment before they are granted. If the referee cancels or their subscription lapses during that period, the reward is voided.",
       "To receive a reward you must have your own active paid subscription at the time the reward is granted. If you do not, the reward waits until you do, for up to 90 days, after which it is voided.",
       "You can earn a maximum of 10 rewards per calendar month. Additional qualifying referrals carry over to the following month rather than being lost.",
+      "If the referee changes plan during the 7-day hold, the reward is based on the plan they are on when it is granted.",
       "Rewards currently apply to monthly plans. If your plan is billed on another cycle, your reward may be deferred until we can apply it.",
     ],
   },

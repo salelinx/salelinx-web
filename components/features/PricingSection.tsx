@@ -310,7 +310,11 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 {t(`tier.${tier.tier_id}.tagline`)}
               </p>
 
-              <ReferralPrice price={meta.price} suffix={t("perMonth")} />
+              <ReferralPrice
+                price={meta.price}
+                suffix={t("perMonth")}
+                tier={tier.tier_id}
+              />
 
               {PRICE_IDS[tier.tier_id] ? (
                 <SubscribeButton

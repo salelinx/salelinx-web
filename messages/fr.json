@@ -380,12 +380,12 @@
   },
   "Referrals": {
     "title": "Parrainez un ami",
-    "body": "Partagez votre lien. Toute personne qui s'abonne via ce lien obtient une réduction sur son premier mois, et vous recevez un mois gratuit une fois qu'elle a payé.",
+    "body": "Partagez votre lien. Toute personne qui s'abonne via ce lien obtient une réduction sur son premier mois, et vous gagnez du temps gratuit sur votre propre forfait une fois qu'elle a payé : une semaine pour Starter, deux semaines pour Pro, un mois complet pour Business.",
     "copy": "Copier le lien",
     "copied": "Copié",
     "statSignedUp": "Inscrits",
     "statSubscribed": "Abonnés",
-    "statRewarded": "Mois gagnés",
+    "statRewarded": "Récompenses gagnées",
     "creditEarned": "Crédit obtenu : {amount}. Il est appliqué automatiquement à votre prochaine facture.",
     "termsNote": "Les récompenses sont soumises à conditions (une période de blocage de 7 jours, un plafond mensuel et un abonnement actif).",
     "termsLink": "Voir les conditions du programme de parrainage"
@@ -491,7 +491,7 @@
     },
     "referralTerms": {
       "title": "Conditions du programme de parrainage",
-      "metaDescription": "Les conditions du programme de parrainage SaleLinx : la réduction pour le filleul, comment le parrain gagne un mois gratuit, la période de blocage et le plafond des récompenses, et les règles d'usage loyal."
+      "metaDescription": "Les conditions du programme de parrainage SaleLinx : la réduction pour le filleul, comment le parrain gagne du temps gratuit sur son forfait, la période de blocage et le plafond des récompenses, et les règles d'usage loyal."
     }
   },
   "Invited": {

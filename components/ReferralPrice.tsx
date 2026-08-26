@@ -15,12 +15,16 @@ import {
 export function ReferralPrice({
   price,
   suffix,
+  tier,
 }: {
   price: string;
   suffix: string;
+  /** Which plan this card is for. The referee offer is a first-month price
+   *  per plan, so each card resolves its own coupon. */
+  tier: string;
 }) {
   const t = useTranslations("Invited");
-  const { pending, discount } = useReferralDiscount();
+  const { pending, discount } = useReferralDiscount(tier);
   const discounted = pending ? applyDiscount(price, discount) : null;
 
   // A `once` coupon is the normal case, so the struck-through price must not
@@ -50,15 +54,15 @@ export function ReferralPrice({
 
   return (
     <p className="mt-6 text-4xl font-bold">
-        <span className="mr-2 text-2xl font-semibold text-zinc-400 line-through dark:text-zinc-500">
-          {price}
-        </span>
-        <span className="text-emerald-600 dark:text-emerald-400">
-          {discounted}
-        </span>
-        <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
-          {suffix}
-        </span>
+      <span className="mr-2 text-2xl font-semibold text-zinc-400 line-through dark:text-zinc-500">
+        {price}
+      </span>
+      <span className="text-emerald-600 dark:text-emerald-400">
+        {discounted}
+      </span>
+      <span className="text-base font-normal text-zinc-500 dark:text-zinc-400">
+        {suffix}
+      </span>
       {durationNote && (
         <span className="mt-1 block text-xs font-normal text-emerald-600 dark:text-emerald-400">
           {durationNote}
