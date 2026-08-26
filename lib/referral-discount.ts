@@ -5,8 +5,12 @@ import { createBrowserClient } from "@/lib/supabase/client";
 
 export type ReferralDiscount = {
   percentOff: number | null;
-  amountOff: number | null; // minor units (pence/cents)
+  amountOff: number | null; // minor units (pence/cents), primary currency
   currency: string | null;
+  // amount_off per currency for multi-currency coupons, keyed by lowercase
+  // code. Absent on percent coupons and on responses cached from before the
+  // endpoint exposed it.
+  amountOffByCurrency?: Record<string, number> | null;
   duration: "once" | "repeating" | "forever";
   durationInMonths: number | null;
 };
@@ -15,6 +19,14 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   gbp: "£",
   usd: "$",
   eur: "€",
+};
+
+// Reverse map: the symbol on a display price identifies its currency, so a
+// multi-currency coupon can resolve the matching amount_off.
+const SYMBOL_CURRENCIES: Record<string, string> = {
+  "£": "gbp",
+  $: "usd",
+  "€": "eur",
 };
 
 /** How long the coupon lasts, as a short label for the price card. A `once`
@@ -137,15 +149,25 @@ export function applyDiscount(
   if (discount.percentOff != null) {
     discounted = amount * (1 - discount.percentOff / 100);
   } else if (discount.amountOff != null) {
-    // An amount_off is only meaningful in its own currency. Refuse whenever we
-    // cannot PROVE the currencies match - including a currency missing from the
-    // map above, which previously fell through the `expected &&` guard and
-    // subtracted e.g. 5 CAD from a GBP price.
-    const expected = discount.currency
-      ? CURRENCY_SYMBOLS[discount.currency.toLowerCase()]
-      : undefined;
-    if (!expected || !symbol.trim() || expected !== symbol.trim()) return null;
-    discounted = amount - discount.amountOff / 100;
+    // An amount_off is only meaningful in its own currency. The page price's
+    // symbol identifies which currency is being displayed; a multi-currency
+    // coupon resolves that currency's own amount_off, a single-currency one
+    // must match its primary currency exactly. Refuse whenever we cannot
+    // PROVE the match - including a currency missing from the maps above,
+    // which previously fell through the `expected &&` guard and subtracted
+    // e.g. 5 CAD from a GBP price.
+    const pageCurrency = SYMBOL_CURRENCIES[symbol.trim()];
+    if (!pageCurrency) return null;
+    const perCurrency = discount.amountOffByCurrency?.[pageCurrency];
+    if (perCurrency != null) {
+      discounted = amount - perCurrency / 100;
+    } else {
+      const expected = discount.currency
+        ? CURRENCY_SYMBOLS[discount.currency.toLowerCase()]
+        : undefined;
+      if (!expected || expected !== symbol.trim()) return null;
+      discounted = amount - discount.amountOff / 100;
+    }
   } else {
     return null;
   }

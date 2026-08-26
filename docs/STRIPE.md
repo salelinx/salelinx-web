@@ -134,11 +134,19 @@ Two Stripe features back the referral program (`docs/REFERRALS.md`):
   degrades to the old shared coupon rather than to no discount. Unset it once
   all three per-tier secrets are live.
 
-  **`amount_off` is currency-specific.** These coupons are GBP, matching the
-  hardcoded `£` prices in `PricingSection`. If tier prices ever go
-  multi-currency, either add a currency option per coupon or switch to
-  `percent_off`: `applyDiscount` deliberately refuses to render an `amount_off`
-  against a price in another currency rather than show a wrong number.
+  **`amount_off` is currency-specific.** Prices and referee coupons are
+  multi-currency (GBP primary, EUR + USD `currency_options` on both the three
+  live prices and the three referee coupons; the site's display copies live in
+  `lib/pricing.ts` and MUST mirror the Stripe amounts). Checkout picks the
+  customer's currency by location; the pricing page approximates the same pick
+  server-side (`resolveCurrency`: `x-vercel-ip-country`, locale fallback).
+  `get-referral-discount` returns `amountOffByCurrency` from the coupon's
+  expanded `currency_options`, and `applyDiscount` resolves the amount by the
+  displayed price's symbol - it still deliberately refuses to render an
+  `amount_off` against a currency it cannot match rather than show a wrong
+  number. Adding a currency means: add it to the price and coupon
+  `currency_options` in Stripe, `lib/pricing.ts`, and the symbol maps in
+  `lib/referral-discount.ts`.
   **`discounts` and `allow_promotion_codes` are mutually exclusive** on a
   Checkout Session - the function drops the promo-code field for referred
   checkouts, so a referred user cannot also enter a promo code.

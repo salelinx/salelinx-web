@@ -44,6 +44,10 @@ type Terms = {
   percentOff: number | null;
   amountOff: number | null;
   currency: string | null;
+  // amount_off per currency from the coupon's currency_options (multi-currency
+  // coupons). Keyed by lowercase code ("gbp", "eur", "usd"), primary currency
+  // included. Null for percent coupons and single-currency coupons.
+  amountOffByCurrency: Record<string, number> | null;
   duration: string;
   durationInMonths: number | null;
 };
@@ -60,12 +64,31 @@ async function loadTerms(
 
   let terms: Terms | null = null;
   try {
-    const coupon = await stripe.coupons.retrieve(id);
+    // currency_options is only returned when expanded.
+    const coupon = await stripe.coupons.retrieve(id, {
+      expand: ["currency_options"],
+    });
     if (coupon.valid) {
+      let amountOffByCurrency: Record<string, number> | null = null;
+      const opts = coupon.currency_options as
+        | Record<string, { amount_off?: number | null }>
+        | undefined;
+      if (coupon.amount_off != null && opts) {
+        amountOffByCurrency = {};
+        for (const [code, opt] of Object.entries(opts)) {
+          if (opt?.amount_off != null) {
+            amountOffByCurrency[code.toLowerCase()] = opt.amount_off;
+          }
+        }
+        if (Object.keys(amountOffByCurrency).length === 0) {
+          amountOffByCurrency = null;
+        }
+      }
       terms = {
         percentOff: coupon.percent_off ?? null,
         amountOff: coupon.amount_off ?? null,
         currency: coupon.currency ?? null,
+        amountOffByCurrency,
         duration: coupon.duration, // 'once' | 'repeating' | 'forever'
         durationInMonths: coupon.duration_in_months ?? null,
       };
