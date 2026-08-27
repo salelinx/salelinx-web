@@ -59,7 +59,11 @@ export async function generateMetadata({
       googleBot: {
         index: true,
         follow: true,
-        'max-image-preview': 'large',
+        // No thumbnail beside the search result. Google was picking up og.png
+        // (the bare logo) and showing it large, which read as clip art next to
+        // the listing. Social previews are unaffected: Facebook, X, Slack and
+        // WhatsApp read og:image directly and ignore robots directives.
+        'max-image-preview': 'none',
         'max-snippet': -1,
       },
     },

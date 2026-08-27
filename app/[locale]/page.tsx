@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { SITE_NAME, SITE_URL, absoluteUrl, pageMetadata } from '@/lib/site';
+import {
+  CHROME_WEB_STORE_URL,
+  SITE_NAME,
+  SITE_URL,
+  absoluteUrl,
+  pageMetadata,
+} from '@/lib/site';
+import { TIER_PRICES } from '@/lib/pricing';
 import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HowItWorks } from '@/components/home/HowItWorks';
@@ -55,11 +62,16 @@ export default async function Home({
         '@type': 'Organization',
         '@id': orgId,
         name: SITE_NAME,
+        legalName: 'SALELINX LTD',
         alternateName: brandAliases,
         url: SITE_URL,
         logo: `${SITE_URL}/salelinx-icon.png`,
         image: `${SITE_URL}/og.png`,
         email: 'hello@salelinx.com',
+        // The store listing is the same entity as this site. Without sameAs
+        // they are two unconnected things that happen to share a name, and
+        // neither inherits the other's signals.
+        sameAs: [CHROME_WEB_STORE_URL],
       },
       {
         '@type': 'WebSite',
@@ -71,10 +83,27 @@ export default async function Home({
       },
       {
         '@type': 'SoftwareApplication',
+        '@id': `${SITE_URL}/#software`,
         name: SITE_NAME,
         alternateName: brandAliases,
         description: tLayout('metaDescription'),
         url: absoluteUrl(locale, '/'),
+        // Where it is installed from. This is the field that says "browser
+        // extension, get it here" rather than leaving engines to infer a
+        // product page, and it points at the same URL as Organization.sameAs.
+        installUrl: CHROME_WEB_STORE_URL,
+        downloadUrl: CHROME_WEB_STORE_URL,
+        applicationSubCategory: 'Browser Extension',
+        browserRequirements: 'Requires Google Chrome',
+        inLanguage: ['en', 'fr', 'es', 'de'],
+        featureList: [
+          'Crosslist between Depop and Vinted',
+          'Bulk relist and refresh listings',
+          'Scheduled price drops',
+          'Restock tracking across both marketplaces',
+          'Send and auto-accept offers',
+          'Shipping labels merged into one PDF',
+        ],
         // Name the brand image explicitly. Without this the only images Google
         // could associate with the page were the product photos in the hero
         // preview, so it picked one (the star beanie) as the search thumbnail.
@@ -85,8 +114,13 @@ export default async function Home({
         offers: {
           '@type': 'AggregateOffer',
           priceCurrency: 'GBP',
-          lowPrice: '7.99',
-          highPrice: '24.99',
+          // Read from the price table rather than repeated here: a hardcoded
+          // copy silently goes stale the first time pricing changes, and stale
+          // price markup is worse than none.
+          lowPrice: TIER_PRICES.starter.gbp.replace(/[^0-9.]/g, ''),
+          highPrice: TIER_PRICES.business.gbp.replace(/[^0-9.]/g, ''),
+          offerCount: 3,
+          url: absoluteUrl(locale, '/features'),
         },
       },
     ],
