@@ -3,12 +3,17 @@ import { getTierConfigs } from "@/lib/supabase/tier-config";
 import { currentPeriodKeys } from "@/lib/admin/period";
 import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
 import { usageSource, webCounterLimit } from "@/lib/admin/usage-sources";
+import { EXTENSION_FEATURES } from "@/lib/admin/extension-features";
 import type {
   AdminUsageRow,
   AdminUserRow,
   AdminSubscriptionRow,
 } from "@/lib/types/admin";
 import type { UsageTableRow } from "@/components/admin/usage/AdminUsageTable";
+import type {
+  UserUsageFeatureRow,
+  UserUsageGroup,
+} from "@/components/admin/usage/AdminUserUsageGroups";
 import type { UsageSource } from "@/lib/admin/usage-sources";
 
 // Shared loader for the two usage modules. Both read the SAME usage_counters
@@ -87,4 +92,71 @@ export async function loadUsageRows(source: UsageSource): Promise<{
   });
 
   return { rows, periodLabel: `${month} / ${day}` };
+}
+
+// Grouped loader for the Extension usage page: one entry per user, and inside
+// it one row per feature in the FULL extension roster (zero-count rows
+// included, so an unused feature reads as "0" rather than being invisible).
+// Counters the roster does not know about yet are appended after it, so a new
+// extension counter still shows up before this file learns its label.
+export async function loadExtensionUsageByUser(): Promise<{
+  groups: UserUsageGroup[];
+  periodLabel: string;
+}> {
+  const { rows, periodLabel } = await loadUsageRows("extension");
+
+  // A feature can in theory surface under both the month and day period keys;
+  // sum them so each (user, feature) renders once.
+  const byUser = new Map<string, Map<string, UsageTableRow[]>>();
+  for (const r of rows) {
+    const features = byUser.get(r.user_id) ?? new Map<string, UsageTableRow[]>();
+    const list = features.get(r.feature) ?? [];
+    list.push(r);
+    features.set(r.feature, list);
+    byUser.set(r.user_id, features);
+  }
+
+  const rosterOrder = EXTENSION_FEATURES.map((f) => f.counter);
+
+  const groups: UserUsageGroup[] = Array.from(byUser.entries()).map(
+    ([userId, features]) => {
+      const anyRow = features.values().next().value![0];
+
+      const featureRows: UserUsageFeatureRow[] = [];
+      const emit = (counter: string) => {
+        const forFeature = features.get(counter) ?? [];
+        const count = forFeature.reduce((sum, r) => sum + r.count, 0);
+        // The cap was resolved server-side on whichever row exists; a
+        // zero-count roster feature has no row, and only the five metered
+        // verbs have caps anyway, so null is correct for those.
+        const cap = forFeature[0]?.cap ?? null;
+        featureRows.push({
+          feature: counter,
+          count,
+          cap,
+          percent: percentOfCap(count, cap),
+        });
+      };
+      for (const counter of rosterOrder) emit(counter);
+      for (const counter of Array.from(features.keys()).sort()) {
+        if (!rosterOrder.includes(counter)) emit(counter);
+      }
+
+      return {
+        user_id: userId,
+        email: anyRow.email,
+        tier_id: anyRow.tier_id,
+        features: featureRows,
+        totalCount: featureRows.reduce((sum, f) => sum + f.count, 0),
+        maxPercent: featureRows.reduce<number | null>(
+          (max, f) =>
+            f.percent === null ? max : Math.max(max ?? 0, f.percent),
+          null,
+        ),
+      };
+    },
+  );
+
+  groups.sort((a, b) => b.totalCount - a.totalCount);
+  return { groups, periodLabel };
 }
