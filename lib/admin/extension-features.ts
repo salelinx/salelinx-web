@@ -7,6 +7,12 @@
 // records purely so the admin console can see which features get used. Keep
 // this list in step with the extension's recordFeatureUse call sites
 // (salelinx-app: src/entitlements/usage-tracking.ts).
+//
+// Deliberately absent, so a future reader does not read them as a gap: the
+// listing enricher and the cloud-sync flush. Both re-run in the background on
+// their own schedule, so a per-run counter would measure the scheduler rather
+// than the user. The user-initiated half of cloud sync IS here, as cloud_save
+// (a listing turned on) and cloud_update (an explicit "Update Cloud" re-push).
 export const EXTENSION_FEATURES: { counter: string; label: string }[] = [
   { counter: "crosslist", label: "Crosslist" },
   { counter: "relist", label: "Relist" },
@@ -32,6 +38,10 @@ export const EXTENSION_FEATURES: { counter: string; label: string }[] = [
   { counter: "listing_duplicate", label: "Bulk duplicates" },
   { counter: "listing_publish", label: "Drafts bulk-published" },
   { counter: "relist_sold", label: "Sold items bulk-relisted" },
+  { counter: "photo_edit", label: "Photos edited" },
+  { counter: "cloud_save", label: "Listings saved to cloud" },
+  { counter: "cloud_update", label: "Cloud copies refreshed" },
+  { counter: "order_cancel", label: "Orders cancelled" },
 ];
 
 const LABELS: Record<string, string> = Object.fromEntries(
