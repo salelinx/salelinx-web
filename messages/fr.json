@@ -711,7 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
-            "sceneTitle": "Restocker multiplateforme",
+            "sceneTitle": "Restocker garde le stock synchronisé",
             "label": "Plus jamais de double vente",
             "detail": "Vendez un article sur une marketplace et SaleLinx retire l'annonce correspondante de l'autre, automatiquement."
           }
@@ -726,6 +726,7 @@
       "body": "Chaque forfait livre la même extension. Les niveaux supérieurs augmentent les plafonds mensuels et débloquent les automatisations plus lourdes comme les offres automatiques et le restocker."
     },
     "popular": "Populaire",
+    "whatsIncluded": "Ce qui est inclus",
     "installExtension": "Installer l'extension",
     "comingSoon": "Bientôt disponible",
     "perMonth": "/mois",

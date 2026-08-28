@@ -1,38 +1,72 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState, useTransition } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/navigation';
-import { LOCALES, type Locale } from '@/lib/i18n/locales';
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { LOCALES, type Locale } from "@/lib/i18n/locales";
 
-export function LanguageSwitcher() {
+/**
+ * `triggerClassName` exists so the mobile header can size this to match the
+ * menu button beside it. The two used to be 28px and 36px, set independently in
+ * two files, which is why they never lined up.
+ */
+export function LanguageSwitcher({
+  triggerClassName,
+}: { triggerClassName?: string } = {}) {
   const locale = useLocale() as Locale;
-  const t = useTranslations('LanguageSwitcher');
+  const t = useTranslations("LanguageSwitcher");
   const pathname = usePathname();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
+  // Held open for the length of the exit animation, same as the mobile menu.
+  // Must match the .popover-pop.is-closing duration in globals.css.
+  const [closing, setClosing] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<number | null>(null);
+  const EXIT_MS = 150;
+
+  const close = useCallback(() => {
+    setClosing((already) => {
+      if (already) return already;
+      closeTimer.current = window.setTimeout(() => {
+        setOpen(false);
+        setClosing(false);
+        closeTimer.current = null;
+      }, EXIT_MS);
+      return true;
+    });
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    },
+    [],
+  );
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || closing) return;
     function onDocClick(e: MouseEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(e.target as Node)) close();
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") close();
     }
-    document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [open, closing, close]);
 
   function select(next: Locale) {
-    setOpen(false);
+    close();
     if (next === locale) return;
+    // Navigation is not held behind the 150ms exit. The list animates away
+    // while the route change is already in flight, so picking a language still
+    // feels immediate.
     startTransition(() => {
       router.replace(pathname, { locale: next });
     });
@@ -40,14 +74,14 @@ export function LanguageSwitcher() {
 
   const nameKey: Record<
     Locale,
-    'english' | 'french' | 'spanish' | 'german' | 'arabic' | 'chinese'
+    "english" | "french" | "spanish" | "german" | "arabic" | "chinese"
   > = {
-    en: 'english',
-    fr: 'french',
-    es: 'spanish',
-    de: 'german',
-    ar: 'arabic',
-    zh: 'chinese',
+    en: "english",
+    fr: "french",
+    es: "spanish",
+    de: "german",
+    ar: "arabic",
+    zh: "chinese",
   };
 
   return (
@@ -56,10 +90,10 @@ export function LanguageSwitcher() {
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={t('label')}
+        aria-label={t("label")}
         disabled={isPending}
-        onClick={() => setOpen((v) => !v)}
-        className="flex h-7 w-7 items-center justify-center rounded-full border border-black/10 transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:hover:bg-white/5"
+        onClick={() => (open ? close() : setOpen(true))}
+        className={`flex items-center justify-center rounded-full border border-black/10 transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/15 dark:hover:bg-white/5 ${triggerClassName ?? "h-7 w-7"}`}
       >
         <Flag code={locale} className="h-4 w-4" />
       </button>
@@ -67,7 +101,7 @@ export function LanguageSwitcher() {
       {open ? (
         <ul
           role="listbox"
-          className="absolute end-0 top-full z-20 mt-2 min-w-[10rem] overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-zinc-950"
+          className={`popover-pop${closing ? " is-closing" : ""} absolute end-0 top-full z-20 mt-2 min-w-[10rem] origin-top-right overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-zinc-950`}
         >
           {LOCALES.map((code) => {
             const active = code === locale;
@@ -79,7 +113,7 @@ export function LanguageSwitcher() {
                   aria-selected={active}
                   onClick={() => select(code)}
                   className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-start text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${
-                    active ? 'font-medium' : 'text-zinc-700 dark:text-zinc-300'
+                    active ? "font-medium" : "text-zinc-700 dark:text-zinc-300"
                   }`}
                 >
                   <span className="flex items-center gap-2.5">
@@ -105,10 +139,10 @@ export function LanguageSwitcher() {
    across more than twenty countries, so any single flag would be wrong for
    most of the people who read it. */
 function Flag({ code, className }: { code: Locale; className?: string }) {
-  if (code === 'ar') {
+  if (code === "ar") {
     return (
       <span
-        className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-[0.6rem] font-semibold leading-none text-white ring-1 ring-black/10 dark:bg-white dark:text-zinc-900 dark:ring-white/20 ${className ?? ''}`}
+        className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-900 text-[0.6rem] font-semibold leading-none text-white ring-1 ring-black/10 dark:bg-white dark:text-zinc-900 dark:ring-white/20 ${className ?? ""}`}
         aria-hidden
       >
         ع
@@ -118,7 +152,7 @@ function Flag({ code, className }: { code: Locale; className?: string }) {
 
   return (
     <span
-      className={`inline-block shrink-0 overflow-hidden rounded-full ring-1 ring-black/10 dark:ring-white/20 ${className ?? ''}`}
+      className={`inline-block shrink-0 overflow-hidden rounded-full ring-1 ring-black/10 dark:ring-white/20 ${className ?? ""}`}
       aria-hidden
     >
       <svg
@@ -127,7 +161,7 @@ function Flag({ code, className }: { code: Locale; className?: string }) {
         className="h-full w-full"
         aria-hidden
       >
-        {code === 'zh' ? (
+        {code === "zh" ? (
           <>
             <rect width="30" height="20" fill="#DE2910" />
             <g fill="#FFDE00">
@@ -138,7 +172,7 @@ function Flag({ code, className }: { code: Locale; className?: string }) {
               <path d="m10.2 8.9.35 1.08-.92-.67h1.14l-.92.67z" />
             </g>
           </>
-        ) : code === 'en' ? (
+        ) : code === "en" ? (
           <>
             <rect width="30" height="20" fill="#012169" />
             <path d="M0 0 30 20M30 0 0 20" stroke="#ffffff" strokeWidth="4" />
@@ -146,13 +180,13 @@ function Flag({ code, className }: { code: Locale; className?: string }) {
             <path d="M15 0v20M0 10h30" stroke="#ffffff" strokeWidth="6.5" />
             <path d="M15 0v20M0 10h30" stroke="#C8102E" strokeWidth="4" />
           </>
-        ) : code === 'fr' ? (
+        ) : code === "fr" ? (
           <>
             <rect width="10" height="20" fill="#002395" />
             <rect x="10" width="10" height="20" fill="#ffffff" />
             <rect x="20" width="10" height="20" fill="#ED2939" />
           </>
-        ) : code === 'es' ? (
+        ) : code === "es" ? (
           <>
             <rect width="30" height="20" fill="#AA151B" />
             <rect y="5" width="30" height="10" fill="#F1BF00" />

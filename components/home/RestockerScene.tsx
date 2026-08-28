@@ -1,8 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
-import { BrandWordmark } from '@/components/BrandWordmark';
-import { ProductImage } from './ProductImage';
+import {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
+import { BrandWordmark } from "@/components/BrandWordmark";
+import { ProductImage } from "./ProductImage";
 
 /**
  * Restocker scene.
@@ -22,7 +27,7 @@ const CYCLE = 62; // 6.2s per sale
 function useTick(intervalMs: number): number {
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => setTick((t) => t + 1), intervalMs);
     return () => window.clearInterval(id);
   }, [intervalMs]);
@@ -32,94 +37,47 @@ function useTick(intervalMs: number): number {
 function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(
     (cb) => {
-      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-      mq.addEventListener('change', cb);
-      return () => mq.removeEventListener('change', cb);
+      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
     },
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     () => false,
   );
 }
 
 const START_STOCK = 3;
 
-function ShopCard({
-  brand,
-  stock,
-  justSold,
-  syncing,
-}: {
-  brand: 'depop' | 'vinted';
-  stock: number;
-  justSold: boolean;
-  syncing: boolean;
-}) {
-  const soldOut = stock === 0;
+/**
+ * The stock count as a rolling column rather than a swapped digit.
+ *
+ * A number that simply changed gave no cue which column had moved, so the
+ * one-beat lag between the two shops - the thing the feature is - went by
+ * unread. Rolling it draws the eye to the column that is moving, at the moment
+ * it moves.
+ *
+ * The offset is in `em`, not a percentage: a percentage translateY resolves
+ * against the whole column's height (every digit), so it would scroll four
+ * rows at a time. Each row is exactly 1em, so `idx * -1em` lands on the digit.
+ */
+function StockDigits({ stock, max }: { stock: number; max: number }) {
+  const idx = max - stock;
   return (
-    <div
-      className={`relative flex flex-col gap-3 rounded-xl border bg-white p-4 transition-colors duration-300 dark:bg-white/[0.02] ${
-        justSold
-          ? 'border-emerald-500/50 bg-emerald-500/[0.04] dark:border-emerald-400/50'
-          : syncing
-            ? 'border-emerald-500/30 dark:border-emerald-400/30'
-            : 'border-black/[0.08] dark:border-white/10'
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <BrandWordmark
-          brand={brand}
-          variant="wordmark"
-          height={brand === 'depop' ? '0.85em' : '1em'}
-        />
-        {justSold ? (
-          <span className="rounded-full bg-emerald-500/15 px-2 py-[2px] font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-emerald-700 dark:text-emerald-300">
-            Sold
-          </span>
-        ) : null}
-      </div>
-
-      <div className="flex items-center gap-3">
-        <ProductImage
-          type="tee"
-          hue={220}
-          src="/products/star-beanie.jpg"
-          className={`size-12 flex-shrink-0 rounded-md transition-opacity duration-500 ${
-            soldOut ? 'opacity-40' : 'opacity-100'
-          }`}
-        />
-        <div className="min-w-0">
-          <div className="truncate text-[13px] font-medium text-zinc-900 dark:text-zinc-100">
-            Star beanie
-          </div>
-          <div className="font-mono text-[10px] text-zinc-600 dark:text-zinc-400">GBP 22.00</div>
-        </div>
-      </div>
-
-      {/* The number that matters. Both cards hold the same value at rest, so
-          the sync is legible without reading any label. */}
-      <div
-        className={`flex items-baseline gap-1.5 rounded-lg px-3 py-2 transition-colors duration-300 ${
-          soldOut
-            ? 'bg-zinc-900/[0.04] dark:bg-white/[0.06]'
-            : 'bg-emerald-500/[0.08]'
-        }`}
-      >
-        {soldOut ? (
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-600 dark:text-zinc-400">
-            Off sale
-          </span>
-        ) : (
-          <>
-            <span className="font-mono text-2xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
-              {stock}
+    <>
+      <span className="sr-only">{stock}</span>
+      <span aria-hidden className="block h-[1em] overflow-hidden">
+        <span
+          className="flex flex-col transition-transform duration-[520ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+          style={{ transform: `translateY(calc(${idx} * -1em))` }}
+        >
+          {Array.from({ length: max + 1 }, (_, i) => max - i).map((n) => (
+            <span key={n} className="block h-[1em] leading-[1em]">
+              {n}
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-zinc-600 dark:text-zinc-400">
-              in stock
-            </span>
-          </>
-        )}
-      </div>
-    </div>
+          ))}
+        </span>
+      </span>
+    </>
   );
 }
 
@@ -133,157 +91,205 @@ export function RestockerScene() {
   const step = cycle % (START_STOCK + 1);
   const stockBefore = START_STOCK - step;
   // Sales alternate between the two shops so neither reads as "the main one".
-  const soldOn: 'depop' | 'vinted' = step % 2 === 0 ? 'depop' : 'vinted';
+  const soldOn: "depop" | "vinted" = step % 2 === 0 ? "depop" : "vinted";
 
   // Phases within a cycle: rest, the sale landing, then the other shop
   // catching up. Reduced motion holds the settled state, which is the frame
   // that carries the story anyway.
-  type Phase = 'rest' | 'sold' | 'synced';
+  type Phase = "rest" | "sold" | "synced";
   const phase: Phase = reduced
-    ? 'synced'
+    ? "synced"
     : step === 0 && cycle > 0 && inCycle < 14
-      ? 'rest' // the restock beat, before the next sale
+      ? "rest" // the restock beat, before the next sale
       : inCycle < 12
-        ? 'rest'
+        ? "rest"
         : inCycle < 26
-          ? 'sold'
-          : 'synced';
+          ? "sold"
+          : "synced";
 
   const soldStock = Math.max(0, stockBefore - 1);
-  const sourceStock = phase === 'rest' ? stockBefore : soldStock;
+  const sourceStock = phase === "rest" ? stockBefore : soldStock;
   // The whole point: the other shop lags by a beat, then matches.
-  const otherStock = phase === 'synced' ? soldStock : stockBefore;
+  const otherStock = phase === "synced" ? soldStock : stockBefore;
 
-  const depopStock = soldOn === 'depop' ? sourceStock : otherStock;
-  const vintedStock = soldOn === 'vinted' ? sourceStock : otherStock;
+  const depopStock = soldOn === "depop" ? sourceStock : otherStock;
+  const vintedStock = soldOn === "vinted" ? sourceStock : otherStock;
 
   const status =
-    phase === 'rest'
-      ? 'Watching both shops'
-      : phase === 'sold'
-        ? `Sold on ${soldOn === 'depop' ? 'Depop' : 'Vinted'}`
+    phase === "rest"
+      ? "Watching both shops"
+      : phase === "sold"
+        ? `Sold on ${soldOn === "depop" ? "Depop" : "Vinted"}`
         : soldStock === 0
-          ? `Out of stock, removed from ${soldOn === 'depop' ? 'Vinted' : 'Depop'}`
-          : `${soldOn === 'depop' ? 'Vinted' : 'Depop'} stock updated to ${soldStock}`;
+          ? `Out of stock, removed from ${soldOn === "depop" ? "Vinted" : "Depop"}`
+          : `${soldOn === "depop" ? "Vinted" : "Depop"} stock updated to ${soldStock}`;
 
-  const buyer = soldOn === 'depop' ? 'kai_pop' : 'lila_resale';
+  // One item, two shops, one stock count. The old panel told this with a sale
+  // "event" card, two mocked shop cards, an @handle, a price, a status banner
+  // and a Sale pill — invented app chrome around a very simple idea. What
+  // actually matters is that both numbers end up the same, so the numbers are
+  // the panel.
+  const total = START_STOCK;
+  const sold = total - Math.min(depopStock, vintedStock);
+  const progress = (sold / total) * 100;
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* The event that starts the chain, above the two shops it affects, so
-          the story reads top to bottom: a sale lands here, and the stock below
-          follows. Without it the two cards just changed numbers on their own. */}
-      <div
-        className={`flex items-center gap-3 rounded-xl border px-3.5 py-3 transition-colors duration-300 ${
-          phase === 'rest'
-            ? 'border-black/[0.08] bg-white dark:border-white/10 dark:bg-white/[0.02]'
-            : 'border-emerald-500/40 bg-emerald-500/[0.05] dark:border-emerald-400/40'
-        }`}
+    <div className="cascade-list panel-fluid flex flex-col items-center gap-7 lg:gap-9">
+      <figure
+        className="cascade-item m-0 flex flex-col items-center gap-4"
+        style={{ "--stagger-delay": "0ms" } as CSSProperties}
       >
-        <span className="relative inline-flex size-2 flex-shrink-0">
-          {phase !== 'rest' ? (
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-          ) : null}
-          <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-        </span>
+        {/* Not the beanie: that photo is the centrepiece of the crosslist
+            scene a few segments earlier, so the same item was carrying two
+            scenes in a row. The hue is the placeholder tint if the file fails
+            to load.
 
+            The frame is 5:2, not square, even though the file is 1254x1254:
+            the watch itself is only 419px tall in there, with ~400px of empty
+            margin above and below. A square box spent two thirds of its height
+            rendering nothing, which is what made the watch look small. At 5:2
+            object-cover crops to the middle 502px band - comfortably clear of
+            the product at 403..822 - so the same box width renders a much
+            bigger watch. */}
         <ProductImage
           type="tee"
-          hue={220}
-          src="/products/star-beanie.jpg"
-          className="size-9 flex-shrink-0 rounded-md"
+          hue={210}
+          src="/watch.png"
+          imgClassName="restock-idle"
+          noBackdrop
+          className="aspect-[5/2] w-72 sm:w-80 lg:w-[30rem]"
         />
+      </figure>
 
-        <div className="min-w-0 flex-1">
-          {phase === 'rest' ? (
-            <>
-              <div className="text-[12.5px] font-medium text-zinc-800 dark:text-zinc-200">
-                Watching both shops
-              </div>
-              <div className="font-mono text-[10px] text-zinc-600 dark:text-zinc-400">
-                Star beanie, listed on both
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-1.5 text-[12.5px] text-zinc-800 dark:text-zinc-200">
-                <span className="font-medium">@{buyer}</span>
-                <span className="text-zinc-600 dark:text-zinc-400">bought</span>
-                <span className="font-medium">Star beanie</span>
-              </div>
-              <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-600 dark:text-zinc-400">
-                on
-                <BrandWordmark
-                  brand={soldOn}
-                  variant="wordmark"
-                  height={soldOn === 'depop' ? '0.8em' : '0.95em'}
-                />
-                <span>· just now</span>
-              </div>
-            </>
-          )}
-        </div>
-
-        {phase !== 'rest' ? (
-          <span className="flex-shrink-0 rounded-full bg-emerald-500/15 px-2 py-[3px] font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-emerald-700 dark:text-emerald-300">
-            Sale
-          </span>
-        ) : null}
-      </div>
-
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <ShopCard
-          brand="depop"
-          stock={depopStock}
-          justSold={phase === 'sold' && soldOn === 'depop'}
-          syncing={phase === 'synced'}
-        />
-
-        {/* Sync indicator. Pulses while the second shop is catching up. */}
-        <div className="flex flex-col items-center gap-1.5">
+      {/* The two counts, side by side. The one the sale landed on drops first
+          and the other follows a beat later — that lag IS the feature, so it
+          is the only thing animating. */}
+      <div
+        className="cascade-item relative grid w-full max-w-[300px] grid-cols-2 gap-4 lg:max-w-[420px]"
+        style={{ "--stagger-delay": "120ms" } as CSSProperties}
+      >
+        {/* The sync itself, crossing from the column that sold to the one that
+            has to catch up. It runs only through `sold`, which is exactly the
+            window the second shop is still showing the stale count, so it
+            lands as that number rolls. Keyed by cycle so the animation
+            restarts on every sale rather than playing once. */}
+        {phase === "sold" && !reduced ? (
           <span
-            className={`flex size-9 items-center justify-center rounded-full border transition-colors duration-300 ${
-              phase === 'sold'
-                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                : 'border-black/[0.08] text-zinc-400 dark:border-white/10 dark:text-zinc-600'
+            key={`${cycle}-${soldOn}`}
+            aria-hidden
+            className={`restock-pulse pointer-events-none absolute top-[52%] z-10 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.18),0_0_12px_2px_rgba(16,185,129,0.5)] dark:bg-emerald-400 ${
+              soldOn === "vinted" ? "restock-pulse-ltr" : "restock-pulse-rtl"
             }`}
-          >
-            <svg viewBox="0 0 16 16" className="size-4" fill="none" aria-hidden="true">
-              <path
-                d="M2 6h9L8.5 3.5M14 10H5l2.5 2.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-zinc-400">
-            {phase === 'sold' ? 'syncing' : 'in sync'}
-          </span>
-        </div>
-
-        <ShopCard
-          brand="vinted"
-          stock={vintedStock}
-          justSold={phase === 'sold' && soldOn === 'vinted'}
-          syncing={phase === 'synced'}
-        />
+          />
+        ) : null}
+        {(
+          [
+            ["vinted", vintedStock],
+            ["depop", depopStock],
+          ] as const
+        ).map(([brand, stock]) => {
+          // Which side of the story this column is playing right now.
+          //
+          // The numbers alone never said which shop sold and which one
+          // followed — both just changed, a beat apart, and you had to catch
+          // the lag and read the status line at the bottom to work out what
+          // had happened. Naming it per column is what makes the mechanic
+          // legible: one says "sold here", the other says "matched" the
+          // moment it catches up.
+          const isSource = soldOn === brand;
+          // The beat where this shop is still advertising stock that has
+          // already gone. It is the oversell the feature exists to prevent,
+          // and until now nothing in the scene ever looked at risk - both
+          // numbers just drifted and then agreed. Holding it in red for the
+          // one beat before the sync arrives is what gives the catch-up
+          // something to be a relief from.
+          const atRisk = !isSource && phase === "sold";
+          // The at-risk beat is carried by the red strikethrough alone. A
+          // caption naming it as well was saying the same thing twice, and it
+          // was the longest label in the row, so it set the width of a slot
+          // every other caption then sat inside.
+          const caption =
+            phase === "rest"
+              ? ""
+              : isSource
+                ? "sold here"
+                : phase === "synced"
+                  ? stock === 0
+                    ? "removed"
+                    : "matched"
+                  : "";
+          const captionTone = isSource
+            ? "text-zinc-500 dark:text-zinc-400"
+            : "text-emerald-600 dark:text-emerald-400";
+          return (
+            <div key={brand} className="flex flex-col items-center gap-2">
+              {/* Fixed-height slot, centred. The two wordmarks are set at
+                  different heights (1em vs 1.25em) to look the same optical
+                  size, which left the two columns' logo rows a few pixels
+                  apart - so the numbers under them did not sit on one line. */}
+              <span className="flex h-5 items-center justify-center lg:h-6">
+                <BrandWordmark
+                  brand={brand}
+                  variant="wordmark"
+                  height={brand === "depop" ? "1em" : "1.25em"}
+                />
+              </span>
+              <span
+                className={`text-[34px] font-medium tabular-nums leading-none tracking-tight transition-colors duration-300 lg:text-[52px] ${
+                  atRisk
+                    ? "text-rose-600 line-through decoration-2 dark:text-rose-400"
+                    : stock === 0
+                      ? "text-zinc-300 dark:text-zinc-700"
+                      : "text-zinc-900 dark:text-zinc-100"
+                }`}
+              >
+                <StockDigits stock={stock} max={START_STOCK} />
+              </span>
+              {/* Fixed height and always rendered. An empty caption still holds
+                  its line, so the numbers above it never move as the labels
+                  come and go. */}
+              <span
+                aria-hidden
+                className={`h-4 font-mono text-[9px] uppercase tracking-[0.14em] transition-opacity duration-300 lg:text-[10px] ${captionTone} ${
+                  caption ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                {caption || "\u00a0"}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Status line, narrating what just happened in plain words. */}
-      <div className="flex items-center gap-2 rounded-lg border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.02]">
-        <span className="relative inline-flex size-1.5 flex-shrink-0">
-          {phase !== 'rest' ? (
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-          ) : null}
-          <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
-        </span>
-        <span className="truncate text-[11.5px] text-zinc-700 dark:text-zinc-300">
+      {/* Same progress line as the crosslist scene, so the two read as one
+          family: a bar that fills, and a few words naming what just happened. */}
+      <div className="cascade-item flex w-full max-w-[220px] flex-col items-center gap-2.5 lg:max-w-[300px]">
+        <div
+          className="h-[3px] w-full overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/10"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={total}
+          aria-valuenow={sold}
+          aria-label={status}
+        >
+          <div
+            className={`h-full rounded-full transition-[width,background-color] duration-500 ease-out ${
+              phase === "synced"
+                ? "bg-emerald-500 dark:bg-emerald-400"
+                : "bg-zinc-400 dark:bg-zinc-500"
+            }`}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <span
+          aria-hidden
+          className={`text-center font-mono text-[9px] uppercase tracking-[0.16em] transition-colors duration-300 lg:text-[10px] ${
+            phase === "synced"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-zinc-400 dark:text-zinc-500"
+          }`}
+        >
           {status}
-        </span>
-        <span className="ml-auto flex-shrink-0 font-mono text-[9px] uppercase tracking-[0.1em] text-emerald-600 dark:text-emerald-400">
-          0 oversold
         </span>
       </div>
     </div>

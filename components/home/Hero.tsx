@@ -1,9 +1,9 @@
-import { getTranslations } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
-import { Reveal } from '@/components/Reveal';
-import { BrandWordmark } from '@/components/BrandWordmark';
-import { InstallExtensionButton } from '@/components/InstallExtensionButton';
-import { RollingPhrase } from './RollingPhrase';
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { Reveal } from "@/components/Reveal";
+import { BrandWordmark } from "@/components/BrandWordmark";
+import { InstallExtensionButton } from "@/components/InstallExtensionButton";
+import { RollingPhrase } from "./RollingPhrase";
 
 // Sizes chosen so each wordmark's cap-height optically matches the
 // surrounding text. depop's viewBox is tight to letter bounds, so 0.85em
@@ -11,10 +11,20 @@ import { RollingPhrase } from './RollingPhrase';
 // of its (cropped) viewBox so we go slightly larger.
 const HERO_BRAND_TAGS = {
   depop: () => (
-    <BrandWordmark brand="depop" variant="wordmark" height="0.85em" className="mx-[0.06em]" />
+    <BrandWordmark
+      brand="depop"
+      variant="wordmark"
+      height="0.85em"
+      className="mx-[0.06em]"
+    />
   ),
   vinted: () => (
-    <BrandWordmark brand="vinted" variant="wordmark" height="1em" className="mx-[0.06em]" />
+    <BrandWordmark
+      brand="vinted"
+      variant="wordmark"
+      height="1em"
+      className="mx-[0.06em]"
+    />
   ),
 };
 
@@ -24,14 +34,21 @@ const EYEBROW_BRAND_TAGS = {
 };
 
 export async function Hero() {
-  const t = await getTranslations('Home');
+  const t = await getTranslations("Home");
 
   // The hero holds the viewport on its own. The headline is what the page
   // opens on, so it fills the screen below the header and centres in it,
   // rather than being trimmed to let the scroll section peek up from below.
   // 72px is the sticky header's height.
+  // 82svh, not a full screen.
+  //
+  // A full-height hero meant the first scene of the feature demo sat entirely
+  // below the fold, so nothing moved until you had scrolled a whole viewport
+  // and many visitors never got there. At 82 the crosslist scene peeks in at
+  // the bottom edge, which is enough to show the page has more to it and to
+  // make the first scroll land on something.
   return (
-    <section className="relative isolate flex min-h-[calc(100svh-72px)] flex-col items-center justify-center overflow-hidden">
+    <section className="relative isolate flex min-h-[calc(82svh-72px)] flex-col items-center justify-center overflow-hidden">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_1.5px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)]" />
       </div>
@@ -43,20 +60,22 @@ export async function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-            {t.rich('heroEyebrow', EYEBROW_BRAND_TAGS)}
+            {t.rich("heroEyebrow", EYEBROW_BRAND_TAGS)}
           </span>
         </Reveal>
 
         <Reveal delay={120}>
           <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
-            {t.rich('heroTitle', HERO_BRAND_TAGS)}
+            {t.rich("heroTitle", HERO_BRAND_TAGS)}
           </h1>
         </Reveal>
 
         <Reveal delay={220}>
           <p className="mt-6 max-w-xl text-balance text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-400">
-            {t.rich('heroSubtitle', {
-              word: () => <RollingPhrase words={t.raw('heroWords') as string[]} />,
+            {t.rich("heroSubtitle", {
+              word: () => (
+                <RollingPhrase words={t.raw("heroWords") as string[]} />
+              ),
             })}
           </p>
         </Reveal>
@@ -67,7 +86,7 @@ export async function Hero() {
               href="/auth/signup"
               className="group relative inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_10px_30px_-12px_rgba(0,0,0,0.45)] transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
             >
-              {t('ctaGetStarted')}
+              {t("ctaGetStarted")}
               <svg
                 width="14"
                 height="14"
@@ -86,7 +105,7 @@ export async function Hero() {
               </svg>
             </Link>
             <InstallExtensionButton
-              label={t('ctaAddToChrome')}
+              label={t("ctaAddToChrome")}
               className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-black/10 bg-white/70 px-5 py-2.5 text-sm font-medium text-zinc-900 backdrop-blur transition hover:border-black/20 hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-50 dark:hover:border-white/25 dark:hover:bg-white/[0.08]"
             />
           </div>

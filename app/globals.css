@@ -96,12 +96,16 @@ body {
    80px cells centred on the viewport means the 1280px (max-w-7xl) content
    container lands exactly on a guide at both edges: 1280 / 80 = 16. */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   z-index: -10;
   pointer-events: none;
-  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px);
+  background-image: linear-gradient(
+    to right,
+    var(--grid-line) 1px,
+    transparent 1px
+  );
   background-size: 80px 100%;
   background-position: center top;
   -webkit-mask-image: var(--guide-fade);
@@ -119,12 +123,16 @@ body::before {
 }
 
 .grid-rows::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-image: linear-gradient(
+    to bottom,
+    var(--grid-line) 1px,
+    transparent 1px
+  );
   background-size: 100% 80px;
   background-position: left bottom;
   background-repeat: repeat;
@@ -143,7 +151,11 @@ body::before {
 .dark body {
   background-color: #0a0a0d;
   /* Dark keeps the original dot texture; the grid reads too harsh on black. */
-  background-image: radial-gradient(circle at 1px 1px, var(--dot-color) 1px, transparent 1.5px);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--dot-color) 1px,
+    transparent 1.5px
+  );
   background-size: 22px 22px;
 }
 
@@ -152,14 +164,22 @@ body::before {
    any local CSS hot-reload quirks that previously dropped the multi-layer
    body background. Alphas pushed high so the glows read clearly. */
 .dark body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   z-index: -10;
   pointer-events: none;
   background:
-    radial-gradient(65vw 55vh at 10% -5%, rgba(16, 185, 129, 0.5), transparent 60%),
-    radial-gradient(60vw 55vh at 92% 105%, rgba(16, 185, 129, 0.5), transparent 60%),
+    radial-gradient(
+      65vw 55vh at 10% -5%,
+      rgba(16, 185, 129, 0.5),
+      transparent 60%
+    ),
+    radial-gradient(
+      60vw 55vh at 92% 105%,
+      rgba(16, 185, 129, 0.5),
+      transparent 60%
+    ),
     linear-gradient(135deg, #0a0a0d 0%, #131322 55%, #0a0a0d 100%);
   /* This pseudo carries the light theme's column guides and their fade mask.
      Dark reuses it for the corner glow, which must not be masked. */
@@ -345,8 +365,14 @@ body::before {
    Small, looped, settles between bounces so it reads as a hint rather than
    a distraction. */
 @keyframes heroPreviewArrowNudge {
-  0%, 60%, 100% { transform: translateY(0); }
-  30%           { transform: translateY(3px); }
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(3px);
+  }
 }
 
 .hero-preview-arrow {
@@ -412,21 +438,40 @@ body::before {
    smoothly pushes the existing rows below it down — the rest of the list
    doesn't snap into place. Pair with overflow:hidden on the row so the
    content inside doesn't overflow during the height ramp. */
+/* One follow row, fixed height. The list container can then be exactly
+   ROWS * this, which is what stops the counters below it from moving when a
+   row enters. Was `py-2.5` in the component, which left the row height at the
+   mercy of font metrics and made an exact container height impossible. */
+:root {
+  --hero-follow-row-h: 34px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --hero-follow-row-h: 38px;
+  }
+}
+
+.hero-follow-row {
+  height: var(--hero-follow-row-h);
+}
+
 @keyframes heroFollowRowEnter {
   0% {
     opacity: 0;
     max-height: 0;
-    margin-top: -6px; /* counter the flex gap so layout starts at 0 */
     transform: translateY(-4px);
   }
   100% {
     opacity: 1;
-    max-height: 60px;
-    margin-top: 0;
+    max-height: var(--hero-follow-row-h);
     transform: translateY(0);
   }
 }
 
+/* The negative margin-top that used to sit in the 0% frame countered a flex
+   gap the container does not have, so it yanked each row up 6px and let it
+   settle — more of the jitter this animation exists to hide. */
 .hero-follow-row-enter {
   overflow: hidden;
   animation: heroFollowRowEnter 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -500,5 +545,399 @@ body::before {
     padding-top: 8px !important;
     padding-bottom: 8px !important;
     margin-top: 0 !important;
+  }
+}
+
+/* ── Animated <details> disclosure ──────────────────────────────────────────
+   Used by the pricing cards' "What's included" on mobile.
+
+   Kept as a native <details> rather than React state, so the feature list still
+   opens if JavaScript never runs — which matters on a page where eleven
+   sections are already opacity:0 until hydration. The cost is that <details>
+   snaps open by default, because the browser hides its content with
+   content-visibility rather than by height.
+
+   ::details-content gives us that hidden box to animate, and interpolate-size
+   lets block-size transition to `auto` without hard-coding a max-height that
+   would either clip a long list or coast after a short one. content-visibility
+   needs allow-discrete so the content stays rendered for the length of the
+   close rather than vanishing on the first frame.
+
+   Progressive enhancement: browsers without ::details-content ignore all of
+   this and snap open exactly as they do now. */
+@supports (interpolate-size: allow-keywords) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+}
+
+.disclosure::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    content-visibility 280ms allow-discrete;
+}
+
+.disclosure[open]::details-content {
+  block-size: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disclosure::details-content {
+    transition: none;
+  }
+}
+
+/* ── Popover open / close ──────────────────────────────────────────────────
+   Shared by the mobile menu and the language dropdown, both of which hang off
+   a control in the top right and should behave identically.
+
+   Its own animation rather than borrowing tabSlideIn, which rises 14px from
+   below with a 4px blur. On a panel anchored to a button above it that is the
+   wrong direction, and the blur is what made it feel cheap — the panel arrived
+   out of focus and sharpened up. This grows from the corner it belongs to,
+   with nothing to resolve. Set transform-origin at the call site. */
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popoverOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+}
+
+.popover-pop {
+  animation: popoverIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* `forwards` matters: without it the panel snaps back to full opacity for the
+   frames between the animation ending and React unmounting it, which reads as
+   a flash. `pointer-events: none` stops the fading panel swallowing a tap
+   meant for whatever is underneath it. */
+.popover-pop.is-closing {
+  animation: popoverOut 0.15s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover-pop,
+  .popover-pop.is-closing {
+    animation: none;
+  }
+}
+
+/* ── Crosslist photo: blurred underneath, sharp wiping down over it ────────
+   Runs entirely in CSS. The React version recomputed a mask gradient on every
+   100ms tick, so the edge advanced ten times a second through a full re-render
+   — twelve visible jumps rather than a wipe. Here the browser interpolates it
+   on the compositor and React never re-renders for it.
+
+   The technique is a mask twice the element's height, slid upward. The top
+   half of the gradient is opaque and the bottom half transparent, so moving
+   the mask from 100% (element sees the transparent half) to 0% (element sees
+   the opaque half) sweeps the boundary downward. mask-position animates
+   cheaply; mask-image between two gradients does not reliably animate at all.
+
+   Timings are percentages of CrosslistPanel's CYCLE (11s). The fields land
+   between tick 10 and tick 66 of 110, so the wipe runs 9% to 60% and then
+   holds sharp for the settle. Change CYCLE or STEP_TICKS there and these move
+   with it. */
+
+.crosslist-blurred {
+  filter: blur(5px);
+  /* Scaled up so the blur's soft edge is pushed outside the frame and clipped
+     by the wrapper, instead of feathering inward and leaving a pale border. */
+  transform: scale(1.06);
+}
+
+.crosslist-wipe {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 43%,
+    transparent 50%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 43%,
+    transparent 50%,
+    transparent 100%
+  );
+  -webkit-mask-size: 100% 200%;
+  mask-size: 100% 200%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: crosslist-wipe 11s linear infinite;
+}
+
+/* Both Y stops are percentages and NEITHER is zero, which is load-bearing.
+   `mask-position: 0% 0%` computes to `0px 0px`, and a browser will not
+   interpolate `100%` against `0px` — it snapped straight from one keyframe to
+   the other, which is exactly the jump this was meant to remove. Ending at 1%
+   keeps both ends in the same unit; the residual 1% of a mask twice the
+   element's height is 2% of the photo, below the feather width, so the image
+   still finishes completely sharp. */
+@keyframes crosslist-wipe {
+  0%,
+  9% {
+    -webkit-mask-position: 0% 100%;
+    mask-position: 0% 100%;
+    filter: blur(0);
+    transform: scale(1);
+  }
+  60%,
+  96% {
+    -webkit-mask-position: 0% 1%;
+    mask-position: 0% 1%;
+    filter: blur(0);
+    transform: scale(1);
+  }
+  /* The last 4% (0.44s) blurs the sharp layer back out instead of the loop
+     cutting to it. The end values are exactly .crosslist-blurred's, so by 100%
+     this layer has converged onto the copy underneath - which is what makes
+     the mask snapping back to hidden at the loop boundary invisible. Without
+     it the photo went sharp, then hard-cut to blurred on the seam. */
+  100% {
+    -webkit-mask-position: 0% 1%;
+    mask-position: 0% 1%;
+    filter: blur(5px);
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crosslist-wipe {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* ── Shipping labels: sheets piling into one PDF ───────────────────────────
+   Five sheets fly in, stack, then converge and resolve into a single document.
+   6s loop, staggered 0.12s per sheet so it cascades rather than moving as a
+   block.
+
+   Timings are shared between the sheets and the document: the sheets clear
+   between 62% and 70%, and the document fades up across the same window, so
+   the pile becomes the PDF rather than one replacing the other. */
+
+.labels-merge {
+  position: relative;
+  width: 34px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.labels-merge-sheet,
+.labels-merge-doc {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 30px;
+  border-radius: 2px;
+  border: 1.25px solid rgb(0 0 0 / 0.18);
+  background: #fff;
+}
+
+.dark .labels-merge-sheet,
+.dark .labels-merge-doc {
+  border-color: rgb(255 255 255 / 0.22);
+  background: #18181b;
+}
+
+.labels-merge-sheet {
+  animation: labels-merge-sheet 2.4s ease-in-out both;
+  animation-delay: calc(var(--sheet-i) * 0.1s);
+}
+
+@keyframes labels-merge-sheet {
+  0% {
+    opacity: 0;
+    transform: translate(10px, -14px) rotate(10deg);
+  }
+  /* Lands, each a little higher than the last so the pile visibly grows. */
+  14%,
+  58% {
+    opacity: 1;
+    transform: translate(0, calc(var(--sheet-i) * -1.6px)) rotate(0deg);
+  }
+  /* Converges to a single plane and hands over to the document, which fades
+     up across the same window. No loop now that a press starts it — it lands
+     on the finished state and stays there until the panel resets. */
+  78%,
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.labels-merge-doc {
+  opacity: 0;
+  border-width: 1.5px;
+  animation: labels-merge-doc 2.4s ease-in-out both;
+}
+
+@keyframes labels-merge-doc {
+  0%,
+  62% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  80%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .labels-merge-sheet {
+    animation: none;
+    opacity: 1;
+    transform: translateY(calc(var(--sheet-i) * -1.6px));
+  }
+  .labels-merge-doc {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* The five order rows clearing out of the way as the merge starts. Staggered
+   from the top so it reads as the list being consumed into the pile rather
+   than the whole block blinking out. `forwards` holds them gone until React
+   resets the phase and removes the class. */
+/* Both class names are spelled out, and .cascade-item with them, to outweigh
+   `.in-view .cascade-list > .cascade-item` above. That rule is three classes;
+   a plainer `.labels-collapsing > li` is one class and a type, so it lost and
+   the rows sat at full opacity through the whole merge - the stack appeared
+   but nothing collapsed into it. */
+.cascade-list.labels-collapsing > li.cascade-item {
+  /* `both`, not `forwards`: the stagger delay would otherwise leave each row
+     on .cascade-item's base opacity 0, so rows 2-5 blinked out and popped back
+     in when their turn came. Backwards fill holds the `from` frame instead. */
+  animation: labels-row-collapse 0.42s cubic-bezier(0.4, 0, 1, 1) both;
+  animation-delay: calc(var(--row-i) * 0.07s);
+}
+
+/* The `from` is spelled out on purpose. Swapping a row's animation away from
+   cascadeIn drops it back to .cascade-item's base style, which is opacity 0 -
+   so an implicit `from` meant every row animated 0 -> 0 and simply blinked out
+   of existence. Starting explicitly at 1 is what makes the exit visible. */
+@keyframes labels-row-collapse {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  60% {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cascade-list.labels-collapsing > li.cascade-item {
+    animation: none;
+    opacity: 0.25;
+  }
+}
+
+/* Restocker scene: the sync travelling from the shop that sold to the one that
+   has to catch up. The lag between the two counts is the whole feature, and
+   two numbers changing a beat apart never showed it - nothing connected them.
+   `left` is animated rather than a transform because a percentage translateX
+   resolves against the dot's own width, not the gap it has to cross. */
+@keyframes restock-pulse-rtl {
+  from {
+    left: 75%;
+    opacity: 0;
+  }
+  18%,
+  82% {
+    opacity: 1;
+  }
+  to {
+    left: 25%;
+    opacity: 0;
+  }
+}
+
+@keyframes restock-pulse-ltr {
+  from {
+    left: 25%;
+    opacity: 0;
+  }
+  18%,
+  82% {
+    opacity: 1;
+  }
+  to {
+    left: 75%;
+    opacity: 0;
+  }
+}
+
+.restock-pulse {
+  animation-duration: 1.4s;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+.restock-pulse-ltr {
+  animation-name: restock-pulse-ltr;
+}
+
+.restock-pulse-rtl {
+  animation-name: restock-pulse-rtl;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .restock-pulse {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Restocker product shot: a slow idle float.
+   The scene's only motion is two counts a beat apart, so between sales the
+   photo sat perfectly still and the whole panel read as a screenshot. This is
+   deliberately barely-there - 6px over 6 seconds - so it registers as alive
+   without competing with the sync, which is the thing worth watching. */
+@keyframes restock-idle-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.012);
+  }
+}
+
+.restock-idle {
+  animation: restock-idle-float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .restock-idle {
+    animation: none;
   }
 }

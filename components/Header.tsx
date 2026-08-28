@@ -1,9 +1,9 @@
-import { getTranslations } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
-import { createServerClient } from '@/lib/supabase/server';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { MobileMenu } from '@/components/MobileMenu';
-import { HelpMenu } from '@/components/HelpMenu';
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { createServerClient } from "@/lib/supabase/server";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { MobileMenu } from "@/components/MobileMenu";
+import { HelpMenu } from "@/components/HelpMenu";
 
 export async function Header() {
   const supabase = await createServerClient();
@@ -12,7 +12,7 @@ export async function Header() {
   // Supabase Auth on every page view. proxy.ts handles token refresh.
   const { data: claimsData } = await supabase.auth.getClaims();
   const isAuthed = Boolean(claimsData?.claims);
-  const t = await getTranslations('Header');
+  const t = await getTranslations("Header");
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/10 bg-white/75 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:bg-zinc-950/75 dark:supports-[backdrop-filter]:bg-zinc-950/60">
@@ -28,7 +28,9 @@ export async function Header() {
               height={28}
               className="relative -top-0.5 h-7 w-auto object-contain dark:invert"
             />
-            <span className="text-base font-semibold tracking-tight">SaleLinx</span>
+            <span className="text-base font-semibold tracking-tight">
+              SaleLinx
+            </span>
           </Link>
         </div>
 
@@ -37,19 +39,19 @@ export async function Header() {
             href="/#features"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
-            {t('navFeatures')}
+            {t("navFeatures")}
           </Link>
           <Link
             href="/#pricing"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
-            {t('navPricing')}
+            {t("navPricing")}
           </Link>
           <Link
             href="/features#roadmap"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
-            {t('navRoadmap')}
+            {t("navRoadmap")}
           </Link>
         </nav>
 
@@ -61,14 +63,14 @@ export async function Header() {
                   href="/help"
                   className="transition-colors duration-200 hover:text-black dark:hover:text-white"
                 >
-                  {t('support')}
+                  {t("support")}
                 </Link>
                 <HelpMenu
                   labels={{
-                    faq: t('navFaq'),
-                    docs: t('navDocs'),
-                    status: t('navStatus'),
-                    contact: t('supportContact'),
+                    faq: t("navFaq"),
+                    docs: t("navDocs"),
+                    status: t("navStatus"),
+                    contact: t("supportContact"),
                   }}
                 />
               </div>
@@ -77,18 +79,18 @@ export async function Header() {
                   href="/account"
                   className="transition-colors duration-200 hover:text-black dark:hover:text-white"
                 >
-                  {t('account')}
+                  {t("account")}
                 </Link>
                 {/* pt-2 keeps the hover area contiguous between trigger and panel */}
                 <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                   <div className="w-52 rounded-xl border border-black/10 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-zinc-900">
                     {(
                       [
-                        ['#plan', t('accountPlan')],
-                        ['#security', t('accountSecurity')],
-                        ['#referrals', t('accountReferrals')],
-                        ['#support', t('accountSupport')],
-                        ['#danger', t('accountDanger')],
+                        ["#plan", t("accountPlan")],
+                        ["#security", t("accountSecurity")],
+                        ["#referrals", t("accountReferrals")],
+                        ["#support", t("accountSupport")],
+                        ["#danger", t("accountDanger")],
                       ] as const
                     ).map(([hash, label]) => (
                       <Link
@@ -104,7 +106,7 @@ export async function Header() {
                         type="submit"
                         className="block w-full rounded-lg px-3 py-2 text-start text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
                       >
-                        {t('signOut')}
+                        {t("signOut")}
                       </button>
                     </form>
                   </div>
@@ -121,14 +123,14 @@ export async function Header() {
                   href="/help"
                   className="transition-colors duration-200 hover:text-black dark:hover:text-white"
                 >
-                  {t('support')}
+                  {t("support")}
                 </Link>
                 <HelpMenu
                   labels={{
-                    faq: t('navFaq'),
-                    docs: t('navDocs'),
-                    status: t('navStatus'),
-                    contact: t('supportContact'),
+                    faq: t("navFaq"),
+                    docs: t("navDocs"),
+                    status: t("navStatus"),
+                    contact: t("supportContact"),
                   }}
                 />
               </div>
@@ -142,35 +144,37 @@ export async function Header() {
                 href="/auth/login"
                 className="transition-colors duration-200 hover:text-black dark:hover:text-white"
               >
-                {t('signIn')}
+                {t("signIn")}
               </Link>
             </>
           )}
           <LanguageSwitcher />
         </nav>
 
+        {/* One cluster, both controls 36px, so they sit on a shared centre line.
+            They used to be separate siblings at 28px and 36px, which is what
+            made the pair look off-axis. */}
         <div className="ms-auto flex items-center gap-2 sm:hidden">
-          <LanguageSwitcher />
+          <LanguageSwitcher triggerClassName="h-9 w-9" />
+          <MobileMenu
+            isAuthed={isAuthed}
+            labels={{
+              navFeatures: t("navFeatures"),
+              navPricing: t("navPricing"),
+              navRoadmap: t("navRoadmap"),
+              navFaq: t("navFaq"),
+              navDocs: t("navDocs"),
+              account: t("account"),
+              support: t("support"),
+              signOut: t("signOut"),
+              signIn: t("signIn"),
+              getStarted: t("getStarted"),
+              addToChrome: t("addToChrome"),
+              openMenu: "Open menu",
+              closeMenu: "Close menu",
+            }}
+          />
         </div>
-
-        <MobileMenu
-          isAuthed={isAuthed}
-          labels={{
-            navFeatures: t('navFeatures'),
-            navPricing: t('navPricing'),
-            navRoadmap: t('navRoadmap'),
-            navFaq: t('navFaq'),
-            navDocs: t('navDocs'),
-            account: t('account'),
-            support: t('support'),
-            signOut: t('signOut'),
-            signIn: t('signIn'),
-            getStarted: t('getStarted'),
-            addToChrome: t('addToChrome'),
-            openMenu: 'Open menu',
-            closeMenu: 'Close menu',
-          }}
-        />
       </div>
     </header>
   );
