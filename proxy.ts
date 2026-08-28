@@ -12,6 +12,34 @@ type CookieEntry = { name: string; value: string; options?: CookieOptions };
 
 const intlMiddleware = createIntlMiddleware(routing);
 
+// Every Supabase call made from middleware is bounded. Without this, one slow
+// upstream endpoint takes down every page on the site, including pages that
+// need no auth at all.
+//
+// That is not hypothetical: on 2026-08-28 Supabase's
+// /auth/v1/.well-known/jwks.json began accepting connections and never
+// responding (their incident, rollback in progress) while every other service
+// on the project answered in ~50ms. getClaims() must fetch JWKS to verify a
+// JWT, and auth-js caches it per instance - so each cold Vercel instance
+// fetched it fresh, hung, and Vercel returned 504 MIDDLEWARE_INVOCATION_TIMEOUT.
+// Signed-out visitors were fine (no JWT to verify, so no JWKS fetch); every
+// signed-in user was locked out.
+//
+// 2.5s is well above the ~50-500ms these calls take when healthy, and well
+// under the platform's middleware limit.
+const SUPABASE_TIMEOUT_MS = 2500;
+
+function timeoutFetch(input: RequestInfo | URL, init?: RequestInit) {
+  const timeout = AbortSignal.timeout(SUPABASE_TIMEOUT_MS);
+  // Don't discard a caller-supplied signal - combine, so their cancellation
+  // still works. AbortSignal.any is Node 20.3+; fall back to ours if absent.
+  const signal =
+    init?.signal && typeof AbortSignal.any === "function"
+      ? AbortSignal.any([init.signal, timeout])
+      : (init?.signal ?? timeout);
+  return fetch(input, { ...init, signal });
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
@@ -83,6 +111,7 @@ export async function proxy(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: timeoutFetch },
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll: (entries: CookieEntry[]) => {
@@ -112,8 +141,25 @@ export async function proxy(request: NextRequest) {
   // and re-set exactly as before. Do not swap this back to getUser(): that
   // adds a blocking Supabase call to every page view. The claims are only
   // used for routing here; RLS remains the real data boundary.
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const claims = claimsData?.claims ?? null;
+  //
+  // Bounded by timeoutFetch above, and never allowed to throw. If auth is
+  // unreachable we fall through with no claims, which degrades rather than
+  // fails: public pages render signed-out (the visitor sees the marketing
+  // site, not a 504), and the admin gate below already treats "no claims" as
+  // "not an admin" and redirects to login, so it stays fail-closed.
+  type Claims = NonNullable<
+    Awaited<ReturnType<typeof supabase.auth.getClaims>>["data"]
+  >["claims"];
+  let claims: Claims | null = null;
+  let authReachable = true;
+  try {
+    const { data: claimsData, error } = await supabase.auth.getClaims();
+    claims = claimsData?.claims ?? null;
+    if (error) authReachable = false;
+  } catch {
+    // AbortSignal.timeout rejects here; so does any transport failure.
+    authReachable = false;
+  }
 
   // Referral claim. This lives here, not in /auth/callback, because signup
   // verification never passes through the callback: /auth/confirm verifies
@@ -163,6 +209,14 @@ export async function proxy(request: NextRequest) {
     } catch {
       return NextResponse.redirect(new URL("/account", request.url));
     }
+  }
+
+  // Makes a degraded render visible in the platform logs. Without it, "auth
+  // was unreachable so we served this page signed-out" is indistinguishable
+  // from "this visitor is signed out", which is exactly the confusion that
+  // made the 2026-08-28 outage take a while to place.
+  if (!authReachable) {
+    response.headers.set("x-slx-auth-degraded", "1");
   }
 
   return response;
