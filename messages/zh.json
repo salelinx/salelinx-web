@@ -711,7 +711,7 @@
           },
           "restocker": {
             "name": "库存同步",
-            "sceneTitle": "跨平台库存同步",
+            "sceneTitle": "Restocker 保持库存同步",
             "label": "两个店铺都不会超卖",
             "detail": "在一个平台卖出商品后，SaleLinx 会自动把另一个平台上对应的商品下架。"
           }
@@ -726,6 +726,7 @@
       "body": "每个套餐用的都是同一个扩展。级别越高，每月额度越大，还会解锁自动报价、库存同步这类更重的自动化功能。"
     },
     "popular": "热门",
+    "whatsIncluded": "包含内容",
     "installExtension": "安装扩展",
     "comingSoon": "即将推出",
     "perMonth": "/月",

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   useCallback,
@@ -7,9 +7,9 @@ import {
   useState,
   type CSSProperties,
   type ReactNode,
-} from 'react';
-import { useTranslations } from 'next-intl';
-import { Icon, type IconName } from '@/components/Icon';
+} from "react";
+import { useTranslations } from "next-intl";
+import { Icon, type IconName } from "@/components/Icon";
 import {
   ConversationsPanel,
   CrosslistPanel,
@@ -23,8 +23,8 @@ import {
   // RelisterPanel,
   // RestockerPanel,
   // ShopDesignerPanel,
-} from './HeroPreview';
-import { RestockerScene } from './RestockerScene';
+} from "./HeroPreview";
+import { RestockerScene } from "./RestockerScene";
 
 /**
  * Scroll-scrubbed feature scenes.
@@ -66,9 +66,20 @@ interface Scene {
    *  under `headlines.items.*` as title/body. */
   titleKey: string;
   bodyKey: string;
+  /** A few words for phones, where the full `bodyKey` sentence is longer than
+   *  the animation it introduces. Falls back to bodyKey when absent. */
+  shortKey?: string;
   /** 'split' is the default copy-beside-visual scene. 'full' centres the copy
    *  above a full-width visual, for the closing overview. */
-  layout?: 'split' | 'full';
+  layout?: "split" | "full";
+  /** The panel reflows down to phone width on its own, so the stacked mobile
+   *  fallback renders it at natural size instead of scaling it.
+   *
+   *  Scaling is what made panel text unreadable on a phone: FitWidth renders at
+   *  a 680px design width and scales to the ~345px available, so 9px labels
+   *  came out at roughly 4.5px. A panel that reflows needs none of that. Set
+   *  this only once the panel genuinely works at 360px. */
+  fluid?: boolean;
   render: () => ReactNode;
 }
 
@@ -86,22 +97,22 @@ interface Scene {
 // visibility.items.followBot, sales.items.offersInbox, sales.items.messages
 // and sales.items.shipping. Re-add a key here if its scene is ever parked.
 const ALL_FEATURES: { key: string; icon: IconName }[] = [
-  { key: 'crosslisting.items.autoMap', icon: 'puzzle' },
-  { key: 'sales.items.relister', icon: 'rotate' },
-  { key: 'visibility.items.refresher', icon: 'refresh' },
-  { key: 'visibility.items.scheduler', icon: 'clock' },
-  { key: 'visibility.items.autoMarkdown', icon: 'tag' },
-  { key: 'visibility.items.deadStock', icon: 'search' },
-  { key: 'visibility.items.filters', icon: 'filter' },
-  { key: 'sales.items.autoOffers', icon: 'sparkle' },
-  { key: 'crosslisting.items.shopDesigner', icon: 'layout' },
-  { key: 'crosslisting.items.csvImport', icon: 'upload' },
-  { key: 'listings.items.dashboard', icon: 'grid' },
-  { key: 'listings.items.linkAccounts', icon: 'link' },
-  { key: 'listings.items.backup', icon: 'cloud' },
-  { key: 'listings.items.sync', icon: 'sync' },
-  { key: 'visibility.items.activityLog', icon: 'list' },
-  { key: 'listings.items.multilanguage', icon: 'globe' },
+  { key: "crosslisting.items.autoMap", icon: "puzzle" },
+  { key: "sales.items.relister", icon: "rotate" },
+  { key: "visibility.items.refresher", icon: "refresh" },
+  { key: "visibility.items.scheduler", icon: "clock" },
+  { key: "visibility.items.autoMarkdown", icon: "tag" },
+  { key: "visibility.items.deadStock", icon: "search" },
+  { key: "visibility.items.filters", icon: "filter" },
+  { key: "sales.items.autoOffers", icon: "sparkle" },
+  { key: "crosslisting.items.shopDesigner", icon: "layout" },
+  { key: "crosslisting.items.csvImport", icon: "upload" },
+  { key: "listings.items.dashboard", icon: "grid" },
+  { key: "listings.items.linkAccounts", icon: "link" },
+  { key: "listings.items.backup", icon: "cloud" },
+  { key: "listings.items.sync", icon: "sync" },
+  { key: "visibility.items.activityLog", icon: "list" },
+  { key: "listings.items.multilanguage", icon: "globe" },
 ];
 
 // Width the panels are actually designed for. Several of them use fixed grid
@@ -147,7 +158,7 @@ function FitWidth({ children }: { children: ReactNode }) {
       },
       // Wake a screenful early so a panel is already running by the time it
       // scrolls into view rather than starting from a dead frame.
-      { rootMargin: '300px 0px' },
+      { rootMargin: "300px 0px" },
     );
     io.observe(outer);
     return () => io.disconnect();
@@ -198,7 +209,7 @@ function FitWidth({ children }: { children: ReactNode }) {
           style={{
             width: DESIGN_WIDTH,
             transform: `scale(${scale})`,
-            transformOrigin: 'top left',
+            transformOrigin: "top left",
           }}
         >
           {children}
@@ -209,28 +220,30 @@ function FitWidth({ children }: { children: ReactNode }) {
 }
 
 function FeatureOverview() {
-  const tf = useTranslations('Features.chapter');
+  const tf = useTranslations("Features.chapter");
+  // Sixteen bordered cards read as a wall: sixteen boxes, sixteen icon
+  // badges, sixteen two-line descriptions, all competing at once. It was the
+  // busiest block on the page and it closes a section whose whole argument is
+  // that the product is calm.
+  //
+  // So: no boxes. A ruled list of names, which is what "everything else"
+  // wants to be - you scan it for the one you came for. The detail lines are
+  // gone rather than hidden; /features carries them, and the names already
+  // say what each feature is.
   return (
-    <div className="grid w-full grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid w-full grid-cols-2 gap-x-7 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-10">
       {ALL_FEATURES.map((f, i) => (
         <div
           key={f.key}
-          // Icon above the text at two-per-row on phones: side by side it
-          // left roughly 100px for the label and the names wrapped to three
-          // lines. From sm up there is room for the row.
-          className="cascade-item flex flex-col gap-1.5 rounded-lg border border-black/[0.06] bg-white px-3 py-2.5 text-start sm:flex-row sm:gap-2.5 dark:border-white/10 dark:bg-white/[0.02]"
-          style={{ '--stagger-delay': `${i * 28}ms` } as CSSProperties}
+          className="cascade-item flex items-center gap-2.5 border-b border-black/[0.06] py-2.5 text-start lg:py-3 dark:border-white/[0.08]"
+          style={{ "--stagger-delay": `${i * 28}ms` } as CSSProperties}
         >
-          <span className="mt-[1px] flex size-6 flex-shrink-0 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <Icon name={f.icon} className="h-3 w-3" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-[12px] font-medium leading-snug text-zinc-800 dark:text-zinc-200">
-              {tf(`${f.key}.name`)}
-            </span>
-            <span className="mt-0.5 block text-[10.5px] leading-snug text-zinc-600 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden dark:text-zinc-400">
-              {tf(`${f.key}.detail`)}
-            </span>
+          <Icon
+            name={f.icon}
+            className="h-3.5 w-3.5 flex-shrink-0 text-zinc-400 dark:text-zinc-500"
+          />
+          <span className="min-w-0 truncate text-[12.5px] leading-snug text-zinc-700 lg:text-[13.5px] dark:text-zinc-300">
+            {tf(`${f.key}.name`)}
           </span>
         </div>
       ))}
@@ -243,21 +256,24 @@ function FeatureOverview() {
 // inventing 11 new descriptions and machine-translating them.
 const SCENES: Scene[] = [
   {
-    id: 'crosslist',
-    icon: 'swap',
-    titleKey: 'chapter.crosslisting.items.bidirectional.label',
-    bodyKey: 'chapter.crosslisting.items.bidirectional.detail',
+    id: "crosslist",
+    fluid: true,
+    icon: "swap",
+    titleKey: "chapter.crosslisting.items.bidirectional.label",
+    bodyKey: "chapter.crosslisting.items.bidirectional.detail",
+    shortKey: "chapter.crosslisting.items.bidirectional.name",
     render: () => <CrosslistPanel />,
   },
   {
-    id: 'restocker',
-    icon: 'refresh',
+    id: "restocker",
+    icon: "refresh",
     // Named rather than described: "Restocker" is what the feature is called
     // in the panel and the pricing table, so the scene teaches the word. Its
     // own key rather than the plain `name` because the scene wants the
     // cross-platform framing that the grid tile doesn't have room for.
-    titleKey: 'chapter.sales.items.restocker.sceneTitle',
-    bodyKey: 'chapter.sales.items.restocker.detail',
+    titleKey: "chapter.sales.items.restocker.sceneTitle",
+    bodyKey: "chapter.sales.items.restocker.detail",
+    shortKey: "chapter.sales.items.restocker.name",
     render: () => <RestockerScene />,
   },
   // Shop designer and My listings are parked, not deleted: both panels are
@@ -292,23 +308,27 @@ const SCENES: Scene[] = [
   //   render: () => <PriceDropsPanel />,
   // },
   {
-    id: 'followBot',
-    icon: 'users',
-    titleKey: 'chapter.visibility.items.followBot.label',
-    bodyKey: 'chapter.visibility.items.followBot.detail',
+    id: "followBot",
+    icon: "users",
+    titleKey: "chapter.visibility.items.followBot.label",
+    bodyKey: "chapter.visibility.items.followBot.detail",
+    shortKey: "chapter.visibility.items.followBot.name",
     render: () => <FollowBotPanel />,
   },
   {
-    // Offers and messages merged into one scene. The /features page already
-    // frames these as a single idea ("one inbox"), so the copy came with it.
     // Side by side rather than stacked: stacking would roughly double the
     // tallest scene, and every other scene scales down to match that ceiling.
-    id: 'inbox',
-    icon: 'message',
-    titleKey: 'headlines.items.oneInbox.title',
-    bodyKey: 'headlines.items.oneInbox.body',
+    id: "inbox",
+    icon: "message",
+    titleKey: "headlines.items.oneInbox.title",
+    bodyKey: "headlines.items.oneInbox.body",
+    // items-stretch, not items-start: both panels are flex columns whose footer
+    // ("Pending offers" / "Inbox") sits on mt-auto, so stretching them to a
+    // shared height lands both footers on the same line. With items-start each
+    // panel was its own height and the two footers sat at different levels,
+    // which read as one column being unfinished.
     render: () => (
-      <div className="grid grid-cols-2 items-start gap-4">
+      <div className="grid grid-cols-2 items-stretch gap-4">
         <OffersPanel />
         <ConversationsPanel />
       </div>
@@ -322,26 +342,67 @@ const SCENES: Scene[] = [
   //   render: () => <AutoOffersPanel />,
   // },
   {
-    id: 'labels',
-    icon: 'box',
-    titleKey: 'chapter.sales.items.shipping.label',
-    bodyKey: 'chapter.sales.items.shipping.detail',
+    id: "labels",
+    icon: "box",
+    titleKey: "chapter.sales.items.shipping.label",
+    bodyKey: "chapter.sales.items.shipping.detail",
+    shortKey: "chapter.sales.items.shipping.name",
     render: () => <LabelsPanel />,
   },
   {
     // Closing overview: the scenes above are a handful of the features, so the
     // scroll ends by naming all of them at once rather than implying that is
     // the whole product.
-    id: 'more',
-    icon: 'sparkle',
-    titleKey: 'sectionHeader.title',
-    bodyKey: 'overviewBody',
-    layout: 'full',
+    id: "more",
+    icon: "sparkle",
+    titleKey: "sectionHeader.title",
+    bodyKey: "overviewBody",
+    layout: "full",
     render: () => <FeatureOverview />,
   },
 ];
 
 const SEGMENTS = SCENES.length;
+
+/**
+ * How much scroll the first scene gets, as a fraction of a normal segment.
+ *
+ * `travelled` is clamped at 0 until the section's top reaches the viewport top,
+ * so scene 1 is already pinned and on screen for the whole time the hero
+ * scrolls past - and only then does its own segment start. It was costing a
+ * hero's worth of scroll more than every other scene to get off. Shrinking its
+ * segment hands that back, so all the scenes feel like they last the same.
+ *
+ * It cannot go to zero: about 540px of that head start is the pre-pin travel,
+ * which is fixed by the hero's height, so a quarter-segment is roughly where
+ * the first scene stops outlasting the rest without leaving its cross-fade
+ * seam too short to read.
+ */
+const FIRST_SEGMENT_SCALE = 0.25;
+
+/** Total segment-widths of scroll, with the first one shortened. */
+const SEGMENT_WEIGHT = SEGMENTS - 1 + FIRST_SEGMENT_SCALE;
+
+/**
+ * Map 0..1 across the spacer onto a scene and how far through it we are.
+ * Uniform for every segment but the first, which is FIRST_SEGMENT_SCALE wide.
+ */
+function segmentAt(raw: number): { index: number; within: number } {
+  const w = raw * SEGMENT_WEIGHT;
+  if (w < FIRST_SEGMENT_SCALE) {
+    return { index: 0, within: clamp01(w / FIRST_SEGMENT_SCALE) };
+  }
+  const rest = w - FIRST_SEGMENT_SCALE;
+  const index = Math.min(SEGMENTS - 1, 1 + Math.floor(rest));
+  return { index, within: clamp01(rest - (index - 1)) };
+}
+
+/** Scroll offset of a segment's midpoint, as a fraction of the spacer. */
+function segmentMidpoint(i: number): number {
+  const start = i === 0 ? 0 : FIRST_SEGMENT_SCALE + (i - 1);
+  const width = i === 0 ? FIRST_SEGMENT_SCALE : 1;
+  return (start + width / 2) / SEGMENT_WEIGHT;
+}
 
 function clamp01(n: number): number {
   return n < 0 ? 0 : n > 1 ? 1 : n;
@@ -359,8 +420,8 @@ function lingerEase(x: number, L: number): number {
 }
 
 export function ScrollWorldDemo() {
-  const t = useTranslations('Home');
-  const tf = useTranslations('Features');
+  const t = useTranslations("Home");
+  const tf = useTranslations("Features");
 
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -377,12 +438,12 @@ export function ScrollWorldDemo() {
 
   useEffect(() => {
     const mq = window.matchMedia(
-      '(min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference)',
+      "(min-height: 600px) and (prefers-reduced-motion: no-preference)",
     );
     const sync = () => setDriving(mq.matches);
     sync();
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   // Fit-to-viewport, measured per scene.
@@ -409,7 +470,7 @@ export function ScrollWorldDemo() {
       const natural = Math.max(naturalsRef.current[sceneId] ?? 0, measured);
       naturalsRef.current[sceneId] = natural;
 
-      const header = document.querySelector('header')?.offsetHeight ?? 0;
+      const header = document.querySelector("header")?.offsetHeight ?? 0;
       setHeaderH(header);
 
       const available = window.innerHeight - header - 56;
@@ -428,10 +489,10 @@ export function ScrollWorldDemo() {
     recalc();
     const ro = new ResizeObserver(recalc);
     if (stageRef.current) ro.observe(stageRef.current);
-    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
       ro.disconnect();
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener("resize", onResize);
     };
   }, [driving, index]);
 
@@ -456,9 +517,7 @@ export function ScrollWorldDemo() {
 
       // Remap 0..1 across the whole spacer onto 0..SEGMENTS, then split into
       // the segment we're in and how far through it we are.
-      const p = raw * SEGMENTS;
-      const nextIndex = Math.min(SEGMENTS - 1, Math.max(0, Math.floor(p)));
-      const within = clamp01(p - nextIndex);
+      const { index: nextIndex, within } = segmentAt(raw);
       const eased = lingerEase(within, LINGER);
 
       // 1 while settled on a scene, easing to 0 at both segment edges so
@@ -483,8 +542,8 @@ export function ScrollWorldDemo() {
       // Written straight to CSS custom properties rather than through state:
       // this runs every scroll frame and re-rendering a scene at that rate
       // would drop frames. Only the segment index goes through React.
-      stage.style.setProperty('--seam', seam.toFixed(4));
-      stage.style.setProperty('--settle', (0.985 + seam * 0.015).toFixed(4));
+      stage.style.setProperty("--seam", seam.toFixed(4));
+      stage.style.setProperty("--settle", (0.985 + seam * 0.015).toFixed(4));
 
       // Entry lift. While the section is still coming up the page the scene
       // rides at the top of the pinned box, so it is fully in frame under the
@@ -507,12 +566,12 @@ export function ScrollWorldDemo() {
     };
 
     measure();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
     // headerH feeds the entry-lift maths, so re-subscribe if it changes.
   }, [driving, headerH]);
@@ -523,8 +582,8 @@ export function ScrollWorldDemo() {
     const scrollable = section.offsetHeight - window.innerHeight;
     if (scrollable <= 0) return;
     window.scrollTo({
-      top: section.offsetTop + scrollable * ((i + 0.5) / SEGMENTS),
-      behavior: 'smooth',
+      top: section.offsetTop + scrollable * segmentMidpoint(i),
+      behavior: "smooth",
     });
   }, []);
 
@@ -533,22 +592,25 @@ export function ScrollWorldDemo() {
   // Split layouts only: the closing overview stacks vertically, so the same
   // CSS order would push its heading underneath the grid instead of swapping
   // columns.
-  const visualFirst = scene.layout !== 'full' && index % 2 === 1;
+  const visualFirst = scene.layout !== "full" && index % 2 === 1;
 
   // Copy block for a scene. Shared by the pinned stage and the stacked
   // fallback so the two can't drift apart.
   const sceneCopy = (s: Scene, i: number, compact: boolean) => (
-    <div className={compact ? '' : 'max-w-md'}>
+    <div className={compact ? "" : "max-w-md"}>
       <span className="inline-flex items-center gap-2.5 font-mono text-[0.66rem] uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-500">
         <span className="text-emerald-600 dark:text-emerald-400">
           <Icon name={s.icon} className="h-3.5 w-3.5" />
         </span>
-        {String(i + 1).padStart(2, '0')} / {String(SEGMENTS).padStart(2, '0')}
+        {String(i + 1).padStart(2, "0")} / {String(SEGMENTS).padStart(2, "0")}
       </span>
-      <h3 className="mt-4 text-balance text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-900 sm:text-3xl dark:text-zinc-50">
+      <h3 className="mt-3 text-balance text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-900 sm:text-3xl dark:text-zinc-50">
         {tf(s.titleKey)}
       </h3>
-      <p className="mt-4 text-pretty text-sm leading-relaxed text-zinc-600 sm:text-base dark:text-zinc-400">
+      {/* Hidden on phones: with one scene per screen the heading and the
+          animation carry it, and a sentence underneath was the only thing
+          making a scene feel crowded. */}
+      <p className="mt-3 hidden max-w-[42ch] text-pretty text-sm leading-relaxed text-zinc-500 sm:block dark:text-zinc-500">
         {tf(s.bodyKey)}
       </p>
     </div>
@@ -560,13 +622,31 @@ export function ScrollWorldDemo() {
       <section
         ref={sectionRef}
         id="features"
-        aria-label={t('previewEyebrow')}
+        aria-label={t("previewEyebrow")}
         className="relative scroll-mt-20"
       >
-        <div className="mx-auto w-full max-w-6xl px-6 py-12">
-          <div className="flex flex-col gap-20">
+        <div className="mx-auto w-full max-w-6xl pb-12 pt-4 sm:px-6 sm:py-12">
+          {/* One scene per screen on phones, scrolled vertically like the rest
+              of the page. A horizontal deck was tried first and read as the
+              animations being laid out side by side, which is the opposite of
+              the intent; the desktop stage moves through them on VERTICAL
+              scroll, so mobile should too.
+
+              min-height rather than scroll snapping: snapping the document
+              needs scroll-snap-type on the scroll container itself, and an
+              inner scroller that traps touch is worse than no snap at all on
+              iOS. A full-height scene gets the one-at-a-time reading with
+              nothing to fight.
+
+              svh, not vh: on iOS vh is the tallest the viewport ever gets, so
+              a 100vh scene is always slightly taller than the screen with the
+              address bar showing, and the next scene's heading peeks in. */}
+          <div className="flex flex-col sm:gap-20">
             {SCENES.map((s, i) => (
-              <div key={s.id} className="flex flex-col gap-8">
+              <div
+                key={s.id}
+                className="flex min-h-[100svh] flex-col justify-center gap-4 px-6 sm:min-h-0 sm:gap-8 sm:px-0"
+              >
                 {sceneCopy(s, i, false)}
                 {/* panel-swap is load-bearing, not decoration: every panel is
                     built from .cascade-item elements, which globals.css starts
@@ -577,7 +657,7 @@ export function ScrollWorldDemo() {
                     The overview is a responsive text grid and reads fine at
                     any width, so it renders at full size. The panels don't
                     reflow below their design width, so they get scaled. */}
-                {s.layout === 'full' ? (
+                {s.layout === "full" || s.fluid ? (
                   <div className="panel-swap min-w-0">{s.render()}</div>
                 ) : (
                   <FitWidth>
@@ -596,9 +676,9 @@ export function ScrollWorldDemo() {
     <section
       ref={sectionRef}
       id="features"
-      aria-label={t('previewEyebrow')}
+      aria-label={t("previewEyebrow")}
       className="relative scroll-mt-20"
-      style={{ height: `${SEGMENTS * SEGMENT_SCROLL * 100 + 100}vh` }}
+      style={{ height: `${SEGMENT_WEIGHT * SEGMENT_SCROLL * 100 + 100}vh` }}
     >
       {/* Centred in the pinned viewport. Before the section pins, this box
           sits at the section's top, which the negative margin above has
@@ -621,20 +701,24 @@ export function ScrollWorldDemo() {
             ref={stageRef}
             dir="ltr"
             className={
-              scene.layout === 'full'
-                ? 'mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-6 text-center will-change-transform'
+              scene.layout === "full"
+                ? "mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-6 text-center will-change-transform"
                 : // Odd-numbered scenes put the visual first so the page
                   // alternates sides instead of pinning every animation to the
                   // right. The column ratio flips with it, so the copy column
                   // stays the narrower of the two either way.
-                  `mx-auto grid w-full max-w-6xl items-center gap-14 px-6 will-change-transform ${
+                  // gap-10 stacked, not gap-6: the panels lead with a brand
+                  // wordmark, which reads as a second heading, so at 24px it
+                  // crowded the real one. Two columns need less, since the
+                  // separation there is horizontal.
+                  `mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 will-change-transform lg:gap-14 ${
                     visualFirst
-                      ? 'grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]'
-                      : 'grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]'
+                      ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
+                      : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
                   }`
             }
             style={{
-              transformOrigin: 'top center',
+              transformOrigin: "top center",
               // --settle is the per-frame seam nudge written by the scroll
               // handler; fit is the scale that keeps this scene on screen.
               transform: `scale(calc(${fit} * var(--settle, 1)))`,
@@ -652,8 +736,8 @@ export function ScrollWorldDemo() {
             <div
               key={scene.id}
               dir="auto"
-              className={`panel-swap ${scene.layout === 'full' ? 'max-w-xl' : ''} ${
-                visualFirst ? 'order-2' : 'order-1'
+              className={`panel-swap ${scene.layout === "full" ? "max-w-xl" : ""} ${
+                visualFirst ? "lg:order-2" : "lg:order-1"
               }`}
             >
               {sceneCopy(scene, index, true)}
@@ -663,7 +747,7 @@ export function ScrollWorldDemo() {
                 laid out left to right. */}
             <div
               key={`${scene.id}-visual`}
-              className={`panel-swap w-full min-w-0 ${visualFirst ? 'order-1' : 'order-2'}`}
+              className={`panel-swap w-full min-w-0 ${visualFirst ? "lg:order-1" : "lg:order-2"}`}
             >
               {scene.render()}
             </div>
@@ -672,8 +756,13 @@ export function ScrollWorldDemo() {
 
         {/* Route dots, scroll-world's side nav. Held in a real rail rather
             than floating loose against the page edge, which read as stray
-            icons overlapping the scene. */}
-        <div className="pointer-events-none absolute inset-y-0 end-3 flex items-center xl:end-5">
+            icons overlapping the scene.
+
+            Desktop only. At phone width there is no margin beside the content
+            for it to sit in, so it overlapped the animation itself — and the
+            eyebrow already counts the scenes ("01 / 06"), which is the part
+            worth keeping. */}
+        <div className="pointer-events-none absolute inset-y-0 end-3 hidden items-center lg:flex xl:end-5">
           <div className="pointer-events-auto flex flex-col items-center gap-0.5 rounded-full border border-black/[0.07] bg-white/80 p-1.5 shadow-[0_8px_28px_-14px_rgba(0,0,0,0.3)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/70">
             {SCENES.map((s, i) => {
               const isActive = i === index;
@@ -685,8 +774,8 @@ export function ScrollWorldDemo() {
                   title={tf(s.titleKey)}
                   className={
                     isActive
-                      ? 'flex size-6 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 transition dark:text-emerald-400'
-                      : 'flex size-6 items-center justify-center rounded-full text-zinc-400 transition hover:bg-black/[0.05] hover:text-zinc-600 dark:text-zinc-600 dark:hover:bg-white/[0.08] dark:hover:text-zinc-300'
+                      ? "flex size-6 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 transition dark:text-emerald-400"
+                      : "flex size-6 items-center justify-center rounded-full text-zinc-400 transition hover:bg-black/[0.05] hover:text-zinc-600 dark:text-zinc-600 dark:hover:bg-white/[0.08] dark:hover:text-zinc-300"
                   }
                 >
                   <Icon name={s.icon} className="h-3 w-3" />
@@ -700,12 +789,12 @@ export function ScrollWorldDemo() {
         <div
           className={
             started
-              ? 'pointer-events-none absolute inset-x-0 bottom-6 flex justify-center opacity-0 transition-opacity duration-500'
-              : 'pointer-events-none absolute inset-x-0 bottom-6 flex justify-center opacity-100 transition-opacity duration-500'
+              ? "pointer-events-none absolute inset-x-0 bottom-6 flex justify-center opacity-0 transition-opacity duration-500"
+              : "pointer-events-none absolute inset-x-0 bottom-6 flex justify-center opacity-100 transition-opacity duration-500"
           }
         >
           <span className="inline-flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-500">
-            {t('previewScrollHint')}
+            {t("previewScrollHint")}
             <svg
               width="13"
               height="13"

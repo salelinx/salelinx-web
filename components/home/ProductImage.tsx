@@ -101,13 +101,34 @@ interface ProductImageProps {
    *  render something while the photo loads (or if it fails). */
   src?: string;
   className?: string;
+  /** Applied to the <img> itself rather than the frame. Use this to fade a
+   *  photo in: fading the whole component instead brings its backdrop along,
+   *  so a grey square appears before the product does. */
+  imgClassName?: string;
+  /** Drop the placeholder backdrop, leaving the frame transparent. For a photo
+   *  that animates in over the page rather than sitting in a card, where a
+   *  grey square would read as a glitch. */
+  noBackdrop?: boolean;
+  /** Inline styles for the <img>. For animation driven by a value rather than a
+   *  class — a clip-path or blur that tracks progress, say. */
+  imgStyle?: CSSProperties;
 }
 
-export function ProductImage({ type, hue, src, className = '' }: ProductImageProps) {
+export function ProductImage({
+  type,
+  hue,
+  src,
+  className = '',
+  imgClassName = '',
+  noBackdrop = false,
+  imgStyle,
+}: ProductImageProps) {
   if (src) {
     return (
       <div
-        className={`relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${className}`}
+        className={`relative overflow-hidden ${
+          noBackdrop ? '' : 'bg-zinc-100 dark:bg-zinc-900'
+        } ${className}`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary external product photo (no-referrer, lazy); next/image would need per-domain config */}
         <img
@@ -115,7 +136,8 @@ export function ProductImage({ type, hue, src, className = '' }: ProductImagePro
           alt=""
           loading="lazy"
           referrerPolicy="no-referrer"
-          className="absolute inset-0 h-full w-full object-cover"
+          className={`absolute inset-0 h-full w-full object-cover ${imgClassName}`}
+          style={imgStyle}
         />
       </div>
     );

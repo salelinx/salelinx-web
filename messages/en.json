@@ -711,7 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
-            "sceneTitle": "Cross-platform restocker",
+            "sceneTitle": "Restocker keeps stock in sync",
             "label": "Never oversell across shops",
             "detail": "Sell an item on one marketplace and SaleLinx pulls the matching listing from the other, automatically."
           }
@@ -726,6 +726,7 @@
       "body": "Every plan ships the same extension. Higher tiers raise monthly caps and unlock the heavier automations like auto-offers and restocker."
     },
     "popular": "Popular",
+    "whatsIncluded": "What's included",
     "installExtension": "Install extension",
     "comingSoon": "Coming soon",
     "perMonth": "/mo",

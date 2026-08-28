@@ -711,7 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
-            "sceneTitle": "Restocker multiplataforma",
+            "sceneTitle": "Restocker mantiene el stock sincronizado",
             "label": "Nunca vendas dos veces",
             "detail": "Vende un artículo en una marketplace y SaleLinx retira el anuncio equivalente de la otra, automáticamente."
           }
@@ -726,6 +726,7 @@
       "body": "Todos los planes incluyen la misma extensión. Los niveles superiores suben los topes mensuales y desbloquean las automatizaciones más pesadas como las ofertas automáticas y el restocker."
     },
     "popular": "Popular",
+    "whatsIncluded": "Qué incluye",
     "installExtension": "Instalar extensión",
     "comingSoon": "Próximamente",
     "perMonth": "/mes",

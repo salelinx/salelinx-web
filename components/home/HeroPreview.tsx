@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   useEffect,
@@ -7,7 +7,7 @@ import {
   useState,
   useSyncExternalStore,
   type CSSProperties,
-} from 'react';
+} from "react";
 
 /**
  * Drives a panel demo loop. Returns a tick counter that increments every
@@ -17,8 +17,8 @@ import {
 function useAnimationTick(intervalMs: number): number {
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => setTick((t) => t + 1), intervalMs);
     return () => window.clearInterval(id);
   }, [intervalMs]);
@@ -31,37 +31,37 @@ function useAnimationTick(intervalMs: number): number {
  * a tick-derived panel would otherwise freeze showing its *empty* first frame.
  * Reading this lets a panel jump straight to its finished state instead.
  */
-const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(
     (onStoreChange) => {
       const mq = window.matchMedia(REDUCED_MOTION_QUERY);
-      mq.addEventListener('change', onStoreChange);
-      return () => mq.removeEventListener('change', onStoreChange);
+      mq.addEventListener("change", onStoreChange);
+      return () => mq.removeEventListener("change", onStoreChange);
     },
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
     // Server render assumes motion is fine; the client corrects on hydration.
     () => false,
   );
 }
-import { useTranslations } from 'next-intl';
-import { Icon, type IconName } from '@/components/Icon';
-import { BrandWordmark } from '@/components/BrandWordmark';
-import { ProductImage, type ProductType } from './ProductImage';
+import { useTranslations } from "next-intl";
+import { Icon, type IconName } from "@/components/Icon";
+import { BrandWordmark } from "@/components/BrandWordmark";
+import { ProductImage, type ProductType } from "./ProductImage";
 
 type TabId =
-  | 'listings'
-  | 'crosslist'
-  | 'shopDesigner'
-  | 'restocker'
-  | 'relister'
-  | 'priceDrops'
-  | 'followBot'
-  | 'offers'
-  | 'autoOffers'
-  | 'conversations'
-  | 'labels';
+  | "listings"
+  | "crosslist"
+  | "shopDesigner"
+  | "restocker"
+  | "relister"
+  | "priceDrops"
+  | "followBot"
+  | "offers"
+  | "autoOffers"
+  | "conversations"
+  | "labels";
 
 interface SideTab {
   id: TabId;
@@ -72,62 +72,67 @@ interface SideTab {
 // in messages/*.json so the demo localises with the site language. Order
 // here is the rendering order of the sidebar.
 const SIDE_TABS: SideTab[] = [
-  { id: 'crosslist', icon: 'swap' },
-  { id: 'restocker', icon: 'refresh' },
-  { id: 'shopDesigner', icon: 'layout' },
-  { id: 'listings', icon: 'grid' },
-  { id: 'relister', icon: 'rotate' },
-  { id: 'priceDrops', icon: 'tag' },
-  { id: 'followBot', icon: 'users' },
-  { id: 'offers', icon: 'zap' },
-  { id: 'autoOffers', icon: 'sparkle' },
-  { id: 'conversations', icon: 'message' },
-  { id: 'labels', icon: 'box' },
+  { id: "crosslist", icon: "swap" },
+  { id: "restocker", icon: "refresh" },
+  { id: "shopDesigner", icon: "layout" },
+  { id: "listings", icon: "grid" },
+  { id: "relister", icon: "rotate" },
+  { id: "priceDrops", icon: "tag" },
+  { id: "followBot", icon: "users" },
+  { id: "offers", icon: "zap" },
+  { id: "autoOffers", icon: "sparkle" },
+  { id: "conversations", icon: "message" },
+  { id: "labels", icon: "box" },
 ];
 
 // Product photos. Local studio shots of the accessory items the demo shop
 // sells across both marketplaces.
 const PHOTO = {
-  crossNecklace: '/products/cross-necklace.jpg',
-  crystalCross: '/products/crystal-cross.jpg',
-  roseCharm: '/products/rose-charm.jpg',
-  strawberryRings: '/products/strawberry-rings.jpg',
-  catRing: '/products/cat-ring.jpg',
-  sportSunglasses: '/products/sport-sunglasses.jpg',
-  starBeanie: '/products/star-beanie.jpg',
+  crossNecklace: "/products/cross-necklace.jpg",
+  crystalCross: "/products/crystal-cross.jpg",
+  roseCharm: "/products/rose-charm.jpg",
+  strawberryRings: "/products/strawberry-rings.jpg",
+  catRing: "/products/cat-ring.jpg",
+  sportSunglasses: "/products/sport-sunglasses.jpg",
+  starBeanie: "/products/star-beanie.jpg",
+  whiteStarBeanie: "/products/white-star-beanie.jpg",
+  greyStarBeanie: "/products/grey-star-beanie.jpg",
+  unionJackBeanie: "/products/union-jack-beanie.jpg",
+  westernBelt: "/products/western-belt.jpg",
+  blackSunglasses: "/products/black-sunglasses.jpg",
 } as const;
 
 function avatarStyle(hue: number): CSSProperties {
   return { background: `hsl(${hue} 55% 42%)` };
 }
 
-function platformBorder(platform: 'depop' | 'vinted'): string {
-  return platform === 'depop'
-    ? 'border-l-[2px] border-l-[rgba(255,35,0,0.55)]'
-    : 'border-l-[2px] border-l-[rgba(9,177,136,0.55)]';
+function platformBorder(platform: "depop" | "vinted"): string {
+  return platform === "depop"
+    ? "border-l-[2px] border-l-[rgba(255,35,0,0.55)]"
+    : "border-l-[2px] border-l-[rgba(9,177,136,0.55)]";
 }
 
-function chipClass(tone: 'success' | 'neutral' | 'warn'): string {
-  if (tone === 'success')
-    return 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300';
-  if (tone === 'warn')
-    return 'bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300';
-  return 'bg-zinc-900/[0.06] text-zinc-600 dark:bg-white/10 dark:text-zinc-300';
+function chipClass(tone: "success" | "neutral" | "warn"): string {
+  if (tone === "success")
+    return "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300";
+  if (tone === "warn")
+    return "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300";
+  return "bg-zinc-900/[0.06] text-zinc-600 dark:bg-white/10 dark:text-zinc-300";
 }
 
 function PlatformBadge({
   platform,
   size = 14,
 }: {
-  platform: 'depop' | 'vinted';
+  platform: "depop" | "vinted";
   size?: number;
 }) {
-  const src = platform === 'depop' ? '/depop-logo.png' : '/vinted-logo.png';
+  const src = platform === "depop" ? "/depop-logo.png" : "/vinted-logo.png";
   return (
     // eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size platform logo; next/image adds no value here
     <img
       src={src}
-      alt={platform === 'depop' ? 'Depop' : 'Vinted'}
+      alt={platform === "depop" ? "Depop" : "Vinted"}
       width={size}
       height={size}
       className="flex-shrink-0 rounded-[3px] object-contain"
@@ -143,14 +148,14 @@ export function ListingsPanel() {
   // thumbnail, title + brand chip, platform logos (stacked for cross-listed
   // items), price (stacked when prices differ across platforms), views,
   // status pill, restock toggle + quantity.
-  type Status = 'active' | 'draft' | 'sold';
+  type Status = "active" | "draft" | "sold";
   const rows: {
     title: string;
     brand?: string;
     photo: string;
     type: ProductType;
     hue: number;
-    platforms: ('depop' | 'vinted')[];
+    platforms: ("depop" | "vinted")[];
     prices: string[];
     views: number;
     likes: number;
@@ -160,115 +165,133 @@ export function ListingsPanel() {
     listed: string;
   }[] = [
     {
-      title: 'Star beanie vintage y2k',
-      brand: 'Vintage',
+      title: "Star beanie vintage y2k",
+      brand: "Vintage",
       photo: PHOTO.starBeanie,
-      type: 'tee',
+      type: "tee",
       hue: 220,
-      platforms: ['depop', 'vinted'],
-      prices: ['£22', '£24'],
+      platforms: ["depop", "vinted"],
+      prices: ["£22", "£24"],
       views: 87,
       likes: 14,
-      statuses: ['active', 'active'],
+      statuses: ["active", "active"],
       restockOn: true,
       restockQty: 3,
-      listed: '2d',
+      listed: "2d",
     },
     {
-      title: 'Crystal cross y2k pendant',
-      brand: 'Pre-loved',
+      title: "Crystal cross y2k pendant",
+      brand: "Pre-loved",
       photo: PHOTO.crystalCross,
-      type: 'tee',
+      type: "tee",
       hue: 200,
-      platforms: ['depop'],
-      prices: ['£28'],
+      platforms: ["depop"],
+      prices: ["£28"],
       views: 124,
       likes: 22,
-      statuses: ['active'],
+      statuses: ["active"],
       restockOn: true,
       restockQty: 5,
-      listed: '5d',
+      listed: "5d",
     },
     {
-      title: 'Blue cross beaded necklace',
-      photo: PHOTO.crossNecklace,
-      type: 'tee',
+      title: "Blue cross beaded necklace",
+      photo: PHOTO.crystalCross,
+      type: "tee",
       hue: 195,
-      platforms: ['depop', 'vinted'],
-      prices: ['£18'],
+      platforms: ["depop", "vinted"],
+      prices: ["£18"],
       views: 56,
       likes: 9,
-      statuses: ['active', 'active'],
+      statuses: ["active", "active"],
       restockOn: true,
       restockQty: 1,
-      listed: '8d',
+      listed: "8d",
     },
     {
-      title: 'Rose charm gold clip',
-      brand: 'Vintage',
+      title: "Rose charm gold clip",
+      brand: "Vintage",
       photo: PHOTO.roseCharm,
-      type: 'tee',
+      type: "tee",
       hue: 8,
-      platforms: ['vinted'],
-      prices: ['£12'],
+      platforms: ["vinted"],
+      prices: ["£12"],
       views: 23,
       likes: 3,
-      statuses: ['draft'],
+      statuses: ["draft"],
       restockOn: false,
       restockQty: 0,
-      listed: '1d',
+      listed: "1d",
     },
     {
-      title: 'Strawberry rings 2-pack',
+      title: "Strawberry rings 2-pack",
       photo: PHOTO.strawberryRings,
-      type: 'tee',
+      type: "tee",
       hue: 0,
-      platforms: ['depop'],
-      prices: ['£16'],
+      platforms: ["depop"],
+      prices: ["£16"],
       views: 198,
       likes: 41,
-      statuses: ['active'],
+      statuses: ["active"],
       restockOn: false,
       restockQty: 0,
-      listed: '12d',
+      listed: "12d",
     },
     {
-      title: 'Sport shades black wraparound',
-      brand: 'Y2K',
+      title: "Sport shades black wraparound",
+      brand: "Y2K",
       photo: PHOTO.sportSunglasses,
-      type: 'tee',
+      type: "tee",
       hue: 210,
-      platforms: ['depop', 'vinted'],
-      prices: ['£24', '£25'],
+      platforms: ["depop", "vinted"],
+      prices: ["£24", "£25"],
       views: 64,
       likes: 11,
-      statuses: ['sold', 'active'],
+      statuses: ["sold", "active"],
       restockOn: true,
       restockQty: 2,
-      listed: '18d',
+      listed: "18d",
     },
   ];
 
   const statusClass = (s: Status) =>
-    s === 'active'
-      ? 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300'
-      : s === 'draft'
-      ? 'bg-amber-500/10 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300'
-      : 'bg-zinc-900/[0.06] text-zinc-600 dark:bg-white/10 dark:text-zinc-300';
+    s === "active"
+      ? "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300"
+      : s === "draft"
+        ? "bg-amber-500/10 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300"
+        : "bg-zinc-900/[0.06] text-zinc-600 dark:bg-white/10 dark:text-zinc-300";
 
   return (
     <div className="cascade-list flex flex-col gap-1.5">
       {/* Toolbar: search + filter chips + count */}
       <div
         className="cascade-item flex items-center gap-2 rounded-md border border-black/[0.06] bg-white px-2 py-1.5 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        style={{ "--stagger-delay": `0ms` } as CSSProperties}
       >
         <div className="flex flex-1 items-center gap-1.5 rounded bg-zinc-100/70 px-2 py-1 dark:bg-white/[0.04]">
-          <svg viewBox="0 0 14 14" className="h-3 w-3 text-zinc-400" fill="none" aria-hidden="true">
-            <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.4" />
-            <path d="M12 12L9 9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          <svg
+            viewBox="0 0 14 14"
+            className="h-3 w-3 text-zinc-400"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              cx="6"
+              cy="6"
+              r="4"
+              stroke="currentColor"
+              strokeWidth="1.4"
+            />
+            <path
+              d="M12 12L9 9"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
           </svg>
-          <span className="text-[10.5px] text-zinc-400">Search 128 listings</span>
+          <span className="text-[10.5px] text-zinc-400">
+            Search 128 listings
+          </span>
         </div>
         <span className="rounded-full bg-zinc-900 px-2 py-[2px] text-[9.5px] font-semibold text-white dark:bg-white dark:text-zinc-900">
           All
@@ -286,7 +309,7 @@ export function ListingsPanel() {
       {/* Table header row */}
       <div
         className="cascade-item grid grid-cols-[28px_1fr_36px_56px_60px] items-center gap-2 px-2 font-mono text-[8.5px] uppercase tracking-[0.1em] text-zinc-500 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px]"
-        style={{ '--stagger-delay': `40ms` } as CSSProperties}
+        style={{ "--stagger-delay": `40ms` } as CSSProperties}
       >
         <span />
         <span>Item</span>
@@ -303,7 +326,7 @@ export function ListingsPanel() {
           <li
             key={r.title}
             className="cascade-item grid grid-cols-[28px_1fr_36px_56px_60px] items-center gap-2 rounded-md border border-black/[0.06] bg-white px-2 py-1.5 sm:grid-cols-[28px_1fr_36px_56px_38px_60px_28px] dark:border-white/10 dark:bg-white/[0.02]"
-            style={{ '--stagger-delay': `${80 + i * 50}ms` } as CSSProperties}
+            style={{ "--stagger-delay": `${80 + i * 50}ms` } as CSSProperties}
           >
             <ProductImage
               type={r.type}
@@ -317,9 +340,24 @@ export function ListingsPanel() {
                   {r.title}
                 </span>
                 {r.platforms.length > 1 && (
-                  <svg viewBox="0 0 14 14" className="h-2.5 w-2.5 flex-shrink-0 text-emerald-500" fill="none" aria-hidden="true">
-                    <path d="M6 8a3 3 0 0 0 4.24.24l1.76-1.76a3 3 0 0 0-4.24-4.24l-1 1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                    <path d="M8 6a3 3 0 0 0-4.24-.24L2 7.52a3 3 0 0 0 4.24 4.24l1-1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  <svg
+                    viewBox="0 0 14 14"
+                    className="h-2.5 w-2.5 flex-shrink-0 text-emerald-500"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M6 8a3 3 0 0 0 4.24.24l1.76-1.76a3 3 0 0 0-4.24-4.24l-1 1"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M8 6a3 3 0 0 0-4.24-.24L2 7.52a3 3 0 0 0 4.24 4.24l1-1"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 )}
               </div>
@@ -330,7 +368,11 @@ export function ListingsPanel() {
                   </span>
                 )}
                 <span className="inline-flex items-center gap-0.5">
-                  <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 fill-current" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 12 12"
+                    className="h-2.5 w-2.5 fill-current"
+                    aria-hidden="true"
+                  >
                     <path d="M6 10.5c-.2 0-.4-.1-.6-.2C2.4 7.9.5 6.2.5 4c0-1.7 1.3-3 3-3 1 0 1.9.5 2.5 1.2C6.6 1.5 7.5 1 8.5 1c1.7 0 3 1.3 3 3 0 2.2-1.9 3.9-4.9 6.3-.2.1-.4.2-.6.2z" />
                   </svg>
                   {r.likes}
@@ -364,13 +406,15 @@ export function ListingsPanel() {
             <div className="flex items-center justify-center gap-1">
               <span
                 className={`relative inline-flex h-3 w-5 items-center rounded-full transition-colors ${
-                  r.restockOn ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-white/15'
+                  r.restockOn
+                    ? "bg-emerald-500"
+                    : "bg-zinc-300 dark:bg-white/15"
                 }`}
                 aria-hidden
               >
                 <span
                   className={`absolute h-2.5 w-2.5 rounded-full bg-white shadow-sm transition-transform ${
-                    r.restockOn ? 'translate-x-2' : 'translate-x-[1px]'
+                    r.restockOn ? "translate-x-2" : "translate-x-[1px]"
                   }`}
                 />
               </span>
@@ -378,15 +422,17 @@ export function ListingsPanel() {
                 className={`font-mono text-[10px] tabular-nums ${
                   r.restockOn
                     ? r.restockQty <= 1
-                      ? 'text-amber-600 dark:text-amber-400'
-                      : 'text-zinc-900 dark:text-zinc-100'
-                    : 'text-zinc-400'
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-zinc-900 dark:text-zinc-100"
+                    : "text-zinc-400"
                 }`}
               >
-                {r.restockOn ? r.restockQty : '--'}
+                {r.restockOn ? r.restockQty : "--"}
               </span>
             </div>
-            <div className="hidden text-right font-mono text-[9.5px] text-zinc-500 sm:block">{r.listed}</div>
+            <div className="hidden text-right font-mono text-[9.5px] text-zinc-500 sm:block">
+              {r.listed}
+            </div>
           </li>
         ))}
       </ul>
@@ -394,7 +440,7 @@ export function ListingsPanel() {
       {/* Pagination row */}
       <div
         className="cascade-item flex items-center justify-between px-1 pt-1 text-[9.5px] text-zinc-500"
-        style={{ '--stagger-delay': `${80 + 6 * 50}ms` } as CSSProperties}
+        style={{ "--stagger-delay": `${80 + 6 * 50}ms` } as CSSProperties}
       >
         <span className="font-mono">128 listings · 6 shown</span>
         <span className="inline-flex items-center gap-1.5">
@@ -412,259 +458,192 @@ export function ListingsPanel() {
 }
 
 export function CrosslistPanel() {
-  // Vinted (source) and Depop (target) cards are deliberately styled to
-  // mimic each platform: Vinted's teal accents + "heart + measurements"
-  // sidebar style, Depop's red accents + "@user + tags" feed style. Same
-  // item, two visibly different homes - that's the crosslist story.
+  // Deliberately close to nothing: two photos, the marketplace each belongs
+  // to, an arrow, and one line of text.
   //
-  // The target card builds itself field by field rather than arriving whole.
-  // This is the default tab, so it is the first thing most visitors see, and a
-  // finished card told them the outcome without ever showing the work. Five
-  // steps at roughly a second each plus a hold is about 7s, which fits inside
-  // the 8s auto-advance budget so a passive visitor sees a full pass.
+  // This used to be a pair of mocked marketplace cards — brand-tinted borders,
+  // header bars, a fake @handle with a star avatar, price, fee, likes, size,
+  // hashtags, a chip row and a progress bar. All of it was invented UI that the
+  // crosslister does not have, and at phone width it collapsed into clutter.
+  // The story is "the same item, now on both marketplaces", and two photos with
+  // an arrow between them tell that on their own. Everything removed was
+  // decoration around that sentence.
   const tick = useAnimationTick(100);
   const reduced = usePrefersReducedMotion();
 
-  const CYCLE = 74;
-  const STEP_TICKS = [6, 16, 26, 36, 46];
+  // Paced to be watched, not raced through. Fields used to land every second
+  // with a 2.8s hold; now it is 1.4s between each and a 4.4s settle at the end,
+  // so the eye can finish one row before the next moves and the scene has a
+  // moment of stillness before it loops.
+  const CYCLE = 110; // 11s
+  const STEP_TICKS = [10, 24, 38, 52, 66];
   const phase = tick % CYCLE;
-  // Reduced motion holds tick at 0, so show the completed card instead of an
-  // empty one.
-  const step = reduced ? STEP_TICKS.length : STEP_TICKS.filter((s) => phase >= s).length;
+  const step = reduced
+    ? STEP_TICKS.length
+    : STEP_TICKS.filter((s) => phase >= s).length;
   const done = step >= STEP_TICKS.length;
-  // The arrow flashes for ~400ms each time a field lands.
+  // The arrow warms for ~600ms as each field lands, so the pair reads as
+  // actively syncing rather than as a static before/after. Longer than the old
+  // 400ms: at the slower cadence a short flash read as a twitch.
   const landing =
-    !reduced && STEP_TICKS.some((s) => phase >= s && phase < s + 4);
+    !reduced && STEP_TICKS.some((s) => phase >= s && phase < s + 6);
 
-  // Fields fade up into place. Anything not yet mapped sits invisible but keeps
-  // its space, so the card never reflows and the outer height stays put.
-  const field = (at: number): string =>
-    `transition-all duration-300 ease-out ${
-      step >= at ? 'opacity-100 translate-y-0' : 'translate-y-1 opacity-0'
-    }`;
+  // Fields are shown, not narrated: the progress line below fills as each one
+  // maps across. The names still exist for screen readers, which get nothing
+  // from a moving line.
+  const FIELDS = ["brand", "category", "size", "condition"] as const;
+  const label = done
+    ? "Listed on Depop"
+    : `Mapping ${FIELDS[Math.min(step, FIELDS.length - 1)]}`;
+  const progress = (step / STEP_TICKS.length) * 100;
+
+  // The photo's wipe is a CSS animation, not a per-tick style.
+  //
+  // It used to recompute a mask gradient on every 100ms tick, which meant the
+  // edge advanced ten times a second and each step went through a full React
+  // re-render of the panel. That is what looked laggy: it was not a wipe at
+  // 60fps, it was twelve visible jumps. As a CSS animation the browser
+  // interpolates it on the compositor and React is not involved at all.
+  //
+  // The keyframes live in globals.css and are timed against this cycle, so the
+  // two must move together: the wipe runs between the first and last field
+  // landing, expressed there as percentages of CYCLE.
 
   return (
-    <div className="cascade-list flex flex-col gap-3">
-      <div className="cascade-list grid grid-cols-[1fr_auto_1fr] items-stretch gap-2">
-        {/* Source: Vinted - teal palette, clean grid look */}
-        <div
-          className="cascade-item flex flex-col overflow-hidden rounded-lg border-2 border-[#007782]/25 bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] dark:border-[#007782]/35 dark:bg-white/[0.02]"
-          style={{ '--stagger-delay': `0ms` } as CSSProperties}
+    <div className="cascade-list panel-fluid flex flex-col items-center gap-6">
+      <div className="cascade-list grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-6">
+        {/* Source */}
+        <figure
+          className="cascade-item m-0 flex flex-col items-center gap-3"
+          style={{ "--stagger-delay": "0ms" } as CSSProperties}
         >
-          <div className="flex items-center justify-between border-b border-[#007782]/15 bg-[#007782]/[0.06] px-2 py-1 dark:bg-[#007782]/[0.12]">
-            <BrandWordmark brand="vinted" variant="wordmark" height="0.9em" />
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-[#007782] dark:text-[#5bb4be]">
-              Source
-            </span>
-          </div>
+          <BrandWordmark brand="vinted" variant="wordmark" height="1em" />
           <ProductImage
             type="tee"
             hue={220}
             src={PHOTO.starBeanie}
-            className="aspect-square w-full"
+            className="aspect-square w-full rounded-xl"
           />
-          <div className="flex flex-col gap-1 p-2">
-            <div className="flex items-center gap-1.5 text-[9px] text-zinc-500">
-              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-[#5bb4be] to-[#007782] shadow-[0_0_0_1.5px_white,0_1px_2px_rgba(0,119,130,0.45)] dark:shadow-[0_0_0_1.5px_rgba(255,255,255,0.6),0_1px_2px_rgba(0,119,130,0.5)]">
-                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="currentColor" aria-hidden="true">
-                  <path d="M6 1l1.5 3.5L11 5l-2.7 2.3.8 3.5L6 9l-3.1 1.8.8-3.5L1 5l3.5-.5L6 1z" />
-                </svg>
-              </span>
-              <span className="font-medium text-zinc-700 dark:text-zinc-300">@your_shop</span>
-            </div>
-            <div className="truncate text-[11px] font-semibold text-zinc-900 dark:text-zinc-100">
-              Star beanie
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-mono text-[12px] font-bold text-[#007782] dark:text-[#5bb4be]">
-                £22
-              </span>
-              <span className="text-[9px] text-zinc-500">incl. fee £24.50</span>
-            </div>
-            <div className="flex items-center gap-2 text-[9px] text-zinc-500">
-              <span className="inline-flex items-center gap-0.5">
-                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="currentColor" aria-hidden="true">
-                  <path d="M6 10.5c-.2 0-.4-.1-.6-.2C2.4 7.9.5 6.2.5 4c0-1.7 1.3-3 3-3 1 0 1.9.5 2.5 1.2C6.6 1.5 7.5 1 8.5 1c1.7 0 3 1.3 3 3 0 2.2-1.9 3.9-4.9 6.3-.2.1-.4.2-.6.2z" />
-                </svg>
-                12
-              </span>
-              <span>·</span>
-              <span>Size: One size</span>
-            </div>
-          </div>
-        </div>
+        </figure>
 
-        {/* Mapping arrow: bidirectional, crosslist runs either direction */}
+        {/* Arrow — bidirectional, because crosslisting runs either way. */}
         <div
-          className="cascade-item relative flex flex-col items-center justify-center gap-1.5 px-1 pt-6"
-          style={{ '--stagger-delay': `100ms` } as CSSProperties}
+          className="cascade-item flex items-center justify-center"
+          style={{ "--stagger-delay": "100ms" } as CSSProperties}
         >
           <svg
-            className={`size-6 transition-colors duration-200 ${
+            className={`size-5 transition-colors duration-300 sm:size-6 ${
               landing
-                ? 'text-emerald-500 dark:text-emerald-400'
-                : 'text-zinc-400 dark:text-zinc-500'
+                ? "text-emerald-500 dark:text-emerald-400"
+                : "text-zinc-300 dark:text-zinc-600"
             }`}
             viewBox="0 0 28 24"
             fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
             aria-hidden="true"
           >
-            <path
-              d="M3 12h22M3 12l5-5M3 12l5 5M25 12l-5-5M25 12l-5 5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M4 12h20M20 8l4 4-4 4M8 8l-4 4 4 4" />
           </svg>
-          {/* Fixed width on purpose. This sits in the grid's `auto` column, so
-              any change to its text would resize the column and squeeze the two
-              1fr cards either side. They are aspect-square, so that reads as the
-              cards shrinking when the run finishes. */}
-          <span className="block w-[46px] whitespace-nowrap text-center font-mono text-[8.5px] uppercase tracking-[0.1em] tabular-nums text-emerald-600 dark:text-emerald-400">
-            {done ? 'mapped' : `${step}/${STEP_TICKS.length}`}
-          </span>
         </div>
 
-        {/* Target: Depop - red palette, social feed look */}
-        <div
-          className="cascade-item flex flex-col overflow-hidden rounded-lg border-2 border-[#ff2300]/25 bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] dark:border-[#ff2300]/35 dark:bg-white/[0.02]"
-          style={{ '--stagger-delay': `200ms` } as CSSProperties}
+        {/* Target — fades up as the listing is created, so the pair is not
+            simply two identical photos sitting side by side. */}
+        <figure
+          className="cascade-item m-0 flex flex-col items-center gap-3"
+          style={{ "--stagger-delay": "200ms" } as CSSProperties}
         >
-          <div className="flex items-center justify-between border-b border-[#ff2300]/15 bg-[#ff2300]/[0.06] px-2 py-1 dark:bg-[#ff2300]/[0.12]">
-            <BrandWordmark brand="depop" variant="wordmark" height="0.7em" />
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-[#ff2300] dark:text-[#ff7a66]">
-              Target
-            </span>
-          </div>
-          <div className="relative aspect-square w-full overflow-hidden">
-            {/* Placeholder holds the frame until the photo is uploaded, so the
-                card has the same footprint empty as it does full. */}
-            <div
-              className={`absolute inset-0 bg-zinc-100 transition-opacity duration-300 dark:bg-white/[0.04] ${
-                step >= 1 ? 'opacity-0' : 'opacity-100'
-              }`}
-              aria-hidden="true"
-            />
-            <ProductImage
-              type="tee"
-              hue={220}
-              src={PHOTO.starBeanie}
-              className={`aspect-square w-full ${field(1)}`}
-            />
-          </div>
-          <div className="flex flex-col gap-1 p-2">
-            <div className={`flex items-center gap-1.5 text-[9px] text-zinc-500 ${field(1)}`}>
-              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-[#ff7a66] to-[#ff2300] shadow-[0_0_0_1.5px_white,0_1px_2px_rgba(255,35,0,0.45)] dark:shadow-[0_0_0_1.5px_rgba(255,255,255,0.6),0_1px_2px_rgba(255,35,0,0.5)]">
-                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-white" fill="currentColor" aria-hidden="true">
-                  <path d="M6 1l1.5 3.5L11 5l-2.7 2.3.8 3.5L6 9l-3.1 1.8.8-3.5L1 5l3.5-.5L6 1z" />
-                </svg>
-              </span>
-              <span className="font-medium text-zinc-700 dark:text-zinc-300">@your_shop</span>
+          <BrandWordmark brand="depop" variant="wordmark" height="0.8em" />
+          {/* The listing SHARPENS rather than being uncovered.
+              Two stacked copies of the same photo: a blurred one that is fully
+              visible the whole time, and a sharp one on top that wipes down
+              over it as the fields map across.
+
+              The previous version clipped the sharp photo from the bottom, so
+              the lower half of the frame was simply empty until progress
+              reached it — the item looked half-missing rather than half-done.
+              Keeping the blurred copy underneath means the whole item is there
+              from the first frame and what changes is its resolution, which is
+              much closer to what crosslisting actually does: the listing exists,
+              the details are still filling in.
+
+              Neither copy carries a backdrop — animating the frame brought its
+              grey placeholder along, so a dark square appeared and resolved
+              into a hat, which read as a glitch. */}
+          {/* Each copy sits in its OWN absolutely-positioned wrapper.
+              ProductImage hardcodes `relative` on its root before spreading
+              `className`, and `absolute` passed in there does not reliably win:
+              Tailwind resolves same-property utilities by stylesheet order, not
+              by the order they appear in the attribute. The two layers fell
+              back into normal flow and stacked vertically, which is why the
+              sharp photo rendered a full frame BELOW the blurred one instead of
+              on top of it. Positioning the wrappers takes the fight away. */}
+          <div className="relative aspect-square w-full">
+            <div className="absolute inset-0">
+              <ProductImage
+                type="tee"
+                hue={220}
+                src={PHOTO.starBeanie}
+                noBackdrop
+                className="h-full w-full rounded-xl"
+                imgClassName="crosslist-blurred"
+              />
             </div>
-            <div
-              className={`truncate text-[11px] font-semibold text-zinc-900 dark:text-zinc-100 ${field(2)}`}
-            >
-              Star beanie vintage y2k
-            </div>
-            <div className={`flex items-baseline justify-between ${field(3)}`}>
-              <span className="font-mono text-[12px] font-bold text-[#ff2300]">
-                £22
-              </span>
-              <span className="text-[9px] font-medium text-zinc-500">+ POSTAGE</span>
-            </div>
-            <div className={`flex flex-wrap items-center gap-1 ${field(4)}`}>
-              <span className="rounded-full bg-zinc-900/[0.06] px-1.5 py-[1px] text-[8.5px] text-zinc-700 dark:bg-white/10 dark:text-zinc-300">
-                #y2k
-              </span>
-              <span className="rounded-full bg-zinc-900/[0.06] px-1.5 py-[1px] text-[8.5px] text-zinc-700 dark:bg-white/10 dark:text-zinc-300">
-                #beanie
-              </span>
-              <span className="rounded-full bg-zinc-900/[0.06] px-1.5 py-[1px] text-[8.5px] text-zinc-700 dark:bg-white/10 dark:text-zinc-300">
-                #vintage
-              </span>
+            <div className="absolute inset-0">
+              <ProductImage
+                type="tee"
+                hue={220}
+                src={PHOTO.starBeanie}
+                noBackdrop
+                className="h-full w-full rounded-xl"
+                imgClassName={reduced ? "" : "crosslist-wipe"}
+              />
             </div>
           </div>
-        </div>
+        </figure>
       </div>
 
-      {/* Mapped fields summary: shows what got resolved between schemas */}
+      {/* A line that fills as the fields map across, rather than a sentence
+          describing it. Words made the panel read as a caption with a picture
+          above; the transfer is the subject, so it should be something you
+          watch rather than something you read. Fixed width so it cannot shift
+          as it fills, and the accessible name carries what the text used to
+          say. */}
       <div
-        className="cascade-item flex flex-wrap items-center gap-1.5"
-        style={{ '--stagger-delay': `300ms` } as CSSProperties}
+        className="cascade-item flex w-full max-w-[180px] flex-col items-center gap-2"
+        style={{ "--stagger-delay": "300ms" } as CSSProperties}
       >
-        {[
-          ['Brand', 'Vintage'],
-          ['Category', 'Hats'],
-          ['Size', 'One size'],
-          ['Condition', 'Like new'],
-        ].map(([k, v], i) => {
-          // Each chip resolves alongside the step that needs it, so the row
-          // reads as the mapper working rather than a static legend.
-          const resolved = step >= i + 1;
-          return (
-            <span
-              key={k}
-              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] transition-colors duration-300 ${
-                resolved
-                  ? 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
-                  : 'border-dashed border-black/[0.08] bg-transparent dark:border-white/10'
-              }`}
-            >
-              <span className="font-mono text-[8.5px] uppercase tracking-[0.08em] text-zinc-500">
-                {k}
-              </span>
-              {/* An invisible copy of the final value reserves the width, so a
-                  chip is the same size unresolved as resolved and the row can
-                  never reflow mid-run. */}
-              <span className="relative inline-block">
-                <span className="invisible" aria-hidden="true">
-                  {v}
-                </span>
-                <span
-                  className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-                    resolved
-                      ? 'text-zinc-900 opacity-100 dark:text-zinc-100'
-                      : 'text-zinc-400 opacity-60 dark:text-zinc-600'
-                  }`}
-                >
-                  {resolved ? v : '...'}
-                </span>
-              </span>
-            </span>
-          );
-        })}
-      </div>
-
-      {/* Active progress sweep: tells the user something is happening NOW */}
-      <div
-        className="cascade-item relative overflow-hidden rounded-md border border-emerald-500/30 bg-emerald-500/[0.06] px-3 py-1.5"
-        style={{ '--stagger-delay': `380ms` } as CSSProperties}
-      >
-        <div className="relative z-10 flex items-center justify-between text-[11px]">
-          <span className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
-            {done && (
-              <svg
-                viewBox="0 0 12 12"
-                className="h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M2.5 6.5l2.5 2.5 4.5-5" />
-              </svg>
-            )}
-            {done ? 'Listed on Depop' : 'Posting to Depop'}
-          </span>
-          <span className="font-mono text-[10px] text-emerald-700/70 dark:text-emerald-300/70">
-            {done ? 'done' : `step ${step + 1} of ${STEP_TICKS.length}`}
-          </span>
+        <div
+          className="h-[3px] w-full overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/10"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={STEP_TICKS.length}
+          aria-valuenow={step}
+          aria-label={label}
+        >
+          <div
+            className={`h-full rounded-full transition-[width,background-color] duration-[900ms] ease-out ${
+              done
+                ? "bg-emerald-500 dark:bg-emerald-400"
+                : "bg-zinc-400 dark:bg-zinc-500"
+            }`}
+            style={{ width: `${progress}%` }}
+          />
         </div>
-        {/* The sweep is the "working" cue, so it stops once the item is live. */}
-        {!done && <span className="hero-progress-sweep" aria-hidden="true" />}
+        {/* Names what the bar is doing. Small and tracked so it stays a status
+            line rather than becoming a caption competing with the photos. */}
+        <span
+          aria-hidden
+          className={`font-mono text-[9px] uppercase tracking-[0.16em] transition-colors duration-300 ${
+            done
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-zinc-400 dark:text-zinc-500"
+          }`}
+        >
+          {label}
+        </span>
       </div>
     </div>
   );
@@ -681,14 +660,14 @@ export function AutoOffersPanel() {
   const offerIndex = Math.floor(tick / TICKS_PER_OFFER);
   const inOffer = tick % TICKS_PER_OFFER;
 
-  type Phase = 'like' | 'preparing' | 'sent';
+  type Phase = "like" | "preparing" | "sent";
   const phase: Phase =
-    inOffer < 12 ? 'like' : inOffer < 30 ? 'preparing' : 'sent';
+    inOffer < 12 ? "like" : inOffer < 30 ? "preparing" : "sent";
 
   // Pool of likers + items the bot rotates through. Each one gets an
   // auto-offer at 85% of listed (rounded to the nearest pound).
   const POOL: {
-    platform: 'depop' | 'vinted';
+    platform: "depop" | "vinted";
     username: string;
     hue: number;
     type: ProductType;
@@ -696,22 +675,66 @@ export function AutoOffersPanel() {
     initial: string;
     item: string;
     listed: number;
-    historyOutcome: 'accepted' | 'pending' | 'declined';
+    historyOutcome: "accepted" | "pending" | "declined";
   }[] = [
-    { platform: 'depop', username: 'sam_thrifts', hue: 200, type: 'tee', photo: PHOTO.crystalCross,    initial: 'S', item: 'Crystal cross',  listed: 28, historyOutcome: 'accepted' },
-    { platform: 'vinted', username: 'mia_v',       hue: 0,   type: 'tee', photo: PHOTO.strawberryRings, initial: 'M', item: 'Strawberry rings', listed: 16, historyOutcome: 'pending'  },
-    { platform: 'depop', username: 'lila_resale', hue: 195, type: 'tee', photo: PHOTO.crossNecklace,  initial: 'L', item: 'Cross necklace', listed: 18, historyOutcome: 'accepted' },
-    { platform: 'vinted', username: 'kai_pop',     hue: 22,  type: 'tee', photo: PHOTO.starBeanie,     initial: 'K', item: 'Star beanie',    listed: 22, historyOutcome: 'declined' },
+    {
+      platform: "depop",
+      username: "sam_thrifts",
+      hue: 200,
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      initial: "S",
+      item: "Crystal cross",
+      listed: 28,
+      historyOutcome: "accepted",
+    },
+    {
+      platform: "vinted",
+      username: "mia_v",
+      hue: 0,
+      type: "tee",
+      photo: PHOTO.strawberryRings,
+      initial: "M",
+      item: "Strawberry rings",
+      listed: 16,
+      historyOutcome: "pending",
+    },
+    {
+      platform: "depop",
+      username: "lila_resale",
+      hue: 195,
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      initial: "L",
+      item: "Crystal cross",
+      listed: 18,
+      historyOutcome: "accepted",
+    },
+    {
+      platform: "vinted",
+      username: "kai_pop",
+      hue: 22,
+      type: "tee",
+      photo: PHOTO.starBeanie,
+      initial: "K",
+      item: "Star beanie",
+      listed: 22,
+      historyOutcome: "declined",
+    },
   ];
 
   const discountPct = 15; // 15% off listed
-  const offerPriceFor = (listed: number) => Math.max(1, Math.round(listed * (1 - discountPct / 100)));
+  const offerPriceFor = (listed: number) =>
+    Math.max(1, Math.round(listed * (1 - discountPct / 100)));
 
   const active = POOL[offerIndex % POOL.length];
   const activeOffer = offerPriceFor(active.listed);
 
   // History rows = the two most recent sent offers (one and two cycles back).
-  const history = [1, 2].map((back) => POOL[((offerIndex - back) % POOL.length + POOL.length) % POOL.length]);
+  const history = [1, 2].map(
+    (back) =>
+      POOL[(((offerIndex - back) % POOL.length) + POOL.length) % POOL.length],
+  );
 
   // Stats climb as the demo runs.
   const sent = 38 + offerIndex;
@@ -721,7 +744,7 @@ export function AutoOffersPanel() {
     <div className="cascade-list flex flex-col gap-1.5">
       <div
         className="cascade-item grid grid-cols-3 divide-x divide-black/[0.06] rounded-md border border-black/[0.06] bg-white py-1 text-center dark:divide-white/10 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        style={{ "--stagger-delay": `0ms` } as CSSProperties}
       >
         <div className="px-2">
           <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
@@ -753,13 +776,13 @@ export function AutoOffersPanel() {
       <div
         key={`active-${offerIndex}`}
         className={`cascade-item relative flex flex-col gap-1.5 rounded-md border bg-white px-2.5 py-2 transition-colors duration-300 dark:bg-white/[0.02] ${
-          phase === 'sent'
-            ? 'border-emerald-500/30 bg-emerald-500/[0.04] dark:border-emerald-400/30 dark:bg-emerald-400/[0.04]'
-            : phase === 'like'
-            ? 'border-pink-500/30 bg-pink-500/[0.04] dark:border-pink-400/30 dark:bg-pink-400/[0.04]'
-            : 'border-black/[0.08] dark:border-white/15'
+          phase === "sent"
+            ? "border-emerald-500/30 bg-emerald-500/[0.04] dark:border-emerald-400/30 dark:bg-emerald-400/[0.04]"
+            : phase === "like"
+              ? "border-pink-500/30 bg-pink-500/[0.04] dark:border-pink-400/30 dark:bg-pink-400/[0.04]"
+              : "border-black/[0.08] dark:border-white/15"
         }`}
-        style={{ '--stagger-delay': `60ms` } as CSSProperties}
+        style={{ "--stagger-delay": `60ms` } as CSSProperties}
       >
         <div className="flex items-center gap-2.5">
           <span
@@ -772,16 +795,16 @@ export function AutoOffersPanel() {
             <div className="flex items-center gap-2">
               <span
                 className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${
-                  phase === 'like'
-                    ? 'bg-pink-500/15 text-pink-700 dark:text-pink-300'
-                    : phase === 'preparing'
-                    ? chipClass('neutral')
-                    : chipClass('success')
+                  phase === "like"
+                    ? "bg-pink-500/15 text-pink-700 dark:text-pink-300"
+                    : phase === "preparing"
+                      ? chipClass("neutral")
+                      : chipClass("success")
                 }`}
               >
-                {phase === 'like' && '♥ NEW LIKE'}
-                {phase === 'preparing' && 'BOT PREPARING OFFER…'}
-                {phase === 'sent' && 'OFFER SENT'}
+                {phase === "like" && "♥ NEW LIKE"}
+                {phase === "preparing" && "BOT PREPARING OFFER…"}
+                {phase === "sent" && "OFFER SENT"}
               </span>
               <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
                 @{active.username}
@@ -789,16 +812,35 @@ export function AutoOffersPanel() {
               <PlatformBadge platform={active.platform} size={11} />
             </div>
             <div className="truncate text-[10px] text-zinc-500">
-              {phase === 'like' && `Liked ${active.item} (£${active.listed})`}
-              {phase === 'preparing' && `Composing private offer at -${discountPct}% (£${activeOffer})`}
-              {phase === 'sent' && `Sent £${activeOffer} to @${active.username} · was £${active.listed}`}
+              {phase === "like" && `Liked ${active.item} (£${active.listed})`}
+              {phase === "preparing" &&
+                `Composing private offer at -${discountPct}% (£${activeOffer})`}
+              {phase === "sent" &&
+                `Sent £${activeOffer} to @${active.username} · was £${active.listed}`}
             </div>
           </div>
-          {phase === 'preparing' ? (
+          {phase === "preparing" ? (
             <span className="flex size-9 flex-shrink-0 items-center justify-center rounded-md bg-zinc-900/[0.04] dark:bg-white/[0.06]">
-              <svg viewBox="0 0 16 16" className="h-4 w-4 animate-spin text-zinc-500" fill="none" aria-hidden>
-                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" opacity="0.25" />
-                <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <svg
+                viewBox="0 0 16 16"
+                className="h-4 w-4 animate-spin text-zinc-500"
+                fill="none"
+                aria-hidden
+              >
+                <circle
+                  cx="8"
+                  cy="8"
+                  r="6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  opacity="0.25"
+                />
+                <path
+                  d="M14 8a6 6 0 0 0-6-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </span>
           ) : (
@@ -820,7 +862,9 @@ export function AutoOffersPanel() {
             <li
               key={`hist-${offerIndex}-${i}`}
               className={`cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 opacity-80 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(row.platform)}`}
-              style={{ '--stagger-delay': `${120 + i * 70}ms` } as CSSProperties}
+              style={
+                { "--stagger-delay": `${120 + i * 70}ms` } as CSSProperties
+              }
             >
               <span
                 className="flex size-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
@@ -832,16 +876,16 @@ export function AutoOffersPanel() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${
-                      row.historyOutcome === 'accepted'
-                        ? chipClass('success')
-                        : row.historyOutcome === 'declined'
-                        ? chipClass('warn')
-                        : chipClass('neutral')
+                      row.historyOutcome === "accepted"
+                        ? chipClass("success")
+                        : row.historyOutcome === "declined"
+                          ? chipClass("warn")
+                          : chipClass("neutral")
                     }`}
                   >
-                    {row.historyOutcome === 'accepted' && 'BOUGHT'}
-                    {row.historyOutcome === 'pending' && 'AWAITING'}
-                    {row.historyOutcome === 'declined' && 'DECLINED'}
+                    {row.historyOutcome === "accepted" && "BOUGHT"}
+                    {row.historyOutcome === "pending" && "AWAITING"}
+                    {row.historyOutcome === "declined" && "DECLINED"}
                   </span>
                   <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
                     @{row.username}
@@ -878,27 +922,27 @@ export function RestockerPanel() {
   const cycleIndex = Math.floor(tick / TICKS_PER_CYCLE);
   const inCycle = tick % TICKS_PER_CYCLE;
 
-  type Phase = 'idle' | 'sale' | 'restocking' | 'done';
+  type Phase = "idle" | "sale" | "restocking" | "done";
   // Reduced motion holds tick at 0, which lands on 'idle': a banner dimmed to
   // 50% reading "Watching for sales..." and no restock, ever. Those visitors
   // would see a dead panel, so hold the finished state instead. It is the frame
   // that carries the story anyway.
   const phase: Phase = reduced
-    ? 'done'
+    ? "done"
     : inCycle < 3
-      ? 'idle'
+      ? "idle"
       : inCycle < 12
-        ? 'sale'
+        ? "sale"
         : inCycle < 40
-          ? 'restocking'
-          : 'done';
+          ? "restocking"
+          : "done";
   // Progress bar 0..1 across the 'restocking' window (ticks 12..40).
   const progress =
-    phase === 'restocking'
+    phase === "restocking"
       ? Math.min(1, Math.max(0, (inCycle - 12) / 28))
-      : phase === 'done'
-      ? 1
-      : 0;
+      : phase === "done"
+        ? 1
+        : 0;
 
   type Row = {
     title: string;
@@ -906,14 +950,49 @@ export function RestockerPanel() {
     type: ProductType;
     photo: string;
     initialStock: number;
-    soldOn: 'depop' | 'vinted';
+    soldOn: "depop" | "vinted";
   };
   const baseRows: Row[] = [
-    { title: 'Star beanie', hue: 220, type: 'tee', photo: PHOTO.starBeanie, initialStock: 4, soldOn: 'vinted' },
-    { title: 'Crystal cross', hue: 200, type: 'tee', photo: PHOTO.crystalCross, initialStock: 5, soldOn: 'depop' },
-    { title: 'Cross necklace', hue: 195, type: 'tee', photo: PHOTO.crossNecklace, initialStock: 3, soldOn: 'vinted' },
-    { title: 'Rose charm', hue: 8, type: 'tee', photo: PHOTO.roseCharm, initialStock: 2, soldOn: 'depop' },
-    { title: 'Sport shades', hue: 210, type: 'tee', photo: PHOTO.sportSunglasses, initialStock: 4, soldOn: 'vinted' },
+    {
+      title: "Star beanie",
+      hue: 220,
+      type: "tee",
+      photo: PHOTO.starBeanie,
+      initialStock: 4,
+      soldOn: "vinted",
+    },
+    {
+      title: "Crystal cross",
+      hue: 200,
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      initialStock: 5,
+      soldOn: "depop",
+    },
+    {
+      title: "Crystal cross",
+      hue: 195,
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      initialStock: 3,
+      soldOn: "vinted",
+    },
+    {
+      title: "Rose charm",
+      hue: 8,
+      type: "tee",
+      photo: PHOTO.roseCharm,
+      initialStock: 2,
+      soldOn: "depop",
+    },
+    {
+      title: "Sport shades",
+      hue: 210,
+      type: "tee",
+      photo: PHOTO.sportSunglasses,
+      initialStock: 4,
+      soldOn: "vinted",
+    },
   ];
 
   // Active row for this cycle.
@@ -923,8 +1002,11 @@ export function RestockerPanel() {
   // Stock per row: each row has had (number of completed cycles that picked it) sales applied.
   // For the active row in 'done' phase, also count the just-finished sale.
   const stocks = baseRows.map((r, i) => {
-    const completedSalesForRow = Math.floor((cycleIndex + (baseRows.length - i)) / baseRows.length);
-    const inflight = i === activeIdx && (phase === 'sale' || phase === 'restocking') ? 1 : 0;
+    const completedSalesForRow = Math.floor(
+      (cycleIndex + (baseRows.length - i)) / baseRows.length,
+    );
+    const inflight =
+      i === activeIdx && (phase === "sale" || phase === "restocking") ? 1 : 0;
     // Floor at 1 rather than 0. A visitor who clicks this tab and reads rather
     // than letting the demo auto-advance stays here indefinitely, and the old
     // floor of 0 drained the whole shop to "0 in stock" after a couple of
@@ -940,13 +1022,15 @@ export function RestockerPanel() {
       {/* Live sale event banner - swaps content as the cycle advances */}
       <div
         className="cascade-item flex items-center gap-2.5 overflow-hidden rounded-md border border-emerald-500/30 bg-emerald-500/[0.06] px-3 py-2 transition-opacity duration-300"
-        style={{
-          '--stagger-delay': `0ms`,
-          opacity: phase === 'idle' ? 0.5 : 1,
-        } as CSSProperties}
+        style={
+          {
+            "--stagger-delay": `0ms`,
+            opacity: phase === "idle" ? 0.5 : 1,
+          } as CSSProperties
+        }
       >
         <span className="relative inline-flex h-1.5 w-1.5 flex-shrink-0">
-          {phase !== 'idle' && (
+          {phase !== "idle" && (
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
           )}
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -959,27 +1043,32 @@ export function RestockerPanel() {
         />
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-medium text-emerald-800 dark:text-emerald-200">
-            {active.title} sold on <span className="font-semibold">{active.soldOn === 'depop' ? 'Depop' : 'Vinted'}</span>
+            {active.title} sold on{" "}
+            <span className="font-semibold">
+              {active.soldOn === "depop" ? "Depop" : "Vinted"}
+            </span>
           </div>
           <div className="truncate text-[9.5px] text-emerald-700/80 dark:text-emerald-300/80">
-            {phase === 'sale' && 'Detected · queueing restock…'}
-            {phase === 'restocking' && `Relisting on ${active.soldOn === 'depop' ? 'Vinted' : 'Depop'} · ${Math.round(progress * 100)}%`}
-            {phase === 'done' && `Stock ${stocks[activeIdx] + 1} → ${stocks[activeIdx]} · listing kept live`}
-            {phase === 'idle' && 'Watching for sales…'}
+            {phase === "sale" && "Detected · queueing restock…"}
+            {phase === "restocking" &&
+              `Relisting on ${active.soldOn === "depop" ? "Vinted" : "Depop"} · ${Math.round(progress * 100)}%`}
+            {phase === "done" &&
+              `Stock ${stocks[activeIdx] + 1} → ${stocks[activeIdx]} · listing kept live`}
+            {phase === "idle" && "Watching for sales…"}
           </div>
         </div>
         {/* Fixed width: this is the last child of a flex row, so letting it
             collapse to an empty string re-flows the truncating text beside it
             every cycle. */}
         <span className="block w-[46px] flex-shrink-0 whitespace-nowrap text-right font-mono text-[9px] text-emerald-700/70 dark:text-emerald-300/70">
-          {phase === 'idle' ? '' : 'just now'}
+          {phase === "idle" ? "" : "just now"}
         </span>
       </div>
 
       {/* Stats: incrementing counters as the demo runs */}
       <div
         className="cascade-item grid grid-cols-3 divide-x divide-black/[0.06] rounded-md border border-black/[0.06] bg-white py-1 text-center dark:divide-white/10 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `60ms` } as CSSProperties}
+        style={{ "--stagger-delay": `60ms` } as CSSProperties}
       >
         <div className="px-2">
           <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
@@ -1028,8 +1117,8 @@ export function RestockerPanel() {
           const isActive = i === activeIdx;
           const stock = stocks[i];
           const lowStock = stock <= 1;
-          const showProgress = isActive && phase === 'restocking';
-          const showRestocked = isActive && phase === 'done';
+          const showProgress = isActive && phase === "restocking";
+          const showRestocked = isActive && phase === "done";
           return (
             <li
               key={row.title}
@@ -1038,10 +1127,12 @@ export function RestockerPanel() {
               // cue was a faint progress fill, which is easy to miss entirely.
               className={`cascade-item relative overflow-hidden rounded-md border bg-white transition-colors duration-300 dark:bg-white/[0.02] ${
                 showProgress || showRestocked
-                  ? 'border-emerald-500/40 dark:border-emerald-400/30'
-                  : 'border-black/[0.06] dark:border-white/10'
+                  ? "border-emerald-500/40 dark:border-emerald-400/30"
+                  : "border-black/[0.06] dark:border-white/10"
               }`}
-              style={{ '--stagger-delay': `${120 + i * 55}ms` } as CSSProperties}
+              style={
+                { "--stagger-delay": `${120 + i * 55}ms` } as CSSProperties
+              }
             >
               {/* Progress bar overlay - fills the row from left to right */}
               {showProgress && (
@@ -1082,24 +1173,28 @@ export function RestockerPanel() {
                         <path d="M1 4h9M7 1l3 3-3 3" />
                       </svg>
                       <PlatformBadge
-                        platform={row.soldOn === 'depop' ? 'vinted' : 'depop'}
+                        platform={row.soldOn === "depop" ? "vinted" : "depop"}
                         size={10}
                       />
                       {/* Fixed width so the word swap cannot shift the row. */}
                       <span className="inline-block w-[52px] whitespace-nowrap">
-                        {showProgress ? 'relisting…' : 'relisted'}
+                        {showProgress ? "relisting…" : "relisted"}
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5">
                   {showRestocked && (
-                    <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
+                    <span
+                      className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass("success")}`}
+                    >
                       RESTOCKED
                     </span>
                   )}
                   {!showRestocked && lowStock && (
-                    <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('warn')}`}>
+                    <span
+                      className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass("warn")}`}
+                    >
                       LOW
                     </span>
                   )}
@@ -1119,9 +1214,9 @@ export function RestockerPanel() {
                         className={`h-3.5 w-[5px] rounded-[1.5px] transition-colors duration-300 ${
                           p < stock
                             ? lowStock
-                              ? 'bg-amber-500 dark:bg-amber-400'
-                              : 'bg-emerald-500 dark:bg-emerald-400'
-                            : 'bg-zinc-900/[0.09] dark:bg-white/[0.12]'
+                              ? "bg-amber-500 dark:bg-amber-400"
+                              : "bg-emerald-500 dark:bg-emerald-400"
+                            : "bg-zinc-900/[0.09] dark:bg-white/[0.12]"
                         }`}
                       />
                     ))}
@@ -1129,8 +1224,8 @@ export function RestockerPanel() {
                   <span
                     className={`w-[26px] text-right font-mono text-[12px] font-semibold tabular-nums transition-colors ${
                       lowStock
-                        ? 'text-amber-600 dark:text-amber-400'
-                        : 'text-zinc-900 dark:text-zinc-100'
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-zinc-900 dark:text-zinc-100"
                     }`}
                   >
                     {stock}
@@ -1159,15 +1254,161 @@ export function ConversationsPanel() {
   const tick = useAnimationTick(100);
   const phase = Math.floor(tick / TICKS_PER_PHASE) % PHASES;
 
-  type Msg = { hue: number; initial: string; text: string; time: string; mine: boolean };
-  const messages: Msg[] = [
-    { hue: 178, initial: 'L', text: 'Hey, is this still available?', time: '12:04', mine: false },
-    { hue: 0, initial: 'Y', text: 'Yes! Just listed it this morning.', time: '12:05', mine: true },
-    { hue: 178, initial: 'L', text: 'Any chance you would take £18?', time: '12:07', mine: false },
-    { hue: 0, initial: 'Y', text: 'Could do £20 if you grab it now.', time: '12:08', mine: true },
-    { hue: 178, initial: 'L', text: 'Sounds good, paying now.', time: '12:10', mine: false },
-    { hue: 0, initial: 'Y', text: 'Awesome, shipping out tomorrow.', time: '12:11', mine: true },
+  type Msg = {
+    hue: number;
+    initial: string;
+    text: string;
+    time: string;
+    mine: boolean;
+  };
+  // Three threads, rotated one per completed loop, so a visitor who watches the
+  // scene twice does not see the same conversation twice.
+  //
+  // Every script is exactly six messages, alternating buyer then seller. The
+  // phase machine below counts on both: PHASES is derived from the length, and
+  // the typing indicator picks its side from whether the phase is odd or even.
+  //
+  // Kept short on purpose. This panel sits in a half-width column in the scroll
+  // scene, so anything much longer wraps to three lines and the bubbles stop
+  // reading as a chat.
+  const SCRIPTS: Msg[][] = [
+    [
+      {
+        hue: 178,
+        initial: "L",
+        text: "Still available?",
+        time: "12:04",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "Yes, listed today.",
+        time: "12:05",
+        mine: true,
+      },
+      {
+        hue: 178,
+        initial: "L",
+        text: "Would you take £18?",
+        time: "12:07",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "Could do £20 today.",
+        time: "12:08",
+        mine: true,
+      },
+      {
+        hue: 178,
+        initial: "L",
+        text: "Deal, paying now.",
+        time: "12:10",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "Great, ships tomorrow.",
+        time: "12:11",
+        mine: true,
+      },
+    ],
+    [
+      {
+        hue: 262,
+        initial: "M",
+        text: "Does it fit a UK 10?",
+        time: "09:21",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "True to size, yes.",
+        time: "09:22",
+        mine: true,
+      },
+      {
+        hue: 262,
+        initial: "M",
+        text: "Any marks on it?",
+        time: "09:24",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "None, barely worn.",
+        time: "09:25",
+        mine: true,
+      },
+      {
+        hue: 262,
+        initial: "M",
+        text: "I'll take it.",
+        time: "09:27",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "Posting it today.",
+        time: "09:28",
+        mine: true,
+      },
+    ],
+    [
+      {
+        hue: 32,
+        initial: "J",
+        text: "Can you do a bundle?",
+        time: "17:45",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "Sure, which two?",
+        time: "17:46",
+        mine: true,
+      },
+      {
+        hue: 32,
+        initial: "J",
+        text: "The tee and the cap.",
+        time: "17:48",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "£28 for both?",
+        time: "17:49",
+        mine: true,
+      },
+      {
+        hue: 32,
+        initial: "J",
+        text: "Perfect, sending now.",
+        time: "17:51",
+        mine: false,
+      },
+      {
+        hue: 0,
+        initial: "Y",
+        text: "Thanks, out tomorrow.",
+        time: "17:52",
+        mine: true,
+      },
+    ],
   ];
+  // Derived from tick, not stored in state, so the server and the first client
+  // render both land on script 0 and nothing flickers on hydration.
+  const messages: Msg[] =
+    SCRIPTS[Math.floor(tick / (TICKS_PER_PHASE * PHASES)) % SCRIPTS.length];
 
   // Phases (in order). Pattern: typing -> message appears -> next side typing.
   //   0: buyer typing, no messages yet
@@ -1179,17 +1420,13 @@ export function ConversationsPanel() {
   //   6: all 6 visible
   //   7: all 6 visible (extra hold before loop)
   const visibleCount = Math.min(phase, messages.length);
-  const typingFrom: 'buyer' | 'me' | null =
-    phase >= messages.length
-      ? null
-      : phase % 2 === 0
-        ? 'buyer'
-        : 'me';
+  const typingFrom: "buyer" | "me" | null =
+    phase >= messages.length ? null : phase % 2 === 0 ? "buyer" : "me";
   return (
     <div className="cascade-list flex flex-col gap-2">
       <div
         className="cascade-item flex items-center justify-between gap-2 rounded-md border border-black/[0.06] bg-white px-2.5 py-2 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        style={{ "--stagger-delay": `0ms` } as CSSProperties}
       >
         <div className="flex min-w-0 items-center gap-2">
           <ProductImage
@@ -1205,7 +1442,9 @@ export function ConversationsPanel() {
                 @lila_resale
               </span>
             </div>
-            <div className="truncate text-[10px] text-zinc-500">Star beanie · £22</div>
+            <div className="truncate text-[10px] text-zinc-500">
+              Star beanie · £22
+            </div>
           </div>
         </div>
         <span className="font-mono text-[9.5px] text-zinc-500">re: offer</span>
@@ -1222,16 +1461,16 @@ export function ConversationsPanel() {
         {messages.map((m, i) => {
           const shown = i < visibleCount;
           const isTypingSlot = typingFrom !== null && i === visibleCount;
-          const typingMine = typingFrom === 'me';
+          const typingMine = typingFrom === "me";
           return (
             <li
               key={`msg-${i}`}
-              className={`cascade-item relative flex items-end gap-1.5 ${m.mine ? 'flex-row-reverse' : ''}`}
-              style={{ '--stagger-delay': `0ms` } as CSSProperties}
+              className={`cascade-item relative flex items-end gap-1.5 ${m.mine ? "flex-row-reverse" : ""}`}
+              style={{ "--stagger-delay": `0ms` } as CSSProperties}
               aria-hidden={!shown}
             >
               <span
-                className={`flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white ${shown ? '' : 'invisible'}`}
+                className={`flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white ${shown ? "" : "invisible"}`}
                 style={avatarStyle(m.hue)}
               >
                 {m.initial}
@@ -1239,48 +1478,48 @@ export function ConversationsPanel() {
               <div
                 className={`${
                   m.mine
-                    ? 'max-w-[70%] rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-1.5 text-[11px] text-white dark:bg-white dark:text-zinc-900'
-                    : 'max-w-[70%] rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-1.5 text-[11px] text-zinc-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-100'
-                } ${shown ? '' : 'invisible'}`}
+                    ? "max-w-[70%] rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-1.5 text-[11px] text-white dark:bg-white dark:text-zinc-900"
+                    : "max-w-[70%] rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-1.5 text-[11px] text-zinc-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-100"
+                } ${shown ? "" : "invisible"}`}
               >
                 {m.text}
               </div>
               <span
-                className={`self-center font-mono text-[9px] text-zinc-400 ${shown ? '' : 'invisible'}`}
+                className={`self-center font-mono text-[9px] text-zinc-400 ${shown ? "" : "invisible"}`}
               >
                 {m.time}
               </span>
 
               {isTypingSlot ? (
                 <span
-                  className={`absolute inset-0 flex items-end gap-1.5 ${typingMine ? 'flex-row-reverse' : ''}`}
+                  className={`absolute inset-0 flex items-end gap-1.5 ${typingMine ? "flex-row-reverse" : ""}`}
                 >
                   <span
                     className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
                     style={avatarStyle(typingMine ? 0 : 178)}
                   >
-                    {typingMine ? 'Y' : 'L'}
+                    {typingMine ? "Y" : "L"}
                   </span>
                   <span
                     className={
                       typingMine
-                        ? 'rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-2 dark:bg-white'
-                        : 'rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.04]'
+                        ? "rounded-2xl rounded-br-sm bg-zinc-900 px-3 py-2 dark:bg-white"
+                        : "rounded-2xl rounded-bl-sm border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.04]"
                     }
                     aria-label="typing"
                   >
                     <span className="flex items-center gap-1">
                       <span
-                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
-                        style={{ animationDelay: '0ms' }}
+                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? "bg-white/60 dark:bg-zinc-900/60" : "bg-zinc-400 dark:bg-zinc-500"}`}
+                        style={{ animationDelay: "0ms" }}
                       />
                       <span
-                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
-                        style={{ animationDelay: '180ms' }}
+                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? "bg-white/60 dark:bg-zinc-900/60" : "bg-zinc-400 dark:bg-zinc-500"}`}
+                        style={{ animationDelay: "180ms" }}
                       />
                       <span
-                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? 'bg-white/60 dark:bg-zinc-900/60' : 'bg-zinc-400 dark:bg-zinc-500'}`}
-                        style={{ animationDelay: '360ms' }}
+                        className={`hero-typing-dot size-1.5 rounded-full ${typingMine ? "bg-white/60 dark:bg-zinc-900/60" : "bg-zinc-400 dark:bg-zinc-500"}`}
+                        style={{ animationDelay: "360ms" }}
                       />
                     </span>
                   </span>
@@ -1307,70 +1546,95 @@ export function ConversationsPanel() {
 }
 
 export function LabelsPanel() {
-  // Mix of Depop and Vinted orders so the panel reads as "labels for both
-  // marketplaces in one place". Depop orders use Evri (the integration's
-  // Depop-only carrier); Vinted orders split between Royal Mail and InPost.
-  type Carrier = 'rm' | 'evri' | 'inpost' | 'dhl' | 'fedex';
+  // idle -> merging -> done -> idle. Driven by pressing the button rather than
+  // looping on its own: the merge is the thing the button DOES, so showing it
+  // unprompted made it wallpaper. Pressed, it is a demonstration.
+  const [phase, setPhase] = useState<"idle" | "merging" | "done">("idle");
+  const start = () => {
+    if (phase !== "idle") return;
+    setPhase("merging");
+    // Rows clear and the stack builds, then the pile resolves into one doc,
+    // then it resets so the next visitor can press it too.
+    window.setTimeout(() => setPhase("done"), 1250);
+    window.setTimeout(() => setPhase("idle"), 3800);
+  };
+
+  // Five orders from five countries, each posted with the carrier that
+  // actually dominates resale shipping there - not the largest logistics
+  // company on paper. The point of the panel is that the tab prints a label
+  // wherever the seller is, so a UK-only list undersold it badly.
+  //
+  //   UK      Royal Mail      Vinted UK's default
+  //   US      USPS            both marketplaces' US carrier
+  //   France  Mondial Relay   Vinted FR is overwhelmingly point relais
+  //   Spain   Correos         the national carrier Vinted ES leans on
+  //   Germany DHL             the default almost everywhere in DE
+  type Carrier = "rm" | "usps" | "mondial" | "correos" | "dhl";
   const orders: {
     buyer: string;
     item: string;
     type: ProductType;
     photo: string;
-    platform: 'depop' | 'vinted';
+    platform: "depop" | "vinted";
+    country: string;
     carrier: Carrier;
     hue: number;
   }[] = [
     {
-      buyer: 'lila_resale',
-      item: 'Star beanie',
-      type: 'tee',
-      photo: PHOTO.starBeanie,
-      platform: 'depop',
-      carrier: 'evri',
+      buyer: "lila_resale",
+      item: "Grey star beanie",
+      type: "tee",
+      photo: PHOTO.greyStarBeanie,
+      platform: "depop",
+      country: "UK",
+      carrier: "rm",
       hue: 220,
     },
     {
-      buyer: 'sam_thrifts',
-      item: 'Crystal cross',
-      type: 'tee',
-      photo: PHOTO.crystalCross,
-      platform: 'vinted',
-      carrier: 'rm',
-      hue: 200,
-    },
-      // the carriers Vinted France and Depop US sellers actually post with.
-    {
-      buyer: 'mia_v',
-      item: 'Rose charm',
-      type: 'tee',
-      photo: PHOTO.roseCharm,
-      platform: 'vinted',
-      carrier: 'dhl',
-      hue: 22,
-    },
-    {
-      buyer: 'kai_pop',
-      item: 'Sport shades',
-      type: 'tee',
+      buyer: "kai_pop",
+      item: "Sport shades",
+      type: "tee",
       photo: PHOTO.sportSunglasses,
-      platform: 'depop',
-      carrier: 'fedex',
+      platform: "depop",
+      country: "US",
+      carrier: "usps",
       hue: 210,
     },
     {
-      buyer: 'ella_kw',
-      item: 'Cat ring',
-      type: 'tee',
+      buyer: "mia_v",
+      item: "Rose charm",
+      type: "tee",
+      photo: PHOTO.roseCharm,
+      platform: "vinted",
+      country: "FR",
+      carrier: "mondial",
+      hue: 22,
+    },
+    {
+      buyer: "sam_thrifts",
+      item: "Crystal cross",
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      platform: "vinted",
+      country: "ES",
+      carrier: "correos",
+      hue: 200,
+    },
+    {
+      buyer: "ella_kw",
+      item: "Cat ring",
+      type: "tee",
       photo: PHOTO.catRing,
-      platform: 'vinted',
-      carrier: 'inpost',
+      platform: "vinted",
+      country: "DE",
+      carrier: "dhl",
       hue: 260,
     },
   ];
-  // Carrier badges: brand favicon inside a small white rounded chip + the
-  // carrier name. Icons live under /public/brand/ (downloaded from each
-  // carrier's site) so the demo reads as "we support Royal Mail / Evri /
-  // InPost" at a glance.
+  // Carrier badges: brand symbol inside a small white rounded chip + the
+  // carrier name. Symbols live under /public/brand/. USPS and Mondial Relay
+  // publish no square symbol, so theirs are cropped off the left-hand end of
+  // their lockups (see /tmp/shotkit/crop.mjs) to match the others' shape.
   //
   // The chip renders label-only when iconSrc is null; every carrier here has
   // a logo, so that branch is currently unused but kept for adding one later.
@@ -1379,44 +1643,51 @@ export function LabelsPanel() {
     { label: string; iconSrc: string | null; chipClass: string }
   > = {
     rm: {
-      label: 'Royal Mail',
-      iconSrc: '/brand/royal-mail.png',
+      label: "Royal Mail",
+      iconSrc: "/brand/royal-mail.png",
       chipClass:
-        'bg-[rgba(207,20,43,0.10)] text-[rgb(167,16,34)] dark:bg-[rgba(207,20,43,0.18)] dark:text-[rgb(255,140,150)]',
+        "bg-[rgba(207,20,43,0.10)] text-[rgb(167,16,34)] dark:bg-[rgba(207,20,43,0.18)] dark:text-[rgb(255,140,150)]",
     },
-    evri: {
-      label: 'Evri',
-      iconSrc: '/brand/evri.png',
+    usps: {
+      label: "USPS",
+      iconSrc: "/brand/usps.png",
       chipClass:
-        'bg-[rgba(6,143,180,0.10)] text-[rgb(5,114,144)] dark:bg-[rgba(6,143,180,0.18)] dark:text-[rgb(110,200,225)]',
+        "bg-[rgba(19,73,141,0.10)] text-[rgb(19,73,141)] dark:bg-[rgba(19,73,141,0.28)] dark:text-[rgb(150,190,240)]",
     },
-    inpost: {
-      label: 'InPost',
-      iconSrc: '/brand/inpost.png',
+    mondial: {
+      label: "Mondial Relay",
+      iconSrc: "/brand/mondial-relay.png",
       chipClass:
-        'bg-[rgba(238,219,0,0.18)] text-[rgb(132,118,0)] dark:bg-[rgba(238,219,0,0.18)] dark:text-[rgb(238,219,0)]',
+        "bg-[rgba(158,20,79,0.10)] text-[rgb(140,18,70)] dark:bg-[rgba(158,20,79,0.26)] dark:text-[rgb(240,150,190)]",
+    },
+    correos: {
+      label: "Correos",
+      iconSrc: "/brand/correos.png",
+      chipClass:
+        "bg-[rgba(0,74,128,0.10)] text-[rgb(0,64,110)] dark:bg-[rgba(0,74,128,0.28)] dark:text-[rgb(140,190,230)]",
     },
     dhl: {
-      label: 'DHL',
-      iconSrc: '/brand/dhl.svg',
+      label: "DHL",
+      iconSrc: "/brand/dhl.svg",
       chipClass:
-        'bg-[rgba(255,204,0,0.20)] text-[rgb(140,100,0)] dark:bg-[rgba(255,204,0,0.20)] dark:text-[rgb(255,204,0)]',
-    },
-    fedex: {
-      label: 'FedEx',
-      iconSrc: '/brand/fedex.svg',
-      chipClass:
-        'bg-[rgba(77,20,140,0.10)] text-[rgb(77,20,140)] dark:bg-[rgba(77,20,140,0.30)] dark:text-[rgb(197,160,240)]',
+        "bg-[rgba(255,204,0,0.20)] text-[rgb(140,100,0)] dark:bg-[rgba(255,204,0,0.20)] dark:text-[rgb(255,204,0)]",
     },
   };
   return (
-    <div className="cascade-list flex h-full flex-col gap-2">
-      <ul className="cascade-list flex flex-col gap-1.5">
+    <div className="cascade-list relative flex h-full flex-col gap-2">
+      <ul
+        className={`cascade-list flex flex-col gap-1.5 ${phase === "idle" ? "" : "labels-collapsing"}`}
+      >
         {orders.map((o, i) => (
           <li
             key={o.buyer}
             className={`cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-1.5 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(o.platform)}`}
-            style={{ '--stagger-delay': `${i * 60}ms` } as CSSProperties}
+            style={
+              {
+                "--stagger-delay": `${i * 60}ms`,
+                "--row-i": i,
+              } as CSSProperties
+            }
           >
             <span className="flex size-3.5 flex-shrink-0 items-center justify-center rounded-sm border border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
               <svg viewBox="0 0 10 10" className="size-2.5" aria-hidden="true">
@@ -1443,11 +1714,18 @@ export function LabelsPanel() {
                   @{o.buyer}
                 </span>
               </div>
-              <div className="truncate font-mono text-[9.5px] text-zinc-500">{o.item}</div>
+              <div className="flex items-center gap-1.5 truncate font-mono text-[9.5px] text-zinc-500">
+                {/* Country code rather than a flag: the panel already carries
+                    two logos per row, and CLAUDE.md rules out emoji. */}
+                <span className="rounded-sm bg-black/[0.05] px-1 py-[1px] text-[8.5px] font-semibold tracking-[0.06em] text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
+                  {o.country}
+                </span>
+                <span className="truncate">{o.item}</span>
+              </div>
             </div>
             <span
               className={`flex flex-shrink-0 items-center gap-1.5 rounded-full py-[2px] pr-2 font-mono text-[10px] font-semibold tracking-[0.04em] ${
-                CARRIER[o.carrier].iconSrc ? 'pl-[2px]' : 'pl-2'
+                CARRIER[o.carrier].iconSrc ? "pl-[2px]" : "pl-2"
               } ${CARRIER[o.carrier].chipClass}`}
             >
               {CARRIER[o.carrier].iconSrc ? (
@@ -1467,13 +1745,39 @@ export function LabelsPanel() {
         ))}
       </ul>
 
+      {/* Only present once pressed. Absolutely positioned over the list so
+          the rows clearing and the stack building happen in the same place,
+          rather than the panel changing height mid-animation. */}
+      {phase !== "idle" && (
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center gap-3">
+          <div className="labels-merge" aria-hidden>
+            <span className="labels-merge-doc" />
+            {[0, 1, 2, 3, 4].map((i) => (
+              <span
+                key={i}
+                className="labels-merge-sheet"
+                style={{ "--sheet-i": i } as CSSProperties}
+              />
+            ))}
+          </div>
+          <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">
+            {phase === "done" ? "one pdf, ready" : "merging 5 labels"}
+          </span>
+        </div>
+      )}
+
       <button
         type="button"
-        tabIndex={-1}
-        className="cascade-item mt-auto flex items-center justify-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-[11.5px] font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset] dark:bg-white dark:text-zinc-900"
-        style={{ '--stagger-delay': `${4 * 60}ms` } as CSSProperties}
+        onClick={start}
+        className="cascade-item mt-auto flex items-center justify-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-[11.5px] font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset] transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-white dark:text-zinc-900"
+        style={{ "--stagger-delay": `${4 * 60}ms` } as CSSProperties}
       >
-        <svg viewBox="0 0 14 14" className="size-3" fill="none" aria-hidden="true">
+        <svg
+          viewBox="0 0 14 14"
+          className="size-3"
+          fill="none"
+          aria-hidden="true"
+        >
           <path
             d="M3 8v3h8V8M7 2v6m0 0L4.5 5.5M7 8l2.5-2.5"
             stroke="currentColor"
@@ -1482,7 +1786,7 @@ export function LabelsPanel() {
             strokeLinejoin="round"
           />
         </svg>
-        Download merged PDF ({orders.length} labels)
+        Download merged PDF
       </button>
     </div>
   );
@@ -1499,33 +1803,6 @@ export function FollowBotPanel() {
   const inFollow = tick % TICKS_PER_FOLLOW;
   const justFollowed = inFollow < 15; // hold the highlight for 1.5s
 
-  // A small pool we cycle through to simulate "new" follows arriving.
-  type Status = 'followed' | 'followed-back' | 'unfollowed';
-  const POOL: { username: string; hue: number; status: Status }[] = [
-    { username: 'thrift_haven', hue: 22, status: 'followed-back' },
-    { username: 'vintage_vee', hue: 200, status: 'followed' },
-    { username: 'mia_v', hue: 312, status: 'followed' },
-    { username: 'kai_pop', hue: 0, status: 'unfollowed' },
-    { username: 'sam_thrifts', hue: 178, status: 'followed-back' },
-    { username: 'depot_finds', hue: 140, status: 'followed' },
-    { username: 'lila_resale', hue: 60, status: 'followed-back' },
-    { username: 'arc_vintage', hue: 280, status: 'followed' },
-    { username: 'rose_market', hue: 340, status: 'followed' },
-    { username: 'kiera_shop', hue: 100, status: 'followed-back' },
-  ];
-
-  // Take the last 5 follows in reverse-chronological order. Position 0 is
-  // the most recent (just landed at the top of the list and pushes the
-  // rest down a row); position 4 is the oldest still visible and is the
-  // one that drops off the bottom on the next follow. POOL acts as a fixed
-  // rotation so the visible names repeat in a predictable cycle rather
-  // than feeling random.
-  const recent = Array.from({ length: 5 }, (_, i) => {
-    const raw = (follows - i) % POOL.length;
-    const safeIdx = ((raw % POOL.length) + POOL.length) % POOL.length;
-    return POOL[safeIdx];
-  });
-
   // Counters (start at a nice round-ish number, climb from there).
   const followed = 218 + follows;
   const backRate = 0.29 + (follows % 7) * 0.005; // small jitter for realism
@@ -1533,109 +1810,170 @@ export function FollowBotPanel() {
   const rate = Math.round((back / followed) * 100);
   const target = 500;
   const progressPct = Math.min(100, (followed / target) * 100);
+  // Two numbers, a bar and a line — the same shape as the crosslist and
+  // restocker scenes.
+  //
+  // This used to be a five-row activity feed with coloured avatars, FOLLOWED /
+  // FOLLOWED BACK pills, a three-up stats bar and a targeting header. It was
+  // the busiest panel on the page, and none of it said anything the two
+  // numbers do not: the bot follows people, and a share of them follow back.
+  // Every other scene has an object at its centre — a photo you can look at.
+  // Numbers alone made this the thinnest panel of the set, so the list is
+  // back: it is the only part that shows the bot actually working, one
+  // account at a time. What is not back is the old presentation — coloured
+  // avatars, FOLLOWED / FOLLOWED BACK pills, a three-up stats bar and a
+  // targeting header. These are plain lines, and a line is enough.
+  const POOL = [
+    "thriftedbyella",
+    "vintage.rooms",
+    "sourced.studio",
+    "ninetyfive.co",
+    "atelier.resale",
+    "northgate.vtg",
+    "seconds.london",
+    "archive.folk",
+  ];
+  const ROWS = 4;
+  // Deterministic, so the server and client render the same list and it does
+  // not flicker on hydration. One in four, which is about the real rate and
+  // guarantees exactly one green in a four-row window — a sparser pattern
+  // left the list showing four greys at a time, which reads as "nobody
+  // follows back".
+  // Positive modulo: the rows below the newest are numbered follows-1 ..
+  // follows-3, which are negative until the first few follows land, and JS
+  // gives -3 % 4 === -3. A bare `n % 4 === 1` therefore matched nothing at
+  // all on a freshly loaded page.
+  const mod = (n: number, m: number): number => ((n % m) + m) % m;
+  const followsBack = (n: number): boolean => mod(n, 4) === 1;
+  // Hue by pool index, not by hashing the handle. Hashing looked tidier but
+  // gave no guarantee of separation: the best variant still put two of the four
+  // visible rows 8 degrees apart, which is the same colour to the eye. Even
+  // spacing round the wheel means any two rows on screen are at least 360/POOL
+  // apart by construction, and it stays deterministic across SSR and hydration.
+  const recent = Array.from({ length: ROWS }, (_, i) => {
+    const n = follows - i;
+    const idx = mod(n, POOL.length);
+    return {
+      n,
+      handle: POOL[idx],
+      back: followsBack(n),
+      hue: Math.round((idx * 360) / POOL.length),
+    };
+  });
+
   return (
-    <div className="cascade-list flex flex-col gap-2">
+    <div className="cascade-list panel-fluid flex flex-col items-center gap-7 lg:gap-9">
+      {/* Fixed height, clipped.
+          The list always holds ROWS entries, so when a follow lands the newest
+          row mounts while the oldest unmounts in the same frame. The enter
+          animation grows the new row from zero height, so an auto-height
+          container collapsed to three rows and climbed back to four over 450ms
+          — which walked the counters and the rate line below it down and back
+          up on every single follow. Pinning the height to exactly ROWS rows
+          absorbs that entirely: the new row grows inside the box and the oldest
+          slides out of the clip, and nothing outside the box moves. The row
+          height is explicit for the same reason — it makes ROWS * ROW_H exact
+          rather than something that drifts with font metrics. */}
       <div
-        className="cascade-item flex items-center justify-between rounded-md border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        className="cascade-item flex w-full max-w-[260px] flex-col overflow-hidden lg:max-w-[340px]"
+        style={
+          {
+            "--stagger-delay": "0ms",
+            height: `calc(${ROWS} * var(--hero-follow-row-h))`,
+            maskImage:
+              "linear-gradient(to bottom, #000 0, #000 72%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, #000 0, #000 72%, transparent 100%)",
+          } as CSSProperties
+        }
       >
-        <div className="flex items-center gap-2">
-          <span className="relative inline-flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-[11px] font-medium text-zinc-900 dark:text-zinc-100">
-            Targeting @drip_resale&apos;s followers
-          </span>
-        </div>
-        <span className="font-mono text-[10px] text-zinc-500 tabular-nums">{followed} / {target}</span>
-      </div>
-
-      <div
-        className="cascade-item relative h-1.5 overflow-hidden rounded-full bg-zinc-200/60 dark:bg-white/10"
-        style={{ '--stagger-delay': `60ms` } as CSSProperties}
-      >
-        <span
-          className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/80 transition-[width] duration-300 ease-out"
-          style={{ width: `${progressPct}%` }}
-        />
-      </div>
-
-      <div
-        className="cascade-item grid grid-cols-3 divide-x divide-black/[0.06] rounded-md border border-black/[0.06] bg-white py-1 text-center dark:divide-white/10 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `120ms` } as CSSProperties}
-      >
-        <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
-            {followed}
-          </div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
-            Followed
-          </div>
-        </div>
-        <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
-            {back}
-          </div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
-            Back
-          </div>
-        </div>
-        <div className="px-2">
-          <div className="font-mono text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
-            {rate}%
-          </div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-zinc-500">
-            Rate
-          </div>
-        </div>
-      </div>
-
-      <ul className="cascade-list flex flex-col gap-1.5">
-        {recent.map((r, i) => {
-          const isTop = i === 0;
-          return (
-            <li
-              key={r.username}
-              className={`hero-follow-row-enter flex items-center gap-2.5 rounded-md border px-2.5 py-1.5 transition-colors duration-300 ${
-                isTop && justFollowed
-                  ? 'border-emerald-500/30 bg-emerald-500/[0.05] dark:border-emerald-400/30 dark:bg-emerald-400/[0.05]'
-                  : 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
+        {recent.map((row, i) => (
+          // Keyed on the absolute follow number, so React mounts only the new
+          // top row and the other three reconcile in place — the enter
+          // animation runs once, on the row that actually just arrived.
+          <div
+            key={row.n}
+            className={`hero-follow-row-enter hero-follow-row flex shrink-0 items-center justify-between gap-3 border-b border-black/[0.05] last:border-0 dark:border-white/[0.07] ${
+              i === 0 ? "" : "opacity-60"
+            }`}
+          >
+            <span className="flex min-w-0 items-center gap-2">
+              <span
+                aria-hidden
+                className="flex size-[18px] shrink-0 items-center justify-center rounded-full font-mono text-[9px] font-semibold uppercase text-white lg:size-[20px] lg:text-[10px]"
+                style={avatarStyle(row.hue)}
+              >
+                {row.handle[0]}
+              </span>
+              <span className="truncate font-mono text-[11px] text-zinc-600 lg:text-[13px] dark:text-zinc-300">
+                @{row.handle}
+              </span>
+            </span>
+            <span
+              className={`shrink-0 font-mono text-[8.5px] uppercase tracking-[0.14em] lg:text-[9.5px] ${
+                row.back
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-zinc-400 dark:text-zinc-500"
               }`}
             >
-              <span
-                className="flex size-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
-                style={avatarStyle(r.hue)}
-              >
-                {r.username[0].toUpperCase()}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
-                @{r.username}
-              </span>
-              {isTop && justFollowed && (
-                <span className="font-mono text-[9px] text-emerald-700/80 dark:text-emerald-300/80">
-                  just now
-                </span>
-              )}
-              <span
-                className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${
-                  r.status === 'followed-back'
-                    ? chipClass('success')
-                    : r.status === 'unfollowed'
-                    ? chipClass('warn')
-                    : chipClass('neutral')
-                }`}
-              >
-                {r.status === 'followed-back'
-                  ? 'FOLLOWED BACK'
-                  : r.status === 'unfollowed'
-                  ? 'UNFOLLOWED'
-                  : 'FOLLOWED'}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+              {row.back ? "follows back" : "followed"}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="cascade-item grid w-full max-w-[300px] grid-cols-2 gap-4 lg:max-w-[420px]"
+        style={{ "--stagger-delay": "120ms" } as CSSProperties}
+      >
+        {(
+          [
+            ["Followed", followed, false],
+            ["Followed back", back, true],
+          ] as const
+        ).map(([label, value, isBack]) => (
+          <div key={label} className="flex flex-col items-center gap-2">
+            <span
+              className={`text-[34px] font-medium tabular-nums leading-none tracking-tight transition-colors duration-500 lg:text-[52px] ${
+                isBack
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-zinc-900 dark:text-zinc-100"
+              }`}
+            >
+              {value}
+            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400 lg:text-[10px] dark:text-zinc-500">
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="cascade-item flex w-full max-w-[220px] flex-col items-center gap-2.5 lg:max-w-[300px]">
+        <div
+          className="h-[3px] w-full overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/10"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={target}
+          aria-valuenow={followed}
+          aria-label={`${followed} of ${target} followed, ${back} followed back`}
+        >
+          <div
+            className={`h-full rounded-full transition-[width,background-color] duration-500 ease-out ${
+              justFollowed
+                ? "bg-emerald-500 dark:bg-emerald-400"
+                : "bg-zinc-400 dark:bg-zinc-500"
+            }`}
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+        <span
+          aria-hidden
+          className="text-center font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400 lg:text-[10px] dark:text-zinc-500"
+        >
+          {rate}% following back
+        </span>
+      </div>
     </div>
   );
 }
@@ -1645,7 +1983,7 @@ export function RelisterPanel() {
     <div className="cascade-list flex flex-col gap-2.5">
       <div
         className="cascade-item flex items-center justify-between rounded-md border border-black/[0.06] bg-white px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        style={{ "--stagger-delay": `0ms` } as CSSProperties}
       >
         <div className="flex items-center gap-2">
           <PlatformBadge platform="depop" size={14} />
@@ -1653,19 +1991,23 @@ export function RelisterPanel() {
             Crystal cross
           </span>
         </div>
-        <span className="font-mono text-[9.5px] text-zinc-500">listed 41 days ago</span>
+        <span className="font-mono text-[9.5px] text-zinc-500">
+          listed 41 days ago
+        </span>
       </div>
 
       <div className="cascade-list grid grid-cols-[1fr_auto_1fr] items-stretch gap-2">
         <div
           className="cascade-item flex flex-col gap-1.5 overflow-hidden rounded-lg border border-black/[0.06] bg-white p-2 opacity-60 dark:border-white/10 dark:bg-white/[0.02]"
-          style={{ '--stagger-delay': `60ms` } as CSSProperties}
+          style={{ "--stagger-delay": `60ms` } as CSSProperties}
         >
           <div className="flex items-center justify-between">
             <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-zinc-500">
               Original
             </span>
-            <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('warn')}`}>
+            <span
+              className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass("warn")}`}
+            >
               STALE
             </span>
           </div>
@@ -1682,15 +2024,20 @@ export function RelisterPanel() {
             <span className="font-mono text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">
               £28
             </span>
-            <span className="font-mono text-[9px] text-zinc-500">8 views / week</span>
+            <span className="font-mono text-[9px] text-zinc-500">
+              8 views / week
+            </span>
           </div>
         </div>
 
         <div
           className="cascade-item relative flex flex-col items-center justify-center gap-1.5 px-1 pt-8"
-          style={{ '--stagger-delay': `140ms` } as CSSProperties}
+          style={{ "--stagger-delay": `140ms` } as CSSProperties}
         >
-          <Icon name="rotate" className="h-5 w-5 text-zinc-400 dark:text-zinc-600" />
+          <Icon
+            name="rotate"
+            className="h-5 w-5 text-zinc-400 dark:text-zinc-600"
+          />
           <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-emerald-600 dark:text-emerald-400">
             relisting
           </span>
@@ -1698,13 +2045,15 @@ export function RelisterPanel() {
 
         <div
           className="cascade-item flex flex-col gap-1.5 overflow-hidden rounded-lg border border-emerald-500/30 bg-emerald-500/[0.04] p-2"
-          style={{ '--stagger-delay': `220ms` } as CSSProperties}
+          style={{ "--stagger-delay": `220ms` } as CSSProperties}
         >
           <div className="flex items-center justify-between">
             <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-zinc-500">
               Relisted
             </span>
-            <span className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
+            <span
+              className={`rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass("success")}`}
+            >
               FRESH
             </span>
           </div>
@@ -1730,12 +2079,12 @@ export function RelisterPanel() {
 
       <div
         className="cascade-item flex flex-wrap items-center gap-1.5"
-        style={{ '--stagger-delay': `300ms` } as CSSProperties}
+        style={{ "--stagger-delay": `300ms` } as CSSProperties}
       >
         {[
-          ['Title', 'rewritten'],
-          ['Photo', 'reordered'],
-          ['Original', 'deleted'],
+          ["Title", "rewritten"],
+          ["Photo", "reordered"],
+          ["Original", "deleted"],
         ].map(([k, v]) => (
           <span
             key={k}
@@ -1773,9 +2122,36 @@ export function PriceDropsPanel() {
     nextIn: string;
   };
   const baseRows: Row[] = [
-    { title: 'Cross necklace', type: 'tee', photo: PHOTO.crossNecklace, hue: 195, start: 28, step: 3, floor: 18, nextIn: 'tomorrow' },
-    { title: 'Sport shades', type: 'tee', photo: PHOTO.sportSunglasses, hue: 210, start: 24, step: 2, floor: 15, nextIn: '3 days' },
-    { title: 'Rose charm', type: 'tee', photo: PHOTO.roseCharm, hue: 8, start: 12, step: 1, floor: 8, nextIn: '5 days' },
+    {
+      title: "Crystal cross",
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      hue: 195,
+      start: 28,
+      step: 3,
+      floor: 18,
+      nextIn: "tomorrow",
+    },
+    {
+      title: "Sport shades",
+      type: "tee",
+      photo: PHOTO.sportSunglasses,
+      hue: 210,
+      start: 24,
+      step: 2,
+      floor: 15,
+      nextIn: "3 days",
+    },
+    {
+      title: "Rose charm",
+      type: "tee",
+      photo: PHOTO.roseCharm,
+      hue: 8,
+      start: 12,
+      step: 1,
+      floor: 8,
+      nextIn: "5 days",
+    },
   ];
 
   const activeIdx = dropIndex % baseRows.length;
@@ -1788,7 +2164,8 @@ export function PriceDropsPanel() {
   // before the cycle continues so viewers see the SOLD badge clearly.
   const MACRO_CYCLE_DROPS = 9;
   const SALE_HOLD_TICKS = 40; // 4s
-  const SALE_FIRES_AT_TICK = MACRO_CYCLE_DROPS * TICKS_PER_DROP - SALE_HOLD_TICKS;
+  const SALE_FIRES_AT_TICK =
+    MACRO_CYCLE_DROPS * TICKS_PER_DROP - SALE_HOLD_TICKS;
   const macroCycle = Math.floor(dropIndex / MACRO_CYCLE_DROPS);
   const ticksIntoMacro =
     (dropIndex % MACRO_CYCLE_DROPS) * TICKS_PER_DROP + inDrop;
@@ -1801,17 +2178,23 @@ export function PriceDropsPanel() {
   // (i.e. throughout the visible cycle, including the flash window).
   const priceFor = (i: number): number => {
     const drops = i <= activeIdx ? cycleNumber + 1 : cycleNumber;
-    return Math.max(baseRows[i].floor, baseRows[i].start - baseRows[i].step * drops);
+    return Math.max(
+      baseRows[i].floor,
+      baseRows[i].start - baseRows[i].step * drops,
+    );
   };
   const previousPriceFor = (i: number): number => {
     const drops = i <= activeIdx ? cycleNumber : Math.max(0, cycleNumber - 1);
-    return Math.max(baseRows[i].floor, baseRows[i].start - baseRows[i].step * drops);
+    return Math.max(
+      baseRows[i].floor,
+      baseRows[i].start - baseRows[i].step * drops,
+    );
   };
   return (
     <div className="cascade-list flex flex-col gap-2">
       <div
         className="cascade-item flex items-center justify-between rounded-md border border-black/[0.06] bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        style={{ "--stagger-delay": `0ms` } as CSSProperties}
       >
         <div className="flex items-center gap-2">
           <Icon name="tag" className="h-3.5 w-3.5 text-zinc-500" />
@@ -1819,7 +2202,9 @@ export function PriceDropsPanel() {
             Drop 10% every 7 days
           </span>
         </div>
-        <span className="font-mono text-[10px] text-zinc-500">stops at floor</span>
+        <span className="font-mono text-[10px] text-zinc-500">
+          stops at floor
+        </span>
       </div>
 
       <ul className="cascade-list flex flex-col gap-1.5">
@@ -1828,7 +2213,10 @@ export function PriceDropsPanel() {
           const previous = previousPriceFor(i);
           const isActive = i === activeIdx;
           const justDropped = isActive && flashing;
-          const dropPct = previous > 0 ? Math.round(((previous - current) / previous) * 100) : 0;
+          const dropPct =
+            previous > 0
+              ? Math.round(((previous - current) / previous) * 100)
+              : 0;
           const range = Math.max(1, r.start - r.floor);
           const progressToFloor = ((r.start - current) / range) * 100;
           const sold = isSold(i);
@@ -1837,12 +2225,12 @@ export function PriceDropsPanel() {
               key={r.title}
               className={`cascade-item relative flex flex-col gap-1.5 overflow-hidden rounded-md border px-2.5 py-2 transition-colors duration-300 ${
                 sold
-                  ? 'border-emerald-500/60 bg-emerald-500/[0.10] dark:border-emerald-400/50 dark:bg-emerald-400/[0.10]'
+                  ? "border-emerald-500/60 bg-emerald-500/[0.10] dark:border-emerald-400/50 dark:bg-emerald-400/[0.10]"
                   : justDropped
-                    ? 'border-emerald-500/40 bg-emerald-500/[0.06] dark:border-emerald-400/30 dark:bg-emerald-400/[0.06]'
-                    : 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]'
+                    ? "border-emerald-500/40 bg-emerald-500/[0.06] dark:border-emerald-400/30 dark:bg-emerald-400/[0.06]"
+                    : "border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/[0.02]"
               }`}
-              style={{ '--stagger-delay': `${80 + i * 70}ms` } as CSSProperties}
+              style={{ "--stagger-delay": `${80 + i * 70}ms` } as CSSProperties}
             >
               <div className="flex items-center gap-2.5">
                 <ProductImage
@@ -1859,7 +2247,9 @@ export function PriceDropsPanel() {
                     <span className="font-mono text-[10.5px] font-semibold text-emerald-600 tabular-nums dark:text-emerald-400">
                       £{current}
                     </span>
-                    <span className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
+                    <span
+                      className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass("success")}`}
+                    >
                       SOLD
                     </span>
                   </>
@@ -1868,11 +2258,16 @@ export function PriceDropsPanel() {
                     <span className="font-mono text-[10.5px] font-semibold text-zinc-900 line-through opacity-50 dark:text-zinc-100">
                       £{previous}
                     </span>
-                    <Icon name="arrow-right" className="h-3 w-3 text-zinc-400" />
+                    <Icon
+                      name="arrow-right"
+                      className="h-3 w-3 text-zinc-400"
+                    />
                     <span className="font-mono text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400">
                       £{current}
                     </span>
-                    <span className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('success')}`}>
+                    <span
+                      className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass("success")}`}
+                    >
                       DROPPED -{dropPct}%
                     </span>
                   </>
@@ -1881,7 +2276,9 @@ export function PriceDropsPanel() {
                     <span className="font-mono text-[10.5px] font-semibold text-zinc-900 tabular-nums dark:text-zinc-100">
                       £{current}
                     </span>
-                    <span className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass('neutral')}`}>
+                    <span
+                      className={`flex-shrink-0 rounded-full px-1.5 py-[1px] text-[9px] font-semibold tracking-[0.08em] ${chipClass("neutral")}`}
+                    >
                       next -£{r.step}
                     </span>
                   </>
@@ -1890,7 +2287,11 @@ export function PriceDropsPanel() {
               <div className="flex items-center gap-2">
                 {sold ? (
                   <span className="flex flex-1 items-center gap-1 font-mono text-[9.5px] text-emerald-600 dark:text-emerald-400">
-                    <svg viewBox="0 0 10 10" className="size-2.5" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 10 10"
+                      className="size-2.5"
+                      aria-hidden="true"
+                    >
                       <path
                         d="M2 5.2l2 2 4-4"
                         stroke="currentColor"
@@ -1900,14 +2301,17 @@ export function PriceDropsPanel() {
                         fill="none"
                       />
                     </svg>
-                    Sold via {i === 0 ? 'Depop' : i === 1 ? 'Vinted' : 'Depop'} · just now
+                    Sold via {i === 0 ? "Depop" : i === 1 ? "Vinted" : "Depop"}{" "}
+                    · just now
                   </span>
                 ) : (
                   <>
                     <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-zinc-200/60 dark:bg-white/10">
                       <span
                         className="absolute inset-y-0 left-0 rounded-full bg-amber-500/70 transition-[width] duration-500"
-                        style={{ width: `${Math.min(100, Math.max(0, progressToFloor))}%` }}
+                        style={{
+                          width: `${Math.min(100, Math.max(0, progressToFloor))}%`,
+                        }}
                       />
                     </div>
                     <span className="font-mono text-[9px] text-zinc-500">
@@ -1934,12 +2338,54 @@ type ShopTile = {
 };
 
 const INITIAL_SHOP_TILES: ShopTile[] = [
-  { id: 'starBeanie', title: 'Star beanie', type: 'tee', photo: PHOTO.starBeanie, hue: 220, price: '£22' },
-  { id: 'sportSunglasses', title: 'Sport shades', type: 'tee', photo: PHOTO.sportSunglasses, hue: 210, price: '£24' },
-  { id: 'crystalCross', title: 'Crystal cross', type: 'tee', photo: PHOTO.crystalCross, hue: 200, price: '£28' },
-  { id: 'crossNecklace', title: 'Cross necklace', type: 'tee', photo: PHOTO.crossNecklace, hue: 195, price: '£18' },
-  { id: 'roseCharm', title: 'Rose charm', type: 'tee', photo: PHOTO.roseCharm, hue: 8, price: '£12' },
-  { id: 'strawberryRings', title: 'Strawberry rings', type: 'tee', photo: PHOTO.strawberryRings, hue: 0, price: '£16' },
+  {
+    id: "starBeanie",
+    title: "Star beanie",
+    type: "tee",
+    photo: PHOTO.starBeanie,
+    hue: 220,
+    price: "£22",
+  },
+  {
+    id: "sportSunglasses",
+    title: "Sport shades",
+    type: "tee",
+    photo: PHOTO.sportSunglasses,
+    hue: 210,
+    price: "£24",
+  },
+  {
+    id: "crystalCross",
+    title: "Crystal cross",
+    type: "tee",
+    photo: PHOTO.crystalCross,
+    hue: 200,
+    price: "£28",
+  },
+  {
+    id: "crossNecklace",
+    title: "Crystal cross",
+    type: "tee",
+    photo: PHOTO.crystalCross,
+    hue: 195,
+    price: "£18",
+  },
+  {
+    id: "roseCharm",
+    title: "Rose charm",
+    type: "tee",
+    photo: PHOTO.roseCharm,
+    hue: 8,
+    price: "£12",
+  },
+  {
+    id: "strawberryRings",
+    title: "Strawberry rings",
+    type: "tee",
+    photo: PHOTO.strawberryRings,
+    hue: 0,
+    price: "£16",
+  },
 ];
 
 export function ShopDesignerPanel() {
@@ -1951,20 +2397,20 @@ export function ShopDesignerPanel() {
   const [overId, setOverId] = useState<string | null>(null);
 
   const handleDragStart = (id: string) => (e: React.DragEvent) => {
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
     setDragId(id);
   };
 
   const handleDragOver = (id: string) => (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.dataTransfer.dropEffect = "move";
     if (id !== overId) setOverId(id);
   };
 
   const handleDrop = (id: string) => (e: React.DragEvent) => {
     e.preventDefault();
-    const draggedId = dragId ?? e.dataTransfer.getData('text/plain');
+    const draggedId = dragId ?? e.dataTransfer.getData("text/plain");
     if (!draggedId || draggedId === id) {
       setDragId(null);
       setOverId(null);
@@ -1993,7 +2439,7 @@ export function ShopDesignerPanel() {
       {/* Depop-style profile header */}
       <div
         className="cascade-item flex items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 py-2 dark:border-white/10 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `0ms` } as CSSProperties}
+        style={{ "--stagger-delay": `0ms` } as CSSProperties}
       >
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-rose-500 text-[12px] font-bold text-white">
           Y
@@ -2006,15 +2452,31 @@ export function ShopDesignerPanel() {
             <span className="text-[9px] text-zinc-500">· London</span>
           </div>
           <div className="flex items-center gap-2 text-[9.5px] text-zinc-500">
-            <span><span className="font-semibold text-zinc-900 dark:text-zinc-100">428</span> sold</span>
+            <span>
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                428
+              </span>{" "}
+              sold
+            </span>
             <span>·</span>
-            <span><span className="font-semibold text-zinc-900 dark:text-zinc-100">1.2k</span> followers</span>
+            <span>
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                1.2k
+              </span>{" "}
+              followers
+            </span>
             <span>·</span>
             <span className="inline-flex items-center gap-0.5">
-              <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 fill-amber-500" aria-hidden="true">
+              <svg
+                viewBox="0 0 12 12"
+                className="h-2.5 w-2.5 fill-amber-500"
+                aria-hidden="true"
+              >
                 <path d="M6 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6 9l-3 1.5.5-3.5L1 4.5 4.5 4z" />
               </svg>
-              <span className="font-semibold text-zinc-900 dark:text-zinc-100">5.0</span>
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                5.0
+              </span>
             </span>
           </div>
         </div>
@@ -2030,7 +2492,7 @@ export function ShopDesignerPanel() {
       {/* Tabs row, Depop style */}
       <div
         className="cascade-item flex items-center gap-4 border-b border-black/[0.08] px-1 dark:border-white/10"
-        style={{ '--stagger-delay': `40ms` } as CSSProperties}
+        style={{ "--stagger-delay": `40ms` } as CSSProperties}
       >
         <button
           type="button"
@@ -2073,12 +2535,12 @@ export function ShopDesignerPanel() {
               onDragEnd={handleDragEnd}
               className={`cascade-item group relative cursor-grab overflow-hidden bg-white transition-all active:cursor-grabbing dark:bg-white/[0.02] ${
                 isDragging
-                  ? 'scale-95 opacity-40'
+                  ? "scale-95 opacity-40"
                   : isOver
-                  ? 'ring-2 ring-emerald-500 ring-offset-1 ring-offset-white dark:ring-offset-zinc-950'
-                  : ''
+                    ? "ring-2 ring-emerald-500 ring-offset-1 ring-offset-white dark:ring-offset-zinc-950"
+                    : ""
               }`}
-              style={{ '--stagger-delay': `${80 + i * 40}ms` } as CSSProperties}
+              style={{ "--stagger-delay": `${80 + i * 40}ms` } as CSSProperties}
             >
               <ProductImage
                 type={t.type}
@@ -2096,7 +2558,11 @@ export function ShopDesignerPanel() {
                 className="pointer-events-none absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded bg-white/85 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-zinc-900/85"
                 aria-hidden
               >
-                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5 text-zinc-700 dark:text-zinc-300" fill="currentColor">
+                <svg
+                  viewBox="0 0 12 12"
+                  className="h-2.5 w-2.5 text-zinc-700 dark:text-zinc-300"
+                  fill="currentColor"
+                >
                   <circle cx="4" cy="3" r="1" />
                   <circle cx="8" cy="3" r="1" />
                   <circle cx="4" cy="6" r="1" />
@@ -2113,7 +2579,7 @@ export function ShopDesignerPanel() {
       {/* Helper line + sync status */}
       <div
         className="cascade-item flex items-center justify-between rounded-md border border-dashed border-black/10 bg-zinc-50/60 px-3 py-1.5 dark:border-white/15 dark:bg-white/[0.02]"
-        style={{ '--stagger-delay': `${80 + 6 * 40}ms` } as CSSProperties}
+        style={{ "--stagger-delay": `${80 + 6 * 40}ms` } as CSSProperties}
       >
         <span className="font-mono text-[10px] text-zinc-500">
           Drag tiles to reorder · auto-syncs to Depop
@@ -2133,7 +2599,7 @@ export function ShopDesignerPanel() {
 export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
   type Offer = {
     id: string;
-    platform: 'depop' | 'vinted';
+    platform: "depop" | "vinted";
     username: string;
     item: string;
     type: ProductType;
@@ -2141,15 +2607,104 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
     hue: number;
     listed: number;
     offer: number;
-    received: string;
   };
-  const BASE_OFFERS: Offer[] = [
-    { id: 'a', platform: 'vinted', username: 'lila_resale', item: 'Star beanie', type: 'tee', photo: PHOTO.starBeanie, hue: 220, listed: 22, offer: 18, received: '2m ago' },
-    { id: 'b', platform: 'depop', username: 'kai_pop', item: 'Sport shades', type: 'tee', photo: PHOTO.sportSunglasses, hue: 210, listed: 24, offer: 20, received: '14m ago' },
-    { id: 'c', platform: 'vinted', username: 'sam_thrifts', item: 'Crystal cross', type: 'tee', photo: PHOTO.crystalCross, hue: 200, listed: 28, offer: 24, received: '1h ago' },
+  // Seven offers, shown three at a time, the window advancing each time the
+  // inbox empties — so a visitor who clears it twice does not get the same
+  // three back.
+  //
+  // Seven, not six: a pool that is an exact multiple of the window size just
+  // alternates two fixed sets (abc, def, abc, ...). Seven and three share no
+  // factor, so the window walks the whole pool and takes seven rounds to
+  // return to the start.
+  const OFFER_POOL: Offer[] = [
+    {
+      id: "a",
+      platform: "vinted",
+      username: "lila_resale",
+      item: "Union Jack beanie",
+      type: "tee",
+      photo: PHOTO.unionJackBeanie,
+      hue: 220,
+      listed: 22,
+      offer: 18,
+    },
+    {
+      id: "b",
+      platform: "depop",
+      username: "kai_pop",
+      item: "Sport shades",
+      type: "tee",
+      photo: PHOTO.sportSunglasses,
+      hue: 210,
+      listed: 24,
+      offer: 20,
+    },
+    {
+      id: "c",
+      platform: "vinted",
+      username: "sam_thrifts",
+      item: "Crystal cross",
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      hue: 200,
+      listed: 28,
+      offer: 24,
+    },
+    {
+      id: "d",
+      platform: "depop",
+      username: "noor.vtg",
+      item: "Western belt",
+      type: "tee",
+      photo: PHOTO.westernBelt,
+      hue: 32,
+      listed: 40,
+      offer: 31,
+    },
+    {
+      id: "e",
+      platform: "vinted",
+      username: "archive.folk",
+      item: "Denim jacket",
+      type: "tee",
+      photo: PHOTO.sportSunglasses,
+      hue: 262,
+      listed: 35,
+      offer: 27,
+    },
+    {
+      id: "f",
+      platform: "depop",
+      username: "seconds.london",
+      item: "Knit vest",
+      type: "tee",
+      photo: PHOTO.crystalCross,
+      hue: 96,
+      listed: 26,
+      offer: 21,
+    },
+    {
+      id: "g",
+      platform: "vinted",
+      username: "northgate.vtg",
+      item: "White star beanie",
+      type: "tee",
+      photo: PHOTO.whiteStarBeanie,
+      hue: 300,
+      listed: 30,
+      offer: 23,
+    },
   ];
+  const PER_ROUND = 3;
+  // Starts at 0 so the server render and the first client render agree; it only
+  // moves once the visitor has actually cleared a round.
+  const [round, setRound] = useState(0);
+  const BASE_OFFERS = Array.from(
+    { length: PER_ROUND },
+    (_, i) => OFFER_POOL[(round * PER_ROUND + i) % OFFER_POOL.length],
+  );
 
-  type Resolution = 'accepted' | 'countered' | 'declined';
+  type Resolution = "accepted" | "countered" | "declined";
   // Per-offer state machine, four phases:
   //   pending  → user hasn't acted yet, buttons visible
   //   resolved → user clicked, confirmation pill swaps in (~900ms hold)
@@ -2184,6 +2739,8 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
       setResolved({});
       setLeaving({});
       setRemoved({});
+      // Advance the window so the next round is a different three.
+      setRound((r) => r + 1);
     }, 2000);
     return () => window.clearTimeout(t);
   }, [allDone]);
@@ -2191,26 +2748,32 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
   const remainingCount = BASE_OFFERS.filter((o) => !removed[o.id]).length;
 
   return (
-    <div className="cascade-list flex flex-col gap-1.5">
+    // min-height holds the panel at its full three-card size.
+    //
+    // Cards leave the list as the visitor accepts or declines them, and without
+    // a floor the panel shrank with each one, walking the "Pending offers"
+    // footer up the page and taking everything under it along. The footer's
+    // mt-auto then does the rest: it stays pinned to the bottom edge while the
+    // list empties above it, so the only thing that moves is the count.
+    <div className="cascade-list flex min-h-[268px] flex-col gap-1.5">
       <ul className="cascade-list flex flex-col gap-1.5">
         {BASE_OFFERS.map((o, i) => {
           if (removed[o.id]) return null;
           const state = resolved[o.id];
           const isLeaving = leaving[o.id];
-          const dropPct = Math.round(((o.listed - o.offer) / o.listed) * 100);
           return (
             <li
               key={o.id}
-              className={`${isLeaving ? 'hero-offer-row-exit' : 'cascade-item'} flex flex-col gap-1.5 rounded-md border bg-white px-2.5 py-2 transition-colors duration-300 dark:bg-white/[0.02] ${platformBorder(o.platform)} ${
-                state === 'accepted'
-                  ? 'border-emerald-500/40 bg-emerald-500/[0.05] dark:border-emerald-400/40 dark:bg-emerald-400/[0.06]'
-                  : state === 'declined'
-                  ? 'border-zinc-400/40 opacity-60 dark:border-white/20'
-                  : state === 'countered'
-                  ? 'border-amber-500/40 bg-amber-500/[0.05] dark:border-amber-400/40 dark:bg-amber-400/[0.06]'
-                  : 'border-black/[0.06] dark:border-white/10'
+              className={`${isLeaving ? "hero-offer-row-exit" : "cascade-item"} flex flex-col gap-1.5 rounded-md border bg-white px-2.5 py-2 transition-colors duration-300 dark:bg-white/[0.02] ${platformBorder(o.platform)} ${
+                state === "accepted"
+                  ? "border-emerald-500/40 bg-emerald-500/[0.05] dark:border-emerald-400/40 dark:bg-emerald-400/[0.06]"
+                  : state === "declined"
+                    ? "border-zinc-400/40 opacity-60 dark:border-white/20"
+                    : state === "countered"
+                      ? "border-amber-500/40 bg-amber-500/[0.05] dark:border-amber-400/40 dark:bg-amber-400/[0.06]"
+                      : "border-black/[0.06] dark:border-white/10"
               }`}
-              style={{ '--stagger-delay': `${i * 70}ms` } as CSSProperties}
+              style={{ "--stagger-delay": `${i * 70}ms` } as CSSProperties}
             >
               <div className="flex items-center gap-2.5">
                 <ProductImage
@@ -2228,22 +2791,28 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
                     <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
                       @{o.username}
                     </span>
-                    <span className="font-mono text-[9px] text-zinc-400">·</span>
-                    <span className="truncate text-[10.5px] text-zinc-500">{o.item}</span>
+                    <span className="font-mono text-[9px] text-zinc-400">
+                      ·
+                    </span>
+                    <span className="truncate text-[10.5px] text-zinc-500">
+                      {o.item}
+                    </span>
                   </div>
+                  {/* Asking price and offer, and nothing else. The row also
+                      carried a -N% chip and a "2m ago" stamp, which put four
+                      numbers on one line for a card whose only question is
+                      whether to take the offer. The percentage was arithmetic
+                      the two prices already show. */}
                   <div className="flex items-center gap-1.5">
                     <span className="font-mono text-[9.5px] text-zinc-500 line-through">
                       £{o.listed}
                     </span>
-                    <Icon name="arrow-right" className="h-2.5 w-2.5 text-zinc-400" />
+                    <Icon
+                      name="arrow-right"
+                      className="h-2.5 w-2.5 text-zinc-400"
+                    />
                     <span className="font-mono text-[11px] font-semibold text-zinc-900 dark:text-zinc-100">
                       £{o.offer}
-                    </span>
-                    <span className={`rounded-full px-1.5 py-[1px] text-[8.5px] font-semibold tracking-[0.08em] ${chipClass('warn')}`}>
-                      -{dropPct}%
-                    </span>
-                    <span className="ml-auto font-mono text-[9px] text-zinc-400">
-                      {o.received}
                     </span>
                   </div>
                 </div>
@@ -2252,36 +2821,37 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
                 /* Confirmation pill replacing the buttons for ~900ms */
                 <div
                   className={`hero-offer-confirm-in flex items-center justify-center rounded px-2 py-1 text-[10.5px] font-semibold tracking-[0.06em] ${
-                    state === 'accepted'
-                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
-                      : state === 'countered'
-                      ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
-                      : 'bg-zinc-900/[0.06] text-zinc-500 dark:bg-white/10'
+                    state === "accepted"
+                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                      : state === "countered"
+                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                        : "bg-zinc-900/[0.06] text-zinc-500 dark:bg-white/10"
                   }`}
                 >
-                  {state === 'accepted' && `Accepted at £${o.offer}`}
-                  {state === 'countered' && `Countered with £${Math.round((o.listed + o.offer) / 2)}`}
-                  {state === 'declined' && 'Declined'}
+                  {state === "accepted" && `Accepted at £${o.offer}`}
+                  {state === "countered" &&
+                    `Countered with £${Math.round((o.listed + o.offer) / 2)}`}
+                  {state === "declined" && "Declined"}
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => handle(o.id, 'accepted')}
+                    onClick={() => handle(o.id, "accepted")}
                     className="flex-1 rounded bg-emerald-500/15 px-2 py-1 text-[10px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/25 active:bg-emerald-500/40 dark:text-emerald-300"
                   >
                     Accept
                   </button>
                   <button
                     type="button"
-                    onClick={() => handle(o.id, 'countered')}
+                    onClick={() => handle(o.id, "countered")}
                     className="flex-1 rounded bg-zinc-900/[0.06] px-2 py-1 text-[10px] font-semibold text-zinc-700 transition-colors hover:bg-zinc-900/10 active:bg-zinc-900/[0.18] dark:bg-white/10 dark:text-zinc-200 dark:hover:bg-white/15"
                   >
                     Counter
                   </button>
                   <button
                     type="button"
-                    onClick={() => handle(o.id, 'declined')}
+                    onClick={() => handle(o.id, "declined")}
                     className="flex-1 rounded px-2 py-1 text-[10px] font-semibold text-zinc-500 transition-colors hover:bg-zinc-900/[0.04] active:bg-zinc-900/[0.1] dark:hover:bg-white/[0.06]"
                   >
                     Decline
@@ -2310,8 +2880,8 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
 // ── Main ────────────────────────────────────────────────────────────
 
 export function HeroPreview() {
-  const t = useTranslations('Home.preview');
-  const [activeTab, setActiveTab] = useState<TabId>('crosslist');
+  const t = useTranslations("Home.preview");
+  const [activeTab, setActiveTab] = useState<TabId>("crosslist");
   const [userInteracted, setUserInteracted] = useState(false);
   const [interactionTick, setInteractionTick] = useState(0);
   const bumpInteraction = () => {
@@ -2374,21 +2944,21 @@ export function HeroPreview() {
   // and is skipped entirely if the user has reduced-motion enabled.
   useEffect(() => {
     if (userInteracted) return;
-    if (typeof window === 'undefined') return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const order: TabId[] = [
-      'crosslist',
-      'restocker',
-      'shopDesigner',
-      'listings',
-      'relister',
-      'priceDrops',
-      'followBot',
-      'offers',
-      'autoOffers',
-      'conversations',
-      'labels',
+      "crosslist",
+      "restocker",
+      "shopDesigner",
+      "listings",
+      "relister",
+      "priceDrops",
+      "followBot",
+      "offers",
+      "autoOffers",
+      "conversations",
+      "labels",
     ];
     const timer = window.setInterval(() => {
       setActiveTab((curr) => {
@@ -2460,15 +3030,15 @@ export function HeroPreview() {
                     aria-pressed={isActive}
                     className={
                       isActive
-                        ? 'flex flex-shrink-0 items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-left text-[12px] font-medium text-zinc-900 shadow-[0_1px_0_rgba(0,0,0,0.04),0_4px_12px_-6px_rgba(0,0,0,0.15)] transition-colors sm:gap-2 dark:bg-white/[0.08] dark:text-zinc-50'
-                        : 'flex flex-shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-left text-[12px] text-zinc-600 transition-colors hover:bg-white/60 hover:text-zinc-900 sm:gap-2 dark:text-zinc-400 dark:hover:bg-white/[0.04] dark:hover:text-zinc-100'
+                        ? "flex flex-shrink-0 items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-left text-[12px] font-medium text-zinc-900 shadow-[0_1px_0_rgba(0,0,0,0.04),0_4px_12px_-6px_rgba(0,0,0,0.15)] transition-colors sm:gap-2 dark:bg-white/[0.08] dark:text-zinc-50"
+                        : "flex flex-shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-left text-[12px] text-zinc-600 transition-colors hover:bg-white/60 hover:text-zinc-900 sm:gap-2 dark:text-zinc-400 dark:hover:bg-white/[0.04] dark:hover:text-zinc-100"
                     }
                   >
                     <span
                       className={
                         isActive
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-zinc-400 dark:text-zinc-500'
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-zinc-400 dark:text-zinc-500"
                       }
                     >
                       <Icon name={tab.icon} className="h-3.5 w-3.5" />
@@ -2495,26 +3065,29 @@ export function HeroPreview() {
                   // doesn't bounce when tabs swap. Dynamic panelHeight still
                   // animates if a panel exceeds the floor, but with a high
                   // enough floor every panel fits and the outer box stays put.
-                  height: panelHeight !== null ? `${Math.max(panelHeight, 480)}px` : undefined,
+                  height:
+                    panelHeight !== null
+                      ? `${Math.max(panelHeight, 480)}px`
+                      : undefined,
                   minHeight: 480,
                   transitionDuration: `${transitionDuration}ms`,
                 }}
               >
                 <div ref={contentRef}>
                   <div key={activeTab} className="panel-swap flex flex-col">
-                    {activeTab === 'listings' && <ListingsPanel />}
-                    {activeTab === 'crosslist' && <CrosslistPanel />}
-                    {activeTab === 'shopDesigner' && <ShopDesignerPanel />}
-                    {activeTab === 'restocker' && <RestockerPanel />}
-                    {activeTab === 'relister' && <RelisterPanel />}
-                    {activeTab === 'priceDrops' && <PriceDropsPanel />}
-                    {activeTab === 'followBot' && <FollowBotPanel />}
-                    {activeTab === 'offers' && (
+                    {activeTab === "listings" && <ListingsPanel />}
+                    {activeTab === "crosslist" && <CrosslistPanel />}
+                    {activeTab === "shopDesigner" && <ShopDesignerPanel />}
+                    {activeTab === "restocker" && <RestockerPanel />}
+                    {activeTab === "relister" && <RelisterPanel />}
+                    {activeTab === "priceDrops" && <PriceDropsPanel />}
+                    {activeTab === "followBot" && <FollowBotPanel />}
+                    {activeTab === "offers" && (
                       <OffersPanel onInteract={bumpInteraction} />
                     )}
-                    {activeTab === 'autoOffers' && <AutoOffersPanel />}
-                    {activeTab === 'conversations' && <ConversationsPanel />}
-                    {activeTab === 'labels' && <LabelsPanel />}
+                    {activeTab === "autoOffers" && <AutoOffersPanel />}
+                    {activeTab === "conversations" && <ConversationsPanel />}
+                    {activeTab === "labels" && <LabelsPanel />}
                   </div>
                 </div>
               </div>
@@ -2532,7 +3105,8 @@ export function HeroPreview() {
           key={activeTab}
           className="panel-swap text-center font-mono text-[0.66rem] uppercase tracking-[0.18em] text-zinc-600 dark:text-zinc-400"
         >
-          {headerTitle} <span className="text-zinc-400 dark:text-zinc-500">·</span>{' '}
+          {headerTitle}{" "}
+          <span className="text-zinc-400 dark:text-zinc-500">·</span>{" "}
           {headerMeta}
         </div>
       </div>

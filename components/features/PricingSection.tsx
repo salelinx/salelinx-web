@@ -285,7 +285,32 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
               </Link>
             )}
 
-            <FeatureList tier={starterTier} formatLimit={formatLimit} t={t} />
+            {/* Collapsed on mobile exactly like the paid cards below. It leads
+                the section, so leaving it expanded was tempting — but 18 rows
+                of limits and features is most of a phone screen before the
+                visitor has seen that there are other tiers at all. */}
+            <details className="disclosure group mt-6 md:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between rounded-full border border-black/10 px-4 py-2 text-sm font-medium dark:border-white/20">
+                {t("whatsIncluded")}
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                  className="h-4 w-4 transition-transform group-open:rotate-180"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <FeatureList tier={starterTier} formatLimit={formatLimit} t={t} />
+            </details>
+
+            <div className="hidden md:block">
+              <FeatureList tier={starterTier} formatLimit={formatLimit} t={t} />
+            </div>
 
             {/* Last, so it adds no height ABOVE anything the other three cards
                 also render. This line is their only structural difference:
@@ -344,7 +369,39 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 </button>
               )}
 
-              <FeatureList tier={tier} formatLimit={formatLimit} t={t} />
+              {/* Each card lists 8 limits plus 10 features. On a desktop grid
+                  that is a scannable column; stacked on a phone it made the
+                  three cards 5.4 screens tall on an iPhone, which is most of
+                  the page. Collapsed behind a disclosure on mobile, unchanged
+                  from md up.
+
+                  A <details> rather than state so it works with no JS, and the
+                  list is rendered twice rather than being toggled by CSS: a
+                  closed <details> hides its children through the UA stylesheet,
+                  and overriding that reliably across browsers is not worth the
+                  bytes this saves. */}
+              <details className="disclosure group mt-6 md:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between rounded-full border border-black/10 px-4 py-2 text-sm font-medium dark:border-white/20">
+                  {t("whatsIncluded")}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                    className="h-4 w-4 transition-transform group-open:rotate-180"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </summary>
+                <FeatureList tier={tier} formatLimit={formatLimit} t={t} />
+              </details>
+
+              <div className="hidden md:block">
+                <FeatureList tier={tier} formatLimit={formatLimit} t={t} />
+              </div>
             </div>
           );
         })}

@@ -711,7 +711,7 @@
           },
           "restocker": {
             "name": "Restocker",
-            "sceneTitle": "Plattformübergreifender Restocker",
+            "sceneTitle": "Restocker hält den Bestand synchron",
             "label": "Nie mehr doppelt verkaufen",
             "detail": "Verkaufst du einen Artikel auf einem Marktplatz, entfernt SaleLinx das passende Inserat auf dem anderen automatisch."
           }
@@ -726,6 +726,7 @@
       "body": "Jedes Paket liefert dieselbe Erweiterung. Höhere Stufen erhöhen die monatlichen Limits und schalten die schwereren Automatisierungen wie automatische Angebote und den Restocker frei."
     },
     "popular": "Beliebt",
+    "whatsIncluded": "Was enthalten ist",
     "installExtension": "Erweiterung installieren",
     "comingSoon": "Bald verfügbar",
     "perMonth": "/Mon.",
