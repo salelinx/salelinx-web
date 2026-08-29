@@ -686,9 +686,19 @@ export function ScrollWorldDemo() {
           Once pinned, it is centred in the viewport. That travel is the
           "settles into the middle as you scroll" behaviour, and it comes from
           sticky itself rather than a per-frame offset. */}
+      {/* paddingBottom matches the header height on purpose.
+          The box starts below the sticky header and is that much shorter, so
+          centring inside it put the scene half a header below the middle of
+          what the reader actually sees - on a phone that read as a big gap
+          above the scene and a small one under it. Padding the bottom by the
+          same amount pulls the centre back onto the viewport's. */}
       <div
         className="sticky flex flex-col justify-center"
-        style={{ top: headerH, height: `calc(100vh - ${headerH}px)` }}
+        style={{
+          top: headerH,
+          height: `calc(100vh - ${headerH}px)`,
+          paddingBottom: headerH,
+        }}
       >
         {/* Outer box carries the scaled height for layout; the stage inside
             keeps its natural size and is scaled by transform. Transforms don't
