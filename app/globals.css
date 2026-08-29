@@ -941,3 +941,18 @@ body::before {
     animation: none;
   }
 }
+
+/* Restocker near-miss: the shop still advertising stock that has already
+   gone. Lives here rather than in inline utilities so the base colour and the
+   red can be layered - the number keeps its normal colour class at all times
+   and this sits on top, so nothing is left uncoloured when it is not at risk.
+   span-qualified to outrank the Tailwind text colour at equal class count. */
+span.restock-at-risk {
+  color: var(--color-rose-600);
+  text-decoration-line: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.dark span.restock-at-risk {
+  color: var(--color-rose-400);
+}

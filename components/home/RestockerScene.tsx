@@ -67,7 +67,7 @@ function StockDigits({ stock, max }: { stock: number; max: number }) {
       <span className="sr-only">{stock}</span>
       <span aria-hidden className="block h-[1em] overflow-hidden">
         <span
-          className="flex flex-col transition-transform duration-[520ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+          className="restock-roll flex flex-col transition-transform duration-[520ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
           style={{ transform: `translateY(calc(${idx} * -1em))` }}
         >
           {Array.from({ length: max + 1 }, (_, i) => max - i).map((n) => (
@@ -236,12 +236,10 @@ export function RestockerScene() {
               </span>
               <span
                 className={`text-[34px] font-medium tabular-nums leading-none tracking-tight transition-colors duration-300 lg:text-[52px] ${
-                  atRisk
-                    ? "text-rose-600 line-through decoration-2 dark:text-rose-400"
-                    : stock === 0
-                      ? "text-zinc-300 dark:text-zinc-700"
-                      : "text-zinc-900 dark:text-zinc-100"
-                }`}
+                  stock === 0
+                    ? "text-zinc-300 dark:text-zinc-700"
+                    : "text-zinc-900 dark:text-zinc-100"
+                } ${atRisk ? "restock-at-risk" : ""}`}
               >
                 <StockDigits stock={stock} max={START_STOCK} />
               </span>
