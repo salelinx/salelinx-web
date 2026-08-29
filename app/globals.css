@@ -942,16 +942,11 @@ body::before {
   }
 }
 
-/* ── Phone-only motion ─────────────────────────────────────────────────────
-   The restocker's sync pulse, rolling digits and near-miss flash, the watch's
-   idle float, and the label stack were all built for the phone layout, where
-   the scenes are the whole screen and stillness reads as a broken page. On a
-   desktop the same scenes sit beside their copy at a fraction of the width,
-   where that much motion competes with the text instead of supporting it - so
-   above the phone breakpoint they hold the settled frame they had before.
-
-   Selectors are span/li-qualified where they have to outrank a Tailwind
-   utility or an earlier .cascade-item rule at equal class count. */
+/* Restocker near-miss: the shop still advertising stock that has already
+   gone. Lives here rather than in inline utilities so the base colour and the
+   red can be layered - the number keeps its normal colour class at all times
+   and this sits on top, so nothing is left uncoloured when it is not at risk.
+   span-qualified to outrank the Tailwind text colour at equal class count. */
 span.restock-at-risk {
   color: var(--color-rose-600);
   text-decoration-line: line-through;
@@ -960,40 +955,4 @@ span.restock-at-risk {
 
 .dark span.restock-at-risk {
   color: var(--color-rose-400);
-}
-
-@media (min-width: 640px) {
-  /* Sync pulse: gone rather than paused, so no dot is parked mid-flight. */
-  .restock-pulse {
-    display: none;
-  }
-
-  /* Digits snap between values again instead of rolling. */
-  .restock-roll {
-    transition: none;
-  }
-
-  /* No near-miss flash: the number keeps its normal colour. */
-  span.restock-at-risk {
-    color: inherit;
-    text-decoration-line: none;
-  }
-
-  .dark span.restock-at-risk {
-    color: inherit;
-  }
-
-  /* Product shot holds still. */
-  .restock-idle {
-    animation: none;
-  }
-
-  /* Labels stay a plain list: no collapse, no stack piling up. */
-  .cascade-list.labels-collapsing > li.cascade-item {
-    animation: none;
-  }
-
-  .labels-merge {
-    display: none;
-  }
 }
