@@ -47,7 +47,12 @@ import type {
   AdminUserRow,
   AdminUserDetail as Detail,
 } from "@/lib/types/admin";
-import { currentPeriodKeys, isMonthlyFeature } from "@/lib/admin/period";
+import {
+  USAGE_EPOCH,
+  currentPeriodKeys,
+  isMonthlyFeature,
+  periodKeysForRange,
+} from "@/lib/admin/period";
 import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
 import { platformLabel, platformProfileUrl } from "@/lib/admin/platform-links";
 import { formatBytes } from "@/lib/admin/format-bytes";
@@ -77,6 +82,29 @@ const STATUS_OPTIONS = [
   "canceled",
   "incomplete",
 ] as const;
+
+// Periods the drawer's usage section can show. "current" keeps the original
+// count-vs-cap view (this month + today); the wider ranges answer "has this
+// user ever used the thing" and show plain totals, because caps are per-period
+// and a percent against a multi-period sum would mislead.
+const USAGE_RANGES = [
+  { value: "current", label: "This period" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "all", label: "All time" },
+] as const;
+
+type UsageRange = (typeof USAGE_RANGES)[number]["value"];
+
+function usagePeriodKeysFor(range: UsageRange): string[] {
+  const now = new Date();
+  const { month, day } = currentPeriodKeys(now);
+  if (range === "current") return [month, day];
+  if (range === "all") return periodKeysForRange(USAGE_EPOCH, day);
+  const from = currentPeriodKeys(
+    new Date(now.getTime() - 29 * 86_400_000),
+  ).day;
+  return periodKeysForRange(from < USAGE_EPOCH ? USAGE_EPOCH : from, day);
+}
 
 function formatWhen(iso: string | null): string {
   if (!iso) return "-";
@@ -154,6 +182,10 @@ export function AdminUserDetail({
   // Bumped after a plan change so the effect refetches the detail bundle
   // (the webhook syncs the row a few seconds after Stripe accepts).
   const [refreshKey, setRefreshKey] = useState(0);
+  // Which period the usage section shows; changing it refetches the bundle
+  // with the matching period keys. The stale numbers stay visible during the
+  // round trip, like any refetch here.
+  const [usageRange, setUsageRange] = useState<UsageRange>("current");
 
   // Null on the server and through hydration, a ticking timestamp afterwards,
   // so relative ages cannot cause a mismatch. See lib/admin/use-client-now.ts.
@@ -166,12 +198,11 @@ export function AdminUserDetail({
   // resolves.
   useEffect(() => {
     let cancelled = false;
-    const { month, day } = currentPeriodKeys(new Date());
 
     supabase
       .rpc("admin_user_detail", {
         p_user_id: user.user_id,
-        p_period_keys: [month, day],
+        p_period_keys: usagePeriodKeysFor(usageRange),
       })
       .then(({ data, error: rpcErr }) => {
         if (cancelled) return;
@@ -187,7 +218,7 @@ export function AdminUserDetail({
     return () => {
       cancelled = true;
     };
-  }, [user.user_id, supabase, refreshKey]);
+  }, [user.user_id, supabase, refreshKey, usageRange]);
 
   const sub = detail?.subscription ?? null;
   // Resolve the tier config for this user's current tier so usage can be shown
@@ -668,34 +699,69 @@ export function AdminUserDetail({
               />
             </Section>
 
-            <Section title="Usage this period">
+            <Section
+              title="Usage"
+              action={
+                <select
+                  value={usageRange}
+                  onChange={(e) => setUsageRange(e.target.value as UsageRange)}
+                  className="rounded border border-[var(--admin-border)] bg-white px-1.5 py-0.5 text-xs text-zinc-600 outline-none focus:border-zinc-400"
+                  aria-label="Usage period"
+                >
+                  {USAGE_RANGES.map((r) => (
+                    <option key={r.value} value={r.value}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              }
+            >
               {detail.usage.length === 0 ? (
                 <p className="text-sm text-zinc-500">
-                  No usage recorded this period.
+                  No usage recorded in this range.
                 </p>
               ) : (
                 <ul className="space-y-1.5">
-                  {detail.usage.map((u) => {
-                    const cap = capForFeature(u.feature, tierConfig);
-                    const pct = percentOfCap(u.count, cap);
+                  {/* A range spans many period keys, so sum per feature; the
+                      current period is a month key + a day key holding
+                      different features, so summing is a no-op there. */}
+                  {Array.from(
+                    detail.usage
+                      .reduce((m, u) => {
+                        m.set(u.feature, (m.get(u.feature) ?? 0) + u.count);
+                        return m;
+                      }, new Map<string, number>())
+                      .entries(),
+                  ).map(([feature, count]) => {
+                    // Caps are per-period; only the current-period view can
+                    // measure against them.
+                    const cap =
+                      usageRange === "current"
+                        ? capForFeature(feature, tierConfig)
+                        : null;
+                    const pct = percentOfCap(count, cap);
                     return (
                       <li
-                        key={`${u.feature}:${u.period_key}`}
+                        key={feature}
                         className="flex items-center justify-between text-sm"
                       >
                         <span className="text-zinc-700">
-                          {u.feature}
+                          {feature}
                           <span className="ml-1 text-xs text-zinc-400">
-                            {isMonthlyFeature(u.feature) ? "mo" : "day"}
+                            {isMonthlyFeature(feature) ? "mo" : "day"}
                           </span>
                         </span>
                         <span className="font-mono text-xs text-zinc-800">
-                          {u.count}
-                          {" / "}
-                          {cap === null ? (
-                            <span className="text-zinc-400">unlimited</span>
-                          ) : (
-                            cap
+                          {count}
+                          {usageRange === "current" && (
+                            <>
+                              {" / "}
+                              {cap === null ? (
+                                <span className="text-zinc-400">unlimited</span>
+                              ) : (
+                                cap
+                              )}
+                            </>
                           )}
                           {pct !== null && (
                             <span

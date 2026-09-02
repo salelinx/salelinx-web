@@ -43,7 +43,23 @@ export async function loadUsageRows(
   ]);
 
   const all = (usageRes.data as AdminUsageRow[] | null) ?? [];
-  const usage = all.filter((u) => usageSource(u.feature) === source);
+  const filtered = all.filter((u) => usageSource(u.feature) === source);
+
+  // A range spans many period keys (and even the current period is a month key
+  // plus a day key), so a (user, feature) can come back as several rows. Merge
+  // them here: every consumer wants "total in the selected period" per user
+  // per feature, and percent-of-cap must be computed on the summed count.
+  const mergedByKey = new Map<string, AdminUsageRow>();
+  for (const u of filtered) {
+    const k = `${u.user_id}:${u.feature}`;
+    const existing = mergedByKey.get(k);
+    if (existing) {
+      existing.count += u.count;
+    } else {
+      mergedByKey.set(k, { ...u });
+    }
+  }
+  const usage = Array.from(mergedByKey.values());
 
   const users = (usersRes.data as AdminUserRow[] | null) ?? [];
   const tierByUser: Record<string, string> = {};

@@ -1,22 +1,22 @@
 "use client";
 
-// Period selector for the Extension usage page. Presets navigate immediately;
-// "Custom range" reveals from/to date inputs applied on demand. The selection
-// lives in the URL (?range= or ?from=&to=) so the server page resolves the
-// period keys and the view is shareable / refreshable.
+// Period selector for the usage pages. Presets navigate immediately; "Custom
+// range" reveals from/to date inputs applied on demand. The selection lives in
+// the URL (?range= or ?from=&to=, resolved by lib/admin/usage-range.ts) so the
+// server page resolves the period keys and the view is shareable /
+// refreshable.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { UsageRangePreset } from "@/lib/admin/usage-range";
 
-const PRESETS = [
+const PRESETS: { value: UsageRangePreset; label: string }[] = [
   { value: "current", label: "Current period" },
   { value: "7d", label: "Last 7 days" },
   { value: "30d", label: "Last 30 days" },
   { value: "all", label: "All time" },
   { value: "custom", label: "Custom range" },
-] as const;
-
-export type UsageRangePreset = (typeof PRESETS)[number]["value"];
+];
 
 type Props = {
   preset: UsageRangePreset;
@@ -24,12 +24,21 @@ type Props = {
   to: string;
   min: string; // earliest selectable day (USAGE_EPOCH)
   max: string; // today
+  // The page the selection navigates on; both usage pages share this picker.
+  basePath?: string;
 };
 
 const inputClass =
   "rounded-md border border-[var(--admin-border)] bg-white px-2 py-1 text-xs outline-none focus:border-zinc-400";
 
-export function UsageRangePicker({ preset, from, to, min, max }: Props) {
+export function UsageRangePicker({
+  preset,
+  from,
+  to,
+  min,
+  max,
+  basePath = "/admin/usage",
+}: Props) {
   const router = useRouter();
   const [custom, setCustom] = useState(preset === "custom");
   const [fromDraft, setFromDraft] = useState(from);
@@ -41,14 +50,12 @@ export function UsageRangePicker({ preset, from, to, min, max }: Props) {
       return;
     }
     setCustom(false);
-    router.push(
-      value === "current" ? "/admin/usage" : `/admin/usage?range=${value}`,
-    );
+    router.push(value === "current" ? basePath : `${basePath}?range=${value}`);
   };
 
   const applyCustom = () => {
     if (!fromDraft || !toDraft) return;
-    router.push(`/admin/usage?from=${fromDraft}&to=${toDraft}`);
+    router.push(`${basePath}?from=${fromDraft}&to=${toDraft}`);
   };
 
   return (
