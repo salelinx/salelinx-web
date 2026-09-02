@@ -1,6 +1,10 @@
 "use client";
 
-// Feature-level status, rolled up from the per-endpoint telemetry below it.
+// Feature-level status, rolled up from the per-endpoint telemetry below it,
+// with recent self-test results folded in (escalate-never-clear; see
+// lib/admin/feature-status.ts). A card can therefore be amber or red on the
+// strength of a fresh failing self-test alone, and the annotation line under
+// the numbers says so.
 //
 // This is the "what would a user notice" view: endpoints are how we measure,
 // features are what people actually use. Each card is as healthy as the WORST
@@ -127,6 +131,17 @@ export function FeatureStatusGrid({ features }: Props) {
   );
 }
 
+// Same fixed-locale short form as the self-test history table, so the two
+// surfaces describing the same run agree.
+function formatTestWhen(iso: string): string {
+  return new Date(iso).toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function FeatureCard({ feature: f }: { feature: FeatureStatus }) {
   return (
     <div className={`rounded-md border px-3 py-2.5 ${CARD_TONE[f.status]}`}>
@@ -172,6 +187,32 @@ function FeatureCard({ feature: f }: { feature: FeatureStatus }) {
           title={f.worstEndpoint}
         >
           {f.worstEndpoint}
+        </p>
+      )}
+
+      {/* The self-test's opinion, when a run is fresh enough to have one. A
+          failure explains an escalated card; a pass on a red card is itself
+          the finding - the outage is partial (IP / account / region-shaped),
+          not total. */}
+      {f.selfTest && (
+        <p
+          className={
+            "mt-1 text-[11px] " +
+            (f.selfTest.outcome === "failed"
+              ? "font-medium text-red-700"
+              : "text-zinc-500")
+          }
+          title={
+            f.selfTest.failedEndpoints.length > 0
+              ? f.selfTest.failedEndpoints.join(", ")
+              : undefined
+          }
+        >
+          Self-test {f.selfTest.outcome}
+          {f.selfTest.failedEndpoints.length > 1
+            ? ` (${f.selfTest.failedEndpoints.length} endpoints)`
+            : ""}{" "}
+          {formatTestWhen(f.selfTest.at)}
         </p>
       )}
     </div>
