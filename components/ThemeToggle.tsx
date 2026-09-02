@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useHydrated } from '@/lib/use-hydrated';
 
@@ -12,21 +12,15 @@ interface ViewTransition {
 }
 type StartViewTransition = (callback: () => void) => ViewTransition;
 
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+// The theme is persisted in localStorage only and applied before first paint
+// by the inline script in app/[locale]/layout.tsx. No cookie: nothing
+// server-side reads the theme, so storing it in a cookie would be an extra
+// year-long browser artefact for no benefit (see the privacy policy's
+// Cookies section, which promises the theme stays on-device).
 
 function getInitialTheme(): Theme {
   if (typeof document === 'undefined') return 'light';
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-}
-
-function writeThemeCookie(theme: Theme) {
-  // Secure only over https so local dev over plain http still works.
-  const secure = location.protocol === 'https:' ? '; Secure' : '';
-  document.cookie = `theme=${theme}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
-}
-
-function hasThemeCookie(): boolean {
-  return document.cookie.split('; ').some((c) => c.startsWith('theme='));
 }
 
 export function ThemeToggle() {
@@ -39,13 +33,6 @@ export function ThemeToggle() {
   const transitioning = useRef(false);
   const t = useTranslations('ThemeToggle');
 
-  useEffect(() => {
-    // Persist system-preferred theme on first visit so the server can render
-    // the right class on subsequent loads and soft navigations (e.g. locale
-    // change). No setState here - just an external write.
-    if (!hasThemeCookie()) writeThemeCookie(getInitialTheme());
-  }, []);
-
   function toggle() {
     if (transitioning.current) return;
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
@@ -56,7 +43,6 @@ export function ThemeToggle() {
       try {
         localStorage.setItem('theme', next);
       } catch {}
-      writeThemeCookie(next);
     };
 
     setTheme(next);

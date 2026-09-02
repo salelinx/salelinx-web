@@ -91,9 +91,22 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dirForLocale(locale)}
+      // The inline theme script below may add the `dark` class before React
+      // hydrates, which would otherwise trip the className hydration check.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Applies the saved theme before first paint so a dark-mode choice
+            survives reloads without a light flash. Theme lives in
+            localStorage only; the second statement expires the legacy
+            `theme` cookie older builds wrote but never read. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');document.cookie='theme=; path=/; max-age=0'}catch(e){}",
+          }}
+        />
         {/* React hoists this into <head>. Client-side Supabase calls (auth,
             referral status, checkout) then skip DNS + TLS setup. */}
         <link

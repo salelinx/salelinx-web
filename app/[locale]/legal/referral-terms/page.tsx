@@ -27,7 +27,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "26 August 2026";
+const LAST_UPDATED = "2 September 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -43,7 +43,7 @@ const SECTIONS: LegalSection[] = [
       "The discount applies only to a new SaleLinx account that signs up through a referral link and subscribes to a paid plan. It is applied automatically at checkout; no code is needed.",
       "The discount applies to your first payment only, and cannot be combined with any other promotion code. If a referral discount is active on your account, the promo-code field at checkout is not available.",
       "Your referral must be attached before you subscribe. The link remembers your invite in your browser for 30 days; if that period passes, or you clear the cookie, before you subscribe, the discount will not apply.",
-      "The exact discount is set by the current coupon and is shown to you at checkout before you pay.",
+      "The size of the discount depends on the plan you choose: each plan has its own referral discount on the first month's price. The exact discounted amount for your plan is shown to you at checkout before you pay.",
     ],
   },
   {
@@ -75,7 +75,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Data and privacy",
     paragraphs: [
-      "To run the program we record the link between a referrer and the people they refer, the status of each referral, and reward amounts. If you take part, your linked shop username (or, if you have none, a neutral placeholder) and your number of successful referrals may be shown to other participants on a leaderboard. See our privacy policy for how we handle this data.",
+      "To run the program we record the link between a referrer and the people they refer, the status of each referral, and reward amounts. If you take part, a display name and your number of successful referrals may be shown to other participants on a leaderboard. The display name is one you choose yourself or, if you have not chosen one, your linked shop username, or failing that a neutral placeholder. A name you choose is visible to other participants and must be unique, and we may remove or replace any name we consider offensive, misleading, or impersonating someone else. See our privacy policy for how we handle this data.",
     ],
   },
   {

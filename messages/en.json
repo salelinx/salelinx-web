@@ -987,7 +987,9 @@
     "thanks": "Thank you. Every answer here shapes what we fix next.",
     "error": "Could not send right now. Nothing was lost, feel free to try again.",
     "reinstallHint": "Removed it because something broke?",
-    "helpLink": "Our help pages might have the fix."
+    "helpLink": "Our help pages might have the fix.",
+    "privacyNote": "This survey is anonymous: it records only your answer, the extension version, and its language, never your name, email, or account. Please do not include personal details in the comment.",
+    "privacyLink": "Privacy policy"
   },
   "Welcome": {
     "metaTitle": "Welcome to SaleLinx",
