@@ -1,6 +1,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { getTierConfigs } from "@/lib/supabase/tier-config";
-import { currentPeriodKeys } from "@/lib/admin/period";
+import { currentUsagePeriod } from "@/lib/admin/period";
+import type { UsagePeriod } from "@/lib/admin/period";
 import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
 import { usageSource, webCounterLimit } from "@/lib/admin/usage-sources";
 import { EXTENSION_FEATURES } from "@/lib/admin/extension-features";
@@ -17,28 +18,48 @@ import type {
 import type { UsageSource } from "@/lib/admin/usage-sources";
 
 // Shared loader for the two usage modules. Both read the SAME usage_counters
-// rows for the current period and differ only in which source they keep and how
-// the cap is resolved, so the query work lives here once.
+// rows for the selected period and differ only in which source they keep and
+// how the cap is resolved, so the query work lives here once. The default
+// period is the current one (this month + today); the Extension usage page can
+// pass a wider range resolved from its URL params.
 //
 // Every read below still goes through the is_admin()-gated RPCs; splitting the
 // page did not add a data path (see docs/ADMIN.md).
-export async function loadUsageRows(source: UsageSource): Promise<{
+export async function loadUsageRows(
+  source: UsageSource,
+  period: UsagePeriod = currentUsagePeriod(new Date()),
+): Promise<{
   rows: UsageTableRow[];
   periodLabel: string;
 }> {
   const supabase = await createServerClient();
-  const { month, day } = currentPeriodKeys(new Date());
 
   // These four reads are independent of each other, so they resolve together.
   const [usageRes, usersRes, subsRes, tiers] = await Promise.all([
-    supabase.rpc("admin_list_usage", { p_period_keys: [month, day] }),
+    supabase.rpc("admin_list_usage", { p_period_keys: period.keys }),
     supabase.rpc("admin_list_users"),
     supabase.rpc("admin_list_subscriptions"),
     getTierConfigs(),
   ]);
 
   const all = (usageRes.data as AdminUsageRow[] | null) ?? [];
-  const usage = all.filter((u) => usageSource(u.feature) === source);
+  const filtered = all.filter((u) => usageSource(u.feature) === source);
+
+  // A range spans many period keys (and even the current period is a month key
+  // plus a day key), so a (user, feature) can come back as several rows. Merge
+  // them here: every consumer wants "total in the selected period" per user
+  // per feature, and percent-of-cap must be computed on the summed count.
+  const mergedByKey = new Map<string, AdminUsageRow>();
+  for (const u of filtered) {
+    const k = `${u.user_id}:${u.feature}`;
+    const existing = mergedByKey.get(k);
+    if (existing) {
+      existing.count += u.count;
+    } else {
+      mergedByKey.set(k, { ...u });
+    }
+  }
+  const usage = Array.from(mergedByKey.values());
 
   const users = (usersRes.data as AdminUserRow[] | null) ?? [];
   const tierByUser: Record<string, string> = {};
@@ -72,9 +93,11 @@ export async function loadUsageRows(source: UsageSource): Promise<{
 
     // Extension counters are capped by the user's tier. Web counters are capped
     // by a fixed constant in the calling code, identical for every tier, so the
-    // tier config is irrelevant to them.
-    const cap =
-      source === "web"
+    // tier config is irrelevant to them. Caps are per-period, so a multi-period
+    // range carries no cap at all (see UsagePeriod.capped).
+    const cap = !period.capped
+      ? null
+      : source === "web"
         ? webCounterLimit(u.feature)
         : capForFeature(u.feature, tierConfig);
 
@@ -91,7 +114,7 @@ export async function loadUsageRows(source: UsageSource): Promise<{
     };
   });
 
-  return { rows, periodLabel: `${month} / ${day}` };
+  return { rows, periodLabel: period.label };
 }
 
 // Grouped loader for the Extension usage page: one entry per user, and inside
@@ -99,14 +122,14 @@ export async function loadUsageRows(source: UsageSource): Promise<{
 // included, so an unused feature reads as "0" rather than being invisible).
 // Counters the roster does not know about yet are appended after it, so a new
 // extension counter still shows up before this file learns its label.
-export async function loadExtensionUsageByUser(): Promise<{
+export async function loadExtensionUsageByUser(period?: UsagePeriod): Promise<{
   groups: UserUsageGroup[];
   periodLabel: string;
 }> {
-  const { rows, periodLabel } = await loadUsageRows("extension");
+  const { rows, periodLabel } = await loadUsageRows("extension", period);
 
-  // A feature can in theory surface under both the month and day period keys;
-  // sum them so each (user, feature) renders once.
+  // A feature can surface under several period keys (month + many days in a
+  // range view); sum them so each (user, feature) renders once.
   const byUser = new Map<string, Map<string, UsageTableRow[]>>();
   for (const r of rows) {
     const features = byUser.get(r.user_id) ?? new Map<string, UsageTableRow[]>();

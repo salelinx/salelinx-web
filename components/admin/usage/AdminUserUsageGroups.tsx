@@ -1,6 +1,6 @@
 "use client";
 
-// Grouped, per-user view of extension feature usage for the current period.
+// Grouped, per-user view of extension feature usage for the selected period.
 // One collapsible card per user; expanding it shows EVERY extension feature
 // counter (zero-count rows included) so it is obvious which features a user
 // does and does not touch. Rows are pre-computed on the server
@@ -9,7 +9,7 @@
 // The flat cross-user table lives on at /admin/usage/web for the web abuse
 // rate limits (AdminUsageTable); this component is extension-only.
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { extensionFeatureLabel } from "@/lib/admin/extension-features";
@@ -36,9 +36,13 @@ export type UserUsageGroup = {
 type Props = {
   groups: UserUsageGroup[];
   periodLabel: string;
+  // Server-rendered period controls (UsageRangePicker) slotted into the
+  // header so this component stays a pure renderer of whatever period the
+  // page resolved.
+  toolbar?: ReactNode;
 };
 
-export function AdminUserUsageGroups({ groups, periodLabel }: Props) {
+export function AdminUserUsageGroups({ groups, periodLabel, toolbar }: Props) {
   const [search, setSearch] = useState("");
   // Users the admin has explicitly toggled; everyone starts collapsed unless
   // "Expand all" flips the default.
@@ -71,6 +75,7 @@ export function AdminUserUsageGroups({ groups, periodLabel }: Props) {
           <span className="ml-2 font-normal text-zinc-400">{periodLabel}</span>
         </h1>
         <div className="flex items-center gap-2">
+          {toolbar}
           <button
             type="button"
             onClick={() => setAll(true)}
@@ -98,7 +103,7 @@ export function AdminUserUsageGroups({ groups, periodLabel }: Props) {
       <div className="min-h-0 flex-1 overflow-auto">
         {visible.length === 0 ? (
           <p className="px-4 py-8 text-sm text-zinc-500">
-            No extension usage recorded for this period.
+            No extension usage recorded for this range.
           </p>
         ) : (
           <ul className="divide-y divide-[var(--admin-border)]">
