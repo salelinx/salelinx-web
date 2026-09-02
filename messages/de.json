@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "Zu hellem Modus wechseln",
-    "switchToDark": "Zu dunklem Modus wechseln"
-  },
   "LanguageSwitcher": {
     "label": "Sprache",
     "english": "English",

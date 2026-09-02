@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "Switch to light mode",
-    "switchToDark": "Switch to dark mode"
-  },
   "LanguageSwitcher": {
     "label": "Language",
     "english": "English",

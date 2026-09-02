@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "切换到浅色模式",
-    "switchToDark": "切换到深色模式"
-  },
   "LanguageSwitcher": {
     "label": "语言",
     "english": "English",

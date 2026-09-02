@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "Cambiar a modo claro",
-    "switchToDark": "Cambiar a modo oscuro"
-  },
   "LanguageSwitcher": {
     "label": "Idioma",
     "english": "English",

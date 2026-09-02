@@ -155,7 +155,6 @@ const SECTIONS: LegalSection[] = [
       "Google Analytics cookies (_ga and _ga_..., optional, only with your consent): if you choose Accept in our cookie banner, Google Analytics sets these for up to 2 years to help us understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. They are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer, which also removes them. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
     ],
     trailing: [
-      "Your light or dark theme choice is stored in your browser's local storage on your device; it is never sent to us.",
       "We do not use advertising or cross-site tracking cookies.",
     ],
   },

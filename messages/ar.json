@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "التبديل إلى الوضع الفاتح",
-    "switchToDark": "التبديل إلى الوضع الداكن"
-  },
   "LanguageSwitcher": {
     "label": "اللغة",
     "english": "English",

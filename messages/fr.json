@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "Passer au mode clair",
-    "switchToDark": "Passer au mode sombre"
-  },
   "LanguageSwitcher": {
     "label": "Langue",
     "english": "English",

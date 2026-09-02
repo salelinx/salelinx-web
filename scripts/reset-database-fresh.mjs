@@ -41,9 +41,11 @@ const USER_OWNED_TABLES = [
   'user_storage',
   'support_tickets',
   'referral_codes',
-  'referrals',
   'device_sessions',
 ];
+// NOT in the list above because they are not keyed by user_id:
+// referrals (referrer_id + referee_id) and endpoint_selftest_runs (run_by)
+// are cleared explicitly in the keep-user loop.
 
 // Emails are personal data: keep them out of console output (which tends to
 // end up in terminal scrollback, CI logs, and screenshots). Falls back to the
@@ -159,21 +161,35 @@ async function main() {
 
   // Destructive runs must name the project they think they are wiping.
   // .env.local points at production in this repo, so --execute alone is one
-  // typo away from nuking the live user pool.
-  const projectRef = new URL(url).hostname.split('.')[0];
+  // typo away from nuking the live user pool. Deliberately NOT echoing the
+  // env's ref in the missing-flag message: the operator must read the ref
+  // off the Supabase dashboard themselves, or the check is a copy-paste
+  // ritual instead of an independent confirmation.
+  let projectRef;
+  try {
+    projectRef = new URL(url).hostname.split('.')[0];
+  } catch {
+    fail(`SUPABASE_URL is not a valid URL (missing https:// prefix?): cannot derive the project ref`);
+  }
   if (execute) {
     const refArg = process.argv
       .find((a) => a.startsWith('--project-ref='))
       ?.slice('--project-ref='.length);
     if (!refArg) {
       fail(
-        `--execute requires --project-ref=<ref>. The env points at project "${projectRef}"; ` +
-          'pass that ref explicitly to confirm it is the project you mean to wipe.',
+        '--execute requires --project-ref=<ref>. Read the ref off the Supabase dashboard ' +
+          '(Settings > General) for the project you intend to wipe and pass it explicitly.',
       );
     }
     if (refArg !== projectRef) {
+      fail('--project-ref does not match the project the env points at. Aborting.');
+    }
+    // The live project gets one extra interlock: matching the ref is not
+    // enough, you must also say out loud that you mean production.
+    const PRODUCTION_REF = 'owaxopwpktmffqsxavsz';
+    if (projectRef === PRODUCTION_REF && !process.argv.includes('--allow-production')) {
       fail(
-        `--project-ref mismatch: you passed "${refArg}" but the env points at "${projectRef}". Aborting.`,
+        'This is the PRODUCTION project. If you really mean to wipe it, add --allow-production.',
       );
     }
   }
@@ -190,7 +206,8 @@ async function main() {
 
   const allUsers = await listAllUsers(supabase);
   const keepUsers = keepEmails.map((email) => {
-    const u = allUsers.find((x) => (x.email ?? '').toLowerCase() === email.toLowerCase());
+    // keepEmails entries are already trimmed + lowercased at parse time.
+    const u = allUsers.find((x) => (x.email ?? '').toLowerCase() === email);
     if (!u) fail(`keep-list email not found in auth.users: ${maskEmail(email)}`);
     return u;
   });
@@ -250,20 +267,19 @@ async function main() {
       const { error } = await supabase.from(table).delete().eq('user_id', user.id);
       if (error) fail(`clearing ${table} failed for ${label}: ${error.message}`);
     }
-    // referrals can also reference a kept user as referrer, not just referee,
-    // and self-test runs are keyed by run_by rather than user_id
-    const { error: refErr } = await supabase
-      .from('referrals')
-      .delete()
-      .eq('referrer_id', user.id);
-    if (refErr) fail(`clearing referrals (referrer) failed for ${label}: ${refErr.message}`);
-    const { error: selftestErr } = await supabase
-      .from('endpoint_selftest_runs')
-      .delete()
-      .eq('run_by', user.id);
-    if (selftestErr) fail(`clearing endpoint_selftest_runs failed for ${label}: ${selftestErr.message}`);
+    // referrals has no user_id column (referrer_id + referee_id), and
+    // self-test runs are keyed by run_by, so all three are cleared here
+    // rather than through the user_id table loop above.
+    for (const [table, column] of [
+      ['referrals', 'referrer_id'],
+      ['referrals', 'referee_id'],
+      ['endpoint_selftest_runs', 'run_by'],
+    ]) {
+      const { error } = await supabase.from(table).delete().eq(column, user.id);
+      if (error) fail(`clearing ${table} (${column}) failed for ${label}: ${error.message}`);
+    }
     console.log(
-      `  Cleared owned rows in: ${[...USER_OWNED_TABLES, 'referrals (referrer_id)', 'endpoint_selftest_runs (run_by)'].join(', ')}`,
+      `  Cleared owned rows in: ${[...USER_OWNED_TABLES, 'referrals', 'endpoint_selftest_runs'].join(', ')}`,
     );
   }
 
@@ -277,7 +293,7 @@ async function main() {
     .from('admin_users')
     .insert(keepUsers.map((u) => ({ user_id: u.id })));
   if (adminInsErr) fail(`granting admin_users failed: ${adminInsErr.message}`);
-  console.log(`\nadmin_users reset to: ${keepUsers.map((u) => maskEmail(u.email)).join(', ')}`);
+  console.log(`\nadmin_users reset to: ${keepUsers.map(userLabel).join(', ')}`);
 
   // 4. Audit log: full wipe for a clean slate.
   const { error: auditErr } = await supabase
