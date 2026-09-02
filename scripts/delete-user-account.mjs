@@ -7,7 +7,9 @@
 //      payment method; Stripe retains invoices for legal/tax reasons)
 //   3. The auth.users row - ON DELETE CASCADE then removes listings,
 //      platform_credentials, user_settings, linked_accounts, subscriptions,
-//      usage_counters, user_storage, support_tickets, and replies
+//      usage_counters, user_storage, support_tickets and replies,
+//      device_sessions, referral_codes, referrals (both sides), and
+//      endpoint_selftest_runs/results (admins)
 //
 // Dry run (default) prints what would be deleted. Nothing is removed without
 // the --execute flag.
@@ -45,6 +47,14 @@ function loadEnvLocal() {
 function fail(msg) {
   console.error(`Error: ${msg}`);
   process.exit(1);
+}
+
+// Emails are personal data: keep them out of console output (terminal
+// scrollback, CI logs, screenshots). Same helper as reset-database-fresh.mjs.
+function maskEmail(email) {
+  const [local, domain] = String(email).split('@');
+  if (!domain) return '***';
+  return `${local.slice(0, 1)}***@${domain}`;
 }
 
 async function findUserByEmail(supabase, email) {
@@ -113,8 +123,8 @@ async function main() {
   });
 
   const user = await findUserByEmail(supabase, email);
-  if (!user) fail(`no auth user found for ${email}`);
-  console.log(`User: ${user.email} (${user.id}), created ${user.created_at}`);
+  if (!user) fail(`no auth user found for ${maskEmail(email)}`);
+  console.log(`User: ${maskEmail(user.email)} (${user.id}), created ${user.created_at}`);
 
   const [listings, tickets, storagePaths] = await Promise.all([
     countRows(supabase, 'listings', user.id),

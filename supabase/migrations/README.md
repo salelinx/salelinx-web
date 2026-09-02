@@ -20,7 +20,7 @@ this numbered sequence:
 | File (extension repo) | What it does | Status here |
 | --- | --- | --- |
 | `20260813_usage_period_key_server_side.sql` | Derives the usage `period_key` from `now()` at UTC instead of trusting the caller, and adds a `usage_feature_periods` table | No equivalent. `018_rate_limit_gaps.sql` validates the shape of `p_period_key` but then writes whatever the caller sent |
-| `20260813_lock_internal_storage_functions.sql` | Revokes PUBLIC EXECUTE on `apply_storage_delta(uuid,bigint)` and `get_user_storage_cap(uuid)` | Partial. `019` covers the cap function and `024` covers the trigger functions, but nothing revokes `apply_storage_delta` |
+| `20260813_lock_internal_storage_functions.sql` | Revokes PUBLIC EXECUTE on `apply_storage_delta(uuid,bigint)` and `get_user_storage_cap(uuid)` | Covered. `019` covers the cap function, `024` covers the trigger functions, and `040` revokes `apply_storage_delta` |
 
 **Whether these are already live is unknown.** The dated files are from Aug 13;
 this repo's `018` was last touched Aug 17 and still has the caller-supplied key,

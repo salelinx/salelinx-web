@@ -93,18 +93,25 @@ export default async function LocaleLayout({
       dir={dirForLocale(locale)}
       // The inline theme script below may add the `dark` class before React
       // hydrates, which would otherwise trip the className hydration check.
+      // Note the blast radius: this silences mismatch warnings for ALL of
+      // <html>'s attributes, including lang and dir - a locale-routing bug
+      // there will no longer warn in the console.
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* Applies the saved theme before first paint so a dark-mode choice
-            survives reloads without a light flash. Theme lives in
+            survives reloads without a light flash. Soft navigations are
+            covered separately: ThemeToggle re-asserts the class on pathname
+            change, because a locale switch reconciles <html> back to the
+            server className (see commit 7523761). Theme lives in
             localStorage only; the second statement expires the legacy
-            `theme` cookie older builds wrote but never read. */}
+            `theme` cookie builds up to Sep 2026 wrote (it was 1-year;
+            the whole statement can be deleted after Sep 2027). */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');document.cookie='theme=; path=/; max-age=0'}catch(e){}",
+              "try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');if(document.cookie.indexOf('theme=')>-1)document.cookie='theme=; path=/; max-age=0'}catch(e){}",
           }}
         />
         {/* React hoists this into <head>. Client-side Supabase calls (auth,

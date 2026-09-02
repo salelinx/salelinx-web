@@ -75,7 +75,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Data and privacy",
     paragraphs: [
-      "To run the program we record the link between a referrer and the people they refer, the status of each referral, and reward amounts. If you take part, a display name and your number of successful referrals may be shown to other participants on a leaderboard. The display name is one you choose yourself or, if you have not chosen one, your linked shop username, or failing that a neutral placeholder. A name you choose is visible to other participants and must be unique, and we may remove or replace any name we consider offensive, misleading, or impersonating someone else. See our privacy policy for how we handle this data.",
+      "To run the program we record the link between a referrer and the people they refer, the status of each referral, and reward amounts. If you take part and the app offers a leaderboard, a display name and your number of successful referrals may be shown on it to other participants. The display name used is any name you have chosen for the leaderboard, otherwise your linked shop username, or failing that a neutral placeholder. A name you choose is visible to other participants and must be unique, and we may remove or replace any name we consider offensive, misleading, or impersonating someone else. See our privacy policy for how we handle this data.",
     ],
   },
   {

@@ -46,11 +46,16 @@ const USER_OWNED_TABLES = [
 ];
 
 // Emails are personal data: keep them out of console output (which tends to
-// end up in terminal scrollback, CI logs, and screenshots).
+// end up in terminal scrollback, CI logs, and screenshots). Falls back to the
+// user id for email-less accounts so the dry-run summary stays reviewable.
 function maskEmail(email) {
   const [local, domain] = String(email).split('@');
   if (!domain) return '***';
   return `${local.slice(0, 1)}***@${domain}`;
+}
+
+function userLabel(user) {
+  return user.email ? maskEmail(user.email) : user.id;
 }
 
 function loadEnvLocal() {
@@ -132,10 +137,17 @@ async function main() {
   loadEnvLocal();
   const execute = process.argv.includes('--execute');
 
-  const keepEmails = (process.env.RESET_KEEP_EMAILS ?? '')
-    .split(',')
-    .map((e) => e.trim())
-    .filter(Boolean);
+  // Dedup case-insensitively: a duplicate entry would otherwise produce a
+  // duplicate admin_users insert at the end, which violates the PK and
+  // aborts AFTER the deletions have run - leaving the project with no admins.
+  const keepEmails = [
+    ...new Set(
+      (process.env.RESET_KEEP_EMAILS ?? '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ];
   if (keepEmails.length === 0) {
     fail('RESET_KEEP_EMAILS not set (comma-separated emails to keep)');
   }
@@ -187,12 +199,12 @@ async function main() {
 
   console.log(`Project: ${projectRef}`);
   console.log(`Found ${allUsers.length} total users.`);
-  console.log(`Keeping ${keepUsers.length}: ${keepUsers.map((u) => maskEmail(u.email)).join(', ')}`);
-  console.log(`Deleting ${deleteUsers.length}: ${deleteUsers.map((u) => maskEmail(u.email)).join(', ')}\n`);
+  console.log(`Keeping ${keepUsers.length}: ${keepUsers.map(userLabel).join(', ')}`);
+  console.log(`Deleting ${deleteUsers.length}: ${deleteUsers.map(userLabel).join(', ')}\n`);
 
   const { data: currentAdmins } = await supabase.from('admin_users').select('user_id');
   console.log(`Current admin_users: ${(currentAdmins ?? []).length} row(s).`);
-  console.log(`After reset, admin_users will be exactly: ${keepUsers.map((u) => maskEmail(u.email)).join(', ')}\n`);
+  console.log(`After reset, admin_users will be exactly: ${keepUsers.map(userLabel).join(', ')}\n`);
 
   if (!execute) {
     console.log('Dry run only. Re-run with --execute to apply.');
@@ -202,7 +214,7 @@ async function main() {
   // 1. Delete every non-kept user (storage, Stripe, then auth user - cascades
   //    their owned rows the same way delete-user-account.mjs does).
   for (const user of deleteUsers) {
-    const label = maskEmail(user.email);
+    const label = userLabel(user);
     console.log(`Deleting ${label} (${user.id})...`);
     const removed = await deleteStorage(supabase, user.id, label);
     if (removed) console.log(`  Removed ${removed} storage object(s).`);
@@ -222,7 +234,7 @@ async function main() {
   // 2. Clear the two kept accounts' own data too (auth.users itself is not
   //    touched, so nothing cascades it away).
   for (const user of keepUsers) {
-    const label = maskEmail(user.email);
+    const label = userLabel(user);
     console.log(`Clearing ${label}'s own data...`);
     const removed = await deleteStorage(supabase, user.id, label);
     if (removed) console.log(`  Removed ${removed} storage object(s).`);
@@ -240,9 +252,19 @@ async function main() {
     }
     // referrals can also reference a kept user as referrer, not just referee,
     // and self-test runs are keyed by run_by rather than user_id
-    await supabase.from('referrals').delete().eq('referrer_id', user.id);
-    await supabase.from('endpoint_selftest_runs').delete().eq('run_by', user.id);
-    console.log(`  Cleared owned rows in: ${USER_OWNED_TABLES.join(', ')}`);
+    const { error: refErr } = await supabase
+      .from('referrals')
+      .delete()
+      .eq('referrer_id', user.id);
+    if (refErr) fail(`clearing referrals (referrer) failed for ${label}: ${refErr.message}`);
+    const { error: selftestErr } = await supabase
+      .from('endpoint_selftest_runs')
+      .delete()
+      .eq('run_by', user.id);
+    if (selftestErr) fail(`clearing endpoint_selftest_runs failed for ${label}: ${selftestErr.message}`);
+    console.log(
+      `  Cleared owned rows in: ${[...USER_OWNED_TABLES, 'referrals (referrer_id)', 'endpoint_selftest_runs (run_by)'].join(', ')}`,
+    );
   }
 
   // 3. admin_users: wipe, then re-grant exactly the two kept accounts.

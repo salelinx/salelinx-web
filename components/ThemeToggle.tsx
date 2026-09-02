@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useHydrated } from '@/lib/use-hydrated';
 
@@ -12,11 +13,10 @@ interface ViewTransition {
 }
 type StartViewTransition = (callback: () => void) => ViewTransition;
 
-// The theme is persisted in localStorage only and applied before first paint
-// by the inline script in app/[locale]/layout.tsx. No cookie: nothing
-// server-side reads the theme, so storing it in a cookie would be an extra
-// year-long browser artefact for no benefit (see the privacy policy's
-// Cookies section, which promises the theme stays on-device).
+// Theme lives in localStorage ONLY, applied pre-paint by the inline script in
+// app/[locale]/layout.tsx. Never reintroduce a theme cookie without updating
+// the privacy policy: its Cookies section promises the theme stays on-device
+// (see the CLAUDE.md gotcha).
 
 function getInitialTheme(): Theme {
   if (typeof document === 'undefined') return 'light';
@@ -32,6 +32,25 @@ export function ThemeToggle() {
   const mounted = useHydrated();
   const transitioning = useRef(false);
   const t = useTranslations('ThemeToggle');
+  // next/navigation's usePathname on purpose (not the next-intl one): it
+  // includes the locale prefix, so a locale switch changes it.
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Re-assert the saved theme after soft navigations. Switching locale
+    // re-renders the [locale] layout and React reconciles <html>'s className
+    // back to the server value, wiping the `dark` class the pre-paint script
+    // added (the bug commit 7523761 originally fixed with a theme cookie;
+    // the cookie is gone, so this effect is its replacement). No setState:
+    // `theme` already matches localStorage, only the DOM class gets wiped.
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem('theme');
+    } catch {}
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.classList.toggle('dark', stored === 'dark');
+    }
+  }, [pathname]);
 
   function toggle() {
     if (transitioning.current) return;
