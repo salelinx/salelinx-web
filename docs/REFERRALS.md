@@ -52,8 +52,17 @@ pending product decision. Everything in this section and the Leaderboard
 section describes what they do while they remain.
 
 `referral_codes.display_name` is an optional self-chosen name for the
-extension's leaderboard. NULL falls back to the old derivation: linked shop
-username (Depop preferred), then a masked email prefix.
+extension's leaderboard. NULL falls back to the linked shop username (Depop
+preferred), then the neutral `Seller #<rank>` placeholder. (The old masked
+email-prefix fallback was dropped by migration 021; migration 029 added the
+self-chosen name on top with server-side moderation.)
+
+Note before dropping these objects: the privacy policy and the Referral
+Program Terms (updated Sep 2026) describe the display-name scheme in
+conditional terms ("if the app offers a leaderboard"), and names users chose
+while the UI existed still live in `referral_codes.display_name`. Dropping
+the column means deleting that user content; reviving the UI means the legal
+copy is already accurate. Either way, keep the legal pages in step.
 
 Set it with `set_referral_display_name(p_name)`, which returns
 `{ok:true, display_name}` or `{ok:false, error:'code'}` rather than raising,

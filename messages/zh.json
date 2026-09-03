@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "切换到浅色模式",
-    "switchToDark": "切换到深色模式"
-  },
   "LanguageSwitcher": {
     "label": "语言",
     "english": "English",
@@ -987,7 +983,9 @@
     "thanks": "谢谢。你的每一条反馈都会影响我们接下来修复什么。",
     "error": "目前无法发送。内容没有丢失，可以再试一次。",
     "reinstallHint": "是因为出了故障才卸载的吗？",
-    "helpLink": "帮助页面里也许有解决方法。"
+    "helpLink": "帮助页面里也许有解决方法。",
+    "privacyNote": "本调查是匿名的：只记录你的回答、扩展版本及其语言，绝不会记录你的姓名、邮箱或账户。请不要在评论中填写个人信息。",
+    "privacyLink": "隐私政策"
   },
   "Welcome": {
     "metaTitle": "欢迎使用 SaleLinx",

@@ -25,7 +25,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "18 August 2026";
+const LAST_UPDATED = "2 September 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -51,10 +51,13 @@ const SECTIONS: LegalSection[] = [
       "Account information. When you create a SaleLinx account we collect your email address and a password, or, if you choose Sign in with Google, the email address and basic profile of your Google account instead of a password. Passwords are hashed by our authentication provider (Supabase); we cannot read them.",
       "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
-      "Usage counters. We record counts of metered actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan. These are numbers only, not the content of the actions.",
+      "Usage counters. We record counts of feature actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan, understand which features are used, and investigate problems when you contact support. These are numbers only, not the content of the actions.",
       "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
       "Device sessions. To enforce the per-plan limit on how many devices use your account at the same time, the extension records a random identifier it generates for each install, your browser version (user agent string), and when that install was last active. This lets you (and us) see and manage your active devices; it does not identify you personally beyond linking to your account and is deleted when the account is deleted.",
-      "Referrals. If you take part in our referral program, we record the link between you and the people you refer, the status of each referral, and any reward amounts. If you refer others, your linked shop username (or, if you have not linked a shop, a neutral placeholder rather than any part of your email) and your number of successful referrals may be shown to other participants on a referral leaderboard. The referral program and its conditions are described in our Referral Program Terms.",
+      "Referrals. If you take part in our referral program, we record the link between you and the people you refer, the status of each referral, and any reward amounts. If you refer others and the app offers a referral leaderboard, a display name and your number of successful referrals may be shown on it to other participants. The display name used is any name you have chosen for the leaderboard, otherwise your linked shop username, or failing that a neutral placeholder (never any part of your email address). A name you choose is visible to other participants, must be unique, and can be removed by us if it is offensive or misleading. The referral program and its conditions are described in our Referral Program Terms.",
+      "Diagnostics from the extension. The extension reports anonymous technical counters to us: whether calls to marketplace endpoints succeeded or failed, and, when something in the extension crashes, where it happened and the class of error (for example the error type name, never the error message, your listings, or anything you typed). These reports contain no account identifier and cannot be linked to you; we use them to detect marketplace changes and fix bugs.",
+      "Uninstall feedback. If you remove the extension, the page that opens invites you to tell us why. The survey is anonymous: it records only the reason you pick, an optional comment, the extension version, and its language. It is not linked to your account, email address, or IP address, so please do not put personal details in the comment box.",
+      "Approximate location. When you visit salelinx.com, our hosting provider (Vercel) derives a two-letter country code from your network address, and we use it to show prices in your likely currency and to suggest a language. The country code is used only while building the page; we do not store it or use it for tracking.",
     ],
   },
   {
@@ -142,9 +145,16 @@ const SECTIONS: LegalSection[] = [
     heading: "Cookies",
     id: "cookies",
     paragraphs: [
-      "Essential and preference cookies. salelinx.com sets sign-in cookies that keep you logged in to your account, a cookie that remembers your light or dark theme choice, a cookie that remembers your language choice, and a cookie that records your cookie consent choice. These are needed for the site to work as you asked and do not track you across other sites.",
-      "Referral cookie. If you arrive through a referral share link (salelinx.com/r/...), we set a first-party cookie for up to 30 days so we can credit the person who referred you if you sign up. It contains only the referral code and is not used for advertising or cross-site tracking.",
-      "Analytics cookies (optional, with your consent). If you choose Accept in our cookie banner, we use Google Analytics to understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. These cookies are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
+      "salelinx.com sets a small number of first-party cookies. None of them track you across other sites:",
+    ],
+    bullets: [
+      "Sign-in cookies (names starting sb-): keep you logged in to your account. Set by our authentication provider, Supabase, and refreshed while you stay signed in. Essential.",
+      "slx_consent: records your cookie consent choice so we do not ask again. Kept for 6 months. Essential.",
+      "NEXT_LOCALE: remembers the language you picked with the language switcher. Kept for 12 months. Preference.",
+      "slx_ref: set only if you arrive through a referral share link (salelinx.com/r/...), and kept for up to 30 days so we can credit the person who referred you if you sign up. It contains only the referral code, is deleted on your first signed-in visit whether or not a referral is credited, and is not used for advertising or cross-site tracking.",
+      "Google Analytics cookies (_ga and _ga_..., optional, only with your consent): if you choose Accept in our cookie banner, Google Analytics sets these for up to 2 years to help us understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. They are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer, which also removes them. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
+    ],
+    trailing: [
       "We do not use advertising or cross-site tracking cookies.",
     ],
   },

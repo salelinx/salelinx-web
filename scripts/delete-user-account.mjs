@@ -7,7 +7,9 @@
 //      payment method; Stripe retains invoices for legal/tax reasons)
 //   3. The auth.users row - ON DELETE CASCADE then removes listings,
 //      platform_credentials, user_settings, linked_accounts, subscriptions,
-//      usage_counters, user_storage, support_tickets, and replies
+//      usage_counters, user_storage, support_tickets and replies,
+//      device_sessions, referral_codes, referrals (both sides), and
+//      endpoint_selftest_runs/results (admins)
 //
 // Dry run (default) prints what would be deleted. Nothing is removed without
 // the --execute flag.
@@ -25,6 +27,7 @@ import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { maskEmail } from './_shared.mjs';
 
 const BUCKET = 'listing-images';
 
@@ -113,8 +116,8 @@ async function main() {
   });
 
   const user = await findUserByEmail(supabase, email);
-  if (!user) fail(`no auth user found for ${email}`);
-  console.log(`User: ${user.email} (${user.id}), created ${user.created_at}`);
+  if (!user) fail(`no auth user found for ${maskEmail(email)}`);
+  console.log(`User: ${maskEmail(user.email)} (${user.id}), created ${user.created_at}`);
 
   const [listings, tickets, storagePaths] = await Promise.all([
     countRows(supabase, 'listings', user.id),

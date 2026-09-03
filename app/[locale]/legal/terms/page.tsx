@@ -24,7 +24,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "17 August 2026";
+const LAST_UPDATED = "2 September 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -53,6 +53,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Subscriptions, trials, and billing",
     bullets: [
       "Paid plans are billed in advance on a recurring basis through Stripe. Your plan renews automatically until you cancel.",
+      "Prices are set per currency: GBP by default, with EUR prices for euro-area countries and USD prices for the United States. The currency you are charged in is determined by your location, is always shown at checkout before you subscribe, and stays the same for later renewals of that subscription. If none of those currencies is local to you, you are charged in GBP and your card issuer may apply its own exchange rate and fees.",
       "Free trials require a payment method and convert to a paid subscription at the end of the trial unless you cancel before it ends. During a free trial you are not charged, so you can cancel at any point before it ends and pay nothing.",
       "You can cancel at any time from the billing portal in your account. Cancellation takes effect at the end of the current billing period; you keep access until then.",
       "If we change the price of your plan we will give you at least 30 days notice by email, and the new price applies from your next renewal after the notice period.",

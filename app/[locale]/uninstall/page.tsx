@@ -48,6 +48,16 @@ export default async function UninstallPage({
       <UninstallSurvey />
 
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        {t('privacyNote')}{' '}
+        <Link
+          href="/legal/privacy"
+          className="underline underline-offset-2 hover:text-zinc-700 dark:hover:text-zinc-200"
+        >
+          {t('privacyLink')}
+        </Link>
+      </p>
+
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">
         {t('reinstallHint')}{' '}
         <Link
           href="/help"

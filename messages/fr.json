@@ -175,10 +175,6 @@
       }
     }
   },
-  "ThemeToggle": {
-    "switchToLight": "Passer au mode clair",
-    "switchToDark": "Passer au mode sombre"
-  },
   "LanguageSwitcher": {
     "label": "Langue",
     "english": "English",
@@ -987,7 +983,9 @@
     "thanks": "Merci. Chaque réponse guide ce que nous corrigeons ensuite.",
     "error": "Envoi impossible pour le moment. Rien n’est perdu, réessayez.",
     "reinstallHint": "Supprimé parce que quelque chose ne marchait plus ?",
-    "helpLink": "Nos pages d’aide ont peut-être la solution."
+    "helpLink": "Nos pages d’aide ont peut-être la solution.",
+    "privacyNote": "Ce sondage est anonyme : il enregistre uniquement ta réponse, la version de l’extension et sa langue, jamais ton nom, ton e-mail ou ton compte. Merci de ne pas inclure de données personnelles dans le commentaire.",
+    "privacyLink": "Politique de confidentialité"
   },
   "Welcome": {
     "metaTitle": "Bienvenue sur SaleLinx",
