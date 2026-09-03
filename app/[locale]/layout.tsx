@@ -94,16 +94,6 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* Expires the legacy `theme` cookie that builds up to May 2026
-            wrote (ThemeToggle was removed from the UI in 99b4e2e; the
-            cookie was never read by anything). It had a 1-year max-age,
-            so this whole script can be deleted after Sep 2027. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(document.cookie.indexOf('theme=')>-1)document.cookie='theme=; path=/; max-age=0'}catch(e){}",
-          }}
-        />
         {/* React hoists this into <head>. Client-side Supabase calls (auth,
             referral status, checkout) then skip DNS + TLS setup. */}
         <link

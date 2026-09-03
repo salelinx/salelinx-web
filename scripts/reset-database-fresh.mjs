@@ -25,6 +25,7 @@ import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { maskEmail } from './_shared.mjs';
 
 const BUCKET = 'listing-images';
 
@@ -47,15 +48,8 @@ const USER_OWNED_TABLES = [
 // referrals (referrer_id + referee_id) and endpoint_selftest_runs (run_by)
 // are cleared explicitly in the keep-user loop.
 
-// Emails are personal data: keep them out of console output (which tends to
-// end up in terminal scrollback, CI logs, and screenshots). Falls back to the
-// user id for email-less accounts so the dry-run summary stays reviewable.
-function maskEmail(email) {
-  const [local, domain] = String(email).split('@');
-  if (!domain) return '***';
-  return `${local.slice(0, 1)}***@${domain}`;
-}
-
+// Falls back to the user id for email-less accounts so the dry-run summary
+// stays reviewable.
 function userLabel(user) {
   return user.email ? maskEmail(user.email) : user.id;
 }

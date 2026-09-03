@@ -27,6 +27,7 @@ import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { maskEmail } from './_shared.mjs';
 
 const BUCKET = 'listing-images';
 
@@ -47,14 +48,6 @@ function loadEnvLocal() {
 function fail(msg) {
   console.error(`Error: ${msg}`);
   process.exit(1);
-}
-
-// Emails are personal data: keep them out of console output (terminal
-// scrollback, CI logs, screenshots). Same helper as reset-database-fresh.mjs.
-function maskEmail(email) {
-  const [local, domain] = String(email).split('@');
-  if (!domain) return '***';
-  return `${local.slice(0, 1)}***@${domain}`;
 }
 
 async function findUserByEmail(supabase, email) {

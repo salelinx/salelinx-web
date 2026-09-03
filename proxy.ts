@@ -132,6 +132,14 @@ export async function proxy(request: NextRequest) {
     response.cookies.set("slx_ref", "", { maxAge: 0, path: "/" });
   }
 
+  // Legacy cleanup: builds up to May 2026 wrote a `theme` cookie that nothing
+  // ever read (ThemeToggle was dropped in 99b4e2e and deleted in Sep 2026).
+  // Expire it on the first request that still carries it. It had a 1-year
+  // max-age, so this block can be deleted after Sep 2027.
+  if (request.cookies.get("theme")) {
+    response.cookies.set("theme", "", { maxAge: 0, path: "/" });
+  }
+
   // Layer 1 of the admin gate (see docs/ADMIN.md): block non-admins before any
   // admin route code runs. Fail-closed - any error denies. RLS is still the
   // real boundary; this is defense in depth + a clean redirect for humans.
