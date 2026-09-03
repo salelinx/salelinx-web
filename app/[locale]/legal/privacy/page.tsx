@@ -22,6 +22,9 @@ export async function generateMetadata({
     path: "/legal/privacy",
     title: t("title"),
     description: t("metaDescription"),
+    // The body is English-only (see above), so every locale URL canonicalizes
+    // to the default-locale page instead of claiming hreflang for duplicates.
+    contentLocales: ["en"],
   });
 }
 

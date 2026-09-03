@@ -10,6 +10,7 @@ import { CATEGORIES } from '@/lib/docs/categories';
 import { getArticleCountByCategory } from '@/lib/docs/getArticle';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/lib/i18n/locales';
+import { TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
@@ -31,11 +32,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Docs' });
+  // The docs index lists article titles from the manifest, which fall back to
+  // English for ar/zh, so it follows the articles' translated-locales list.
   return pageMetadata({
     locale,
     path: '/docs',
     title: t('metaTitle'),
     description: t('metaDescription'),
+    contentLocales: TRANSLATED_DOCS_LOCALES,
   });
 }
 

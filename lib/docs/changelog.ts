@@ -18,10 +18,17 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   es: [v110Es as unknown as ChangelogModule, initialReleaseEs as unknown as ChangelogModule],
   de: [v110De as unknown as ChangelogModule, initialReleaseDe as unknown as ChangelogModule],
   // Changelog entries are not translated into Arabic or Chinese yet, so both
-  // read the English ones. Add locale dirs under content/changelog to change that.
+  // read the English ones. Add locale dirs under content/changelog to change
+  // that, and add the locale to TRANSLATED_CHANGELOG_LOCALES below.
   ar: [v110En as unknown as ChangelogModule, initialReleaseEn as unknown as ChangelogModule],
   zh: [v110En as unknown as ChangelogModule, initialReleaseEn as unknown as ChangelogModule],
 };
+
+// Locales with actually translated changelog entries. ar and zh serve the
+// English fallback above, so the changelog page and the sitemap must not
+// claim hreflang (or a localized canonical) for them; see TRANSLATED_DOCS_LOCALES
+// in lib/docs/manifest.ts for the same pattern on articles.
+export const TRANSLATED_CHANGELOG_LOCALES: readonly Locale[] = ['en', 'fr', 'es', 'de'];
 
 function modulesFor(locale: Locale): ChangelogModule[] {
   return CHANGELOG_MODULES_BY_LOCALE[locale] ?? CHANGELOG_MODULES_BY_LOCALE.en;

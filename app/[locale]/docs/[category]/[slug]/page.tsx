@@ -12,6 +12,7 @@ import {
 import type { CategorySlug } from '@/lib/docs/types';
 import type { Locale } from '@/lib/i18n/locales';
 import { routing } from '@/i18n/routing';
+import { TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { pageMetadata } from '@/lib/site';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
@@ -41,6 +42,7 @@ export async function generateMetadata({
     path: `/docs/${category}/${slug}`,
     title: article.metadata.title,
     description: article.metadata.description,
+    contentLocales: TRANSLATED_DOCS_LOCALES,
   });
 }
 

@@ -22,6 +22,9 @@ export async function generateMetadata({
     path: "/legal/dpa",
     title: t("title"),
     description: t("metaDescription"),
+    // English-only body (see above): canonicalize all locale URLs to the
+    // default-locale page rather than claiming hreflang for duplicates.
+    contentLocales: ["en"],
   });
 }
 
