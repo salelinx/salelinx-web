@@ -5,6 +5,7 @@ import type {
   CrashHealthRow,
 } from "@/components/admin/health/AdminHealthTable";
 import { rollUpFeatures } from "@/lib/admin/feature-status";
+import { loadRecentSelfTestSignals } from "@/lib/admin/selftest-data";
 import type { OverrideRow } from "@/components/admin/health/StatusOverrideControls";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 
@@ -86,17 +87,21 @@ export async function loadHealthRows(windowHours = 24): Promise<{
   const supabase = await createServerClient();
 
   // Independent reads, so they resolve together.
-  const [healthRes, deliveryRes, overrideRes, crashRes] = await Promise.all([
-    supabase.rpc("admin_endpoint_health", {
-      p_window_hours: windowHours,
-      p_baseline_hours: 168,
-    }),
-    supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
-    supabase.rpc("admin_list_status_overrides"),
-    // Extension crash buckets (migration 037). 7-day window like deliveries:
-    // "did the new build start throwing" needs a few days of context.
-    supabase.rpc("admin_crash_health", { p_window_hours: 168 }),
-  ]);
+  const [healthRes, deliveryRes, overrideRes, crashRes, selfTestSignals] =
+    await Promise.all([
+      supabase.rpc("admin_endpoint_health", {
+        p_window_hours: windowHours,
+        p_baseline_hours: 168,
+      }),
+      supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
+      supabase.rpc("admin_list_status_overrides"),
+      // Extension crash buckets (migration 037). 7-day window like deliveries:
+      // "did the new build start throwing" needs a few days of context.
+      supabase.rpc("admin_crash_health", { p_window_hours: 168 }),
+      // Fresh self-test results, folded into the feature rollup below with
+      // escalate-never-clear rules (see feature-status.ts).
+      loadRecentSelfTestSignals(),
+    ]);
 
   // Manual status set on the public page (migration 033). Empty is the normal
   // state - a row here means someone deliberately overrode telemetry.
@@ -110,10 +115,12 @@ export async function loadHealthRows(windowHours = 24): Promise<{
 
   if (error) {
     // Fail soft: an empty dashboard with a clear "no data" state beats a 500,
-    // and this page is the thing you open WHEN something is wrong.
+    // and this page is the thing you open WHEN something is wrong. Self-test
+    // signals still apply, so a fresh failing run surfaces even when the
+    // telemetry read itself is down.
     return {
       rows: [],
-      features: rollUpFeatures([]),
+      features: rollUpFeatures([], selfTestSignals),
       overrides,
       brokenCount: 0,
       warnCount: 0,
@@ -149,7 +156,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
 
   return {
     rows,
-    features: rollUpFeatures(rows),
+    features: rollUpFeatures(rows, selfTestSignals),
     overrides,
     brokenCount: rows.filter((r) => r.severity === "broken").length,
     warnCount: rows.filter((r) => r.severity === "warn").length,

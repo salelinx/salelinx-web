@@ -15,7 +15,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for a selectable period (current period by default; last 7 / 30 days, all time, or a custom from/to range via `?range=` / `?from=&to=` URL params), grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. On the current-period view the five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); range views drop caps/percent because caps are per-period. Monthly counters only exist as month buckets, so a range partially covering a month includes that whole month's count for them. The rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for a selectable period (same `?range=` / `?from=&to=` params as Extension usage) covering checkout / portal sessions, deletion requests, label emails, email changes. On the current-period view counts are measured against the hardcoded per-day cap in the calling code; range views show plain totals (the limits are per-day, so a multi-day sum has no meaningful percent). |
 | Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `030_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
-| Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `034_endpoint_selftest.sql`). Runs are started in the extension panel, not here. See "Endpoint self-test" below. |
+| Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `034_endpoint_selftest.sql`). Runs are started in the extension panel, not here. Results under 60 minutes old also feed the feature-status rollup (failures escalate, passes only annotate). See "Endpoint self-test" below. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
@@ -495,6 +495,30 @@ logged-in browser session.
 
 Runs are started **in the extension panel** (admin only), not here. This page
 shows the history, under a collapsed "Self-test runs" section.
+
+### How runs feed the feature status
+
+Recent results are folded into the feature-status rollup on `/admin` and
+`/admin/health` (`rollUpFeatures` in `lib/admin/feature-status.ts`), with
+deliberately **asymmetric** rules, because the evidence is asymmetric: a run is
+one controlled session, so a failure is strong evidence ("a known-good session
+could not do this") while a pass is weak (it says nothing about users behind
+other IPs, accounts or rollout buckets).
+
+- A recent **failing** result escalates the feature: unknown / warn / broken
+  all become **broken**; ok becomes **warn** (fleet traffic succeeding while
+  the probe fails points at a partial or admin-side problem, not an outage
+  call against the telemetry).
+- A recent **passing** result only annotates the card ("Self-test passed
+  \<time\>"). It never turns anything green - one healthy admin session must
+  not outvote failing users. A pass shown on a red card is itself the finding:
+  the outage is partial (IP / account / region-shaped), not total.
+- Only failure outcomes count (`client_error`, `server_error`, `network`).
+  `auth`, `blocked`, `no_tab`, `skipped`, `not_run` are session conditions and
+  carry no signal.
+- Signals **decay after 60 minutes** and only the latest finished run per
+  platform is used (`loadRecentSelfTestSignals` in `lib/admin/selftest-data.ts`),
+  so Tuesday's run can never speak for Wednesday.
 
 ### What a run covers
 

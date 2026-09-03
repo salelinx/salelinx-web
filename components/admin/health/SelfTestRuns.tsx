@@ -2,10 +2,12 @@
 
 // Recent admin self-test runs, shown alongside passive endpoint health.
 //
-// The two answer different questions and must not be conflated: telemetry says
-// "something broke overnight", a self-test run says "I checked just now". A run
-// is a point measurement by one admin against one account, so it is never
-// aggregated or turned into a status - it is shown as what it is, a log.
+// The two answer different questions: telemetry says "something broke
+// overnight", a self-test run says "I checked just now". This table is the
+// full log. A run's results ALSO feed the feature-status rollup above, but
+// only asymmetrically and only while fresh - a recent failure escalates a
+// feature's status, a pass merely annotates it, and nothing here ever turns a
+// card green (see lib/admin/feature-status.ts).
 //
 // Rows expand to the endpoints the run actually touched. Results are fetched
 // with the runs rather than on click, so expanding is instant.
