@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
-import { formatChangelogDate, listChangelog } from '@/lib/docs/changelog';
+import {
+  formatChangelogDate,
+  listChangelog,
+  TRANSLATED_CHANGELOG_LOCALES,
+} from '@/lib/docs/changelog';
 import type { Locale } from '@/lib/i18n/locales';
 import { pageMetadata } from '@/lib/site';
 
@@ -19,6 +23,7 @@ export async function generateMetadata({
     path: '/docs/changelog',
     title: t('metaTitle'),
     description: t('metaDescription'),
+    contentLocales: TRANSLATED_CHANGELOG_LOCALES,
   });
 }
 

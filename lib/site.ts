@@ -29,9 +29,12 @@ export function absoluteUrl(locale: string, path: string = '/'): string {
   return `${SITE_URL}${pathname}`;
 }
 
-export function languageAlternates(path: string = '/'): Record<string, string> {
+export function languageAlternates(
+  path: string = '/',
+  locales: readonly string[] = routing.locales,
+): Record<string, string> {
   const alternates: Record<string, string> = {};
-  for (const locale of routing.locales) {
+  for (const locale of locales) {
     alternates[locale] = absoluteUrl(locale, path);
   }
   alternates['x-default'] = absoluteUrl(routing.defaultLocale, path);
@@ -49,6 +52,7 @@ export function pageMetadata({
   title,
   description,
   absoluteTitle = false,
+  contentLocales,
 }: {
   locale: string;
   path: string;
@@ -57,14 +61,28 @@ export function pageMetadata({
   // The root layout applies a `%s | SaleLinx` template; set this on pages
   // whose title already contains the brand (the homepage).
   absoluteTitle?: boolean;
+  // Locales whose version of this page carries genuinely translated body
+  // content. Defaults to every site locale (fully translated pages). When the
+  // current locale is NOT in the list, the page is serving fallback English
+  // text under a localized URL, so its canonical points at the default-locale
+  // URL to consolidate the duplicates instead of competing with them. A
+  // single-entry list (the English-only legal pages) drops the hreflang block
+  // entirely: one language needs no alternates.
+  contentLocales?: readonly string[];
 }): Metadata {
-  const canonical = absoluteUrl(locale, path);
+  const translated = !contentLocales || contentLocales.includes(locale);
+  const canonicalLocale = translated ? locale : routing.defaultLocale;
+  const canonical = absoluteUrl(canonicalLocale, path);
+  const languages =
+    contentLocales && contentLocales.length <= 1
+      ? undefined
+      : languageAlternates(path, contentLocales);
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
     alternates: {
       canonical,
-      languages: languageAlternates(path),
+      ...(languages ? { languages } : {}),
     },
     openGraph: {
       type: 'website',
@@ -72,7 +90,7 @@ export function pageMetadata({
       title,
       description,
       url: canonical,
-      locale,
+      locale: canonicalLocale,
       images: [
         {
           url: '/og.png',

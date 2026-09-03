@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { routing } from '@/i18n/routing';
 import {
   CHROME_WEB_STORE_URL,
   SITE_NAME,
@@ -79,6 +80,10 @@ export default async function Home({
         name: SITE_NAME,
         alternateName: brandAliases,
         url: SITE_URL,
+        // The site itself is served in every routing locale. This is wider
+        // than the SoftwareApplication list below on purpose: the extension
+        // ships fewer languages than the website.
+        inLanguage: [...routing.locales],
         publisher: { '@id': orgId },
       },
       {
@@ -95,6 +100,8 @@ export default async function Home({
         downloadUrl: CHROME_WEB_STORE_URL,
         applicationSubCategory: 'Browser Extension',
         browserRequirements: 'Requires Google Chrome',
+        // The languages the extension ships in (its _locales dirs), NOT the
+        // website's six routing locales; ar/zh are website-only.
         inLanguage: ['en', 'fr', 'es', 'de'],
         featureList: [
           'Crosslist between Depop and Vinted',

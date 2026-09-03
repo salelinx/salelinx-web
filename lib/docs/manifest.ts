@@ -195,7 +195,15 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
   // Arabic and Chinese ship with the UI and FAQ translated but the long-form
   // docs still in English, so they read the English articles for now. Swap
   // these to `content/docs/ar` and `content/docs/zh` imports once those
-  // articles are written; nothing else needs to change.
+  // articles are written, and add the locale to TRANSLATED_DOCS_LOCALES below
+  // so the docs pages start claiming hreflang and their own canonical again.
   ar: ARTICLE_MODULES_EN,
   zh: ARTICLE_MODULES_EN,
 };
+
+// Locales with actually translated article files above. ar and zh are missing
+// on purpose: their /docs URLs serve the English fallback modules, so letting
+// them claim hreflang="ar"/"zh" (or their own canonical) would present the
+// same English text to search engines as three competing pages. Docs page
+// metadata and the sitemap both build their alternates from this list.
+export const TRANSLATED_DOCS_LOCALES: readonly Locale[] = ['en', 'fr', 'es', 'de'];

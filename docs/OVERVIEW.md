@@ -115,7 +115,7 @@ lib/
 ├── faq/                     FAQ entries, one data file per locale (data.en.tsx, .fr, .es, .de)
 ├── admin/                   Admin-console helpers (reauth, period, usage caps, formatting)
 ├── i18n/locales.ts          Supported locales
-├── site.ts                  pageMetadata() - canonical/OG builder for public pages
+├── site.ts                  pageMetadata() - canonical/hreflang/OG builder for public pages; pass contentLocales for pages whose body is not translated into every locale (English-only legal pages, docs in ar/zh) so fallback locales canonicalize to the default-locale URL instead of claiming hreflang
 └── types/tiers.ts           TierConfig / GateResult (synced with extension)
 
 There is no server-side Stripe client here: all Stripe code lives in supabase/functions/.
