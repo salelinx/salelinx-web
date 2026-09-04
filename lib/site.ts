@@ -53,6 +53,7 @@ export function pageMetadata({
   description,
   absoluteTitle = false,
   contentLocales,
+  segmentOgImage = false,
 }: {
   locale: string;
   path: string;
@@ -69,6 +70,12 @@ export function pageMetadata({
   // single-entry list (the English-only legal pages) drops the hreflang block
   // entirely: one language needs no alternates.
   contentLocales?: readonly string[];
+  // Set on pages whose route segment ships an opengraph-image.tsx. The file
+  // convention emits its own og:image tags, so the generic /og.png must not
+  // be declared here: file-based tags would win for og:image, but the
+  // explicit twitter:image below would still point X at the generic logo.
+  // Omitting both lets every consumer fall through to the generated image.
+  segmentOgImage?: boolean;
 }): Metadata {
   const translated = !contentLocales || contentLocales.includes(locale);
   const canonicalLocale = translated ? locale : routing.defaultLocale;
@@ -91,20 +98,24 @@ export function pageMetadata({
       description,
       url: canonical,
       locale: canonicalLocale,
-      images: [
-        {
-          url: '/og.png',
-          width: 1200,
-          height: 630,
-          alt: SITE_NAME,
-        },
-      ],
+      ...(segmentOgImage
+        ? {}
+        : {
+            images: [
+              {
+                url: '/og.png',
+                width: 1200,
+                height: 630,
+                alt: SITE_NAME,
+              },
+            ],
+          }),
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: ['/og.png'],
+      ...(segmentOgImage ? {} : { images: ['/og.png'] }),
     },
   };
 }
