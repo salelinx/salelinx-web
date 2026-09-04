@@ -23,6 +23,7 @@ import {
   STALENESS_TONE,
 } from "@/lib/admin/relative-time";
 import { useClientNow } from "@/lib/admin/use-client-now";
+import { compareVersions, highestVersion } from "@/lib/admin/version";
 import dynamic from "next/dynamic";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
@@ -91,6 +92,14 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     for (const u of users) if (u.tier_id) set.add(u.tier_id);
     return ["all", ...Array.from(set).sort()];
   }, [users]);
+
+  // Newest version anyone has reported, used only to tint rows behind it. Read
+  // from the whole roster rather than the filtered view so the ceiling does not
+  // move when a filter is applied and half the users stop looking outdated.
+  const newestVersion = useMemo(
+    () => highestVersion(users.map((u) => u.extension_version)),
+    [users],
+  );
 
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -238,6 +247,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                   onClick={() => setSortKey("tier_id")}
                 />
                 <th className="px-3 py-2 font-medium">Status</th>
+                <th className="px-3 py-2 font-medium">Version</th>
                 <SortableTh
                   label="Joined"
                   active={sortKey === "created_at"}
@@ -304,6 +314,12 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       ) : (
                         <span className="text-zinc-400">-</span>
                       )}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <VersionCell
+                        version={u.extension_version}
+                        newest={newestVersion}
+                      />
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
                       {formatDate(u.created_at)}
@@ -417,6 +433,37 @@ function FilterGroup({
         ))}
       </div>
     </div>
+  );
+}
+
+// Extension version of the user's freshest install. Amber means they are behind
+// the newest version anyone has reported, which is the roster's whole purpose:
+// spotting who is still running a build a bug was already fixed in.
+//
+// "-" covers two different things that look the same here: an install that has
+// never checked in at all, and one on a build older than migration 041 (which
+// reports no version). Both resolve themselves once the user updates.
+function VersionCell({
+  version,
+  newest,
+}: {
+  version: string | null;
+  newest: string | null;
+}) {
+  if (!version) return <span className="text-zinc-400">-</span>;
+  const outdated = newest !== null && compareVersions(version, newest) < 0;
+  return (
+    <span
+      className={
+        "rounded px-1.5 py-0.5 font-mono text-xs " +
+        (outdated ? "bg-amber-50 text-amber-700" : "text-zinc-600")
+      }
+      title={
+        outdated ? `Behind the newest reported version (${newest})` : undefined
+      }
+    >
+      {version}
+    </span>
   );
 }
 
