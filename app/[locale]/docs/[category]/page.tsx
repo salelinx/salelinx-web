@@ -9,6 +9,7 @@ import { CATEGORIES, getCategory } from '@/lib/docs/categories';
 import { listByCategory } from '@/lib/docs/getArticle';
 import type { CategorySlug } from '@/lib/docs/types';
 import type { Locale } from '@/lib/i18n/locales';
+import { categoryJsonLd } from '@/lib/docs/jsonld';
 import { TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { pageMetadata } from '@/lib/site';
 
@@ -49,9 +50,18 @@ export default async function CategoryPage({
 
   const t = await getTranslations('Docs');
   const articles = listByCategory(locale as Locale, cat.slug as CategorySlug);
+  const jsonLd = categoryJsonLd({
+    locale,
+    categoryTitle: t(`category.${cat.slug}.title`),
+    docsLabel: t('breadcrumbDocs'),
+  });
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="flex flex-col gap-10 lg:flex-row lg:gap-12">
         <DocsSidebar activeCategory={cat.slug} />
         <div className="min-w-0 flex-1">

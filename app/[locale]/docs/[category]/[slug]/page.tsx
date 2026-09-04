@@ -12,6 +12,7 @@ import {
 import type { CategorySlug } from '@/lib/docs/types';
 import type { Locale } from '@/lib/i18n/locales';
 import { routing } from '@/i18n/routing';
+import { articleJsonLd } from '@/lib/docs/jsonld';
 import { TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { pageMetadata } from '@/lib/site';
 
@@ -43,6 +44,8 @@ export async function generateMetadata({
     title: article.metadata.title,
     description: article.metadata.description,
     contentLocales: TRANSLATED_DOCS_LOCALES,
+    // opengraph-image.tsx in this segment generates the per-article image.
+    segmentOgImage: true,
   });
 }
 
@@ -60,9 +63,19 @@ export default async function ArticlePage({
   const MDX = article.default;
   const { prev, next } = getPrevNext(locale as Locale, article.metadata);
   const categoryTitle = t(`category.${cat.slug}.title`);
+  const jsonLd = articleJsonLd({
+    locale,
+    metadata: article.metadata,
+    categoryTitle,
+    docsLabel: t('breadcrumbDocs'),
+  });
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="flex flex-col gap-10 lg:flex-row lg:gap-12">
         <DocsSidebar
           activeCategory={cat.slug}

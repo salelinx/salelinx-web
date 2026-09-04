@@ -101,6 +101,9 @@ components/features/         FeaturesSection / PricingSection / RoadmapSection (
 content/docs/                MDX article source, filed by <category>/<slug>.mdx
 content/changelog/           MDX release notes, filed by <date>-<slug>.mdx
 
+assets/fonts/                Geist TTF instances for the generated Open Graph images
+                             (next/og needs raw font data; see the README there)
+
 scripts/build-docs-index.mjs Builds public/docs/search-index.json (predev + prebuild)
 
 lib/
@@ -115,7 +118,7 @@ lib/
 ├── faq/                     FAQ entries, one data file per locale (data.en.tsx, .fr, .es, .de)
 ├── admin/                   Admin-console helpers (reauth, period, usage caps, formatting)
 ├── i18n/locales.ts          Supported locales
-├── site.ts                  pageMetadata() - canonical/hreflang/OG builder for public pages; pass contentLocales for pages whose body is not translated into every locale (English-only legal pages, docs in ar/zh) so fallback locales canonicalize to the default-locale URL instead of claiming hreflang
+├── site.ts                  pageMetadata() - canonical/hreflang/OG builder for public pages; pass contentLocales for pages whose body is not translated into every locale (English-only legal pages, docs in ar/zh) so fallback locales canonicalize to the default-locale URL instead of claiming hreflang, and segmentOgImage on pages whose route segment ships an opengraph-image.tsx (docs articles) so the generated image is not shadowed by the generic /og.png
 └── types/tiers.ts           TierConfig / GateResult (synced with extension)
 
 There is no server-side Stripe client here: all Stripe code lives in supabase/functions/.

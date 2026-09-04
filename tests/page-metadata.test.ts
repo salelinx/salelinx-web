@@ -54,6 +54,23 @@ describe('pageMetadata contentLocales', () => {
     expect((meta.openGraph as { locale?: string }).locale).toBe('en');
   });
 
+  it('segmentOgImage omits the generic image so the file convention wins everywhere', () => {
+    const withImage = pageMetadata({ locale: 'en', path: '/docs/x/y', title: 'x' });
+    expect((withImage.openGraph as { images?: unknown }).images).toBeDefined();
+    expect((withImage.twitter as { images?: unknown }).images).toBeDefined();
+
+    const meta = pageMetadata({
+      locale: 'en',
+      path: '/docs/x/y',
+      title: 'x',
+      segmentOgImage: true,
+    });
+    expect((meta.openGraph as { images?: unknown }).images).toBeUndefined();
+    expect((meta.twitter as { images?: unknown }).images).toBeUndefined();
+    // The rest of the card must survive the omission.
+    expect((meta.twitter as { card?: string }).card).toBe('summary_large_image');
+  });
+
   it('single-language pages carry a canonical but no hreflang block', () => {
     for (const locale of ['en', 'fr', 'zh']) {
       const meta = pageMetadata({
