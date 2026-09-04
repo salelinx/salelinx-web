@@ -117,6 +117,7 @@ const SECTIONS: LegalSection[] = [
       "Vercel: hosting for the salelinx.com website.",
       "Google (Sign in with Google): if you choose to sign in with Google, Google processes your sign-in to authenticate you and shares your Google account email and basic profile with us. This happens only when you use the Google sign-in option, is necessary to provide that sign-in method, and is separate from analytics cookies and cookie consent.",
       "Google (Google Analytics): aggregated statistics about how the website is used, only if you consent to analytics cookies in the cookie banner.",
+      "Google (Google Ads conversion measurement): confirmation that a visit or signup came from one of our own ads on Google, only if you consent to ad-measurement cookies in the cookie banner. We advertise SaleLinx on Google; we never show ads on salelinx.com. See the Cookies section for details.",
     ],
     trailing: [
       "Depending on the provider, data may be processed in the United Kingdom, the European Union, or the United States, with appropriate safeguards in place for international transfers.",
@@ -133,7 +134,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Legal bases",
     paragraphs: [
-      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for, including authenticating you when you sign in with your email and password or with Google), our legitimate interests (securing and improving the service), legal obligations (tax and accounting records), and your consent (optional analytics cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
+      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for, including authenticating you when you sign in with your email and password or with Google), our legitimate interests (securing and improving the service), legal obligations (tax and accounting records), and your consent (optional analytics and ad-measurement cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
     ],
   },
   {
