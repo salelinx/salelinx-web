@@ -12,21 +12,21 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | --- | --- | --- | --- | --- | --- |
 | Accounts and auth | Email, hashed password, locale, sign-in timestamps | Users | Contract | Supabase `auth.users` | Life of account |
 | Subscriptions | Stripe customer/subscription IDs, tier, status, period end | Users | Contract | Supabase `subscriptions`, Stripe | Life of account; invoices kept by Stripe for tax law |
-| Usage metering and feature activity | Per-feature integer counts per period. Originally tier-metered counters only; migrations 038/039 register ~28 additional non-metered activity counters (offers, chat replies, labels, photo edits, cloud sync actions, ...) for the admin usage console, currently inert until the extension sends them | Users | Contract (plan limits); legitimate interest (product analytics, support debugging) for the non-metered counters | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (migration 018); rest, life of account |
+| Usage metering and feature activity | Per-feature integer counts per period. Originally tier-metered counters only; 002_billing_tiers.sql registers ~28 additional non-metered activity counters (offers, chat replies, labels, photo edits, cloud sync actions, ...) for the admin usage console, currently inert until the extension sends them | Users | Contract (plan limits); legitimate interest (product analytics, support debugging) for the non-metered counters | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (002_billing_tiers.sql); rest, life of account |
 | Cloud sync (opt-in) | Listing content: titles, descriptions, prices, attributes, photos, enriched marketplace payloads | Users | Contract | Supabase `listings` + `listing-images` bucket | Until user disables sync or deletes account |
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |
 | Support | Ticket message, replies, app version, user agent, locale; email resolved from auth at send time | Users | Contract / legitimate interest | Supabase `support_tickets`, `support_ticket_replies`; copies in the support inbox | 24 months after ticket closed (automated purge); inbox purged manually |
-| Referrals | Share code; referrer-referee account linkage, status, reward amounts; leaderboard display name and successful-referral count shown to other participants. The display name is self-chosen user content (`referral_codes.display_name`, migration 029), falling back to the linked shop username, then a neutral placeholder. Self-chosen names are unique, publicly visible to participants, and moderated: admins can clear one via `admin_clear_referral_display_name()` | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes` (display name), `referrals`, `linked_accounts` (username fallback); leaderboard is a read-only RPC aggregate | Life of account (both FKs cascade) |
+| Referrals | Share code; referrer-referee account linkage, status, reward amounts; leaderboard display name and successful-referral count shown to other participants. The display name is self-chosen user content (`referral_codes.display_name`, 007_referrals.sql), falling back to the linked shop username, then a neutral placeholder. Self-chosen names are unique, publicly visible to participants, and moderated: admins can clear one via `admin_clear_referral_display_name()` | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes` (display name), `referrals`, `linked_accounts` (username fallback); leaderboard is a read-only RPC aggregate | Life of account (both FKs cascade) |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
-| Uninstall feedback | Reason chip, optional free-text comment, extension version, panel locale. Anonymous by design: no user id, email, or IP (migration 035; /uninstall page, which tells the user it is anonymous and asks them not to include personal details) | Former users, unidentifiable | Legitimate interest | Supabase `uninstall_feedback` (anon insert-only) | Indefinite. Because rows carry no identifier, a specific person's row cannot be located, so erasure-on-request is not possible; instead, review free-text comments periodically and redact any volunteered personal details |
+| Uninstall feedback | Reason chip, optional free-text comment, extension version, panel locale. Anonymous by design: no user id, email, or IP (013_uninstall_feedback.sql; /uninstall page, which tells the user it is anonymous and asks them not to include personal details) | Former users, unidentifiable | Legitimate interest | Supabase `uninstall_feedback` (anon insert-only) | Indefinite. Because rows carry no identifier, a specific person's row cannot be located, so erasure-on-request is not possible; instead, review free-text comments periodically and redact any volunteered personal details |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
 | Category resolution (not yet live) | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Would transit the `resolve-category` Edge Function only; matched in memory, never logged or stored. **No extension build calls it yet, so this flow is not currently active** | Not stored |
 | Device sessions | Random per-install device ID, user agent, last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
 | Terms acceptance | Terms version and acceptance timestamp | Users | Legal obligation / legitimate interest (record of consent to contract) | Supabase `auth.users` user metadata | Life of account |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
-| Status overrides | Admin ID (`set_by`), public status note, timestamps (migration 033) | Admins | Legitimate interest (public incident communication) | Supabase `status_overrides` | Life of the override. `set_by` is `ON DELETE SET NULL`, not CASCADE, so deleting an admin anonymises the row without silently clearing a live incident notice |
-| Endpoint self-test runs | Admin ID (`run_by`), extension version, marketplace, per-endpoint outcomes (migration 034; see the dedicated section below) | Admins | Legitimate interest (operating and debugging the service) | Supabase `endpoint_selftest_runs` / `endpoint_selftest_results` | 180 days via `prune_endpoint_selftest()`; cascades on account deletion |
+| Status overrides | Admin ID (`set_by`), public status note, timestamps (011_status_overrides.sql) | Admins | Legitimate interest (public incident communication) | Supabase `status_overrides` | Life of the override. `set_by` is `ON DELETE SET NULL`, not CASCADE, so deleting an admin anonymises the row without silently clearing a live incident notice |
+| Endpoint self-test runs | Admin ID (`run_by`), extension version, marketplace, per-endpoint outcomes (012_endpoint_selftest.sql; see the dedicated section below) | Admins | Legitimate interest (operating and debugging the service) | Supabase `endpoint_selftest_runs` / `endpoint_selftest_results` | 180 days via `prune_endpoint_selftest()`; cascades on account deletion |
 
 Anti-abuse tombstones: `trial_history` and `link_history` store only a salted
 SHA-256 hash of a marketplace account identity (no username, no email, nothing
@@ -94,7 +94,7 @@ separate controller, not buyer data on our behalf).
 
 - Account and cloud data: deleted with the account (see deletion runbook).
 - Support tickets: closed tickets are purged 24 months after their last update
-  by `purge_old_support_tickets()` (migration `007_gdpr_data_hygiene.sql`),
+  by `purge_old_support_tickets()` (migration `003_support.sql`),
   scheduled nightly via pg_cron. If pg_cron is not enabled on the project, the
   migration raises a NOTICE; enable it (Database > Extensions) and run
   `SELECT cron.schedule('purge-old-support-tickets', '17 3 * * *', 'SELECT public.purge_old_support_tickets()');`
@@ -104,17 +104,17 @@ separate controller, not buyer data on our behalf).
   User IDs are acceptable. This is enforced by convention; check any new
   `console.log` in `supabase/functions/`.
 - Endpoint health telemetry (`endpoint_health`, migration
-  `030_endpoint_health.sql`): 90 days, via `prune_endpoint_health()` (redefined
-  in migration 031 to also purge the `endpoint_health_reports` delivery log on
+  `010_endpoint_health.sql`): 90 days, via `prune_endpoint_health()` (which
+  also purges the `endpoint_health_reports` delivery log on
   the same 90-day window). Schedule it alongside the ticket purge:
   `SELECT cron.schedule('prune-endpoint-health', '23 3 * * *', 'SELECT public.prune_endpoint_health()');`
 - Endpoint self-test runs (`endpoint_selftest_runs` /
-  `endpoint_selftest_results`, migration `034_endpoint_selftest.sql`): 180 days,
+  `endpoint_selftest_results`, migration `012_endpoint_selftest.sql`): 180 days,
   via `prune_endpoint_selftest()`. Scheduled by the migration when pg_cron is
   available; otherwise
   `SELECT cron.schedule('prune-endpoint-selftest', '30 3 * * *', 'SELECT public.prune_endpoint_selftest()');`
 
-The same reasoning covers `crash_health` (migration 036): context, kind and
+The same reasoning covers `crash_health` (014_crash_health.sql): context, kind and
 error CONSTRUCTOR NAME only - never the message or stack, since either can
 embed whatever user data was being interpolated when the code threw. Prune
 alongside: `SELECT cron.schedule('prune-crash-health', '29 3 * * *', 'SELECT
@@ -141,7 +141,7 @@ table rather than widening this one.
 
 ### Endpoint self-test results ARE personal data
 
-`endpoint_selftest_runs` (migration `034_endpoint_selftest.sql`) is the separate
+`endpoint_selftest_runs` (migration `012_endpoint_selftest.sql`) is the separate
 table that section calls for. It records an **admin-triggered** diagnostic run:
 who ran it (`run_by`), when, against which marketplace, and what each endpoint
 returned.
@@ -268,7 +268,7 @@ Handling:
   so the deletion runbook keeps working. One deliberate exception is allowed:
   an admin-attribution column on operational state may use `ON DELETE SET
   NULL` where cascading would destroy something that must outlive the admin
-  (precedent: `status_overrides.set_by`, migration 033 - deleting the admin
+  (precedent: `status_overrides.set_by`, 011_status_overrides.sql - deleting the admin
   anonymises the row instead of silently clearing a live incident notice).
   The column must hold nothing but the UUID, so SET NULL fully anonymises it.
 - `admin_audit_log.metadata` must never contain ticket content or user IDs.

@@ -27,45 +27,45 @@ End-to-end picture of how a user files a support ticket (from the website or the
 
 ```
 User files a ticket (web form OR extension Support tab)
-  ▼
+  â–¼
 INSERT INTO support_tickets (user_id, type, message, platform, source, ...)
   - web sets source='web' + locale + user_agent
   - extension sets source='extension' + app_version + tier_id + locale
-  ▼
+  â–¼
 Database Webhook "support-ticket-created" fires
-  ▼
+  â–¼
 POST {project-ref}.supabase.co/functions/v1/send-support-email
   x-support-webhook-secret: <secret>
-  ▼
+  â–¼
 Edge Function (new ticket):
   1. Verify x-support-webhook-secret
   2. Look up author email via auth.admin.getUserById(record.user_id)  (service role)
   3. Send STAFF notification  -> To: support@salelinx.com, Reply-To: author
   4. Persist Message-ID to support_tickets.notification_message_id
   5. Send AUTO-ACK to author  -> To: author, Reply-To: support@  (best-effort)
-  ▼
+  â–¼
 Staff see the ticket in Gmail AND in the /admin/support console.
 The user gets an auto-ack and can track the ticket at /account/tickets.
 
 Staff reply (admin panel inserts a reply row with is_admin = true)
-  ▼
+  â–¼
 Database Webhook "support-ticket-reply-created" fires
-  ▼
+  â–¼
 Edge Function (reply), is_admin = true:
   1. Load the parent ticket (need its user_id - the OWNER)
   2. Look up the OWNER's email (ticket.user_id, NOT the admin's id)
   3. Send the reply -> To: owner, From: support@, Reply-To: support@
      (presented as "SaleLinx Support"; admin identity never shown)
-  ▼
+  â–¼
 The user receives the reply by email and also sees it in their thread.
 
 User replies (web reply box inserts a reply row with is_admin = false)
-  ▼
+  â–¼
 Edge Function (reply), is_admin = false:
   1. Load the parent ticket
   2. Send a STAFF notification -> To: support@, Reply-To: user,
      threaded under notification_message_id
-  ▼
+  â–¼
 Gmail threads the user reply under the original notification.
 ```
 
@@ -104,9 +104,9 @@ We use RFC 5322 `Message-ID` / `In-Reply-To` / `References` headers, not subject
 
 - Closed tickets (and their replies, via cascade) are purged 24 months after
   their last update by `purge_old_support_tickets()` (migration
-  `007_gdpr_data_hygiene.sql`, scheduled nightly via pg_cron). This matches the
+  `003_support.sql`, scheduled nightly via pg_cron). This matches the
   retention period stated in the privacy policy.
-- `support_tickets.user_id` cascades on user deletion (also migration 007), so
+- `support_tickets.user_id` cascades on user deletion (003_support.sql), so
   the account deletion runbook in `docs/GDPR.md` removes tickets automatically.
 - The ticket-delete audit entry deliberately records only `type`, `created_at`,
   and `reauthenticated` - never the message body or user_id, so audit rows do
@@ -130,7 +130,7 @@ We use RFC 5322 `Message-ID` / `In-Reply-To` / `References` headers, not subject
 | Public help hub + FAQ                         | `app/[locale]/help/page.tsx` + `app/[locale]/help/faq/page.tsx` (`/faq` redirects to `/help/faq`) |
 | Admin console support module                 | `app/admin/support/page.tsx` + `components/admin/support/*`     |
 | Admin detection helper                       | `lib/supabase/admin.ts` (`isAdmin`)                             |
-| Admin audit + identity RPCs                  | migration `006_admin_console.sql` (`log_admin_action`, `admin_user_emails`, `admin_audit_log`) |
+| Admin audit + identity RPCs                  | migration `009_admin_console.sql` (`log_admin_action`, `admin_user_emails`, `admin_audit_log`) |
 | Extension Support tab                        | `../salelinx-app/src/panel/tabs/support.ts`        |
 | Database Webhook config                      | Supabase dashboard (Database -> Webhooks)                       |
 
@@ -176,7 +176,7 @@ Set via `supabase secrets set` (NOT `.env.local`):
 - `docs/ARCHITECTURE.md` - the broader two-repo / one-Supabase picture
 - `../salelinx-app/docs/` - the extension side (Support tab, write paths into the two tables)
 
-## Closing and reopening (migration 027)
+## Closing and reopening
 
 Closing is not final for the user. A **non-admin reply on a closed ticket
 reopens it**: the `support_ticket_replies_touch_parent()` trigger flips
@@ -204,8 +204,8 @@ A reopen is an UPDATE, so it does not count against the 3-open-ticket
 BEFORE INSERT cap. Continuing an existing conversation is not the vector that
 cap exists for, and the 20-replies-per-24h limit still bounds the path.
 
-## Abuse limits (migration 014)
+## Abuse limits
 
 - A BEFORE INSERT trigger on `support_tickets` caps each user at **3 open tickets** and **5 tickets per rolling 24h** (raises `support_ticket_open_limit` / `support_ticket_daily_limit`; the web form maps these to a distinct "slow down" message).
-- A BEFORE INSERT trigger on `support_ticket_replies` caps each user at **20 non-admin replies per rolling 24h** (migration 018, raises `support_reply_daily_limit`; the reply box maps it to its own message). Admin replies are exempt so staff are never throttled.
+- A BEFORE INSERT trigger on `support_ticket_replies` caps each user at **20 non-admin replies per rolling 24h** (003_support.sql, raises `support_reply_daily_limit`; the reply box maps it to its own message). Admin replies are exempt so staff are never throttled.
 - `send-support-email` skips the **auto-ack** email for authors with zero `subscriptions` rows, so throwaway accounts cannot amplify inserts into outbound Resend sends. Staff notifications still go out (bounded by the trigger caps).

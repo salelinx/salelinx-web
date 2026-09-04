@@ -1,10 +1,12 @@
 -- Core sync schema: listings, platform credentials, user settings, linked accounts.
 --
--- Consolidated baseline (July 2026). This file is the net result of the
--- original migrations 001, 002, 004-008, 010, 012_add_markdown_fields, 013
--- and 014 - the full per-change history lives in git (see this folder's
--- README.md). The live Supabase project already reflects this state; these
--- files exist to rebuild a fresh project from scratch.
+-- Consolidated baseline (September 2026). This file is the net result of the
+-- July 2026 baseline 001 plus the later incremental migrations that touched
+-- these tables: 007 (buyer_info drop), 014 (one platform account per SaleLinx
+-- account), 024 (trigger search_path pin + grant hygiene). The full per-change
+-- history lives in git (see this folder's README.md). The live Supabase
+-- project already reflects this state; these files exist to rebuild a fresh
+-- project from scratch.
 
 -- =============================================================================
 -- 1. listings - synced from the extension's local IndexedDB
@@ -28,6 +30,10 @@
 --     markdown_started_at         manual schedule basis; null = count from
 --                                 the listing's created_at
 --   last_synced_at / created_at / updated_at   ms timestamps from the extension
+--
+-- There is deliberately NO buyer_info column: it was dropped by the original
+-- migration 007 (GDPR - the extension never uploads buyer data and the privacy
+-- policy promises none is stored in the cloud).
 
 CREATE TABLE public.listings (
   id TEXT NOT NULL,
@@ -55,7 +61,6 @@ CREATE TABLE public.listings (
   messages INTEGER,
   earnings NUMERIC(10,2),
   shipping TEXT,
-  buyer_info JSONB,
   promotion JSONB,
   enriched_data JSONB,
   enriched_at BIGINT,
@@ -89,14 +94,21 @@ CREATE INDEX idx_listings_link_id
   ON public.listings(user_id, link_id)
   WHERE link_id IS NOT NULL;
 
--- Auto-update cloud_updated_at on every write
+-- Auto-update cloud_updated_at on every write. search_path pinned per the
+-- original migration 024's hygiene pass.
 CREATE OR REPLACE FUNCTION update_cloud_timestamp()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
 BEGIN
   NEW.cloud_updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+-- Trigger functions are not RPCs: no role gets direct EXECUTE (original 024).
+REVOKE EXECUTE ON FUNCTION public.update_cloud_timestamp() FROM PUBLIC, anon, authenticated;
 
 CREATE TRIGGER listings_cloud_timestamp
   BEFORE INSERT OR UPDATE ON public.listings
@@ -142,6 +154,12 @@ CREATE TABLE public.linked_accounts (
   linked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (user_id, platform)
 );
+
+-- One platform account, one SaleLinx account (original migration 014's
+-- anti-trial-farming guard; the behavioural triggers live in
+-- 006_trial_abuse_guards.sql).
+CREATE UNIQUE INDEX linked_accounts_platform_identity_key
+  ON public.linked_accounts (platform, platform_user_id);
 
 -- =============================================================================
 -- 5. Row Level Security

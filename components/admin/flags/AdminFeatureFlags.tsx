@@ -2,7 +2,7 @@
 
 // Keys-by-tiers toggle grid over tier_limits.features. Clicking a cell arms a
 // confirm bar (enable/disable X for tier Y); confirming calls the
-// admin_set_tier_feature() RPC (006_admin_console.sql), which re-checks is_admin(),
+// admin_set_tier_feature() RPC (009_admin_console.sql), which re-checks is_admin(),
 // only touches active rows, refuses unknown keys, and writes the audit entry
 // server-side. Feature semantics: true = enabled, false OR absent = disabled,
 // so an absent key renders as a disabled toggle, not a dash.
@@ -178,7 +178,7 @@ export function AdminFeatureFlags({ tiers }: Props) {
                                 : "text-zinc-400 hover:bg-zinc-100")
                           }
                         >
-                          {enabled ? "✓ on" : "off"}
+                          {enabled ? "âœ“ on" : "off"}
                         </button>
                       </td>
                     );

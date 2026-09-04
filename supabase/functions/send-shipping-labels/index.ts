@@ -8,8 +8,8 @@
 // requests are rejected.
 //
 // Required secrets:
-//   RESEND_API_KEY   — from https://resend.com/api-keys
-//   RESEND_FROM      — verified sender address, e.g. "SaleLinx <labels@yourdomain.com>"
+//   RESEND_API_KEY   â€” from https://resend.com/api-keys
+//   RESEND_FROM      â€” verified sender address, e.g. "SaleLinx <labels@yourdomain.com>"
 //                      (Resend requires domain verification before production use)
 //
 // Deploy:
@@ -36,7 +36,7 @@
 //   - filename and count are strictly validated
 //   - sends are capped per user per day via usage_counters
 
-// @ts-nocheck — this file runs under Deno, not the extension's TS config.
+// @ts-nocheck â€” this file runs under Deno, not the extension's TS config.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import {
@@ -66,7 +66,7 @@ interface SendRequest {
 // brake on using a paid account as an attacker-addressed email pump. 15/day
 // still covers a heavy real batching day (one email per merged batch) while
 // shrinking the blast radius per account. Trial farming, the way to get many
-// capped accounts cheaply, is closed separately (migration 017).
+// capped accounts cheaply, is closed separately (006_trial_abuse_guards.sql).
 const DAILY_SEND_CAP = 15;
 
 // "labels-14-Apr-2026-3.pdf" style names only: short, safe charset, .pdf.
@@ -111,9 +111,9 @@ async function handleRequest(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (req.method !== 'POST') return json(405, { ok: false, error: 'Method not allowed' });
 
-  // ── Verify the caller's Supabase session ─────────────────────────────────
+  // â”€â”€ Verify the caller's Supabase session â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // NOTE: This function must be deployed with `--no-verify-jwt` so the edge
-  // runtime's own JWT middleware is skipped — that middleware doesn't yet
+  // runtime's own JWT middleware is skipped â€” that middleware doesn't yet
   // support ES256 tokens on all projects. We validate the token ourselves
   // by calling /auth/v1/user explicitly below, which supports any algorithm.
   const authHeader = req.headers.get('Authorization');
@@ -131,7 +131,7 @@ async function handleRequest(req: Request): Promise<Response> {
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
   // Pass the JWT explicitly so supabase-js does the HTTP round-trip to
-  // /auth/v1/user — no local algorithm validation that could fail on ES256.
+  // /auth/v1/user â€” no local algorithm validation that could fail on ES256.
   const {
     data: { user },
     error: userErr,
@@ -142,7 +142,7 @@ async function handleRequest(req: Request): Promise<Response> {
   }
   console.log(`[send-shipping-labels] auth ok, user=${user.id}`);
 
-  // ── Validate body ────────────────────────────────────────────────────────
+  // â”€â”€ Validate body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   let body: SendRequest;
   try {
     body = (await req.json()) as SendRequest;
@@ -164,13 +164,13 @@ async function handleRequest(req: Request): Promise<Response> {
     return json(400, { ok: false, error: 'Attachment is not a PDF' });
   }
 
-  // Rough size cap — Resend allows 40MB of attachments; we cap at 25MB to stay safe.
+  // Rough size cap â€” Resend allows 40MB of attachments; we cap at 25MB to stay safe.
   const approxBytes = (pdfBase64.length * 3) / 4;
   if (approxBytes > 25 * 1024 * 1024) {
     return json(413, { ok: false, error: 'Attachment too large (>25MB)' });
   }
 
-  // ── Entitlement gate: shipping_label_email is a paid (Business) feature ──
+  // â”€â”€ Entitlement gate: shipping_label_email is a paid (Business) feature â”€â”€
   // The extension gates client-side too, but the server check is the real
   // boundary. Read via a user-scoped client so RLS "own read" applies.
   const userScoped = createClient(supabaseUrl, supabaseAnonKey, {
@@ -208,7 +208,7 @@ async function handleRequest(req: Request): Promise<Response> {
     return json(403, { ok: false, error: 'Your plan does not include emailed labels', code: 'upgrade_required' });
   }
 
-  // ── Daily rate limit ─────────────────────────────────────────────────────
+  // â”€â”€ Daily rate limit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // increment_usage_counter is SECURITY DEFINER and scoped to auth.uid(), so
   // calling it through the user-scoped client counts against this user only.
   const dayKey = new Date().toISOString().slice(0, 10);
@@ -225,7 +225,7 @@ async function handleRequest(req: Request): Promise<Response> {
     return json(429, { ok: false, error: 'Daily label email limit reached, try again tomorrow', code: 'rate_limited' });
   }
 
-  // ── Send via Resend ──────────────────────────────────────────────────────
+  // â”€â”€ Send via Resend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const resendKey = Deno.env.get('RESEND_API_KEY');
   const resendFrom = Deno.env.get('RESEND_FROM');
   // RESEND_FROM is no-reply@, so a bare "reply to this email" would dead-end.
@@ -264,7 +264,7 @@ async function handleRequest(req: Request): Promise<Response> {
       `  File:   ${body.filename}`,
       `  Date:   ${dateStr}`,
       '',
-      'For best results, print at 4 × 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
+      'For best results, print at 4 Ã— 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
       '',
       supportTo
         ? 'Reply to this email if anything looks off.'
@@ -273,7 +273,7 @@ async function handleRequest(req: Request): Promise<Response> {
       'Thanks.',
     ].join('\n');
 
-  // HTML version — most modern mail clients render this; plain-text fallback
+  // HTML version â€” most modern mail clients render this; plain-text fallback
   // above covers the rest.
   const html = emailLayout({
     preheader: `${body.count} ${labelWord} attached, ready to print.`,

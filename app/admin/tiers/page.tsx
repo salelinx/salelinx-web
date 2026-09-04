@@ -5,7 +5,7 @@ import { AdminTierLimits } from "@/components/admin/tiers/AdminTierLimits";
 // /admin/tiers - edit the numeric caps in tier_limits.limits for the ACTIVE
 // tier rows. Reads come from the public-read tier_limits table (same
 // getTierConfigs() the pricing page uses); writes go through the
-// admin_set_tier_limit() SECURITY DEFINER RPC (006_admin_console.sql), which re-checks
+// admin_set_tier_limit() SECURITY DEFINER RPC (009_admin_console.sql), which re-checks
 // is_admin() and writes the audit entry itself. The pricing page and the
 // extension pick changes up within their cache TTLs (see docs/ENTITLEMENTS.md).
 

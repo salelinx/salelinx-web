@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     return new Response("Unauthorized", { status: 401, headers: corsHeaders });
 
   // Admin sessions must be AAL2 (password + authenticator code), mirroring
-  // is_admin() in Postgres (migration 009). A stolen JWT without the second
+  // is_admin() in Postgres (003_support.sql). A stolen JWT without the second
   // factor cannot delete accounts.
   if (jwtAal(authHeader) !== "aal2") {
     return json({ error: "mfa_required" }, 403);

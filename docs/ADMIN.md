@@ -14,8 +14,8 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for a selectable period (current period by default; last 7 / 30 days, all time, or a custom from/to range via `?range=` / `?from=&to=` URL params), grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. On the current-period view the five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); range views drop caps/percent because caps are per-period. Monthly counters only exist as month buckets, so a range partially covering a month includes that whole month's count for them. The rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for a selectable period (same `?range=` / `?from=&to=` params as Extension usage) covering checkout / portal sessions, deletion requests, label emails, email changes. On the current-period view counts are measured against the hardcoded per-day cap in the calling code; range views show plain totals (the limits are per-day, so a multi-day sum has no meaningful percent). |
-| Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `030_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
-| Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `034_endpoint_selftest.sql`). Runs are started in the extension panel, not here. Results under 60 minutes old also feed the feature-status rollup (failures escalate, passes only annotate). See "Endpoint self-test" below. |
+| Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `010_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
+| Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `012_endpoint_selftest.sql`). Runs are started in the extension panel, not here. Results under 60 minutes old also feed the feature-status rollup (failures escalate, passes only annotate). See "Endpoint self-test" below. |
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
@@ -66,10 +66,10 @@ Consequences:
 | Step-up re-auth helper | `lib/admin/reauth.ts` (`requireReauth`, `getReauthKind`) |
 | Step-up re-auth modal (shared) | `components/admin/ReauthModal.tsx` |
 | MFA challenge page | `app/[locale]/auth/mfa/page.tsx` |
-| MFA enforcement in `is_admin()` | migration `009_admin_mfa.sql` |
-| Audit + identity RPCs, audit table, read/write RPCs | migration `006_admin_console.sql` |
-| Subscription write RPC | migration `008_admin_edit_subscription.sql` |
-| Users observability widening (linked accounts, devices, listings, storage) | migration `025_admin_user_observability.sql` |
+| MFA enforcement in `is_admin()` | migration `003_support.sql` |
+| Audit + identity RPCs, audit table, read/write RPCs | migration `009_admin_console.sql` |
+| Subscription write RPC | migration `009_admin_console.sql` |
+| Users observability widening (linked accounts, devices, listings, storage) | migration `009_admin_console.sql` |
 
 ## Security model
 
@@ -86,18 +86,18 @@ Defense in depth, fail-closed (any error or uncertainty denies). Six layers, eac
 
 `support_tickets` (and other tables) store `user_id`, not email. The web app never holds the service-role key (Edge Functions only), so identity is resolved by the `admin_user_emails(uuid[])` SECURITY DEFINER RPC, which returns `user_id -> email` for admins and zero rows for everyone else (the `is_admin()` predicate is in its `WHERE`). The support module batches the ticket/reply author ids through it and shows email when resolved, monospace `user_id` as fallback.
 
-### Cross-user read RPCs (migration `006_admin_console.sql`)
+### Cross-user read RPCs (migration `009_admin_console.sql`)
 
 The Users / Subscriptions / Usage modules need data ACROSS users, but the billing tables are own-row-only under RLS (`subscriptions` and `usage_counters` both gate on `auth.uid() = user_id`) and `auth.users` is not directly readable. A plain `select("*")` as an admin would return only the admin's own rows. So, exactly like `admin_user_emails`, each cross-user read is a SECURITY DEFINER function that **re-checks `public.is_admin()` itself** (in the `WHERE`, or the body for the JSONB one), making non-admins get zero rows / an exception:
 
-- `admin_list_users()` - the roster: `auth.users` LEFT JOINed to `subscriptions` for current tier/status, plus `linked_platforms` and `last_device_seen_at` (migration `025_admin_user_observability.sql`).
+- `admin_list_users()` - the roster: `auth.users` LEFT JOINed to `subscriptions` for current tier/status, plus `linked_platforms` and `last_device_seen_at` (migration `009_admin_console.sql`).
 - `admin_list_subscriptions()` - every `subscriptions` row (emails resolved separately via `admin_user_emails`).
 - `admin_list_usage(period_keys[])` - `usage_counters` rows for the passed period keys. The keys are always generated server-side from a bounded date range (default: the current period; widest: all time since `USAGE_EPOCH` in `lib/admin/period.ts`), so the read stays bounded (the table grows ~ users x features x periods; daily rows accumulate one per user per day). If the base grows, add pagination / a top-N cap, and consider a from/to variant of the RPC instead of enumerating day keys.
 - `admin_user_detail(user_id, period_keys[])` - a single JSONB bundle for the detail drawer: subscription + usage for the periods + ticket count + the **target** user's `is_admin` flag (display-only; the caller is still gated on being an admin) + the observability keys below.
 
 All are READ-only and `GRANT EXECUTE ... TO authenticated` (safe because of the in-function `is_admin()` check). The audit module needs no RPC: `admin_audit_log` already has an `is_admin()` SELECT policy, so it reads directly. Tier caps for the usage views come from the public-read `tier_limits` table via `getTierConfigs()`.
 
-### User observability (migration `025_admin_user_observability.sql`)
+### User observability (migration `009_admin_console.sql`)
 
 The Users module answers "what is this account actually doing", not just "what does it pay". Migration 025 records nothing new: every field below already existed in the schema and was simply never surfaced. No new table, no new RLS policy, no new write path, and both widened functions stay READ-only (so neither writes to `admin_audit_log` - the log records mutations, and a row per drawer open would bury the real entries).
 
@@ -121,7 +121,7 @@ Things that are easy to get wrong here:
 
 No GDPR change: every category above is already in the `docs/GDPR.md` ROPA with the same lawful basis and retention, and all of it already cascades on account deletion. This widens who inside the company can see it (staff admins, who could already read it via the Supabase dashboard), not what is collected or how long it is kept.
 
-### Tier write RPCs (migration `006_admin_console.sql`)
+### Tier write RPCs (migration `009_admin_console.sql`)
 
 The Tier limits / Feature flags modules edit `tier_limits`, which is public-read with **no client write policies** (service-role only, see `002_billing_tiers.sql`). The web app never holds the service-role key, so - same pattern again - each write is a SECURITY DEFINER function that re-checks `public.is_admin()` itself:
 
@@ -136,7 +136,7 @@ Guardrails built into both functions (not the UI):
 
 Reads for these modules come from the public-read `tier_limits` table via the same `getTierConfigs()` the pricing page uses. Edits propagate on the existing cache TTLs (pricing page ~60s revalidate, extension ~1h).
 
-### Subscription write RPC (migration `008_admin_edit_subscription.sql`)
+### Subscription write RPC (migration `009_admin_console.sql`)
 
 The Users detail drawer's "Edit subscription" form calls `admin_set_user_subscription(user_id, tier_id, tier_version, status)`. `subscriptions` is own-row-read-only under RLS with no client write policies, so - same pattern again - the write is a SECURITY DEFINER function that re-checks `public.is_admin()` itself. It updates the user's current subscription row (the same row tier resolution prefers: newest entitled row, else newest of any status), or inserts a comp row (Stripe ids null) when the user has none - the "bespoke tiers / support comps" path from `docs/ENTITLEMENTS.md`, reachable from the console.
 
@@ -218,8 +218,9 @@ were never in the server markup). This cut the users roster chunk from ~29 KB to
 ~11 KB, with the drawer's ~22 KB fetched on first open. Keep new drawer-style
 components on the same pattern.
 
-**Indexes** (`028_admin_console_indexes.sql`). Two reads were scanning whole
-tables:
+**Indexes** (`idx_usage_counters_period_key` in 009_admin_console.sql,
+`idx_support_ticket_replies_ticket_created` in 003_support.sql). Two reads
+were scanning whole tables:
 
 - `usage_counters(period_key)` - the PK is `(user_id, feature, period_key)`, so
   filtering on `period_key` alone (what `admin_list_usage` does) could not use
@@ -329,7 +330,7 @@ marketplaces, each with Auto / Operational / Degraded / Down and an optional
 public note.
 
 Everything is **automatic by default**. A row in `status_overrides` (migration
-`033_status_overrides.sql`) switches one target to manual, and manual **wins
+`011_status_overrides.sql`) switches one target to manual, and manual **wins
 until cleared** - it never auto-expires. That asymmetry is deliberate: an admin
 declaring an incident usually knows something telemetry cannot see (a
 marketplace announcement, one loud user report, a fix mid-deploy), so the
@@ -452,7 +453,7 @@ Every new module MUST satisfy all of these (no exceptions):
 - [ ] Every mutation calls `log_admin_action(...)` so it lands in the audit log.
 - [ ] Destructive/irreversible actions call `requireReauth()` first and abort cleanly on cancel/failure.
 - [ ] Any privileged read (e.g. across users) is a SECURITY DEFINER RPC that re-checks `is_admin()` itself - never assume the app gate.
-- [ ] Every gate/policy goes through `is_admin()` (never a bare `admin_users` EXISTS), so it inherits the AAL2 (MFA) requirement from migration `009_admin_mfa.sql` automatically.
+- [ ] Every gate/policy goes through `is_admin()` (never a bare `admin_users` EXISTS), so it inherits the AAL2 (MFA) requirement from migration `003_support.sql` automatically.
 - [ ] The module's data fetch is RLS-scoped and does not trust a prior gate.
 
 ## Granting admin
@@ -471,13 +472,13 @@ Revoke by deleting the row. Keep the admin set small; every member has full read
 
 Implemented (was `TODO(admin-mfa)`). Every admin surface requires an AAL2 session: password login AND a verified TOTP code this session.
 
-- **Database (the boundary):** `is_admin()` itself requires `auth.jwt()->>'aal' = 'aal2'` (migration `009_admin_mfa.sql`). Every admin RLS policy and every admin SECURITY DEFINER RPC calls `is_admin()`, so this single function covers all of it, including the RPCs that bypass RLS. The commented RESTRICTIVE policies at the end of 006 are superseded and stay commented.
+- **Database (the boundary):** `is_admin()` itself requires `auth.jwt()->>'aal' = 'aal2'` (migration `003_support.sql`). Every admin RLS policy and every admin SECURITY DEFINER RPC calls `is_admin()`, so this single function covers all of it, including the RPCs that bypass RLS.
 - **Edge Functions:** `admin-change-plan` and `admin-delete-user` read the (already `getUser()`-validated) JWT's `aal` claim and return 403 `mfa_required` below AAL2. A stolen session token without the phone cannot change billing or delete accounts.
 - **App gates:** `proxy.ts` and `app/admin/layout.tsx` redirect non-AAL2 admin sessions to `/auth/mfa?next=<path>`. The membership check they run first uses the `admin_users` self-read policy, which intentionally stays AAL1-readable so the gates can tell admins apart and route them to the challenge instead of `/account`.
 - **Enroll / challenge UI:** enroll lives in the Account > Security card (all users may enroll; see `docs/AUTH.md`); the challenge page is `/auth/mfa`.
 - **Step-up reauth is TOTP now:** once a factor is enrolled, `requireReauth()` verifies a fresh 6-digit code (which also keeps the session at AAL2) instead of the password. The password path survives only as a pre-enrollment fallback - it must never be used by an enrolled admin because `signInWithPassword` mints a fresh AAL1 session.
 
-**Deploy order (lockout warning):** deploy the web app, enroll every admin via Account > Security, and only THEN apply migration 009 and redeploy the two admin Edge Functions. Applying 009 first locks all admins out of the console until they enroll. Recovery of last resort: remove a lost factor in the Supabase dashboard (Authentication > Users > factors) - dashboard access does not depend on app MFA. Supabase TOTP has no backup codes; the dashboard is the backup.
+**Deploy order (lockout warning, fresh projects):** the AAL2 requirement is baked into `is_admin()` (003_support.sql), so on a rebuilt project deploy the web app and enroll every admin via Account > Security BEFORE expecting the console to work - an un-enrolled admin is locked out until they enroll. Recovery of last resort: remove a lost factor in the Supabase dashboard (Authentication > Users > factors) - dashboard access does not depend on app MFA. Supabase TOTP has no backup codes; the dashboard is the backup.
 
 ## Related docs
 
@@ -579,7 +580,7 @@ separate, since the throwaway tier is buyer-visible on Vinted but not on Depop.
 ### Storage and privacy
 
 Results live in `endpoint_selftest_runs` / `endpoint_selftest_results`
-(migration `034_endpoint_selftest.sql`), **separate from `endpoint_health`**.
+(migration `012_endpoint_selftest.sql`), **separate from `endpoint_health`**.
 That table is deliberately anonymous, which is what keeps it out of GDPR scope;
 a self-test row is inherently "admin X ran this at time T" and the attribution
 is the point. So these carry `run_by`, cascade on account deletion, and have a

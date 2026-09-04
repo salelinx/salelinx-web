@@ -35,7 +35,7 @@ export default async function AdminLayout({
   // blocks non-admins before this renders; we re-check here, fail-closed, so a
   // missed matcher or bypassed middleware still denies. RLS (Layer 3) is the
   // real boundary for every read/write underneath: is_admin() also requires
-  // an AAL2 session (migration 009), mirroring the check below.
+  // an AAL2 session (is_admin(), 003_support.sql), mirroring the check below.
   let adminEmail = "";
   try {
     // These lookups are memoized per request (lib/admin/session.ts), so the
