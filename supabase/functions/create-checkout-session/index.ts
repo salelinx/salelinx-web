@@ -19,7 +19,10 @@ const SITE_URL = (Deno.env.get("SITE_URL") ?? "https://salelinx.com").replace(
   /\/$/,
   "",
 );
-const SUCCESS_URL = `${SITE_URL}/account?checkout=success`;
+// Stripe substitutes the placeholder with the Checkout Session id; the
+// account page's CheckoutSuccessTracker uses it to fire the ad-conversion
+// event exactly once per checkout.
+const SUCCESS_URL = `${SITE_URL}/account?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
 const CANCEL_URL = `${SITE_URL}/pricing`;
 
 // Trial policy lives server-side. The client used to pass trialDays, which let

@@ -47,9 +47,18 @@
   "CookieBanner": {
     "title": "salelinx.com 上的 Cookie",
     "body": "我们使用必要 Cookie 来保证网站正常运行。我们也希望设置 Google Analytics Cookie，帮助我们了解网站的使用情况并加以改进。",
+    "bodyWithAds": "我们使用必要 Cookie 来保证网站正常运行。经您同意后，我们还会使用分析 Cookie 来了解网站的使用情况，以及广告效果衡量 Cookie 来了解您是否通过我们在 Google 上投放的广告来到这里。salelinx.com 从不展示任何广告。",
     "privacyLink": "我们如何使用 Cookie",
-    "accept": "接受分析 Cookie",
-    "reject": "拒绝分析 Cookie",
+    "acceptAll": "全部接受",
+    "rejectAll": "全部拒绝",
+    "manage": "管理偏好设置",
+    "save": "保存我的选择",
+    "essentialLabel": "必要",
+    "essentialDesc": "登录、语言和您的 Cookie 选择。始终启用。",
+    "analyticsLabel": "分析",
+    "analyticsDesc": "Google Analytics，用于了解网站的使用情况。",
+    "adsLabel": "广告效果衡量",
+    "adsDesc": "用于了解您是否通过我们在 Google 上投放的广告来到这里。本网站从不展示任何广告。",
     "settings": "Cookie 设置"
   },
   "NotFound": {

@@ -150,7 +150,11 @@ All defined in `.env.example`. Public-only by design - the website has no server
 | `NEXT_PUBLIC_STRIPE_PRICE_BUSINESS`  | client          | `price_...` for Business monthly                                 |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | client          | Unused today, kept for future Stripe Elements                    |
 | `NEXT_PUBLIC_EXTENSION_ID`           | client          | Chrome extension deep-link target (blank pre-launch)             |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID`      | client          | GA4 Measurement ID (`G-...`). Blank disables the cookie banner and GA entirely; when set, GA loads only after consent (`components/CookieConsent.tsx`) |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID`      | client          | GA4 Measurement ID (`G-...`). Blank hides the analytics consent category and GA entirely; when set, GA loads only after consent (`components/CookieConsent.tsx`) |
+| `NEXT_PUBLIC_GOOGLE_ADS_ID`          | client          | Google Ads tag ID (`AW-...`) for measuring our own ad campaigns. Blank hides the ad-measurement consent category; when set, the tag loads only after consent. We never show ads on the site |
+| `NEXT_PUBLIC_ADS_LABEL_SIGNUP`       | client          | Conversion label (from the Google Ads UI) for "verified signup". Blank skips the Ads conversion; the GA4 event still fires |
+| `NEXT_PUBLIC_ADS_LABEL_PURCHASE`     | client          | Conversion label for "subscription started" (fired on the Checkout success landing) |
+| `NEXT_PUBLIC_ADS_LABEL_INSTALL`      | client          | Conversion label for the outbound Chrome Web Store click (closest measurable proxy for an install) |
 
 ### Edge Functions (set via `supabase secrets set`, NOT in `.env.local`)
 

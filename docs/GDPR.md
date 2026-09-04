@@ -39,9 +39,15 @@ Not processed at all: third-party analytics or cross-site tracking data,
 browsing history, marketplace passwords or session tokens in readable form,
 card details (Stripe-hosted checkout), buyer conversation content on our
 servers. (First-party per-feature usage counts ARE recorded - see the usage
-metering row - and Google Analytics runs client-side on the website only
-after explicit cookie consent; neither contradicts this line, but do not
-shorten it back to a bare "no analytics".)
+metering row - and Google Analytics and the Google Ads conversion tag run
+client-side on the website only after explicit per-category cookie consent;
+none of that contradicts this line, but do not shorten it back to a bare
+"no analytics". The Ads tag exists because we advertise SaleLinx on Google,
+never to show ads on the site, and it is configured for conversion
+measurement only: ad_personalization stays denied even with ads consent, so
+no remarketing audiences are built. Turning remarketing on would need a new
+consent category, a privacy-policy update, and a fresh look at this
+section.)
 
 ### Referral attribution cookie (slx_ref) - PECR position
 
