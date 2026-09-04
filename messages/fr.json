@@ -47,9 +47,18 @@
   "CookieBanner": {
     "title": "Cookies sur salelinx.com",
     "body": "Nous utilisons des cookies essentiels au fonctionnement du site. Nous aimerions aussi installer des cookies Google Analytics pour comprendre son utilisation et l'améliorer.",
+    "bodyWithAds": "Nous utilisons des cookies essentiels au fonctionnement du site. Avec votre accord, nous utilisons aussi des cookies d'analyse pour comprendre l'utilisation du site, et des cookies de mesure publicitaire pour savoir si l'une de nos annonces Google vous a amené ici. Nous n'affichons jamais de publicité sur salelinx.com.",
     "privacyLink": "Comment nous utilisons les cookies",
-    "accept": "Accepter les cookies d'analyse",
-    "reject": "Refuser les cookies d'analyse",
+    "acceptAll": "Tout accepter",
+    "rejectAll": "Tout refuser",
+    "manage": "Gérer les préférences",
+    "save": "Enregistrer mes choix",
+    "essentialLabel": "Essentiels",
+    "essentialDesc": "Connexion, langue et votre choix de cookies. Toujours actifs.",
+    "analyticsLabel": "Analyse",
+    "analyticsDesc": "Google Analytics, pour comprendre comment le site est utilisé.",
+    "adsLabel": "Mesure publicitaire",
+    "adsDesc": "Nous indique si l'une de nos annonces Google vous a amené ici. Nous n'affichons jamais de publicité sur ce site.",
     "settings": "Paramètres des cookies"
   },
   "NotFound": {

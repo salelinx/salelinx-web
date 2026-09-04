@@ -10,6 +10,7 @@ import {
 import { getReferralSummary } from "@/lib/supabase/referrals";
 import { SITE_URL } from "@/lib/site";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
+import { CheckoutSuccessTracker } from "@/components/CheckoutSuccessTracker";
 import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
@@ -112,9 +113,12 @@ export default async function AccountPage({ params, searchParams }: Props) {
       </div>
 
       {justCheckedOut && (
-        <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-          {t("checkoutSuccess")}
-        </div>
+        <>
+          <CheckoutSuccessTracker />
+          <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+            {t("checkoutSuccess")}
+          </div>
+        </>
       )}
 
       {unverified && user.email && (

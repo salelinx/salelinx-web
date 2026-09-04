@@ -15,6 +15,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { trackSignupConversion } from "@/lib/tracking";
 
 type EmailOtpType =
   | "signup"
@@ -129,6 +130,10 @@ function ConfirmInner() {
       setError(error.message);
       return;
     }
+
+    // The verified-email moment is the "signup" conversion for our Google
+    // Ads campaigns (no-op without the visitor's ads consent).
+    if (type === "signup") trackSignupConversion();
 
     router.push(next);
     router.refresh();

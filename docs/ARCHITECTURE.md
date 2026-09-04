@@ -119,7 +119,7 @@ quotas, grandfathering via `tier_version`).
    create-checkout-session Edge Function → redirect to Stripe Checkout
 4. User pays (test card 4242...) → Stripe fires checkout.session.completed
 5. stripe-webhook Edge Function inserts subscriptions row with tier_id=pro
-6. User redirected to /account?checkout=success - sees Pro tier active
+6. User redirected to /account?checkout=success&session_id=... - sees Pro tier active (the session id dedupes the ad-conversion event)
 7. User installs Chrome extension from Web Store
 8. Extension boots, asks user to sign in → reuses existing Supabase session
 9. Extension links Depop/Vinted shop (writes to linked_accounts)
