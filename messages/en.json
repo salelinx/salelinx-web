@@ -919,7 +919,8 @@
       "shipped": {
         "eyebrow": "03 / Done",
         "title": "Shipped",
-        "blurb": "Available in the latest extension release."
+        "blurb": "Available in the latest extension release.",
+        "changelogLink": "See the full changelog"
       }
     },
     "tag": {

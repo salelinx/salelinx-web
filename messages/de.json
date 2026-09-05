@@ -919,7 +919,8 @@
       "shipped": {
         "eyebrow": "03 / Erledigt",
         "title": "Ausgeliefert",
-        "blurb": "In der aktuellen Version der Erweiterung verfügbar."
+        "blurb": "In der aktuellen Version der Erweiterung verfügbar.",
+        "changelogLink": "Zum vollständigen Changelog"
       }
     },
     "tag": {

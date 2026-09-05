@@ -919,7 +919,8 @@
       "shipped": {
         "eyebrow": "03 / Listo",
         "title": "Enviado",
-        "blurb": "Disponible en la última versión de la extensión."
+        "blurb": "Disponible en la última versión de la extensión.",
+        "changelogLink": "Ver el changelog completo"
       }
     },
     "tag": {
