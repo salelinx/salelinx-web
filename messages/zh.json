@@ -918,7 +918,8 @@
       "shipped": {
         "eyebrow": "03 / 已完成",
         "title": "已发布",
-        "blurb": "已在最新版扩展中提供。"
+        "blurb": "已在最新版扩展中提供。",
+        "changelogLink": "查看完整更新日志"
       }
     },
     "tag": {
