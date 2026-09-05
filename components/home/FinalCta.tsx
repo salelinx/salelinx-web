@@ -3,8 +3,6 @@ import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 
-const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.14em]';
-
 export async function FinalCta() {
   const t = await getTranslations('Home.finalCta');
 
@@ -12,34 +10,22 @@ export async function FinalCta() {
     <section className="cta-band">
       {/* Top padding is smaller than the bottom on purpose: the section above
           already ends with its own 80px of padding, so a symmetric py- here
-          left ~208px of dead space above the eyebrow against 128px below it,
+          left ~208px of dead space above the heading against 128px below it,
           pushing the whole block visibly low. These values even it up. */}
       <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-6 pb-24 text-center sm:pt-12 sm:pb-32">
         <Reveal delay={0}>
-          <span
-            className={`${MONO} inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.03] px-3 py-1.5 text-zinc-600 backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300`}
-          >
-            <span className="relative inline-flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zinc-400 opacity-60 dark:bg-zinc-500" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-zinc-500 dark:bg-zinc-400" />
-            </span>
-            {t('eyebrow')}
-          </span>
-        </Reveal>
-
-        <Reveal delay={120}>
-          <h2 className="mt-6 max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-zinc-950 sm:text-5xl md:text-6xl dark:text-white">
+          <h2 className="max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-zinc-950 sm:text-5xl md:text-6xl dark:text-white">
             {t('title')}
           </h2>
         </Reveal>
 
-        <Reveal delay={220}>
+        <Reveal delay={120}>
           <p className="mt-5 max-w-xl text-balance text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
             {t('body')}
           </p>
         </Reveal>
 
-        <Reveal delay={320}>
+        <Reveal delay={220}>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/auth/signup"
