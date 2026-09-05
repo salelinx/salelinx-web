@@ -1017,6 +1017,19 @@ function Devices({
                   {browserLabel(d.user_agent)}
                   {os && <span className="text-zinc-400"> on {os}</span>}
                 </span>
+                {/* Per install, not per user: two machines can sit on
+                    different builds, and which one produced a bug report is
+                    exactly what support needs. Null on a build older than
+                    migration 041, which reported no version. */}
+                {d.extension_version ? (
+                  <span className="ml-1.5 rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-zinc-600">
+                    v{d.extension_version}
+                  </span>
+                ) : (
+                  <span className="ml-1.5 text-zinc-400" title="This install has not reported a version yet">
+                    v?
+                  </span>
+                )}
                 <span className="ml-1.5 font-mono text-zinc-400">
                   {d.device_id.slice(0, 8)}
                 </span>
