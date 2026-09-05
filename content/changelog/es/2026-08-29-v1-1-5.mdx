@@ -1,0 +1,41 @@
+export const metadata = {
+  title: 'Selector de transportista y códigos QR en lote para las etiquetas de envío',
+  date: '2026-08-29',
+  summary:
+    'La versión 1.1.5 añade un selector de transportista y un interruptor PDF o QR a las etiquetas de envío, evita que las pestañas Offers y Messages se reconstruyan al cargar, y pule el panel.',
+  tags: ['release'],
+};
+
+# Versión 1.1.5
+
+Una versión dedicada a las etiquetas de envío, con trabajo de estabilidad en
+las dos pestañas más usadas.
+
+## Novedades
+
+- **Selector de transportista para las etiquetas.** Elige tu transportista en
+  un desplegable con logos, y alterna entre descargar todo como un único PDF
+  combinado o como resguardos QR, para los puntos de entrega que escanean un
+  código en lugar de aceptar una etiqueta impresa.
+
+## Corregido
+
+- **Offers y Messages ya no se reconstruyen al cargar.** La barra de
+  herramientas y las estadísticas de Grow se quedan fijas en su sitio, el
+  registro de actividad deja de saltar mientras llegan las entradas, y los
+  esqueletos de carga coinciden ahora con el diseño final en lugar de
+  desplazarlo todo cuando llega el contenido real.
+
+## Mejorado
+
+- **Refresh pide confirmación antes de empezar.** Lanzar una tanda de Refresh
+  muestra ahora una confirmación, y los botones del panel tienen etiquetas más
+  claras.
+- Pulido menor: se retocaron la animación de apertura del popup y los colores
+  de la vinculación de cuentas.
+
+## Sobre la 1.1.4
+
+La versión 1.1.4, publicada dos días antes que esta, solo cambió nuestra ficha
+en la Chrome Web Store. Nada cambió en la extensión en sí, así que comparte
+esta entrada.

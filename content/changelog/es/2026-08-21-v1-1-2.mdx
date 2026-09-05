@@ -1,0 +1,57 @@
+export const metadata = {
+  title: 'Elección de marketplaces, respuestas al soporte en el panel y un atajo de teclado',
+  date: '2026-08-21',
+  summary:
+    'La versión 1.1.2 te permite desactivar la marketplace que no usas, responder a los tickets de soporte sin salir de la extensión, y trae una larga lista de correcciones y pulido.',
+  tags: ['release'],
+};
+
+# Versión 1.1.2
+
+Una versión de calidad de vida. El cambio principal es para quien vende solo
+en una de las dos marketplaces, y el resto es una amplia pasada de pulido por
+todo el panel.
+
+## Novedades
+
+- **Elige tus marketplaces.** Si solo vendes en Depop o solo en Vinted, ahora
+  puedes desactivar la otra en los ajustes. El panel oculta sus funciones,
+  deja de pedirte que vincules la cuenta y no ejecuta ningún trabajo en
+  segundo plano para ella.
+- **Respuestas a tickets de soporte.** Ya puedes responder a tus tickets desde
+  la pestaña Support, incluidos los que ya estaban cerrados, sin pasar por la
+  web. La pestaña también enlaza a la documentación, la FAQ y la página de
+  estado.
+- **Atajo de teclado.** Alt+S abre y cierra el panel. El atajo se muestra en
+  los ajustes, donde puedes cambiarlo, y Escape cierra ahora el diálogo que
+  esté en primer plano.
+- **Aviso sin conexión.** Si se cae tu conexión, el panel lo indica en lugar
+  de dejar que las acciones fallen en silencio.
+
+## Mejorado
+
+- **Vinculación de cuentas.** Ahora eliges qué marketplace estás vinculando,
+  ves exactamente qué cuenta está implicada y recibes un motivo claro cuando
+  una vinculación se rechaza, en lugar de un error genérico.
+- **El cambio de dispositivo es instantáneo.** Iniciar sesión en un
+  dispositivo nuevo cierra la sesión del antiguo de inmediato, en lugar de
+  dejarlo activo hasta su siguiente acción.
+- **Los artículos en cola quedan bloqueados en todas partes.** Un artículo en
+  espera en una cola de Relist, Refresh, Crosslist, Dead Stock, Auto-Markdown
+  o Restocker se marca ahora como ocupado en el resto de superficies: no se
+  puede encolar dos veces ni editar a mitad de trabajo.
+- **Una pasada de coherencia por todo el panel.** Colores unificados, diálogos
+  más limpios, una animación de cierre más suave y mensajes legibles donde
+  antes aparecían códigos de error en bruto. Los fallos de subida indican
+  ahora el motivo real.
+- **El historial de colas** se puede borrar fila a fila, y Dead Stock se
+  recarga solo al terminar una tanda de republicación.
+
+## También
+
+- El panel ya no se abre automáticamente en cada pestaña nueva de Depop o
+  Vinted; ábrelo con el botón de la barra de herramientas o con Alt+S cuando
+  lo necesites.
+- Las instalaciones nuevas llegan a una breve página de primeros pasos.
+- Tras 25 ejecuciones correctas, la extensión pregunta, una sola vez, si
+  quieres dejar una reseña.

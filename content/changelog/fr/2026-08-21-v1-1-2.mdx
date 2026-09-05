@@ -1,0 +1,59 @@
+export const metadata = {
+  title: 'Choix des marketplaces, réponses au support dans le panneau, et un raccourci clavier',
+  date: '2026-08-21',
+  summary:
+    "La version 1.1.2 permet de désactiver la marketplace que vous n'utilisez pas, de répondre aux tickets d'assistance sans quitter l'extension, et apporte une longue liste de corrections et de finitions.",
+  tags: ['release'],
+};
+
+# Version 1.1.2
+
+Une version axée confort. Le changement principal concerne tous ceux qui ne
+vendent que sur l&rsquo;une des deux marketplaces, et le reste est une large
+passe de finition sur le panneau.
+
+## Nouveautés
+
+- **Choisissez vos marketplaces.** Si vous ne vendez que sur Depop ou que sur
+  Vinted, vous pouvez désormais désactiver l&rsquo;autre dans les paramètres.
+  Le panneau masque ses fonctionnalités, cesse de vous demander de lier le
+  compte, et n&rsquo;exécute plus aucun travail en arrière-plan pour elle.
+- **Réponses aux tickets d&rsquo;assistance.** Vous pouvez maintenant répondre
+  à vos tickets depuis l&rsquo;onglet Support, y compris aux tickets déjà
+  clôturés, sans passer par le site web. L&rsquo;onglet renvoie aussi vers la
+  documentation, la FAQ et la page de statut.
+- **Raccourci clavier.** Alt+S ouvre et ferme le panneau. Le raccourci est
+  affiché dans les paramètres, où vous pouvez le modifier, et Échap ferme
+  désormais la boîte de dialogue au premier plan.
+- **Indicateur hors ligne.** Si votre connexion tombe, le panneau le signale
+  au lieu de laisser les actions échouer en silence.
+
+## Améliorations
+
+- **Liaison de compte.** Vous choisissez désormais quelle marketplace vous
+  liez, vous voyez exactement quel compte est concerné, et vous obtenez une
+  raison claire quand une liaison est refusée, au lieu d&rsquo;une erreur
+  générique.
+- **Le changement d&rsquo;appareil est instantané.** Se connecter sur un
+  nouvel appareil déconnecte immédiatement l&rsquo;ancien, au lieu de le
+  laisser actif jusqu&rsquo;à sa prochaine action.
+- **Les articles en file d&rsquo;attente sont verrouillés partout.** Un
+  article en attente dans une file Relist, Refresh, Crosslist, Dead Stock,
+  Auto-Markdown ou Restocker est maintenant marqué comme occupé sur toutes les
+  autres surfaces : impossible de le mettre deux fois en file ou de le
+  modifier en plein traitement.
+- **Une passe de cohérence sur tout le panneau.** Couleurs unifiées, boîtes de
+  dialogue plus propres, animation de fermeture plus fluide, et des messages
+  lisibles là où apparaissaient des codes d&rsquo;erreur bruts. Les échecs
+  d&rsquo;envoi indiquent désormais la vraie raison.
+- **L&rsquo;historique des files** peut être effacé ligne par ligne, et Dead
+  Stock se recharge de lui-même après une session de republication.
+
+## Également
+
+- Le panneau ne s&rsquo;ouvre plus automatiquement dans chaque nouvel onglet
+  Depop ou Vinted ; ouvrez-le avec le bouton de la barre d&rsquo;outils ou
+  Alt+S quand vous en avez besoin.
+- Les nouvelles installations arrivent sur une courte page de prise en main.
+- Après 25 exécutions réussies, l&rsquo;extension demande, une seule fois, si
+  vous souhaitez laisser un avis.

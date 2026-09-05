@@ -1,0 +1,41 @@
+export const metadata = {
+  title: "Choix du transporteur et QR codes en masse pour les étiquettes d'envoi",
+  date: '2026-08-29',
+  summary:
+    "La version 1.1.5 ajoute un sélecteur de transporteur et un choix PDF ou QR aux étiquettes d'envoi, empêche les onglets Offers et Messages de se reconstruire au chargement, et peaufine le panneau.",
+  tags: ['release'],
+};
+
+# Version 1.1.5
+
+Une version consacrée aux étiquettes d&rsquo;envoi, avec un travail de
+stabilité sur les deux onglets les plus utilisés.
+
+## Nouveautés
+
+- **Sélecteur de transporteur pour les étiquettes.** Choisissez votre
+  transporteur dans une liste avec logos, et basculez entre un PDF fusionné
+  unique et des bordereaux QR, pour les points de dépôt qui scannent un code
+  au lieu de prendre une étiquette imprimée.
+
+## Corrections
+
+- **Offers et Messages ne se reconstruisent plus au chargement.** La barre
+  d&rsquo;outils et les statistiques Grow restent en place, le journal
+  d&rsquo;activité ne saute plus pendant l&rsquo;arrivée des entrées, et les
+  squelettes de chargement correspondent maintenant à la mise en page finale
+  au lieu de tout décaler quand le vrai contenu arrive.
+
+## Améliorations
+
+- **Refresh demande confirmation avant de démarrer.** Lancer une session
+  Refresh affiche désormais une confirmation, et les boutons du panneau ont
+  reçu des libellés plus clairs.
+- Petites finitions : l&rsquo;animation d&rsquo;ouverture du popup et les
+  couleurs de la liaison de compte ont été retravaillées.
+
+## À propos de la 1.1.4
+
+La version 1.1.4, publiée deux jours avant celle-ci, ne modifiait que notre
+fiche sur le Chrome Web Store. Rien n&rsquo;a changé dans l&rsquo;extension
+elle-même, elle partage donc cette entrée.
