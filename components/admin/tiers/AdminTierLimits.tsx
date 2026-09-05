@@ -2,7 +2,7 @@
 
 // Editable keys-by-tiers grid over tier_limits.limits. Click a cell to open
 // the edit bar, type a new cap (or mark it unlimited), review the old -> new
-// diff, save. The mutation is the admin_set_tier_limit() RPC (006_admin_console.sql):
+// diff, save. The mutation is the admin_set_tier_limit() RPC (009_admin_console.sql):
 // it re-checks is_admin(), only touches active rows, refuses unknown keys, and
 // writes the audit entry server-side. A cell showing "-" means the key is
 // absent on that tier (not applicable) and is intentionally not editable;

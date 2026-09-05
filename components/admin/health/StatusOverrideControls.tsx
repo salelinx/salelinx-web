@@ -9,7 +9,7 @@
 // the numbers must not silently overrule them. The cost is a stale override
 // lingering, which is why each one shows its age here.
 //
-// Writes go through the is_admin()-gated RPCs in migration 033, which are the
+// Writes go through the is_admin()-gated RPCs in 011_status_overrides.sql, which are the
 // security boundary and write their own audit entries.
 
 import { useState, useTransition } from "react";

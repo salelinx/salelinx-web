@@ -5,7 +5,7 @@ import { loadStatusOverrides } from './feature-status';
 // signal of their own - unlike features, there is no "the whole of Vinted is
 // failing" measurement, only per-endpoint telemetry that the feature rollup
 // already surfaces - so the default is operational and a real outage is
-// declared by an admin in /admin/health (migration 033).
+// declared by an admin in /admin/health (011_status_overrides.sql).
 //
 // This replaces the hardcoded table this file used to carry; the migration path
 // noted in earlier versions is now taken.

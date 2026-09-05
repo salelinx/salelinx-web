@@ -25,7 +25,7 @@ PK (tier_id, version)
 - Limit value `null` = unlimited
 - Limit missing entirely = not applicable for this tier
 
-RLS: public read, no client write policies. Writes happen via the service role (Supabase dashboard) or the `is_admin()`-gated `admin_set_tier_limit` / `admin_set_tier_feature` RPCs behind the admin console (migration `006_admin_console.sql`, see `docs/ADMIN.md`).
+RLS: public read, no client write policies. Writes happen via the service role (Supabase dashboard) or the `is_admin()`-gated `admin_set_tier_limit` / `admin_set_tier_feature` RPCs behind the admin console (migration `009_admin_console.sql`, see `docs/ADMIN.md`).
 
 ### `usage_counters`
 
@@ -64,10 +64,10 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 ### Extension
 
 - `src/entitlements/gate.ts` wraps every gateable action (shipped and live)
-- `checkFeature(featureKey)` → boolean feature gate
-- `preflightMetered(...)` → reads the cap and current period count, returns `{ allowed, cappedAmount, remaining }` without writing
-- `consumeMetered(...)` → calls the `increment_usage_counter` RPC with the delta actually completed, after the run
-- `gateBotStart(...)` → the combined pre-flight used by bot handlers
+- `checkFeature(featureKey)` â†’ boolean feature gate
+- `preflightMetered(...)` â†’ reads the cap and current period count, returns `{ allowed, cappedAmount, remaining }` without writing
+- `consumeMetered(...)` â†’ calls the `increment_usage_counter` RPC with the delta actually completed, after the run
+- `gateBotStart(...)` â†’ the combined pre-flight used by bot handlers
 - Fails closed: no cached subscription or a signed-out user yields `auth_required`, never an allow
 
 ## Not everything in usage_counters is a tier limit
@@ -121,17 +121,17 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 | Cloud storage               | `cloud_storage_bytes`    | -    | -       | 500 MB    | 1 GB      |
 | Support response (days)     | `support_response_days`  | 7    | 5       | -         | -         |
 | Support response (hours)    | `support_response_hours` | -    | -       | 48        | 24        |
-| Auto-refresh                | `auto_refresh`           | ✗    | ✗       | ✓         | ✓         |
-| Cloud sync                  | `cloud_sync`             | ✗    | ✗       | ✓         | ✓         |
-| Shipping labels             | `shipping_labels`        | ✗    | ✗       | ✓         | ✓         |
-| Account linking             | `account_linking`        | ✗    | ✗       | ✓         | ✓         |
-| Auto-offers                 | `auto_offer`             | ✗    | ✗       | ✓         | ✓         |
-| Offers (incoming)           | `offers`                 | ✗    | ✓       | ✓         | ✓         |
-| Messages                    | `messages`               | ✗    | ✓       | ✓         | ✓         |
-| Shop Designer               | `shop_designer`          | ✗    | ✓       | ✓         | ✓         |
-| Dead Stock                  | `dead_stock`             | ✗    | ✓       | ✓         | ✓         |
-| Restocker                   | `restocker`              | ✗    | ✗       | ✗         | ✓         |
-| Price Drops (auto-markdown) | `auto_markdown`          | ✗    | ✗       | ✗         | ✓         |
+| Auto-refresh                | `auto_refresh`           | âœ—    | âœ—       | âœ“         | âœ“         |
+| Cloud sync                  | `cloud_sync`             | âœ—    | âœ—       | âœ“         | âœ“         |
+| Shipping labels             | `shipping_labels`        | âœ—    | âœ—       | âœ“         | âœ“         |
+| Account linking             | `account_linking`        | âœ—    | âœ—       | âœ“         | âœ“         |
+| Auto-offers                 | `auto_offer`             | âœ—    | âœ—       | âœ“         | âœ“         |
+| Offers (incoming)           | `offers`                 | âœ—    | âœ“       | âœ“         | âœ“         |
+| Messages                    | `messages`               | âœ—    | âœ“       | âœ“         | âœ“         |
+| Shop Designer               | `shop_designer`          | âœ—    | âœ“       | âœ“         | âœ“         |
+| Dead Stock                  | `dead_stock`             | âœ—    | âœ“       | âœ“         | âœ“         |
+| Restocker                   | `restocker`              | âœ—    | âœ—       | âœ—         | âœ“         |
+| Price Drops (auto-markdown) | `auto_markdown`          | âœ—    | âœ—       | âœ—         | âœ“         |
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 
@@ -192,16 +192,16 @@ When this repo's `tiers.ts` diverges from the extension's `src/entitlements/type
 - **Storage bytes are a number in the jsonb limit** - website formats as GB for display, extension compares as bytes
 - **Don't hardcode tier IDs in enforcement code** - always look up via `tier_limits`. Code should treat `pro_custom_acme` the same as `pro`.
 
-## Trial abuse safeguards (migration 014)
+## Trial abuse safeguards (006_trial_abuse_guards.sql)
 
 Trial eligibility is checked in `create-checkout-session` and is denied when ANY of:
 
 - the user has any prior `subscriptions` row (original rule, unchanged)
-- any Depop/Vinted account the user has EVER linked appears in `trial_history` - permanent, hashed tombstones written whenever a platform account coexists with a billed user (both link-then-subscribe and subscribe-then-link orderings are covered by triggers). Tombstones deliberately have no FK to `auth.users`, so deleting the account does not reset them. The eligibility check joins `trial_history` against `link_history` (migration 017), an append-only record of every platform account a user has linked, NOT against currently-linked accounts - otherwise unlinking before checkout would evade the gate.
+- any Depop/Vinted account the user has EVER linked appears in `trial_history` - permanent, hashed tombstones written whenever a platform account coexists with a billed user (both link-then-subscribe and subscribe-then-link orderings are covered by triggers). Tombstones deliberately have no FK to `auth.users`, so deleting the account does not reset them. The eligibility check joins `trial_history` against `link_history`, an append-only record of every platform account a user has linked, NOT against currently-linked accounts - otherwise unlinking before checkout would evade the gate.
 - the account email is on the disposable-domain blocklist (`supabase/functions/_shared/disposable-domains.ts`, mirrored at `lib/auth/disposable-domains.ts`)
 
-`linked_accounts` also has `UNIQUE (platform, platform_user_id)`: one platform account can only be linked to one SaleLinx account at a time, and a BEFORE INSERT OR UPDATE trigger rejects linking an already-trialed platform account to a trial-only user (`platform_account_already_trialed`). Paying and lapsed-paid users are never blocked from linking. Since migration 022 the rejection is skipped when `link_history` already records the same (user, platform account) pair: a trial user who unlinks and re-links their own shop mid-trial is not a farmer, and the tombstone their first link wrote must not block them. A farmer's fresh account has no such history, so the guard still fires for the real attack.
+`linked_accounts` also has `UNIQUE (platform, platform_user_id)`: one platform account can only be linked to one SaleLinx account at a time, and a BEFORE INSERT OR UPDATE trigger rejects linking an already-trialed platform account to a trial-only user (`platform_account_already_trialed`). Paying and lapsed-paid users are never blocked from linking. The rejection is skipped when `link_history` already records the same (user, platform account) pair: a trial user who unlinks and re-links their own shop mid-trial is not a farmer, and the tombstone their first link wrote must not block them. A farmer's fresh account has no such history, so the guard still fires for the real attack.
 
-## Concurrent-device cap (migration 015)
+## Concurrent-device cap (008_device_sessions.sql)
 
 Account sharing is capped by simultaneous ACTIVE use, not by logins: the extension heartbeats `claim_device_session(device_id)` while its panel is in use, and a claim is denied when other devices were active in the last 10 minutes beyond the tier's cap (`limits->>'max_active_devices'`, default 1 for every tier; raise per tier via jsonb_set if a multi-device allowance is ever sold). Denied devices show a gate with a "Use here instead" takeover that evicts the stalest active device. Rows live in `device_sessions` (user-readable, RPC-writable only, 30-day self-pruning).

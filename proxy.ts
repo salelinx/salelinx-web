@@ -161,7 +161,7 @@ export async function proxy(request: NextRequest) {
       // works at AAL1, so we can still tell admins apart and route them to
       // the challenge page instead of bouncing them to /account. is_admin()
       // in Postgres enforces the same requirement at the data layer
-      // (migration 009), so this gate is UX, not the boundary.
+      // (is_admin(), 003_support.sql), so this gate is UX, not the boundary.
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.currentLevel !== "aal2") {
         const challenge = new URL("/auth/mfa", request.url);

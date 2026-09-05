@@ -1,6 +1,10 @@
 -- Concurrent-device cap: stop account SHARING without punishing one person's
 -- own multiple devices.
 --
+-- Consolidated baseline (September 2026). Net result of the original
+-- migrations 015 (table + claim RPC) and 026 (Realtime publication for
+-- instant eviction), plus 024's anon revoke. Full history in git.
+--
 -- Being logged in on five machines is fine. What we cap is simultaneous
 -- ACTIVE use: each extension install heartbeats while its panel is in use,
 -- and a claim is denied when other devices were active inside a short rolling
@@ -8,9 +12,9 @@
 -- two people splitting one subscription overlap constantly.
 --
 -- Takeover model (Netflix-style): the newcomer can always "Use here instead",
--- which evicts the stalest active device. The evicted device's next heartbeat
--- is denied and its panel shows the device gate. Nobody is ever locked out of
--- their own account.
+-- which evicts the stalest active device. The evicted device learns about it
+-- instantly via Realtime (its row DELETE is pushed), with the next heartbeat
+-- as fallback. Nobody is ever locked out of their own account.
 --
 -- The cap is config, not code: limits->>'max_active_devices' on tier_limits,
 -- defaulting to 1 when the key is absent - which is what every tier ships
@@ -132,5 +136,36 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.claim_device_session(TEXT, TEXT, BOOLEAN) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.claim_device_session(TEXT, TEXT, BOOLEAN) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.claim_device_session(TEXT, TEXT, BOOLEAN) TO authenticated;
+
+-- =============================================================================
+-- 3. Realtime publication (original 026)
+-- =============================================================================
+-- Publishes row CHANGES, not read access: Realtime still evaluates the
+-- table's RLS per subscriber, and the only policy is self-read, so a
+-- subscriber can only ever be told about their own rows. The payload carries
+-- the replica identity columns only - a random per-install device id and the
+-- owning user's uuid. No user agent, no marketplace data (docs/GDPR.md).
+--
+-- REPLICA IDENTITY FULL so a DELETE payload carries the whole old row rather
+-- than just the primary key - it is what makes Realtime's RLS check and its
+-- `filter` reliably able to see user_id on a delete. The table is tiny and
+-- low-churn, so the extra WAL is negligible.
+
+ALTER TABLE public.device_sessions REPLICA IDENTITY FULL;
+
+-- Idempotent: ADD TABLE raises if the table is already in the publication, and
+-- this migration must be safe to re-run.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+      AND schemaname = 'public'
+      AND tablename = 'device_sessions'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.device_sessions;
+  END IF;
+END;
+$$;

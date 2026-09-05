@@ -1,7 +1,7 @@
 // Shapes for the admin console modules (Users, Subscriptions, Usage, Audit
-// log). These mirror the return types of the admin_* RPCs in migrations
-// 006_admin_console.sql, 008_admin_edit_subscription.sql (which also returns an
-// AdminSubscriptionRow) and 025_admin_user_observability.sql.
+// log). These mirror the return types of the admin_* RPCs in migration
+// 009_admin_console.sql (admin_set_user_subscription also returns an
+// AdminSubscriptionRow).
 
 // The platforms a linked account can belong to, matching the CHECK constraint
 // on linked_accounts.platform (migration 001_core_schema.sql).
@@ -72,7 +72,7 @@ export type AdminLinkedAccount = {
 };
 
 // One extension install inside the admin_user_detail() bundle (device_sessions,
-// migration 015_device_sessions.sql). user_agent is self-reported by the
+// migration 008_device_sessions.sql). user_agent is self-reported by the
 // extension: display only, never parsed for a decision.
 export type AdminUserDevice = {
   device_id: string;
@@ -121,7 +121,7 @@ export type AdminUserDetail = {
   storage_bytes: number | null;
 };
 
-// Row from admin_list_storage() (migration 006_admin_console.sql): one
+// Row from admin_list_storage() (migration 009_admin_console.sql): one
 // user_storage gauge row, the running byte total of the user's listing-images
 // uploads (maintained by the storage.objects triggers from 004_storage_quota.sql).
 export type AdminStorageRow = {
@@ -130,7 +130,7 @@ export type AdminStorageRow = {
   updated_at: string;
 };
 
-// Row from public.admin_audit_log (migration 006_admin_console.sql). Read directly via the
+// Row from public.admin_audit_log (migration 009_admin_console.sql). Read directly via the
 // is_admin() SELECT policy, no RPC.
 export type AdminAuditRow = {
   id: string;
@@ -145,7 +145,7 @@ export type AdminAuditRow = {
   created_at: string;
 };
 
-// Row from admin_endpoint_health() (migration 030_endpoint_health.sql): one
+// Row from admin_endpoint_health() (migration 010_endpoint_health.sql): one
 // marketplace endpoint's call outcomes over the recent window, aggregated
 // across all reporting installs. Anonymous by construction - endpoint_health
 // carries no user_id, so there is no per-user drill-down here by design.
