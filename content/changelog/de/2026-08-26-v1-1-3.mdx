@@ -1,0 +1,37 @@
+export const metadata = {
+  title: 'Restocker-Genauigkeit, Konto-Warnungen und ein klareres Refer & Earn',
+  date: '2026-08-26',
+  summary:
+    'Version 1.1.3 lässt den Restocker Bestände korrekt behandeln, ersetzt die Tab-weite Sperre bei nicht passendem Konto durch eine Warnung an der betroffenen Funktion und tauscht die Empfehlungs-Rangliste gegen eine Erklärung der Prämien.',
+  tags: ['release'],
+};
+
+# Version 1.1.3
+
+Ein Korrektheits-Release, vor allem für den Restocker und für den Fall, dass
+ein Browser-Tab mit einem anderen Marketplace-Konto angemeldet ist als dem,
+das mit SaleLinx verknüpft ist.
+
+## Behoben
+
+- **Bestandsbehandlung im Restocker.** Nachfüllmengen zählen jetzt als
+  Restbestand, Mengen werden auf der Depop-Seite korrekt umgerechnet, und der
+  letzte Artikel im Bestand wird nach dem Verkauf nicht mehr neu eingestellt.
+  Außerdem sind mehrere Fehler bei der Verkaufserkennung behoben, im
+  Nachlauf-Modus wie im Live-Modus.
+- **Ein nicht passendes Konto sperrt nicht mehr den ganzen Tab.** Ist ein Tab
+  mit einem anderen Marketplace-Konto angemeldet als dem mit SaleLinx
+  verknüpften, siehst du jetzt eine Warnung an jeder betroffenen Funktion, pro
+  Plattform, statt eines komplett gesperrten Tabs. Anzeigen, die von einem
+  nicht passenden Konto stammen, werden ignoriert statt in deine Daten
+  gemischt.
+- **Price Drops** arbeitet nicht mehr auf veralteten Cloud-Daten; zwei Fehler,
+  die beim Ausbau der Testabdeckung gefunden wurden, sind behoben.
+- **Offers** öffnet sich auf der Marketplace, die du gerade ansiehst, und ein
+  Fehler in der Spaltenreihenfolge ist behoben.
+
+## Verbessert
+
+- **Refer &amp; Earn.** Die Rangliste ist weg. An ihrer Stelle eine klare
+  Erklärung, was du verdienst, wann die Prämie gewährt wird und wo sie
+  angewendet wird.

@@ -1,0 +1,35 @@
+export const metadata = {
+  title: 'Precisión del Restocker, avisos de cuenta equivocada y un Refer & Earn más claro',
+  date: '2026-08-26',
+  summary:
+    'La versión 1.1.3 hace que el Restocker gestione bien el stock, sustituye el bloqueo de toda la pestaña por un aviso en la función afectada cuando la cuenta no coincide, y cambia el ranking de referidos por una explicación de las recompensas.',
+  tags: ['release'],
+};
+
+# Versión 1.1.3
+
+Una versión de fiabilidad, centrada sobre todo en el Restocker y en lo que
+ocurre cuando una pestaña del navegador tiene iniciada sesión con una cuenta
+de marketplace distinta de la vinculada a SaleLinx.
+
+## Corregido
+
+- **Gestión de stock del Restocker.** Las cantidades de reposición cuentan
+  ahora como stock restante, las cantidades se convierten correctamente en el
+  lado de Depop, y el último artículo en stock ya no se republica después de
+  venderse. También se corrigen varios errores de detección de ventas, tanto
+  en modo diferido como en directo.
+- **Una cuenta equivocada ya no bloquea toda la pestaña.** Si una pestaña
+  tiene sesión con una cuenta de marketplace distinta de la vinculada a
+  SaleLinx, ahora ves un aviso en cada función afectada, por plataforma, en
+  lugar de una pestaña completamente bloqueada. Los anuncios detectados desde
+  una cuenta que no coincide se ignoran en vez de mezclarse con tus datos.
+- **Price Drops** ya no actúa sobre datos obsoletos de la nube; se corrigen
+  dos errores encontrados al ampliar su cobertura de pruebas.
+- **Offers** se abre en la marketplace que estás viendo, y se corrige un error
+  en el orden de las columnas.
+
+## Mejorado
+
+- **Refer &amp; Earn.** El ranking desaparece. En su lugar, una explicación
+  clara de qué ganas, cuándo se concede la recompensa y dónde se aplica.

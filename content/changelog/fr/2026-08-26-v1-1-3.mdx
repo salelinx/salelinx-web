@@ -1,0 +1,37 @@
+export const metadata = {
+  title: 'Précision du Restocker, alertes de compte, et un Refer & Earn plus clair',
+  date: '2026-08-26',
+  summary:
+    "La version 1.1.3 corrige la gestion du stock par le Restocker, remplace le blocage complet de l'onglet en cas de mauvais compte par un avertissement sur la fonctionnalité concernée, et troque le classement du parrainage contre une explication des récompenses.",
+  tags: ['release'],
+};
+
+# Version 1.1.3
+
+Une version de fiabilité, surtout centrée sur le Restocker et sur ce qui se
+passe quand un onglet du navigateur est connecté à un autre compte marketplace
+que celui lié à SaleLinx.
+
+## Corrections
+
+- **Gestion du stock par le Restocker.** Les quantités de réapprovisionnement
+  comptent désormais comme du stock restant, les quantités sont correctement
+  converties côté Depop, et le dernier article en stock n&rsquo;est plus
+  republié après sa vente. Plusieurs bugs de détection des ventes, en mode
+  différé comme en direct, sont aussi corrigés.
+- **Un mauvais compte ne bloque plus tout l&rsquo;onglet.** Si un onglet est
+  connecté à un autre compte marketplace que celui lié à SaleLinx, vous voyez
+  maintenant un avertissement sur chaque fonctionnalité concernée, par
+  plateforme, au lieu d&rsquo;un onglet entièrement muré. Les annonces
+  détectées depuis un compte non correspondant sont ignorées plutôt que
+  mélangées à vos données.
+- **Price Drops** n&rsquo;agit plus sur des données cloud périmées ; deux bugs
+  trouvés en élargissant sa couverture de tests sont corrigés.
+- **Offers** s&rsquo;ouvre sur la marketplace que vous consultez, et un bug
+  d&rsquo;ordre des colonnes est corrigé.
+
+## Améliorations
+
+- **Refer &amp; Earn.** Le classement disparaît. À la place, une explication
+  claire de ce que vous gagnez, quand la récompense est accordée, et où elle
+  est appliquée.
