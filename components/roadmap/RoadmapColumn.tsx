@@ -38,15 +38,6 @@ export async function RoadmapColumn({
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           {t(`columns.${column.status}.blurb`)}
         </p>
-        {column.status === 'shipped' && (
-          <Link
-            href="/docs/changelog"
-            className="mt-3 inline-flex items-center gap-1.5 text-sm text-zinc-700 hover:text-black dark:text-zinc-300 dark:hover:text-white"
-          >
-            {t('columns.shipped.changelogLink')}
-            <Icon name="arrow-right" className="h-4 w-4" />
-          </Link>
-        )}
       </header>
 
       {items.length > 0 ? (
@@ -59,6 +50,16 @@ export async function RoadmapColumn({
         <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-black/10 p-8 text-sm text-zinc-600 dark:border-white/10 dark:text-zinc-400">
           {t('empty')}
         </div>
+      )}
+
+      {column.status === 'shipped' && (
+        <Link
+          href="/docs/changelog"
+          className="mt-5 inline-flex items-center gap-1.5 self-start text-sm text-zinc-700 hover:text-black dark:text-zinc-300 dark:hover:text-white"
+        >
+          {t('columns.shipped.changelogLink')}
+          <Icon name="arrow-right" className="h-4 w-4" />
+        </Link>
       )}
     </section>
   );
