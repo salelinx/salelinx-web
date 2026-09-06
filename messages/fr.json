@@ -926,17 +926,22 @@
       "inventory": "Inventaire",
       "automation": "Automatisation",
       "ai": "IA",
-      "insights": "Analyses"
+      "insights": "Analyses",
+      "marketplaces": "Places de marché"
     },
     "meta": {
       "scoping": "À l'étude",
-      "targetQ2_2026": "Cible T2 2026",
+      "targetQ4_2026": "Cible T4 2026",
       "shippedApr_2026": "Livré en avril 2026"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "Import CSV en masse",
-        "description": "Téléversez un CSV d'inventaire existant et laissez SaleLinx créer des brouillons d'annonces."
+      "ebay-integration": {
+        "title": "Intégration eBay",
+        "description": "Publiez sur eBay avec des catégories, caractéristiques et états mappés automatiquement."
+      },
+      "poshmark-integration": {
+        "title": "Intégration Poshmark",
+        "description": "Ajoutez Poshmark au flux de crosslisting aux côtés de Depop et Vinted."
       },
       "scheduled-relisting": {
         "title": "Republication planifiée",

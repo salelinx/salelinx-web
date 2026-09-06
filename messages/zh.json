@@ -926,17 +926,22 @@
       "inventory": "库存",
       "automation": "自动化",
       "ai": "AI",
-      "insights": "数据洞察"
+      "insights": "数据洞察",
+      "marketplaces": "平台"
     },
     "meta": {
       "scoping": "评估中",
-      "targetQ2_2026": "目标 2026 年第二季度",
+      "targetQ4_2026": "目标 2026 年第四季度",
       "shippedApr_2026": "2026 年 4 月发布"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "CSV 批量导入",
-        "description": "上传现有库存的 CSV 文件，让 SaleLinx 创建草稿商品。"
+      "ebay-integration": {
+        "title": "eBay 集成",
+        "description": "跨平台发布到 eBay，自动映射类目、商品属性和成色。"
+      },
+      "poshmark-integration": {
+        "title": "Poshmark 集成",
+        "description": "将 Poshmark 纳入与 Depop 和 Vinted 并行的跨平台发布流程。"
       },
       "scheduled-relisting": {
         "title": "定时重新上架",

@@ -926,17 +926,22 @@
       "inventory": "Inventory",
       "automation": "Automation",
       "ai": "AI",
-      "insights": "Insights"
+      "insights": "Insights",
+      "marketplaces": "Marketplaces"
     },
     "meta": {
       "scoping": "Scoping",
-      "targetQ2_2026": "Target Q2 2026",
+      "targetQ4_2026": "Target Q4 2026",
       "shippedApr_2026": "Shipped Apr 2026"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "Bulk CSV import",
-        "description": "Upload a CSV of existing inventory and have SaleLinx create draft listings."
+      "ebay-integration": {
+        "title": "eBay integration",
+        "description": "Crosslist to eBay with auto-mapped categories, item specifics, and conditions."
+      },
+      "poshmark-integration": {
+        "title": "Poshmark integration",
+        "description": "Bring Poshmark into the crosslisting flow alongside Depop and Vinted."
       },
       "scheduled-relisting": {
         "title": "Scheduled relisting",
