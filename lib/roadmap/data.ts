@@ -4,7 +4,7 @@ export type RoadmapStatus = 'exploring' | 'building' | 'shipped';
 
 export type RoadmapMetaKey =
   | 'scoping'
-  | 'targetQ2_2026'
+  | 'targetQ4_2026'
   | 'shippedApr_2026';
 
 export type RoadmapTagKey =
@@ -62,7 +62,7 @@ export const ROADMAP_ITEMS: RoadmapItem[] = [
     id: 'analytics-dashboard',
     status: 'building',
     tagKey: 'insights',
-    metaKey: 'targetQ2_2026',
+    metaKey: 'targetQ4_2026',
   },
 
   {
