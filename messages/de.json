@@ -926,7 +926,8 @@
       "inventory": "Bestand",
       "automation": "Automatisierung",
       "ai": "KI",
-      "insights": "Einblicke"
+      "insights": "Einblicke",
+      "marketplaces": "Marktplätze"
     },
     "meta": {
       "scoping": "In Prüfung",
@@ -934,9 +935,13 @@
       "shippedApr_2026": "Ausgeliefert April 2026"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "CSV-Massenimport",
-        "description": "Lade eine CSV deines bestehenden Bestands hoch und lass SaleLinx Entwürfe für Inserate erstellen."
+      "ebay-integration": {
+        "title": "eBay-Integration",
+        "description": "Crossliste auf eBay mit automatisch zugeordneten Kategorien, Artikelmerkmalen und Zuständen."
+      },
+      "poshmark-integration": {
+        "title": "Poshmark-Integration",
+        "description": "Hole Poshmark neben Depop und Vinted in den Crosslisting-Ablauf."
       },
       "scheduled-relisting": {
         "title": "Geplantes Reposten",

@@ -7,7 +7,12 @@ export type RoadmapMetaKey =
   | 'targetQ2_2026'
   | 'shippedApr_2026';
 
-export type RoadmapTagKey = 'inventory' | 'automation' | 'ai' | 'insights';
+export type RoadmapTagKey =
+  | 'inventory'
+  | 'automation'
+  | 'ai'
+  | 'insights'
+  | 'marketplaces';
 
 export type RoadmapItem = {
   id: string;
@@ -29,9 +34,15 @@ export const ROADMAP_COLUMNS: RoadmapColumn[] = [
 
 export const ROADMAP_ITEMS: RoadmapItem[] = [
   {
-    id: 'csv-bulk-import',
+    id: 'ebay-integration',
     status: 'exploring',
-    tagKey: 'inventory',
+    tagKey: 'marketplaces',
+    metaKey: 'scoping',
+  },
+  {
+    id: 'poshmark-integration',
+    status: 'exploring',
+    tagKey: 'marketplaces',
     metaKey: 'scoping',
   },
   {

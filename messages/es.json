@@ -926,7 +926,8 @@
       "inventory": "Inventario",
       "automation": "Automatización",
       "ai": "IA",
-      "insights": "Analíticas"
+      "insights": "Analíticas",
+      "marketplaces": "Mercados"
     },
     "meta": {
       "scoping": "En estudio",
@@ -934,9 +935,13 @@
       "shippedApr_2026": "Enviado en abril de 2026"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "Importación masiva por CSV",
-        "description": "Sube un CSV del inventario existente y deja que SaleLinx cree borradores de anuncios."
+      "ebay-integration": {
+        "title": "Integración con eBay",
+        "description": "Publica en eBay con categorías, características y estados mapeados automáticamente."
+      },
+      "poshmark-integration": {
+        "title": "Integración con Poshmark",
+        "description": "Incorpora Poshmark al flujo de crosslisting junto a Depop y Vinted."
       },
       "scheduled-relisting": {
         "title": "Republicación programada",
