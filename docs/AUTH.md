@@ -77,8 +77,24 @@ Always routes to /auth/reset-password (never `next`, see below)
   â–¼
 Page checks a session exists, then supabase.auth.updateUser({ password })
   â–¼
+supabase.auth.signOut({ scope: 'others' }) revokes all other sessions
+  â–¼
 redirect to /account
 ```
+
+**Other sessions are revoked on password change.** Supabase does not do this
+automatically; the reset page calls `signOut({ scope: 'others' })` after a
+successful `updateUser({ password })`, which keeps the current (recovery)
+session signed in and revokes the refresh tokens of every other session,
+including the Chrome extension's. Two caveats:
+
+- The extension shares the same user pool, so its next token refresh fails and
+  it must re-prompt for login.
+- Revocation kills refresh tokens only. Already-issued access JWTs stay valid
+  until expiry, so `getClaims()` consumers (`proxy.ts`, the Header) can show a
+  revoked session as signed in for up to the access-token TTL, while `getUser()`
+  consumers (protected pages, Edge Functions) reject it on the next request.
+  RLS remains the real data boundary.
 
 Three things about this flow are deliberate and easy to undo by accident:
 
