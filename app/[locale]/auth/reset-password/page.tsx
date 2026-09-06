@@ -49,6 +49,10 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    // Revoke every other session (other browsers, the extension) now that the
+    // password changed. 'others' keeps this recovery session signed in.
+    await supabase.auth.signOut({ scope: "others" });
+
     router.push("/account");
     router.refresh();
   }
