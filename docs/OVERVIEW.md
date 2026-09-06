@@ -6,13 +6,13 @@ Companion to the extension repo at `../salelinx-app`. Both share a **single Supa
 
 ## Stack
 
-| Layer     | Tech                              | Why                                                           |
-| --------- | --------------------------------- | ------------------------------------------------------------- |
-| Framework | Next.js 16 App Router             | Server components, middleware (`proxy.ts`), built-in routing  |
-| UI        | React 19 + Tailwind 4             | No component library - utility CSS is enough for a small site |
-| Auth + DB | Supabase (`@supabase/ssr`)        | Same project as the extension; users are one pool             |
-| Billing   | Stripe Checkout + Customer Portal | Off-the-shelf subscription UX; webhooks sync to Supabase      |
-| Hosting   | Vercel                            | One repo → one project, automatic preview deploys             |
+| Layer     | Tech                                  | Why                                                                                                                          |
+| --------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Framework | Next.js 16 App Router                 | Server components, middleware (`proxy.ts`), built-in routing                                                                 |
+| UI        | React 19 + Tailwind 4                 | No component library - utility CSS is enough for a small site                                                                |
+| Auth + DB | Supabase (`@supabase/ssr`)            | Same project as the extension; users are one pool                                                                            |
+| Billing   | Stripe Checkout + Customer Portal     | Off-the-shelf subscription UX; webhooks sync to Supabase                                                                     |
+| Hosting   | Vercel                                | One repo → one project, automatic preview deploys                                                                            |
 | Email     | Resend (via Supabase Send Email Hook) | Auth emails (signup, recovery, magic link, email change) rendered in `send-auth-email` Edge Function and delivered by Resend |
 
 ## Request lifecycle (signed-in user hitting `/account`)
@@ -141,20 +141,42 @@ middleware.ts                (Deprecated in Next 16 - don't recreate this file)
 
 All defined in `.env.example`. Public-only by design - the website has no server-side Stripe calls; all Stripe work lives in Edge Functions.
 
-| Var                                  | Used by         | Notes                                                            |
-| ------------------------------------ | --------------- | ---------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`           | client + server | Same as the extension's Supabase project                         |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | client + server | Anon key, not service role                                       |
-| `NEXT_PUBLIC_STRIPE_PRICE_STARTER`   | client          | `price_...` for Starter monthly. Swap test↔live without redeploy |
-| `NEXT_PUBLIC_STRIPE_PRICE_PRO`       | client          | `price_...` for Pro monthly                                      |
-| `NEXT_PUBLIC_STRIPE_PRICE_BUSINESS`  | client          | `price_...` for Business monthly                                 |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | client          | Unused today, kept for future Stripe Elements                    |
-| `NEXT_PUBLIC_EXTENSION_ID`           | client          | Chrome extension deep-link target (blank pre-launch)             |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID`      | client          | GA4 Measurement ID (`G-...`). Blank hides the analytics consent category and GA entirely; when set, GA loads only after consent (`components/CookieConsent.tsx`) |
-| `NEXT_PUBLIC_GOOGLE_ADS_ID`          | client          | Google Ads tag ID (`AW-...`) for measuring our own ad campaigns. Blank hides the ad-measurement consent category; when set, the tag loads only after consent. We never show ads on the site |
-| `NEXT_PUBLIC_ADS_LABEL_SIGNUP`       | client          | Conversion label (from the Google Ads UI) for "verified signup". Blank skips the Ads conversion; the GA4 event still fires |
-| `NEXT_PUBLIC_ADS_LABEL_PURCHASE`     | client          | Conversion label for "subscription started" (fired on the Checkout success landing) |
-| `NEXT_PUBLIC_ADS_LABEL_INSTALL`      | client          | Conversion label for the outbound Chrome Web Store click (closest measurable proxy for an install) |
+| Var                                  | Used by         | Notes                                                                                                                                                                                          |
+| ------------------------------------ | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | client + server | Same as the extension's Supabase project                                                                                                                                                       |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | client + server | Anon key, not service role                                                                                                                                                                     |
+| `NEXT_PUBLIC_STRIPE_PRICE_STARTER`   | client          | `price_...` for Starter monthly. Swap test↔live without redeploy                                                                                                                               |
+| `NEXT_PUBLIC_STRIPE_PRICE_PRO`       | client          | `price_...` for Pro monthly                                                                                                                                                                    |
+| `NEXT_PUBLIC_STRIPE_PRICE_BUSINESS`  | client          | `price_...` for Business monthly                                                                                                                                                               |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | client          | Unused today, kept for future Stripe Elements                                                                                                                                                  |
+| `NEXT_PUBLIC_EXTENSION_ID`           | client          | Chrome extension deep-link target (blank pre-launch)                                                                                                                                           |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID`      | client          | GA4 Measurement ID (`G-...`). Blank hides the analytics consent category and GA entirely; when set, GA loads only after consent (`components/CookieConsent.tsx`)                               |
+| `NEXT_PUBLIC_GOOGLE_ADS_ID`          | client          | Google Ads tag ID (`AW-...`) for measuring our own ad campaigns. Blank hides the ad-measurement consent category; when set, the tag loads only after consent. We never show ads on the site    |
+| `NEXT_PUBLIC_ADS_LABEL_SIGNUP`       | client          | Conversion label (from the Google Ads UI) for "verified signup". Blank skips the Ads conversion; the GA4 event still fires                                                                     |
+| `NEXT_PUBLIC_ADS_LABEL_PURCHASE`     | client          | Conversion label for "subscription started" (fired on the Checkout success landing)                                                                                                            |
+| `NEXT_PUBLIC_ADS_LABEL_INSTALL`      | client          | Conversion label for the outbound Chrome Web Store click (closest measurable proxy for an install)                                                                                             |
+| `HEALTH_CHECK_TOKEN`                 | server          | Optional shared secret for `/api/health/supabase`. Unset leaves the endpoint open; when set, the monitor must send it as `x-health-token`. Not `NEXT_PUBLIC_` — it must never reach the client |
+
+## Health endpoint (`/api/health/supabase`)
+
+`GET /api/health/supabase` — for an external uptime monitor to poll. Returns **200** when Supabase is serving, **503** with the failing probe names when it is not, and **500** if the endpoint itself is misconfigured (a bad deploy must not page anyone as a Supabase incident).
+
+It exists because of the 2026-09-06 outage: Supabase was unusable from 06:26 to 11:44 UTC — every user's extension dead — and nobody knew until someone happened to look. See `../../salelinx-app/docs/technical/GOTCHAS.md` for the cause.
+
+**It lives on Vercel, not Supabase, and that is the point.** A monitor must not run on the thing it monitors, and every other notification path we own (Resend emails, the referral cron) is a Supabase Edge Function. The trade-off is that a Vercel outage makes this endpoint fail and look like a Supabase problem — acceptable, since both are worth waking up for, which is why the response names the failing probe rather than just saying "unhealthy".
+
+**Do not "fix" the probes to expect 200.** Both deliberately cross into Postgres, because the obvious probe does not:
+
+| Probe                | Request                                                                          | Healthy |
+| -------------------- | -------------------------------------------------------------------------------- | ------- |
+| `auth_token_refresh` | `POST /auth/v1/token?grant_type=refresh_token` with a deliberately invalid token | **400** |
+| `rest_read`          | `GET /rest/v1/tier_limits?select=tier_id&limit=1`                                | 200     |
+
+A **400** is the healthy answer for the first: it proves auth reached the database and looked the token up. During the outage that same call returned `500 error finding session from refresh token: context deadline exceeded`. `GET /auth/v1/health` is the tempting alternative and is useless here — it reports that the GoTrue process is alive, which it was, for all five hours.
+
+Both use the anon key (public by design) and neither writes. There is no service-role key on Vercel and this endpoint must never need one.
+
+`HEALTH_CHECK_TOKEN` is optional: unset, the endpoint is open so it works before anything is configured; set, callers must send `x-health-token`. Worth setting, since each call makes two outbound requests to the service it is protecting.
 
 ### Edge Functions (set via `supabase secrets set`, NOT in `.env.local`)
 

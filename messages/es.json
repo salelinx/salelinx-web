@@ -157,7 +157,6 @@
       }
     },
     "finalCta": {
-      "eyebrow": "Adiós al caos de pestañas",
       "title": "Gestiona ambas tiendas desde un solo panel.",
       "body": "Se instala en un clic. Prueba gratuita de 14 días de Starter, se requiere tarjeta.",
       "primary": "Empezar gratis",
@@ -919,24 +918,30 @@
       "shipped": {
         "eyebrow": "03 / Listo",
         "title": "Enviado",
-        "blurb": "Disponible en la última versión de la extensión."
+        "blurb": "Disponible en la última versión de la extensión.",
+        "changelogLink": "Ver el changelog completo"
       }
     },
     "tag": {
       "inventory": "Inventario",
       "automation": "Automatización",
       "ai": "IA",
-      "insights": "Analíticas"
+      "insights": "Analíticas",
+      "marketplaces": "Mercados"
     },
     "meta": {
       "scoping": "En estudio",
-      "targetQ2_2026": "Objetivo T2 2026",
+      "targetQ4_2026": "Objetivo T4 2026",
       "shippedApr_2026": "Enviado en abril de 2026"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "Importación masiva por CSV",
-        "description": "Sube un CSV del inventario existente y deja que SaleLinx cree borradores de anuncios."
+      "ebay-integration": {
+        "title": "Integración con eBay",
+        "description": "Publica en eBay con categorías, características y estados mapeados automáticamente."
+      },
+      "poshmark-integration": {
+        "title": "Integración con Poshmark",
+        "description": "Incorpora Poshmark al flujo de crosslisting junto a Depop y Vinted."
       },
       "scheduled-relisting": {
         "title": "Republicación programada",

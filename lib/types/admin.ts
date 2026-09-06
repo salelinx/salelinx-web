@@ -25,6 +25,11 @@ export type AdminUserRow = {
   // if the extension has never checked in. A better liveness signal than
   // last_sign_in_at, which a long-lived refresh token leaves stale.
   last_device_seen_at: string | null;
+  // Extension version reported by that same freshest install (migration
+  // 015_device_session_version.sql), not a blend across their installs. Null
+  // for an install on a build older than 015, or one that has never checked
+  // in. Self-reported: display only.
+  extension_version: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.
@@ -77,6 +82,10 @@ export type AdminLinkedAccount = {
 export type AdminUserDevice = {
   device_id: string;
   user_agent: string | null;
+  // Same trust level as user_agent: self-reported, display only. Null for an
+  // install still on a build that predates migration
+  // 015_device_session_version.sql.
+  extension_version: string | null;
   created_at: string;
   last_seen_at: string;
 };

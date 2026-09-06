@@ -162,7 +162,8 @@ export async function proxy(request: NextRequest) {
       // the challenge page instead of bouncing them to /account. is_admin()
       // in Postgres enforces the same requirement at the data layer
       // (is_admin(), 003_support.sql), so this gate is UX, not the boundary.
-      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const { data: aal } =
+        await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.currentLevel !== "aal2") {
         const challenge = new URL("/auth/mfa", request.url);
         challenge.searchParams.set("next", pathname);
@@ -184,7 +185,28 @@ export const config = {
   // Static assets are also excluded by extension: without the json entry,
   // fetches of /docs/search-index.<locale>.json ran the full middleware
   // (intl + Supabase auth) for a file that never varies per user.
+  //
+  // /api is excluded for the same locale-rewrite reason, and for a second one.
+  // Route handlers under app/api/ live outside [locale], so without this they
+  // 404 as an HTML error page exactly like robots.txt did — that is what broke
+  // /api/health/supabase the moment it shipped. A `next build` cannot catch it:
+  // the route compiles and registers fine, and the rewrite only happens at
+  // request time.
+  //
+  // The second reason is specific to the health endpoint: this middleware calls
+  // supabase.auth.getClaims(), so running it on /api would put Supabase work in
+  // front of the endpoint whose entire job is to report on Supabase. During an
+  // outage that could stall or fail the probe before it ever runs, turning a
+  // precise "auth is down" answer into an unexplained timeout.
+  //
+  // Nothing under /api needs the cookie refresh today. If an authenticated API
+  // route is ever added, give it the skipIntl treatment above rather than
+  // dropping this exclusion.
+  //
+  // `api(?:/|$)` and not a bare `api`: these alternatives are prefix matches,
+  // so a bare `api` would also swallow a future localized page at /api-docs
+  // and leave it unlocalized. Anchoring to the path segment is the difference.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|webmanifest)$).*)",
+    "/((?!api(?:/|$)|_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|webmanifest)$).*)",
   ],
 };

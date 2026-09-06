@@ -157,7 +157,6 @@
       }
     },
     "finalCta": {
-      "eyebrow": "أوقف التنقل بين التبويبات",
       "title": "أدر متجريك من لوحة واحدة.",
       "body": "التثبيت بنقرة واحدة. ابدأ تجربة مجانية لمدة 14 يوماً من Starter، البطاقة مطلوبة.",
       "primary": "ابدأ مجاناً",
@@ -919,24 +918,30 @@
       "shipped": {
         "eyebrow": "03 / منجز",
         "title": "تم الإطلاق",
-        "blurb": "متاح في أحدث إصدار من الإضافة."
+        "blurb": "متاح في أحدث إصدار من الإضافة.",
+        "changelogLink": "عرض سجل التغييرات الكامل"
       }
     },
     "tag": {
       "inventory": "المخزون",
       "automation": "الأتمتة",
       "ai": "الذكاء الاصطناعي",
-      "insights": "الرؤى"
+      "insights": "الرؤى",
+      "marketplaces": "الأسواق"
     },
     "meta": {
       "scoping": "تحديد النطاق",
-      "targetQ2_2026": "الهدف الربع الثاني 2026",
+      "targetQ4_2026": "الهدف الربع الرابع 2026",
       "shippedApr_2026": "أُطلق في أبريل 2026"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "استيراد جماعي من CSV",
-        "description": "ارفع ملف CSV لمخزونك الحالي ودع SaleLinx ينشئ مسودات إعلانات."
+      "ebay-integration": {
+        "title": "تكامل مع eBay",
+        "description": "انشر إعلاناتك على eBay مع مطابقة تلقائية للفئات والمواصفات والحالات."
+      },
+      "poshmark-integration": {
+        "title": "تكامل مع Poshmark",
+        "description": "أضف Poshmark إلى مسار النشر المتعدد إلى جانب Depop وVinted."
       },
       "scheduled-relisting": {
         "title": "إعادة نشر مجدولة",

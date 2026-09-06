@@ -157,7 +157,6 @@
       }
     },
     "finalCta": {
-      "eyebrow": "Schluss mit dem Tab-Chaos",
       "title": "Beide Shops aus einem Panel führen.",
       "body": "Mit einem Klick installiert. 14 Tage Starter kostenlos testen, Karte erforderlich.",
       "primary": "Kostenlos starten",
@@ -919,24 +918,30 @@
       "shipped": {
         "eyebrow": "03 / Erledigt",
         "title": "Ausgeliefert",
-        "blurb": "In der aktuellen Version der Erweiterung verfügbar."
+        "blurb": "In der aktuellen Version der Erweiterung verfügbar.",
+        "changelogLink": "Zum vollständigen Changelog"
       }
     },
     "tag": {
       "inventory": "Bestand",
       "automation": "Automatisierung",
       "ai": "KI",
-      "insights": "Einblicke"
+      "insights": "Einblicke",
+      "marketplaces": "Marktplätze"
     },
     "meta": {
       "scoping": "In Prüfung",
-      "targetQ2_2026": "Ziel Q2 2026",
+      "targetQ4_2026": "Ziel Q4 2026",
       "shippedApr_2026": "Ausgeliefert April 2026"
     },
     "items": {
-      "csv-bulk-import": {
-        "title": "CSV-Massenimport",
-        "description": "Lade eine CSV deines bestehenden Bestands hoch und lass SaleLinx Entwürfe für Inserate erstellen."
+      "ebay-integration": {
+        "title": "eBay-Integration",
+        "description": "Crossliste auf eBay mit automatisch zugeordneten Kategorien, Artikelmerkmalen und Zuständen."
+      },
+      "poshmark-integration": {
+        "title": "Poshmark-Integration",
+        "description": "Hole Poshmark neben Depop und Vinted in den Crosslisting-Ablauf."
       },
       "scheduled-relisting": {
         "title": "Geplantes Reposten",

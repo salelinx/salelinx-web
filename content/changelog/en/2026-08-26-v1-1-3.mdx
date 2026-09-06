@@ -1,0 +1,34 @@
+export const metadata = {
+  title: 'Restocker accuracy, account-mismatch warnings, and a clearer Refer & Earn',
+  date: '2026-08-26',
+  summary:
+    'Version 1.1.3 makes the Restocker handle stock counts correctly, replaces the tab-wide account-mismatch block with a warning on the affected feature, and swaps the referral leaderboard for a reward explainer.',
+  tags: ['release'],
+};
+
+# Version 1.1.3
+
+A correctness release, mostly aimed at the Restocker and at what happens when
+a browser tab is signed into a different marketplace account than the one
+linked to SaleLinx.
+
+## Fixed
+
+- **Restocker stock handling.** Restock quantities now count as remaining
+  stock, quantities are converted correctly on the Depop side, and the final
+  item in stock is no longer relisted after it sells. Several sale-detection
+  bugs across backlog and live modes are fixed too.
+- **Account mismatch no longer blocks the whole tab.** If a tab is signed into
+  a different marketplace account than the one linked to SaleLinx, you now get
+  a warning on each affected feature, per platform, instead of the entire tab
+  being walled off. Listings picked up from a mismatched account are ignored
+  rather than mixed into your data.
+- **Price Drops** no longer acts on stale cloud data; two bugs found while
+  building out its test coverage are fixed.
+- **Offers** opens on the marketplace you are currently viewing, and a column
+  ordering bug is fixed.
+
+## Improved
+
+- **Refer &amp; Earn.** The leaderboard is gone. In its place, a clear
+  explanation of what you earn, when it is granted, and where it is applied.

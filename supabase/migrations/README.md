@@ -75,6 +75,15 @@ git log -- supabase/migrations
 | `013_uninstall_feedback.sql` | uninstall_feedback | 035 |
 | `014_crash_health.sql` | crash_health, ingest, admin read, prune | 036, 037 |
 
+## Post-squash migrations
+
+Numbered files after 014 are normal incremental migrations on top of the
+baseline, not part of the squash:
+
+| File | Contents | Note |
+| --- | --- | --- |
+| `015_device_session_version.sql` | device_sessions.extension_version column, claim_device_session 4-arg signature, admin roster/detail version reporting | Applied to live as pre-squash `041`; renumbered only, content unchanged (in-body comments still say 041 to keep function bodies byte-identical to live) |
+
 ## Known grant warts (preserved, not fixed)
 
 The squash reproduces the live chain's final state exactly, including three
@@ -93,7 +102,7 @@ baseline files:
 
 ## Rebuilding from scratch
 
-Run the files in order, 001 -> 014, against a fresh Supabase project. Caveats:
+Run the files in order, 001 -> 015, against a fresh Supabase project. Caveats:
 
 - `tier_limits` is runtime-editable via the admin console, so the seed in
   `002_billing_tiers.sql` reflects the values as of the squash, not
@@ -110,7 +119,7 @@ Run the files in order, 001 -> 014, against a fresh Supabase project. Caveats:
 
 ## Conventions
 
-- New migrations continue the numbering (`015_...`) and state their intent in
+- New migrations continue the numbering (`016_...`) and state their intent in
   a header comment. **Claim the number when you open the PR, not when you
   merge.** Two branches numbering off the same main both pick the same next
   number, and the CLI keys the ledger on the version alone - so the second

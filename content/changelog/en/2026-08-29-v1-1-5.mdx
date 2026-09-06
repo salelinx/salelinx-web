@@ -1,0 +1,38 @@
+export const metadata = {
+  title: 'Carrier picker and bulk QR codes for shipping labels',
+  date: '2026-08-29',
+  summary:
+    'Version 1.1.5 adds a carrier picker and a PDF-or-QR switch to shipping labels, stops the Offers and Messages tabs rebuilding themselves on load, and polishes the panel.',
+  tags: ['release'],
+};
+
+# Version 1.1.5
+
+A shipping-labels release, plus some stability work on the two busiest tabs.
+
+## New
+
+- **Carrier picker for shipping labels.** Choose your carrier from a dropdown
+  with logos, and switch between downloading everything as one merged PDF or
+  as QR slips, for drop-off points that scan a code instead of taking a
+  printed label.
+
+## Fixed
+
+- **Offers and Messages no longer rebuild themselves on load.** The toolbar
+  and the Grow stats stay pinned in place, the Activity Log stops jumping
+  while entries stream in, and the loading skeletons now match the finished
+  layout instead of shifting everything when the real content arrives.
+
+## Improved
+
+- **Refresh asks before it starts.** Kicking off a Refresh run now shows a
+  confirmation first, and buttons across the panel got clearer labels.
+- Smaller panel polish: the popup opening animation and the account-linking
+  colours were tidied up.
+
+## Note on 1.1.4
+
+Version 1.1.4, released two days before this one, only changed our Chrome Web
+Store listing. Nothing in the extension itself changed, so it shares this
+entry.

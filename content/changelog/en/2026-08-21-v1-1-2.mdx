@@ -1,0 +1,55 @@
+export const metadata = {
+  title: 'Marketplace choice, support replies in the panel, and a keyboard shortcut',
+  date: '2026-08-21',
+  summary:
+    'Version 1.1.2 lets you switch off the marketplace you do not use, reply to support tickets without leaving the extension, and brings a long list of smaller fixes and polish.',
+  tags: ['release'],
+};
+
+# Version 1.1.2
+
+A quality-of-life release. The headline change is for everyone who sells on
+only one of the two marketplaces, and the rest is a broad polish pass across
+the panel.
+
+## New
+
+- **Choose your marketplaces.** If you only sell on Depop or only on Vinted,
+  you can now switch the other one off in Settings. The panel hides its
+  features, stops asking you to link the account, and skips its background
+  work entirely.
+- **Support ticket replies.** You can now reply to your support tickets from
+  the Support tab, including tickets that have already been closed, instead of
+  switching to the website. The tab also links to the docs, FAQ, and status
+  page.
+- **Keyboard shortcut.** Alt+S opens and closes the panel. The shortcut is
+  shown in Settings, where you can change it, and Escape now closes the
+  topmost open dialog.
+- **Offline notice.** If your connection drops, the panel now says so instead
+  of letting actions fail quietly.
+
+## Improved
+
+- **Account linking.** You now pick which marketplace you are linking, see
+  exactly which account is involved, and get a clear reason when a link is
+  refused instead of a generic error.
+- **Device switching is instant.** Signing in on a new device now signs the
+  old one out right away, rather than the old device lingering until its next
+  action.
+- **Items queued in a bulk job are locked everywhere.** Something waiting in a
+  Relist, Refresh, Crosslist, Dead Stock, Auto-Markdown, or Restocker queue is
+  now marked as busy on every other surface, so the same item cannot be queued
+  twice or edited mid-job.
+- **A panel-wide consistency pass.** Unified colours, tidier dialogs, a
+  smoother close animation, and readable messages where raw error codes used
+  to appear. Upload failures now log the real reason.
+- **Queue history** rows can be cleared one at a time, and Dead Stock
+  refreshes itself after a relist run finishes.
+
+## Also
+
+- The panel no longer opens automatically in every new Depop or Vinted tab;
+  open it with the toolbar button or Alt+S when you want it.
+- New installs land on a short getting-started page.
+- After 25 successful runs the extension asks, once, whether you would leave a
+  review.
