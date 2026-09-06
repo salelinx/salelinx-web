@@ -71,7 +71,7 @@ Once the hook is enabled, the Supabase SMTP panel becomes irrelevant - the hook 
 
 ### Migrations
 
-All DB schema lives in this repo under `supabase/migrations/` - a consolidated baseline (001-006) plus incremental migrations on top (admin console, MFA, referrals, device sessions, GDPR hygiene, ...). Apply the files in numeric order via the Supabase dashboard SQL editor; the folder's README tracks what is already applied to the live project. For billing specifically, `002_billing_tiers.sql` creates `subscriptions`, `tier_limits`, `usage_counters` and seeds the tiers.
+All DB schema lives in this repo under `supabase/migrations/` - a consolidated baseline of 14 topical files (core schema, billing, support, storage quota, release notes, trial-abuse guards, referrals, device sessions, admin console, telemetry, status overrides, self-tests, uninstall feedback, crash health), squashed September 2026 and verified byte-identical to the incremental history. Apply the files in numeric order via the Supabase dashboard SQL editor; the folder's README tracks what is already applied to the live project. For billing specifically, `002_billing_tiers.sql` creates `subscriptions`, `tier_limits`, `usage_counters` and seeds the tiers.
 
 ## Directory layout
 

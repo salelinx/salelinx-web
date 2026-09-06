@@ -12,19 +12,19 @@ the tier the REFEREE bought (see Reward rules): Starter = 1 week, Pro =
 Referrer opens /account -> Referrals card
   get_or_create_referral_code() RPC creates their code lazily
   share link: {SITE_URL}/r/{CODE}
-  ▼
+  â–¼
 Friend clicks the link -> app/r/[code]/route.ts
   sets slx_ref cookie (HttpOnly, 30 days, last-touch wins)
   redirects to /invited (landing page explaining the deal)
-  ▼
+  â–¼
 Friend signs up and confirms email (any auth path)
   proxy.ts sees a signed-in request still carrying slx_ref
   claim_referral(code) RPC inserts a referrals row (pending), cookie cleared
-  ▼
+  â–¼
 Friend subscribes -> create-checkout-session
   has_pending_referral() true -> that tier's coupon auto-applied
   (allow_promotion_codes omitted; Stripe rejects the pair)
-  ▼
+  â–¼
 First PAID invoice (amount_paid > 0) -> stripe-webhook
   referrals row -> converted, converted_at stamped
   Two webhook paths flip it, whichever arrives first (status-guarded no-ops
@@ -33,7 +33,7 @@ First PAID invoice (amount_paid > 0) -> stripe-webhook
   directly, so it never races the subscriptions insert), and
   invoice.payment_succeeded converts trials at day 7 and renewals
 
-  ▼
+  â–¼
 7 days later -> process-referral-rewards (daily Cron)
   referee still entitled? referrer has a live subscription?
   stripe.customers.createBalanceTransaction: MINUS a fraction of the
@@ -54,7 +54,7 @@ section describes what they do while they remain.
 `referral_codes.display_name` is an optional self-chosen name for the
 extension's leaderboard. NULL falls back to the linked shop username (Depop
 preferred), then the neutral `Seller #<rank>` placeholder. (The old masked
-email-prefix fallback was dropped by migration 021; migration 029 added the
+email-prefix fallback was dropped pre-squash; 007_referrals.sql carries the
 self-chosen name on top with server-side moderation.)
 
 Note before dropping these objects: the privacy policy and the Referral
@@ -107,10 +107,10 @@ leaderboard UI. This function remains the gate for any future caller.
 ## State machine (`referrals.status`)
 
 ```
-pending ──(first paid invoice)──> converted ──(job claims row)──> rewarding ──(credit granted)──> rewarded
-   │                                  │
-   │                                  ├──(referee lapsed inside the hold)──────> void
-   └──(never pays; row just sits)     └──(referrer had no subscription 90d)────> void
+pending â”€â”€(first paid invoice)â”€â”€> converted â”€â”€(job claims row)â”€â”€> rewarding â”€â”€(credit granted)â”€â”€> rewarded
+   â”‚                                  â”‚
+   â”‚                                  â”œâ”€â”€(referee lapsed inside the hold)â”€â”€â”€â”€â”€â”€> void
+   â””â”€â”€(never pays; row just sits)     â””â”€â”€(referrer had no subscription 90d)â”€â”€â”€â”€> void
 ```
 
 - `pending` - claimed at signup; referee has not paid.
@@ -121,7 +121,7 @@ pending ──(first paid invoice)──> converted ──(job claims row)──
 - `void` - referee lapsed before payout, or the reward sat unclaimable for
   90 days (referrer never had a live subscription to credit).
 
-## Schema (migration `010_referrals.sql`)
+## Schema (migration `007_referrals.sql`)
 
 - `referral_codes` - one row per user, created lazily. Code: 8 chars from
   `A-HJ-NP-Z2-9` (no 0/O/1/I/L).
@@ -132,7 +132,7 @@ RLS: referrers SELECT their own rows (the /account card). **Referees get no
 policy** - it would expose `referrer_id`, another user's UUID. The
 referee-side read surface is the `has_pending_referral()` RPC (a boolean).
 
-## Leaderboard (migration `020_referral_leaderboard.sql`)
+## Leaderboard (migration `007_referrals.sql`)
 
 `referral_leaderboard(p_limit)` - SECURITY DEFINER RPC that backed the
 extension's Refer & Earn tab until Aug 2026 (currently unused; kept for any
@@ -142,8 +142,8 @@ aggregates can't come from RLS-scoped reads, so the RPC exposes ONLY
 
 - `display_name` - the referrer's linked shop username (Depop preferred,
   then Vinted; it's the name buyers already see publicly), else a neutral
-  rank-based handle `Seller #<rank>`. The email-derived fallback that shipped
-  in 020 was removed in `021_leaderboard_display_name.sql`: a public
+  rank-based handle `Seller #<rank>`. The email-derived fallback that
+  originally shipped was removed pre-squash: a public
   cross-user surface must never show email-derived data.
 - `score` - converted/rewarding/rewarded referrals only. pending is
   excluded so spam signups never move the board; void never counts. Ties
@@ -211,9 +211,9 @@ path and must never break anything:
 
   | Referrer \ Referee | starter (25%) | pro (50%) | business (100%) |
   | --- | --- | --- | --- |
-  | starter (£7.99) | £2.00 | £4.00 | £7.99 |
-  | pro (£14.99) | £3.75 | £7.50 | £14.99 |
-  | business (£24.99) | £6.25 | £12.50 | £24.99 |
+  | starter (Â£7.99) | Â£2.00 | Â£4.00 | Â£7.99 |
+  | pro (Â£14.99) | Â£3.75 | Â£7.50 | Â£14.99 |
+  | business (Â£24.99) | Â£6.25 | Â£12.50 | Â£24.99 |
 
   `Math.round` on the fraction; 799 * 25% = 199.75 -> 200 is the only pair
   that rounds at these prices. Payback is at most 2 months of referee list
@@ -308,8 +308,8 @@ paid invoice gets it). See `docs/STRIPE.md`.
 
 | Piece | File |
 | --- | --- |
-| Schema + RPCs | `supabase/migrations/010_referrals.sql` |
-| Leaderboard RPC | `supabase/migrations/020_referral_leaderboard.sql` |
+| Schema + RPCs | `supabase/migrations/007_referrals.sql` |
+| Leaderboard RPC | `supabase/migrations/007_referrals.sql` |
 | Share link | `app/r/[code]/route.ts` (+ `/r/` in `proxy.ts` skipIntl) |
 | Invite landing page | `app/[locale]/invited/page.tsx` (`Invited` namespace in `messages/*.json`) |
 | Referee-side discount UI | `components/ReferralDiscountBanner.tsx`, `components/ReferralPrice.tsx`, `lib/referral-discount.ts` |

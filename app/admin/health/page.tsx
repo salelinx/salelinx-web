@@ -7,7 +7,7 @@ import {
 } from "@/lib/admin/selftest-data";
 
 // /admin/health - marketplace endpoint health, aggregated from passive
-// extension telemetry (migration 030_endpoint_health.sql).
+// extension telemetry (migration 010_endpoint_health.sql).
 //
 // Why this exists: every Vinted / Depop endpoint the extension depends on needs
 // a live logged-in browser session (CSRF token, session cookies via the

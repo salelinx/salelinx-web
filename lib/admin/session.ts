@@ -25,7 +25,7 @@ export const getAdminUser = cache(async () => {
 });
 
 // Whether the CURRENT session has cleared MFA. is_admin() in Postgres enforces
-// the same requirement (migration 009), so this is UX, not the boundary.
+// the same requirement (is_admin(), 003_support.sql), so this is UX, not the boundary.
 export const getIsAal2 = cache(async (): Promise<boolean> => {
   const supabase = await createServerClient();
   const { data, error } =

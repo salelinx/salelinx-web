@@ -1,8 +1,9 @@
 // Extension version comparison for the admin console.
 //
 // Versions reach us self-reported through the device_sessions heartbeat
-// (migration 041), so treat them as display data: never gate an action on the
-// result, only tint a cell. A modified client can report any string.
+// (migration 015_device_session_version.sql), so treat them as display data:
+// never gate an action on the result, only tint a cell. A modified client can
+// report any string.
 //
 // Mirrors compareVersions in the extension's src/utils/updates.ts. Kept as a
 // separate copy rather than shared because the two repos have no shared

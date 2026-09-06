@@ -1,11 +1,14 @@
--- =============================================================================
--- 036: Crash health counters
--- =============================================================================
--- Endpoint health (migration 030, remote) tells us when Depop or Vinted breaks.
--- Nothing tells us when OUR code breaks: an uncaught error in the panel, SW or
--- popup after a release is invisible unless a user writes in. This table is
--- the same idea pointed inward - anonymous daily counters, reported through
--- the same report-telemetry Edge Function and spam gate.
+-- Crash health counters + admin read.
+--
+-- Consolidated baseline (September 2026). Net result of the original
+-- migrations 036 (table + ingest + prune) and 037 (admin read RPC). Full
+-- history in git.
+--
+-- Endpoint health (010_endpoint_health.sql) tells us when Depop or Vinted
+-- breaks. Nothing tells us when OUR code breaks: an uncaught error in the
+-- panel, SW or popup after a release is invisible unless a user writes in.
+-- This is the same idea pointed inward - anonymous daily counters, reported
+-- through the same report-telemetry Edge Function and spam gate.
 --
 -- SAME PRIVACY CONTRACT AS endpoint_health, deliberately: no user_id, no
 -- install id, and - the crash-specific part - NO ERROR MESSAGES OR STACK
@@ -29,8 +32,8 @@ CREATE TABLE public.crash_health (
   received_at timestamptz NOT NULL DEFAULT now()
 );
 
--- Reads happen via the service role (dashboard / future admin surface);
--- writes only via the SECURITY DEFINER RPC below. No policies on purpose.
+-- Writes only via the SECURITY DEFINER RPC below; reads via the admin RPC.
+-- No policies on purpose.
 ALTER TABLE public.crash_health ENABLE ROW LEVEL SECURITY;
 
 CREATE INDEX crash_health_bucket_idx ON public.crash_health (bucket_hour);
@@ -82,8 +85,7 @@ BEGIN
 END;
 $$;
 
--- SECURITY DEFINER + CREATE OR REPLACE resets grants to PUBLIC (see the
--- 024 gotcha): lock it to the service role explicitly.
+-- Lock it to the service role explicitly.
 REVOKE EXECUTE ON FUNCTION public.record_crash_health(jsonb) FROM PUBLIC, anon, authenticated;
 
 -- Same retention as endpoint health: 90 days, schedule alongside the other
@@ -100,3 +102,48 @@ AS $$
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.prune_crash_health() FROM PUBLIC, anon, authenticated;
+
+-- =============================================================================
+-- Admin read RPC for /admin/health (original 037)
+-- =============================================================================
+-- Same shape as admin_endpoint_health_reports: is_admin() gate, STABLE
+-- SECURITY DEFINER, clamped window. Aggregates by context + kind + error name
+-- so the dashboard answers "did the new build start throwing" at a glance.
+
+CREATE OR REPLACE FUNCTION public.admin_crash_health(p_window_hours integer DEFAULT 168)
+RETURNS TABLE(
+  context text,
+  kind text,
+  error_name text,
+  crashes bigint,
+  versions text[],
+  last_seen timestamptz
+)
+LANGUAGE plpgsql
+STABLE SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'not authorized';
+  END IF;
+
+  p_window_hours := LEAST(GREATEST(COALESCE(p_window_hours, 168), 1), 2160);
+
+  RETURN QUERY
+  SELECT
+    c.context,
+    c.kind,
+    c.error_name,
+    SUM(c.count) AS crashes,
+    array_agg(DISTINCT c.extension_version) AS versions,
+    MAX(c.bucket_hour) AS last_seen
+  FROM public.crash_health c
+  WHERE c.bucket_hour >= NOW() - (p_window_hours * INTERVAL '1 hour')
+  GROUP BY c.context, c.kind, c.error_name
+  ORDER BY SUM(c.count) DESC;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.admin_crash_health(integer) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_crash_health(integer) TO authenticated;

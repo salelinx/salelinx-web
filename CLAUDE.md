@@ -17,15 +17,15 @@ Read `docs/ARCHITECTURE.md` first - it's the whole-system context (both repos, s
 
 ```
 docs/
-├── ARCHITECTURE.md     Big-picture: extension + web + Supabase, who owns what
-├── OVERVIEW.md         Web-repo stack, request lifecycle, folder layout, env vars
-├── AUTH.md             Signup / login / reset / verify flows, session handling
-├── ENTITLEMENTS.md     tier_limits + usage_counters, config-driven gating
-├── STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
-├── EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
-├── SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
-├── REFERRALS.md        Referral program: share links, claims, conversions, reward grants
-└── GDPR.md             Data inventory (ROPA), retention, deletion/export runbooks, breach process
+â”œâ”€â”€ ARCHITECTURE.md     Big-picture: extension + web + Supabase, who owns what
+â”œâ”€â”€ OVERVIEW.md         Web-repo stack, request lifecycle, folder layout, env vars
+â”œâ”€â”€ AUTH.md             Signup / login / reset / verify flows, session handling
+â”œâ”€â”€ ENTITLEMENTS.md     tier_limits + usage_counters, config-driven gating
+â”œâ”€â”€ STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
+â”œâ”€â”€ EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
+â”œâ”€â”€ SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
+â”œâ”€â”€ REFERRALS.md        Referral program: share links, claims, conversions, reward grants
+â””â”€â”€ GDPR.md             Data inventory (ROPA), retention, deletion/export runbooks, breach process
 ```
 
 ## After making changes
@@ -92,17 +92,17 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - 2-space indent, single quotes, trailing commas (Prettier defaults)
 - No default exports - named exports only. **Exception:** MDX files under `content/` default-export their page component by design; this is the single allowed exception.
 - Tailwind utility classes; no CSS modules unless truly needed
-- No emojis in code or user-visible strings (ASCII check-marks like `✓` are fine in limited UI spots)
+- No emojis in code or user-visible strings (ASCII check-marks like `âœ“` are fine in limited UI spots)
 
 ## Writing style
 
-- **Never use em-dashes (`—`) or en-dashes (`–`)** in any text: UI copy, marketing copy, docs, commit messages, comments, PR descriptions. They are a strong AI-writing tell. Use a comma, a period, parentheses, or a plain hyphen (`-`) instead. This rule covers everything that renders as text - .tsx strings, .md files, code comments, README, CLAUDE.md itself.
+- **Never use em-dashes (`â€”`) or en-dashes (`â€“`)** in any text: UI copy, marketing copy, docs, commit messages, comments, PR descriptions. They are a strong AI-writing tell. Use a comma, a period, parentheses, or a plain hyphen (`-`) instead. This rule covers everything that renders as text - .tsx strings, .md files, code comments, README, CLAUDE.md itself.
 
 ## Gotchas
 
 - **`proxy.ts` must export `proxy()`, not `middleware()`** - Next 16 renamed the convention. Build fails with an unhelpful error otherwise.
 - **`setAll` cookie callbacks need an explicit `CookieEntry[]` type** - TS strict mode flags implicit `any`.
-- **Admin access requires MFA (AAL2).** `is_admin()` only returns true for sessions that verified a TOTP code (migration `009_admin_mfa.sql`). Deploy order matters: enroll every admin (Account > Security) BEFORE applying 009 or the console locks them out. Recovery: remove the factor in the Supabase dashboard. Never gate admin surfaces on a bare `admin_users` EXISTS - go through `is_admin()` so the AAL2 check is inherited.
+- **Admin access requires MFA (AAL2).** `is_admin()` only returns true for sessions that verified a TOTP code (migration `003_support.sql`). On a fresh project, enroll every admin (Account > Security) or the console locks them out. Recovery: remove the factor in the Supabase dashboard. Never gate admin surfaces on a bare `admin_users` EXISTS - go through `is_admin()` so the AAL2 check is inherited.
 - **`requireReauth()` must never use `signInWithPassword` for an MFA-enrolled admin** - it mints a fresh AAL1 session and locks them out of admin data mid-action. The TOTP branch runs first for that reason; keep it that way.
 - **`router.refresh()` after password login** - without it, the Header still shows signed-out state until navigation.
 - **`proxy.ts` and `Header.tsx` use `getClaims()`, not `getUser()`** - getClaims verifies the JWT locally against the ES256 signing keys; getUser is a network round-trip to Supabase Auth and both run on every page view. Keep `getUser()` only where the canonical user record matters (protected pages like `/account`, Edge Functions).
@@ -116,7 +116,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **Standard Webhooks signing secret needs the `v1,whsec_` prefix stripped** before passing to `new Webhook(...)` - store the full value including prefix in `SEND_EMAIL_HOOK_SECRET`.
 - **Edge Function secrets are separate from `.env.local`** - set via `supabase secrets set`.
 - **Usage counter names are NOT tier_limits keys.** The extension sends the short `counter` name (`crosslist`, `follow`) to `increment_usage_counter`, while the cap lives under a different key in `tier_limits.limits` (`crosslists_per_month`, `follows_per_day`). Both sets are in the extension's `src/entitlements/gate.ts` METERED table; don't assume one name works in both places.
-- **`CREATE OR REPLACE FUNCTION` resets the function's grants** to the Postgres default, which is EXECUTE to PUBLIC. A later `REVOKE ... FROM anon` does NOT remove access held via PUBLIC. When replacing a function that `024_function_grant_hygiene.sql` hardened, revoke `PUBLIC, anon` and re-`GRANT` to `authenticated` explicitly, or you silently reopen the anon surface.
+- **Every migration `CREATE [OR REPLACE] FUNCTION` needs an explicit `REVOKE`.** Functions get EXECUTE for PUBLIC by default, and this Supabase project's default privileges additionally grant new functions to `anon`/`authenticated`/`service_role` at CREATE time - a `REVOKE ... FROM anon` alone does NOT remove access held via PUBLIC. Revoke `PUBLIC, anon` (plus `authenticated` for internal/trigger functions) and re-`GRANT` to the roles that need it; `tests/migration-grant-hygiene.test.ts` enforces the pairing across `supabase/migrations/`.
 - **`endpoint_health` must never gain a `user_id`** (or install id, or any other identifier). Anonymous counters are what keep it non-personal: no ROPA entry, no deletion-runbook step, no consent gate. Adding an identifier reverses all three, and a consent gate would put holes in the one dataset that has to be complete to detect a marketplace outage. See `docs/GDPR.md`.
 - **Endpoint health keys must stay stable across extension versions.** Detection works by comparing an endpoint against its own recent baseline, so a renamed key looks exactly like a brand-new endpoint sitting at 100% failure. Changing the rules in the extension's `normalizeEndpointKey` re-buckets all history; the tests in `tests/utils/endpoint-key.test.ts` pin the current behaviour.
 - **There is no theme toggle.** `ThemeToggle` was dropped from the Header in commit 99b4e2e (May 2026, dark-only homepage, later reverted to light) and deleted in Sep 2026; the `dark:` CSS variants in `globals.css` are vestiges. If a theme feature ever returns: store the choice in localStorage, NOT a cookie (the privacy policy's cookie inventory would otherwise be wrong, and adding any cookie means updating that inventory plus `LAST_UPDATED` in the same PR), and remember that a locale switch reconciles `<html>` className and wipes a client-added `dark` class (commit 7523761 history) - the class must be re-asserted after soft navigations, pre-paint.
@@ -124,7 +124,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - **MDX article metadata is a named `export const metadata = {...}`**, not YAML frontmatter. Adding a new article requires three things: create the `.mdx` file under `content/docs/<category>/`, import it in `lib/docs/manifest.ts`, and run `npm run build:docs-index` (or any `npm run dev`/`build`) to rebuild the search index.
 - **`public/docs/search-index.json` is generated, not committed.** It's rebuilt by `scripts/build-docs-index.mjs` via `predev`/`prebuild`. Don't edit it by hand.
 - **`mdx-components.tsx` must live at the repo root**, not under `app/`. `@next/mdx` only looks there.
-- **Marketplace status defaults to operational and is declared, not measured.** `lib/docs/status.ts` holds only the baseline; a real outage is announced by an admin override in `/admin/health` (migration `033_status_overrides.sql`). Unlike extension features, there is no automatic per-marketplace signal. Consumers call `getMarketplaceStatus()`.
+- **Marketplace status defaults to operational and is declared, not measured.** `lib/docs/status.ts` holds only the baseline; a real outage is announced by an admin override in `/admin/health` (migration `011_status_overrides.sql`). Unlike extension features, there is no automatic per-marketplace signal. Consumers call `getMarketplaceStatus()`.
 - **`/docs/status` is not a docs article.** It lives under that path for URL history but renders no breadcrumb and is not in `CATEGORIES`. It is linked from the Header Support menu, the Footer, `/help`, and several FAQ answers, so moving the route means updating all of them.
 - **Docs vs FAQ split.** `/docs` is for step-by-step guides and walkthroughs (learning-oriented prose). `/faq` is for quick Q&A (troubleshooting, billing, one-offs) in `lib/faq/data.<locale>.tsx` (one file per locale: en/fr/es/de/ar/zh). Don't add troubleshooting or billing articles to `/docs`; add FAQ entries instead.
 - **`robots.txt` and `sitemap.xml` must stay excluded in `proxy.ts`'s `matcher`** - otherwise intlMiddleware locale-rewrites them into `[locale]/[...rest]` and both serve the HTML 404 page instead of their content.

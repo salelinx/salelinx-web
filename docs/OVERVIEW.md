@@ -190,7 +190,7 @@ Both use the anon key (public by design) and neither writes. There is no service
 
 ## Database schema ownership
 
-**Supabase migrations live in this repo** (`supabase/migrations/`). The extension reads the same database but no longer owns schema. The folder is a consolidated baseline (`001`-`006`) plus the incremental migrations added since; see `supabase/migrations/README.md` for what maps where and how to apply.
+**Supabase migrations live in this repo** (`supabase/migrations/`). The extension reads the same database but no longer owns schema. The folder is a consolidated baseline (`001`-`014`, squashed September 2026 and verified byte-identical to the incremental history); see `supabase/migrations/README.md` for what maps where and how to apply.
 
 Relevant tables:
 

@@ -9,7 +9,7 @@
 // AUTH: the caller sends the user's Supabase JWT in Authorization, validated
 // with getUser(jwt) - the same pattern as send-shipping-labels. This is only
 // used to prove the caller is a real signed-in user, as a spam gate. The user
-// id is deliberately NOT stored: see the header comment on migration 030 for
+// id is deliberately NOT stored: see the header comment on 010_endpoint_health.sql for
 // why endpoint_health is anonymous. Anonymous data, authenticated transport.
 //
 // verify_jwt = false at the gateway (Supabase cannot verify our ES256 tokens),
@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
     };
   });
 
-  // Crash counters (migration 036) ride the same daily report. Optional:
+  // Crash counters (014_crash_health.sql) ride the same daily report. Optional:
   // older extension builds send only `entries`. Same anonymity contract -
   // the RPC accepts an error NAME, never a message or stack.
   const crashesRaw = (payload as { crashes?: unknown })?.crashes;
@@ -155,7 +155,7 @@ Deno.serve(async (req: Request) => {
     return json({ error: "insert failed" }, 500);
   }
 
-  // Delivery log (migration 031). Without this an empty dashboard is ambiguous:
+  // Delivery log (010_endpoint_health.sql). Without this an empty dashboard is ambiguous:
   // no builds reporting, everyone signed out, and every row being rejected all
   // look identical. Best-effort - a failure here must not fail an ingest that
   // already succeeded.

@@ -39,7 +39,7 @@ export type HealthTableRow = {
   severity: HealthSeverity;
 };
 
-// One aggregated crash bucket (admin_crash_health, migration 037). Error
+// One aggregated crash bucket (admin_crash_health, 014_crash_health.sql). Error
 // constructor names only - the table can never show a message or stack
 // because the pipeline never collects one.
 export type CrashHealthRow = {

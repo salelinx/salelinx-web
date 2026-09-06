@@ -52,7 +52,7 @@ export function NewTicketForm({ userId }: Props) {
 
     if (error) {
       // The DB trigger raises these when the per-user caps are hit (max 3
-      // open, max 5 per 24h - migration 014). Distinct copy so a legit user
+      // open, max 5 per 24h - 003_support.sql). Distinct copy so a legit user
       // hitting the cap sees "slow down" rather than "something broke".
       setFormStatus(
         error.message.includes("support_ticket_daily_limit") ||

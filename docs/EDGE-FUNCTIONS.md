@@ -34,7 +34,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 
-\*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in migration 009) and `admin_users` membership via the service role.
+\*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
 `stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` and `resolve-category` import `@supabase/supabase-js` from `jsr:`. Deno needs explicit `.ts` extensions on relative imports, which is why `resolve-category/_generated/` is written with them. Deno uses URL imports, not `node_modules`.
 
@@ -187,7 +187,7 @@ const rawBody = await req.text();
 const payload = wh.verify(rawBody, Object.fromEntries(req.headers));
 ```
 
-The signing secret is shown in the Supabase dashboard (Auth → Hooks → Send email hook) as `v1,whsec_<base64>`. Strip the `v1,whsec_` prefix before passing to `new Webhook()`.
+The signing secret is shown in the Supabase dashboard (Auth â†’ Hooks â†’ Send email hook) as `v1,whsec_<base64>`. Strip the `v1,whsec_` prefix before passing to `new Webhook()`.
 
 ## Send email hook + Resend
 
@@ -195,17 +195,17 @@ The signing secret is shown in the Supabase dashboard (Auth → Hooks → Send e
 
 ```
 User action (signup / forgot password / change email)
-  ▼
+  â–¼
 Supabase Auth prepares the email
-  ▼
+  â–¼
 POST https://<project-ref>.supabase.co/functions/v1/send-auth-email
   signed with webhook-id / webhook-timestamp / webhook-signature
   body: { user, email_data: { token, token_hash, redirect_to, email_action_type, ... } }
-  ▼
+  â–¼
 Edge Function: verify signature -> render HTML template -> POST to Resend API
-  ▼
+  â–¼
 User receives branded email; link goes to {SUPABASE_URL}/auth/v1/verify?...
-  ▼
+  â–¼
 Supabase verifies the token and redirects to redirect_to (our /auth/callback)
 ```
 
@@ -253,29 +253,29 @@ Flow per webhook:
 
 ```
 support_tickets INSERT
-  ▼
+  â–¼
 Database Webhook POSTs to send-support-email with x-support-webhook-secret
-  ▼
+  â–¼
 Function: verify header -> auth.admin.getUserById(record.user_id) -> render templates
-  ▼
+  â–¼
 1. STAFF notif -> Resend (From: SUPPORT_NOTIFY_FROM, To: SUPPORT_NOTIFY_TO, Reply-To: author)
-  ▼
+  â–¼
    Synthesize Message-ID <{id}@{from-domain}> and
    UPDATE support_tickets SET notification_message_id = <message-id>
-  ▼
+  â–¼
 2. AUTO-ACK -> Resend (To: author, Reply-To: SUPPORT_NOTIFY_NOREPLY)  [best-effort;
    a failure is logged but does not fail the webhook]
 ```
 
 ```
 support_ticket_replies INSERT
-  ▼
+  â–¼
 Database Webhook POSTs to send-support-email
-  ▼
+  â–¼
 Function: verify header
-  ▼
+  â–¼
 SELECT id, type, message, user_id, notification_message_id FROM support_tickets WHERE id = ticket_id
-  ▼
+  â–¼
 if record.is_admin = true  (admin reply):
    look up the OWNER's email (ticket.user_id, NOT record.user_id)
    POST to Resend (To: owner, From: SUPPORT_NOTIFY_FROM, Reply-To: SUPPORT_NOTIFY_NOREPLY)
@@ -295,25 +295,25 @@ See `docs/SUPPORT.md` for the end-to-end ticket flow.
 
 ```
 User clicks "Email labels" in the extension
-  ▼
+  â–¼
 Extension POSTs to https://<project-ref>.supabase.co/functions/v1/send-shipping-labels
   Authorization: Bearer <user JWT>
   body: { to, pdfBase64, filename, count }
-  ▼
+  â–¼
 Function: validate JWT via supabase.auth.getUser(jwt) -> 401 if invalid
-  ▼
+  â–¼
 Entitlement gate: caller's active/trialing subscription tier must have
 features.shipping_label_email = true (read via user-scoped client, RLS
 "own read") -> 403 upgrade_required otherwise
-  ▼
+  â–¼
 Rate limit: increment_usage_counter('shipping_label_emails', YYYY-MM-DD)
 -> 429 rate_limited past 50 sends/day
-  ▼
+  â–¼
 Validate payload: filename shape, count 1..500, attachment starts with
 %PDF magic bytes, <= 25MB
-  ▼
+  â–¼
 POST to Resend with the base64 PDF as an attachment
-  ▼
+  â–¼
 Recipient receives the labels in their inbox
 ```
 
@@ -414,13 +414,13 @@ If you want type safety locally, open individual function files in VSCode with t
 - **`email_change_new` uses `token_hash_new`**, not `token_hash`, when building the verify URL.
 - **A failing hook breaks auth UX** - if `send-auth-email` returns non-200, the user sees "failed to send" on signup / reset. Monitor function logs after every deploy.
 - **Never `console.log` personal data** - no email addresses, message bodies, or buyer data in function logs; user UUIDs are the ceiling. Function logs are retained by Supabase outside our control. See `docs/GDPR.md`.
-- **Per-user rate limits** (all via `increment_usage_counter`, keyed on the caller's auth.uid): `send-shipping-labels` 15/day, `delete-account` request stage 5/day, `create-checkout-session` 20/day, `create-portal-session` 20/day, account email-change 5/day. Support ticket and reply creation are capped by DB triggers instead (migration 014 tickets, `018_rate_limit_gaps` replies); `listings` and `linked_accounts` by row-count triggers (017).
+- **Per-user rate limits** (all via `increment_usage_counter`, keyed on the caller's auth.uid): `send-shipping-labels` 15/day, `delete-account` request stage 5/day, `create-checkout-session` 20/day, `create-portal-session` 20/day, account email-change 5/day. Support ticket and reply creation are capped by DB triggers instead (003_support.sql: tickets and replies); `listings` and `linked_accounts` by row-count triggers (006_trial_abuse_guards.sql).
 - **Auth emails depend on GoTrue's dashboard limits, not this repo.** Password reset, email verification resend, magic link, and email change all send via the `send-auth-email` hook and are rate limited by Supabase GoTrue (dashboard > Authentication > Rate Limits), which is NOT visible in-repo. The email-change path additionally has an app-level 5/day counter because it emails a user-chosen (attacker-controllable) address, but a stolen token calling GoTrue directly is bounded only by the dashboard limits. Review those limits; the defaults are permissive.
 
 
 ## report-selftest
 
-Stores one admin endpoint self-test run (migration `034_endpoint_selftest.sql`).
+Stores one admin endpoint self-test run (migration `012_endpoint_selftest.sql`).
 
 The contrast with `report-telemetry` is the point. That function validates the
 JWT purely as a spam gate and then discards the identity, because
@@ -434,7 +434,7 @@ So membership is re-checked in the handler with the service role, against the id
 from the **verified JWT** (never from the request body), and again inside
 `record_selftest_run`.
 
-**Why not `is_admin()`:** it requires AAL2 (migration `009_admin_mfa.sql`),
+**Why not `is_admin()`:** it requires AAL2 (migration `003_support.sql`),
 which means a TOTP challenge. The extension has no MFA flow and cannot mint an
 aal2 session, so gating on it would make the function permanently uncallable.
 The compensating control is that this function is write-only - it exposes no

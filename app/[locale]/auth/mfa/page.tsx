@@ -4,7 +4,7 @@
 // at AAL1; entering a valid authenticator code here upgrades it to AAL2. The
 // admin gates (proxy.ts + app/admin/layout.tsx) redirect here with
 // ?next=<path> when an admin session is not yet AAL2; is_admin() in Postgres
-// enforces the same requirement at the database level (migration 009).
+// enforces the same requirement at the database level (003_support.sql).
 //
 // After verifying we hard-navigate (window.location.assign) instead of a
 // soft router.push: the usual ?next target is /admin, which lives outside the

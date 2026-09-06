@@ -1,30 +1,34 @@
 -- Admin console: audit log, identity lookup, cross-user read RPCs, tier write
--- RPCs, storage read RPC.
+-- RPCs, subscription editing, storage read RPC.
 --
--- Consolidated baseline (July 2026). This file is the net result of the
--- original migrations 027 and 029-031. Full history in git.
+-- Consolidated baseline (September 2026). This file is the net result of the
+-- July 2026 baseline 006 plus the later incremental migrations that touched
+-- the console: 008 (edit subscription), 011 (audit rows survive actor
+-- deletion), 024 (grant hygiene), 025 (user observability columns), 028
+-- (usage_counters period index). Full history in git.
 --
 -- Backs the dedicated /admin area (a top-level, internal-only console). The
 -- web app never holds the service-role key, so every admin capability that
 -- needs more than the user's own RLS scope is exposed as a SECURITY DEFINER
--- function that re-checks public.is_admin() itself. The app-level gate
--- (middleware + layout) is defense in depth; THESE policies/functions are the
+-- function that re-checks public.is_admin() itself (which additionally
+-- requires an AAL2 / MFA session, see 003_support.sql). The app-level gate
+-- (proxy + layout) is defense in depth; THESE policies/functions are the
 -- real security boundary. Non-admins get zero rows (the is_admin() predicate
 -- is in the WHERE clause) or a raised exception, so every function here is
 -- safe to GRANT to all authenticated users.
---
--- DEFERRED (designed-for, see TODO(admin-mfa) at the bottom): require AAL2
--- (MFA) on admin data. The exact RESTRICTIVE policies are written out,
--- commented, so enabling MFA enforcement is a one-step uncomment once an
--- enroll/challenge flow ships.
 
 -- =============================================================================
 -- 1. admin_audit_log
 -- =============================================================================
+-- actor_id is nullable with ON DELETE SET NULL (original 011): retention is
+-- documented as indefinite, even for admins who are later removed (the log
+-- deliberately holds no ticket content or user IDs beyond the actor).
+-- Cascading would silently destroy audit history, so the row survives and
+-- only the actor link is cleared.
 
 CREATE TABLE public.admin_audit_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  actor_id UUID NOT NULL REFERENCES auth.users(id),
+  actor_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   action TEXT NOT NULL,           -- e.g. 'ticket.reply' | 'ticket.close' | 'ticket.delete'
   target_table TEXT,
   target_id TEXT,
@@ -76,7 +80,7 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.log_admin_action(TEXT, TEXT, TEXT, JSONB) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.log_admin_action(TEXT, TEXT, TEXT, JSONB) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.log_admin_action(TEXT, TEXT, TEXT, JSONB) TO authenticated;
 
 -- =============================================================================
@@ -99,11 +103,11 @@ AS $$
     AND public.is_admin();
 $$;
 
-REVOKE ALL ON FUNCTION public.admin_user_emails(UUID[]) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_user_emails(UUID[]) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_user_emails(UUID[]) TO authenticated;
 
 -- =============================================================================
--- 4. admin_list_users() - the user roster with current plan
+-- 4. admin_list_users() - the user roster (with observability columns)
 -- =============================================================================
 -- EXACTLY one row per auth.users user. We pick the user's most-recent
 -- subscription via a LATERAL (a plain LEFT JOIN would emit one row PER
@@ -111,6 +115,12 @@ GRANT EXECUTE ON FUNCTION public.admin_user_emails(UUID[]) TO authenticated;
 -- subscription shows null tier/status (treated as free in the UI). is_admin
 -- flags membership in admin_users so the roster can badge admins without an
 -- N+1.
+--
+-- linked_platforms and last_device_seen_at were added by the original 025:
+-- both are LATERAL subqueries against small, user-keyed tables, so the roster
+-- stays one indexed lookup per user. last_device_seen_at is returned RAW
+-- rather than pre-merged with last_sign_in_at: the UI shows which of the two
+-- is more recent, and collapsing them here would throw that away.
 
 CREATE FUNCTION public.admin_list_users()
 RETURNS TABLE (
@@ -120,7 +130,9 @@ RETURNS TABLE (
   last_sign_in_at TIMESTAMPTZ,
   tier_id TEXT,
   status TEXT,
-  is_admin BOOLEAN
+  is_admin BOOLEAN,
+  linked_platforms TEXT[],
+  last_device_seen_at TIMESTAMPTZ
 )
 LANGUAGE SQL
 STABLE
@@ -136,7 +148,9 @@ AS $$
     s.status,
     EXISTS (
       SELECT 1 FROM public.admin_users a WHERE a.user_id = u.id
-    ) AS is_admin
+    ) AS is_admin,
+    COALESCE(la.platforms, ARRAY[]::TEXT[]) AS linked_platforms,
+    ds.last_seen_at AS last_device_seen_at
   FROM auth.users u
   LEFT JOIN LATERAL (
     SELECT sub.tier_id, sub.status
@@ -145,11 +159,21 @@ AS $$
     ORDER BY sub.updated_at DESC
     LIMIT 1
   ) s ON TRUE
+  LEFT JOIN LATERAL (
+    SELECT array_agg(l.platform ORDER BY l.platform) AS platforms
+    FROM public.linked_accounts l
+    WHERE l.user_id = u.id
+  ) la ON TRUE
+  LEFT JOIN LATERAL (
+    SELECT max(d.last_seen_at) AS last_seen_at
+    FROM public.device_sessions d
+    WHERE d.user_id = u.id
+  ) ds ON TRUE
   WHERE public.is_admin()
   ORDER BY u.created_at DESC;
 $$;
 
-REVOKE ALL ON FUNCTION public.admin_list_users() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_list_users() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_list_users() TO authenticated;
 
 -- =============================================================================
@@ -194,7 +218,7 @@ AS $$
   ORDER BY s.updated_at DESC;
 $$;
 
-REVOKE ALL ON FUNCTION public.admin_list_subscriptions() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_list_subscriptions() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_list_subscriptions() TO authenticated;
 
 -- =============================================================================
@@ -232,23 +256,32 @@ AS $$
   ORDER BY c.count DESC;
 $$;
 
-REVOKE ALL ON FUNCTION public.admin_list_usage(TEXT[]) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_list_usage(TEXT[]) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_list_usage(TEXT[]) TO authenticated;
+
+-- admin_list_usage filters with `WHERE period_key = ANY($1)`, but the PK is
+-- (user_id, feature, period_key) so its btree cannot serve a lookup that does
+-- not constrain user_id first (original 028). This index turns the fastest-
+-- growing table's full scan into two small range reads.
+CREATE INDEX idx_usage_counters_period_key
+  ON public.usage_counters(period_key);
 
 -- =============================================================================
 -- 7. admin_user_detail(user_id) - the Users detail bundle for one user
 -- =============================================================================
--- Returns a single JSONB blob so the detail drawer needs one round-trip:
---   { email, created_at, last_sign_in_at,
---     subscription: <subscriptions row or null>,
---     usage: [ <usage_counters rows for the given periods> ],
---     ticket_count: <int>,
---     is_admin: <bool> }
+-- Returns a single JSONB blob so the detail drawer needs one round-trip.
 -- Tier config (caps/features) is fetched on the page via the public-read
 -- tier_limits table (getTierConfigs()), not here. is_admin in the payload is
--- the TARGET user's admin status (membership in admin_users), display-only -
--- it is NOT the caller's. The function still gates on the CALLER being an
--- admin.
+-- the TARGET user's admin status, display-only. The function still gates on
+-- the CALLER being an admin.
+--
+-- Observability keys (original 025): linked_accounts, devices (capped at 10
+-- rows), listings (per platform/status aggregate + freshest sync timestamps)
+-- and storage_bytes. platform_credentials is NOT exposed: it is encrypted
+-- client-side and the console has no key. listings.last_synced_at is BIGINT
+-- epoch MILLISECONDS written by the extension - passed through as a number so
+-- 0 ("never synced") stays distinguishable from a real 1970 timestamp;
+-- last_cloud_update_at is the trustworthy server-side clock.
 
 CREATE OR REPLACE FUNCTION public.admin_user_detail(
   p_user_id UUID,
@@ -300,6 +333,86 @@ BEGIN
     ),
     'is_admin', EXISTS (
       SELECT 1 FROM public.admin_users a WHERE a.user_id = u.id
+    ),
+
+    -- The Depop / Vinted accounts tied to this cloud user. platform_username
+    -- is what the console turns into a link to their shop; it can be null on
+    -- older rows (the extension backfills it opportunistically), in which case
+    -- only the platform id is shown.
+    'linked_accounts', COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'platform', l.platform,
+          'platform_user_id', l.platform_user_id,
+          'platform_username', l.platform_username,
+          'linked_at', l.linked_at
+        )
+        ORDER BY l.platform
+      )
+      FROM public.linked_accounts l
+      WHERE l.user_id = u.id
+    ), '[]'::jsonb),
+
+    -- Extension installs, most recently active first. user_agent is
+    -- self-reported by the extension (same trust level as
+    -- support_tickets.user_agent) - display only, never parsed for a decision.
+    'devices', COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'device_id', d.device_id,
+          'user_agent', d.user_agent,
+          'created_at', d.created_at,
+          'last_seen_at', d.last_seen_at
+        )
+        ORDER BY d.last_seen_at DESC
+      )
+      FROM (
+        SELECT ds.device_id, ds.user_agent, ds.created_at, ds.last_seen_at
+        FROM public.device_sessions ds
+        WHERE ds.user_id = u.id
+        ORDER BY ds.last_seen_at DESC
+        LIMIT 10
+      ) d
+    ), '[]'::jsonb),
+
+    -- Synced listings broken down by platform and status, plus the freshest
+    -- sync timestamps across the whole set. Empty array = nothing synced,
+    -- which for a paying user is itself the signal worth seeing.
+    'listings', jsonb_build_object(
+      'total', (
+        SELECT COUNT(*) FROM public.listings li WHERE li.user_id = u.id
+      ),
+      'by_platform_status', COALESCE((
+        SELECT jsonb_agg(
+          jsonb_build_object(
+            'platform', g.platform,
+            'status', g.status,
+            'count', g.count
+          )
+          ORDER BY g.platform, g.status
+        )
+        FROM (
+          SELECT li.platform, li.status, COUNT(*) AS count
+          FROM public.listings li
+          WHERE li.user_id = u.id
+          GROUP BY li.platform, li.status
+        ) g
+      ), '[]'::jsonb),
+      -- Epoch ms from the extension; 0 / null both mean "never synced".
+      'last_synced_at', (
+        SELECT MAX(li.last_synced_at) FROM public.listings li WHERE li.user_id = u.id
+      ),
+      -- Server-side clock: when a listing row was last written to Supabase.
+      -- Trustworthy in a way the extension-supplied ms timestamps are not.
+      'last_cloud_update_at', (
+        SELECT MAX(li.cloud_updated_at) FROM public.listings li WHERE li.user_id = u.id
+      )
+    ),
+
+    -- The same gauge the Storage module reads. Null when the user has never
+    -- uploaded (no user_storage row), which is not the same as zero bytes.
+    'storage_bytes', (
+      SELECT us.bytes_used FROM public.user_storage us WHERE us.user_id = u.id
     )
   )
   INTO v_result
@@ -310,7 +423,7 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.admin_user_detail(UUID, TEXT[]) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_user_detail(UUID, TEXT[]) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_user_detail(UUID, TEXT[]) TO authenticated;
 
 -- =============================================================================
@@ -337,6 +450,13 @@ GRANT EXECUTE ON FUNCTION public.admin_user_detail(UUID, TEXT[]) TO authenticate
 -- Semantics preserved from docs/ENTITLEMENTS.md:
 --   limits:   JSON number = cap, JSON null = unlimited, key absent = n/a
 --   features: JSON true = enabled, false/absent = disabled
+--
+-- KNOWN WART, preserved from the live chain: unlike every other admin RPC,
+-- these two still hold an `anon` EXECUTE grant via Supabase's default
+-- privileges - the original 024 hygiene pass missed them. Harmless (both
+-- gate on is_admin() internally), but it is the advisor-warning class 024
+-- exists to close. Fix it in a new numbered migration (and apply the same
+-- fix live), not here.
 
 -- p_value: a JSON number (the new cap) or NULL / JSON null (unlimited).
 CREATE OR REPLACE FUNCTION public.admin_set_tier_limit(
@@ -460,7 +580,128 @@ REVOKE ALL ON FUNCTION public.admin_set_tier_feature(TEXT, INTEGER, TEXT, BOOLEA
 GRANT EXECUTE ON FUNCTION public.admin_set_tier_feature(TEXT, INTEGER, TEXT, BOOLEAN) TO authenticated;
 
 -- =============================================================================
--- 9. admin_list_storage() - the Storage module's data source
+-- 9. admin_set_user_subscription() - edit a user's subscription (original 008)
+-- =============================================================================
+-- The write path behind the "Edit subscription" form in the /admin/users
+-- detail drawer. What it does:
+--   * Updates tier_id / tier_version / status on the user's current
+--     subscription row (the same row tier resolution prefers: newest entitled
+--     row, else newest row of any status).
+--   * If the user has NO subscription row, inserts a comp row (Stripe ids
+--     null) - the "bespoke tiers / support comps" path from
+--     docs/ENTITLEMENTS.md.
+--
+-- Guardrails (in the function, not the UI): status must be a valid CHECK
+-- value; (tier_id, tier_version) must exist in tier_limits (historical
+-- grandfathered versions allowed); updated_at is bumped so the edited row
+-- wins the "newest row" selection; the audit entry records old and new
+-- values.
+--
+-- Stripe caveat (documented in docs/ADMIN.md and shown in the UI): if the row
+-- is Stripe-managed (stripe_subscription_id set), the next webhook event for
+-- that subscription overwrites tier_id/status again, and this change never
+-- alters what Stripe charges. Overrides are durable only for comp rows or
+-- lapsed subscriptions; real plan changes for paying users belong in Stripe.
+
+CREATE OR REPLACE FUNCTION public.admin_set_user_subscription(
+  p_user_id UUID,
+  p_tier_id TEXT,
+  p_tier_version INTEGER,
+  p_status TEXT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_target public.subscriptions%ROWTYPE;
+  v_old JSONB;
+BEGIN
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'not authorized';
+  END IF;
+
+  IF p_status IS NULL
+    OR p_status NOT IN ('active', 'past_due', 'canceled', 'incomplete', 'trialing') THEN
+    RAISE EXCEPTION 'invalid status %', COALESCE(p_status, '(null)');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.tier_limits t
+    WHERE t.tier_id = p_tier_id AND t.version = p_tier_version
+  ) THEN
+    RAISE EXCEPTION 'no tier_limits row for (%, v%)', p_tier_id, p_tier_version;
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM auth.users u WHERE u.id = p_user_id) THEN
+    RAISE EXCEPTION 'no such user';
+  END IF;
+
+  -- Pick the row tier resolution reads: prefer the newest ENTITLED row
+  -- (active | trialing | past_due), else the newest row of any status
+  -- (matches lib/supabase/subscription.ts, which prefers current statuses
+  -- over lapsed rows).
+  SELECT * INTO v_target
+  FROM public.subscriptions s
+  WHERE s.user_id = p_user_id
+  ORDER BY (s.status IN ('active', 'trialing', 'past_due')) DESC,
+    s.updated_at DESC
+  LIMIT 1
+  FOR UPDATE;
+
+  IF FOUND THEN
+    v_old := jsonb_build_object(
+      'tier_id', v_target.tier_id,
+      'tier_version', v_target.tier_version,
+      'status', v_target.status
+    );
+
+    UPDATE public.subscriptions s
+    SET tier_id = p_tier_id,
+      tier_version = p_tier_version,
+      status = p_status,
+      updated_at = NOW()
+    WHERE s.id = v_target.id
+    RETURNING * INTO v_target;
+  ELSE
+    -- No subscription history at all: create a comp row. Stripe ids stay
+    -- null, so this row is never touched by the webhook.
+    v_old := NULL;
+
+    INSERT INTO public.subscriptions (user_id, tier_id, tier_version, status)
+    VALUES (p_user_id, p_tier_id, p_tier_version, p_status)
+    RETURNING * INTO v_target;
+  END IF;
+
+  -- Audit metadata carries NO user ids (docs/GDPR.md: audit entries must not
+  -- reference users, so they cannot outlive an erasure request). target_id is
+  -- the subscription row id, an opaque reference that cascades away with the
+  -- account.
+  PERFORM public.log_admin_action(
+    'user.subscription_update',
+    'subscriptions',
+    v_target.id::TEXT,
+    jsonb_build_object(
+      'old', v_old,
+      'new', jsonb_build_object(
+        'tier_id', p_tier_id,
+        'tier_version', p_tier_version,
+        'status', p_status
+      ),
+      'stripe_managed', v_target.stripe_subscription_id IS NOT NULL
+    )
+  );
+
+  RETURN to_jsonb(v_target);
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_set_user_subscription(UUID, TEXT, INTEGER, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_set_user_subscription(UUID, TEXT, INTEGER, TEXT) TO authenticated;
+
+-- =============================================================================
+-- 10. admin_list_storage() - the Storage module's data source
 -- =============================================================================
 -- Reads the user_storage gauge (see 004_storage_quota.sql). Own-row-only under
 -- RLS, so the cross-user read re-checks is_admin() like everything above.
@@ -488,24 +729,5 @@ AS $$
   ORDER BY s.bytes_used DESC;
 $$;
 
-REVOKE ALL ON FUNCTION public.admin_list_storage() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_list_storage() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_list_storage() TO authenticated;
-
--- =============================================================================
--- TODO(admin-mfa): require AAL2 (MFA) on admin data
--- =============================================================================
--- Deferred until an MFA enroll/challenge flow ships in the web app. When ready,
--- uncomment the RESTRICTIVE policies below (RESTRICTIVE = ANDed with the
--- existing permissive admin policies, so an admin still needs is_admin() AND a
--- second factor). Mirror this with a server-side
--- supabase.auth.mfa.getAuthenticatorAssuranceLevel() check in the admin gate.
---
--- CREATE POLICY "support_tickets require aal2"
---   ON public.support_tickets AS RESTRICTIVE TO authenticated
---   USING ((SELECT auth.jwt()->>'aal') = 'aal2');
--- CREATE POLICY "support_ticket_replies require aal2"
---   ON public.support_ticket_replies AS RESTRICTIVE TO authenticated
---   USING ((SELECT auth.jwt()->>'aal') = 'aal2');
--- CREATE POLICY "admin_audit_log require aal2"
---   ON public.admin_audit_log AS RESTRICTIVE TO authenticated
---   USING ((SELECT auth.jwt()->>'aal') = 'aal2');

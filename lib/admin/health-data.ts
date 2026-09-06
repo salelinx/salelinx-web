@@ -60,7 +60,7 @@ export function severityFor(row: AdminEndpointHealthRow): HealthSeverity {
   return "ok";
 }
 
-// One hour of report deliveries (migration 031). Shown so an empty dashboard is
+// One hour of report deliveries (010_endpoint_health.sql). Shown so an empty dashboard is
 // never ambiguous: "no endpoints failing" and "nothing is reporting" look
 // identical on the endpoint table alone.
 export type ReportDeliveryRow = {
@@ -95,7 +95,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
       }),
       supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
       supabase.rpc("admin_list_status_overrides"),
-      // Extension crash buckets (migration 037). 7-day window like deliveries:
+      // Extension crash buckets (014_crash_health.sql). 7-day window like deliveries:
       // "did the new build start throwing" needs a few days of context.
       supabase.rpc("admin_crash_health", { p_window_hours: 168 }),
       // Fresh self-test results, folded into the feature rollup below with
@@ -103,7 +103,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
       loadRecentSelfTestSignals(),
     ]);
 
-  // Manual status set on the public page (migration 033). Empty is the normal
+  // Manual status set on the public page (011_status_overrides.sql). Empty is the normal
   // state - a row here means someone deliberately overrode telemetry.
   const overrides = (overrideRes.data as OverrideRow[] | null) ?? [];
 

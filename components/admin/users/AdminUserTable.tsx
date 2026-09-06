@@ -441,8 +441,9 @@ function FilterGroup({
 // spotting who is still running a build a bug was already fixed in.
 //
 // "-" covers two different things that look the same here: an install that has
-// never checked in at all, and one on a build older than migration 041 (which
-// reports no version). Both resolve themselves once the user updates.
+// never checked in at all, and one on a build older than migration
+// 015_device_session_version.sql (which reports no version). Both resolve
+// themselves once the user updates.
 function VersionCell({
   version,
   newest,

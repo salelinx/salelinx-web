@@ -1,13 +1,16 @@
--- Billing infrastructure: subscriptions, tier_limits, usage_counters + RPC.
+-- Billing infrastructure: subscriptions, tier_limits, usage_counters + RPC,
+-- usage_feature_periods, Stripe webhook replay guard.
 -- Supports the website's Stripe integration; the extension reads from these
 -- tables to enforce entitlements.
 --
--- Consolidated baseline (July 2026). This file is the net result of the
--- original migrations 011 and 015-019 + 023 (the tier feature/limit UPDATE
--- migrations are folded into the seed below). Full history in git.
+-- Consolidated baseline (September 2026). This file is the net result of the
+-- July 2026 baseline 002 plus the later incremental migrations that touched
+-- billing: 012 + 018 (increment_usage_counter input bounds, row cap and
+-- retention), 013 (stripe_webhook_events), 024 (grant hygiene), 038 + 039
+-- (usage_feature_periods roster). Full history in git.
 --
 -- NOTE: tier_limits is runtime-editable via the admin console (see
--- 006_admin_console.sql), so the LIVE rows may legitimately differ from this
+-- 009_admin_console.sql), so the LIVE rows may legitimately differ from this
 -- seed. The seed reflects the migration-history state as of the squash.
 
 -- =============================================================================
@@ -83,6 +86,14 @@ CREATE POLICY "usage_counters own read"
 -- =============================================================================
 -- 4. increment_usage_counter RPC - atomic upsert, scoped to auth.uid()
 -- =============================================================================
+-- Final form of the RPC after the original migrations 012 (delta and key-shape
+-- bounds) and 018 (per-user row cap): usage only ever goes up, key shapes are
+-- validated, and a user cannot accumulate unbounded counter rows.
+--
+-- NOTE: the extension repo still holds an unreconciled dated migration
+-- (20260813_usage_period_key_server_side.sql) that would derive the period key
+-- server-side instead. Per the original 038/039 it is NOT applied in
+-- production; the live function is this one. See README.md.
 
 CREATE OR REPLACE FUNCTION public.increment_usage_counter(
   p_feature TEXT,
@@ -102,6 +113,32 @@ BEGIN
     RAISE EXCEPTION 'not authenticated';
   END IF;
 
+  -- Usage only ever goes up; caps reset by period_key rollover, never by
+  -- clients decrementing. The upper bound stops absurd single-call jumps.
+  IF p_delta IS NULL OR p_delta < 1 OR p_delta > 1000 THEN
+    RAISE EXCEPTION 'invalid delta';
+  END IF;
+
+  -- Keys are short machine identifiers ("crosslists_per_month", "2026-08"),
+  -- not free text. Blocks junk-row flooding with arbitrary strings.
+  IF p_feature IS NULL OR p_feature !~ '^[a-z0-9_]{1,64}$' THEN
+    RAISE EXCEPTION 'invalid feature';
+  END IF;
+  IF p_period_key IS NULL OR p_period_key !~ '^[A-Za-z0-9_-]{1,32}$' THEN
+    RAISE EXCEPTION 'invalid period key';
+  END IF;
+
+  -- Row-count guard, checked only when this call would create a NEW row so
+  -- existing counters keep incrementing even at the cap.
+  IF NOT EXISTS (
+    SELECT 1 FROM usage_counters
+    WHERE user_id = v_user_id AND feature = p_feature AND period_key = p_period_key
+  ) AND (
+    SELECT count(*) FROM usage_counters WHERE user_id = v_user_id
+  ) >= 2000 THEN
+    RAISE EXCEPTION 'counter row limit reached';
+  END IF;
+
   INSERT INTO public.usage_counters (user_id, feature, period_key, count, updated_at)
   VALUES (v_user_id, p_feature, p_period_key, p_delta, NOW())
   ON CONFLICT (user_id, feature, period_key) DO UPDATE
@@ -113,11 +150,122 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.increment_usage_counter(TEXT, TEXT, BIGINT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.increment_usage_counter(TEXT, TEXT, BIGINT) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.increment_usage_counter(TEXT, TEXT, BIGINT) TO authenticated;
 
 -- =============================================================================
--- 5. Seed data - tier_limits v1
+-- 5. usage_counters retention (original 018)
+-- =============================================================================
+-- Counter rows are only ever read for the current period (caps) or recent
+-- history; anything untouched for 14 months is dead weight.
+
+CREATE OR REPLACE FUNCTION public.purge_stale_usage_counters()
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_deleted INTEGER;
+BEGIN
+  DELETE FROM public.usage_counters
+  WHERE updated_at < now() - interval '14 months';
+  GET DIAGNOSTICS v_deleted = ROW_COUNT;
+  RETURN v_deleted;
+END;
+$$;
+
+-- Service role / cron only.
+REVOKE ALL ON FUNCTION public.purge_stale_usage_counters() FROM PUBLIC, anon, authenticated;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+    PERFORM cron.schedule(
+      'purge-stale-usage-counters',
+      '43 3 * * *',
+      'SELECT public.purge_stale_usage_counters()'
+    );
+  ELSE
+    RAISE NOTICE 'pg_cron not available; schedule purge_stale_usage_counters() manually.';
+  END IF;
+END;
+$$;
+
+-- =============================================================================
+-- 6. usage_feature_periods - daily vs monthly bucket per counter
+-- =============================================================================
+-- Period lookup for the server-derived-period variant of
+-- increment_usage_counter (salelinx-app repo,
+-- supabase/migrations/20260813_usage_period_key_server_side.sql). That variant
+-- is NOT applied in production: the live function above writes the client-sent
+-- period key, and the extension already sends YYYY-MM for the monthly
+-- counters, so this table is inert config until it lands. The rows are in
+-- place first so an unknown-counter daily fallback never truncates these to
+-- one-day windows. Web abuse rate-limit counters (checkout_sessions etc.) are
+-- deliberately NOT listed: they must stay daily.
+
+create table if not exists public.usage_feature_periods (
+  feature text primary key,
+  period text not null check (period in ('daily', 'monthly'))
+);
+
+-- No policies: only SECURITY DEFINER functions and the service role need it.
+alter table public.usage_feature_periods enable row level security;
+
+insert into public.usage_feature_periods (feature, period) values
+  ('follow', 'daily'),
+  ('unfollow', 'daily'),
+  ('refresh', 'daily'),
+  ('crosslist', 'monthly'),
+  ('relist', 'monthly'),
+  ('offer_accept', 'monthly'),
+  ('offer_decline', 'monthly'),
+  ('offer_counter', 'monthly'),
+  ('offer_auto_accept', 'monthly'),
+  ('offer_send', 'monthly'),
+  ('auto_markdown', 'monthly'),
+  ('chat_reply', 'monthly'),
+  ('shipping_label', 'monthly'),
+  ('restock', 'monthly'),
+  ('feedback', 'monthly'),
+  ('shop_design', 'monthly'),
+  ('shop_sale', 'monthly'),
+  ('csv_import', 'monthly'),
+  ('listing_link', 'monthly'),
+  ('listing_edit', 'monthly'),
+  ('listing_delete', 'monthly'),
+  ('listing_duplicate', 'monthly'),
+  ('listing_publish', 'monthly'),
+  ('relist_sold', 'monthly'),
+  ('photo_edit', 'monthly'),
+  ('cloud_save', 'monthly'),
+  ('cloud_update', 'monthly'),
+  ('order_cancel', 'monthly')
+on conflict (feature) do update set period = excluded.period;
+
+-- =============================================================================
+-- 7. stripe_webhook_events - processed-event ids for the replay guard
+-- =============================================================================
+-- Written only by the stripe-webhook Edge Function (service role). Rows older
+-- than 30 days are pruned by the function itself; Stripe never redelivers
+-- beyond that horizon.
+
+CREATE TABLE public.stripe_webhook_events (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL,
+  received_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_stripe_webhook_events_received
+  ON public.stripe_webhook_events(received_at);
+
+-- Service role bypasses RLS; enabling it with no policies locks everyone
+-- else out entirely.
+ALTER TABLE public.stripe_webhook_events ENABLE ROW LEVEL SECURITY;
+
+-- =============================================================================
+-- 8. Seed data - tier_limits v1
 -- =============================================================================
 -- Cloud storage: 500 MB = 524288000 bytes, 1 GB = 1073741824 bytes.
 -- limits:   JSON number = cap, JSON null = unlimited, key absent = n/a.

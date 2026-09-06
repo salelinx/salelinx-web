@@ -44,7 +44,7 @@ export type PublicFeatureStatus = {
   label: string;
   marketplace: Marketplace;
   state: StatusState;
-  // Set when an admin has switched this target to manual (migration 033). The
+  // Set when an admin has switched this target to manual (011_status_overrides.sql). The
   // public page renders the note; `manual` drives nothing visible on its own,
   // but keeps the distinction available rather than collapsing it here.
   manual: boolean;

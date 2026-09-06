@@ -6,7 +6,7 @@ import { createBrowserClient } from "@/lib/supabase/client";
 // With a TOTP factor enrolled, the step-up is an MFA re-verification: the
 // admin enters a fresh 6-digit code, which proves possession of the second
 // factor and keeps (or restores) the session at AAL2 - required by
-// is_admin() and the admin Edge Functions since migration 009.
+// is_admin() and the admin Edge Functions since the admin MFA migration (is_admin(), 003_support.sql).
 //
 // Without a factor (pre-enrollment only), it falls back to re-entering the
 // password. NOTE the fallback's sharp edge: signInWithPassword issues a

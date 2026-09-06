@@ -1,8 +1,11 @@
 -- Cloud storage quota: per-user byte tracking + hard cap enforcement for the
 -- listing-images bucket.
 --
--- Consolidated baseline (July 2026). This file is the net result of the
--- original migrations 020-022 (quota v1 -> v2 -> v3). Full history in git.
+-- Consolidated baseline (September 2026). This file is the net result of the
+-- July 2026 baseline 004 plus the later grant-hygiene migrations that touched
+-- it: 019 (get_user_storage_cap no longer callable by authenticated), 024
+-- (trigger functions not callable as RPCs), 040 (apply_storage_delta locked
+-- to internal callers). Full history in git.
 --
 -- Why enforcement runs on BOTH AFTER INSERT and AFTER UPDATE: the Supabase
 -- Storage API writes storage.objects in one of two ways depending on the
@@ -70,8 +73,16 @@ AS $$
   LIMIT 1;
 $$;
 
-REVOKE ALL ON FUNCTION public.get_user_storage_cap(UUID) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.get_user_storage_cap(UUID) TO authenticated;
+-- Internal helper: only the SECURITY DEFINER storage triggers call it, so
+-- authenticated has no EXECUTE (original 019 - a SECURITY DEFINER function
+-- taking an arbitrary p_user_id would otherwise let any signed-in user read
+-- someone else's tier cap through PostgREST).
+--
+-- KNOWN WART, preserved from the live chain: `anon` still holds EXECUTE via
+-- Supabase's default privileges - 019 revoked only `authenticated` and no
+-- later migration revoked anon. Byte-identical squash keeps it; fix it in a
+-- new numbered migration (and apply the same fix live), not here.
+REVOKE ALL ON FUNCTION public.get_user_storage_cap(UUID) FROM PUBLIC, authenticated;
 
 -- =============================================================================
 -- 3. BEFORE INSERT pre-flight - reject when already at or over cap
@@ -159,6 +170,13 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- Internal helper with no auth.uid()/is_admin() guard: it writes bytes_used
+-- for whatever user id it is handed, so nobody gets direct EXECUTE (original
+-- 040). Its only callers are the SECURITY DEFINER trigger functions below,
+-- which run as the owner.
+REVOKE EXECUTE ON FUNCTION public.apply_storage_delta(UUID, BIGINT)
+  FROM PUBLIC, anon, authenticated;
 
 -- =============================================================================
 -- 5. AFTER INSERT - bump by NEW.size when populated up-front
@@ -261,6 +279,12 @@ BEGIN
   RETURN NULL;
 END;
 $$;
+
+-- Trigger functions are not RPCs (original 024).
+REVOKE EXECUTE ON FUNCTION public.enforce_cloud_storage_quota() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.bump_user_storage_on_insert() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.bump_user_storage_on_update() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.bump_user_storage_on_delete() FROM PUBLIC, anon, authenticated;
 
 -- =============================================================================
 -- 8. Triggers on storage.objects

@@ -1,5 +1,10 @@
 -- =============================================================================
--- 041: per-user extension version
+-- 015: per-user extension version
+-- (Applied to live as pre-squash 041, the first migration after the
+-- September 2026 baseline squash; renumbered here, content unchanged. The
+-- comments INSIDE the function bodies below still say "041" on purpose:
+-- editing them would make a from-scratch rebuild's pg_proc.prosrc differ
+-- from the live project's, and byte-identical is the folder's contract.)
 -- =============================================================================
 -- We already collect `extension_version` in endpoint_health and crash_health,
 -- but both of those are deliberately anonymous (no user_id, see docs/GDPR.md),
@@ -7,11 +12,11 @@
 -- THIS user on". That second question is the one support needs: a bug report
 -- is unreadable without knowing which build produced it.
 --
--- device_sessions (015) is the right home. It is already per-user, already
--- heartbeated by the extension every few minutes through claim_device_session,
--- and already carries display-only self-reported metadata (user_agent) at
--- exactly this trust level. One more column of the same kind adds no new
--- collection surface and no new consent question.
+-- device_sessions (008_device_sessions.sql) is the right home. It is already
+-- per-user, already heartbeated by the extension every few minutes through
+-- claim_device_session, and already carries display-only self-reported
+-- metadata (user_agent) at exactly this trust level. One more column of the
+-- same kind adds no new collection surface and no new consent question.
 --
 -- Trust level: self-reported by the extension, display only. Never gate a
 -- decision on it. A modified client can send any string.
@@ -121,7 +126,7 @@ $$;
 
 -- DROP + CREATE resets grants to the Postgres default (EXECUTE to PUBLIC), and
 -- a later REVOKE FROM anon does not remove access held via PUBLIC. Restate the
--- hardening from 024_function_grant_hygiene.sql explicitly.
+-- grant hygiene explicitly (pre-squash 024; see the CLAUDE.md gotcha).
 REVOKE ALL ON FUNCTION public.claim_device_session(TEXT, TEXT, BOOLEAN, TEXT) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.claim_device_session(TEXT, TEXT, BOOLEAN, TEXT) FROM anon;
 GRANT EXECUTE ON FUNCTION public.claim_device_session(TEXT, TEXT, BOOLEAN, TEXT) TO authenticated;
@@ -199,7 +204,7 @@ GRANT EXECUTE ON FUNCTION public.admin_list_users() TO authenticated;
 -- 3. admin_user_detail() reports the version per install
 -- =============================================================================
 -- Same signature, so CREATE OR REPLACE genuinely replaces. Grants are restated
--- anyway because REPLACE also resets them (024 gotcha).
+-- anyway because REPLACE also resets them (the same grant-reset gotcha).
 
 CREATE OR REPLACE FUNCTION public.admin_user_detail(
   p_user_id UUID,

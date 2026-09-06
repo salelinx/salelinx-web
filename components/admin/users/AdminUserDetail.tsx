@@ -9,7 +9,7 @@
 // Two mutations, deliberately separate:
 //
 // 1. "Edit" - entitlement override (tier / version / status) via the
-//    admin_set_user_subscription() RPC (008_admin_edit_subscription.sql).
+//    admin_set_user_subscription() RPC (009_admin_console.sql).
 //    Changes OUR subscriptions row only; Stripe billing is untouched.
 //    Reversible (the audit log records the old value), so it uses a
 //    confirm-style form, not step-up reauth, per docs/ADMIN.md. When the row
@@ -31,7 +31,7 @@
 //
 // The read-only observability sections (linked accounts, devices, listings +
 // storage) come from the same admin_user_detail() bundle, widened in migration
-// 025_admin_user_observability.sql. They add no round-trips and no mutations.
+// 009_admin_console.sql. They add no round-trips and no mutations.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -1020,7 +1020,8 @@ function Devices({
                 {/* Per install, not per user: two machines can sit on
                     different builds, and which one produced a bug report is
                     exactly what support needs. Null on a build older than
-                    migration 041, which reported no version. */}
+                    migration 015_device_session_version.sql, which reported
+                    no version. */}
                 {d.extension_version ? (
                   <span className="ml-1.5 rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-zinc-600">
                     v{d.extension_version}

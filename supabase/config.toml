@@ -17,7 +17,7 @@ project_id = "salelinx-web"
 # `process-referral-rewards` is gated by a shared secret in the
 # x-referral-cron-secret header (set in the dashboard Cron job config).
 # `report-telemetry` validates the caller's JWT via getUser() as a spam gate
-# only - the identity is discarded and never stored (see migration 029).
+# only - the identity is discarded and never stored (see 010_endpoint_health.sql).
 
 [functions.stripe-webhook]
 verify_jwt = false

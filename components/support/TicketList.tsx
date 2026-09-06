@@ -164,7 +164,7 @@ function UserTicketCard({
     setSending(false);
     if (insErr) {
       // The DB trigger raises this at 20 non-admin replies per 24h
-      // (migration 018); show "slow down" rather than "something broke".
+      // (003_support.sql); show "slow down" rather than "something broke".
       setError(
         insErr.message.includes("support_reply_daily_limit")
           ? t("replyRateLimited")
@@ -205,7 +205,7 @@ function UserTicketCard({
           {replies.map((r) => (
             <div key={r.id}>
               <div className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                {r.is_admin ? t("authorSupport") : t("authorYou")} ·{" "}
+                {r.is_admin ? t("authorSupport") : t("authorYou")} Ã‚Â·{" "}
                 {formatWhen(r.created_at)}
               </div>
               <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-800 dark:text-zinc-200">
@@ -219,7 +219,7 @@ function UserTicketCard({
       {/* The reply box stays available on CLOSED tickets too: every
           user-facing support email tells the reader to answer on their ticket,
           so hiding it here dead-ends anyone who follows that instruction.
-          A non-admin reply reopens the ticket (migration 027). */}
+          A non-admin reply reopens the ticket (003_support.sql). */}
       <div className="mt-4 flex flex-col gap-2">
         {!isOpen && (
           <p className="text-xs text-zinc-600 dark:text-zinc-400">

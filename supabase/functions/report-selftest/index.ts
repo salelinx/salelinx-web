@@ -3,7 +3,7 @@
 //
 // Receives one admin endpoint self-test run from the extension (see
 // src/utils/telemetry/selftest-* in the extension repo) and stores it via
-// record_selftest_run (migration 034).
+// record_selftest_run (012_endpoint_selftest.sql).
 //
 // AUTH, and how it differs from report-telemetry:
 //
@@ -20,7 +20,7 @@
 // So membership is re-checked HERE with the service role, against the id from
 // the verified JWT, and again inside record_selftest_run.
 //
-// Why not is_admin(): that requires AAL2 (migration 009), which means a TOTP
+// Why not is_admin(): that requires AAL2 (003_support.sql), which means a TOTP
 // challenge. The extension has no MFA flow and cannot mint an aal2 session, so
 // gating on it would make this permanently uncallable. The compensating
 // control is that this function can ONLY write self-test rows - it exposes no

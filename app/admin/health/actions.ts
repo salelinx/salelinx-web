@@ -5,7 +5,7 @@ import { createServerClient } from "@/lib/supabase/server";
 
 // Server actions behind the manual status controls on /admin/health.
 //
-// Both go through the is_admin()-gated RPCs from migration 033, which are the
+// Both go through the is_admin()-gated RPCs from 011_status_overrides.sql, which are the
 // real boundary (the web app never holds the service-role key) and which write
 // their own audit entries. These wrappers exist to marshal the form data and
 // revalidate, not to enforce anything.
