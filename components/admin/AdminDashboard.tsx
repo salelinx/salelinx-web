@@ -18,6 +18,15 @@ type Props = {
   actorEmails: Record<string, string>;
   features: FeatureStatus[];
   healthReporting: boolean;
+  // This month's feature adoption summary (lib/admin/adoption.ts); the module
+  // itself is /admin/usage/features.
+  adoption: {
+    monthLabel: string;
+    activeUsers: number;
+    activeDelta: number | null;
+    topFeatures: { label: string; users: number }[];
+    unusedFeatures: number;
+  };
 };
 
 function formatWhen(iso: string): string {
@@ -40,6 +49,7 @@ export function AdminDashboard({
   actorEmails,
   features,
   healthReporting,
+  adoption,
 }: Props) {
   const tierEntries = Object.entries(tierCounts).sort((a, b) =>
     a[0].localeCompare(b[0]),
@@ -56,7 +66,52 @@ export function AdminDashboard({
 
       <div className="min-h-0 flex-1 overflow-auto">
         <div className="p-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Card href="/admin/usage/features" label="Feature adoption">
+              <p className="text-2xl font-semibold tabular-nums">
+                {adoption.activeUsers}
+                <span className="ml-1.5 text-xs font-normal text-zinc-500">
+                  active {adoption.monthLabel}
+                  {adoption.activeDelta !== null && adoption.activeDelta !== 0 && (
+                    <span
+                      className={
+                        "ml-1 font-medium " +
+                        (adoption.activeDelta > 0
+                          ? "text-emerald-700"
+                          : "text-red-600")
+                      }
+                    >
+                      {adoption.activeDelta > 0 ? "+" : "-"}
+                      {Math.abs(adoption.activeDelta)}
+                    </span>
+                  )}
+                </span>
+              </p>
+              {adoption.topFeatures.length === 0 ? (
+                <p className="mt-1 text-xs text-zinc-500">
+                  No extension activity yet this month.
+                </p>
+              ) : (
+                <ul className="mt-1 space-y-0.5">
+                  {adoption.topFeatures.map((f) => (
+                    <li
+                      key={f.label}
+                      className="flex items-center justify-between text-xs"
+                    >
+                      <span className="truncate text-zinc-700">{f.label}</span>
+                      <span className="ml-2 font-mono text-zinc-900">
+                        {f.users}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {adoption.unusedFeatures > 0 && (
+                <p className="mt-1 text-xs font-medium text-amber-700">
+                  {adoption.unusedFeatures} unused
+                </p>
+              )}
+            </Card>
             <StatCard
               href="/admin/support"
               label="Open tickets"

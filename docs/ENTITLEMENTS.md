@@ -85,6 +85,14 @@ tier-metered: check `lib/admin/usage-sources.ts`, which is the registry the admi
 console uses to tell the two apart (Extension usage vs Web usage). See
 `docs/ADMIN.md`.
 
+The extension also writes 23 uncapped ACTIVITY counters (offers, chat replies,
+labels, restocker, shop designer, photo edits, cloud saves, ...) through the same
+RPC, month-bucketed, purely so the admin console can see which features get used.
+`/admin/usage` shows them per user; `/admin/usage/features` aggregates them into
+distinct users per feature, by plan, over time. The roster is
+`lib/admin/extension-features.ts`; the counter-to-gate map that says which plan
+each one needs is in `lib/admin/adoption.ts`.
+
 ## Period keys
 
 | Feature kind | Period key format | Example      |
