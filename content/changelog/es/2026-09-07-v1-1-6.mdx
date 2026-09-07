@@ -1,0 +1,46 @@
+export const metadata = {
+  title:
+    "Edición de Depop corregida, crosslisting sin límite y un medidor de uso",
+  date: "2026-09-07",
+  summary:
+    "La versión 1.1.6 corrige la edición de marca, categoría, talla, color y estado en Depop, elimina el límite de selección del crosslisting, añade un desglose de uso a la Membresía y renueva varias pestañas.",
+  tags: ["release"],
+};
+
+# Versión 1.1.6
+
+Dos semanas de trabajo: una revisión a fondo de la edición en Depop, además de
+estabilidad y diseño.
+
+## Novedades
+
+- **Mira lo que has usado.** La Membresía ahora muestra cada límite con un
+  icono, una barra y cuánto te queda, para ver de un vistazo cuánto has
+  gastado de tu plan.
+- **El crosslisting ya no está limitado** por cuántos artículos selecciones, y
+  la cuadrícula estrena una barra de herramientas compartida y un editor
+  masivo más rápido.
+- **Los tickets de soporte se pliegan**, y ahora se puede cancelar cualquier
+  trabajo en cola desde Ver más, con una confirmación antes de eliminar nada.
+
+## Correcciones
+
+- **Edición de Depop.** La marca, la categoría, la talla, la sección, el color
+  y el estado vuelven a guardarse correctamente.
+- **Las etiquetas de envío caducadas se ocultan.** Depop deja los pedidos
+  vendidos como pendientes de envío indefinidamente, así que seguían
+  apareciendo pedidos de hace meses con una etiqueta que ya no funciona.
+- **La extensión ya no deja de funcionar bajo carga.** Un fallo de caché hacía
+  que las cuentas sin marketplace vinculada consultaran nuestros servidores en
+  cada renderizado del panel, lo que podía agotar la base de datos e impedir
+  iniciar sesión.
+- Las comprobaciones de cuenta de Vinted leen ahora la sesión activa, y el Shop
+  Designer muestra la inicial cuando el perfil no tiene foto.
+
+## Mejoras
+
+- El panel se abre y se cierra con un fundido más limpio.
+- Se rediseñó la pestaña Grow, la tarjeta de pagos de envío empieza por el
+  total, y se reelaboraron las animaciones de Offers, Auto-Offers y Crosslist.
+- Las actualizaciones críticas ya pueden aplicarse mientras la extensión está
+  inactiva, sin esperar a reiniciar el navegador.

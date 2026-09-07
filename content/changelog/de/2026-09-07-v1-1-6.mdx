@@ -1,0 +1,47 @@
+export const metadata = {
+  title:
+    "Depop-Bearbeitung repariert, Crosslisting ohne Limit und eine Nutzungsanzeige",
+  date: "2026-09-07",
+  summary:
+    "Version 1.1.6 repariert die Bearbeitung von Marke, Kategorie, Größe, Farbe und Zustand bei Depop, hebt das Auswahllimit beim Crosslisting auf, ergänzt die Mitgliedschaft um eine Nutzungsübersicht und frischt mehrere Tabs auf.",
+  tags: ["release"],
+};
+
+# Version 1.1.6
+
+Zwei Wochen Arbeit: ein großer Durchgang durch die Depop-Bearbeitung, dazu
+Stabilität und Design.
+
+## Neu
+
+- **Sieh, was du verbraucht hast.** Die Mitgliedschaft zeigt jedes Kontingent
+  jetzt mit Symbol, Balken und Restmenge — auf einen Blick erkennbar, wie viel
+  von deinem Tarif schon aufgebraucht ist.
+- **Crosslisting ist nicht mehr begrenzt** durch die Zahl der ausgewählten
+  Artikel, und das Raster hat eine gemeinsame Werkzeugleiste sowie einen
+  schnelleren Sammel-Editor bekommen.
+- **Support-Tickets lassen sich einklappen**, und jeder Auftrag in der
+  Warteschlange kann nun über Mehr anzeigen abgebrochen werden — mit einer
+  Rückfrage, bevor etwas entfernt wird.
+
+## Behoben
+
+- **Depop-Bearbeitung.** Marke, Kategorie, Größe, Abteilung, Farbe und Zustand
+  werden wieder korrekt gespeichert.
+- **Abgelaufene Versandetiketten werden ausgeblendet.** Depop lässt verkaufte
+  Bestellungen unbegrenzt auf „versandbereit“ stehen, sodass monatealte
+  Bestellungen mit einem längst ungültigen Etikett noch im Tab auftauchten.
+- **Die Erweiterung fällt unter Last nicht mehr aus.** Ein Cache-Fehler ließ
+  Konten ohne verknüpften Marktplatz bei jedem Panel-Aufbau unsere Server
+  abfragen, was die Datenbank auslasten und Anmeldungen blockieren konnte.
+- Vinted-Kontoprüfungen lesen jetzt die aktive Sitzung, und der Shop Designer
+  zeigt den Anfangsbuchstaben, wenn ein Profil kein Bild hat.
+
+## Verbessert
+
+- Das Panel öffnet und schließt mit einer saubereren Überblendung.
+- Der Grow-Tab wurde neu gestaltet, die Auszahlungskarte beim Versand beginnt
+  mit der Gesamtsumme, und die Animationen für Offers, Auto-Offers und
+  Crosslist wurden überarbeitet.
+- Kritische Updates können sich jetzt selbst einspielen, während die
+  Erweiterung im Leerlauf ist, statt auf einen Browser-Neustart zu warten.
