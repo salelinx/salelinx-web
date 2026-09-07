@@ -4,6 +4,8 @@ import type {
   FeatureAdoption,
   UserActivity,
 } from "@/lib/admin/adoption";
+import { shortMonthLabel } from "@/lib/admin/adoption";
+import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
 
 // /admin/analytics - the Analytics landing page: a grid of self-contained
 // boxes, each answering one question at a glance and linking to the module
@@ -15,6 +17,8 @@ import type {
 //     users, with actions and the change against last month.
 //   - Top users: the three most active accounts this month by total actions,
 //     with tier, features touched and their most-used feature.
+//   - Active users: six-month column chart of distinct users with any
+//     activity, with this month's delta and the three-month average.
 //
 // Adding a box: write a component that takes plain data, load that data in
 // app/admin/analytics/page.tsx (in the same Promise.all), and drop it into
@@ -55,6 +59,7 @@ export function AdminAnalyticsDashboard({ adoption, emails }: Props) {
               totalActions={adoption.totalActions}
               emails={emails}
             />
+            <ActiveUsersBox adoption={adoption} />
           </div>
         </div>
       </div>
@@ -308,5 +313,67 @@ function TopUserRow({
         </p>
       </div>
     </li>
+  );
+}
+
+// Distinct users with any extension activity, per month over the trend
+// window. The current month is partial (month to date) and carries the
+// accent; the rest are context. Compared against last month and against the
+// average of the three months before this one, so a single soft month does
+// not read as a trend on its own.
+function ActiveUsersBox({ adoption }: { adoption: AdoptionReport }) {
+  const months = adoption.window.trendMonths;
+  const values = adoption.monthlyActiveUsers;
+  const labels = months.map(shortMonthLabel);
+  const current = values[values.length - 1] ?? 0;
+  const previous = values.length >= 2 ? values[values.length - 2] : null;
+  const delta = previous === null ? null : current - previous;
+  const priorThree = values.slice(-4, -1);
+  const avg =
+    priorThree.length === 0
+      ? null
+      : priorThree.reduce((a, b) => a + b, 0) / priorThree.length;
+  const floor = adoption.unmeasuredMonths.length > 0;
+
+  return (
+    <Box
+      title="Active users"
+      hint="month to date"
+      href="/admin/usage/features"
+      linkLabel="Feature adoption"
+    >
+      <div className="flex items-baseline gap-2">
+        <span className="text-2xl font-semibold">{num(current)}</span>
+        {delta !== null && (
+          <span
+            className={
+              "text-xs font-medium " +
+              (delta > 0
+                ? "text-emerald-700"
+                : delta < 0
+                  ? "text-red-600"
+                  : "text-zinc-400")
+            }
+          >
+            {delta > 0 ? "+" : delta < 0 ? "-" : ""}
+            {num(Math.abs(delta))} vs {labels[labels.length - 2]}
+          </span>
+        )}
+        {avg !== null && (
+          <span className="text-xs text-zinc-500">
+            {num(Math.round(avg))} avg prior 3
+          </span>
+        )}
+      </div>
+      <div className="mt-2">
+        <ColumnChart values={values} labels={labels} name="Active users" />
+      </div>
+      {floor && (
+        <p className="mt-1 text-[11px] text-zinc-400">
+          Before Sep 2026 only crosslist, relist, refresh, follow and unfollow
+          counted as activity.
+        </p>
+      )}
+    </Box>
   );
 }
