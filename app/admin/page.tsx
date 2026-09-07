@@ -4,6 +4,8 @@ import type { AdminSubscriptionRow, AdminAuditRow } from "@/lib/types/admin";
 import { countNeedsReply } from "@/lib/admin/needs-reply";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { loadHealthRows } from "@/lib/admin/health-data";
+import { resolveAdoptionWindow } from "@/lib/admin/adoption";
+import { loadAdoptionReport } from "@/lib/admin/adoption-data";
 
 // /admin home dashboard. The admin layout has already gated access (and RLS /
 // the is_admin()-gated RPCs gate the reads below regardless). We gather a few
@@ -21,7 +23,8 @@ export default async function AdminHomePage() {
 
   // Independent reads: tickets, subscriptions and the audit log do not depend
   // on each other, so they resolve together instead of in series.
-  const [ticketsRes, subsRes, auditRes, health] = await Promise.all([
+  const now = new Date();
+  const [ticketsRes, subsRes, auditRes, health, adoption] = await Promise.all([
     supabase
       .from("support_tickets")
       .select("id,status")
@@ -37,6 +40,9 @@ export default async function AdminHomePage() {
     // than only to someone who thought to open /admin/health. Fails soft to an
     // all-unknown rollup, matching the module itself.
     loadHealthRows(24),
+    // This month's feature adoption, so "what are people using" is one glance
+    // away. Same bounded read as /admin/usage/features with the default window.
+    loadAdoptionReport(resolveAdoptionWindow({}, now)),
   ]);
 
   const tickets =
@@ -107,6 +113,19 @@ export default async function AdminHomePage() {
       actorEmails={actorEmails}
       features={health.features}
       healthReporting={health.reporting}
+      adoption={{
+        monthLabel: adoption.window.label,
+        activeUsers: adoption.activeUsers,
+        activeDelta:
+          adoption.compareActiveUsers === null
+            ? null
+            : adoption.activeUsers - adoption.compareActiveUsers,
+        topFeatures: adoption.features
+          .filter((f) => f.users > 0)
+          .slice(0, 3)
+          .map((f) => ({ label: f.label, users: f.users })),
+        unusedFeatures: adoption.featuresTotal - adoption.featuresUsed,
+      }}
     />
   );
 }

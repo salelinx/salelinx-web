@@ -13,6 +13,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for a selectable period (current period by default; last 7 / 30 days, all time, or a custom from/to range via `?range=` / `?from=&to=` URL params), grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. On the current-period view the five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); range views drop caps/percent because caps are per-period. Monthly counters only exist as month buckets, so a range partially covering a month includes that whole month's count for them. The rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
+| Feature adoption | `/admin/usage/features` | Live, read-only | The per-feature cut of the same extension counters: for a run of whole months (one / 3 / 6 / all time, anchored by `?to=YYYY-MM`) each of the 28 roster features shows distinct users, share of a selectable base (`?base=active` users with any extension activity, `paid`, or `all` accounts), change in users against the preceding window of equal length, actions, median actions per user, and a 6-month sparkline of users. A second table splits adoption by plan, greying out cells the plan cannot use (via the counter-to-gate map in `lib/admin/adoption.ts`). Month granularity by design: the activity counters are month buckets. Months before 26 Aug 2026 are flagged as unmeasured for the activity counters. See "Feature adoption" below. |
 | Web usage | `/admin/usage/web` | Live, read-only | Web abuse rate limits for a selectable period (same `?range=` / `?from=&to=` params as Extension usage) covering checkout / portal sessions, deletion requests, label emails, email changes. On the current-period view counts are measured against the hardcoded per-day cap in the calling code; range views show plain totals (the limits are per-day, so a multi-day sum has no meaningful percent). |
 | Endpoint health | `/admin/health` | Live, read-only | Marketplace endpoint health from passive extension telemetry (migration `010_endpoint_health.sql`). One row per Vinted / Depop endpoint the extension calls, with the failure rate over the last 24h against the endpoint's own 7-day baseline. See "Endpoint health telemetry" below. |
 | Endpoint self-test | `/admin/health` | Live, read-only | History of admin-triggered endpoint self-test runs (migration `012_endpoint_selftest.sql`). Runs are started in the extension panel, not here. Results under 60 minutes old also feed the feature-status rollup (failures escalate, passes only annotate). See "Endpoint self-test" below. |
@@ -29,7 +30,7 @@ Consequences:
 
 - **English-only.** No `[locale]` segment, so the admin UI does not use `next-intl` (there is no `NextIntlClientProvider` in this tree). Strings are plain English constants; dates use `"en-US"`. This is intentional for an internal tool.
 - **Hard navigation across the boundary.** Moving between the marketing site and `/admin` is a full page reload (two separate `<html>` roots). The sidebar's "Back to site" link is a plain `<a href>`, not a soft-nav `Link`.
-- **Adding a module is cheap:** append an entry to `lib/admin/modules.ts`, add `app/admin/<module>/page.tsx`, add `components/admin/<module>/*`, and (if it needs a privileged read) one migration with an `is_admin()`-gated RPC. No layout/shell changes.
+- **Adding a module is cheap:** append an entry to `lib/admin/modules.ts`, add `app/admin/<module>/page.tsx`, add `components/admin/<module>/*`, and (if it needs a privileged read) one migration with an `is_admin()`-gated RPC. No layout/shell changes. Give the entry a `section` (currently only `"Analytics"`) to file it under a sidebar heading; grouping is by adjacent run, so keep a section's members next to each other in the list.
 
 | Concern | File |
 | --- | --- |
@@ -45,6 +46,8 @@ Consequences:
 | Feature flags module | `app/admin/flags/page.tsx` + `components/admin/flags/*` |
 | Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/AdminUserUsageGroups.tsx` |
 | Extension feature roster | `lib/admin/extension-features.ts` (keep in step with salelinx-app usage-tracking.ts) |
+| Feature adoption module | `app/admin/usage/features/page.tsx` + `components/admin/usage/AdminFeatureAdoption.tsx` (+ `AdoptionPicker.tsx`, `Sparkline.tsx`) |
+| Feature adoption math (window, gate map, fold) | `lib/admin/adoption.ts` (pure, tested in `tests/adoption.test.ts`); loader `lib/admin/adoption-data.ts` |
 | Web usage module | `app/admin/usage/web/page.tsx` + `components/admin/usage/AdminUsageTable.tsx` (flat table) |
 | Usage source split + web caps | `lib/admin/usage-sources.ts` |
 | Shared usage loader | `lib/admin/usage-data.ts` |
@@ -396,6 +399,55 @@ feature reports "no data" forever while looking like a quiet period.
 build on a pattern that could never match a real key (query strings, platform
 prefixes, literal ids, wrong method/path shape). Add to the map when a feature
 starts calling a new endpoint.
+
+## Feature adoption
+
+`/admin/usage/features` is the third cut of `usage_counters`: not "what did this
+user do" (`/admin/usage`) but "which features get used, by how many people, and
+is that changing". The math lives in `lib/admin/adoption.ts` and is pure so
+`tests/adoption.test.ts` pins it; `lib/admin/adoption-data.ts` is the fetch.
+
+Design decisions worth knowing before changing it:
+
+- **Distinct users, not actions, are the headline.** One bulk edit of 1,000
+  listings is one user. Actions and a per-user median are shown as secondary
+  columns and never drive the default sort.
+- **Month granularity.** The 23 activity counters the extension records
+  (salelinx-app `src/entitlements/usage-tracking.ts`) are month buckets; only
+  refresh / follow / unfollow are daily and get summed into their month. A day
+  picker would promise precision the data does not have, so the window is a run
+  of whole months (`?months=1|3|6|all`, anchored by `?to=YYYY-MM`).
+- **The comparison window is the preceding run of equal length**, and is
+  dropped entirely (no deltas) when it would reach past `USAGE_EPOCH`: a shorter
+  baseline would make every delta look like growth.
+- **The denominator is a choice** (`?base=`). `active` (default) is users with
+  any extension counter in the window, so it measures adoption among people who
+  actually ran the extension; `paid` is non-free tiers with an active or trialing
+  subscription; `all` is every account. The numerator is always restricted to
+  the same set, so a share can never exceed 100%. `activeUsers` on the report is
+  the honest count regardless of base.
+- **Plan eligibility is display-only.** `GATES` in `adoption.ts` maps each
+  counter to the `tier_limits` feature flag or limit key that gates it in the
+  extension (from `checkFeature()` call sites and `METERED_DISPLAY`). The
+  per-plan matrix greys out cells a plan cannot use instead of showing 0%, and
+  the table shows the lowest standard tier that can use each feature. It reads
+  the highest active version per tier, so a grandfathered user may differ. Keep
+  the map in step when the extension gates something new.
+- **The measurement floor.** Activity counters only started recording on
+  26 Aug 2026 (extension 1.1.5, `ACTIVITY_COUNTERS_SINCE`). The page flags trend
+  months up to and including that one so a flat zero reads as "not measured".
+  Users on older builds still report nothing; there is no way to tell that apart
+  from non-use in this data.
+- **No rollup RPC yet.** Distinct users split by tier needs user ids anyway, so
+  the page reads the same `admin_list_usage` rows as `/admin/usage`, bounded the
+  same way (server-generated keys, widest: epoch to now). If that read gets slow,
+  the follow-up is an `admin_feature_usage_rollup(p_period_keys)` RPC returning
+  `(feature, month, tier_id, user_count, total_count)`, with the usual `REVOKE`
+  plus `GRANT` pair.
+
+The `/admin` overview carries a one-glance card (active users this month, top
+three features, unused feature count) fed by the same loader with the default
+window.
 
 ## Two kinds of usage counter
 
