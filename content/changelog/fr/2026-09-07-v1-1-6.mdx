@@ -1,0 +1,50 @@
+export const metadata = {
+  title:
+    "Édition Depop corrigée, crosslisting sans limite et un indicateur d'utilisation",
+  date: "2026-09-07",
+  summary:
+    "La version 1.1.6 corrige l'édition de la marque, de la catégorie, de la taille, de la couleur et de l'état sur Depop, supprime la limite de sélection du crosslisting, ajoute un détail d'utilisation à l'abonnement et rafraîchit plusieurs onglets.",
+  tags: ["release"],
+};
+
+# Version 1.1.6
+
+Deux semaines de travail : une grande passe sur l&rsquo;édition Depop, ainsi
+que de la stabilité et du design.
+
+## Nouveautés
+
+- **Voyez ce que vous avez utilisé.** L&rsquo;abonnement affiche désormais
+  chaque quota avec une icône, une barre et ce qu&rsquo;il vous reste, pour
+  savoir d&rsquo;un coup d&rsquo;œil où vous en êtes.
+- **Le crosslisting n&rsquo;est plus limité** par le nombre d&rsquo;annonces
+  sélectionnées, et la grille a gagné une barre d&rsquo;outils commune ainsi
+  qu&rsquo;un éditeur groupé plus rapide.
+- **Les tickets d&rsquo;assistance se replient**, et chaque tâche en file peut
+  maintenant être annulée depuis Voir plus, avec une confirmation avant toute
+  suppression.
+
+## Corrections
+
+- **Édition Depop.** La marque, la catégorie, la taille, le rayon, la couleur
+  et l&rsquo;état sont de nouveau enregistrés correctement.
+- **Les étiquettes d&rsquo;envoi expirées sont masquées.** Depop laisse les
+  commandes vendues en attente d&rsquo;expédition indéfiniment : des commandes
+  vieilles de plusieurs mois, avec une étiquette devenue inutilisable,
+  apparaissaient encore dans l&rsquo;onglet.
+- **L&rsquo;extension ne s&rsquo;arrête plus sous charge.** Un bug de cache
+  faisait interroger nos serveurs à chaque affichage du panneau pour les
+  comptes sans marketplace liée, ce qui pouvait saturer la base de données et
+  empêcher toute connexion.
+- Les vérifications de compte Vinted lisent désormais la session en cours, et
+  le Shop Designer affiche une initiale lorsque le profil n&rsquo;a pas de
+  photo.
+
+## Améliorations
+
+- Le panneau s&rsquo;ouvre et se ferme avec un fondu plus net.
+- L&rsquo;onglet Grow a été redessiné, la carte des paiements d&rsquo;envoi
+  commence par le total, et les animations Offers, Auto-Offers et Crosslist ont
+  été retravaillées.
+- Les mises à jour critiques peuvent maintenant s&rsquo;appliquer pendant que
+  l&rsquo;extension est inactive, sans attendre un redémarrage du navigateur.

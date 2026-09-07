@@ -1,0 +1,43 @@
+export const metadata = {
+  title:
+    "Depop editing fixed, uncapped crosslisting, and a usage meter for your plan",
+  date: "2026-09-07",
+  summary:
+    "Version 1.1.6 fixes Depop brand, category, size, colour and condition editing, removes the crosslisting selection cap, adds a usage breakdown to Membership, and refreshes several tabs.",
+  tags: ["release"],
+};
+
+# Version 1.1.6
+
+A fortnight of work: a big pass on Depop editing, plus stability and design.
+
+## New
+
+- **See what you have used.** Membership now shows every allowance with an
+  icon, a bar and how much is left, so you can tell at a glance how much of
+  your plan is spent.
+- **Crosslisting is no longer capped** by how many listings you select, and
+  the listings grid gained a shared toolbar and a faster bulk editor.
+- **Support tickets collapse**, and every queued job can now be cancelled from
+  See more, with a confirmation before anything is removed.
+
+## Fixed
+
+- **Depop editing.** Brand, category, size, department, colour and condition
+  all save correctly again.
+- **Expired shipping labels are hidden.** Depop leaves sold orders marked as
+  awaiting shipment indefinitely, so months-old orders offering a label that
+  will no longer scan were still showing in the tab.
+- **The extension no longer stops working under load.** A caching bug meant
+  accounts with nothing linked queried our servers on every panel render,
+  which could exhaust the database and stop anyone signing in.
+- Vinted account checks now read the live session, and the shop designer falls
+  back to an initial-letter avatar when a profile has no picture.
+
+## Improved
+
+- The panel opens and closes with a cleaner fade.
+- The Grow tab was redesigned, the shipping payout card now leads with the
+  total, and the Offers, Auto-Offers and Crosslist animations were reworked.
+- Critical updates can now apply themselves while the extension is idle,
+  instead of waiting for a browser restart.
