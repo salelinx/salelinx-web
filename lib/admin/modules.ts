@@ -49,10 +49,19 @@ export const ADMIN_MODULES: AdminModule[] = [
     enabled: true,
   },
 
-  // Analytics: the read-only "what is the extension doing" views. Three cuts
-  // of usage_counters (per feature, per user, web abuse limits; see
-  // lib/admin/usage-sources.ts and lib/admin/adoption.ts), plus endpoint
-  // health (whether it worked) and per-user cloud storage.
+  // Analytics: the read-only "what is the extension doing" views. A landing
+  // dashboard of one-glance boxes, then three cuts of usage_counters (per
+  // feature, per user, web abuse limits; see lib/admin/usage-sources.ts and
+  // lib/admin/adoption.ts), plus endpoint health (whether it worked) and
+  // per-user cloud storage.
+  {
+    key: "analytics",
+    label: "Dashboard",
+    href: "/admin/analytics",
+    enabled: true,
+    exact: true,
+    section: "Analytics",
+  },
   {
     key: "usage-features",
     label: "Feature adoption",
