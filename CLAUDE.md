@@ -102,6 +102,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 
 - **`proxy.ts` must export `proxy()`, not `middleware()`** - Next 16 renamed the convention. Build fails with an unhelpful error otherwise.
 - **`setAll` cookie callbacks need an explicit `CookieEntry[]` type** - TS strict mode flags implicit `any`.
+- **`/admin` is a 404 for anyone not on `admin_users`, including signed-out admins.** Both the proxy and the admin layout answer not-found rather than redirecting, so the console's existence is never confirmed to outsiders. If you get a 404 on `/admin`, sign in first and check your row in `admin_users`; an admin at AAL1 is the only case that redirects (to `/auth/mfa`). See `docs/ADMIN.md` "Security model".
 - **Admin access requires MFA (AAL2).** `is_admin()` only returns true for sessions that verified a TOTP code (migration `003_support.sql`). On a fresh project, enroll every admin (Account > Security) or the console locks them out. Recovery: remove the factor in the Supabase dashboard. Never gate admin surfaces on a bare `admin_users` EXISTS - go through `is_admin()` so the AAL2 check is inherited.
 - **`requireReauth()` must never use `signInWithPassword` for an MFA-enrolled admin** - it mints a fresh AAL1 session and locks them out of admin data mid-action. The TOTP branch runs first for that reason; keep it that way.
 - **`router.refresh()` after password login** - without it, the Header still shows signed-out state until navigation.
