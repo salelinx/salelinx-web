@@ -35,14 +35,28 @@ export function AdminSidebar({ adminEmail }: Props) {
 
       <nav className="flex-1 overflow-y-auto p-2">
         <ul className="space-y-0.5">
-          {ADMIN_MODULES.map((mod) => {
+          {ADMIN_MODULES.map((mod, i) => {
             const active = mod.exact
               ? pathname === mod.href
               : pathname === mod.href || pathname.startsWith(mod.href + "/");
 
+            // A section heading opens each run of grouped modules, and the
+            // first top-level module after a group gets a little air so the
+            // group reads as a block rather than bleeding into what follows.
+            const prev = i > 0 ? ADMIN_MODULES[i - 1].section : undefined;
+            const opensSection = mod.section !== undefined && mod.section !== prev;
+            const closesSection = mod.section === undefined && prev !== undefined;
+            const heading = opensSection ? (
+              <p className="mt-4 mb-1 px-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                {mod.section}
+              </p>
+            ) : null;
+            const gapClass = closesSection ? "mt-4" : "";
+
             if (!mod.enabled) {
               return (
-                <li key={mod.key}>
+                <li key={mod.key} className={gapClass}>
+                  {heading}
                   <span className="flex cursor-default items-center justify-between rounded-md px-3 py-1.5 text-sm text-zinc-400">
                     {mod.label}
                     <span className="text-[10px] uppercase tracking-wide text-zinc-300">
@@ -54,7 +68,8 @@ export function AdminSidebar({ adminEmail }: Props) {
             }
 
             return (
-              <li key={mod.key}>
+              <li key={mod.key} className={gapClass}>
+                {heading}
                 <Link
                   href={mod.href}
                   className={
