@@ -230,6 +230,38 @@ describe("foldAdoption", () => {
     expect(r.features.every((f) => f.feature !== "checkout_sessions")).toBe(true);
   });
 
+  it("ranks users by total actions with their most-used feature", () => {
+    const window = resolveAdoptionWindow({}, NOW);
+    const rows = [
+      row("a", "crosslist", "2026-09", 40),
+      row("a", "refresh", "2026-09-01", 5),
+      row("a", "refresh", "2026-09-02", 7),
+      row("b", "listing_edit", "2026-09", 1000),
+      row("b", "crosslist", "2026-09", 2),
+      row("c", "checkout_sessions", "2026-09-07", 3),
+      // Last month does not count toward this month's ranking.
+      row("d", "crosslist", "2026-08", 999),
+    ];
+    const r = foldAdoption({ rows, users, tiers: TIERS, window });
+    expect(r.users.map((u) => u.user_id)).toEqual(["b", "a"]);
+    expect(r.users[0]).toEqual({
+      user_id: "b",
+      tier_id: "starter",
+      actions: 1002,
+      featuresUsed: 2,
+      topFeature: "Listing edits saved",
+      topFeatureActions: 1000,
+    });
+    expect(r.users[1]).toEqual({
+      user_id: "a",
+      tier_id: "pro",
+      actions: 52,
+      featuresUsed: 2,
+      topFeature: "Crosslist",
+      topFeatureActions: 40,
+    });
+  });
+
   it("keeps the full roster, zero rows included, and appends unknown counters", () => {
     const window = resolveAdoptionWindow({}, NOW);
     const rows = [row("a", "brand_new_thing", "2026-09", 1)];

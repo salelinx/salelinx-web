@@ -293,8 +293,25 @@ export type TierAdoption = {
   cells: Record<string, TierCell>;
 };
 
+// One active user's activity in the window, for the "top users" ranking.
+export type UserActivity = {
+  user_id: string;
+  tier_id: string;
+  // Sum of every extension counter in the window.
+  actions: number;
+  // Distinct features with at least one action.
+  featuresUsed: number;
+  // The feature they used most, by actions (label from the roster).
+  topFeature: string;
+  topFeatureActions: number;
+};
+
 export type AdoptionReport = {
   window: AdoptionWindow;
+  // Every user active in the window, sorted by actions descending. Not
+  // filtered by base: this is "who is using the extension most", and a
+  // free-tier power user is exactly the kind of thing worth noticing.
+  users: UserActivity[];
   // Distinct users with any extension counter in the window, regardless of
   // base. This is the honest "people who ran the extension" number.
   activeUsers: number;
@@ -519,6 +536,49 @@ export function foldAdoption(input: {
       return { tier_id: tierId, base, cells };
     });
 
+  // Per-user totals over the window, for the top-users ranking.
+  const perUserTotals = new Map<
+    string,
+    { actions: number; byFeature: Map<string, number> }
+  >();
+  for (const m of window.months) {
+    for (const [feature, perUser] of byMonth.get(m) ?? []) {
+      for (const [uid, count] of perUser) {
+        if (count <= 0) continue;
+        const t = perUserTotals.get(uid) ?? {
+          actions: 0,
+          byFeature: new Map<string, number>(),
+        };
+        t.actions += count;
+        t.byFeature.set(feature, (t.byFeature.get(feature) ?? 0) + count);
+        perUserTotals.set(uid, t);
+      }
+    }
+  }
+  const usersOut: UserActivity[] = Array.from(perUserTotals, ([uid, t]) => {
+    let topFeature = "";
+    let topN = 0;
+    for (const [f, n] of t.byFeature) {
+      if (n > topN) {
+        topN = n;
+        topFeature = f;
+      }
+    }
+    return {
+      user_id: uid,
+      tier_id: tierOf(uid),
+      actions: t.actions,
+      featuresUsed: t.byFeature.size,
+      topFeature: extensionFeatureLabel(topFeature),
+      topFeatureActions: topN,
+    };
+  }).sort(
+    (a, b) =>
+      b.actions - a.actions ||
+      b.featuresUsed - a.featuresUsed ||
+      a.user_id.localeCompare(b.user_id),
+  );
+
   let returning: number | null = null;
   if (compareActive) {
     returning = 0;
@@ -530,6 +590,7 @@ export function foldAdoption(input: {
 
   return {
     window,
+    users: usersOut,
     activeUsers: active.size,
     compareActiveUsers: compareActive ? compareActive.size : null,
     returningUsers: returning,

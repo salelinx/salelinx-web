@@ -33,3 +33,22 @@ export async function loadAdoptionReport(
     window,
   });
 }
+
+// Emails for a handful of user ids (the top-users box), via the is_admin()-
+// gated admin_user_emails RPC. Kept out of the report itself so the fold stays
+// free of personal data until a view actually needs to name someone.
+export async function loadUserEmails(
+  userIds: string[],
+): Promise<Record<string, string>> {
+  const emails: Record<string, string> = {};
+  if (userIds.length === 0) return emails;
+  const supabase = await createServerClient();
+  const { data } = await supabase.rpc("admin_user_emails", {
+    p_user_ids: userIds,
+  });
+  for (const row of (data as { user_id: string; email: string }[] | null) ??
+    []) {
+    emails[row.user_id] = row.email;
+  }
+  return emails;
+}
