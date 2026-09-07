@@ -142,11 +142,32 @@ export async function proxy(request: NextRequest) {
 
   // Layer 1 of the admin gate (see docs/ADMIN.md): block non-admins before any
   // admin route code runs. Fail-closed - any error denies. RLS is still the
-  // real boundary; this is defense in depth + a clean redirect for humans.
+  // real boundary; this is defense in depth.
+  //
+  // Denials are a 404, not a redirect. The console is unlinked from the public
+  // site and reachable only by URL, so to anyone who is signed out or not an
+  // admin it should not exist: a redirect to /auth/login or /account would
+  // confirm that /admin is a real, protected thing. The 404 is the site's own
+  // not-found page, reached by rewriting into the [locale] tree's catch-all
+  // (locale from the visitor's cookie, default otherwise), so it looks exactly
+  // like any other unknown URL. Refreshed auth cookies still ride along.
+  const adminNotFound = () => {
+    const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+    const locale =
+      cookieLocale && (routing.locales as readonly string[]).includes(cookieLocale)
+        ? cookieLocale
+        : routing.defaultLocale;
+    const target = request.nextUrl.clone();
+    target.pathname = `/${locale}${pathname}`;
+    const notFound = NextResponse.rewrite(target);
+    response.cookies.getAll().forEach((c) => notFound.cookies.set(c));
+    return notFound;
+  };
+
   if (isAdminPath) {
     try {
       if (!claims) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
+        return adminNotFound();
       }
       const { data: adminRow } = await supabase
         .from("admin_users")
@@ -154,7 +175,7 @@ export async function proxy(request: NextRequest) {
         .eq("user_id", claims.sub)
         .maybeSingle();
       if (!adminRow) {
-        return NextResponse.redirect(new URL("/account", request.url));
+        return adminNotFound();
       }
       // Admin sessions must be AAL2 (password + authenticator code). The
       // membership check above deliberately uses the self-read policy, which
@@ -170,7 +191,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(challenge);
       }
     } catch {
-      return NextResponse.redirect(new URL("/account", request.url));
+      return adminNotFound();
     }
   }
 

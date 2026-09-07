@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { isAdmin } from "@/lib/supabase/admin";
 import { getAdminUser, getIsAal2 } from "@/lib/admin/session";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -36,40 +36,39 @@ export default async function AdminLayout({
   // missed matcher or bypassed middleware still denies. RLS (Layer 3) is the
   // real boundary for every read/write underneath: is_admin() also requires
   // an AAL2 session (is_admin(), 003_support.sql), mirroring the check below.
+  //
+  // Signed out, not an admin, or any error: 404, matching Layer 1, so the
+  // console does not exist for anyone who is not on admin_users. Only a real
+  // admin who has not yet entered their authenticator code gets a redirect,
+  // to the MFA challenge. The decision is computed inside the try and acted
+  // on outside it, so the catch never has to tell Next's own control-flow
+  // throws (redirect / notFound) apart from a genuine failure.
   let adminEmail = "";
+  let decision: "not-found" | "mfa" | "ok" = "not-found";
   try {
     // These lookups are memoized per request (lib/admin/session.ts), so the
-    // pages underneath re-use them instead of re-querying. Same three checks,
-    // same order, same fail-closed behaviour - only the duplicate execution is
-    // gone.
+    // pages underneath re-use them instead of re-querying.
     const user = await getAdminUser();
-
-    if (!user) {
-      redirect("/auth/login");
+    if (user) {
+      // Membership and AAL are independent of each other, so they can resolve
+      // together; both must pass.
+      const [admin, isAal2] = await Promise.all([
+        isAdmin(user.id),
+        getIsAal2(),
+      ]);
+      if (admin) {
+        decision = isAal2 ? "ok" : "mfa";
+        adminEmail = user.email ?? "";
+      }
     }
-    // Membership and AAL are independent of each other, so they can resolve
-    // together; both must pass and either one failing still denies below.
-    const [admin, isAal2] = await Promise.all([isAdmin(user.id), getIsAal2()]);
-    if (!admin) {
-      redirect("/account");
-    }
-    if (!isAal2) {
-      redirect("/auth/mfa?next=/admin");
-    }
-    adminEmail = user.email ?? "";
-  } catch (err) {
-    // redirect() throws NEXT_REDIRECT; let that propagate. Any OTHER error is
-    // treated as a denial (fail-closed) rather than rendering admin content.
-    if (
-      err &&
-      typeof err === "object" &&
-      "digest" in err &&
-      typeof (err as { digest?: unknown }).digest === "string" &&
-      (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
-    ) {
-      throw err;
-    }
-    redirect("/account");
+  } catch {
+    decision = "not-found";
+  }
+  if (decision === "not-found") {
+    notFound();
+  }
+  if (decision === "mfa") {
+    redirect("/auth/mfa?next=/admin");
   }
 
   return (
