@@ -607,3 +607,46 @@ export function foldAdoption(input: {
     unmeasuredMonths,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Movers: biggest changes in users per feature vs the comparison window
+// ---------------------------------------------------------------------------
+
+export type Mover = {
+  feature: string;
+  label: string;
+  users: number;
+  compareUsers: number;
+  delta: number;
+};
+
+// The n largest gains and the n largest drops in distinct users. Empty when
+// the window has no comparison. A sudden drop is the earliest sign a feature
+// broke; a sudden rise is a release landing.
+export function featureMovers(
+  features: FeatureAdoption[],
+  n = 3,
+): { gains: Mover[]; drops: Mover[] } {
+  const movers: Mover[] = [];
+  for (const f of features) {
+    if (f.compareUsers === null) continue;
+    const delta = f.users - f.compareUsers;
+    if (delta === 0) continue;
+    movers.push({
+      feature: f.feature,
+      label: f.label,
+      users: f.users,
+      compareUsers: f.compareUsers,
+      delta,
+    });
+  }
+  const gains = movers
+    .filter((m) => m.delta > 0)
+    .sort((a, b) => b.delta - a.delta || a.label.localeCompare(b.label))
+    .slice(0, n);
+  const drops = movers
+    .filter((m) => m.delta < 0)
+    .sort((a, b) => a.delta - b.delta || a.label.localeCompare(b.label))
+    .slice(0, n);
+  return { gains, drops };
+}
