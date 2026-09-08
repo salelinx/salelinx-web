@@ -93,6 +93,7 @@ baseline, not part of the squash:
 | --- | --- | --- |
 | `015_device_session_version.sql` | device_sessions.extension_version column, claim_device_session 4-arg signature, admin roster/detail version reporting | Applied to live as pre-squash `041`; renumbered only, content unchanged (in-body comments still say 041 to keep function bodies byte-identical to live) |
 | `016_usage_hour_buckets.sql` | increment_usage_counter also upserts a server-derived UTC hour bucket (`YYYY-MM-DDTHH`); hour rows purged after 60 days and excluded from the 2000-row cap; partial index for the purge | Replaces `increment_usage_counter` outright, so after applying it the "unreconciled" question above is settled: the live body is 002's caller-supplied-key variant plus the hour bucket. Set `HOUR_EPOCH` in `lib/admin/period.ts` to the day it was applied |
+| `017_usage_events.sql` | usage_events table (one row per increment_usage_counter call, 7-day retention, hourly purge), increment_usage_counter writes it, admin_list_usage_events(since, until) | Replaces `increment_usage_counter` again (016 body plus the event insert). Set `EVENTS_EPOCH` in `lib/admin/period.ts` to the moment it was applied |
 
 ## Known grant warts (preserved, not fixed)
 
@@ -112,7 +113,7 @@ baseline files:
 
 ## Rebuilding from scratch
 
-Run the files in order, 001 -> 016, against a fresh Supabase project. Caveats:
+Run the files in order, 001 -> 017, against a fresh Supabase project. Caveats:
 
 - `tier_limits` is runtime-editable via the admin console, so the seed in
   `002_billing_tiers.sql` reflects the values as of the squash, not

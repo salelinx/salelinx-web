@@ -37,11 +37,24 @@ export type UsagePeriod = {
   // Caveat worth showing next to the label, e.g. an hour range that had to be
   // clamped to the hourly retention window.
   note?: string;
+  // Set for trailing-window presets: the period is answered from usage_events
+  // (migration 017) between these ISO timestamps instead of from period keys
+  // (keys is empty then). See lib/admin/usage-range.ts.
+  window?: { since: string; until: string };
 };
 
 // No usage counter can predate the product's first release; bounds the
 // "All time" key generation.
 export const USAGE_EPOCH = "2026-04-01";
+
+// Usage events (migration 017_usage_events.sql): one row per
+// increment_usage_counter call with the server timestamp, so a trailing
+// window (last 15 minutes, last 72 hours) can be answered exactly. Events
+// only exist from EVENTS_EPOCH (the moment 017 was applied to the live
+// project) and are purged after EVENTS_RETENTION_DAYS; the range resolver
+// clamps to both.
+export const EVENTS_EPOCH = "2026-09-08T00:00:00.000Z";
+export const EVENTS_RETENTION_DAYS = 7;
 
 export function currentUsagePeriod(now: Date): UsagePeriod {
   const { month, day } = currentPeriodKeys(now);

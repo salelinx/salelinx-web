@@ -18,18 +18,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { HOUR_PRESETS } from "@/lib/admin/usage-range";
+import { WINDOW_PRESETS } from "@/lib/admin/usage-range";
 import type {
   UsageRangeBounds,
   UsageRangePreset,
   UsageRangeResolution,
 } from "@/lib/admin/usage-range";
 
-// Hour presets come from the resolver's table so the option list and the
-// resolution stay in step; they are bucket-aligned (see HOUR_PRESETS).
+// Trailing-window presets come from the resolver's table so the option list
+// and the resolution stay in step; they are exact windows ending now, read
+// from usage_events (see WINDOW_PRESETS).
 const PRESETS: { value: UsageRangePreset; label: string }[] = [
   { value: "current", label: "Current period" },
-  ...(Object.entries(HOUR_PRESETS) as [UsageRangePreset, { label: string }][]).map(
+  ...(Object.entries(WINDOW_PRESETS) as [UsageRangePreset, { label: string }][]).map(
     ([value, { label }]) => ({ value, label }),
   ),
   { value: "7d", label: "Last 7 days" },
@@ -67,12 +68,23 @@ export function UsageRangePicker({
 }: Props) {
   const router = useRouter();
   const [custom, setCustom] = useState(preset === "custom");
-  // Seed from the current selection. A day-resolution selection (a preset or
-  // an old day-shaped link) is widened to whole UTC days, then clamped to the
-  // window that has hour rows.
+  // Seed from the current selection. A window selection (ISO timestamps) is
+  // snapped to its hours; a day-resolution selection (a preset or an old
+  // day-shaped link) is widened to whole UTC days. Both are then clamped to
+  // the window that has hour rows.
   const [draft, setDraft] = useState(() => {
-    const fromKey = resolution === "hour" ? from : `${from}T00`;
-    const toKey = resolution === "hour" ? to : `${to}T23`;
+    const fromKey =
+      resolution === "hour"
+        ? from
+        : resolution === "window"
+          ? from.slice(0, 13)
+          : `${from}T00`;
+    const toKey =
+      resolution === "hour"
+        ? to
+        : resolution === "window"
+          ? to.slice(0, 13)
+          : `${to}T23`;
     return {
       from: toInputHour(clampHourKey(fromKey, bounds)),
       to: toInputHour(clampHourKey(toKey, bounds)),
