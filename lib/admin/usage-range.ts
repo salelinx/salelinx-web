@@ -8,6 +8,8 @@
 //   day  - from/to are 'YYYY-MM-DD'; keys are the day buckets plus the month
 //          bucket of every month touched (monthly counters only exist as month
 //          buckets, so a partial month includes the whole month for them).
+//          Used by the day presets and still accepted from old links; the
+//          picker no longer offers day-shaped custom ranges.
 //   hour - from/to are 'YYYY-MM-DDTHH' (UTC); keys are hour buckets ONLY.
 //          Exact for every counter, but only as far back as the hour rows
 //          exist (HOUR_EPOCH) and are kept (HOUR_RETENTION_DAYS).

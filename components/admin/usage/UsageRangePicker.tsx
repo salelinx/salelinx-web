@@ -1,16 +1,20 @@
 "use client";
 
 // Period selector for the usage pages. Presets navigate immediately; "Custom
-// range" reveals from/to inputs applied on demand, at day resolution (date
-// inputs) or hour resolution (datetime inputs snapped to the hour, read as
-// UTC). The selection lives in the URL (?range= or ?from=&to=, resolved by
-// lib/admin/usage-range.ts) so the server page resolves the period keys and
-// the view is shareable / refreshable.
+// range" reveals from/to datetime inputs, always in UTC and always at hour
+// resolution (snapped to the hour), applied on demand. The selection lives in
+// the URL (?range= or ?from=&to=, resolved by lib/admin/usage-range.ts) so
+// the server page resolves the period keys and the view is shareable /
+// refreshable.
 //
 // Hour keys are 'YYYY-MM-DDTHH'; a datetime-local input's value is
 // 'YYYY-MM-DDTHH:MM', so the two convert by slicing / appending ':00'. The
 // browser shows datetime-local values in no particular zone (it is a naive
 // timestamp), and the buckets are UTC, so the inputs are labelled UTC.
+//
+// The resolver still accepts day-shaped ?from=&to= for old links, but the
+// picker no longer offers a day mode: custom ranges are UTC hours, full stop.
+// Day-resolution views are the presets (7 / 30 days, all time).
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -31,7 +35,7 @@ const PRESETS: { value: UsageRangePreset; label: string }[] = [
   { value: "7d", label: "Last 7 days" },
   { value: "30d", label: "Last 30 days" },
   { value: "all", label: "All time" },
-  { value: "custom", label: "Custom range" },
+  { value: "custom", label: "Custom range (UTC)" },
 ];
 
 type Props = {
@@ -50,6 +54,8 @@ const inputClass =
 
 const toInputHour = (key: string) => `${key}:00`;
 const fromInputHour = (value: string) => value.slice(0, 13);
+const clampHourKey = (key: string, bounds: UsageRangeBounds) =>
+  key < bounds.hourMin ? bounds.hourMin : key > bounds.hourMax ? bounds.hourMax : key;
 
 export function UsageRangePicker({
   preset,
@@ -61,20 +67,17 @@ export function UsageRangePicker({
 }: Props) {
   const router = useRouter();
   const [custom, setCustom] = useState(preset === "custom");
-  const [draftResolution, setDraftResolution] =
-    useState<UsageRangeResolution>(resolution);
-  // Drafts for each resolution are kept apart so switching between them does
-  // not leave a day key in an hour input (or the reverse).
-  const [dayDraft, setDayDraft] = useState(() =>
-    resolution === "day"
-      ? { from, to }
-      : { from: from.slice(0, 10), to: to.slice(0, 10) },
-  );
-  const [hourDraft, setHourDraft] = useState(() =>
-    resolution === "hour"
-      ? { from: toInputHour(from), to: toInputHour(to) }
-      : { from: toInputHour(bounds.hourMin), to: toInputHour(bounds.hourMax) },
-  );
+  // Seed from the current selection. A day-resolution selection (a preset or
+  // an old day-shaped link) is widened to whole UTC days, then clamped to the
+  // window that has hour rows.
+  const [draft, setDraft] = useState(() => {
+    const fromKey = resolution === "hour" ? from : `${from}T00`;
+    const toKey = resolution === "hour" ? to : `${to}T23`;
+    return {
+      from: toInputHour(clampHourKey(fromKey, bounds)),
+      to: toInputHour(clampHourKey(toKey, bounds)),
+    };
+  });
 
   const onPreset = (value: string) => {
     if (value === "custom") {
@@ -85,16 +88,13 @@ export function UsageRangePicker({
     router.push(value === "current" ? basePath : `${basePath}?range=${value}`);
   };
 
-  const draft = draftResolution === "day" ? dayDraft : hourDraft;
   const canApply = Boolean(draft.from && draft.to);
 
   const applyCustom = () => {
     if (!canApply) return;
-    const fromKey =
-      draftResolution === "day" ? dayDraft.from : fromInputHour(hourDraft.from);
-    const toKey =
-      draftResolution === "day" ? dayDraft.to : fromInputHour(hourDraft.to);
-    router.push(`${basePath}?from=${fromKey}&to=${toKey}`);
+    router.push(
+      `${basePath}?from=${fromInputHour(draft.from)}&to=${fromInputHour(draft.to)}`,
+    );
   };
 
   return (
@@ -113,72 +113,28 @@ export function UsageRangePicker({
       </select>
       {custom && (
         <>
-          <select
-            value={draftResolution}
-            onChange={(e) =>
-              setDraftResolution(e.target.value as UsageRangeResolution)
-            }
+          <input
+            type="datetime-local"
+            step={3600}
+            value={draft.from}
+            min={toInputHour(bounds.hourMin)}
+            max={draft.to || toInputHour(bounds.hourMax)}
+            onChange={(e) => setDraft((d) => ({ ...d, from: e.target.value }))}
             className={inputClass}
-            aria-label="Range resolution"
-          >
-            <option value="day">Days</option>
-            <option value="hour">Hours (UTC)</option>
-          </select>
-          {draftResolution === "day" ? (
-            <>
-              <input
-                type="date"
-                value={dayDraft.from}
-                min={bounds.dayMin}
-                max={dayDraft.to || bounds.dayMax}
-                onChange={(e) =>
-                  setDayDraft((d) => ({ ...d, from: e.target.value }))
-                }
-                className={inputClass}
-                aria-label="From date"
-              />
-              <span className="text-xs text-zinc-400">to</span>
-              <input
-                type="date"
-                value={dayDraft.to}
-                min={dayDraft.from || bounds.dayMin}
-                max={bounds.dayMax}
-                onChange={(e) =>
-                  setDayDraft((d) => ({ ...d, to: e.target.value }))
-                }
-                className={inputClass}
-                aria-label="To date"
-              />
-            </>
-          ) : (
-            <>
-              <input
-                type="datetime-local"
-                step={3600}
-                value={hourDraft.from}
-                min={toInputHour(bounds.hourMin)}
-                max={hourDraft.to || toInputHour(bounds.hourMax)}
-                onChange={(e) =>
-                  setHourDraft((d) => ({ ...d, from: e.target.value }))
-                }
-                className={inputClass}
-                aria-label="From hour (UTC)"
-              />
-              <span className="text-xs text-zinc-400">to</span>
-              <input
-                type="datetime-local"
-                step={3600}
-                value={hourDraft.to}
-                min={hourDraft.from || toInputHour(bounds.hourMin)}
-                max={toInputHour(bounds.hourMax)}
-                onChange={(e) =>
-                  setHourDraft((d) => ({ ...d, to: e.target.value }))
-                }
-                className={inputClass}
-                aria-label="To hour (UTC)"
-              />
-            </>
-          )}
+            aria-label="From hour (UTC)"
+          />
+          <span className="text-xs text-zinc-400">to</span>
+          <input
+            type="datetime-local"
+            step={3600}
+            value={draft.to}
+            min={draft.from || toInputHour(bounds.hourMin)}
+            max={toInputHour(bounds.hourMax)}
+            onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}
+            className={inputClass}
+            aria-label="To hour (UTC)"
+          />
+          <span className="text-xs text-zinc-400">UTC</span>
           <button
             type="button"
             onClick={applyCustom}
