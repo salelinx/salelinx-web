@@ -34,7 +34,8 @@ Per-user, per-feature, per-period running totals. Feature + period key together 
 ```
 user_id       uuid references auth.users
 feature       text        -- 'crosslist', 'follow', 'refresh', ...
-period_key    text        -- 'YYYY-MM' for monthly, 'YYYY-MM-DD' for daily
+period_key    text        -- 'YYYY-MM' for monthly, 'YYYY-MM-DD' for daily,
+                          -- 'YYYY-MM-DDTHH' for the server-derived hour series
 count         bigint
 updated_at    timestamptz
 PK (user_id, feature, period_key)
@@ -52,6 +53,8 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 ```
 
 `SECURITY DEFINER` so it bypasses RLS during the insert/update - but it still scopes everything to `auth.uid()`, so users can't touch each other's counters.
+
+Since migration `016_usage_hour_buckets.sql` the same call also upserts an hour bucket (`YYYY-MM-DDTHH`, UTC, derived from `now()` on the server) for the admin console's hour-resolution usage ranges. The caller-named bucket is still the one caps are enforced against and the one the return value reports; callers cannot name an hour bucket themselves (the shape is rejected). Hour rows are purged after 60 days and sit outside the 2000-row per-user cap. See `docs/ADMIN.md` "Hour buckets".
 
 ## How the two sides use this
 
@@ -95,17 +98,23 @@ each one needs is in `lib/admin/adoption.ts`.
 
 ## Period keys
 
-| Feature kind | Period key format | Example      |
-| ------------ | ----------------- | ------------ |
-| Monthly      | `YYYY-MM`         | `2026-04`    |
-| Daily        | `YYYY-MM-DD`      | `2026-04-17` |
+| Feature kind | Period key format | Example         |
+| ------------ | ----------------- | --------------- |
+| Monthly      | `YYYY-MM`         | `2026-04`       |
+| Daily        | `YYYY-MM-DD`      | `2026-04-17`    |
+| Hour series  | `YYYY-MM-DDTHH`   | `2026-09-08T14` |
 
 **Computed by the client, in UTC.** The extension's `getPeriodKey`
-(`src/entitlements/gate.ts`) builds the key with `getUTCFullYear` /
+(`src/entitlements/gate.ts`) builds the month or day key with `getUTCFullYear` /
 `getUTCMonth` / `getUTCDate` and passes it to `increment_usage_counter`, which
 writes to whatever key it receives (it validates the shape, not the value). So a
 user's period rolls over at UTC midnight, not local midnight. Periods reset
 implicitly - a new period key just means a new row.
+
+**The hour series is server-derived.** It is not a feature kind: every call
+also lands in the UTC hour bucket of the moment it ran, whichever month or day
+key the caller named. Nothing gates on it; it exists for the admin console's
+hour-resolution usage ranges and is purged after 60 days.
 
 Because the bucket is chosen client-side, anything calling the RPC directly can
 name a period nothing reads, and that usage never counts against the current

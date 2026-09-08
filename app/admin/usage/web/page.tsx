@@ -1,15 +1,14 @@
 import { loadUsageRows } from "@/lib/admin/usage-data";
-import { USAGE_EPOCH } from "@/lib/admin/period";
-import { resolveUsageRange, usageToday } from "@/lib/admin/usage-range";
+import { resolveUsageRange, usageRangeBounds } from "@/lib/admin/usage-range";
 import { AdminUsageTable } from "@/components/admin/usage/AdminUsageTable";
 import { UsageRangePicker } from "@/components/admin/usage/UsageRangePicker";
 
 // /admin/usage/web - WEB abuse rate limits for a selectable period (current
-// period by default; wider ranges via the same ?range= / ?from=&to= URL params
-// as /admin/usage). These are per-day safety valves the website's Edge
-// Functions and account UI apply to expensive or spammable endpoints (Stripe
-// checkout / portal sessions, account deletion requests, shipping label
-// emails, email change requests).
+// period by default; wider or narrower ranges via the same ?range= /
+// ?from=&to= URL params as /admin/usage, down to single UTC hours). These are
+// per-day safety valves the website's Edge Functions and account UI apply to
+// expensive or spammable endpoints (Stripe checkout / portal sessions, account
+// deletion requests, shipping label emails, email change requests).
 //
 // They are NOT product features and are not capped by tier_limits: each cap is a
 // hardcoded constant in the calling function and is the same for every tier, so
@@ -31,23 +30,25 @@ export default async function AdminWebUsagePage({
 }: {
   searchParams: SearchParams;
 }) {
-  const selection = resolveUsageRange(await searchParams);
+  const now = new Date();
+  const selection = resolveUsageRange(await searchParams, now);
   const { rows, periodLabel } = await loadUsageRows("web", selection.period);
 
   return (
     <AdminUsageTable
       rows={rows}
       periodLabel={periodLabel}
+      periodNote={selection.period.note}
       capKind="limit"
       friendlyLabels
       emptyMessage="No web activity recorded for this range."
       toolbar={
         <UsageRangePicker
           preset={selection.preset}
+          resolution={selection.resolution}
           from={selection.from}
           to={selection.to}
-          min={USAGE_EPOCH}
-          max={usageToday()}
+          bounds={usageRangeBounds(now)}
           basePath="/admin/usage/web"
         />
       }
