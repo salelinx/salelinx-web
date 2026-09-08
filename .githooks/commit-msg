@@ -1,0 +1,17 @@
+#!/bin/sh
+# Rejects commit messages that credit an AI tool. Repo rule (CLAUDE.md,
+# AGENTS.md): never add co-author lines or mention AI/Claude in commits.
+# Coding agents sometimes get told by their own harness to append these;
+# this hook is the backstop that does not depend on the agent obeying.
+#
+# Enabled by "npm install" via the prepare script (git config core.hooksPath).
+
+msg_file="$1"
+
+# Strip comment lines before checking so a commented-out hint cannot trip it.
+if grep -v '^#' "$msg_file" | grep -qiE 'co-authored-by:.*(claude|anthropic|copilot|chatgpt|openai|gemini|cursor|codex)|generated with.*(claude|copilot|chatgpt|cursor|codex)|noreply@anthropic\.com'; then
+  echo "commit-msg: AI attribution found in the commit message." >&2
+  echo "This repo never credits AI tools in commits (see CLAUDE.md, Git & Commits)." >&2
+  echo "Remove the Co-Authored-By / Generated with line and commit again." >&2
+  exit 1
+fi
