@@ -6,6 +6,7 @@ import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
 import { usageSource, webCounterLimit } from "@/lib/admin/usage-sources";
 import { EXTENSION_FEATURES } from "@/lib/admin/extension-features";
 import type {
+  AdminUsageEventRow,
   AdminUsageRow,
   AdminUserRow,
   AdminSubscriptionRow,
@@ -34,9 +35,32 @@ export async function loadUsageRows(
 }> {
   const supabase = await createServerClient();
 
+  // Two sources answer the same question (count per user per feature): the
+  // bucketed counters for period keys, or usage_events for a trailing window
+  // (migration 017). The event totals are reshaped into the counter row type
+  // here so everything below is source-agnostic.
+  const usageQuery = period.window
+    ? supabase
+        .rpc("admin_list_usage_events", {
+          p_since: period.window.since,
+          p_until: period.window.until,
+        })
+        .then((res) => ({
+          data: ((res.data as AdminUsageEventRow[] | null) ?? []).map(
+            (e): AdminUsageRow => ({
+              user_id: e.user_id,
+              feature: e.feature,
+              period_key: "window",
+              count: Number(e.count),
+              updated_at: e.last_at,
+            }),
+          ),
+        }))
+    : supabase.rpc("admin_list_usage", { p_period_keys: period.keys });
+
   // These four reads are independent of each other, so they resolve together.
   const [usageRes, usersRes, subsRes, tiers] = await Promise.all([
-    supabase.rpc("admin_list_usage", { p_period_keys: period.keys }),
+    usageQuery,
     supabase.rpc("admin_list_users"),
     supabase.rpc("admin_list_subscriptions"),
     getTierConfigs(),

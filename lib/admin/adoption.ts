@@ -19,10 +19,18 @@ import {
   extensionFeatureLabel,
 } from "@/lib/admin/extension-features";
 import {
+  HOUR_EPOCH,
+  HOUR_KEY_RE,
+  HOUR_RETENTION_DAYS,
+  EVENTS_EPOCH,
+  EVENTS_RETENTION_DAYS,
   USAGE_EPOCH,
   currentPeriodKeys,
+  hourKey,
+  hourKeysForRange,
   periodKeysForRange,
 } from "@/lib/admin/period";
+import { WINDOW_PRESETS, usageRangeBounds } from "@/lib/admin/usage-range";
 import { usageSource } from "@/lib/admin/usage-sources";
 import type { AdminUsageRow, AdminUserRow } from "@/lib/types/admin";
 import type { TierConfig } from "@/lib/types/tiers";
@@ -98,7 +106,31 @@ function spanLabel(months: string[]): string {
 // Window resolution (URL params -> months to read)
 // ---------------------------------------------------------------------------
 
-export type AdoptionPreset = "1" | "3" | "6" | "all";
+// Month presets, the trailing-window presets shared with the usage pages
+// (WINDOW_PRESETS: 5m ... 72h), and "custom" for a UTC hour range.
+export type AdoptionPreset =
+  | "1"
+  | "3"
+  | "6"
+  | "all"
+  | "5m"
+  | "15m"
+  | "30m"
+  | "1h"
+  | "2h"
+  | "12h"
+  | "24h"
+  | "48h"
+  | "72h"
+  | "custom";
+
+// What the window's buckets are:
+//   months - runs of YYYY-MM, day rows folded into their month (the original)
+//   hours  - a custom range of YYYY-MM-DDTHH hour buckets (migration 016)
+//   window - an exact trailing window answered from usage_events (migration
+//            017); the fold sees two synthetic buckets, "window" and
+//            "compare", and no trend
+export type AdoptionKind = "months" | "hours" | "window";
 
 // Who counts as the denominator for "% adoption":
 //   active - users with ANY extension counter in the window (default: measures
@@ -111,37 +143,184 @@ export type AdoptionBase = "active" | "paid" | "all";
 
 export type AdoptionWindow = {
   preset: AdoptionPreset;
+  kind: AdoptionKind;
   base: AdoptionBase;
-  // Newest month in the window (YYYY-MM), from ?to=
+  // Newest month in the window (YYYY-MM), from ?to=. Only meaningful for the
+  // months kind; the other kinds carry the current month so the picker's
+  // month input has a value.
   anchor: string;
-  // The selected months, ascending.
+  // The selected buckets, ascending. Months for the months kind, hour keys
+  // for hours, the single synthetic "window" bucket for window. The name is
+  // historical; the fold treats these as opaque bucket keys.
   months: string[];
   // The preceding run of equal length, for deltas. Empty when nothing precedes
   // the window (all time, or a window that already starts at the epoch).
   compareMonths: string[];
-  // Months plotted in the sparklines: the window itself when it is 6+ months,
-  // otherwise the last 6 months ending at the anchor.
+  // Buckets plotted in the sparklines: for months, the window itself when it
+  // is 6+ months, otherwise the last 6 months ending at the anchor; for
+  // hours, every hour in the range; for window, nothing (no per-bucket
+  // breakdown exists for an events window).
   trendMonths: string[];
+  // Display labels aligned with trendMonths (short month names, or hours).
+  trendLabels: string[];
   label: string;
   compareLabel: string | null;
-  // usage_counters period keys covering every month above (month keys plus
-  // the day keys the daily verbs live under). Passed to admin_list_usage.
+  // usage_counters period keys covering every bucket above (month keys plus
+  // the day keys the daily verbs live under, or hour keys). Passed to
+  // admin_list_usage. Empty for the window kind.
   keys: string[];
+  // Window kind only: the timestamps passed to admin_list_usage_events, and
+  // the comparison window when there is one.
+  events?: {
+    since: string;
+    until: string;
+    compareSince?: string;
+    compareUntil?: string;
+  };
+  // Set when the request had to be clamped to the span that has data.
+  note?: string;
 };
 
+// '2026-09-08T14' -> '09-08 14:00' (sparkline axis) / '2026-09-08 14:00'.
+function hourShort(key: string): string {
+  return `${key.slice(5, 10)} ${key.slice(11, 13)}:00`;
+}
+function hourFull(key: string): string {
+  return `${key.slice(0, 10)} ${key.slice(11, 13)}:00`;
+}
+function windowLengthLabel(minutes: number): string {
+  if (minutes < 60) return `${minutes} minutes`;
+  if (minutes === 60) return "hour";
+  return `${minutes / 60} hours`;
+}
+
+// Custom UTC hour range, from ?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH. Buckets
+// are the hour rows written by migration 016; the comparison is the run of
+// equal length just before it, dropped when it would reach before the span
+// that has hour rows (same rule as the month windows).
+function resolveHoursWindow(
+  requestedFrom: string,
+  requestedTo: string,
+  base: AdoptionBase,
+  now: Date,
+): AdoptionWindow {
+  const bounds = usageRangeBounds(now);
+  const clamp = (h: string) =>
+    h < bounds.hourMin ? bounds.hourMin : h > bounds.hourMax ? bounds.hourMax : h;
+  let lo = clamp(requestedFrom);
+  let hi = clamp(requestedTo);
+  if (lo > hi) [lo, hi] = [hi, lo];
+  const months = hourKeysForRange(lo, hi);
+  const startMs = Date.parse(`${lo}:00:00Z`);
+  const cmpEnd = hourKey(new Date(startMs - 3_600_000));
+  const cmpStart = hourKey(new Date(startMs - months.length * 3_600_000));
+  const compareMonths =
+    cmpStart < bounds.hourMin ? [] : hourKeysForRange(cmpStart, cmpEnd);
+  const clamped = requestedFrom < bounds.hourMin || requestedTo < bounds.hourMin;
+  const note = clamped
+    ? bounds.hourMin === HOUR_EPOCH
+      ? `Hourly buckets start at ${hourFull(HOUR_EPOCH)} UTC; earlier hours were dropped from the range.`
+      : `Hourly buckets are kept for ${HOUR_RETENTION_DAYS} days; hours before ${hourFull(bounds.hourMin)} UTC were dropped from the range.`
+    : undefined;
+  return {
+    preset: "custom",
+    kind: "hours",
+    base,
+    anchor: currentPeriodKeys(now).month,
+    months,
+    compareMonths,
+    trendMonths: months,
+    trendLabels: months.map(hourShort),
+    label: `${hourFull(lo)} to ${hourFull(hi)} UTC (hourly)`,
+    compareLabel:
+      compareMonths.length === 0
+        ? null
+        : `${hourFull(cmpStart)} to ${hourFull(cmpEnd)} UTC`,
+    keys: [...months, ...compareMonths],
+    ...(note ? { note } : {}),
+  };
+}
+
+// Trailing window preset (?range=15m etc.), answered from usage_events. The
+// comparison is the window of equal length ending where this one starts,
+// dropped when it would reach before the span that has events.
+function resolveEventsWindow(
+  preset: AdoptionPreset,
+  minutes: number,
+  presetLabel: string,
+  base: AdoptionBase,
+  now: Date,
+): AdoptionWindow {
+  const bounds = usageRangeBounds(now);
+  const until = now.toISOString();
+  const requestedSince = new Date(now.getTime() - minutes * 60_000).toISOString();
+  const clamped = requestedSince < bounds.eventsMin;
+  const since = clamped ? bounds.eventsMin : requestedSince;
+  const lengthMs = Date.parse(until) - Date.parse(since);
+  const compareSince = new Date(Date.parse(since) - lengthMs).toISOString();
+  const hasCompare = !clamped && compareSince >= bounds.eventsMin;
+  const note = clamped
+    ? bounds.eventsMin === EVENTS_EPOCH
+      ? `Usage events start at ${EVENTS_EPOCH.slice(0, 10)} ${EVENTS_EPOCH.slice(11, 16)} UTC; the window was cut to begin there.`
+      : `Usage events are kept for ${EVENTS_RETENTION_DAYS} days; the window was cut to begin at ${bounds.eventsMin.slice(0, 10)} ${bounds.eventsMin.slice(11, 16)} UTC.`
+    : undefined;
+  return {
+    preset,
+    kind: "window",
+    base,
+    anchor: currentPeriodKeys(now).month,
+    months: ["window"],
+    compareMonths: hasCompare ? ["compare"] : [],
+    trendMonths: [],
+    trendLabels: [],
+    label: `${presetLabel} (since ${since.slice(11, 16)} UTC)`,
+    compareLabel: hasCompare ? `the previous ${windowLengthLabel(minutes)}` : null,
+    keys: [],
+    events: {
+      since,
+      until,
+      ...(hasCompare ? { compareSince, compareUntil: since } : {}),
+    },
+    ...(note ? { note } : {}),
+  };
+}
+
 export function resolveAdoptionWindow(
-  sp: { months?: string; to?: string; base?: string },
+  sp: {
+    months?: string;
+    to?: string;
+    base?: string;
+    range?: string;
+    from?: string;
+  },
   now: Date = new Date(),
 ): AdoptionWindow {
   const today = currentPeriodKeys(now);
   const epochMonth = USAGE_EPOCH.slice(0, 7);
 
+  const base: AdoptionBase =
+    sp.base === "paid" || sp.base === "all" ? sp.base : "active";
+
+  // ?to= doubles as the month anchor and the end of a custom hour range;
+  // its shape decides which.
+  if (sp.from && sp.to && HOUR_KEY_RE.test(sp.from) && HOUR_KEY_RE.test(sp.to)) {
+    return resolveHoursWindow(sp.from, sp.to, base, now);
+  }
+  const windowPreset = sp.range ? WINDOW_PRESETS[sp.range] : undefined;
+  if (windowPreset && sp.range) {
+    return resolveEventsWindow(
+      sp.range as AdoptionPreset,
+      windowPreset.minutes,
+      windowPreset.label,
+      base,
+      now,
+    );
+  }
+
   const preset: AdoptionPreset =
     sp.months === "3" || sp.months === "6" || sp.months === "all"
       ? sp.months
       : "1";
-  const base: AdoptionBase =
-    sp.base === "paid" || sp.base === "all" ? sp.base : "active";
 
   let anchor = today.month;
   if (sp.to && MONTH_RE.test(sp.to)) {
@@ -189,11 +368,13 @@ export function resolveAdoptionWindow(
 
   return {
     preset,
+    kind: "months",
     base,
     anchor,
     months,
     compareMonths,
     trendMonths,
+    trendLabels: trendMonths.map(shortMonthLabel),
     label,
     compareLabel,
     keys,
@@ -369,11 +550,14 @@ export function foldAdoption(input: {
 }): AdoptionReport {
   const { rows, users, tiers, window } = input;
 
-  // month -> feature -> user -> count. Day keys fold into their month.
+  // bucket -> feature -> user -> count. For the months kind, day keys fold
+  // into their month; for hours and window the period_key IS the bucket
+  // (an hour key, or the synthetic "window" / "compare").
   const byMonth = new Map<string, Map<string, Map<string, number>>>();
   for (const r of rows) {
     if (usageSource(r.feature) !== "extension") continue;
-    const month = r.period_key.slice(0, 7);
+    const month =
+      window.kind === "months" ? r.period_key.slice(0, 7) : r.period_key;
     const features =
       byMonth.get(month) ?? new Map<string, Map<string, number>>();
     const perUser = features.get(r.feature) ?? new Map<string, number>();
@@ -585,8 +769,13 @@ export function foldAdoption(input: {
     for (const uid of active) if (compareActive.has(uid)) returning += 1;
   }
 
+  // Only month buckets can predate the activity counters; the hour and
+  // event series both started long after them.
   const sinceMonth = ACTIVITY_COUNTERS_SINCE.slice(0, 7);
-  const unmeasuredMonths = window.trendMonths.filter((m) => m <= sinceMonth);
+  const unmeasuredMonths =
+    window.kind === "months"
+      ? window.trendMonths.filter((m) => m <= sinceMonth)
+      : [];
 
   return {
     window,

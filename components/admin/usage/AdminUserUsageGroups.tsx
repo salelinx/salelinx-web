@@ -36,13 +36,21 @@ export type UserUsageGroup = {
 type Props = {
   groups: UserUsageGroup[];
   periodLabel: string;
+  // Caveat about the resolved period (e.g. an hour range clamped to the
+  // hourly retention window), shown next to the label.
+  periodNote?: string;
   // Server-rendered period controls (UsageRangePicker) slotted into the
   // header so this component stays a pure renderer of whatever period the
   // page resolved.
   toolbar?: ReactNode;
 };
 
-export function AdminUserUsageGroups({ groups, periodLabel, toolbar }: Props) {
+export function AdminUserUsageGroups({
+  groups,
+  periodLabel,
+  periodNote,
+  toolbar,
+}: Props) {
   const [search, setSearch] = useState("");
   // Users the admin has explicitly toggled; everyone starts collapsed unless
   // "Expand all" flips the default.
@@ -73,6 +81,14 @@ export function AdminUserUsageGroups({ groups, periodLabel, toolbar }: Props) {
         <h1 className="text-sm font-semibold">
           Extension usage
           <span className="ml-2 font-normal text-zinc-400">{periodLabel}</span>
+          {periodNote && (
+            <span
+              className="ml-2 font-normal text-amber-700"
+              title={periodNote}
+            >
+              (clamped)
+            </span>
+          )}
         </h1>
         <div className="flex items-center gap-2">
           {toolbar}

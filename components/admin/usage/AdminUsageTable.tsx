@@ -45,6 +45,9 @@ type Props = {
   // serialized across that boundary - it throws at request time, and the build
   // does NOT catch it. Keep props here serializable.
   friendlyLabels?: boolean;
+  // Caveat about the resolved period (e.g. an hour range clamped to the
+  // hourly retention window), shown next to the label.
+  periodNote?: string;
   // Server-rendered period controls (UsageRangePicker) slotted into the
   // header so this component stays a pure renderer of whatever period the
   // page resolved.
@@ -56,6 +59,7 @@ type SortKey = "percent" | "count" | "feature";
 export function AdminUsageTable({
   rows,
   periodLabel,
+  periodNote,
   capKind = "tier",
   emptyMessage,
   friendlyLabels = false,
@@ -112,6 +116,14 @@ export function AdminUsageTable({
         <h1 className="text-sm font-semibold">
           {capKind === "limit" ? "Web usage" : "Extension usage"}
           <span className="ml-2 font-normal text-zinc-400">{periodLabel}</span>
+          {periodNote && (
+            <span
+              className="ml-2 font-normal text-amber-700"
+              title={periodNote}
+            >
+              (clamped)
+            </span>
+          )}
         </h1>
         <div className="flex items-center gap-2">
           {toolbar}

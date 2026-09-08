@@ -56,6 +56,16 @@ export type AdminUsageRow = {
   updated_at: string;
 };
 
+// One (user, feature) total from admin_list_usage_events() for a trailing
+// window (migration 017_usage_events.sql). count is the summed delta,
+// last_at the newest event in the window.
+export type AdminUsageEventRow = {
+  user_id: string;
+  feature: string;
+  count: number;
+  last_at: string;
+};
+
 // One usage counter inside the admin_user_detail() bundle (no user_id; it is
 // scoped to the one user the bundle is for).
 export type AdminUserUsageEntry = {

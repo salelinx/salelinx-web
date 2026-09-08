@@ -12,7 +12,8 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | --- | --- | --- | --- | --- | --- |
 | Accounts and auth | Email, hashed password, locale, sign-in timestamps | Users | Contract | Supabase `auth.users` | Life of account |
 | Subscriptions | Stripe customer/subscription IDs, tier, status, period end | Users | Contract | Supabase `subscriptions`, Stripe | Life of account; invoices kept by Stripe for tax law |
-| Usage metering and feature activity | Per-feature integer counts per period. Originally tier-metered counters only; 002_billing_tiers.sql registers ~28 additional non-metered activity counters (offers, chat replies, labels, photo edits, cloud sync actions, ...) for the admin usage console, currently inert until the extension sends them | Users | Contract (plan limits); legitimate interest (product analytics, support debugging) for the non-metered counters | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (002_billing_tiers.sql); rest, life of account |
+| Usage metering and feature activity | Per-feature integer counts per period. Originally tier-metered counters only; 002_billing_tiers.sql registers ~28 additional non-metered activity counters (offers, chat replies, labels, photo edits, cloud sync actions, ...) for the admin usage console, currently inert until the extension sends them | Users | Contract (plan limits); legitimate interest (product analytics, support debugging) for the non-metered counters | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (002_billing_tiers.sql); the server-derived hour-bucket rows (016_usage_hour_buckets.sql) purged after 60 days; rest, life of account |
+| Usage events | One row per usage increment: feature, the call's delta, server timestamp (017_usage_events.sql), for the admin console's trailing-window views (last 5 minutes to 72 hours) | Users | Legitimate interest (product analytics, support debugging) | Supabase `usage_events` (no client policies; SECURITY DEFINER functions only) | 7 days, purged hourly; cascades on account deletion |
 | Cloud sync (opt-in) | Listing content: titles, descriptions, prices, attributes, photos, enriched marketplace payloads | Users | Contract | Supabase `listings` + `listing-images` bucket | Until user disables sync or deletes account |
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |
@@ -217,7 +218,7 @@ On request from the account email:
 
 1. Auth profile: dashboard > Authentication > user (email, created, last sign-in).
 2. Rows for their `user_id` from: `listings`, `linked_accounts`, `user_settings`,
-   `subscriptions`, `usage_counters`, `user_storage`, `support_tickets`,
+   `subscriptions`, `usage_counters`, `usage_events`, `user_storage`, `support_tickets`,
    `support_ticket_replies`, `device_sessions`, `referral_codes` (including
    their self-chosen `display_name`), and `referrals` (where they are
    referrer or referee; redact the OTHER party's UUID before sending - it is

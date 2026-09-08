@@ -34,11 +34,27 @@ export type UsagePeriod = {
   keys: string[];
   label: string;
   capped: boolean;
+  // Caveat worth showing next to the label, e.g. an hour range that had to be
+  // clamped to the hourly retention window.
+  note?: string;
+  // Set for trailing-window presets: the period is answered from usage_events
+  // (migration 017) between these ISO timestamps instead of from period keys
+  // (keys is empty then). See lib/admin/usage-range.ts.
+  window?: { since: string; until: string };
 };
 
 // No usage counter can predate the product's first release; bounds the
 // "All time" key generation.
 export const USAGE_EPOCH = "2026-04-01";
+
+// Usage events (migration 017_usage_events.sql): one row per
+// increment_usage_counter call with the server timestamp, so a trailing
+// window (last 15 minutes, last 72 hours) can be answered exactly. Events
+// only exist from EVENTS_EPOCH (the moment 017 was applied to the live
+// project) and are purged after EVENTS_RETENTION_DAYS; the range resolver
+// clamps to both.
+export const EVENTS_EPOCH = "2026-09-08T00:00:00.000Z";
+export const EVENTS_RETENTION_DAYS = 7;
 
 export function currentUsagePeriod(now: Date): UsagePeriod {
   const { month, day } = currentPeriodKeys(now);
@@ -74,4 +90,51 @@ export function isMonthlyFeature(feature: string): boolean {
   // follow, unfollow. Default to monthly for unknown features (the safer
   // assumption for a longer window).
   return feature === "crosslist" || feature === "relist";
+}
+
+// ---------------------------------------------------------------------------
+// Hour buckets (migration 016_usage_hour_buckets.sql)
+// ---------------------------------------------------------------------------
+// increment_usage_counter also upserts a 'YYYY-MM-DDTHH' bucket (UTC) on every
+// call, derived server-side from now(). Hour rows are the only way to narrow a
+// usage range below a day: month and day rows are running totals with no
+// record of when within the period an action happened. An hour range must
+// therefore sum hour keys ONLY (mixing in the day or month bucket would count
+// the same action twice), which is why hourKeysForRange never emits them.
+
+export const HOUR_KEY_RE = /^\d{4}-\d{2}-\d{2}T\d{2}$/;
+
+// First hour that has an hour bucket: the moment migration 016 was applied to
+// the live project. Earlier hours have no rows and would read as 0, so the
+// range resolver refuses to go before it and says so.
+export const HOUR_EPOCH = "2026-09-08T00";
+
+// Hour rows are purged after this many days (purge_stale_usage_counters);
+// the resolver clamps hour ranges to the same window.
+export const HOUR_RETENTION_DAYS = 60;
+
+export function hourKey(now: Date): string {
+  const hh = String(now.getUTCHours()).padStart(2, "0");
+  return `${currentPeriodKeys(now).day}T${hh}`;
+}
+
+// Parses an hour key back to the Date at the start of that UTC hour, or null
+// if it is not a well-formed key.
+export function hourKeyToDate(key: string): Date | null {
+  if (!HOUR_KEY_RE.test(key)) return null;
+  const t = Date.parse(`${key}:00:00Z`);
+  return Number.isNaN(t) ? null : new Date(t);
+}
+
+// Every hour key between two hour keys, inclusive. Hour keys only: see the
+// note above about double counting.
+export function hourKeysForRange(from: string, to: string): string[] {
+  const start = hourKeyToDate(from);
+  const end = hourKeyToDate(to);
+  if (!start || !end) return [];
+  const keys: string[] = [];
+  for (let t = start.getTime(); t <= end.getTime(); t += 3_600_000) {
+    keys.push(hourKey(new Date(t)));
+  }
+  return keys;
 }
