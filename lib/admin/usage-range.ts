@@ -27,11 +27,31 @@ import type { UsagePeriod } from "@/lib/admin/period";
 
 export type UsageRangePreset =
   | "current"
+  | "1h"
+  | "2h"
+  | "12h"
   | "24h"
+  | "48h"
+  | "72h"
   | "7d"
   | "30d"
   | "all"
   | "custom";
+
+// "Last N hours" presets, bucket-aligned: the N hour buckets ending with the
+// current (partial) hour. "Last hour" at 15:42 is the 15:00 bucket, not
+// 14:42 to 15:42; hour buckets are the finest grain that exists, so a preset
+// cannot start mid-hour. Anything under an hour is not offered for the same
+// reason (it would silently show the whole current hour).
+export const HOUR_PRESETS: Record<string, { hours: number; label: string }> =
+  {
+    "1h": { hours: 1, label: "Last hour" },
+    "2h": { hours: 2, label: "Last 2 hours" },
+    "12h": { hours: 12, label: "Last 12 hours" },
+    "24h": { hours: 24, label: "Last 24 hours" },
+    "48h": { hours: 48, label: "Last 48 hours" },
+    "72h": { hours: 72, label: "Last 72 hours" },
+  };
 
 export type UsageRangeResolution = "day" | "hour";
 
@@ -150,11 +170,20 @@ export function resolveUsageRange(
     return dayPeriod("custom", from, to, `${from} to ${to}`);
   }
 
+  const hourPreset = sp.range ? HOUR_PRESETS[sp.range] : undefined;
+  if (hourPreset && sp.range) {
+    const from = hourKey(
+      new Date(now.getTime() - (hourPreset.hours - 1) * 3_600_000),
+    );
+    return hourPeriod(
+      sp.range as UsageRangePreset,
+      from,
+      bounds.hourMax,
+      hourPreset.label,
+    );
+  }
+
   switch (sp.range) {
-    case "24h": {
-      const from = hourKey(new Date(now.getTime() - 23 * 3_600_000));
-      return hourPeriod("24h", from, bounds.hourMax, "Last 24 hours");
-    }
     case "7d":
       return dayPeriod("7d", dayAgo(6), bounds.dayMax, "Last 7 days");
     case "30d":

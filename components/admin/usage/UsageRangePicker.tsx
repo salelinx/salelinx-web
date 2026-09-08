@@ -14,15 +14,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { HOUR_PRESETS } from "@/lib/admin/usage-range";
 import type {
   UsageRangeBounds,
   UsageRangePreset,
   UsageRangeResolution,
 } from "@/lib/admin/usage-range";
 
+// Hour presets come from the resolver's table so the option list and the
+// resolution stay in step; they are bucket-aligned (see HOUR_PRESETS).
 const PRESETS: { value: UsageRangePreset; label: string }[] = [
   { value: "current", label: "Current period" },
-  { value: "24h", label: "Last 24 hours" },
+  ...(Object.entries(HOUR_PRESETS) as [UsageRangePreset, { label: string }][]).map(
+    ([value, { label }]) => ({ value, label }),
+  ),
   { value: "7d", label: "Last 7 days" },
   { value: "30d", label: "Last 30 days" },
   { value: "all", label: "All time" },

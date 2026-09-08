@@ -9,6 +9,7 @@ import {
   periodKeysForRange,
 } from "@/lib/admin/period";
 import {
+  HOUR_PRESETS,
   resolveUsageRange,
   usageRangeBounds,
 } from "@/lib/admin/usage-range";
@@ -78,6 +79,37 @@ describe("resolveUsageRange", () => {
     expect(sel.period.keys[23]).toBe("2026-09-20T15");
     expect(sel.period.keys.every((k) => HOUR_KEY_RE.test(k))).toBe(true);
     expect(sel.period.note).toBeUndefined();
+  });
+
+  it("resolves 'Last hour' to just the current hour bucket", () => {
+    const sel = resolveUsageRange({ range: "1h" }, NOW);
+    expect(sel.preset).toBe("1h");
+    expect(sel.resolution).toBe("hour");
+    expect(sel.period.keys).toEqual(["2026-09-20T15"]);
+    expect(sel.period.label).toBe("Last hour");
+  });
+
+  it("resolves every hour preset to N bucket-aligned hour keys ending now", () => {
+    for (const [range, { hours }] of Object.entries(HOUR_PRESETS)) {
+      const sel = resolveUsageRange({ range }, NOW);
+      expect(sel.resolution, range).toBe("hour");
+      expect(sel.period.keys, range).toHaveLength(hours);
+      expect(sel.period.keys[hours - 1], range).toBe("2026-09-20T15");
+      expect(sel.period.keys.every((k) => HOUR_KEY_RE.test(k)), range).toBe(
+        true,
+      );
+    }
+    expect(resolveUsageRange({ range: "72h" }, NOW).period.keys[0]).toBe(
+      "2026-09-17T16",
+    );
+  });
+
+  it("clamps a long hour preset to the epoch right after launch", () => {
+    const justAfterLaunch = new Date("2026-09-09T10:00:00Z");
+    const sel = resolveUsageRange({ range: "72h" }, justAfterLaunch);
+    expect(sel.from).toBe(HOUR_EPOCH);
+    expect(sel.period.keys).toHaveLength(35);
+    expect(sel.period.note).toContain("Hourly buckets start at");
   });
 
   it("resolves hour-shaped from/to to hour keys only", () => {
