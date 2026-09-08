@@ -4,6 +4,7 @@ import { foldAdoption } from "@/lib/admin/adoption";
 import type { AdoptionReport, AdoptionWindow } from "@/lib/admin/adoption";
 import type {
   AdminSubscriptionRow,
+  AdminUsageEventRow,
   AdminUsageRow,
   AdminUserRow,
 } from "@/lib/types/admin";
@@ -36,8 +37,15 @@ export async function loadAnalyticsSource(
 ): Promise<AnalyticsSource> {
   const supabase = await createServerClient();
 
+  // A trailing window (window.kind === "window") is answered from
+  // usage_events, reshaped into counter rows under the synthetic buckets the
+  // fold expects; everything else reads the bucketed counters by key.
+  const usageQuery = window.events
+    ? loadEventRows(supabase, window.events)
+    : supabase.rpc("admin_list_usage", { p_period_keys: window.keys });
+
   const [usageRes, usersRes, tiers, subsRes] = await Promise.all([
-    supabase.rpc("admin_list_usage", { p_period_keys: window.keys }),
+    usageQuery,
     supabase.rpc("admin_list_users"),
     getTierConfigs(),
     opts.withSubscriptions
@@ -78,4 +86,36 @@ export async function loadUserEmails(
     emails[row.user_id] = row.email;
   }
   return emails;
+}
+
+// usage_events totals for the window (bucket "window") and, when present,
+// the comparison window (bucket "compare"), in the counter row shape.
+async function loadEventRows(
+  supabase: Awaited<ReturnType<typeof createServerClient>>,
+  events: NonNullable<AdoptionWindow["events"]>,
+): Promise<{ data: AdminUsageRow[] }> {
+  const fetchWindow = async (
+    since: string,
+    until: string,
+    bucket: string,
+  ): Promise<AdminUsageRow[]> => {
+    const { data } = await supabase.rpc("admin_list_usage_events", {
+      p_since: since,
+      p_until: until,
+    });
+    return ((data as AdminUsageEventRow[] | null) ?? []).map((e) => ({
+      user_id: e.user_id,
+      feature: e.feature,
+      period_key: bucket,
+      count: Number(e.count),
+      updated_at: e.last_at,
+    }));
+  };
+  const [current, compare] = await Promise.all([
+    fetchWindow(events.since, events.until, "window"),
+    events.compareSince && events.compareUntil
+      ? fetchWindow(events.compareSince, events.compareUntil, "compare")
+      : Promise.resolve([] as AdminUsageRow[]),
+  ]);
+  return { data: [...current, ...compare] };
 }

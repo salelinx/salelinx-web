@@ -23,7 +23,7 @@ import type {
   FeatureAdoption,
   TierCell,
 } from "@/lib/admin/adoption";
-import { monthLabel, shortMonthLabel } from "@/lib/admin/adoption";
+import { monthLabel } from "@/lib/admin/adoption";
 import { Sparkline } from "@/components/admin/usage/Sparkline";
 
 type Props = {
@@ -77,7 +77,10 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
     return rows;
   }, [report.features, sort]);
 
-  const trendLabels = win.trendMonths.map(shortMonthLabel);
+  // Sparklines exist for month and hour buckets; an events window has no
+  // per-bucket breakdown, so the trend column is dropped for it.
+  const trendLabels = win.trendLabels;
+  const hasTrend = trendLabels.length > 0;
   const unused = report.featuresTotal - report.featuresUsed;
   const compareText = win.compareLabel ? `vs ${win.compareLabel}` : null;
 
@@ -87,6 +90,11 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
         <h1 className="text-sm font-semibold">
           Feature adoption
           <span className="ml-2 font-normal text-zinc-400">{win.label}</span>
+          {win.note && (
+            <span className="ml-2 font-normal text-amber-700" title={win.note}>
+              (clamped)
+            </span>
+          )}
         </h1>
         <div className="flex items-center gap-3">
           {toolbar}
@@ -207,9 +215,12 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
                     >
                       Median / user
                     </SortTh>
-                    <th className="px-3 py-2 pr-4 font-medium">
-                      Users, {trendLabels[0]} to {trendLabels[trendLabels.length - 1]}
-                    </th>
+                    {hasTrend && (
+                      <th className="px-3 py-2 pr-4 font-medium">
+                        Users, {trendLabels[0]} to{" "}
+                        {trendLabels[trendLabels.length - 1]}
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -255,13 +266,15 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
                           num(f.medianPerUser)
                         )}
                       </td>
-                      <td className="px-3 py-1 pr-4">
-                        <Sparkline
-                          values={f.trend}
-                          labels={trendLabels}
-                          name={f.label}
-                        />
-                      </td>
+                      {hasTrend && (
+                        <td className="px-3 py-1 pr-4">
+                          <Sparkline
+                            values={f.trend}
+                            labels={trendLabels}
+                            name={f.label}
+                          />
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -342,8 +355,11 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
           </section>
 
           <p className="mt-4 text-xs text-zinc-400">
-            Source: usage_counters, extension counters only. Monthly buckets;
-            refresh, follow and unfollow are summed from their daily buckets.
+            {win.kind === "window"
+              ? "Source: usage_events, extension counters only. An exact window ending now; one event per feature run, so a bulk job counts once. "
+              : win.kind === "hours"
+                ? "Source: usage_counters hour buckets (UTC), extension counters only. "
+                : "Source: usage_counters, extension counters only. Monthly buckets; refresh, follow and unfollow are summed from their daily buckets. "}
             Plan eligibility uses the current tier_limits definition, so a
             grandfathered user may differ.
           </p>
