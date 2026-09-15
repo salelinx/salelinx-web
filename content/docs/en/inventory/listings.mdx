@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'listings',
   order: 1,
-  updated: '2026-05-18',
+  updated: '2026-09-15',
   tags: ['listings', 'inventory', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -60,11 +60,18 @@ actions:
 - **Delete** - removes the listings from the marketplace. There is no
   undo.
 
+The toolbar is shared across the grid rather than rebuilt per
+selection, so it stays put as you tick rows instead of the page
+shifting under you.
+
 ## Quick edit
 
 The pencil icon on any row opens an inline editor for title,
 description and price. Save commits to the marketplace immediately.
 Useful for one-off typo fixes without leaving the dashboard.
+
+The bulk editor goes further: on Depop it also writes brand, category,
+size, department, colour and condition.
 
 ## Restocker columns
 

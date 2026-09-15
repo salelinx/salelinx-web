@@ -5,6 +5,7 @@ import { FAQList } from '@/components/faq/FAQList';
 import { SupportCard } from '@/components/docs/SupportCard';
 import { Icon } from '@/components/Icon';
 import { getFaqGroups } from '@/lib/faq';
+import { faqJsonLd } from '@/lib/faq/jsonld';
 import type { Locale } from '@/lib/i18n/locales';
 import { pageMetadata } from '@/lib/site';
 
@@ -35,8 +36,14 @@ export default async function FAQPage({
   const t = await getTranslations('Faq');
   const groups = getFaqGroups(locale as Locale);
 
+  const jsonLd = faqJsonLd({ locale, groups });
+
   return (
     <main className="mx-auto w-full max-w-4xl px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <section className="pt-20 pb-10 sm:pt-24">
         <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">

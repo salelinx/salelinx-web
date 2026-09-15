@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Crosslist',
   description:
-    'Post any listing from one marketplace to the other in a single click. API-based, batched up to 50 at a time, fully automated.',
+    'Post any listing from one marketplace to the other in a single click. API-based, no limit on batch size, fully automated.',
   category: 'inventory',
   slug: 'crosslist',
   order: 5,
-  updated: '2026-05-18',
+  updated: '2026-09-15',
   tags: ['crosslist', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -57,8 +57,14 @@ Three controls sit above the grid:
   **drafts** on the target. When on, it publishes live listings
   straight away.
 
-Tick the cards you want to crosslist (single or multiple, up to 50 in
-one batch) and click **Crosslist to [target logo]**.
+Tick the cards you want to crosslist, single or multiple, and click
+**Crosslist to [target logo]**. There&rsquo;s no limit on how many you
+select in one go.
+
+Cards belonging to a listing that another job already owns (a Relist,
+Refresh, Dead Stock, Auto-Markdown or Restocker run) appear greyed out
+with a **Queued** badge and can&rsquo;t be selected. They drop out of
+select-all too, so a bulk job can&rsquo;t collide with a crosslist.
 
 ## What &ldquo;linked&rdquo; means
 
@@ -98,7 +104,9 @@ lives somewhere on this list.
 
 ## Batches
 
-A single click crosslists up to **50** items in one go. The batch:
+A single click crosslists as many items as you selected. There&rsquo;s
+no per-batch cap: your monthly plan allowance is the only thing that
+limits volume. The batch:
 
 - Runs sequentially with safe pacing between items so the
   marketplace doesn&rsquo;t flag the burst as automated activity.
