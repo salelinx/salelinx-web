@@ -389,7 +389,12 @@ export function ScrollWorldDemo() {
             svh, not vh: on iOS vh is the tallest the viewport ever gets, so a
             100vh scene is always slightly taller than the screen with the
             address bar showing, and the next scene's heading peeks in. */}
-        <div className="flex flex-col sm:gap-20">
+        {/* A hairline between scenes rather than a gap alone: at 80px of empty
+            space the scenes read as one long section, and the eyebrow counter
+            ("01 / 06") was the only thing saying otherwise. The rule sits
+            midway because the space comes from each scene's own padding, not
+            from a flex gap, so there is equal air above and below it. */}
+        <div className="flex flex-col divide-y divide-black/[0.08] dark:divide-white/10">
           {SCENES.map((s, i) => {
             // Alternate which side the animation sits on as you move down.
             // Split layouts only: the closing overview stacks vertically, so
@@ -412,8 +417,8 @@ export function ScrollWorldDemo() {
                 dir="ltr"
                 className={
                   full
-                    ? "flex min-h-[100svh] flex-col items-center justify-center gap-6 px-6 text-center sm:min-h-0 sm:px-0"
-                    : `grid min-h-[100svh] grid-cols-1 items-center gap-4 px-6 sm:min-h-0 sm:gap-8 sm:px-0 lg:gap-14 ${
+                    ? "flex min-h-[100svh] flex-col items-center justify-center gap-6 px-6 text-center sm:min-h-0 sm:px-0 sm:py-24"
+                    : `grid min-h-[100svh] grid-cols-1 items-center gap-4 px-6 sm:min-h-0 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
                         visualFirst
                           ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
                           : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
