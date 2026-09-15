@@ -19,6 +19,12 @@ import { notFound } from "next/navigation";
  * screenshot of this page shows the whole scroll.
  *
  * Same-origin, so scrollTo on the iframe's own window is allowed.
+ *
+ * Trust this over a narrow browser window. Chrome will not make a top-level
+ * window much under 400px, so asking a headless one for 390 lays the page out
+ * wider than that and then screenshots 390 of it: the hero headline appears to
+ * overflow and the CTAs look clipped, none of which happens on a device. An
+ * iframe can be exactly 390 wide, so it does not lie.
  */
 
 const FRAME_W = 390;
