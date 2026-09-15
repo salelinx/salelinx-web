@@ -346,7 +346,7 @@ export function ScrollWorldDemo() {
         </span>
         {String(i + 1).padStart(2, "0")} / {String(SEGMENTS).padStart(2, "0")}
       </span>
-      <h3 className="mt-3 text-balance text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-900 sm:text-3xl dark:text-zinc-50">
+      <h3 className="mt-3 text-balance text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-900 sm:text-3xl lg:text-4xl dark:text-zinc-50">
         {tf(s.titleKey)}
       </h3>
       {/* Hidden on phones: with one scene per screen the heading and the
@@ -365,16 +365,15 @@ export function ScrollWorldDemo() {
       className="relative scroll-mt-20"
     >
       <div className="mx-auto w-full max-w-6xl pb-12 pt-4 sm:px-6 sm:py-12">
-        {/* One scene per screen on phones, scrolled vertically like the rest of
-            the page; two alternating columns from lg up.
+        {/* Scenes are content-height, one column on phones and two alternating
+            columns from lg up.
 
-            min-height rather than scroll snapping: snapping the document needs
-            scroll-snap-type on the scroll container itself, and an inner
-            scroller that traps touch is worse than no snap at all on iOS.
-
-            svh, not vh: on iOS vh is the tallest the viewport ever gets, so a
-            100vh scene is always slightly taller than the screen with the
-            address bar showing, and the next scene's heading peeks in. */}
+            They used to be min-h-[100svh] each, so one filled a phone screen.
+            That was the only thing separating them, and it cost a lot of air:
+            content of about 450px centred in 844px left roughly 170px dead
+            above the heading and below the panel, which read as sparse and
+            made the section a long scroll of nearly-empty screens. The rule
+            between scenes does the separating now, so the height can go. */}
         {/* A hairline between scenes rather than a gap alone: at 80px of empty
             space the scenes read as one long section, and the eyebrow counter
             ("01 / 06") was the only thing saying otherwise. The rule sits
@@ -403,8 +402,8 @@ export function ScrollWorldDemo() {
                 dir="ltr"
                 className={
                   full
-                    ? "flex min-h-[100svh] flex-col items-center justify-center gap-6 px-6 text-center sm:min-h-0 sm:px-0 sm:py-24"
-                    : `grid min-h-[100svh] grid-cols-1 content-center items-center gap-7 px-6 sm:min-h-0 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
+                    ? "flex flex-col items-center justify-center gap-6 px-6 py-14 text-center sm:px-0 sm:py-24"
+                    : `grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
                         visualFirst
                           ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
                           : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
