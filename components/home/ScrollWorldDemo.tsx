@@ -238,7 +238,10 @@ function FeatureOverview() {
 // Every scene reuses copy that already exists (and is already translated into
 // all six locales) on the /features page, so adding the scroll didn't mean
 // inventing 11 new descriptions and machine-translating them.
-const SCENES: Scene[] = [
+// Exported for the dev-only /preview harness, which maps over this array
+// rather than keeping its own copy. A second list drifted: it listed a panel
+// the homepage had stopped showing and omitted one it had added.
+export const SCENES: Scene[] = [
   {
     id: "crosslist",
     fluid: true,
@@ -251,6 +254,11 @@ const SCENES: Scene[] = [
   {
     id: "restocker",
     icon: "refresh",
+    // ponytail: still scaled on phones, so its labels are ~4.5px there. It is
+    // the one panel that does NOT reflow into 342px (the product shot and the
+    // two-column counter row overhang), so `fluid: true` would clip it
+    // instead. Give it a phone layout, then set the flag. /preview shows the
+    // overhang side by side with the scaled version.
     // Named rather than described: "Restocker" is what the feature is called
     // in the panel and the pricing table, so the scene teaches the word. Its
     // own key rather than the plain `name` because the scene wants the
@@ -297,6 +305,9 @@ const SCENES: Scene[] = [
     titleKey: "chapter.visibility.items.followBot.label",
     bodyKey: "chapter.visibility.items.followBot.detail",
     shortKey: "chapter.visibility.items.followBot.name",
+    // Reflows and stays legible at 342px, checked in /preview. Scaling it
+    // instead put its 9px labels at roughly 4.5px on a phone.
+    fluid: true,
     render: () => <FollowBotPanel />,
   },
   {
@@ -311,8 +322,14 @@ const SCENES: Scene[] = [
     // shared height lands both footers on the same line. With items-start each
     // panel was its own height and the two footers sat at different levels,
     // which read as one column being unfinished.
+    // One column on phones. Two 171px panels side by side inside a 342px
+    // screen is unreadable, and each one reflows fine on its own. The old
+    // objection to stacking (it doubles the tallest scene, and every other
+    // scene scaled down to match that ceiling) died with the pinned stage:
+    // scenes are independently sized now.
+    fluid: true,
     render: () => (
-      <div className="grid grid-cols-2 items-stretch gap-4">
+      <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2">
         <OffersPanel />
         <ConversationsPanel />
       </div>
@@ -331,6 +348,9 @@ const SCENES: Scene[] = [
     titleKey: "chapter.sales.items.shipping.label",
     bodyKey: "chapter.sales.items.shipping.detail",
     shortKey: "chapter.sales.items.shipping.name",
+    // Widest fixed grid of the set, and it still reflows inside 342px with the
+    // carrier badges readable. Checked in /preview.
+    fluid: true,
     render: () => <LabelsPanel />,
   },
   {
