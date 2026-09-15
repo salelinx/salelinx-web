@@ -438,13 +438,19 @@ export function ScrollWorldDemo() {
                 className={
                   full
                     ? "flex min-h-[100svh] flex-col items-center justify-center gap-6 px-6 text-center sm:min-h-0 sm:px-0 sm:py-24"
-                    : `grid min-h-[100svh] grid-cols-1 items-center gap-4 px-6 sm:min-h-0 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
+                    : `grid min-h-[100svh] grid-cols-1 content-center items-center gap-4 px-6 sm:min-h-0 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
                         visualFirst
                           ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
                           : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
                       }`
                 }
               >
+                {/* content-center matters on phones: the scene is
+                    min-h-[100svh] and a grid's default align-content is
+                    stretch, so the two auto rows each grew to half the screen
+                    and the heading ended up centred a half-viewport above the
+                    panel it labels. content-center keeps the rows their own
+                    height and centres the pair together. */}
                 {/* Sides are swapped with CSS order rather than by reordering
                     the markup, so the copy still comes first in the DOM and
                     screen readers and keyboard focus meet the heading before
