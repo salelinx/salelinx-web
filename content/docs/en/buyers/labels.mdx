@@ -5,7 +5,7 @@ export const metadata = {
   category: 'buyers',
   slug: 'labels',
   order: 3,
-  updated: '2026-05-18',
+  updated: '2026-09-15',
   tags: ['shipping', 'labels', 'pdf', 'feedback'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -31,8 +31,15 @@ Two sections:
 2. **Shipped** - orders you&rsquo;ve marked sent, kept around so
    you can leave Vinted feedback in bulk from the same tab.
 
-Filters at the top narrow by carrier (Evri, Royal Mail, etc.) or
-by free-text search across buyer name and item title.
+Filters at the top narrow by marketplace, by carrier, or by
+free-text search across buyer name and item title. The carrier
+filter is a dropdown showing each carrier&rsquo;s logo alongside
+how many orders you have waiting on it, so you can pull up just
+the Evri pile before a drop-off run.
+
+Depop leaves sold orders marked as awaiting shipment indefinitely,
+so orders whose label has expired are hidden rather than left in
+the tab offering a label that will no longer scan.
 
 ## Selecting orders
 
@@ -62,7 +69,15 @@ you don&rsquo;t waste half a page per label.
 
 Depop offers some carriers as a QR code instead of a PDF. For
 those orders, the card shows a **PDF / QR** toggle. Pick whichever
-your local drop-off point accepts.
+your local drop-off point accepts: some scan a code rather than
+taking a printed label.
+
+When your selection contains more than one QR-capable order, a
+second **PDF / QR** toggle appears in the toolbar and sets all of
+them at once, so you don&rsquo;t have to flip each card. It reads
+as QR only when every capable order in the selection is already
+set to QR, so a mixed selection shows neither side active and one
+click settles the lot.
 
 ## Emailing labels
 
