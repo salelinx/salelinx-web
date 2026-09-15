@@ -17,6 +17,15 @@ interface RevealProps {
   delay?: number;
   /** Use the popIn variant instead of tabSlideIn (better for cards). */
   pop?: boolean;
+  /**
+   * Apply `panel-swap` on entry instead of the reveal classes. Use this to
+   * reveal a block whose `cascade-item` descendants are nested more than one
+   * level deep: `.in-view > .cascade-item` only reaches direct children, while
+   * `.panel-swap .cascade-item` matches at any depth.
+   */
+  panel?: boolean;
+  /** Passed through: panels mocking the extension UI must stay LTR in RTL locales. */
+  dir?: "ltr" | "rtl" | "auto";
   as?: "div" | "section" | "article" | "ul" | "li";
 }
 
@@ -31,6 +40,8 @@ export function Reveal({
   rootMargin = "0px 0px -120px 0px",
   delay = 0,
   pop = false,
+  panel = false,
+  dir,
   as = "div",
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
@@ -64,8 +75,13 @@ export function Reveal({
     return () => obs.disconnect();
   }, [delay, rootMargin]);
 
-  const base = pop ? "reveal-pop" : "reveal";
-  const classes = `${base}${shown ? " in-view" : ""} ${className}`.trim();
+  // The panel variant carries no resting class: its children sit at
+  // `.cascade-item`'s base opacity 0 until `panel-swap` arrives on entry.
+  const classes = (
+    panel
+      ? `${shown ? "panel-swap" : ""} ${className}`
+      : `${pop ? "reveal-pop" : "reveal"}${shown ? " in-view" : ""} ${className}`
+  ).trim();
 
   // Dynamic tag via a capitalized alias so this is plain JSX (the React lint /
   // compiler understands ref forwarding here, unlike a createElement call). The
@@ -73,6 +89,10 @@ export function Reveal({
   // type; spread a loosely-typed props bag so our single HTMLElement ref fits
   // whichever tag `as` resolves to (all are HTMLElements at runtime).
   const Tag = as as ElementType;
-  const tagProps: Record<string, unknown> = { ref, className: classes };
+  const tagProps: Record<string, unknown> = {
+    ref,
+    className: classes,
+    ...(dir ? { dir } : {}),
+  };
   return <Tag {...tagProps}>{children}</Tag>;
 }
