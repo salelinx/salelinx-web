@@ -41,13 +41,11 @@ import { SCENES } from "@/components/home/ScrollWorldDemo";
  * The page drops its own gutters below `sm` so the frames still fit.
  */
 
-/** Mirrors DESIGN_WIDTH in ScrollWorldDemo. Keep the two in step. */
+/** Roughly the widest a panel column gets on the homepage. */
 const PANEL_DESIGN_WIDTH = 680;
 
 /** 390px phone minus the scene's px-6 gutters. What a panel actually gets. */
 const PHONE_CONTENT_WIDTH = 342;
-
-const PHONE_SCALE = PHONE_CONTENT_WIDTH / PANEL_DESIGN_WIDTH;
 
 export default function PreviewPage() {
   if (process.env.NODE_ENV === "production") notFound();
@@ -60,10 +58,10 @@ export default function PreviewPage() {
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-zinc-500">
           Development only. Every homepage panel, running at once, at phone
-          width both as it ships and at natural size. The phone column is{" "}
+          width and at desktop width. The phone column is{" "}
           {PHONE_CONTENT_WIDTH}px, which is a 390px viewport minus the
-          scene&rsquo;s gutters; today&rsquo;s scale factor is{" "}
-          {PHONE_SCALE.toFixed(3)}.
+          scene&rsquo;s gutters. Nothing is scaled any more, so a panel that
+          overflows its frame here overflows on a real phone.
         </p>
       </header>
 
@@ -77,62 +75,15 @@ export default function PreviewPage() {
               <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 {s.id}
               </h2>
-              <span
-                className={
-                  s.fluid
-                    ? "rounded-full bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-700 dark:text-emerald-400"
-                    : "rounded-full bg-amber-500/10 px-2 py-0.5 font-mono text-[10px] text-amber-700 dark:text-amber-400"
-                }
-              >
-                {s.fluid === true ? "fluid" : `scaled ${PHONE_SCALE.toFixed(2)}`}
-              </span>
               <p className="font-mono text-[10px] text-zinc-400">
                 {s.layout === "full" ? "full-width overview scene" : "split scene"}
               </p>
             </div>
 
             <div className="flex flex-wrap items-start gap-8">
-              {/* As shipped on a phone: natural width, transform-scaled down.
-                  Same maths as FitWidth, inlined so this page does not depend
-                  on a component that is not exported. The outer box takes the
-                  scaled height because transforms do not affect layout. */}
               <Frame
-                label={`phone ${PHONE_CONTENT_WIDTH}px, as shipped`}
-                sub={s.fluid === true ? "fluid: renders natural, not scaled" : "scaled"}
-                width={PHONE_CONTENT_WIDTH}
-              >
-                {s.fluid === true ? (
-                  <div className="panel-swap" style={{ width: PHONE_CONTENT_WIDTH }}>
-                    {s.render()}
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      width: PHONE_CONTENT_WIDTH,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      className="panel-swap"
-                      style={{
-                        width: PANEL_DESIGN_WIDTH,
-                        transform: `scale(${PHONE_SCALE})`,
-                        transformOrigin: "top left",
-                      }}
-                    >
-                      {s.render()}
-                    </div>
-                  </div>
-                )}
-              </Frame>
-
-              {/* What Scene.fluid would give it: no transform, panel asked to
-                  reflow into the phone column. Overflow is visible on purpose
-                  so a panel that cannot cope shows the overhang rather than
-                  hiding it. */}
-              <Frame
-                label={`phone ${PHONE_CONTENT_WIDTH}px, natural size`}
-                sub="what fluid: true would look like"
+                label={`phone ${PHONE_CONTENT_WIDTH}px`}
+                sub="natural size, as it now ships"
                 width={PHONE_CONTENT_WIDTH}
               >
                 <div className="panel-swap" style={{ width: PHONE_CONTENT_WIDTH }}>

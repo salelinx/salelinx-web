@@ -56,14 +56,6 @@ interface Scene {
   /** 'split' is the default copy-beside-visual scene. 'full' centres the copy
    *  above a full-width visual, for the closing overview. */
   layout?: "split" | "full";
-  /** The panel reflows down to phone width on its own, so the stacked mobile
-   *  fallback renders it at natural size instead of scaling it.
-   *
-   *  Scaling is what made panel text unreadable on a phone: FitWidth renders at
-   *  a 680px design width and scales to the ~345px available, so 9px labels
-   *  came out at roughly 4.5px. A panel that reflows needs none of that. Set
-   *  this only once the panel genuinely works at 360px. */
-  fluid?: boolean;
   render: () => ReactNode;
 }
 
@@ -99,28 +91,27 @@ const ALL_FEATURES: { key: string; icon: IconName }[] = [
   { key: "listings.items.multilanguage", icon: "globe" },
 ];
 
-// Width the panels are actually designed for. Several of them use fixed grid
-// tracks (28px/36px/56px columns, side-by-side marketplace cards), so below
-// this they don't reflow, they overflow and get clipped by the body's
-// overflow-x: clip. Rendering at this width and scaling down keeps the
-// intended layout and just makes it smaller.
-const DESIGN_WIDTH = 680;
-
 /**
- * Renders children at DESIGN_WIDTH and scales them down to whatever width is
- * actually available. Used by the stacked mobile fallback; the pinned desktop
- * stage has room for the panels at full size and does its own height fit.
+ * Holds a scene's panel: keeps its measured height, and unmounts it while it
+ * is off screen.
+ *
+ * It used to also scale the panel, rendering it at a 680px design width and
+ * transforming it down to whatever the column gave it. That is gone. Every
+ * panel is responsive on its own, and the scaling was the cause of the
+ * long-standing mobile complaint: at 342px the factor was about 0.50, and the
+ * panels set type in hard pixels as small as 8.5px, so labels rendered near
+ * 4px. Check a panel at phone width in /preview rather than reintroducing a
+ * transform.
+ *
+ * The unmounting is not an optimisation to drop: every scene is mounted at
+ * once, so without it all six run their interval-driven animations for as
+ * long as the page is open. The outer box keeps the measured height so
+ * nothing collapses or shifts when a panel drops out and comes back.
  */
-function FitWidth({ children }: { children: ReactNode }) {
+function SceneFrame({ children }: { children: ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
   const [height, setHeight] = useState<number | null>(null);
-  // The stacked fallback mounts every scene at once, so without this all of
-  // them run their interval-driven animations the whole time you are on the
-  // page. Unmounting the ones you are not looking at stops that work; the
-  // measured height stays on the outer box, so nothing collapses or shifts
-  // when a panel drops out and comes back.
   const [active, setActive] = useState(true);
   const heightRef = useRef<number | null>(null);
   // Tallest this scene has ever needed. The box takes this rather than the
@@ -159,11 +150,7 @@ function FitWidth({ children }: { children: ReactNode }) {
         widthRef.current = width;
         tallestRef.current = 0;
       }
-      const next = Math.min(1, width / DESIGN_WIDTH);
-      setScale(next);
-      // offsetHeight is the pre-transform layout height, so this can't feed
-      // back into itself through the height we set on the outer box.
-      const h = Math.max(tallestRef.current, inner.offsetHeight * next);
+      const h = Math.max(tallestRef.current, inner.offsetHeight);
       tallestRef.current = h;
       heightRef.current = h;
       setHeight(h);
@@ -187,15 +174,7 @@ function FitWidth({ children }: { children: ReactNode }) {
       style={height !== null ? { height } : undefined}
     >
       {active ? (
-        <div
-          ref={innerRef}
-          dir="ltr"
-          style={{
-            width: DESIGN_WIDTH,
-            transform: `scale(${scale})`,
-            transformOrigin: "top left",
-          }}
-        >
+        <div ref={innerRef} dir="ltr" className="w-full">
           {children}
         </div>
       ) : null}
@@ -244,7 +223,6 @@ function FeatureOverview() {
 export const SCENES: Scene[] = [
   {
     id: "crosslist",
-    fluid: true,
     icon: "swap",
     titleKey: "chapter.crosslisting.items.bidirectional.label",
     bodyKey: "chapter.crosslisting.items.bidirectional.detail",
@@ -254,11 +232,6 @@ export const SCENES: Scene[] = [
   {
     id: "restocker",
     icon: "refresh",
-    // ponytail: still scaled on phones, so its labels are ~4.5px there. It is
-    // the one panel that does NOT reflow into 342px (the product shot and the
-    // two-column counter row overhang), so `fluid: true` would clip it
-    // instead. Give it a phone layout, then set the flag. /preview shows the
-    // overhang side by side with the scaled version.
     // Named rather than described: "Restocker" is what the feature is called
     // in the panel and the pricing table, so the scene teaches the word. Its
     // own key rather than the plain `name` because the scene wants the
@@ -305,9 +278,6 @@ export const SCENES: Scene[] = [
     titleKey: "chapter.visibility.items.followBot.label",
     bodyKey: "chapter.visibility.items.followBot.detail",
     shortKey: "chapter.visibility.items.followBot.name",
-    // Reflows and stays legible at 342px, checked in /preview. Scaling it
-    // instead put its 9px labels at roughly 4.5px on a phone.
-    fluid: true,
     render: () => <FollowBotPanel />,
   },
   {
@@ -327,7 +297,6 @@ export const SCENES: Scene[] = [
     // objection to stacking (it doubles the tallest scene, and every other
     // scene scaled down to match that ceiling) died with the pinned stage:
     // scenes are independently sized now.
-    fluid: true,
     render: () => (
       <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2">
         <OffersPanel />
@@ -348,9 +317,6 @@ export const SCENES: Scene[] = [
     titleKey: "chapter.sales.items.shipping.label",
     bodyKey: "chapter.sales.items.shipping.detail",
     shortKey: "chapter.sales.items.shipping.name",
-    // Widest fixed grid of the set, and it still reflows inside 342px with the
-    // carrier badges readable. Checked in /preview.
-    fluid: true,
     render: () => <LabelsPanel />,
   },
   {
@@ -438,7 +404,7 @@ export function ScrollWorldDemo() {
                 className={
                   full
                     ? "flex min-h-[100svh] flex-col items-center justify-center gap-6 px-6 text-center sm:min-h-0 sm:px-0 sm:py-24"
-                    : `grid min-h-[100svh] grid-cols-1 content-center items-center gap-4 px-6 sm:min-h-0 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
+                    : `grid min-h-[100svh] grid-cols-1 content-center items-center gap-7 px-6 sm:min-h-0 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
                         visualFirst
                           ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
                           : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
@@ -478,11 +444,7 @@ export function ScrollWorldDemo() {
                     full ? "" : visualFirst ? "lg:order-1" : "lg:order-2"
                   }`}
                 >
-                  {full || s.fluid ? (
-                    s.render()
-                  ) : (
-                    <FitWidth>{s.render()}</FitWidth>
-                  )}
+                  {full ? s.render() : <SceneFrame>{s.render()}</SceneFrame>}
                 </div>
               </Reveal>
             );
