@@ -56,14 +56,6 @@ interface Scene {
   /** 'split' is the default copy-beside-visual scene. 'full' centres the copy
    *  above a full-width visual, for the closing overview. */
   layout?: "split" | "full";
-  /** The panel reflows down to phone width on its own, so the stacked mobile
-   *  fallback renders it at natural size instead of scaling it.
-   *
-   *  Scaling is what made panel text unreadable on a phone: FitWidth renders at
-   *  a 680px design width and scales to the ~345px available, so 9px labels
-   *  came out at roughly 4.5px. A panel that reflows needs none of that. Set
-   *  this only once the panel genuinely works at 360px. */
-  fluid?: boolean;
   render: () => ReactNode;
 }
 
@@ -99,28 +91,27 @@ const ALL_FEATURES: { key: string; icon: IconName }[] = [
   { key: "listings.items.multilanguage", icon: "globe" },
 ];
 
-// Width the panels are actually designed for. Several of them use fixed grid
-// tracks (28px/36px/56px columns, side-by-side marketplace cards), so below
-// this they don't reflow, they overflow and get clipped by the body's
-// overflow-x: clip. Rendering at this width and scaling down keeps the
-// intended layout and just makes it smaller.
-const DESIGN_WIDTH = 680;
-
 /**
- * Renders children at DESIGN_WIDTH and scales them down to whatever width is
- * actually available. Used by the stacked mobile fallback; the pinned desktop
- * stage has room for the panels at full size and does its own height fit.
+ * Holds a scene's panel: keeps its measured height, and unmounts it while it
+ * is off screen.
+ *
+ * It used to also scale the panel, rendering it at a 680px design width and
+ * transforming it down to whatever the column gave it. That is gone. Every
+ * panel is responsive on its own, and the scaling was the cause of the
+ * long-standing mobile complaint: at 342px the factor was about 0.50, and the
+ * panels set type in hard pixels as small as 8.5px, so labels rendered near
+ * 4px. Check a panel at phone width in /preview rather than reintroducing a
+ * transform.
+ *
+ * The unmounting is not an optimisation to drop: every scene is mounted at
+ * once, so without it all six run their interval-driven animations for as
+ * long as the page is open. The outer box keeps the measured height so
+ * nothing collapses or shifts when a panel drops out and comes back.
  */
-function FitWidth({ children }: { children: ReactNode }) {
+function SceneFrame({ children }: { children: ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
   const [height, setHeight] = useState<number | null>(null);
-  // The stacked fallback mounts every scene at once, so without this all of
-  // them run their interval-driven animations the whole time you are on the
-  // page. Unmounting the ones you are not looking at stops that work; the
-  // measured height stays on the outer box, so nothing collapses or shifts
-  // when a panel drops out and comes back.
   const [active, setActive] = useState(true);
   const heightRef = useRef<number | null>(null);
   // Tallest this scene has ever needed. The box takes this rather than the
@@ -159,11 +150,7 @@ function FitWidth({ children }: { children: ReactNode }) {
         widthRef.current = width;
         tallestRef.current = 0;
       }
-      const next = Math.min(1, width / DESIGN_WIDTH);
-      setScale(next);
-      // offsetHeight is the pre-transform layout height, so this can't feed
-      // back into itself through the height we set on the outer box.
-      const h = Math.max(tallestRef.current, inner.offsetHeight * next);
+      const h = Math.max(tallestRef.current, inner.offsetHeight);
       tallestRef.current = h;
       heightRef.current = h;
       setHeight(h);
@@ -187,15 +174,7 @@ function FitWidth({ children }: { children: ReactNode }) {
       style={height !== null ? { height } : undefined}
     >
       {active ? (
-        <div
-          ref={innerRef}
-          dir="ltr"
-          style={{
-            width: DESIGN_WIDTH,
-            transform: `scale(${scale})`,
-            transformOrigin: "top left",
-          }}
-        >
+        <div ref={innerRef} dir="ltr" className="w-full">
           {children}
         </div>
       ) : null}
@@ -238,10 +217,12 @@ function FeatureOverview() {
 // Every scene reuses copy that already exists (and is already translated into
 // all six locales) on the /features page, so adding the scroll didn't mean
 // inventing 11 new descriptions and machine-translating them.
-const SCENES: Scene[] = [
+// Exported for the dev-only /preview harness, which maps over this array
+// rather than keeping its own copy. A second list drifted: it listed a panel
+// the homepage had stopped showing and omitted one it had added.
+export const SCENES: Scene[] = [
   {
     id: "crosslist",
-    fluid: true,
     icon: "swap",
     titleKey: "chapter.crosslisting.items.bidirectional.label",
     bodyKey: "chapter.crosslisting.items.bidirectional.detail",
@@ -311,8 +292,13 @@ const SCENES: Scene[] = [
     // shared height lands both footers on the same line. With items-start each
     // panel was its own height and the two footers sat at different levels,
     // which read as one column being unfinished.
+    // One column on phones. Two 171px panels side by side inside a 342px
+    // screen is unreadable, and each one reflows fine on its own. The old
+    // objection to stacking (it doubles the tallest scene, and every other
+    // scene scaled down to match that ceiling) died with the pinned stage:
+    // scenes are independently sized now.
     render: () => (
-      <div className="grid grid-cols-2 items-stretch gap-4">
+      <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2">
         <OffersPanel />
         <ConversationsPanel />
       </div>
@@ -360,7 +346,7 @@ export function ScrollWorldDemo() {
         </span>
         {String(i + 1).padStart(2, "0")} / {String(SEGMENTS).padStart(2, "0")}
       </span>
-      <h3 className="mt-3 text-balance text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-900 sm:text-3xl dark:text-zinc-50">
+      <h3 className="mt-3 text-balance text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-900 sm:text-3xl lg:text-4xl dark:text-zinc-50">
         {tf(s.titleKey)}
       </h3>
       {/* Hidden on phones: with one scene per screen the heading and the
@@ -379,17 +365,21 @@ export function ScrollWorldDemo() {
       className="relative scroll-mt-20"
     >
       <div className="mx-auto w-full max-w-6xl pb-12 pt-4 sm:px-6 sm:py-12">
-        {/* One scene per screen on phones, scrolled vertically like the rest of
-            the page; two alternating columns from lg up.
+        {/* Scenes are content-height, one column on phones and two alternating
+            columns from lg up.
 
-            min-height rather than scroll snapping: snapping the document needs
-            scroll-snap-type on the scroll container itself, and an inner
-            scroller that traps touch is worse than no snap at all on iOS.
-
-            svh, not vh: on iOS vh is the tallest the viewport ever gets, so a
-            100vh scene is always slightly taller than the screen with the
-            address bar showing, and the next scene's heading peeks in. */}
-        <div className="flex flex-col sm:gap-20">
+            They used to be min-h-[100svh] each, so one filled a phone screen.
+            That was the only thing separating them, and it cost a lot of air:
+            content of about 450px centred in 844px left roughly 170px dead
+            above the heading and below the panel, which read as sparse and
+            made the section a long scroll of nearly-empty screens. The rule
+            between scenes does the separating now, so the height can go. */}
+        {/* A hairline between scenes rather than a gap alone: at 80px of empty
+            space the scenes read as one long section, and the eyebrow counter
+            ("01 / 06") was the only thing saying otherwise. The rule sits
+            midway because the space comes from each scene's own padding, not
+            from a flex gap, so there is equal air above and below it. */}
+        <div className="flex flex-col divide-y divide-black/[0.08] dark:divide-white/10">
           {SCENES.map((s, i) => {
             // Alternate which side the animation sits on as you move down.
             // Split layouts only: the closing overview stacks vertically, so
@@ -412,14 +402,20 @@ export function ScrollWorldDemo() {
                 dir="ltr"
                 className={
                   full
-                    ? "flex min-h-[100svh] flex-col items-center justify-center gap-6 px-6 text-center sm:min-h-0 sm:px-0"
-                    : `grid min-h-[100svh] grid-cols-1 items-center gap-4 px-6 sm:min-h-0 sm:gap-8 sm:px-0 lg:gap-14 ${
+                    ? "flex flex-col items-center justify-center gap-6 px-6 py-14 text-center sm:px-0 sm:py-24"
+                    : `grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
                         visualFirst
                           ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
                           : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
                       }`
                 }
               >
+                {/* content-center matters on phones: the scene is
+                    min-h-[100svh] and a grid's default align-content is
+                    stretch, so the two auto rows each grew to half the screen
+                    and the heading ended up centred a half-viewport above the
+                    panel it labels. content-center keeps the rows their own
+                    height and centres the pair together. */}
                 {/* Sides are swapped with CSS order rather than by reordering
                     the markup, so the copy still comes first in the DOM and
                     screen readers and keyboard focus meet the heading before
@@ -447,11 +443,7 @@ export function ScrollWorldDemo() {
                     full ? "" : visualFirst ? "lg:order-1" : "lg:order-2"
                   }`}
                 >
-                  {full || s.fluid ? (
-                    s.render()
-                  ) : (
-                    <FitWidth>{s.render()}</FitWidth>
-                  )}
+                  {full ? s.render() : <SceneFrame>{s.render()}</SceneFrame>}
                 </div>
               </Reveal>
             );

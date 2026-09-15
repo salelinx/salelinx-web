@@ -37,7 +37,14 @@ const securityHeaders = [
     ? [{ key: 'Content-Security-Policy', value: CSP }]
     : []),
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
-  { key: 'X-Frame-Options', value: 'DENY' },
+  // DENY in production. SAMEORIGIN in development only, so the dev-only
+  // /preview harnesses can frame the site inside real phone-sized viewports,
+  // which is the only way to see `svh` and the `sm:` breakpoint behave as they
+  // do on a device. Production framing protection is unchanged.
+  {
+    key: 'X-Frame-Options',
+    value: process.env.NODE_ENV === 'production' ? 'DENY' : 'SAMEORIGIN',
+  },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
