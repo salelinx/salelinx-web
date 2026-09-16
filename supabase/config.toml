@@ -43,6 +43,9 @@ verify_jwt = false
 [functions.admin-change-plan]
 verify_jwt = false
 
+[functions.change-plan]
+verify_jwt = false
+
 [functions.delete-account]
 verify_jwt = false
 

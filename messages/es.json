@@ -490,7 +490,9 @@
   "Subscribe": {
     "loading": "Cargando...",
     "label": "Suscribirse",
-    "errorAlert": "No se pudo iniciar el pago. Inténtalo de nuevo."
+    "errorAlert": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+    "endTrialConfirm": "Empezar tu plan ahora? Esto finaliza tu prueba: se te cobrara hoy y perderas los dias restantes. Tus nuevos limites se aplican de inmediato.",
+    "downgradeViaPortal": "Para cambiar a un plan inferior, usa Gestionar suscripcion en la pagina de tu cuenta."
   },
   "Legal": {
     "privacy": {

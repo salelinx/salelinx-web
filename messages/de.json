@@ -490,7 +490,9 @@
   "Subscribe": {
     "loading": "Wird geladen...",
     "label": "Abonnieren",
-    "errorAlert": "Der Bezahlvorgang konnte nicht gestartet werden. Bitte versuche es erneut."
+    "errorAlert": "Der Bezahlvorgang konnte nicht gestartet werden. Bitte versuche es erneut.",
+    "endTrialConfirm": "Tarif jetzt starten? Damit endet deine Testphase: Du wirst heute abgerechnet und die verbleibenden Tage verfallen. Deine neuen Limits gelten sofort.",
+    "downgradeViaPortal": "Fuer einen niedrigeren Tarif nutze Abo verwalten auf deiner Kontoseite."
   },
   "Legal": {
     "privacy": {

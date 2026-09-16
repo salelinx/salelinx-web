@@ -490,7 +490,9 @@
   "Subscribe": {
     "loading": "Loading...",
     "label": "Subscribe",
-    "errorAlert": "Could not start checkout. Please try again."
+    "errorAlert": "Could not start checkout. Please try again.",
+    "endTrialConfirm": "Start your plan now? This ends your trial, so you are billed today and the days left on the trial are lost. Your new allowances apply straight away.",
+    "downgradeViaPortal": "To move to a lower plan, use Manage subscription on your account page."
   },
   "Legal": {
     "privacy": {
