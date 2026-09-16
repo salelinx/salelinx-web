@@ -12,7 +12,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`admin-change-plan`** - the admin console's real Stripe plan change (swap the price on a customer's live subscription). Needs `STRIPE_SECRET_KEY` and the service role (admin gate + audit write), so it lives with the other Stripe-adjacent functions.
 - **`admin-delete-user`** - the admin console's account deletion (the GDPR erasure runbook: storage, Stripe customer, auth user). Needs the service role and `STRIPE_SECRET_KEY`; same home as the script it mirrors (`scripts/delete-user-account.mjs`).
 - **`delete-account`** - self-serve account deletion from `/account` (Danger zone). Two stages: `request` emails the account address a confirmation link (Resend, HMAC-signed token, 60-minute expiry, signed with `DELETE_ACCOUNT_TOKEN_SECRET`); `confirm` (from `/account/delete-confirm`) verifies the token was minted for the caller and then runs the same erasure steps as `admin-delete-user`. Refuses admins (their audit-log FKs would break) and writes no audit entry (the actor would not survive their own deletion).
-- **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. **Deployed but not yet wired up: no extension build calls it.** The intent is to move the mapping tables (~116KB) out of the extension bundle, where anyone who installed it can unzip the .crx and lift them, and to make this the one crosslist entitlement check the user cannot patch around (a crosslist cannot produce a category without it). Neither benefit is realized yet: the extension still ships and reads its own copies in `src/data/category-maps-*.ts`, and this function is dead weight until that changes. See "Wiring up resolve-category" below.
+- **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. **Wired up and live**: the extension calls it from `src/features/crosslist/category-resolve-client.ts` with no local fallback, so the entitlement half of the intent is realized: this is now the crosslist check a user cannot patch around. The anti-scraping half is not: the extension still *ships* its copies in `src/data/category-maps-*.ts`, they just have no runtime caller. See "Wiring up resolve-category" below for what's left.
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 
 ## The fourteen functions
@@ -369,31 +369,36 @@ Read side: `/admin/health` (see `docs/ADMIN.md`). Privacy rationale and the
 
 ## Wiring up resolve-category
 
-The function is deployed and its `_generated/` tables are in place, but **nothing calls
-it**. `grep -rn "resolve-category"` across the extension repo returns nothing. Until the
-work below is done, the crosslister resolves categories from its own bundled copies in
-`src/data/category-maps-depop.ts` / `category-maps-vinted.ts`, so neither goal of the
-migration (tables out of the .crx, unpatchable crosslist gate) actually holds.
+Step 3 is **done**. The extension calls this function from
+`src/features/crosslist/category-resolve-client.ts` at three sites (`fetch-depop.ts`,
+`fetch-vinted.ts`, `create-depop.ts`), and nothing under `src/features/` reads the bundled
+tables any more.
 
-Outstanding:
+It was wired **without** the fallback the original plan called for, on purpose. A fallback
+to the local tables on "function unreachable" would have handed the gate straight back to
+the client, since forcing the call to fail is the easiest patch available, so a resolve failure
+aborts the crosslist instead. The accepted cost: **if this function is down, crosslisting
+is down for everyone.** Weigh that before touching its deploy.
+
+Still outstanding (the anti-scraping half of the migration):
 
 1. **Write the sync script.** Both this repo's `CLAUDE.md` and the headers inside
    `_generated/` refer to a script that does not exist in either repo, under two
    different names (`npm run sync:category-maps` and `scripts/sync-category-maps.mjs`).
    Nothing has ever generated these files automatically; the first copy was made by hand.
-2. **Reconcile the drift first.** `_generated/` has already been refactored server-side
-   in ways the extension source has not: shared types were hoisted into
-   `crosslist-category.ts` and the package-size defaults were split into
-   `package-size.ts`, neither of which exists in the extension. A naive copy would
-   regress those. Decide which side owns the shape before automating the copy.
-3. **Add the extension-side call** (`functions.invoke('resolve-category', ...)`, the same
-   pattern as `send-shipping-labels` in `src/background/handlers/shipping-handlers.ts`),
-   with a fallback path for offline / function-down.
-4. **Only then delete the bundled tables** from the extension, and update that repo's
-   `docs/technical/CROSSLISTING.md` and `DATA-MAPPINGS.md`, which currently describe
-   local resolution only.
+2. **Reconcile the drift.** `_generated/` has been refactored server-side in ways the
+   extension source has not: shared types hoisted into `crosslist-category.ts`, package-size
+   defaults split into `package-size.ts`, and better `poncho`/`gilet`/`cape` regexes. A naive
+   copy in either direction regresses something. Decide which side owns the shape first.
+3. ~~Add the extension-side call.~~ Done.
+4. **Only then delete the bundled tables** from the extension. Note what that costs: the
+   extension repo's `tests/data/crosslist-mappings.test.ts` and `category-targets-exist.test.ts`
+   (828 lines) are the only tests guarding this data anywhere, and `_generated/` has none.
+   Deleting the extension's copy without porting those tests drops 2,400 lines of mapping
+   data into a repo with zero coverage, which is how "Depop polo shirts pointed at Vinted
+   catalog 1809" happened in the first place.
 
-Until step 3 lands, treat any doc claiming the tables "live only here" as aspirational.
+Until step 4 lands, the tables still ship in the .crx; they just aren't read at runtime.
 
 ## Excluded from TypeScript checks
 
