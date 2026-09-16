@@ -78,6 +78,9 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [search, setSearch] = useState("");
   const [tier, setTier] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+  // "leaving" is the one that earns its place: paying now, gone at period end,
+  // and still reachable. Filtering to it is the whole point of the column.
+  const [cancelling, setCancelling] = useState<string>("all");
   const [platform, setPlatform] = useState<string>("all");
   const [activity, setActivity] = useState<ActivityFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
@@ -106,6 +109,15 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     const filtered = users.filter((u) => {
       const effectiveTier = u.tier_id ?? "none";
       if (tier !== "all" && effectiveTier !== tier) return false;
+      if (cancelling === "leaving" && !u.cancel_at_period_end) return false;
+      if (cancelling === "gone" && u.status !== "canceled") return false;
+      if (
+        cancelling === "staying" &&
+        (u.cancel_at_period_end || u.status === "canceled")
+      ) {
+        return false;
+      }
+
       if (status !== "all") {
         const effectiveStatus = u.status ?? "none";
         if (effectiveStatus !== status) return false;
@@ -150,7 +162,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
     });
     return sorted;
-  }, [users, search, tier, status, platform, activity, sortKey, now]);
+  }, [users, search, tier, status, cancelling, platform, activity, sortKey, now]);
 
   // Cap how many rows reach the DOM. Filtering/sorting above still runs over
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
@@ -202,6 +214,17 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           onChange={setStatus}
         />
         <FilterGroup
+          label="Cancelled"
+          value={cancelling}
+          options={[
+            ["all", "All"],
+            ["leaving", "Leaving"],
+            ["gone", "Gone"],
+            ["staying", "Staying"],
+          ]}
+          onChange={setCancelling}
+        />
+        <FilterGroup
           label="Linked"
           value={platform}
           options={[
@@ -247,6 +270,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                   onClick={() => setSortKey("tier_id")}
                 />
                 <th className="px-3 py-2 font-medium">Status</th>
+                <th className="px-3 py-2 font-medium">Cancelled</th>
                 <th className="px-3 py-2 font-medium">Version</th>
                 <SortableTh
                   label="Joined"
@@ -316,6 +340,14 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
+                      <CancellationCell
+                        cancelAtPeriodEnd={u.cancel_at_period_end}
+                        status={u.status}
+                        periodEnd={u.current_period_end}
+                        now={now}
+                      />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
                       <VersionCell
                         version={u.extension_version}
                         newest={newestVersion}
@@ -380,6 +412,62 @@ function AdminTag() {
 // Which marketplaces the user has connected. The full username and a link to
 // the shop live in the detail drawer; the roster only needs the presence
 // signal, so this stays a single initial per platform.
+/**
+ * Whether this user is on their way out, and how urgently.
+ *
+ * Three states worth telling apart, which a bare status column cannot:
+ *  - "Leaving" + a date: cancel_at_period_end, still paying, still entitled.
+ *    The only one you can still do something about, so it gets the warm tone
+ *    and the countdown.
+ *  - "Gone": the subscription already lapsed. Recorded, not actionable.
+ *  - "-": never cancelled, or never subscribed at all.
+ *
+ * A trial that is set to cancel counts as leaving too: that is a trial the
+ * user has actively turned off rather than one that will convert.
+ */
+function CancellationCell({
+  cancelAtPeriodEnd,
+  status,
+  periodEnd,
+  now,
+}: {
+  cancelAtPeriodEnd: boolean;
+  status: string | null;
+  periodEnd: string | null;
+  /** From useClientNow in the parent: reading the clock during render is both
+   *  impure and a hydration mismatch waiting to happen. Null until hydration,
+   *  which is why the countdown degrades to a bare "Leaving". */
+  now: number | null;
+}) {
+  if (status === "canceled") {
+    return (
+      <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+        Gone
+      </span>
+    );
+  }
+
+  if (!cancelAtPeriodEnd) return <span className="text-zinc-400">-</span>;
+
+  const days =
+    periodEnd === null || now === null
+      ? null
+      : Math.ceil((new Date(periodEnd).getTime() - now) / (24 * 60 * 60 * 1000));
+
+  return (
+    <span
+      className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
+      title={periodEnd ? `Access ends ${formatDate(periodEnd)}` : undefined}
+    >
+      {days === null
+        ? "Leaving"
+        : days <= 0
+          ? "Leaving today"
+          : `Leaving in ${days}d`}
+    </span>
+  );
+}
+
 function PlatformTags({ platforms }: { platforms: LinkedPlatform[] }) {
   if (platforms.length === 0) {
     return <span className="text-zinc-300">-</span>;
