@@ -17,6 +17,12 @@ export type AdminUserRow = {
   last_sign_in_at: string | null;
   tier_id: string | null;
   status: string | null;
+  // Scheduled to cancel at period end but still entitled right now. This is
+  // the churn signal worth acting on - a 'canceled' status is the aftermath.
+  cancel_at_period_end: boolean;
+  // When that cancellation lands, or when the period renews if none is
+  // scheduled. Null for a user who has never subscribed.
+  current_period_end: string | null;
   is_admin: boolean;
   // Which marketplaces this user has connected. Empty array (never null) for a
   // user who has linked nothing.
