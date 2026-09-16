@@ -210,16 +210,21 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   // deleted their account and re-linked the same Depop shop, and then charged
   // them 7.99 immediately with no trial. Keep the two in step.
   let trialEligible = true;
+  // Is the visitor mid-trial right now? If so their Subscribe buttons must
+  // start billing instead of opening Checkout, which refuses them with a 409
+  // because a trialing subscription is already a live one.
+  let isTrialing = false;
   const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    const { count } = await supabase
+    const { data: subRows, count } = await supabase
       .from("subscriptions")
-      .select("id", { count: "exact", head: true })
+      .select("status", { count: "exact" })
       .eq("user_id", user.id);
     trialEligible = (count ?? 0) === 0;
+    isTrialing = (subRows ?? []).some((r) => r.status === "trialing");
 
     if (trialEligible && isDisposableEmail(user.email ?? ""))
       trialEligible = false;
@@ -366,6 +371,8 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 <SubscribeButton
                   priceId={PRICE_IDS[tier.tier_id]!}
                   highlight={meta.highlight}
+                  upgradeFromTrial={isTrialing}
+                  tierId={tier.tier_id}
                 />
               ) : (
                 <button

@@ -13,6 +13,13 @@ type Props = {
    *  price, so this is what tells them apart. Eligibility is still decided
    *  entirely server-side; this only expresses intent. */
   withTrial?: boolean;
+  /** The visitor is mid-trial. Checkout refuses them (a trial IS a live
+   *  subscription), so this button ends the trial and starts billing instead
+   *  - which is the only way a capped trial user can actually upgrade. */
+  upgradeFromTrial?: boolean;
+  /** Target tier, sent to change-plan so a trialing user can jump straight to
+   *  Pro or Business rather than only starting Starter early. */
+  tierId?: string;
 };
 
 export function SubscribeButton({
@@ -20,13 +27,14 @@ export function SubscribeButton({
   label,
   highlight,
   withTrial = false,
+  upgradeFromTrial = false,
+  tierId,
 }: Props) {
   const t = useTranslations("Subscribe");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function onClick() {
-    setLoading(true);
     const supabase = createBrowserClient();
     const {
       data: { session },
@@ -36,6 +44,48 @@ export function SubscribeButton({
       router.push(`/auth/login?next=${encodeURIComponent("/pricing")}`);
       return;
     }
+
+    // Mid-trial: Checkout would 409, so end the trial instead. This bills the
+    // card straight away and loses whatever days were left, so it is the one
+    // path here that asks first - everything else on this button only ever
+    // opens Stripe's own confirm screen.
+    if (upgradeFromTrial) {
+      if (!confirm(t("endTrialConfirm"))) return;
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/change-plan`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify(tierId ? { tierId } : {}),
+          },
+        );
+        if (!res.ok) {
+          setLoading(false);
+          const body = (await res.json().catch(() => null)) as {
+            error?: string;
+          } | null;
+          alert(
+            body?.error === "downgrade_not_supported"
+              ? t("downgradeViaPortal")
+              : (body?.error ?? t("errorAlert")),
+          );
+          return;
+        }
+        // stripe-webhook syncs the row, so /account may lag a second or two.
+        router.push("/account");
+      } catch {
+        setLoading(false);
+        alert(t("errorAlert"));
+      }
+      return;
+    }
+
+    setLoading(true);
 
     // Redirect URLs and trial LENGTH are decided by the Edge Function, not sent
     // from here: they control what the customer is charged and where they land

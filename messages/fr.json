@@ -490,7 +490,9 @@
   "Subscribe": {
     "loading": "Chargement...",
     "label": "S'abonner",
-    "errorAlert": "Impossible de démarrer le paiement. Veuillez réessayer."
+    "errorAlert": "Impossible de démarrer le paiement. Veuillez réessayer.",
+    "endTrialConfirm": "Demarrer votre abonnement maintenant ? Cela met fin a votre essai : vous serez debite aujourd'hui et les jours restants seront perdus. Vos nouveaux quotas s'appliquent immediatement.",
+    "downgradeViaPortal": "Pour passer a un forfait inferieur, utilisez Gerer l'abonnement sur la page de votre compte."
   },
   "Legal": {
     "privacy": {

@@ -490,7 +490,9 @@
   "Subscribe": {
     "loading": "加载中...",
     "label": "订阅",
-    "errorAlert": "无法开始结账。请重试。"
+    "errorAlert": "无法开始结账。请重试。",
+    "endTrialConfirm": "立即开始订阅？这将结束试用，今天就会扣款，剩余试用天数将失效。新的额度会立即生效。",
+    "downgradeViaPortal": "如需降级，请在账户页面使用“管理订阅”。"
   },
   "Legal": {
     "privacy": {
