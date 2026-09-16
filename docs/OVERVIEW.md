@@ -178,6 +178,12 @@ Both use the anon key (public by design) and neither writes. There is no service
 
 `HEALTH_CHECK_TOKEN` is optional: unset, the endpoint is open so it works before anything is configured; set, callers must send `x-health-token`. Worth setting, since each call makes two outbound requests to the service it is protecting.
 
+**Seeing it without an outage.** `/dev/outage-preview` throws on purpose so the boundary renders; it `notFound()`s in production. Which copy you get depends on what the probe answers, so to see the *outage* branch rather than the bug branch, run the app pointed at an unreachable host:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://offline.invalid NEXT_PUBLIC_SUPABASE_ANON_KEY=anything npm run build && npm start
+```
+
 **Second consumer: the error boundary.** `app/[locale]/error.tsx` catches anything the locale tree throws — most often a server component that could not reach Supabase — and calls this endpoint once to decide what to tell the user: "we're temporarily down" (probe failed) or "something went wrong" (probe fine, so it is our bug). Saying "maintenance" for a code bug trains people to ignore the message, hence the probe rather than a guess.
 
 It only ever runs on a page that has already failed, so it costs nothing on the happy path, and the verdict is cached in `sessionStorage` for 30s so someone clicking around during an outage does not re-probe on every navigation — that would add load to a backend already in trouble. Only a **503** is read as an outage. A 500 (endpoint misconfigured) or a 401 (`HEALTH_CHECK_TOKEN` set — which this caller cannot send, since the secret must never reach the client) means the probe declined to answer, not that Supabase is down, and falls back to the generic error copy. Setting `HEALTH_CHECK_TOKEN` therefore does not break the page; it just costs the boundary its ability to distinguish an outage from a bug.
