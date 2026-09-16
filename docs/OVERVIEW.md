@@ -186,6 +186,8 @@ It runs on GitHub Actions rather than Vercel deliberately: a watchdog must not s
 
 **It ships disarmed.** Set the repository variable `WATCHDOG_ENABLED=true` to let it act; until then it probes, reports and fails the run without restarting anything. Required config: secrets `SUPABASE_ACCESS_TOKEN` (and `HEALTH_CHECK_TOKEN` if set), variables `SUPABASE_PROJECT_REF` and `HEALTH_URL`.
 
+Point `HEALTH_URL` at the apex, `https://salelinx.com/api/health/supabase`. The `www` host 307-redirects to it, and while `fetch` follows that, it costs an extra hop on every probe and turns a redirect misconfiguration into a false outage.
+
 **Seeing it without an outage.** `/dev/outage-preview` throws on purpose so the boundary renders; it `notFound()`s in production. Which copy you get depends on what the probe answers, so to see the *outage* branch rather than the bug branch, run the app pointed at an unreachable host:
 
 ```
