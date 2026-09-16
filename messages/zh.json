@@ -68,6 +68,18 @@
     "goHome": "返回首页",
     "getHelp": "前往帮助中心"
   },
+  "Maintenance": {
+    "label": "维护中",
+    "errorLabel": "错误",
+    "checkingTitle": "出了点问题",
+    "checkingBody": "正在检查这是否为临时故障…",
+    "title": "服务暂时中断",
+    "body": "SaleLinx 目前无法连接到服务器。你的数据是安全的，没有丢失任何内容。请几分钟后再试。",
+    "errorTitle": "出了点问题",
+    "errorBody": "此页面加载失败。重试通常即可解决。如果问题持续存在，请联系我们。",
+    "retry": "重试",
+    "checkStatus": "查看服务状态"
+  },
   "Home": {
     "heroEyebrow": "已支持 <depop></depop> + <vinted></vinted>",
     "heroTitle": "为每一位 <depop></depop> 和 <vinted></vinted> 卖家准备的工具。",

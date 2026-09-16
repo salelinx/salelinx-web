@@ -68,6 +68,18 @@
     "goHome": "Retour à l'accueil",
     "getHelp": "Consulter le centre d'aide"
   },
+  "Maintenance": {
+    "label": "Maintenance",
+    "errorLabel": "Erreur",
+    "checkingTitle": "Une erreur est survenue",
+    "checkingBody": "Vérification s'il s'agit d'une panne temporaire…",
+    "title": "Service temporairement indisponible",
+    "body": "SaleLinx n'arrive pas à joindre ses serveurs. Vos données sont en sécurité et rien n'a été perdu. Réessayez dans quelques minutes.",
+    "errorTitle": "Une erreur est survenue",
+    "errorBody": "Cette page n'a pas pu se charger. Réessayer suffit généralement. Si cela persiste, contactez-nous.",
+    "retry": "Réessayer",
+    "checkStatus": "Voir l'état du service"
+  },
   "Home": {
     "heroEyebrow": "Disponible pour <depop></depop> + <vinted></vinted>",
     "heroTitle": "Un outil pour chaque vendeur <depop></depop> & <vinted></vinted>.",

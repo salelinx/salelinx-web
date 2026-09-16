@@ -68,6 +68,18 @@
     "goHome": "Zurück zur Startseite",
     "getHelp": "Zum Hilfe-Center"
   },
+  "Maintenance": {
+    "label": "Wartung",
+    "errorLabel": "Fehler",
+    "checkingTitle": "Etwas ist schiefgelaufen",
+    "checkingBody": "Wir prüfen, ob es sich um eine vorübergehende Störung handelt…",
+    "title": "Wir sind vorübergehend offline",
+    "body": "SaleLinx kann seine Server nicht erreichen. Deine Daten sind sicher, es ist nichts verloren gegangen. Bitte versuche es in einigen Minuten erneut.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorBody": "Diese Seite konnte nicht geladen werden. Ein erneuter Versuch hilft meistens. Falls es weiterhin auftritt, melde dich bitte bei uns.",
+    "retry": "Erneut versuchen",
+    "checkStatus": "Servicestatus prüfen"
+  },
   "Home": {
     "heroEyebrow": "Verfügbar für <depop></depop> + <vinted></vinted>",
     "heroTitle": "Ein Tool für jeden <depop></depop>- & <vinted></vinted>-Verkäufer.",
