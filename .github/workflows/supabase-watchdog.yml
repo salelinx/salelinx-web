@@ -1,0 +1,49 @@
+# Watches Supabase and restarts it when it is genuinely down.
+#
+# Runs in GitHub Actions rather than on Vercel for two reasons. It shares no
+# infrastructure with either Supabase or the health endpoint it calls, so a
+# Vercel incident cannot take the watchdog with it. And the Supabase personal
+# access token it needs has FULL management access to the organisation — it
+# can delete projects — so it is better kept out of the web app's runtime env,
+# where any code-execution bug on the site could reach it.
+#
+# See scripts/supabase-watchdog.mjs for the decision rules.
+
+name: Supabase watchdog
+
+on:
+  schedule:
+    # Every 5 minutes. GitHub queues scheduled runs on a best-effort basis and
+    # can delay them by 5-15 minutes under load, so treat this as "checks
+    # several times an hour", not as a hard SLA. If minute-level response
+    # matters more than keeping the token out of Vercel, move it to a Vercel
+    # cron hitting an internal route instead.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+# Never let two runs overlap: the second would probe while the first is
+# waiting out a restart and could ask for another.
+concurrency:
+  group: supabase-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Probe and restart if down
+        env:
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          HEALTH_URL: ${{ vars.HEALTH_URL }}
+          HEALTH_CHECK_TOKEN: ${{ secrets.HEALTH_CHECK_TOKEN }}
+          # Repository variable, not a secret: it is a switch, not a
+          # credential, and it should be obvious whether the thing is armed.
+          # Unset or anything but 'true' observes and reports without acting.
+          WATCHDOG_ENABLED: ${{ vars.WATCHDOG_ENABLED }}
+        run: node scripts/supabase-watchdog.mjs
