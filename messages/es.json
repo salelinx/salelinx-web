@@ -294,10 +294,11 @@
     "managePortalBody": "Actualiza tu plan, cambia tu método de pago, descarga facturas o cancela desde el portal de facturación de Stripe.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "Gratis",
+      "trial": "Prueba",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "Sin plan"
     },
     "statusLabel": {
       "active": "Activo",

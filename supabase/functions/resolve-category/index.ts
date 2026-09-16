@@ -125,7 +125,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: sub, error: subErr } = await userScoped
     .from('subscriptions')
-    .select('tier_id, tier_version')
+    .select('tier_id, tier_version, status')
     .in('status', ENTITLED_STATUSES)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -135,15 +135,24 @@ Deno.serve(async (req: Request) => {
     return json(500, { error: 'Entitlement check failed' });
   }
 
-  // No entitled subscription at all resolves to the free tier, whose
-  // crosslists_per_month is 0.
+  // No entitled subscription at all means no plan: cap stays 0 and the
+  // request is refused below. There is no free tier to fall back to.
   let monthlyCap: number | null = 0;
   if (sub) {
+    // A trialing row resolves to the 'trial' tier, not the Starter tier Stripe
+    // billed it against: the trial is capped tighter than Starter on purpose.
+    // Mirrors the extension's utils/cloud/subscription.ts and the website's
+    // lib/supabase/subscription.ts - all three must agree or the server would
+    // grant a trialing user Starter's allowance.
+    const isTrialing = sub.status === 'trialing';
+    const tierId = isTrialing ? 'trial' : sub.tier_id;
+    const tierVersion = isTrialing ? 1 : sub.tier_version;
+
     const { data: tier, error: tierErr } = await userScoped
       .from('tier_limits')
       .select('limits')
-      .eq('tier_id', sub.tier_id)
-      .eq('version', sub.tier_version)
+      .eq('tier_id', tierId)
+      .eq('version', tierVersion)
       .maybeSingle();
     if (tierErr) {
       console.error('[resolve-category] tier lookup failed:', tierErr.message);

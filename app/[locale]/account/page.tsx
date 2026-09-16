@@ -64,7 +64,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
 
   const tierLabel = (id: string) => {
     try {
-      return t(`tierLabel.${id as "free" | "starter" | "pro" | "business"}`);
+      return t(`tierLabel.${id as "trial" | "starter" | "pro" | "business"}`);
     } catch {
       return id;
     }

@@ -294,10 +294,11 @@
     "managePortalBody": "Aktualisiere dein Paket, ändere deine Zahlungsmethode, lade Rechnungen herunter oder kündige im Stripe-Abrechnungsportal.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "Kostenlos",
+      "trial": "Testphase",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "Kein Tarif"
     },
     "statusLabel": {
       "active": "Aktiv",

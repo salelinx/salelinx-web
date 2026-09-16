@@ -294,10 +294,11 @@
     "managePortalBody": "Update your plan, change your payment method, download invoices, or cancel in Stripe's billing portal.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "Free",
+      "trial": "Trial",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "No plan"
     },
     "statusLabel": {
       "active": "Active",

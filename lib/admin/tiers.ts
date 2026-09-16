@@ -7,7 +7,7 @@ import type { TierConfig } from "@/lib/types/tiers";
 // Canonical column order for the standard tiers. Custom/bespoke tier ids
 // (e.g. pro_custom_acme, see docs/ENTITLEMENTS.md) sort after these,
 // alphabetically.
-const TIER_ORDER = ["free", "starter", "pro", "business"];
+const TIER_ORDER = ["trial", "starter", "pro", "business"];
 
 export function sortTierConfigs(tiers: TierConfig[]): TierConfig[] {
   return [...tiers].sort((a, b) => {
