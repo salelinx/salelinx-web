@@ -4,6 +4,7 @@ import { Link, redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import { TicketList } from "@/components/support/TicketList";
+import { isAuthUnreachable } from "@/lib/supabase/auth-errors";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -39,10 +40,15 @@ export default async function AccountTicketsPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "Support" });
 
   const supabase = await createServerClient();
-  const { data: auth } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await supabase.auth.getUser();
   const user = auth.user;
 
   if (!user) {
+    // A null user because auth was unreachable is NOT a signed-out user.
+    // Rethrow so the error boundary can say "we're temporarily down"
+    // rather than bouncing a signed-in person to a login page that will
+    // not work either. See lib/supabase/auth-errors.ts.
+    if (isAuthUnreachable(authError)) throw authError;
     redirect({ href: "/auth/login", locale });
     return null;
   }

@@ -68,6 +68,18 @@
     "goHome": "Volver al inicio",
     "getHelp": "Visitar el centro de ayuda"
   },
+  "Maintenance": {
+    "label": "Mantenimiento",
+    "errorLabel": "Error",
+    "checkingTitle": "Algo ha salido mal",
+    "checkingBody": "Comprobando si se trata de una caída temporal…",
+    "title": "SaleLinx no está disponible temporalmente",
+    "body": "Deberíamos volver en un momento.",
+    "errorTitle": "Algo ha salido mal",
+    "errorBody": "Esta página no se ha podido cargar. Reintentar suele solucionarlo. Si continúa, ponte en contacto con nosotros.",
+    "retry": "Reintentar",
+    "checkStatus": "Ver estado del servicio"
+  },
   "Home": {
     "heroEyebrow": "Disponible para <depop></depop> + <vinted></vinted>",
     "heroTitle": "Una herramienta para cada vendedor de <depop></depop> & <vinted></vinted>.",

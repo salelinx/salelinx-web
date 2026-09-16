@@ -68,6 +68,18 @@
     "goHome": "Back to home",
     "getHelp": "Visit the help center"
   },
+  "Maintenance": {
+    "label": "Maintenance",
+    "errorLabel": "Error",
+    "checkingTitle": "Something went wrong",
+    "checkingBody": "Checking whether this is a temporary outage…",
+    "title": "SaleLinx is temporarily down",
+    "body": "We should be back up in a moment.",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This page failed to load. Trying again usually fixes it. If it keeps happening, please get in touch.",
+    "retry": "Try again",
+    "checkStatus": "Check service status"
+  },
   "Home": {
     "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
     "heroTitle": "One tool for every <depop></depop> & <vinted></vinted> seller.",
