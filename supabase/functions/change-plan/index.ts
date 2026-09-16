@@ -37,6 +37,7 @@
 import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
+import { decidePlanChange } from "../_shared/plan-change.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2025-02-24.acacia",
@@ -56,16 +57,6 @@ function json(body: unknown, status = 200): Response {
 // or incomplete row has nothing to change; those users re-subscribe through
 // Checkout instead.
 const MODIFIABLE = new Set(["active", "trialing", "past_due"]);
-
-// Ladder order, low to high. Used only to refuse downgrades - the tier ids
-// themselves come from Stripe price metadata, not from this list, so adding a
-// tier does not require editing it unless that tier is upgradable-to.
-const TIER_RANK: Record<string, number> = {
-  trial: 0,
-  starter: 1,
-  pro: 2,
-  business: 3,
-};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -139,31 +130,27 @@ Deno.serve(async (req) => {
   const item = stripeSub.items.data[0];
   if (!item) return json({ error: "no_subscription_item" }, 409);
 
-  const isTrialing = stripeSub.status === "trialing";
-
-  // The tier the user is BILLED on. A trialing row says tier_id 'starter'
-  // because that is the price Stripe is holding, even though entitlements
-  // resolve it to the tighter 'trial' config - so compare against the price's
-  // tier, not the row's, or "trialing on Starter -> upgrade to Starter" would
-  // look like a downgrade.
+  // The tier the user is BILLED on: read from the Stripe price, not from
+  // subscriptions.tier_id. See decidePlanChange for why that distinction
+  // matters for a trialing row.
   const billedTier =
     (item.price.metadata?.tier_id as string | undefined) ??
     (target.tier_id as string);
 
+  const decision = decidePlanChange({
+    status: stripeSub.status,
+    billedTier,
+    requestedTier,
+  });
+  if (decision.kind === "error") {
+    return json({ error: decision.error }, decision.status);
+  }
+
   const update: Stripe.SubscriptionUpdateParams = {};
 
-  // Moving tier? Resolve the price the same way stripe-webhook maps it back:
-  // by tier_id / billing_cycle metadata on the Stripe Price. No lookup table
-  // to drift.
-  if (requestedTier && requestedTier !== billedTier) {
-    const from = TIER_RANK[billedTier];
-    const to = TIER_RANK[requestedTier];
-    if (to === undefined) return json({ error: "unknown_tier" }, 400);
-    if (from !== undefined && to < from) {
-      // Downgrades go through the Customer Portal on purpose - see header.
-      return json({ error: "downgrade_not_supported" }, 400);
-    }
-
+  if (decision.changeToTier) {
+    // Resolve the price the same way stripe-webhook maps it back: by tier_id /
+    // billing_cycle metadata on the Stripe Price. No lookup table to drift.
     const prices = await stripe.prices.list({
       active: true,
       type: "recurring",
@@ -171,7 +158,7 @@ Deno.serve(async (req) => {
     });
     const price = prices.data.find(
       (p) =>
-        (p.metadata?.tier_id ?? "") === requestedTier &&
+        (p.metadata?.tier_id ?? "") === decision.changeToTier &&
         (p.metadata?.billing_cycle ?? "monthly") === "monthly",
     );
     if (!price) return json({ error: "no_price_for_tier" }, 400);
@@ -180,15 +167,9 @@ Deno.serve(async (req) => {
     update.proration_behavior = "create_prorations";
   }
 
-  // Ending the trial is what actually starts the money. Stripe bills the
-  // first period immediately when trial_end moves to now.
-  if (isTrialing) update.trial_end = "now";
-
-  // Nothing to do: already on this tier and already paying. Report it rather
-  // than making a no-op Stripe write.
-  if (Object.keys(update).length === 0) {
-    return json({ error: "already_on_plan" }, 409);
-  }
+  // Ending the trial is what actually starts the money: Stripe bills the first
+  // period immediately when trial_end moves to now.
+  if (decision.endTrial) update.trial_end = "now";
 
   try {
     await stripe.subscriptions.update(
