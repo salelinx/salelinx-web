@@ -15,6 +15,9 @@ export type SubscriptionRow = {
   updated_at: string;
 };
 
+/** Tier row a trialing subscription resolves to, whatever Stripe billed. */
+const TRIAL_TIER_ID = "trial";
+
 // Statuses that represent the user's current plan. Preferred over lapsed
 // rows when a user has more than one (e.g. an old canceled trial plus a
 // live subscription); "newest row wins" alone would let a stale row shadow
@@ -42,11 +45,21 @@ export async function getCurrentSubscription(
     rows.find((r) => CURRENT_STATUSES.has(r.status)) ?? rows[0] ?? null;
   if (!subscription) return { subscription: null, tier: null };
 
+  // A trialing row resolves to the "trial" tier, not the Starter tier Stripe
+  // billed it against. The trial is deliberately capped tighter than Starter,
+  // which is what makes upgrading worth doing, so it owns a row of its own.
+  // Keep this in step with the extension's utils/cloud/subscription.ts.
+  const tierId =
+    subscription.status === "trialing" ? TRIAL_TIER_ID : subscription.tier_id;
+
   const { data: tier } = await supabase
     .from("tier_limits")
     .select("*")
-    .eq("tier_id", subscription.tier_id)
-    .eq("version", subscription.tier_version)
+    .eq("tier_id", tierId)
+    .eq(
+      "version",
+      tierId === TRIAL_TIER_ID ? 1 : subscription.tier_version,
+    )
     .maybeSingle();
 
   return {

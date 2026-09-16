@@ -1,4 +1,6 @@
-export type TierId = "free" | "starter" | "pro" | "business";
+// No free plan: every user trials or pays. "trial" is a real tier row;
+// users with no live plan carry no tier at all (see getCurrentSubscription).
+export type TierId = "trial" | "starter" | "pro" | "business";
 
 export type FeatureKind = "boolean" | "metered" | "quota";
 export type Period = "daily" | "monthly";

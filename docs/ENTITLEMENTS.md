@@ -9,7 +9,7 @@ Config-driven tier system. **Tier limits live as data in Supabase, not hardcoded
 One row per (tier_id, version). Features are boolean flags; limits are numeric caps.
 
 ```
-tier_id           free | starter | pro | business
+tier_id           trial | starter | pro | business
 version           int                     -- for grandfathering
 features          jsonb                   -- { auto_refresh: true, restocker: false, ... }
 limits            jsonb                   -- { crosslists_per_month: 3500, cloud_storage_bytes: null, ... }
@@ -158,7 +158,11 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 
-**Free is a fallback, not a plan.** The product model is a 14-day Starter trial (card required) followed by a paid plan; there is no advertised free tier. The `free` row exists so signed-in users with no `subscriptions` row (never trialed, or trial expired without a card) resolve to a concrete tier config. Its metered limits are all 0, so bot / crosslist / relist actions surface the upgrade prompt while manual listing management keeps working. The extension additionally fails closed for signed-out users (see the extension repo's `docs/technical/ENTITLEMENTS.md`).
+**There is no free plan, and no fallback tier row.** The product model is a 14-day trial (card required) followed by a paid plan. A signed-in user with no entitled `subscriptions` row - never trialed, cancelled, or a trial that expired - resolves to no tier at all: the extension builds a locked-out blob in code (`LOCKED_OUT` in `utils/cloud/subscription.ts`) carrying `entitled: false`, no features and no limits.
+
+This used to be a zero-limit `free` row in `tier_limits`, and the indirection was a trap. An absent limit key reads as **unlimited** in `preflightMetered`, so if that row had ever gone missing or been renamed, every metered cap would have silently un-gated for exactly the users who had stopped paying. A constant cannot go missing. `entitled: false` is checked before the limits map is trusted, in both `checkFeature` and `preflightMetered`.
+
+The extension additionally fails closed for signed-out users (see the extension repo's `docs/technical/ENTITLEMENTS.md`).
 
 ## Changing caps without a deploy
 
@@ -200,7 +204,7 @@ Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user - either from
 
 `lib/types/tiers.ts` defines:
 
-- `TierId` - union of tier IDs (`free | starter | pro | business | ...`)
+- `TierId` - union of tier IDs (`trial | starter | pro | business | ...`)
 - `TierConfig` - row shape
 - `GateResult` - return shape of `checkFeature()` / `preflightMetered()` / `consumeMetered()`
 - `FeatureKind` - `'boolean' | 'metered' | 'quota'`

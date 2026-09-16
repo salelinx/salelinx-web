@@ -432,7 +432,7 @@ export function tierCanUse(counter: string, tier: TierConfig | null): boolean {
 }
 
 // Canonical display order for the tier columns. Custom tiers go after.
-const TIER_ORDER = ["free", "starter", "pro", "business"];
+const TIER_ORDER = ["trial", "starter", "pro", "business"];
 
 export function tierSortKey(tierId: string): string {
   const i = TIER_ORDER.indexOf(tierId);
@@ -590,8 +590,8 @@ export function foldAdoption(input: {
     window.compareMonths.length > 0 ? activeIn(window.compareMonths) : null;
 
   const tierByUser = new Map<string, string>();
-  for (const u of users) tierByUser.set(u.user_id, u.tier_id ?? "free");
-  const tierOf = (uid: string) => tierByUser.get(uid) ?? "free";
+  for (const u of users) tierByUser.set(u.user_id, u.tier_id ?? "none");
+  const tierOf = (uid: string) => tierByUser.get(uid) ?? "none";
 
   // The denominator, and the filter applied to every numerator.
   let baseSet: Set<string>;
@@ -600,7 +600,7 @@ export function foldAdoption(input: {
       users
         .filter(
           (u) =>
-            (u.tier_id ?? "free") !== "free" &&
+            (u.tier_id ?? "none") !== "none" &&
             u.status !== null &&
             PAID_STATUSES.has(u.status),
         )

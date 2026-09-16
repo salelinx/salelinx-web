@@ -295,10 +295,11 @@
     "managePortalBody": "حدّث خطتك، أو غيّر طريقة الدفع، أو نزّل الفواتير، أو ألغِ الاشتراك من بوابة الفوترة في Stripe.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "مجاني",
+      "trial": "فترة تجريبية",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "لا توجد خطة"
     },
     "statusLabel": {
       "active": "نشط",

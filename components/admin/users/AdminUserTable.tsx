@@ -104,7 +104,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
     const filtered = users.filter((u) => {
-      const effectiveTier = u.tier_id ?? "free";
+      const effectiveTier = u.tier_id ?? "none";
       if (tier !== "all" && effectiveTier !== tier) return false;
       if (status !== "all") {
         const effectiveStatus = u.status ?? "none";
@@ -137,7 +137,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         case "email":
           return (a.email ?? "").localeCompare(b.email ?? "");
         case "tier_id":
-          return (a.tier_id ?? "free").localeCompare(b.tier_id ?? "free");
+          return (a.tier_id ?? "none").localeCompare(b.tier_id ?? "none");
         case "last_active":
           return (
             mostRecent(b.last_sign_in_at, b.last_device_seen_at) ?? ""
@@ -298,7 +298,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       <PlatformTags platforms={u.linked_platforms ?? []} />
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 capitalize text-zinc-700">
-                      {u.tier_id ?? "free"}
+                      {u.tier_id ?? "none"}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
                       {u.status ? (

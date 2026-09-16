@@ -30,7 +30,7 @@ const PRICE_IDS: Partial<Record<TierId, string | undefined>> = {
 // Prices live in lib/pricing.ts, per currency, mirroring the Stripe
 // currency_options - the card resolves them by the visitor's currency.
 const TIER_META: Record<
-  Exclude<TierId, "free">,
+  Exclude<TierId, "trial">,
   { name: string; highlight?: boolean }
 > = {
   starter: { name: "Starter" },
@@ -326,7 +326,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
         )}
 
         {paidTiers.map((tier) => {
-          const meta = TIER_META[tier.tier_id as Exclude<TierId, "free">];
+          const meta = TIER_META[tier.tier_id as Exclude<TierId, "trial">];
           return (
             <div
               key={tier.tier_id}

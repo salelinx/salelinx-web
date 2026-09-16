@@ -295,10 +295,11 @@
     "managePortalBody": "Mettez à jour votre forfait, changez de moyen de paiement, téléchargez vos factures ou annulez depuis le portail de facturation Stripe.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "Gratuit",
+      "trial": "Essai",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "Aucun forfait"
     },
     "statusLabel": {
       "active": "Actif",

@@ -295,10 +295,11 @@
     "managePortalBody": "在 Stripe 的账单门户中更新套餐、更换支付方式、下载发票或取消订阅。",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "免费",
+      "trial": "试用",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "无套餐"
     },
     "statusLabel": {
       "active": "生效中",
