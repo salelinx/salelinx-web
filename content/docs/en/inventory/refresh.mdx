@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'refresh',
   order: 4,
-  updated: '2026-05-18',
-  tags: ['refresh', 'depop', 'visibility', 'scheduler'],
+  updated: '2026-09-18',
+  tags: ['refresh', 'depop', 'visibility', 'scheduler', 'presets'],
   marketplaces: ['depop'],
   status: 'published',
 };
@@ -103,6 +103,31 @@ From the **Refresh** tab:
 You can keep working in other Chrome tabs while it runs. If you close
 the side panel mid-run, the bot keeps going in the background and
 picks up where it left off if the service worker restarts.
+
+## Presets
+
+The preset picker at the top of the Settings panel saves the refresh
+settings as a named set: the per-run cap for Refresh all, the seconds
+between listings, whether to skip listings refreshed within the last
+N days, and the penny toggle. Picking a preset fills in all four at
+once. Two are built in:
+
+- **Default** - 100 listings per run, 7 seconds between listings,
+  skip off, penny toggle off.
+- **Careful** - 50 listings per run, 15 seconds between listings.
+  Slower, and does less per run.
+
+Change any setting by hand and the picker marks the current values as
+unsaved; from there you can save them as a preset of your own. Saving
+under the name of one of your existing presets asks before
+overwriting it, and the built-in names can&rsquo;t be reused. Your
+own presets can be deleted after a confirmation; the built-ins
+can&rsquo;t.
+
+Your saved presets are stored with your SaleLinx account, so they
+survive a reinstall and follow you to another computer. See
+[Account and subscription](/docs/getting-started/account-and-subscription)
+for how syncing, sign-out and per-device selection work.
 
 ## Auto-refresh on a schedule
 

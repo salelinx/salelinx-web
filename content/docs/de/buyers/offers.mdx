@@ -5,8 +5,8 @@ export const metadata = {
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-05-18',
-  tags: ['angebote', 'depop', 'vinted'],
+  updated: '2026-09-18',
+  tags: ['angebote', 'depop', 'vinted', 'voreinstellungen'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
@@ -24,3 +24,37 @@ angezeigt wird, zum Altersfilter, zu den Aktionen, zum geteilten
 Vinted-Cache mit Messages und zu den Abostufen findest du in der
 [englischen Version](/en/docs/buyers/offers).
 </Callout>
+
+## Voreinstellungen für das automatische Annehmen
+
+Die Steuerung für das automatische Annehmen hat oben in ihrem
+Einstellungsbereich eine Auswahl für Voreinstellungen. Eine
+Voreinstellung speichert den Mindestprozentsatz vom Angebotspreis,
+die absolute Preisuntergrenze, welche Plattformen (Depop, Vinted)
+geprüft werden und wie oft geprüft wird. Eine Voreinstellung
+auszuwählen füllt alle Einstellungen auf einmal aus, und beim
+automatischen Annehmen ist die gewählte Voreinstellung sofort die
+aktive Regel. Zwei sind eingebaut:
+
+- **Standard** - 90 % vom Angebotspreis, keine Untergrenze, beide
+  Plattformen, Prüfung alle 15 Minuten.
+- **Vorsichtig** - 95 % vom Angebotspreis, Prüfung alle 30 Minuten.
+  Langsamer, und erledigt weniger pro Lauf.
+
+Eine Voreinstellung enthält bewusst nicht den Ein/Aus-Schalter des
+automatischen Annehmens. Es einzuschalten bleibt immer eine eigene,
+ausdrückliche Entscheidung, egal welche Voreinstellung gewählt ist.
+
+Änderst du eine Einstellung von Hand, markiert die Auswahl die
+aktuellen Werte als nicht gespeichert; von dort kannst du sie als
+eigene Voreinstellung speichern. Speichern unter dem Namen einer
+deiner vorhandenen Voreinstellungen fragt nach, bevor sie
+überschrieben wird, und die eingebauten Namen lassen sich nicht
+wiederverwenden. Eigene Voreinstellungen kannst du nach einer
+Rückfrage löschen; die eingebauten nicht.
+
+Deine gespeicherten Voreinstellungen liegen bei deinem
+SaleLinx-Konto, überstehen also eine Neuinstallation und folgen dir
+auf einen anderen Computer. Wie Synchronisation, Abmelden und die
+Auswahl pro Gerät funktionieren, steht unter
+[Konto und Abonnement](/docs/getting-started/account-and-subscription).

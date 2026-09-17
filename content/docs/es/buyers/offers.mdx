@@ -5,8 +5,8 @@ export const metadata = {
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-05-18',
-  tags: ['ofertas', 'depop', 'vinted'],
+  updated: '2026-09-18',
+  tags: ['ofertas', 'depop', 'vinted', 'ajustes guardados'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
@@ -25,3 +25,36 @@ Traducción completa al español próximamente. Consulta la
 filtro de antigüedad de ofertas, las acciones, la caché de Vinted
 compartida con Messages y los planes que lo incluyen.
 </Callout>
+
+## Ajustes guardados de la aceptación automática
+
+Los controles de aceptación automática tienen un selector de ajustes
+guardados en la parte superior de su panel de ajustes. Un ajuste
+guardado almacena el porcentaje mínimo del precio pedido, el precio
+mínimo absoluto, qué plataformas revisar (Depop, Vinted) y cada
+cuánto comprobar. Elegir uno rellena todos los ajustes de golpe, y
+en la aceptación automática el ajuste elegido pasa a ser la regla
+activa de inmediato. Hay dos incorporados:
+
+- **Predeterminado** - 90 % del precio pedido, sin precio mínimo,
+  ambas plataformas, comprobación cada 15 minutos.
+- **Prudente** - 95 % del precio pedido, comprobación cada 30
+  minutos. Más lento, y hace menos por ejecución.
+
+Un ajuste guardado no incluye, a propósito, el interruptor de
+encendido de la aceptación automática. Activarla es siempre una
+decisión aparte y explícita, sea cual sea el ajuste elegido.
+
+Cambia cualquier ajuste a mano y el selector marca los valores como
+sin guardar; desde ahí puedes guardarlos como un ajuste propio.
+Guardar con el nombre de uno de tus ajustes existentes pide
+confirmación antes de sobrescribirlo, y los nombres incorporados no
+se pueden reutilizar. Tus propios ajustes guardados se pueden borrar
+tras una confirmación; los incorporados, no.
+
+Tus ajustes guardados se almacenan con tu cuenta de SaleLinx, así
+que sobreviven a una reinstalación y te siguen a otro ordenador.
+Consulta
+[Cuenta y suscripción](/docs/getting-started/account-and-subscription)
+para saber cómo funcionan la sincronización, el cierre de sesión y
+la selección por dispositivo.
