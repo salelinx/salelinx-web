@@ -13,6 +13,10 @@ export type SubscriptionRow = {
   cancel_at_period_end: boolean;
   created_at: string;
   updated_at: string;
+  /** When this subscription first took a successful payment; null = never. */
+  first_paid_at: string | null;
+  /** When the current run of failed payments started. */
+  past_due_since: string | null;
 };
 
 /** Tier row a trialing subscription resolves to, whatever Stripe billed. */
@@ -68,13 +72,44 @@ export async function getCurrentSubscription(
   };
 }
 
-const ENTITLED_STATUSES = new Set<SubscriptionRow["status"]>([
-  "active",
-  "trialing",
-]);
+/**
+ * How long a paying customer keeps access after a failed payment.
+ * Mirrors GRACE_DAYS in supabase/functions/_shared/entitlement.ts.
+ */
+export const GRACE_DAYS = 7;
 
-export function isEntitled(sub: SubscriptionRow | null): boolean {
-  return sub !== null && ENTITLED_STATUSES.has(sub.status);
+/**
+ * Is this subscription entitled right now?
+ *
+ * MIRROR of isSubscriptionEntitled in
+ * supabase/functions/_shared/entitlement.ts, which cannot be imported here
+ * because supabase/functions is excluded from this repo's tsconfig. Unlike the
+ * other keep-in-sync pairs, this one is checked: tests/entitlement.test.ts
+ * runs the same matrix through both and fails if they diverge.
+ *
+ * This used to exclude past_due outright while getCurrentSubscription's
+ * CURRENT_STATUSES included it, and the extension and resolve-category both
+ * granted it unconditionally - so the same user was entitled or not depending
+ * on which code path asked. All three now agree.
+ */
+export function isEntitled(
+  sub: SubscriptionRow | null,
+  now: number = Date.now(),
+): boolean {
+  if (!sub) return false;
+  if (sub.status === "active" || sub.status === "trialing") return true;
+  if (sub.status !== "past_due") return false;
+
+  // Never paid: a failed trial conversion, not a billing hiccup. Granting a
+  // grace period here would extend the trial with an empty card.
+  if (!sub.first_paid_at) return false;
+
+  // Predates the rule; deny rather than grant forever.
+  if (!sub.past_due_since) return false;
+
+  const since = new Date(sub.past_due_since).getTime();
+  if (Number.isNaN(since)) return false;
+  return now - since < GRACE_DAYS * 24 * 60 * 60 * 1000;
 }
 
 export function trialDaysRemaining(sub: SubscriptionRow | null): number | null {
