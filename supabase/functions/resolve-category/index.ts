@@ -36,6 +36,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
+import { isSubscriptionEntitled } from '../_shared/entitlement.ts';
 import {
   mapDepopToVintedCategory,
   depopProductTypeFromText,
@@ -59,6 +60,9 @@ const MAX_TEXT = 2000;
 // CURRENT_STATUSES in lib/supabase/subscription.ts: 'past_due' keeps its tier
 // as a payment-retry grace period, so a card that fails mid-month does not
 // break crosslisting.
+// Statuses worth fetching. Entitlement is then decided by
+// isSubscriptionEntitled, which additionally refuses a past_due row that has
+// never paid or has run past its grace window.
 const ENTITLED_STATUSES = ['active', 'trialing', 'past_due'];
 
 function json(status: number, body: unknown): Response {
@@ -125,7 +129,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: sub, error: subErr } = await userScoped
     .from('subscriptions')
-    .select('tier_id, tier_version, status')
+    .select('tier_id, tier_version, status, first_paid_at, past_due_since')
     .in('status', ENTITLED_STATUSES)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -137,8 +141,13 @@ Deno.serve(async (req: Request) => {
 
   // No entitled subscription at all means no plan: cap stays 0 and the
   // request is refused below. There is no free tier to fall back to.
+  //
+  // A past_due row reaching here is not automatically entitled: a first-ever
+  // charge that failed (a trial that never converted) is refused outright,
+  // and an established customer gets a bounded grace window. See
+  // _shared/entitlement.ts.
   let monthlyCap: number | null = 0;
-  if (sub) {
+  if (sub && isSubscriptionEntitled(sub)) {
     // A trialing row resolves to the 'trial' tier, not the Starter tier Stripe
     // billed it against: the trial is capped tighter than Starter on purpose.
     // Mirrors the extension's utils/cloud/subscription.ts and the website's
