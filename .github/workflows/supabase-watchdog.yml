@@ -13,12 +13,23 @@ name: Supabase watchdog
 
 on:
   schedule:
-    # Every 5 minutes. GitHub queues scheduled runs on a best-effort basis and
-    # can delay them by 5-15 minutes under load, so treat this as "checks
-    # several times an hour", not as a hard SLA. If minute-level response
-    # matters more than keeping the token out of Vercel, move it to a Vercel
-    # cron hitting an internal route instead.
-    - cron: '*/5 * * * *'
+    # NOT every 15 minutes in practice. This said '*/5' for its first three
+    # days and GitHub delivered 6-8 runs a day out of the 288 requested, in
+    # gaps of 2-5 hours: scheduled runs are best-effort and high-frequency
+    # crons are the first thing dropped under load. Asking for '*/5' did not
+    # buy a single extra run, it just made the file lie about the cadence.
+    #
+    # The odd offsets are the one free improvement available: :00 and :05 are
+    # the most contended minutes on the platform, so staying off them gives
+    # these runs a slightly better chance of being picked up.
+    #
+    # ponytail: ceiling is "a few checks an hour, no floor on the gap". An
+    # outage inside a gap is invisible until the next run. Buying a real floor
+    # means an external trigger, and the cheapest one that does NOT undo the
+    # token decision below is a Vercel cron calling workflow_dispatch with a
+    # GitHub token scoped to that alone. Do that when the gap actually costs
+    # something.
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
 # Never let two runs overlap: the second would probe while the first is
@@ -35,7 +46,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 20 is deprecated and the runner already forces these actions onto
+          # 24; pinning it here keeps the watchdog off a moving default.
+          node-version: 24
       - name: Probe and restart if down
         env:
           SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}

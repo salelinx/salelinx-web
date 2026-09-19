@@ -16,16 +16,38 @@
  * thing it watches. This runs in GitHub Actions, which shares no
  * infrastructure with either Supabase or Vercel.
  *
- * TWO INDEPENDENT SIGNALS, AND BOTH MUST AGREE
- *   1. our own probe  — /api/health/supabase, which reaches through to
+ * TWO SIGNALS, AND WHAT EACH IS WORTH
+ *   1. our own probe  - /api/health/supabase, which reaches through to
  *      Postgres via both auth and PostgREST (see docs/OVERVIEW.md)
- *   2. Supabase's own — GET /v1/projects/{ref}, the platform's view
+ *   2. Supabase's own - GET /v1/projects/{ref}, the platform's view
  *
- * If the probe fails but Supabase reports ACTIVE_HEALTHY, the fault is far
- * more likely to be Vercel, DNS or this runner's network than the database —
- * restarting on that alone would mean causing an outage because we could not
- * reach a webpage. That case reports and exits without acting.
+ * These are NOT equal, and the first version of this script treated them as if
+ * they were: it stood down whenever the platform said ACTIVE_HEALTHY, on the
+ * theory that our probe was the likelier of the two to be wrong. That rule can
+ * essentially never fire correctly, because ACTIVE_HEALTHY is a lifecycle
+ * state (the project is provisioned and not paused), not a serving one. It
+ * stayed green for the whole 5h18m on 2026-09-06, and it was green again on
+ * 2026-09-17 19:14 UTC when this script probed three times, got
+ * "failed=auth_token_refresh,rest_read" each time, and refused to act. The
+ * veto was armed against precisely the outage the watchdog exists for.
+ *
+ * What actually separates "Supabase is down" from "we could not reach a
+ * webpage" is not the platform's opinion, it is whether our own endpoint
+ * ANSWERED. A parsed JSON 503 naming the failed probes proves Vercel ran the
+ * handler and made both outbound calls: Vercel is up, Supabase is not. A
+ * timeout, a DNS failure or an HTML error page from the edge proves nothing
+ * either way. So:
+ *
+ *   any served JSON 503     -> restart, whatever the platform says
+ *   only unreachable probes -> ambiguous, and here ACTIVE_HEALTHY does still
+ *                              get the final say
+ *
+ * The corollary is that a Vercel outage disables the restart path completely.
+ * That is correct, not a gap: with the endpoint dark we have no evidence about
+ * Supabase either way, and a restart is itself an outage.
  */
+
+import { pathToFileURL } from 'node:url';
 
 const REF = process.env.SUPABASE_PROJECT_REF;
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
@@ -78,10 +100,27 @@ function requireEnv() {
   }
 }
 
-/** One health probe. 200 is healthy; 503 is Supabase not serving; 500 means
- *  the endpoint itself is misconfigured, which is our bug and not grounds for
- *  a restart. Anything unreachable counts as a failure but, on its own, only
- *  as evidence about the probe path. */
+/**
+ * What one probe established. The load-bearing distinction is between
+ * SUPABASE_DOWN and UNREACHABLE: both are "the probe failed", but only the
+ * first is evidence about Supabase. Collapsing them into a single `ok: false`
+ * is what made the old decision rule unable to tell an outage from a bad
+ * network hop, and so made it defer to the platform status every time.
+ */
+export const HEALTHY = 'healthy';
+/** Our endpoint answered, in its own JSON, that Supabase is not serving.
+ *  Positive proof: the handler ran, so Vercel is up and the fault is beyond
+ *  it. A network blip cannot manufacture this. */
+export const SUPABASE_DOWN = 'supabase_down';
+/** Our endpoint answered 500: it is missing env vars. Our bug, and a restart
+ *  does not fix it. */
+export const MISCONFIGURED = 'misconfigured';
+/** No answer, or one that did not come from our handler (timeout, DNS, an
+ *  edge HTML error page). Says nothing about Supabase on its own. */
+export const UNREACHABLE = 'unreachable';
+
+/** One health probe. Returns the kind of evidence it produced, not just
+ *  pass/fail. */
 async function probe() {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), PROBE_TIMEOUT_MS);
@@ -91,16 +130,24 @@ async function probe() {
       cache: 'no-store',
       headers: HEALTH_TOKEN ? { 'x-health-token': HEALTH_TOKEN } : {},
     });
-    let detail = '';
+    if (res.status === 200) return { kind: HEALTHY, status: 200, detail: '' };
+    if (res.status === 500) return { kind: MISCONFIGURED, status: 500, detail: '' };
+
+    // A 503 only counts as Supabase evidence if it carries OUR body. A 503
+    // from Vercel's edge, or any other page in front of the app, is an HTML
+    // error and tells us nothing about the database.
+    let failed = null;
     try {
       const body = await res.json();
-      if (Array.isArray(body?.failed) && body.failed.length) detail = ` failed=${body.failed.join(',')}`;
+      if (Array.isArray(body?.failed) && body.failed.length) failed = body.failed;
     } catch {
-      /* body is not JSON — the status is enough */
+      /* not JSON, so not from our handler */
     }
-    return { ok: res.status === 200, status: res.status, misconfigured: res.status === 500, detail };
+    return failed
+      ? { kind: SUPABASE_DOWN, status: res.status, detail: ` failed=${failed.join(',')}` }
+      : { kind: UNREACHABLE, status: res.status, detail: ' no health body' };
   } catch (err) {
-    return { ok: false, status: null, misconfigured: false, detail: ` ${err.name}` };
+    return { kind: UNREACHABLE, status: null, detail: ` ${err.name}` };
   } finally {
     clearTimeout(timer);
   }
@@ -126,53 +173,79 @@ async function restart() {
   return { ok: true, rateLimited: false };
 }
 
+/**
+ * The whole decision, pure so it can be exercised without a network. `kinds`
+ * are the probe outcomes from a run in which every probe failed.
+ *
+ * Order matters here. The platform state is consulted first for reasons to
+ * STAY OUT (already restarting, deliberately paused), because those hold
+ * regardless of how certain we are. Only after that is it allowed to argue
+ * about whether the outage is real, and only when our own evidence is
+ * inconclusive.
+ */
+export function decide({ kinds, status, armed }) {
+  if (TRANSITIONAL.has(status)) {
+    return { action: 'wait', reason: `platform is already mid-transition (${status}), leaving it alone` };
+  }
+  if (DO_NOT_TOUCH.has(status)) {
+    return { action: 'abstain', reason: `status ${status} is not something a restart fixes` };
+  }
+
+  // One served 503 settles it. The platform has no more useful opinion to add,
+  // and waiting for it to agree is what cost us 2026-09-17.
+  const proven = kinds.includes(SUPABASE_DOWN);
+  if (!proven && status === 'ACTIVE_HEALTHY') {
+    return {
+      action: 'abstain',
+      reason: 'no probe reached our health endpoint and Supabase reports ACTIVE_HEALTHY, suspect Vercel/DNS/network',
+    };
+  }
+  if (!armed) {
+    return { action: 'abstain', reason: `WOULD RESTART (status ${status}), set WATCHDOG_ENABLED=true to arm` };
+  }
+  return { action: 'restart', reason: `Supabase not serving (platform status ${status})` };
+}
+
 async function main() {
   requireEnv();
   log(`watchdog: project ${REF}, armed=${ARMED}`);
 
+  const kinds = [];
   for (let i = 1; i <= PROBES; i++) {
     const r = await probe();
-    log(`  probe ${i}/${PROBES}: ${r.ok ? 'OK' : 'FAIL'} status=${r.status ?? 'none'}${r.detail}`);
-    if (r.ok) {
-      log('healthy — nothing to do');
+    log(`  probe ${i}/${PROBES}: ${r.kind} status=${r.status ?? 'none'}${r.detail}`);
+    if (r.kind === HEALTHY) {
+      log('healthy, nothing to do');
       return;
     }
-    if (r.misconfigured) {
+    if (r.kind === MISCONFIGURED) {
       // Our endpoint, our bug. Restarting Supabase would not fix it and would
       // take the service down for no reason.
-      console.error('health endpoint reports 500 (misconfigured) — not a Supabase fault, not restarting');
+      console.error('health endpoint reports 500 (misconfigured), not a Supabase fault, not restarting');
       process.exit(1);
     }
+    kinds.push(r.kind);
     if (i < PROBES) await sleep(PROBE_GAP_MS);
   }
 
-  log(`all ${PROBES} probes failed — asking Supabase for its own view`);
+  log(`all ${PROBES} probes failed, asking Supabase for its own view`);
   const status = await projectStatus();
   log(`  platform status: ${status}`);
 
-  if (status === 'ACTIVE_HEALTHY') {
-    // The two signals disagree. Ours is the one more likely to be wrong.
-    console.error('probe is failing but Supabase reports ACTIVE_HEALTHY — suspect Vercel/DNS/network, not restarting');
-    process.exit(1);
-  }
-  if (TRANSITIONAL.has(status)) {
-    log('platform is already mid-transition — leaving it alone');
+  const { action, reason } = decide({ kinds, status, armed: ARMED });
+  if (action === 'wait') {
+    log(reason);
     return;
   }
-  if (DO_NOT_TOUCH.has(status)) {
-    console.error(`status ${status} is not something a restart fixes — not restarting`);
+  if (action === 'abstain') {
+    console.error(`${reason}, not restarting`);
     process.exit(1);
   }
 
-  if (!ARMED) {
-    console.error(`WOULD RESTART (status ${status}) — set WATCHDOG_ENABLED=true to arm`);
-    process.exit(1);
-  }
-
-  log('restarting project');
+  log(`restarting project: ${reason}`);
   const r = await restart();
   if (r.rateLimited) {
-    log('restart rate-limited (429) — one was requested recently, letting it run');
+    log('restart rate-limited (429), one was requested recently, letting it run');
     return;
   }
   log('restart requested');
@@ -181,7 +254,10 @@ async function main() {
   process.exit(1);
 }
 
-main().catch((err) => {
-  console.error(`watchdog error: ${err.message}`);
-  process.exit(1);
-});
+// Importable for tests; only actually watches when run as a script.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(`watchdog error: ${err.message}`);
+    process.exit(1);
+  });
+}
