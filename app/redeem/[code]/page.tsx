@@ -41,7 +41,14 @@ export default async function RedeemPage({
   const signedIn = Boolean(auth?.user);
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-6 pt-16 pb-24">
+    <main className="mx-auto w-full max-w-2xl px-6 pt-10 pb-24">
+      {/* Someone arriving from a cold email decides in about two seconds
+          whether this is really us, so the wordmark leads. */}
+      <Link href="/" className="text-lg font-semibold tracking-tight">
+        SaleLinx
+      </Link>
+      <hr className="mt-4 mb-12 border-black/10 dark:border-white/15" />
+
       <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
         Creator code
       </span>
