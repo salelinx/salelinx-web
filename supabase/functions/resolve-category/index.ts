@@ -178,6 +178,35 @@ Deno.serve(async (req: Request) => {
     monthlyCap = 'crosslists_per_month' in limits ? limits.crosslists_per_month : null;
   }
 
+  // Admins crosslist without a plan, at the Business allowance, which is
+  // unlimited. The extension already grants them full access locally
+  // (utils/cloud/subscription.ts, ADMIN_DEFAULT_TIER_ID = 'business'), so
+  // without this the panel shows crosslisting unlocked and every call fails
+  // here with upgrade_required. That is what it did: an admin with no
+  // subscription row saw the button, pressed it, and got a 403 the UI had
+  // given no warning of.
+  //
+  // Read through the user-scoped client on purpose. The "admin_users self
+  // read" policy is auth.uid() = user_id, so this can only ever return the
+  // caller's own row and a non-admin gets nothing back - the same trust model
+  // the subscription read above already relies on, and the reason it needs no
+  // service-role key.
+  //
+  // Not is_admin(): that requires AAL2 (003_support.sql) and the extension has
+  // no MFA flow, so gating on it would refuse every admin forever.
+  const { data: adminRow, error: adminErr } = await userScoped
+    .from('admin_users')
+    .select('user_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (adminErr) {
+    console.error('[resolve-category] admin lookup failed:', adminErr.message);
+    return json(500, { error: 'Entitlement check failed' });
+  }
+  // null is "unlimited" to the cap check below, so this both clears the
+  // refusal and skips the monthly counter, matching Business exactly.
+  if (adminRow) monthlyCap = null;
+
   if (monthlyCap === 0) {
     return json(403, {
       error: 'Your plan does not include crosslisting',
