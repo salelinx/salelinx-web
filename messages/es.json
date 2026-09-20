@@ -605,7 +605,7 @@
           "sync": {
             "name": "Sincronizacion",
             "label": "Cambia de portátil, conserva tu setup",
-            "detail": "Tus ajustes, reglas y tiendas vinculadas te siguen a cualquier dispositivo donde inicies sesión."
+            "detail": "Tu configuración, tus ajustes guardados, reglas y tiendas vinculadas te siguen a cualquier dispositivo donde inicies sesión."
           },
           "multilanguage": {
             "name": "Idiomas",

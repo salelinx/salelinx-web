@@ -605,7 +605,7 @@
           "sync": {
             "name": "Geraetesync",
             "label": "Laptop wechseln, Setup mitnehmen",
-            "detail": "Deine Einstellungen, Regeln und Shop-Verknüpfungen folgen dir auf jedes Gerät, auf dem du dich anmeldest."
+            "detail": "Deine Einstellungen, gespeicherten Voreinstellungen, Regeln und Shop-Verknüpfungen folgen dir auf jedes Gerät, auf dem du dich anmeldest."
           },
           "multilanguage": {
             "name": "Sprachen",

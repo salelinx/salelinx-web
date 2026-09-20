@@ -605,7 +605,7 @@
           "sync": {
             "name": "Synchronisation",
             "label": "Changez d'ordinateur, gardez votre setup",
-            "detail": "Vos paramètres, règles et boutiques liées vous suivent sur chaque appareil où vous vous connectez."
+            "detail": "Vos paramètres, préréglages enregistrés, règles et boutiques liées vous suivent sur chaque appareil où vous vous connectez."
           },
           "multilanguage": {
             "name": "Langues",
