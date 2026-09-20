@@ -9,7 +9,7 @@ Config-driven tier system. **Tier limits live as data in Supabase, not hardcoded
 One row per (tier_id, version). Features are boolean flags; limits are numeric caps.
 
 ```
-tier_id           free | starter | pro | business
+tier_id           trial | starter | pro | business
 version           int                     -- for grandfathering
 features          jsonb                   -- { auto_refresh: true, restocker: false, ... }
 limits            jsonb                   -- { crosslists_per_month: 3500, cloud_storage_bytes: null, ... }
@@ -132,7 +132,7 @@ what to check before acting on it.
 
 ## Seed data (v1)
 
-See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. `preset_sync` (Starter+, the cloud copy of the extension's settings presets) was added afterwards by `018_preset_sync_feature.sql`; the extension gates it silently and has no fallback for the key, so this seed alone decides who syncs. Summary:
+See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. `preset_sync` (the cloud copy of the extension's settings presets; on every live plan including the trial row, off only on the retired free row) was added afterwards by `022_preset_sync_feature.sql`; the extension gates it silently and has no fallback for the key, so this seed alone decides who syncs. Summary:
 
 | Label                       | JSON key                 | Free | Starter | Pro       | Business  |
 | --------------------------- | ------------------------ | ---- | ------- | --------- | --------- |
@@ -159,7 +159,11 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 
-**Free is a fallback, not a plan.** The product model is a 14-day Starter trial (card required) followed by a paid plan; there is no advertised free tier. The `free` row exists so signed-in users with no `subscriptions` row (never trialed, or trial expired without a card) resolve to a concrete tier config. Its metered limits are all 0, so bot / crosslist / relist actions surface the upgrade prompt while manual listing management keeps working. The extension additionally fails closed for signed-out users (see the extension repo's `docs/technical/ENTITLEMENTS.md`).
+**There is no free plan, and no fallback tier row.** The product model is a 14-day trial (card required) followed by a paid plan. A signed-in user with no entitled `subscriptions` row - never trialed, cancelled, or a trial that expired - resolves to no tier at all: the extension builds a locked-out blob in code (`LOCKED_OUT` in `utils/cloud/subscription.ts`) carrying `entitled: false`, no features and no limits.
+
+This used to be a zero-limit `free` row in `tier_limits`, and the indirection was a trap. An absent limit key reads as **unlimited** in `preflightMetered`, so if that row had ever gone missing or been renamed, every metered cap would have silently un-gated for exactly the users who had stopped paying. A constant cannot go missing. `entitled: false` is checked before the limits map is trusted, in both `checkFeature` and `preflightMetered`.
+
+The extension additionally fails closed for signed-out users (see the extension repo's `docs/technical/ENTITLEMENTS.md`).
 
 ## Changing caps without a deploy
 
@@ -186,6 +190,34 @@ VALUES ('pro', 2, '{...}'::jsonb, '{...}'::jsonb, NOW());
 
 Then point new signups at v2 while existing Pro users keep v1. If you want to migrate everyone forward, batch-update `subscriptions.tier_version`.
 
+## Comp rows expire (021_creator_codes.sql)
+
+A comp row is a `subscriptions` row with no `stripe_subscription_id`: a support comp from `/admin/users`, or a redeemed creator code. Since migration 021, `isSubscriptionEntitled` refuses one whose `current_period_end` has passed.
+
+This only applies to comp rows. On a Stripe-managed row the period end is a renewal date the webhook keeps moving, and enforcing it would lock out paying customers in the gap between a renewal and its webhook landing. Comp rows written before 021 have a null period end and stay open-ended, so nothing already granted changed.
+
+Any caller that wants the rule must select **both** `stripe_subscription_id` and `current_period_end`. A caller that selects neither keeps the old behaviour rather than reading an absent field as "comp row"; that is why `resolve-category` and the extension's `utils/cloud/subscription.ts` both had their selects widened in the same change. The extension caches its subscription blob for up to an hour, so a comp can outlive its end date there by that much.
+
+## Creator codes (021_creator_codes.sql)
+
+One-time codes that comp a tier for a fixed number of months, handed out for creator outreach (the tooling that generates them lives in `Marketing/youtube-research`).
+
+```
+code          text PK    -- ^[A-HJ-NP-Z2-9]{8}$, same alphabet as referral codes
+tier_id       text       -- FK (tier_id, tier_version) -> tier_limits
+tier_version  int
+months        int        -- 1 to 12
+issued_to     text       -- the channel it went to, for our records
+redeemed_by   uuid       -- ON DELETE SET NULL, so an erasure cannot unspend a code
+redeemed_at   timestamptz
+```
+
+RLS is on with no policies at all: reads would leak unredeemed codes, and the only write path is `redeem_creator_code(p_code)`. That function is `SECURITY DEFINER`, scopes to `auth.uid()`, normalises case and punctuation, and in one transaction inserts a comp row (`status = 'active'`, `current_period_end = NOW() + months`) and marks the code spent.
+
+It refuses a caller who already has a live Stripe subscription (`already_subscribed`). `admin_set_user_subscription` documents why: the next webhook event overwrites a Stripe-managed row, so the comp would evaporate and the code would be gone with it. Those cases go to support by hand. A lapsed or comped row is no obstacle, because the insert adds a newer row and tier resolution prefers the newest entitled one.
+
+Issuing codes is a SQL insert; there is no admin UI for it yet.
+
 ## Custom / bespoke tiers
 
 For partnership deals or support staff comps, create a tier_id like `pro_custom_acme`:
@@ -201,7 +233,7 @@ Then set `subscriptions.tier_id = 'pro_custom_acme'` for that user - either from
 
 `lib/types/tiers.ts` defines:
 
-- `TierId` - union of tier IDs (`free | starter | pro | business | ...`)
+- `TierId` - union of tier IDs (`trial | starter | pro | business | ...`)
 - `TierConfig` - row shape
 - `GateResult` - return shape of `checkFeature()` / `preflightMetered()` / `consumeMetered()`
 - `FeatureKind` - `'boolean' | 'metered' | 'quota'`

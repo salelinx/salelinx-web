@@ -1,10 +1,11 @@
 export const metadata = {
   title: 'Connect your first marketplace',
-  description: 'Link SaleLinx to your Depop or Vinted account in under a minute.',
+  description:
+    'Link SaleLinx to your Depop or Vinted account in under a minute, and pick which marketplaces you sell on.',
   category: 'getting-started',
   slug: 'connect-your-first-marketplace',
   order: 2,
-  updated: '2026-05-10',
+  updated: '2026-09-15',
   tags: ['setup', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -50,12 +51,40 @@ platform badge on each row.
 If the grid stays empty for more than a few seconds, scroll down to the
 Troubleshooting section below.
 
-## Linking multiple shops
+## If you only sell on one of them
 
-If you have more than one shop on the same marketplace (a side project, a
-shared shop with a partner), upgrade to Business and you can link up to 3
-shops per marketplace under one SaleLinx account. Account linking lives in
-the **Linking** tab.
+You don&rsquo;t have to use both. The first time you sign in, SaleLinx asks
+which marketplaces you sell on: **Depop only**, **Vinted only**, or **both**.
+You can change the answer any time in **Settings > Marketplaces**. New
+installs default to both.
+
+Switching one off is not a display preference. SaleLinx hides that
+marketplace&rsquo;s tabs, filters and account row, stops asking you to link
+it, and skips its background work entirely, so there&rsquo;s nothing running
+for a marketplace you don&rsquo;t sell on.
+
+Two features need both marketplaces switched on and both accounts linked:
+[Crosslist](/docs/inventory/crosslist) and [Linking](/docs/automate/linking).
+They stay visible rather than disappearing, and explain which of the two
+things is missing.
+
+If you open the panel on a marketplace you&rsquo;ve switched off, it shows a
+dismissible banner rather than blocking you.
+
+## Where account linking lives
+
+Linking and unlinking marketplace accounts is in **Settings > Accounts**.
+Each marketplace has a row there showing the account it is linked to, with
+a **Link** button whenever SaleLinx can see a live session for that
+marketplace.
+
+Don&rsquo;t confuse it with the [Linking tab](/docs/automate/linking), which
+does something different: that one pairs an individual Depop listing with its
+Vinted counterpart.
+
+If you run more than one shop on the same marketplace, check the
+[pricing page](/features#pricing) for which plans cover multiple linked
+accounts.
 
 ## Troubleshooting
 

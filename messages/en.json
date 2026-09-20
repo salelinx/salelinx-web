@@ -68,6 +68,18 @@
     "goHome": "Back to home",
     "getHelp": "Visit the help center"
   },
+  "Maintenance": {
+    "label": "Maintenance",
+    "errorLabel": "Error",
+    "checkingTitle": "Something went wrong",
+    "checkingBody": "Checking whether this is a temporary outage…",
+    "title": "SaleLinx is temporarily down",
+    "body": "We should be back up in a moment.",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This page failed to load. Trying again usually fixes it. If it keeps happening, please get in touch.",
+    "retry": "Try again",
+    "checkStatus": "Check service status"
+  },
   "Home": {
     "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
     "heroTitle": "One tool for every <depop></depop> & <vinted></vinted> seller.",
@@ -94,7 +106,6 @@
     "ctaAddToChrome": "Add to Chrome",
     "ctaSignIn": "Sign in",
     "previewEyebrow": "Try the live demo",
-    "previewScrollHint": "Scroll to explore",
     "preview": {
       "tabs": {
         "listings": "Listings",
@@ -295,10 +306,11 @@
     "managePortalBody": "Update your plan, change your payment method, download invoices, or cancel in Stripe's billing portal.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "Free",
+      "trial": "Trial",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "No plan"
     },
     "statusLabel": {
       "active": "Active",
@@ -478,7 +490,9 @@
   "Subscribe": {
     "loading": "Loading...",
     "label": "Subscribe",
-    "errorAlert": "Could not start checkout. Please try again."
+    "errorAlert": "Could not start checkout. Please try again.",
+    "endTrialConfirm": "Start your plan now? This ends your trial, so you are billed today and the days left on the trial are lost. Your new allowances apply straight away.",
+    "downgradeViaPortal": "To move to a lower plan, use Manage subscription on your account page."
   },
   "Legal": {
     "privacy": {

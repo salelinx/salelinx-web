@@ -9,9 +9,13 @@
 -- upgrade modal), so the website is where a user learns the plan requirement.
 --
 -- The extension has no fallback for the key: which tiers carry it is decided
--- here. Placement: every paid plan including the trial (Starter, Pro,
--- Business); off on the free fallback row. No table or column change, the
--- key lives in the existing features jsonb.
+-- here. Placement: every live plan (trial, Starter, Pro, Business); off on
+-- the retired `free` row, which 018_trial_tier_and_limits.sql keeps only for
+-- extension builds that still look it up. No table or column change, the key
+-- lives in the existing features jsonb.
+--
+-- ALREADY APPLIED to the live project (2026-09-20, verified: true on
+-- business/pro/starter/trial, false on free). Safe to re-run.
 --
 -- Concatenation, not a column overwrite, so the other feature keys survive
 -- (see CLAUDE.md on tier_limits edits). Every version of a tier gets the key
@@ -20,11 +24,8 @@
 -- from /admin/flags now that admin_set_tier_feature's typo guard sees it on
 -- an active row.
 --
--- 'trial' is not in this repo's seed (the trial is a Starter subscription
--- with status 'trialing'), but the live project still carries a legacy
--- tier_limits row with that id. It is included so any subscription that
--- still resolves to it is treated as the paid trial it represents; on a
--- fresh database the id simply matches nothing.
+-- The trial row (018_trial_tier_and_limits.sql) was cloned from Starter's
+-- features before this key existed, so it is named here explicitly.
 
 UPDATE public.tier_limits
 SET features = features || '{"preset_sync": true}'::jsonb

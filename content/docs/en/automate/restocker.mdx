@@ -5,7 +5,7 @@ export const metadata = {
   category: 'automate',
   slug: 'restocker',
   order: 4,
-  updated: '2026-05-18',
+  updated: '2026-09-15',
   tags: ['restocker', 'stock', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -16,10 +16,11 @@ export const metadata = {
 The Restocker keeps your stock honest across marketplaces. Two
 scenarios it handles:
 
-1. **Multi-quantity Vinted seller.** You list a t-shirt with 3 in
-   stock. As each one sells, the restocker reposts a fresh listing
-   for the next unit so the item stays continuously listed without
-   you doing anything.
+1. **Multi-quantity Vinted seller.** You have 3 of a t-shirt. Set it
+   to **2 restocks**: as each of the first two sells, the restocker
+   reposts a fresh listing for the next unit so the item stays
+   continuously listed without you doing anything. The third sale
+   closes it out.
 2. **Cross-platform linked items.** Same item listed on both Depop
    and Vinted. When it sells on Depop, the restocker takes the
    Vinted copy down so you don&rsquo;t oversell. (And vice versa.)
@@ -31,11 +32,20 @@ The **Restocker** tab in the panel. Each tracked item is one row.
 ## Adding an item
 
 From the **Listings** tab, find the row, set **Restock = on**, and
-enter the quantity you have in stock. (A quantity of 1 still counts
-- that&rsquo;s the cross-platform single-unit flow.)
+enter the number of **restocks**: how many times you want SaleLinx to
+put the item back up after it sells.
 
-The Restock toggle and Qty number live inline on each Listings row,
-so you can set up multiple items without leaving the dashboard.
+That is one fewer than the number of units you have, and it is worth
+getting the right way round:
+
+- **0 restocks** is the default, and it is the ordinary
+  one-of-a-kind case. The item stays tracked, Depop advertises it as
+  1, and the first sale closes it out and takes the linked partner
+  down. It is never reposted.
+- **2 restocks** means 3 units: two reposts, then the item closes out.
+
+The Restock toggle and the number live inline on each Listings row, so
+you can set up multiple items without leaving the dashboard.
 
 ## How it works (Vinted multi-quantity)
 
@@ -46,8 +56,10 @@ When you have N units tracked:
    closed using a live API check, not just a cached state.
 3. It reposts a fresh copy of the same listing - same title,
    description, photos, price, mapped fields.
-4. Quantity decrements by 1 in your SaleLinx record.
-5. When quantity reaches 0, restock auto-disables for that item.
+4. The remaining count decrements by 1 in your SaleLinx record.
+5. The last sale closes the item out instead of reposting it, so you
+   never end up with a live listing and no stock behind it. Restock
+   then auto-disables for that item.
 
 Reposts use the cloud-stored copy of the listing (title,
 description, photos, mapped fields) so nothing is lost even if the
@@ -61,8 +73,9 @@ because you crosslisted it):
 1. The item sells on one marketplace.
 2. The restocker takes the other side down so you can&rsquo;t
    accidentally sell the same physical unit twice.
-3. If you have remaining stock (quantity &gt; 1 across both sides),
-   it then reposts the listing on whichever side is configured.
+3. If you have restocks left, it then reposts the listing on
+   whichever side is configured. If that sale was the last unit,
+   both sides stay down.
 
 [Linking](/docs/automate/linking) is what powers the &ldquo;these
 are the same physical item&rdquo; relationship. Successful

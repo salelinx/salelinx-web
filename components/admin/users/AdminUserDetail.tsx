@@ -229,7 +229,7 @@ export function AdminUserDetail({
       tiers.find(
         (t) => t.tier_id === sub.tier_id && t.version === sub.tier_version,
       )) ||
-    tiers.find((t) => t.tier_id === (sub?.tier_id ?? user.tier_id ?? "free")) ||
+    tiers.find((t) => t.tier_id === (sub?.tier_id ?? user.tier_id ?? "none")) ||
     null;
 
   function startEdit() {
@@ -302,7 +302,7 @@ export function AdminUserDetail({
   // Stripe prices are keyed by tier_id metadata only (versions are a DB
   // concept), so the plan options are the distinct paid tier ids.
   const paidTierIds = Array.from(
-    new Set(tiers.map((t) => t.tier_id).filter((t) => t !== "free")),
+    new Set(tiers.map((t) => t.tier_id).filter((t) => t !== "trial")),
   );
 
   function startPlanChange() {

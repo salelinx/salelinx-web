@@ -61,7 +61,7 @@ function tier(
 }
 
 const TIERS: TierConfig[] = [
-  tier("free", {}, { crosslists_per_month: 0 }),
+  tier("trial", {}, { crosslists_per_month: 50 }),
   tier("starter", { offers: true }, { crosslists_per_month: 150 }),
   tier("pro", { offers: true, restocker: false }, { crosslists_per_month: null }),
   tier("business", { offers: true, restocker: true }, { crosslists_per_month: null }),
@@ -153,11 +153,16 @@ describe("resolveAdoptionWindow", () => {
 
 describe("tierCanUse", () => {
   it("reads feature flags and metered caps", () => {
-    const [free, starter, pro, business] = TIERS;
-    expect(tierCanUse("crosslist", free)).toBe(false);
+    const [trial, starter, pro, business] = TIERS;
+    // A cap of 0 means the tier cannot use the feature at all. No shipped
+    // tier is zero-capped now that the free plan is gone, but the rule still
+    // governs any tier configured that way, so it is pinned here directly.
+    const zeroCapped = tier("zero", {}, { crosslists_per_month: 0 });
+    expect(tierCanUse("crosslist", zeroCapped)).toBe(false);
+    expect(tierCanUse("crosslist", trial)).toBe(true);
     expect(tierCanUse("crosslist", starter)).toBe(true);
     expect(tierCanUse("crosslist", pro)).toBe(true); // null = unlimited
-    expect(tierCanUse("offer_accept", free)).toBe(false);
+    expect(tierCanUse("offer_accept", trial)).toBe(false);
     expect(tierCanUse("offer_accept", starter)).toBe(true);
     expect(tierCanUse("restock", pro)).toBe(false);
     expect(tierCanUse("restock", business)).toBe(true);
@@ -210,7 +215,7 @@ describe("foldAdoption", () => {
     expect(crosslist.actions).toBe(42);
     expect(crosslist.medianPerUser).toBe(21);
     expect(crosslist.compareUsers).toBe(2);
-    expect(crosslist.minTier).toBe("starter");
+    expect(crosslist.minTier).toBe("trial");
 
     const refresh = r.features.find((f) => f.feature === "refresh")!;
     expect(refresh.users).toBe(1);
@@ -301,13 +306,17 @@ describe("foldAdoption", () => {
     const r = foldAdoption({ rows, users, tiers: TIERS, window });
     const byTier = Object.fromEntries(r.tiers.map((t) => [t.tier_id, t]));
 
+    // "none" is the bucket for users with no live plan. It sorts last: it is
+    // not a tier anyone is on, it is the absence of one.
     expect(r.tiers.map((t) => t.tier_id)).toEqual([
-      "free",
+      "trial",
       "starter",
       "pro",
       "business",
+      "none",
     ]);
-    expect(byTier.free.base).toBe(1);
+    expect(byTier.trial.base).toBe(0);
+    expect(byTier.none.base).toBe(1); // user with no subscription at all
     expect(byTier.starter.base).toBe(1);
     expect(byTier.pro.base).toBe(2);
     expect(byTier.business.base).toBe(0);
@@ -324,7 +333,7 @@ describe("foldAdoption", () => {
       adoption: 100,
       eligible: true,
     });
-    expect(byTier.free.cells.offer_accept.eligible).toBe(false);
+    expect(byTier.trial.cells.offer_accept.eligible).toBe(false);
     expect(byTier.business.cells.restock.adoption).toBeNull();
   });
 

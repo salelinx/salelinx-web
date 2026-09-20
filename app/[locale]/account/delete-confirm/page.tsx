@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { DeleteAccountConfirm } from "@/components/DeleteAccountConfirm";
+import { isAuthUnreachable } from "@/lib/supabase/auth-errors";
 
 // Step 2 of self-serve account deletion: the landing page for the emailed
 // confirmation link (delete-account Edge Function, stage "request"). Requires
@@ -39,10 +40,15 @@ export default async function DeleteConfirmPage({
   const t = await getTranslations({ locale, namespace: "DeleteAccountConfirm" });
 
   const supabase = await createServerClient();
-  const { data: auth } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await supabase.auth.getUser();
   const user = auth.user;
 
   if (!user) {
+    // A null user because auth was unreachable is NOT a signed-out user.
+    // Rethrow so the error boundary can say "we're temporarily down"
+    // rather than bouncing a signed-in person to a login page that will
+    // not work either. See lib/supabase/auth-errors.ts.
+    if (isAuthUnreachable(authError)) throw authError;
     redirect({ href: "/auth/login", locale });
     return null;
   }

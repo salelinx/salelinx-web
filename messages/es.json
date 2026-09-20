@@ -68,6 +68,18 @@
     "goHome": "Volver al inicio",
     "getHelp": "Visitar el centro de ayuda"
   },
+  "Maintenance": {
+    "label": "Mantenimiento",
+    "errorLabel": "Error",
+    "checkingTitle": "Algo ha salido mal",
+    "checkingBody": "Comprobando si se trata de una caída temporal…",
+    "title": "SaleLinx no está disponible temporalmente",
+    "body": "Deberíamos volver en un momento.",
+    "errorTitle": "Algo ha salido mal",
+    "errorBody": "Esta página no se ha podido cargar. Reintentar suele solucionarlo. Si continúa, ponte en contacto con nosotros.",
+    "retry": "Reintentar",
+    "checkStatus": "Ver estado del servicio"
+  },
   "Home": {
     "heroEyebrow": "Disponible para <depop></depop> + <vinted></vinted>",
     "heroTitle": "Una herramienta para cada vendedor de <depop></depop> & <vinted></vinted>.",
@@ -94,7 +106,6 @@
     "ctaGetStarted": "Empezar",
     "ctaSignIn": "Iniciar sesión",
     "previewEyebrow": "Prueba la demo interactiva",
-    "previewScrollHint": "Desplazate para explorar",
     "preview": {
       "tabs": {
         "listings": "Anuncios",
@@ -295,10 +306,11 @@
     "managePortalBody": "Actualiza tu plan, cambia tu método de pago, descarga facturas o cancela desde el portal de facturación de Stripe.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "Gratis",
+      "trial": "Prueba",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "Sin plan"
     },
     "statusLabel": {
       "active": "Activo",
@@ -478,7 +490,9 @@
   "Subscribe": {
     "loading": "Cargando...",
     "label": "Suscribirse",
-    "errorAlert": "No se pudo iniciar el pago. Inténtalo de nuevo."
+    "errorAlert": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+    "endTrialConfirm": "Empezar tu plan ahora? Esto finaliza tu prueba: se te cobrara hoy y perderas los dias restantes. Tus nuevos limites se aplican de inmediato.",
+    "downgradeViaPortal": "Para cambiar a un plan inferior, usa Gestionar suscripcion en la pagina de tu cuenta."
   },
   "Legal": {
     "privacy": {

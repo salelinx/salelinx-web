@@ -36,19 +36,24 @@ const EYEBROW_BRAND_TAGS = {
 export async function Hero() {
   const t = await getTranslations("Home");
 
-  // The hero holds the viewport on its own. The headline is what the page
-  // opens on, so it fills the screen below the header and centres in it,
-  // rather than being trimmed to let the scroll section peek up from below.
-  // 72px is the sticky header's height.
-  // 82svh, not a full screen.
+  // The hero holds the viewport on its own: it fills the screen below the
+  // sticky header (72px) and centres the headline in it, so the fold ends
+  // cleanly on the hero and the first scene starts just below it.
   //
-  // A full-height hero meant the first scene of the feature demo sat entirely
-  // below the fold, so nothing moved until you had scrolled a whole viewport
-  // and many visitors never got there. At 82 the crosslist scene peeks in at
-  // the bottom edge, which is enough to show the page has more to it and to
-  // make the first scroll land on something.
+  // This was 82svh for a while, deliberately trimmed so the crosslist scene
+  // peeked in at the bottom edge: a full-height hero means nothing moves until
+  // you have scrolled a whole viewport, and the peek was there to earn that
+  // first scroll. It was reverted because of what actually peeked. The scene
+  // is a two-column grid with items-center, so the tall panel column starts
+  // higher than the centred copy, and the only thing above the fold was the
+  // panel's two platform wordmarks floating with no heading near them. That
+  // read as stray logos, not as a section worth scrolling to.
+  //
+  // The scroll cue is now carried by the arrow under the CTAs instead. If the
+  // first-scroll rate drops, put the peek back by showing the scene's heading
+  // rather than the top of its panel, not by trimming svh again.
   return (
-    <section className="relative isolate flex min-h-[calc(82svh-72px)] flex-col items-center justify-center overflow-hidden">
+    <section className="relative isolate flex min-h-[calc(100svh-72px)] flex-col items-center justify-center overflow-hidden">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_1.5px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)]" />
       </div>

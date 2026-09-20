@@ -5,7 +5,7 @@ export const metadata = {
   category: 'automate',
   slug: 'dead-stock',
   order: 1,
-  updated: '2026-05-18',
+  updated: '2026-09-15',
   tags: ['dead stock', 'analytics', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -108,6 +108,12 @@ with listing data picked up from your normal browsing.
 If a listing was created very recently and view/like counts
 haven&rsquo;t been recorded yet, it&rsquo;s treated as having zero
 of each, which can briefly flag it as Slow.
+
+The **Reload listings** button at the top of the tab forces a live
+re-poll of both marketplaces and re-classifies everything from the
+fresh data, rather than waiting for the background sync. Use it after
+a burst of sales or price changes, when the cached counts are behind
+what your shop actually looks like.
 
 ## Recommended workflow
 

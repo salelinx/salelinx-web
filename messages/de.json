@@ -68,6 +68,18 @@
     "goHome": "Zurück zur Startseite",
     "getHelp": "Zum Hilfe-Center"
   },
+  "Maintenance": {
+    "label": "Wartung",
+    "errorLabel": "Fehler",
+    "checkingTitle": "Etwas ist schiefgelaufen",
+    "checkingBody": "Wir prüfen, ob es sich um eine vorübergehende Störung handelt…",
+    "title": "SaleLinx ist vorübergehend nicht verfügbar",
+    "body": "Wir sollten in Kürze wieder da sein.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorBody": "Diese Seite konnte nicht geladen werden. Ein erneuter Versuch hilft meistens. Falls es weiterhin auftritt, melde dich bitte bei uns.",
+    "retry": "Erneut versuchen",
+    "checkStatus": "Servicestatus prüfen"
+  },
   "Home": {
     "heroEyebrow": "Verfügbar für <depop></depop> + <vinted></vinted>",
     "heroTitle": "Ein Tool für jeden <depop></depop>- & <vinted></vinted>-Verkäufer.",
@@ -94,7 +106,6 @@
     "ctaGetStarted": "Loslegen",
     "ctaSignIn": "Anmelden",
     "previewEyebrow": "Live-Demo ausprobieren",
-    "previewScrollHint": "Zum Entdecken scrollen",
     "preview": {
       "tabs": {
         "listings": "Inserate",
@@ -295,10 +306,11 @@
     "managePortalBody": "Aktualisiere dein Paket, ändere deine Zahlungsmethode, lade Rechnungen herunter oder kündige im Stripe-Abrechnungsportal.",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "Kostenlos",
+      "trial": "Testphase",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "Kein Tarif"
     },
     "statusLabel": {
       "active": "Aktiv",
@@ -478,7 +490,9 @@
   "Subscribe": {
     "loading": "Wird geladen...",
     "label": "Abonnieren",
-    "errorAlert": "Der Bezahlvorgang konnte nicht gestartet werden. Bitte versuche es erneut."
+    "errorAlert": "Der Bezahlvorgang konnte nicht gestartet werden. Bitte versuche es erneut.",
+    "endTrialConfirm": "Tarif jetzt starten? Damit endet deine Testphase: Du wirst heute abgerechnet und die verbleibenden Tage verfallen. Deine neuen Limits gelten sofort.",
+    "downgradeViaPortal": "Fuer einen niedrigeren Tarif nutze Abo verwalten auf deiner Kontoseite."
   },
   "Legal": {
     "privacy": {

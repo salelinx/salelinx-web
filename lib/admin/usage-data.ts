@@ -87,7 +87,7 @@ export async function loadUsageRows(
 
   const users = (usersRes.data as AdminUserRow[] | null) ?? [];
   const tierByUser: Record<string, string> = {};
-  for (const u of users) tierByUser[u.user_id] = u.tier_id ?? "free";
+  for (const u of users) tierByUser[u.user_id] = u.tier_id ?? "none";
 
   const subs = (subsRes.data as AdminSubscriptionRow[] | null) ?? [];
   const versionByUser: Record<string, number> = {};
@@ -107,7 +107,7 @@ export async function loadUsageRows(
   }
 
   const rows: UsageTableRow[] = usage.map((u) => {
-    const tierId = tierByUser[u.user_id] ?? "free";
+    const tierId = tierByUser[u.user_id] ?? "none";
     const version = versionByUser[u.user_id];
     const tierConfig =
       (version !== undefined &&

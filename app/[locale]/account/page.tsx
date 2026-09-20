@@ -16,6 +16,7 @@ import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton"
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
 import { DeleteAccountCard } from "@/components/DeleteAccountCard";
 import { ReferralsCard } from "@/components/ReferralsCard";
+import { isAuthUnreachable } from "@/lib/supabase/auth-errors";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -42,10 +43,15 @@ export default async function AccountPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: "Account" });
 
   const supabase = await createServerClient();
-  const { data: auth } = await supabase.auth.getUser();
+  const { data: auth, error: authError } = await supabase.auth.getUser();
   const user = auth.user;
 
   if (!user) {
+    // A null user because auth was unreachable is NOT a signed-out user.
+    // Rethrow so the error boundary can say "we're temporarily down"
+    // rather than bouncing a signed-in person to a login page that will
+    // not work either. See lib/supabase/auth-errors.ts.
+    if (isAuthUnreachable(authError)) throw authError;
     redirect({ href: "/auth/login", locale });
     return null;
   }
@@ -64,7 +70,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
 
   const tierLabel = (id: string) => {
     try {
-      return t(`tierLabel.${id as "free" | "starter" | "pro" | "business"}`);
+      return t(`tierLabel.${id as "trial" | "starter" | "pro" | "business"}`);
     } catch {
       return id;
     }

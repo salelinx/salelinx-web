@@ -142,15 +142,46 @@ async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
   if (!subId) return;
   const { error } = await supabase
     .from("subscriptions")
+    .update({ status: "past_due", past_due_since: new Date().toISOString() })
+    .eq("stripe_subscription_id", subId)
+    // Only stamp the FIRST failure. Stripe retries a failed invoice several
+    // times over the dunning window, and re-stamping on each one would push
+    // the 7-day grace period out indefinitely - the clock would restart every
+    // time the card was tried again.
+    .is("past_due_since", null);
+  if (error) throw new Error(`past_due_since stamp failed: ${error.message}`);
+
+  // The status itself is set unconditionally: a retry that fails must still
+  // leave the row past_due even though the stamp above was skipped.
+  const { error: statusErr } = await supabase
+    .from("subscriptions")
     .update({ status: "past_due" })
     .eq("stripe_subscription_id", subId);
-  if (error) throw new Error(`past_due update failed: ${error.message}`);
+  if (statusErr) throw new Error(`past_due update failed: ${statusErr.message}`);
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
   const subId =
     typeof invoice.subscription === "string" ? invoice.subscription : null;
   if (!subId) return;
+
+  // Money has actually arrived, so this account is a paying customer from now
+  // on - that is what earns it a grace period the next time a charge fails.
+  // Stamped only when absent so it records the FIRST payment, and cleared of
+  // any past_due clock since the failure run is over.
+  const { error: paidErr } = await supabase
+    .from("subscriptions")
+    .update({ first_paid_at: new Date().toISOString() })
+    .eq("stripe_subscription_id", subId)
+    .is("first_paid_at", null);
+  if (paidErr) throw new Error(`first_paid_at stamp failed: ${paidErr.message}`);
+
+  const { error: clearErr } = await supabase
+    .from("subscriptions")
+    .update({ past_due_since: null })
+    .eq("stripe_subscription_id", subId);
+  if (clearErr) throw new Error(`past_due_since clear failed: ${clearErr.message}`);
+
   const { error } = await supabase
     .from("subscriptions")
     .update({ status: "active" })

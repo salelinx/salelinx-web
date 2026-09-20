@@ -25,7 +25,7 @@ const DAY_MS = 86_400_000;
 
 export function isPaying(u: Pick<AdminUserRow, "tier_id" | "status">): boolean {
   return (
-    (u.tier_id ?? "free") !== "free" &&
+    (u.tier_id ?? "none") !== "none" &&
     u.status !== null &&
     PAID_STATUSES.has(u.status)
   );
@@ -124,7 +124,7 @@ export function churnWatch(input: {
     const end = s.current_period_end ? Date.parse(s.current_period_end) : NaN;
     cancelling.push({
       user_id: u.user_id,
-      tier_id: u.tier_id ?? "free",
+      tier_id: u.tier_id ?? "none",
       days: Number.isNaN(end) ? null : Math.max(0, Math.ceil((end - nowMs) / DAY_MS)),
     });
   }
@@ -137,12 +137,12 @@ export function churnWatch(input: {
     if (cancellingIds.has(u.user_id)) continue;
     const last = lastActive.get(u.user_id);
     if (!last) {
-      quiet.push({ user_id: u.user_id, tier_id: u.tier_id ?? "free", days: null });
+      quiet.push({ user_id: u.user_id, tier_id: u.tier_id ?? "none", days: null });
       continue;
     }
     const days = Math.floor((nowMs - Date.parse(last)) / DAY_MS);
     if (days >= quietDays) {
-      quiet.push({ user_id: u.user_id, tier_id: u.tier_id ?? "free", days });
+      quiet.push({ user_id: u.user_id, tier_id: u.tier_id ?? "none", days });
     }
   }
   quiet.sort(

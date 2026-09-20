@@ -1,0 +1,62 @@
+# Watches Supabase and restarts it when it is genuinely down.
+#
+# Runs in GitHub Actions rather than on Vercel for two reasons. It shares no
+# infrastructure with either Supabase or the health endpoint it calls, so a
+# Vercel incident cannot take the watchdog with it. And the Supabase personal
+# access token it needs has FULL management access to the organisation — it
+# can delete projects — so it is better kept out of the web app's runtime env,
+# where any code-execution bug on the site could reach it.
+#
+# See scripts/supabase-watchdog.mjs for the decision rules.
+
+name: Supabase watchdog
+
+on:
+  schedule:
+    # NOT every 15 minutes in practice. This said '*/5' for its first three
+    # days and GitHub delivered 6-8 runs a day out of the 288 requested, in
+    # gaps of 2-5 hours: scheduled runs are best-effort and high-frequency
+    # crons are the first thing dropped under load. Asking for '*/5' did not
+    # buy a single extra run, it just made the file lie about the cadence.
+    #
+    # The odd offsets are the one free improvement available: :00 and :05 are
+    # the most contended minutes on the platform, so staying off them gives
+    # these runs a slightly better chance of being picked up.
+    #
+    # ponytail: ceiling is "a few checks an hour, no floor on the gap". An
+    # outage inside a gap is invisible until the next run. Buying a real floor
+    # means an external trigger, and the cheapest one that does NOT undo the
+    # token decision below is a Vercel cron calling workflow_dispatch with a
+    # GitHub token scoped to that alone. Do that when the gap actually costs
+    # something.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+# Never let two runs overlap: the second would probe while the first is
+# waiting out a restart and could ask for another.
+concurrency:
+  group: supabase-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # 20 is deprecated and the runner already forces these actions onto
+          # 24; pinning it here keeps the watchdog off a moving default.
+          node-version: 24
+      - name: Probe and restart if down
+        env:
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          HEALTH_URL: ${{ vars.HEALTH_URL }}
+          HEALTH_CHECK_TOKEN: ${{ secrets.HEALTH_CHECK_TOKEN }}
+          # Repository variable, not a secret: it is a switch, not a
+          # credential, and it should be obvious whether the thing is armed.
+          # Unset or anything but 'true' observes and reports without acting.
+          WATCHDOG_ENABLED: ${{ vars.WATCHDOG_ENABLED }}
+        run: node scripts/supabase-watchdog.mjs

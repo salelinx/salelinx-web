@@ -68,6 +68,18 @@
     "goHome": "返回首页",
     "getHelp": "前往帮助中心"
   },
+  "Maintenance": {
+    "label": "维护中",
+    "errorLabel": "错误",
+    "checkingTitle": "出了点问题",
+    "checkingBody": "正在检查这是否为临时故障…",
+    "title": "SaleLinx 暂时无法使用",
+    "body": "我们应该很快就会恢复。",
+    "errorTitle": "出了点问题",
+    "errorBody": "此页面加载失败。重试通常即可解决。如果问题持续存在，请联系我们。",
+    "retry": "重试",
+    "checkStatus": "查看服务状态"
+  },
   "Home": {
     "heroEyebrow": "已支持 <depop></depop> + <vinted></vinted>",
     "heroTitle": "为每一位 <depop></depop> 和 <vinted></vinted> 卖家准备的工具。",
@@ -94,7 +106,6 @@
     "ctaAddToChrome": "添加到 Chrome",
     "ctaSignIn": "登录",
     "previewEyebrow": "试用在线演示",
-    "previewScrollHint": "滚动浏览",
     "preview": {
       "tabs": {
         "listings": "商品",
@@ -295,10 +306,11 @@
     "managePortalBody": "在 Stripe 的账单门户中更新套餐、更换支付方式、下载发票或取消订阅。",
     "dateFallback": "-",
     "tierLabel": {
-      "free": "免费",
+      "trial": "试用",
       "starter": "Starter",
       "pro": "Pro",
-      "business": "Business"
+      "business": "Business",
+      "none": "无套餐"
     },
     "statusLabel": {
       "active": "生效中",
@@ -478,7 +490,9 @@
   "Subscribe": {
     "loading": "加载中...",
     "label": "订阅",
-    "errorAlert": "无法开始结账。请重试。"
+    "errorAlert": "无法开始结账。请重试。",
+    "endTrialConfirm": "立即开始订阅？这将结束试用，今天就会扣款，剩余试用天数将失效。新的额度会立即生效。",
+    "downgradeViaPortal": "如需降级，请在账户页面使用“管理订阅”。"
   },
   "Legal": {
     "privacy": {

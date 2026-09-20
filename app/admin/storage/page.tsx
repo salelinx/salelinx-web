@@ -42,7 +42,7 @@ export default async function AdminStoragePage() {
   // Usage module: roster for tier_id, subscriptions for the exact version.
   const users = (usersRes.data as AdminUserRow[] | null) ?? [];
   const tierByUser: Record<string, string> = {};
-  for (const u of users) tierByUser[u.user_id] = u.tier_id ?? "free";
+  for (const u of users) tierByUser[u.user_id] = u.tier_id ?? "none";
 
   const subs = (subsRes.data as AdminSubscriptionRow[] | null) ?? [];
   const versionByUser: Record<string, number> = {};
@@ -65,7 +65,7 @@ export default async function AdminStoragePage() {
   // Build the table rows (bytes vs cap vs percent) server-side so the client
   // component stays a pure renderer.
   const rows: StorageTableRow[] = storage.map((s) => {
-    const tierId = tierByUser[s.user_id] ?? "free";
+    const tierId = tierByUser[s.user_id] ?? "none";
     const version = versionByUser[s.user_id];
     const tierConfig =
       (version !== undefined &&

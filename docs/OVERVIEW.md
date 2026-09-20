@@ -178,6 +178,26 @@ Both use the anon key (public by design) and neither writes. There is no service
 
 `HEALTH_CHECK_TOKEN` is optional: unset, the endpoint is open so it works before anything is configured; set, callers must send `x-health-token`. Worth setting, since each call makes two outbound requests to the service it is protecting.
 
+**Third consumer: the watchdog.** `.github/workflows/supabase-watchdog.yml` runs `scripts/supabase-watchdog.mjs` every 5 minutes, and restarts the project when it is genuinely down. It exists because 2026-09-06 needed a manual restart after 5h18m — the database recovering was never the hard part, noticing was.
+
+A restart is itself an outage, so it needs **two independent signals to agree**: this endpoint failing three probes a minute apart, AND `GET /v1/projects/{ref}` reporting a bad status. If the probe fails while Supabase reports `ACTIVE_HEALTHY` the fault is more likely Vercel, DNS or the runner's network, and it reports without acting. It also declines when the platform is already mid-transition (`RESTARTING`, `COMING_UP`, …) or when the project is paused, which a restart would silently un-pause.
+
+It runs on GitHub Actions rather than Vercel deliberately: a watchdog must not share infrastructure with what it watches, and the Supabase PAT it needs has full management access to the organisation, so it is better kept out of the web app's runtime env.
+
+**It ships disarmed.** Set the repository variable `WATCHDOG_ENABLED=true` to let it act; until then it probes, reports and fails the run without restarting anything. Required config: secrets `SUPABASE_ACCESS_TOKEN` (and `HEALTH_CHECK_TOKEN` if set), variables `SUPABASE_PROJECT_REF` and `HEALTH_URL`.
+
+Point `HEALTH_URL` at the apex, `https://salelinx.com/api/health/supabase`. The `www` host 307-redirects to it, and while `fetch` follows that, it costs an extra hop on every probe and turns a redirect misconfiguration into a false outage.
+
+**Seeing it without an outage.** `/dev/outage-preview` throws on purpose so the boundary renders; it `notFound()`s in production. Which copy you get depends on what the probe answers, so to see the *outage* branch rather than the bug branch, run the app pointed at an unreachable host:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://offline.invalid NEXT_PUBLIC_SUPABASE_ANON_KEY=anything npm run build && npm start
+```
+
+**Second consumer: the error boundary.** `app/[locale]/error.tsx` catches anything the locale tree throws — most often a server component that could not reach Supabase — and calls this endpoint once to decide what to tell the user: "we're temporarily down" (probe failed) or "something went wrong" (probe fine, so it is our bug). Saying "maintenance" for a code bug trains people to ignore the message, hence the probe rather than a guess.
+
+It only ever runs on a page that has already failed, so it costs nothing on the happy path, and the verdict is cached in `sessionStorage` for 30s so someone clicking around during an outage does not re-probe on every navigation — that would add load to a backend already in trouble. Only a **503** is read as an outage. A 500 (endpoint misconfigured) or a 401 (`HEALTH_CHECK_TOKEN` set — which this caller cannot send, since the secret must never reach the client) means the probe declined to answer, not that Supabase is down, and falls back to the generic error copy. Setting `HEALTH_CHECK_TOKEN` therefore does not break the page; it just costs the boundary its ability to distinguish an outage from a bug.
+
 ### Edge Functions (set via `supabase secrets set`, NOT in `.env.local`)
 
 | Var                         | Source                                             |

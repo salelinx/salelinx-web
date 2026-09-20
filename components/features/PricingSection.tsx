@@ -30,7 +30,7 @@ const PRICE_IDS: Partial<Record<TierId, string | undefined>> = {
 // Prices live in lib/pricing.ts, per currency, mirroring the Stripe
 // currency_options - the card resolves them by the visitor's currency.
 const TIER_META: Record<
-  Exclude<TierId, "free">,
+  Exclude<TierId, "trial">,
   { name: string; highlight?: boolean }
 > = {
   starter: { name: "Starter" },
@@ -194,6 +194,14 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   ).filter((tier): tier is NonNullable<typeof tier> => Boolean(tier));
 
   const starterTier = paidTiers.find((tier) => tier.tier_id === "starter");
+
+  // The trial has its own tier row, and its allowances are deliberately lower
+  // than Starter's - that gap is what the upgrade sells. The card must show
+  // the trial's real numbers, not Starter's, or we advertise an allowance the
+  // trial does not grant. Falls back to Starter only if the row is missing,
+  // which is the pre-split behaviour.
+  const trialTier =
+    tiers.find((tier) => tier.tier_id === "trial") ?? starterTier;
   const starterPriceId = PRICE_IDS.starter;
 
   // Mirror ALL THREE gates create-checkout-session applies, not just the
@@ -204,16 +212,21 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   // deleted their account and re-linked the same Depop shop, and then charged
   // them 7.99 immediately with no trial. Keep the two in step.
   let trialEligible = true;
+  // Is the visitor mid-trial right now? If so their Subscribe buttons must
+  // start billing instead of opening Checkout, which refuses them with a 409
+  // because a trialing subscription is already a live one.
+  let isTrialing = false;
   const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    const { count } = await supabase
+    const { data: subRows, count } = await supabase
       .from("subscriptions")
-      .select("id", { count: "exact", head: true })
+      .select("status", { count: "exact" })
       .eq("user_id", user.id);
     trialEligible = (count ?? 0) === 0;
+    isTrialing = (subRows ?? []).some((r) => r.status === "trialing");
 
     if (trialEligible && isDisposableEmail(user.email ?? ""))
       trialEligible = false;
@@ -255,7 +268,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
           showTrialCard ? "lg:grid-cols-4" : "lg:grid-cols-3"
         }`}
       >
-        {showTrialCard && starterTier && (
+        {showTrialCard && trialTier && (
           <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:border-white/10 dark:bg-zinc-900">
             <div className="flex items-baseline justify-between">
               <h3 className="text-xl font-semibold">{t("trial.name")}</h3>
@@ -307,11 +320,11 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </summary>
-              <FeatureList tier={starterTier} formatLimit={formatLimit} t={t} />
+              <FeatureList tier={trialTier} formatLimit={formatLimit} t={t} />
             </details>
 
             <div className="hidden md:block">
-              <FeatureList tier={starterTier} formatLimit={formatLimit} t={t} />
+              <FeatureList tier={trialTier} formatLimit={formatLimit} t={t} />
             </div>
 
             {/* Last, so it adds no height ABOVE anything the other three cards
@@ -328,7 +341,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
         )}
 
         {paidTiers.map((tier) => {
-          const meta = TIER_META[tier.tier_id as Exclude<TierId, "free">];
+          const meta = TIER_META[tier.tier_id as Exclude<TierId, "trial">];
           return (
             <div
               key={tier.tier_id}
@@ -360,6 +373,8 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
                 <SubscribeButton
                   priceId={PRICE_IDS[tier.tier_id]!}
                   highlight={meta.highlight}
+                  upgradeFromTrial={isTrialing}
+                  tierId={tier.tier_id}
                 />
               ) : (
                 <button
