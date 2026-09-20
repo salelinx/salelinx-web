@@ -15,13 +15,6 @@ import {
   FollowBotPanel,
   LabelsPanel,
   OffersPanel,
-  // Imports for the parked scenes below. Uncomment alongside the scene.
-  // AutoOffersPanel,
-  // ListingsPanel,
-  // PriceDropsPanel,
-  // RelisterPanel,
-  // RestockerPanel,
-  // ShopDesignerPanel,
 } from "./HeroPreview";
 import { RestockerScene } from "./RestockerScene";
 import { Reveal } from "@/components/Reveal";
@@ -241,37 +234,6 @@ export const SCENES: Scene[] = [
     shortKey: "chapter.sales.items.restocker.name",
     render: () => <RestockerScene />,
   },
-  // Shop designer and My listings are parked, not deleted: both panels are
-  // still exported from HeroPreview and their copy is still in every locale,
-  // so re-enabling either is just uncommenting its scene (and its import).
-  // {
-  //   id: 'shopDesigner',
-  //   icon: 'layout',
-  //   titleKey: 'chapter.crosslisting.items.shopDesigner.label',
-  //   bodyKey: 'chapter.crosslisting.items.shopDesigner.detail',
-  //   render: () => <ShopDesignerPanel />,
-  // },
-  // {
-  //   id: 'listings',
-  //   icon: 'grid',
-  //   titleKey: 'chapter.listings.items.dashboard.label',
-  //   bodyKey: 'chapter.listings.items.dashboard.detail',
-  //   render: () => <ListingsPanel />,
-  // },
-  // {
-  //   id: 'relister',
-  //   icon: 'rotate',
-  //   titleKey: 'chapter.sales.items.relister.label',
-  //   bodyKey: 'chapter.sales.items.relister.detail',
-  //   render: () => <RelisterPanel />,
-  // },
-  // {
-  //   id: 'priceDrops',
-  //   icon: 'tag',
-  //   titleKey: 'chapter.visibility.items.autoMarkdown.label',
-  //   bodyKey: 'chapter.visibility.items.autoMarkdown.detail',
-  //   render: () => <PriceDropsPanel />,
-  // },
   {
     id: "followBot",
     icon: "users",
@@ -304,13 +266,6 @@ export const SCENES: Scene[] = [
       </div>
     ),
   },
-  // {
-  //   id: 'autoOffers',
-  //   icon: 'sparkle',
-  //   titleKey: 'chapter.sales.items.autoOffers.label',
-  //   bodyKey: 'chapter.sales.items.autoOffers.detail',
-  //   render: () => <AutoOffersPanel />,
-  // },
   {
     id: "labels",
     icon: "box",
