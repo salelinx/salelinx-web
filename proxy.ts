@@ -50,6 +50,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/auth/signout") ||
     pathname === "/r" ||
     pathname.startsWith("/r/") ||
+    pathname.startsWith("/redeem/") ||
     isAdminPath;
 
   // Language prediction. next-intl already picks a locale from the NEXT_LOCALE

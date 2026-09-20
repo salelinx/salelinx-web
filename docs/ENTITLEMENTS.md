@@ -189,6 +189,34 @@ VALUES ('pro', 2, '{...}'::jsonb, '{...}'::jsonb, NOW());
 
 Then point new signups at v2 while existing Pro users keep v1. If you want to migrate everyone forward, batch-update `subscriptions.tier_version`.
 
+## Comp rows expire (021_creator_codes.sql)
+
+A comp row is a `subscriptions` row with no `stripe_subscription_id`: a support comp from `/admin/users`, or a redeemed creator code. Since migration 021, `isSubscriptionEntitled` refuses one whose `current_period_end` has passed.
+
+This only applies to comp rows. On a Stripe-managed row the period end is a renewal date the webhook keeps moving, and enforcing it would lock out paying customers in the gap between a renewal and its webhook landing. Comp rows written before 021 have a null period end and stay open-ended, so nothing already granted changed.
+
+Any caller that wants the rule must select **both** `stripe_subscription_id` and `current_period_end`. A caller that selects neither keeps the old behaviour rather than reading an absent field as "comp row"; that is why `resolve-category` and the extension's `utils/cloud/subscription.ts` both had their selects widened in the same change. The extension caches its subscription blob for up to an hour, so a comp can outlive its end date there by that much.
+
+## Creator codes (021_creator_codes.sql)
+
+One-time codes that comp a tier for a fixed number of months, handed out for creator outreach (the tooling that generates them lives in `Marketing/youtube-research`).
+
+```
+code          text PK    -- ^[A-HJ-NP-Z2-9]{8}$, same alphabet as referral codes
+tier_id       text       -- FK (tier_id, tier_version) -> tier_limits
+tier_version  int
+months        int        -- 1 to 12
+issued_to     text       -- the channel it went to, for our records
+redeemed_by   uuid       -- ON DELETE SET NULL, so an erasure cannot unspend a code
+redeemed_at   timestamptz
+```
+
+RLS is on with no policies at all: reads would leak unredeemed codes, and the only write path is `redeem_creator_code(p_code)`. That function is `SECURITY DEFINER`, scopes to `auth.uid()`, normalises case and punctuation, and in one transaction inserts a comp row (`status = 'active'`, `current_period_end = NOW() + months`) and marks the code spent.
+
+It refuses a caller who already has a live Stripe subscription (`already_subscribed`). `admin_set_user_subscription` documents why: the next webhook event overwrites a Stripe-managed row, so the comp would evaporate and the code would be gone with it. Those cases go to support by hand. A lapsed or comped row is no obstacle, because the insert adds a newer row and tier resolution prefers the newest entitled one.
+
+Issuing codes is a SQL insert; there is no admin UI for it yet.
+
 ## Custom / bespoke tiers
 
 For partnership deals or support staff comps, create a tier_id like `pro_custom_acme`:
