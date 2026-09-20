@@ -240,6 +240,26 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         ),
         keywords: ['同步', '不见了', '面板', '刷新'],
       },
+      {
+        id: 'presets-not-syncing',
+        q: '我保存的预设在另一台电脑上没有出现',
+        a: (
+          <p>
+            保存的预设通过你的 SaleLinx 账号同步，任何有效的套餐或试用期都可以。
+            先确认两台设备登录的是同一个账号，并且套餐处于有效状态。当前选中的
+            预设是每台设备各自记录的，所以在第二台电脑上需要重新选一次。退出登录
+            会清除该浏览器里的预设，下次登录后会恢复。详见{' '}
+            <Link
+              href="/docs/getting-started/account-and-subscription"
+              className="underline underline-offset-4"
+            >
+              账号与订阅
+            </Link>
+            。
+          </p>
+        ),
+        keywords: ['预设', '设置', '同步', '设备'],
+      },
     ],
   },
   {

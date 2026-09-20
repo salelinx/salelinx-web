@@ -233,6 +233,23 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         ),
         keywords: ['sync', 'fehlt', 'dashboard', 'aktualisieren'],
       },
+      {
+        id: 'presets-not-syncing',
+        q: 'Meine gespeicherten Voreinstellungen fehlen auf meinem anderen Computer',
+        a: (
+          <p>
+            Gespeicherte Voreinstellungen werden über dein SaleLinx-Konto synchronisiert, mit jedem aktiven Tarif oder in der Testphase. Prüfe zuerst, dass beide Geräte mit demselben Konto angemeldet sind und dein Tarif aktiv ist. Welche Voreinstellung ausgewählt ist, gilt pro Gerät; wähle sie auf dem zweiten Rechner also erneut. Abmelden entfernt die Voreinstellungen aus diesem Browser; bei der nächsten Anmeldung sind sie wieder da. Details unter{' '}
+            <Link
+              href="/docs/getting-started/account-and-subscription"
+              className="underline underline-offset-4"
+            >
+              Konto und Abonnement
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['voreinstellung', 'voreinstellungen', 'preset', 'sync', 'gerät'],
+      },
     ],
   },
   {
