@@ -91,12 +91,29 @@ export const GRACE_DAYS = 7;
  * CURRENT_STATUSES included it, and the extension and resolve-category both
  * granted it unconditionally - so the same user was entitled or not depending
  * on which code path asked. All three now agree.
+ *
+ * Since migration 021 a comp row (no stripe_subscription_id) is also refused
+ * once current_period_end has passed, which is what makes a comped month end
+ * on its own.
  */
+/**
+ * A comp row (no Stripe subscription) past its end date. An undefined id means
+ * a caller that did not select the column, which keeps the old behaviour rather
+ * than reading a paying customer's renewal date as a deadline.
+ */
+function compExpired(sub: SubscriptionRow, now: number): boolean {
+  if (sub.stripe_subscription_id !== null) return false;
+  if (!sub.current_period_end) return false;
+  const end = new Date(sub.current_period_end).getTime();
+  return !Number.isNaN(end) && now >= end;
+}
+
 export function isEntitled(
   sub: SubscriptionRow | null,
   now: number = Date.now(),
 ): boolean {
   if (!sub) return false;
+  if (compExpired(sub, now)) return false;
   if (sub.status === "active" || sub.status === "trialing") return true;
   if (sub.status !== "past_due") return false;
 

@@ -28,9 +28,14 @@ type Case = {
     status: string | null;
     first_paid_at: string | null;
     past_due_since: string | null;
+    stripe_subscription_id?: string | null;
+    current_period_end?: string | null;
   };
   entitled: boolean;
 };
+
+const daysAhead = (n: number) =>
+  new Date(NOW + n * 24 * 60 * 60 * 1000).toISOString();
 
 const CASES: Case[] = [
   {
@@ -136,6 +141,80 @@ const CASES: Case[] = [
   {
     name: "no status at all",
     sub: { status: null, first_paid_at: null, past_due_since: null },
+    entitled: false,
+  },
+
+  // Comp rows (migration 021). A null stripe_subscription_id is what makes a
+  // period end a deadline rather than a renewal date.
+  {
+    name: "comp row, still inside its month",
+    sub: {
+      status: "active",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      current_period_end: daysAhead(10),
+    },
+    entitled: true,
+  },
+  {
+    name: "comp row, month is up",
+    sub: {
+      status: "active",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      current_period_end: daysAgo(1),
+    },
+    entitled: false,
+  },
+  // Support comps written before 021 have no end date and stay open-ended.
+  {
+    name: "comp row with no end date",
+    sub: {
+      status: "active",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      current_period_end: null,
+    },
+    entitled: true,
+  },
+  // The case the stripe_subscription_id guard exists for: a renewal whose
+  // webhook has not landed yet must not read as an expired grant.
+  {
+    name: "billed row whose period end has passed (renewal lag)",
+    sub: {
+      status: "active",
+      first_paid_at: daysAgo(90),
+      past_due_since: null,
+      stripe_subscription_id: "sub_123",
+      current_period_end: daysAgo(1),
+    },
+    entitled: true,
+  },
+  // Bad data locks nobody out; it just falls through to the status rule.
+  {
+    name: "comp row with an unparseable end date",
+    sub: {
+      status: "active",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      current_period_end: "not-a-date",
+    },
+    entitled: true,
+  },
+  // An expired comp is refused whatever its status says.
+  {
+    name: "expired comp row marked trialing",
+    sub: {
+      status: "trialing",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      current_period_end: daysAgo(1),
+    },
     entitled: false,
   },
 ];

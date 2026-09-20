@@ -129,7 +129,12 @@ Deno.serve(async (req: Request) => {
 
   const { data: sub, error: subErr } = await userScoped
     .from('subscriptions')
-    .select('tier_id, tier_version, status, first_paid_at, past_due_since')
+    // stripe_subscription_id and current_period_end are what let
+    // isSubscriptionEntitled expire a comp row. Without both, a comped month
+    // would keep crosslisting working after the website said it had ended.
+    .select(
+      'tier_id, tier_version, status, first_paid_at, past_due_since, stripe_subscription_id, current_period_end',
+    )
     .in('status', ENTITLED_STATUSES)
     .order('created_at', { ascending: false })
     .limit(1)
