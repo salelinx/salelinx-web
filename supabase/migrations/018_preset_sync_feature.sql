@@ -19,10 +19,16 @@
 -- (pro_custom_*) are not matched; set the key on those by hand, or toggle it
 -- from /admin/flags now that admin_set_tier_feature's typo guard sees it on
 -- an active row.
+--
+-- 'trial' is not in this repo's seed (the trial is a Starter subscription
+-- with status 'trialing'), but the live project still carries a legacy
+-- tier_limits row with that id. It is included so any subscription that
+-- still resolves to it is treated as the paid trial it represents; on a
+-- fresh database the id simply matches nothing.
 
 UPDATE public.tier_limits
 SET features = features || '{"preset_sync": true}'::jsonb
-WHERE tier_id IN ('starter', 'pro', 'business');
+WHERE tier_id IN ('starter', 'pro', 'business', 'trial');
 
 UPDATE public.tier_limits
 SET features = features || '{"preset_sync": false}'::jsonb
