@@ -780,7 +780,8 @@
       "messages": "Nachrichten",
       "offers": "Angebote",
       "auto_markdown": "Preissenkungen",
-      "account_linking": "Kontoverknüpfung"
+      "account_linking": "Kontoverknüpfung",
+      "preset_sync": "Synchronisation der Voreinstellungen"
     }
   },
   "Docs": {

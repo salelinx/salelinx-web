@@ -780,7 +780,8 @@
       "messages": "消息",
       "offers": "报价",
       "auto_markdown": "降价",
-      "account_linking": "账号连接"
+      "account_linking": "账号连接",
+      "preset_sync": "设置预设同步"
     }
   },
   "Docs": {

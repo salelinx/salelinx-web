@@ -780,7 +780,8 @@
       "messages": "الرسائل",
       "offers": "العروض",
       "auto_markdown": "تخفيضات الأسعار",
-      "account_linking": "ربط الحسابات"
+      "account_linking": "ربط الحسابات",
+      "preset_sync": "مزامنة الإعدادات المحفوظة"
     }
   },
   "Docs": {

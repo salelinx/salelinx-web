@@ -780,7 +780,8 @@
       "messages": "Messages",
       "offers": "Offers",
       "auto_markdown": "Price drops",
-      "account_linking": "Account linking"
+      "account_linking": "Account linking",
+      "preset_sync": "Settings presets sync"
     }
   },
   "Docs": {
