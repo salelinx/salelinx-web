@@ -1,0 +1,56 @@
+export const metadata = {
+  title:
+    "Crosslisting de borradores de Depop a Vinted, ajustes rediseñados y una corrección de categorías",
+  date: "2026-09-21",
+  summary:
+    "La versión 1.1.8 permite hacer crosslisting de borradores de Depop a Vinted con un filtro Todos / Activos / Borradores, rediseña los paneles de ajustes en torno a una píldora de predefinido, toma las categorías directamente de Depop y corrige la búsqueda de talla y marca en ambos lados.",
+  tags: ["release"],
+};
+
+# Versión 1.1.8
+
+Una versión corta: los borradores se suman al selector de crosslist, los
+ajustes ganan un diseño más limpio, y una ronda de correcciones de categorías,
+tallas y marcas.
+
+## Novedades
+
+- **Crosslisting de borradores de Depop a Vinted.** Los borradores aparecen
+  ahora en el selector de crosslist con una insignia, y un borrador de origen
+  siempre crea un borrador en Vinted. Un campo que falte es un aviso, no un
+  fallo, así que un borrador a medio rellenar se publica con lo que tenga.
+- **Un filtro Todos / Activos / Borradores** en el selector de crosslist,
+  junto al filtro de vinculación, con sus propios estados vacíos.
+
+## Correcciones
+
+- **Las categorías vienen de Depop.** El crosslisting compara ahora las
+  categorías con la propia lista de Depop en lugar de un identificador
+  antiguo, las partes de arriba reciben un grupo de categoría, y si una
+  categoría no se puede resolver, el panel lo dice en vez de crear un anuncio
+  sin categoría.
+- **Tallas y marcas.** La talla de Vinted se lee de donde Vinted la guarda, la
+  talla de Depop se envía como las variantes que Depop lee, y la búsqueda de
+  marca prueba las dos formas de apóstrofo antes de rendirse.
+- **My Listings se actualiza tras un lote de crosslist.** El panel consulta la
+  plataforma de destino cuando termina el lote, así que los anuncios nuevos
+  aparecen sin pulsar Refresh All.
+- Un anuncio de Vinted sin estado se señala ahora, y la etiqueta de precio ya
+  no se transparenta a través de la píldora En cola.
+
+## Mejoras
+
+- **Paneles de ajustes rediseñados.** El desplegable de predefinidos y el
+  botón Guardar se sustituyen por una pequeña píldora arriba a la derecha de
+  cada panel. Su menú lista tus predefinidos y, en cuanto editas un valor,
+  ofrece Guardar cambios, Guardar como nuevo o Revertir. Las filas se agrupan
+  bajo rótulos cortos, y los formularios ya no se estiran por toda la página
+  en Refresh y Relist.
+- El marcador y el filtro de borrador del selector de crosslist siguen el
+  estilo del resto del panel.
+
+## Planes y facturación
+
+- **Las pruebas y los periodos de cortesía terminan en su fecha de fin.** Una
+  prueba que ha pasado su fecha de fin ya no conserva sus límites mientras el
+  cambio de plan se pone al día.

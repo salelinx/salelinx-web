@@ -1,0 +1,56 @@
+export const metadata = {
+  title:
+    "Depop-Entwürfe zu Vinted crosslisten, neu gestaltete Einstellungen und eine Kategorie-Korrektur",
+  date: "2026-09-21",
+  summary:
+    "Version 1.1.8 lässt dich Depop-Entwürfe mit einem Filter Alle / Aktiv / Entwürfe zu Vinted crosslisten, gestaltet die Einstellungs-Panels um eine Voreinstellungs-Pille herum neu, holt Kategorien direkt von Depop und repariert die Größen- und Markensuche auf beiden Seiten.",
+  tags: ["release"],
+};
+
+# Version 1.1.8
+
+Eine kurze Version: Entwürfe kommen in die Crosslist-Auswahl, die
+Einstellungen bekommen ein aufgeräumteres Layout, dazu eine Runde
+Korrekturen bei Kategorien, Größen und Marken.
+
+## Neu
+
+- **Depop-Entwürfe zu Vinted crosslisten.** Entwürfe erscheinen jetzt mit
+  einem Abzeichen in der Crosslist-Auswahl, und ein Entwurf als Quelle
+  erstellt immer einen Entwurf auf Vinted. Ein fehlendes Feld ist eine
+  Warnung, kein Fehler: Ein halb ausgefüllter Entwurf wird mit dem
+  crosslistet, was er hat.
+- **Ein Filter Alle / Aktiv / Entwürfe** in der Crosslist-Auswahl, neben dem
+  Verknüpfungsfilter, mit eigenen Leerzuständen.
+
+## Behoben
+
+- **Kategorien kommen von Depop.** Das Crosslisting gleicht Kategorien jetzt
+  mit Depops eigener Liste ab statt mit einer alten ID, Oberteile bekommen
+  eine Kategoriegruppe, und wenn sich eine Kategorie nicht auflösen lässt,
+  sagt das Panel es, statt ein Angebot ohne Kategorie zu erstellen.
+- **Größen und Marken.** Die Vinted-Größe wird dort gelesen, wo Vinted sie
+  ablegt, die Depop-Größe wird als die Varianten geschickt, die Depop liest,
+  und die Markensuche probiert beide Apostrophformen, bevor sie aufgibt.
+- **My Listings aktualisiert sich nach einem Crosslist-Stapel.** Das Panel
+  fragt die Zielplattform ab, sobald der Stapel fertig ist, sodass neue
+  Angebote ohne Refresh All erscheinen.
+- Ein Vinted-Angebot ohne Zustand wird jetzt markiert, und das Preisabzeichen
+  scheint nicht mehr durch die Pille In Warteschlange.
+
+## Verbessert
+
+- **Neu gestaltete Einstellungs-Panels.** Das Voreinstellungs-Dropdown und der
+  Speichern-Button sind durch eine kleine Pille oben rechts in jedem Panel
+  ersetzt. Ihr Menü listet deine Voreinstellungen und bietet, sobald du einen
+  Wert änderst, Änderungen speichern, Als neu speichern oder Zurücksetzen an.
+  Zeilen sind unter kurzen Überschriften gruppiert, und die Formulare ziehen
+  sich bei Refresh und Relist nicht mehr über die ganze Seite.
+- Entwurfsmarkierung und Filter in der Crosslist-Auswahl passen zum Rest des
+  Panels.
+
+## Tarife und Abrechnung
+
+- **Testphasen und Gratiszeiträume enden an ihrem Enddatum.** Eine Testphase,
+  deren Enddatum vorbei ist, behält ihre Kontingente nicht mehr, während der
+  Tarifwechsel nachzieht.

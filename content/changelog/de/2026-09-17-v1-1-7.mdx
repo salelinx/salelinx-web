@@ -1,0 +1,77 @@
+export const metadata = {
+  title:
+    "Voreinstellungen, die deinem Konto folgen, ein robusteres Depop-Relist und ein Störungsbanner",
+  date: "2026-09-17",
+  summary:
+    "Version 1.1.7 synchronisiert deine Voreinstellungen mit deinem Konto, ergänzt sie bei Relist und Auto-Accept, repariert das Depop-Relist von Anfang bis Ende, zeigt ein Banner, wenn unsere Server nicht erreichbar sind, und startet neue Konten mit einer 14-tägigen Testphase.",
+  tags: ["release"],
+};
+
+# Version 1.1.7
+
+Zehn Tage Arbeit: Voreinstellungen überall, ein langer Durchgang durch das
+Depop-Relist, und ein Panel, das ehrlicher sagt, was es gerade tut.
+
+## Neu
+
+- **Voreinstellungen folgen deinem Konto.** Gespeicherte Voreinstellungen
+  jedes Einstellungs-Panels werden jetzt über dein SaleLinx-Konto
+  synchronisiert, sodass eine Neuinstallation oder ein zweiter Rechner sie
+  übernimmt. Relist und Auto-Accept haben dieselbe Voreinstellungszeile
+  bekommen wie die anderen Tabs.
+- **Schalter für Seitenanimationen.** Ein Button in der Panel-Kopfzeile
+  schaltet die Animationen aus und ein und teilt seinen Zustand mit der
+  Anzeige-Einstellung.
+- **Relist aktualisiert live.** Fertige Artikel werden wieder aktiv und ihr
+  Ersatz erscheint, während ein Lauf noch läuft, statt alles erst am Ende,
+  und Linking hat einen Schalter Verkaufte einbeziehen, der beide Spalten und
+  die empfohlenen Paare filtert.
+- **Restocker zeigt Nachfüllzahlen** und einen Verlauf, der wiedergibt, was
+  wirklich passiert ist, und prüft Depop jetzt in jedem Zyklus.
+- **Ein Link Konto verwalten** in den Einstellungen führt direkt zu deiner
+  Kontoseite.
+
+## Behoben
+
+- **Depop-Relist.** Beim Relist eines verkauften Depop-Artikels wird jetzt
+  die Größe wiederhergestellt, der Produkttyp ausgefüllt und das Angebot
+  korrekt erstellt. Entwurfsänderungen werden dort geschrieben, wo Depop sie
+  aufbewahrt, der Editor zeigt das Live-Angebot statt der Cloud-Kopie, und
+  die Menge ist mit der echten Zahl vorausgefüllt.
+- **Depop-Bestand.** Ein Artikel mit Bestand 0 wird als Ausverkauft statt
+  Ausgeblendet angezeigt, verkaufte Angebote lassen sich nicht mehr im Editor
+  öffnen, und eine Mengenänderung wird in die Varianten geschrieben, die
+  Depop liest.
+- **Vinted-Details.** Die Markenauswahl im Editor durchsucht Vinteds eigene
+  Markenliste, der Zustand wird beim Crosslisting zu Vinted mitgeschickt, und
+  wenn Vinted eine Fristverlängerung ablehnt, nennt das Panel den Grund.
+- **My Listings aktualisiert sich nach jedem Crosslist**, sodass das neue
+  Angebot ohne manuelles Aktualisieren erscheint, und das Raster aktualisiert
+  wiederverwendete Zeilen nach einer Sammelbearbeitung korrekt.
+- **Refresh All nennt die echte Zahl** und wird ausgegraut, wenn nichts
+  ansteht. Der Stopp-Knopf ist zurück auf dem Refresh-Fortschrittsbalken.
+- **Auto-Offers braucht ein verknüpftes Vinted-Konto** und sagt das jetzt,
+  statt einen leeren Tab zu zeigen.
+- Kleinere Korrekturen: Die Crosslist-Werkzeugleiste springt beim
+  Filterwechsel nicht mehr, die Seitenleiste bleibt an ihrem Platz, damit die
+  Suche nicht mehr wandert, und die Ziehauswahl zieht keine Kartenbilder mehr
+  mit.
+
+## Verbessert
+
+- **Ein Cloud-Störungsbanner.** Wenn unsere Server nicht erreichbar sind,
+  zeigt das Panel ein Banner, und der Anmeldebildschirm stellt klar, dass du
+  nicht abgemeldet wurdest.
+- **Crosslist-Raster.** Plattformfilter wechseln ohne Server-Anfrage, das
+  Raster blendet zwischen Filtern über, und jede Marktplatz-Logokachel ist
+  abgerundet.
+- Die Relist-Abfragen sind gestapelt, und ihre Optionen haben Symbole.
+
+## Tarife und Abrechnung
+
+- **Neue Konten starten mit einer 14-tägigen Testphase** statt eines
+  kostenlosen Tarifs. Die Testphase braucht eine Karte und geht am Ende in
+  einen bezahlten Tarif über.
+- **Eine fehlgeschlagene Verlängerungszahlung lässt dir sieben Tage Zugang**,
+  während die Karte erneut belastet wird. Eine Testphase, deren erste Zahlung
+  fehlschlägt, endet sofort.

@@ -1,0 +1,77 @@
+export const metadata = {
+  title:
+    "Des préréglages qui suivent votre compte, un relist Depop plus solide et une bannière de panne",
+  date: "2026-09-17",
+  summary:
+    "La version 1.1.7 synchronise vos préréglages avec votre compte, les ajoute à Relist et Auto-Accept, corrige le relist Depop de bout en bout, affiche une bannière quand nos serveurs sont injoignables et fait démarrer les nouveaux comptes sur un essai de 14 jours.",
+  tags: ["release"],
+};
+
+# Version 1.1.7
+
+Dix jours de travail : des préréglages partout, une longue passe sur le relist
+Depop, et un panneau plus honnête sur ce qu&rsquo;il fait.
+
+## Nouveautés
+
+- **Les préréglages suivent votre compte.** Les préréglages enregistrés sur
+  chaque panneau de réglages se synchronisent désormais via votre compte
+  SaleLinx : une réinstallation ou un second ordinateur les retrouve. Relist
+  et Auto-Accept ont gagné la même ligne de préréglages que les autres
+  onglets.
+- **Un bouton pour les animations de page.** Dans l&rsquo;en-tête du panneau,
+  il active ou coupe les animations et partage son état avec le réglage
+  Affichage.
+- **Le relist se met à jour en direct.** Les articles terminés se réactivent
+  et leurs remplaçants apparaissent au fil de l&rsquo;exécution, au lieu de
+  tout arriver à la fin, et Linking a un interrupteur Inclure les vendus qui
+  filtre les deux colonnes et les paires recommandées.
+- **Restocker affiche le nombre de réapprovisionnements** et un fil qui
+  reflète ce qui s&rsquo;est vraiment passé, et vérifie Depop à chaque cycle.
+- **Un lien Gérer le compte** dans les Réglages mène directement à votre page
+  de compte.
+
+## Corrections
+
+- **Relist Depop.** Relister un article Depop vendu retrouve désormais sa
+  taille, renseigne le type de produit et crée l&rsquo;annonce correctement.
+  Les modifications de brouillon sont écrites là où Depop les conserve,
+  l&rsquo;éditeur affiche l&rsquo;annonce en ligne plutôt que la copie cloud,
+  et la quantité est préremplie avec le vrai nombre.
+- **Stock Depop.** Un article à stock 0 est affiché comme Épuisé plutôt que
+  Masqué, les annonces vendues ne s&rsquo;ouvrent plus dans l&rsquo;éditeur,
+  et un changement de quantité est écrit dans les variantes que Depop lit.
+- **Détails Vinted.** Le sélecteur de marque de l&rsquo;éditeur cherche dans la
+  liste de marques de Vinted, l&rsquo;état est envoyé lors du crosslisting
+  vers Vinted, et quand Vinted refuse de prolonger un délai de publication,
+  le panneau en donne la raison.
+- **My Listings se rafraîchit après chaque crosslist**, pour que la nouvelle
+  annonce s&rsquo;affiche sans rafraîchir à la main, et la grille met
+  correctement à jour les lignes réutilisées après une édition groupée.
+- **Refresh All annonce le vrai nombre** et se grise quand rien n&rsquo;est à
+  faire. Le bouton Stop est de retour sur la barre de progression de Refresh.
+- **Auto-Offers exige un compte Vinted lié**, et le dit désormais au lieu
+  d&rsquo;afficher un onglet vide.
+- Plus petites corrections : la barre d&rsquo;outils du crosslist ne saute
+  plus au changement de filtre, la barre de pagination reste en place pour
+  que la recherche arrête de bouger, et la sélection par glissement
+  n&rsquo;entraîne plus les images des cartes.
+
+## Améliorations
+
+- **Une bannière de panne cloud.** Si nos serveurs sont injoignables, le
+  panneau affiche une bannière et l&rsquo;écran de connexion précise que vous
+  n&rsquo;avez pas été déconnecté.
+- **Grille de crosslist.** Les filtres de plateforme changent sans
+  aller-retour, la grille se fond entre deux filtres, et chaque tuile de logo
+  de marketplace est arrondie.
+- Les invites de relist sont empilées et leurs choix ont des icônes.
+
+## Abonnement et facturation
+
+- **Les nouveaux comptes démarrent sur un essai de 14 jours** au lieu
+  d&rsquo;un plan gratuit. L&rsquo;essai demande une carte et passe sur un
+  plan payant à sa fin.
+- **Un paiement de renouvellement échoué conserve votre accès sept jours**
+  pendant que la carte est réessayée. Un essai dont le premier paiement
+  échoue s&rsquo;arrête immédiatement.
