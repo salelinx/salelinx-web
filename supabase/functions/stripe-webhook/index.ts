@@ -115,10 +115,13 @@ async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription,
 ): Promise<void> {
   const price = subscription.items.data[0]?.price;
-  if (!price) return;
+  if (!price) {
+    console.error(`[stripe-webhook] subscription ${subscription.id} has no price item`);
+    return;
+  }
   const { tier_id } = tierFromPrice(price);
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("subscriptions")
     .update({
       tier_id,
@@ -126,18 +129,35 @@ async function handleSubscriptionUpdated(
       current_period_end: isoFromUnix(periodEndFromSubscription(subscription)),
       cancel_at_period_end: subscription.cancel_at_period_end ?? false,
     })
-    .eq("stripe_subscription_id", subscription.id);
+    .eq("stripe_subscription_id", subscription.id)
+    .select("id");
   if (error) throw new Error(`subscriptions update failed: ${error.message}`);
+  // A zero-row update is not a database error, so without this it is silent.
+  // It means Stripe knows about a subscription we do not, and the row will
+  // keep whatever status it last had - which is how a trial that ended in
+  // August was still marked `trialing` in September.
+  if ((data ?? []).length === 0) {
+    console.error(
+      `[stripe-webhook] no subscriptions row for ${subscription.id}; status ` +
+        `${subscription.status} not applied`,
+    );
+  }
 }
 
 async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
 ): Promise<void> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("subscriptions")
     .update({ status: "canceled" })
-    .eq("stripe_subscription_id", subscription.id);
+    .eq("stripe_subscription_id", subscription.id)
+    .select("id");
   if (error) throw new Error(`subscriptions cancel failed: ${error.message}`);
+  if ((data ?? []).length === 0) {
+    console.error(
+      `[stripe-webhook] no subscriptions row for ${subscription.id}; cancel not applied`,
+    );
+  }
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {

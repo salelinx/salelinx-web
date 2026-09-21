@@ -144,6 +144,38 @@ const CASES: Case[] = [
     entitled: false,
   },
 
+  // Trials expire on their own end date. A trialing row sitting past it means
+  // the conversion event never landed, and it used to grant access forever:
+  // production had one entitled three weeks after its trial ended.
+  {
+    name: "trial still running",
+    sub: {
+      status: "trialing",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: "sub_123",
+      current_period_end: daysAhead(3),
+    },
+    entitled: true,
+  },
+  {
+    name: "trial whose end date has passed",
+    sub: {
+      status: "trialing",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: "sub_123",
+      current_period_end: daysAgo(21),
+    },
+    entitled: false,
+  },
+  // Selecting neither column is still the old behaviour, not a lockout.
+  {
+    name: "trialing with no period end selected",
+    sub: { status: "trialing", first_paid_at: null, past_due_since: null },
+    entitled: true,
+  },
+
   // Comp rows (migration 021). A null stripe_subscription_id is what makes a
   // period end a deadline rather than a renewal date.
   {
