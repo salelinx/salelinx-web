@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "4 September 2026";
+const LAST_UPDATED = "20 September 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -56,6 +56,7 @@ const SECTIONS: LegalSection[] = [
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
       "Usage counters. We record counts of feature actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan, understand which features are used, and investigate problems when you contact support. These are numbers only, not the content of the actions.",
       "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
+      "Extension settings. Preferences you set in the extension, such as bot pacing, your marketplace choice and any settings presets you name and save, are stored with your account so they follow you to other devices. They contain no listing, buyer or message content and are deleted with your account.",
       "Device sessions. To enforce the per-plan limit on how many devices use your account at the same time, the extension records a random identifier it generates for each install, your browser version (user agent string), and when that install was last active. This lets you (and us) see and manage your active devices; it does not identify you personally beyond linking to your account and is deleted when the account is deleted.",
       "Referrals. If you take part in our referral program, we record the link between you and the people you refer, the status of each referral, and any reward amounts. If you refer others and the app offers a referral leaderboard, a display name and your number of successful referrals may be shown on it to other participants. The display name used is any name you have chosen for the leaderboard, otherwise your linked shop username, or failing that a neutral placeholder (never any part of your email address). A name you choose is visible to other participants, must be unique, and can be removed by us if it is offensive or misleading. The referral program and its conditions are described in our Referral Program Terms.",
       "Diagnostics from the extension. The extension reports anonymous technical counters to us: whether calls to marketplace endpoints succeeded or failed, and, when something in the extension crashes, where it happened and the class of error (for example the error type name, never the error message, your listings, or anything you typed). These reports contain no account identifier and cannot be linked to you; we use them to detect marketplace changes and fix bugs.",

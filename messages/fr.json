@@ -619,7 +619,7 @@
           "sync": {
             "name": "Synchronisation",
             "label": "Changez d'ordinateur, gardez votre setup",
-            "detail": "Vos paramètres, règles et boutiques liées vous suivent sur chaque appareil où vous vous connectez."
+            "detail": "Vos paramètres, préréglages enregistrés, règles et boutiques liées vous suivent sur chaque appareil où vous vous connectez."
           },
           "multilanguage": {
             "name": "Langues",
@@ -794,7 +794,8 @@
       "messages": "Messages",
       "offers": "Offres",
       "auto_markdown": "Baisses de prix",
-      "account_linking": "Liaison de compte"
+      "account_linking": "Liaison de compte",
+      "preset_sync": "Synchronisation des préréglages"
     }
   },
   "Docs": {

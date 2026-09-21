@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'refresh',
   order: 4,
-  updated: '2026-05-18',
-  tags: ['aktualisieren', 'depop', 'sichtbarkeit', 'planer'],
+  updated: '2026-09-18',
+  tags: ['aktualisieren', 'depop', 'sichtbarkeit', 'planer', 'voreinstellungen'],
   marketplaces: ['depop'],
   status: 'stub',
 };
@@ -27,3 +27,31 @@ des Planers, zur Wahl des Intervalls, zur Taktung und zu den
 Abostufen findest du in der
 [englischen Version](/en/docs/inventory/refresh).
 </Callout>
+
+## Voreinstellungen
+
+Die Auswahl für Voreinstellungen oben im Einstellungsbereich
+speichert die Refresh-Einstellungen unter einem Namen: die Obergrenze
+pro Lauf für Refresh all, die Sekunden zwischen zwei Inseraten, das
+Überspringen von Inseraten, die in den letzten N Tagen schon
+aktualisiert wurden, und den Penny Toggle. Eine Voreinstellung
+auszuwählen füllt alle vier auf einmal aus. Zwei sind eingebaut:
+
+- **Standard** - 100 Inserate pro Lauf, 7 Sekunden zwischen zwei
+  Inseraten, Überspringen aus, Penny Toggle aus.
+- **Vorsichtig** - 50 Inserate pro Lauf, 15 Sekunden zwischen zwei
+  Inseraten. Langsamer, und erledigt weniger pro Lauf.
+
+Änderst du eine Einstellung von Hand, markiert die Auswahl die
+aktuellen Werte als nicht gespeichert; von dort kannst du sie als
+eigene Voreinstellung speichern. Speichern unter dem Namen einer
+deiner vorhandenen Voreinstellungen fragt nach, bevor sie
+überschrieben wird, und die eingebauten Namen lassen sich nicht
+wiederverwenden. Eigene Voreinstellungen kannst du nach einer
+Rückfrage löschen; die eingebauten nicht.
+
+Deine gespeicherten Voreinstellungen liegen bei deinem
+SaleLinx-Konto, überstehen also eine Neuinstallation und folgen dir
+auf einen anderen Computer. Wie Synchronisation, Abmelden und die
+Auswahl pro Gerät funktionieren, steht unter
+[Konto und Abonnement](/docs/getting-started/account-and-subscription).

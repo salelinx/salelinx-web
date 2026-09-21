@@ -5,8 +5,8 @@ export const metadata = {
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-05-18',
-  tags: ['offres', 'depop', 'vinted'],
+  updated: '2026-09-18',
+  tags: ['offres', 'depop', 'vinted', 'préréglages'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
@@ -25,3 +25,37 @@ Traduction française complète à venir. Voir la
 le filtre d'âge des offres, les actions, le cache Vinted partagé
 avec Messages et les paliers d'abonnement.
 </Callout>
+
+## Préréglages d'acceptation automatique
+
+Les contrôles d'acceptation automatique ont un sélecteur de
+préréglages en haut de leur panneau des réglages. Un préréglage
+enregistre le pourcentage minimum du prix demandé, le prix plancher
+absolu, les plateformes à scanner (Depop, Vinted) et la fréquence
+de vérification. Choisir un préréglage remplit tous les réglages
+d'un coup, et pour l'acceptation automatique le préréglage choisi
+devient la règle active immédiatement. Deux sont intégrés&nbsp;:
+
+- **Par défaut** - 90&nbsp;% du prix demandé, pas de plancher, les
+  deux plateformes, vérification toutes les 15&nbsp;minutes.
+- **Prudent** - 95&nbsp;% du prix demandé, vérification toutes les
+  30&nbsp;minutes. Plus lent, et fait moins par exécution.
+
+Un préréglage n'inclut volontairement pas l'interrupteur
+marche/arrêt de l'acceptation automatique. L'activer reste toujours
+une décision séparée et explicite, quel que soit le préréglage
+choisi.
+
+Modifiez un réglage à la main et le sélecteur signale les valeurs
+comme non enregistrées&nbsp;; vous pouvez alors les enregistrer
+comme préréglage à vous. Enregistrer sous le nom d'un de vos
+préréglages existants demande confirmation avant de l'écraser, et
+les noms intégrés ne peuvent pas être réutilisés. Vos propres
+préréglages peuvent être supprimés après confirmation&nbsp;; les
+intégrés, non.
+
+Vos préréglages sont enregistrés avec votre compte SaleLinx&nbsp;:
+ils survivent à une réinstallation et vous suivent sur un autre
+ordinateur. Voir
+[Compte et abonnement](/docs/getting-started/account-and-subscription)
+pour la synchronisation, la déconnexion et la sélection par appareil.

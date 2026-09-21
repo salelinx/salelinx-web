@@ -240,6 +240,23 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         ),
         keywords: ['synchro', 'manquant', 'tableau de bord', 'rafraîchir'],
       },
+      {
+        id: 'presets-not-syncing',
+        q: 'Mes préréglages enregistrés ne sont pas sur mon autre ordinateur',
+        a: (
+          <p>
+            Les préréglages enregistrés se synchronisent via votre compte SaleLinx avec tout forfait ou essai actif. Vérifiez d'abord que les deux appareils sont connectés au même compte et que votre forfait est actif. Le préréglage sélectionné est propre à chaque appareil : choisissez-le à nouveau sur la seconde machine. Se déconnecter efface les préréglages de ce navigateur ; ils reviennent à la prochaine connexion. Détails dans{' '}
+            <Link
+              href="/docs/getting-started/account-and-subscription"
+              className="underline underline-offset-4"
+            >
+              Compte et abonnement
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['préréglage', 'préréglages', 'réglages', 'synchro', 'appareil'],
+      },
     ],
   },
   {

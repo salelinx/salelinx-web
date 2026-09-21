@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'bots',
   order: 2,
-  updated: '2026-05-18',
-  tags: ['follow', 'unfollow', 'bots', 'depop', 'vinted', 'audience'],
+  updated: '2026-09-18',
+  tags: ['follow', 'unfollow', 'bots', 'depop', 'vinted', 'audience', 'presets'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
 };
@@ -106,6 +106,30 @@ If the marketplace pushes back temporarily, the bot quietly waits and
 retries. If your session gets flagged outright (a `403`), the run
 stops immediately and you should sign out, sign back in, and give
 things a few hours before resuming.
+
+## Presets
+
+The preset picker at the top of the Settings panel saves the run
+settings as a named set: the maximum actions per run, the optional
+time limit, and the custom wait toggle with its minimum and maximum
+seconds. Picking a preset fills in all of them at once. Two are built
+in:
+
+- **Default** - 70 actions per run, custom wait off.
+- **Careful** - 40 actions per run, custom wait on at 10 to 15
+  seconds. Slower, and does less per run.
+
+Change any setting by hand and the picker marks the current values as
+unsaved; from there you can save them as a preset of your own. Saving
+under the name of one of your existing presets asks before
+overwriting it, and the built-in names can&rsquo;t be reused. Your
+own presets can be deleted after a confirmation; the built-ins
+can&rsquo;t.
+
+Your saved presets are stored with your SaleLinx account, so they
+survive a reinstall and follow you to another computer. See
+[Account and subscription](/docs/getting-started/account-and-subscription)
+for how syncing, sign-out and per-device selection work.
 
 ## Hitting your following limit (Depop)
 

@@ -4,8 +4,8 @@ export const metadata = {
   category: 'getting-started',
   slug: 'account-and-subscription',
   order: 3,
-  updated: '2026-05-10',
-  tags: ['facturation', 'compte', 'abonnement'],
+  updated: '2026-09-18',
+  tags: ['facturation', 'compte', 'abonnement', 'préréglages', 'synchronisation'],
   marketplaces: [],
   status: 'stub',
 };
@@ -22,3 +22,34 @@ Traduction française complète à venir. Voir la
 le guide complet. Vous y trouverez les détails sur l'achat, le changement
 de forfait, la facturation Stripe et l'annulation.
 </Callout>
+
+## Les préréglages suivent votre compte
+
+Plusieurs onglets du panneau permettent d'enregistrer leurs réglages
+sous forme de préréglages nommés&nbsp;: [Bots](/docs/inventory/bots),
+[Refresh](/docs/inventory/refresh), [Relist](/docs/inventory/relist)
+et l'acceptation automatique dans [Offres](/docs/buyers/offers).
+Chacun est livré avec deux préréglages intégrés, **Par défaut** et
+**Prudent**, et ceux que vous enregistrez vous-même sont stockés avec
+votre compte SaleLinx, pas seulement dans le navigateur. La synchronisation
+fait partie de tous les forfaits payants, essai compris&nbsp;; sans forfait
+actif, vos préréglages restent sur l'appareil où vous les avez enregistrés
+et sont envoyés dès qu'un forfait est de nouveau actif. Avec un forfait
+actif&nbsp;:
+
+- **Ils survivent à une réinstallation** et apparaissent sur un
+  second ordinateur dès que vous vous y connectez.
+- **Si deux appareils diffèrent**, la liste modifiée le plus
+  récemment l'emporte, onglet par onglet.
+- **Les préréglages enregistrés avant l'arrivée de la
+  synchronisation** sont fusionnés par nom plutôt que perdus.
+- **Le préréglage sélectionné reste propre à chaque appareil.** En
+  choisir un sur votre portable ne change pas la sélection sur votre
+  ordinateur de bureau.
+- **Se déconnecter efface les préréglages de ce navigateur**, pour
+  que la personne suivante qui s'y connecte n'hérite pas des vôtres.
+  Ils reviennent à votre prochaine connexion.
+
+Les préréglages de vue de l'onglet Listings (combinaisons de filtres
+et de tri enregistrées) sont une fonctionnalité distincte et plus
+ancienne. Ils restent sur l'appareil et ne se synchronisent pas.

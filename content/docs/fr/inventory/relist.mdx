@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-05-18',
-  tags: ['relist', 'depop', 'vinted'],
+  updated: '2026-09-18',
+  tags: ['relist', 'depop', 'vinted', 'préréglages'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
@@ -25,3 +25,37 @@ détaillé (ordre publier-d'abord-supprimer-ensuite), les modifications
 de photos (crop, hue/luminosité, ordre), la cadence et les paliers
 d'abonnement.
 </Callout>
+
+## Préréglages
+
+Le sélecteur de préréglages en haut du panneau des réglages
+enregistre les réglages de republication sous un nom&nbsp;: le
+délai entre deux republications, plus chaque option de la fenêtre
+de republication (modifications de photos, changements de titre et
+de description, changement de prix, enregistrement en brouillon).
+Choisir un préréglage remplit tout d'un coup. Deux sont
+intégrés&nbsp;:
+
+- **Par défaut** - 10 secondes entre deux republications&nbsp;;
+  modifications de photos activées, à &plusmn;2&deg; de rotation,
+  &plusmn;2&nbsp;% d'échelle et &plusmn;1,8&nbsp;% de
+  luminosité&nbsp;; changements de titre et de description
+  activés&nbsp;; changement de prix désactivé&nbsp;; brouillon
+  désactivé.
+- **Prudent** - 20 secondes entre deux republications, et chaque
+  republication est d'abord enregistrée en brouillon. Plus lent, et
+  fait moins par exécution.
+
+Modifiez un réglage à la main et le sélecteur signale les valeurs
+comme non enregistrées&nbsp;; vous pouvez alors les enregistrer
+comme préréglage à vous. Enregistrer sous le nom d'un de vos
+préréglages existants demande confirmation avant de l'écraser, et
+les noms intégrés ne peuvent pas être réutilisés. Vos propres
+préréglages peuvent être supprimés après confirmation&nbsp;; les
+intégrés, non.
+
+Vos préréglages sont enregistrés avec votre compte SaleLinx&nbsp;:
+ils survivent à une réinstallation et vous suivent sur un autre
+ordinateur. Voir
+[Compte et abonnement](/docs/getting-started/account-and-subscription)
+pour la synchronisation, la déconnexion et la sélection par appareil.

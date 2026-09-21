@@ -132,7 +132,7 @@ what to check before acting on it.
 
 ## Seed data (v1)
 
-See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. Summary:
+See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. `preset_sync` (the cloud copy of the extension's settings presets; on every live plan including the trial row, off only on the retired free row) was added afterwards by `022_preset_sync_feature.sql`; the extension gates it silently and has no fallback for the key, so this seed alone decides who syncs. Summary:
 
 | Label                       | JSON key                 | Free | Starter | Pro       | Business  |
 | --------------------------- | ------------------------ | ---- | ------- | --------- | --------- |
@@ -144,17 +144,18 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 | Cloud storage               | `cloud_storage_bytes`    | -    | -       | 500 MB    | 1 GB      |
 | Support response (days)     | `support_response_days`  | 7    | 5       | -         | -         |
 | Support response (hours)    | `support_response_hours` | -    | -       | 48        | 24        |
-| Auto-refresh                | `auto_refresh`           | âœ—    | âœ—       | âœ“         | âœ“         |
-| Cloud sync                  | `cloud_sync`             | âœ—    | âœ—       | âœ“         | âœ“         |
-| Shipping labels             | `shipping_labels`        | âœ—    | âœ—       | âœ“         | âœ“         |
-| Account linking             | `account_linking`        | âœ—    | âœ—       | âœ“         | âœ“         |
-| Auto-offers                 | `auto_offer`             | âœ—    | âœ—       | âœ“         | âœ“         |
-| Offers (incoming)           | `offers`                 | âœ—    | âœ“       | âœ“         | âœ“         |
-| Messages                    | `messages`               | âœ—    | âœ“       | âœ“         | âœ“         |
-| Shop Designer               | `shop_designer`          | âœ—    | âœ“       | âœ“         | âœ“         |
-| Dead Stock                  | `dead_stock`             | âœ—    | âœ“       | âœ“         | âœ“         |
-| Restocker                   | `restocker`              | âœ—    | âœ—       | âœ—         | âœ“         |
-| Price Drops (auto-markdown) | `auto_markdown`          | âœ—    | âœ—       | âœ—         | âœ“         |
+| Auto-refresh                | `auto_refresh`           | ✗    | ✗       | ✓         | ✓         |
+| Cloud sync                  | `cloud_sync`             | ✗    | ✗       | ✓         | ✓         |
+| Shipping labels             | `shipping_labels`        | ✗    | ✗       | ✓         | ✓         |
+| Account linking             | `account_linking`        | ✗    | ✗       | ✓         | ✓         |
+| Auto-offers                 | `auto_offer`             | ✗    | ✗       | ✓         | ✓         |
+| Offers (incoming)           | `offers`                 | ✗    | ✓       | ✓         | ✓         |
+| Messages                    | `messages`               | ✗    | ✓       | ✓         | ✓         |
+| Shop Designer               | `shop_designer`          | ✗    | ✓       | ✓         | ✓         |
+| Dead Stock                  | `dead_stock`             | ✗    | ✓       | ✓         | ✓         |
+| Settings presets sync       | `preset_sync`            | ✗    | ✓       | ✓         | ✓         |
+| Restocker                   | `restocker`              | ✗    | ✗       | ✗         | ✓         |
+| Price Drops (auto-markdown) | `auto_markdown`          | ✗    | ✗       | ✗         | ✓         |
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 

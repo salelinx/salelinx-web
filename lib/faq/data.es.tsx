@@ -233,6 +233,23 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         ),
         keywords: ['sincronizar', 'falta', 'panel', 'actualizar'],
       },
+      {
+        id: 'presets-not-syncing',
+        q: 'Mis ajustes guardados no aparecen en mi otro ordenador',
+        a: (
+          <p>
+            Los ajustes guardados se sincronizan a través de tu cuenta de SaleLinx con cualquier plan o prueba activos. Comprueba primero que los dos dispositivos han iniciado sesión con la misma cuenta y que tu plan está activo. Cuál está seleccionado es cosa de cada dispositivo, así que vuelve a elegirlo en el segundo equipo. Cerrar sesión borra los ajustes guardados de ese navegador; vuelven al iniciar sesión de nuevo. Más detalles en{' '}
+            <Link
+              href="/docs/getting-started/account-and-subscription"
+              className="underline underline-offset-4"
+            >
+              Cuenta y suscripción
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['ajuste guardado', 'ajustes guardados', 'preset', 'sincronizar', 'dispositivo'],
+      },
     ],
   },
   {

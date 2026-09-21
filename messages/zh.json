@@ -619,7 +619,7 @@
           "sync": {
             "name": "设备同步",
             "label": "换电脑，设置照旧",
-            "detail": "你的设置、规则和店铺连接会跟着你走，登录任何设备都还在。"
+            "detail": "你的设置、已保存的预设、规则和店铺连接会跟着你走，登录任何设备都还在。"
           },
           "multilanguage": {
             "name": "语言",
@@ -794,7 +794,8 @@
       "messages": "消息",
       "offers": "报价",
       "auto_markdown": "降价",
-      "account_linking": "账号连接"
+      "account_linking": "账号连接",
+      "preset_sync": "设置预设同步"
     }
   },
   "Docs": {

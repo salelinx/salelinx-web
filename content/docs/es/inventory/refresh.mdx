@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'refresh',
   order: 4,
-  updated: '2026-05-18',
-  tags: ['refrescar', 'depop', 'visibilidad', 'programador'],
+  updated: '2026-09-18',
+  tags: ['refrescar', 'depop', 'visibilidad', 'programador', 'ajustes guardados'],
   marketplaces: ['depop'],
   status: 'stub',
 };
@@ -27,3 +27,31 @@ funcionamiento detallado (GET+PUT, conservación del orden, penny
 toggle), la configuración del programador, la elección del
 intervalo, la cadencia y los planes que lo incluyen.
 </Callout>
+
+## Ajustes guardados
+
+El selector de ajustes guardados en la parte superior del panel de
+ajustes almacena la configuración del refresco con un nombre: el
+tope por ejecución de Refresh all, los segundos entre anuncios, la
+opción de saltar los anuncios refrescados en los últimos N días y el
+penny toggle. Elegir uno rellena los cuatro de golpe. Hay dos
+incorporados:
+
+- **Predeterminado** - 100 anuncios por ejecución, 7 segundos entre
+  anuncios, saltar desactivado, penny toggle desactivado.
+- **Prudente** - 50 anuncios por ejecución, 15 segundos entre
+  anuncios. Más lento, y hace menos por ejecución.
+
+Cambia cualquier ajuste a mano y el selector marca los valores como
+sin guardar; desde ahí puedes guardarlos como un ajuste propio.
+Guardar con el nombre de uno de tus ajustes existentes pide
+confirmación antes de sobrescribirlo, y los nombres incorporados no
+se pueden reutilizar. Tus propios ajustes guardados se pueden borrar
+tras una confirmación; los incorporados, no.
+
+Tus ajustes guardados se almacenan con tu cuenta de SaleLinx, así
+que sobreviven a una reinstalación y te siguen a otro ordenador.
+Consulta
+[Cuenta y suscripción](/docs/getting-started/account-and-subscription)
+para saber cómo funcionan la sincronización, el cierre de sesión y
+la selección por dispositivo.

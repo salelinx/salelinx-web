@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-09-15',
-  tags: ['relist', 'depop', 'vinted'],
+  updated: '2026-09-18',
+  tags: ['relist', 'depop', 'vinted', 'presets'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
 };
@@ -85,6 +85,33 @@ in other tabs.
 If the list looks out of date, the **Reload listings** button forces a
 live re-poll of both marketplaces instead of waiting for the next
 background sync.
+
+## Presets
+
+The preset picker at the top of the Settings panel saves the relist
+settings as a named set: the delay between relists, plus every option
+in the relist window (photo modifications, title and description
+changes, the price change, and save as draft). Picking a preset fills
+in all of them at once. Two are built in:
+
+- **Default** - 10 seconds between relists; photo modifications on,
+  at &plusmn;2&deg; rotation, &plusmn;2% scale and &plusmn;1.8%
+  brightness; title and description changes on; price change off;
+  save as draft off.
+- **Careful** - 20 seconds between relists, and every relist lands as
+  a draft first. Slower, and does less per run.
+
+Change any setting by hand and the picker marks the current values as
+unsaved; from there you can save them as a preset of your own. Saving
+under the name of one of your existing presets asks before
+overwriting it, and the built-in names can&rsquo;t be reused. Your
+own presets can be deleted after a confirmation; the built-ins
+can&rsquo;t.
+
+Your saved presets are stored with your SaleLinx account, so they
+survive a reinstall and follow you to another computer. See
+[Account and subscription](/docs/getting-started/account-and-subscription)
+for how syncing, sign-out and per-device selection work.
 
 ## Plan and access
 

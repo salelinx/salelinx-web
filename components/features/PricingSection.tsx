@@ -50,6 +50,7 @@ const FEATURE_ICONS: Record<string, IconName> = {
   offers: "tag",
   auto_markdown: "sparkle",
   account_linking: "link",
+  preset_sync: "sync",
 };
 
 const LIMIT_ORDER = [
@@ -66,6 +67,7 @@ const LIMIT_ORDER = [
 const FEATURE_ORDER = [
   "messages",
   "offers",
+  "preset_sync",
   "dead_stock",
   "shop_designer",
   "auto_offer",

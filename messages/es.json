@@ -619,7 +619,7 @@
           "sync": {
             "name": "Sincronizacion",
             "label": "Cambia de portátil, conserva tu setup",
-            "detail": "Tus ajustes, reglas y tiendas vinculadas te siguen a cualquier dispositivo donde inicies sesión."
+            "detail": "Tu configuración, tus ajustes guardados, reglas y tiendas vinculadas te siguen a cualquier dispositivo donde inicies sesión."
           },
           "multilanguage": {
             "name": "Idiomas",
@@ -794,7 +794,8 @@
       "messages": "Mensajes",
       "offers": "Ofertas",
       "auto_markdown": "Bajadas de precio",
-      "account_linking": "Vinculación de cuenta"
+      "account_linking": "Vinculación de cuenta",
+      "preset_sync": "Sincronización de ajustes guardados"
     }
   },
   "Docs": {

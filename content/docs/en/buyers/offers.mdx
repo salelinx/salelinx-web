@@ -5,8 +5,8 @@ export const metadata = {
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-09-15',
-  tags: ['offers', 'depop', 'vinted'],
+  updated: '2026-09-18',
+  tags: ['offers', 'depop', 'vinted', 'presets'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
 };
@@ -83,6 +83,36 @@ SaleLinx doesn&rsquo;t bulk-decline because that&rsquo;s exactly
 the kind of action that looks automated to the marketplace and
 risks flagging your session. Lowball offers can be declined one at
 a time, or just left to expire.
+
+## Auto-accept presets
+
+The auto-accept controls have a preset picker at the top of their
+Settings panel. A preset saves the minimum percentage of the asking
+price, the absolute price floor, which platforms (Depop, Vinted) to
+scan, and how often to check. Picking a preset fills in every setting
+at once, and for auto-accept the picked preset is the live rule
+immediately. Two are built in:
+
+- **Default** - 90% of asking, no price floor, both platforms,
+  checked every 15 minutes.
+- **Careful** - 95% of asking, checked every 30 minutes. Slower, and
+  does less per run.
+
+A preset deliberately does not include the auto-accept on/off toggle.
+Turning auto-accept on is always a separate, explicit step, whichever
+preset is selected.
+
+Change any setting by hand and the picker marks the current values as
+unsaved; from there you can save them as a preset of your own. Saving
+under the name of one of your existing presets asks before
+overwriting it, and the built-in names can&rsquo;t be reused. Your
+own presets can be deleted after a confirmation; the built-ins
+can&rsquo;t.
+
+Your saved presets are stored with your SaleLinx account, so they
+survive a reinstall and follow you to another computer. See
+[Account and subscription](/docs/getting-started/account-and-subscription)
+for how syncing, sign-out and per-device selection work.
 
 ## Plan and access
 

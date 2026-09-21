@@ -252,6 +252,28 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         ),
         keywords: ['sync', 'missing', 'dashboard', 'refresh'],
       },
+      {
+        id: 'presets-not-syncing',
+        q: 'My saved presets aren&rsquo;t on my other computer',
+        a: (
+          <p>
+            Saved presets sync through your SaleLinx account on any active plan
+            or trial, so first check that both devices are signed in to the
+            same account and that your plan is active. Which preset is selected
+            is per device, so pick it again on the second machine. Signing out
+            clears presets from that browser; they come back on the next
+            sign-in. Details in{' '}
+            <Link
+              href="/docs/getting-started/account-and-subscription"
+              className="underline underline-offset-4"
+            >
+              Account and subscription
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['preset', 'presets', 'settings', 'sync', 'device'],
+      },
     ],
   },
   {

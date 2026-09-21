@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'refresh',
   order: 4,
-  updated: '2026-05-18',
-  tags: ['rafraîchir', 'depop', 'visibilité', 'planificateur'],
+  updated: '2026-09-18',
+  tags: ['rafraîchir', 'depop', 'visibilité', 'planificateur', 'préréglages'],
   marketplaces: ['depop'],
   status: 'stub',
 };
@@ -27,3 +27,32 @@ détaillé (GET+PUT, conservation de l'ordre, penny toggle), la
 configuration du planificateur, le choix d'intervalle, la cadence
 et les paliers d'abonnement.
 </Callout>
+
+## Préréglages
+
+Le sélecteur de préréglages en haut du panneau des réglages
+enregistre les réglages de rafraîchissement sous un nom&nbsp;: le
+plafond par exécution de Refresh all, les secondes entre deux
+annonces, l'option qui ignore les annonces rafraîchies depuis moins
+de N jours, et le penny toggle. Choisir un préréglage remplit les
+quatre d'un coup. Deux sont intégrés&nbsp;:
+
+- **Par défaut** - 100 annonces par exécution, 7 secondes entre
+  deux annonces, option d'ignorer désactivée, penny toggle
+  désactivé.
+- **Prudent** - 50 annonces par exécution, 15 secondes entre deux
+  annonces. Plus lent, et fait moins par exécution.
+
+Modifiez un réglage à la main et le sélecteur signale les valeurs
+comme non enregistrées&nbsp;; vous pouvez alors les enregistrer
+comme préréglage à vous. Enregistrer sous le nom d'un de vos
+préréglages existants demande confirmation avant de l'écraser, et
+les noms intégrés ne peuvent pas être réutilisés. Vos propres
+préréglages peuvent être supprimés après confirmation&nbsp;; les
+intégrés, non.
+
+Vos préréglages sont enregistrés avec votre compte SaleLinx&nbsp;:
+ils survivent à une réinstallation et vous suivent sur un autre
+ordinateur. Voir
+[Compte et abonnement](/docs/getting-started/account-and-subscription)
+pour la synchronisation, la déconnexion et la sélection par appareil.

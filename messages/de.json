@@ -619,7 +619,7 @@
           "sync": {
             "name": "Geraetesync",
             "label": "Laptop wechseln, Setup mitnehmen",
-            "detail": "Deine Einstellungen, Regeln und Shop-Verknüpfungen folgen dir auf jedes Gerät, auf dem du dich anmeldest."
+            "detail": "Deine Einstellungen, gespeicherten Voreinstellungen, Regeln und Shop-Verknüpfungen folgen dir auf jedes Gerät, auf dem du dich anmeldest."
           },
           "multilanguage": {
             "name": "Sprachen",
@@ -794,7 +794,8 @@
       "messages": "Nachrichten",
       "offers": "Angebote",
       "auto_markdown": "Preissenkungen",
-      "account_linking": "Kontoverknüpfung"
+      "account_linking": "Kontoverknüpfung",
+      "preset_sync": "Synchronisation der Voreinstellungen"
     }
   },
   "Docs": {

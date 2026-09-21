@@ -5,8 +5,8 @@ export const metadata = {
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-05-18',
-  tags: ['relist', 'depop', 'vinted'],
+  updated: '2026-09-18',
+  tags: ['relist', 'depop', 'vinted', 'ajustes guardados'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
@@ -25,3 +25,35 @@ funcionamiento detallado (orden publicar-primero-borrar-después),
 las modificaciones de fotos (recorte, hue/brillo, orden), la
 cadencia y los planes que lo incluyen.
 </Callout>
+
+## Ajustes guardados
+
+El selector de ajustes guardados en la parte superior del panel de
+ajustes almacena la configuración de republicar con un nombre: la
+espera entre republicaciones, más cada opción de la ventana de
+republicar (modificaciones de fotos, cambios de título y
+descripción, cambio de precio y guardar como borrador). Elegir uno
+rellena todo de golpe. Hay dos incorporados:
+
+- **Predeterminado** - 10 segundos entre republicaciones;
+  modificaciones de fotos activadas, con &plusmn;2&deg; de rotación,
+  &plusmn;2 % de escala y &plusmn;1,8 % de brillo; cambios de título
+  y descripción activados; cambio de precio desactivado; borrador
+  desactivado.
+- **Prudente** - 20 segundos entre republicaciones, y cada
+  republicación se guarda primero como borrador. Más lento, y hace
+  menos por ejecución.
+
+Cambia cualquier ajuste a mano y el selector marca los valores como
+sin guardar; desde ahí puedes guardarlos como un ajuste propio.
+Guardar con el nombre de uno de tus ajustes existentes pide
+confirmación antes de sobrescribirlo, y los nombres incorporados no
+se pueden reutilizar. Tus propios ajustes guardados se pueden borrar
+tras una confirmación; los incorporados, no.
+
+Tus ajustes guardados se almacenan con tu cuenta de SaleLinx, así
+que sobreviven a una reinstalación y te siguen a otro ordenador.
+Consulta
+[Cuenta y suscripción](/docs/getting-started/account-and-subscription)
+para saber cómo funcionan la sincronización, el cierre de sesión y
+la selección por dispositivo.

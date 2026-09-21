@@ -619,7 +619,7 @@
           "sync": {
             "name": "Device sync",
             "label": "Switch laptops, keep your setup",
-            "detail": "Your settings, rules and shop links follow you to any device you sign in on."
+            "detail": "Your settings, saved presets, rules and shop links follow you to any device you sign in on."
           },
           "multilanguage": {
             "name": "Languages",
@@ -794,7 +794,8 @@
       "messages": "Messages",
       "offers": "Offers",
       "auto_markdown": "Price drops",
-      "account_linking": "Account linking"
+      "account_linking": "Account linking",
+      "preset_sync": "Settings presets sync"
     }
   },
   "Docs": {
