@@ -23,12 +23,12 @@ on:
     # the most contended minutes on the platform, so staying off them gives
     # these runs a slightly better chance of being picked up.
     #
-    # ponytail: ceiling is "a few checks an hour, no floor on the gap". An
-    # outage inside a gap is invisible until the next run. Buying a real floor
-    # means an external trigger, and the cheapest one that does NOT undo the
-    # token decision below is a Vercel cron calling workflow_dispatch with a
-    # GitHub token scoped to that alone. Do that when the gap actually costs
-    # something.
+    # This is now the backstop, not the floor. On 2026-09-21 the gap cost
+    # something - Supabase went down at ~17:15 with the last delivered run at
+    # 13:54 - so the floor moved to cron-job.org, which calls workflow_dispatch
+    # every 5 minutes via app/api/watchdog/trigger. This schedule stays because
+    # it is the one path that still fires when that scheduler, or Vercel, is
+    # itself what is down.
     - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 

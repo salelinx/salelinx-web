@@ -40,6 +40,7 @@
 // need one - see docs/OVERVIEW.md.
 
 import { NextResponse } from "next/server";
+import { safeEqual } from "@/lib/safe-equal";
 
 // A cached health check is worse than no health check: it reports the past.
 export const dynamic = "force-dynamic";
@@ -77,19 +78,6 @@ export function summarise(probes: ProbeResult[]): {
 } {
   const ok = probes.length > 0 && probes.every((p) => p.ok);
   return { ok, httpStatus: ok ? 200 : 503 };
-}
-
-/**
- * Constant-time string compare for the optional shared secret. Hand-rolled
- * rather than `crypto.timingSafeEqual` so this route stays runtime-agnostic
- * (that needs Node and equal-length buffers). Length is compared first and
- * leaks only the length, which is not the secret.
- */
-function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
 }
 
 async function runProbe(
