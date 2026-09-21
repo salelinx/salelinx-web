@@ -16,6 +16,10 @@
 //
 //   any comp row             only until current_period_end, if it has one.
 //
+//   trialing                 only until current_period_end. A trial whose end
+//                            has passed means the conversion event never
+//                            landed, not that the trial runs forever.
+//
 // A comp row is one with no stripe_subscription_id: a support comp or a
 // redeemed creator code (migration 021), granted by hand rather than billed.
 // Those are the only rows whose period end is a deadline. On a Stripe-managed
@@ -64,8 +68,30 @@ export type EntitlementInput = {
  */
 function compExpired(sub: EntitlementInput, now: number): boolean {
   if (sub.stripe_subscription_id !== null) return false;
-  if (!sub.current_period_end) return false;
-  const end = new Date(sub.current_period_end).getTime();
+  return past(sub.current_period_end, now);
+}
+
+/**
+ * A trial whose end date has passed.
+ *
+ * Stripe moves a trial to active or past_due the moment it ends, so a
+ * `trialing` row with an end date in the past means that event never landed.
+ * Trusting the status alone is what the database showed happening: a trial
+ * that ended on 31 August was still fully entitled three weeks later.
+ *
+ * Locking out is the safe direction. The row itself says the trial is over,
+ * and if the conversion did succeed the webhook says so within seconds and the
+ * next read picks it up.
+ */
+function trialExpired(sub: EntitlementInput, now: number): boolean {
+  if (sub.status !== "trialing") return false;
+  return past(sub.current_period_end, now);
+}
+
+/** An end date that has gone by. Absent or unparseable is never "expired". */
+function past(value: string | null | undefined, now: number): boolean {
+  if (!value) return false;
+  const end = new Date(value).getTime();
   return !Number.isNaN(end) && now >= end;
 }
 
@@ -74,7 +100,7 @@ export function isSubscriptionEntitled(
   now: number = Date.now(),
 ): boolean {
   if (!sub) return false;
-  if (compExpired(sub, now)) return false;
+  if (compExpired(sub, now) || trialExpired(sub, now)) return false;
   if (sub.status === "active" || sub.status === "trialing") return true;
   if (sub.status !== "past_due") return false;
 

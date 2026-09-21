@@ -103,8 +103,23 @@ export const GRACE_DAYS = 7;
  */
 function compExpired(sub: SubscriptionRow, now: number): boolean {
   if (sub.stripe_subscription_id !== null) return false;
-  if (!sub.current_period_end) return false;
-  const end = new Date(sub.current_period_end).getTime();
+  return past(sub.current_period_end, now);
+}
+
+/**
+ * A trial whose end date has passed. Stripe moves a trial on the moment it
+ * ends, so a `trialing` row still sitting past its end means that event never
+ * landed - not that the trial runs forever.
+ */
+function trialExpired(sub: SubscriptionRow, now: number): boolean {
+  if (sub.status !== "trialing") return false;
+  return past(sub.current_period_end, now);
+}
+
+/** An end date that has gone by. Absent or unparseable is never "expired". */
+function past(value: string | null | undefined, now: number): boolean {
+  if (!value) return false;
+  const end = new Date(value).getTime();
   return !Number.isNaN(end) && now >= end;
 }
 
@@ -113,7 +128,7 @@ export function isEntitled(
   now: number = Date.now(),
 ): boolean {
   if (!sub) return false;
-  if (compExpired(sub, now)) return false;
+  if (compExpired(sub, now) || trialExpired(sub, now)) return false;
   if (sub.status === "active" || sub.status === "trialing") return true;
   if (sub.status !== "past_due") return false;
 

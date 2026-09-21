@@ -3,6 +3,10 @@
 
 import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  subscriptionIdFromInvoice,
+  isSubscriptionInvoice,
+} from "../_shared/stripe-invoice.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2025-02-24.acacia",
@@ -111,10 +115,13 @@ async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription,
 ): Promise<void> {
   const price = subscription.items.data[0]?.price;
-  if (!price) return;
+  if (!price) {
+    console.error(`[stripe-webhook] subscription ${subscription.id} has no price item`);
+    return;
+  }
   const { tier_id } = tierFromPrice(price);
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("subscriptions")
     .update({
       tier_id,
@@ -122,24 +129,48 @@ async function handleSubscriptionUpdated(
       current_period_end: isoFromUnix(periodEndFromSubscription(subscription)),
       cancel_at_period_end: subscription.cancel_at_period_end ?? false,
     })
-    .eq("stripe_subscription_id", subscription.id);
+    .eq("stripe_subscription_id", subscription.id)
+    .select("id");
   if (error) throw new Error(`subscriptions update failed: ${error.message}`);
+  // A zero-row update is not a database error, so without this it is silent.
+  // It means Stripe knows about a subscription we do not, and the row will
+  // keep whatever status it last had - which is how a trial that ended in
+  // August was still marked `trialing` in September.
+  if ((data ?? []).length === 0) {
+    console.error(
+      `[stripe-webhook] no subscriptions row for ${subscription.id}; status ` +
+        `${subscription.status} not applied`,
+    );
+  }
 }
 
 async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
 ): Promise<void> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("subscriptions")
     .update({ status: "canceled" })
-    .eq("stripe_subscription_id", subscription.id);
+    .eq("stripe_subscription_id", subscription.id)
+    .select("id");
   if (error) throw new Error(`subscriptions cancel failed: ${error.message}`);
+  if ((data ?? []).length === 0) {
+    console.error(
+      `[stripe-webhook] no subscriptions row for ${subscription.id}; cancel not applied`,
+    );
+  }
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
-  const subId =
-    typeof invoice.subscription === "string" ? invoice.subscription : null;
-  if (!subId) return;
+  const subId = subscriptionIdFromInvoice(invoice);
+  // One-off invoices genuinely have no subscription; those are not our concern
+  // and are not an error. Anything else means the payload shape moved again,
+  // and silence is what made this invisible last time.
+  if (!subId) {
+    if (!isSubscriptionInvoice(invoice)) return;
+    throw new Error(
+      `invoice ${invoice.id}: cannot resolve subscription id, Stripe payload shape has changed`,
+    );
+  }
   const { error } = await supabase
     .from("subscriptions")
     .update({ status: "past_due", past_due_since: new Date().toISOString() })
@@ -161,9 +192,13 @@ async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
-  const subId =
-    typeof invoice.subscription === "string" ? invoice.subscription : null;
-  if (!subId) return;
+  const subId = subscriptionIdFromInvoice(invoice);
+  if (!subId) {
+    if (!isSubscriptionInvoice(invoice)) return;
+    throw new Error(
+      `invoice ${invoice.id}: cannot resolve subscription id, Stripe payload shape has changed`,
+    );
+  }
 
   // Money has actually arrived, so this account is a paying customer from now
   // on - that is what earns it a grace period the next time a charge fails.
@@ -238,9 +273,11 @@ async function voidReferralForCharge(charge: Stripe.Charge): Promise<void> {
     typeof charge.invoice === "string" ? charge.invoice : charge.invoice?.id;
   if (!invoiceId) return; // one-off charge, not a subscription payment
 
+  // Retrieved through the SDK rather than read off the event, so this one gets
+  // the pinned API version's shape. It still goes through the shared reader:
+  // one place to change when Stripe moves the field again.
   const invoice = await stripe.invoices.retrieve(invoiceId);
-  const subId =
-    typeof invoice.subscription === "string" ? invoice.subscription : null;
+  const subId = subscriptionIdFromInvoice(invoice);
   if (!subId) return;
 
   const { data: subRow, error: lookupError } = await supabase
