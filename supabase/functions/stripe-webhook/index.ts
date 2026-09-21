@@ -7,6 +7,7 @@ import {
   subscriptionIdFromInvoice,
   isSubscriptionInvoice,
 } from "../_shared/stripe-invoice.ts";
+import { notifyPayment } from "../_shared/payment-notify.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2025-02-24.acacia",
@@ -53,6 +54,31 @@ function periodEndFromSubscription(
   // @ts-expect-error legacy field, still present on older events
   const legacy = sub.current_period_end as number | undefined;
   return legacy ?? null;
+}
+
+/**
+ * Who a subscription belongs to, for the staff notification.
+ *
+ * Best effort by design: a notification with no email is still worth sending,
+ * and this must never be the reason an event fails.
+ */
+async function whoFor(subId: string): Promise<{ email: string | null; tier: string | null; status: string | null }> {
+  try {
+    const { data } = await supabase
+      .from("subscriptions")
+      .select("user_id, tier_id, status")
+      .eq("stripe_subscription_id", subId)
+      .maybeSingle();
+    if (!data) return { email: null, tier: null, status: null };
+    const { data: user } = await supabase.auth.admin.getUserById(data.user_id);
+    return {
+      email: user?.user?.email ?? null,
+      tier: data.tier_id ?? null,
+      status: data.status ?? null,
+    };
+  } catch {
+    return { email: null, tier: null, status: null };
+  }
 }
 
 async function handleSubscriptionCheckout(
@@ -399,6 +425,19 @@ Deno.serve(async (req) => {
         if (session.mode === "subscription") {
           await handleSubscriptionCheckout(session);
           console.log(`[stripe-webhook] subscription insert succeeded`);
+          if (typeof session.subscription === "string") {
+            const who = await whoFor(session.subscription);
+            await notifyPayment({
+              // A trial and an instant purchase both arrive here; the row's
+              // status is what tells them apart.
+              event: who.status === "trialing" ? "New trial" : "New subscription",
+              email: who.email,
+              tier: who.tier,
+              status: who.status,
+              amount: session.amount_total,
+              currency: session.currency,
+            });
+          }
         }
         break;
       }
@@ -409,21 +448,65 @@ Deno.serve(async (req) => {
         break;
       }
       case "customer.subscription.deleted": {
-        await handleSubscriptionDeleted(
-          event.data.object as Stripe.Subscription,
-        );
+        const sub = event.data.object as Stripe.Subscription;
+        await handleSubscriptionDeleted(sub);
+        const who = await whoFor(sub.id);
+        await notifyPayment({
+          event: "Subscription cancelled",
+          email: who.email,
+          tier: who.tier,
+          status: "canceled",
+        });
         break;
       }
       case "invoice.payment_failed": {
-        await handlePaymentFailed(event.data.object as Stripe.Invoice);
+        const inv = event.data.object as Stripe.Invoice;
+        await handlePaymentFailed(inv);
+        const subId = subscriptionIdFromInvoice(inv);
+        if (subId) {
+          const who = await whoFor(subId);
+          await notifyPayment({
+            event: "Payment failed",
+            email: who.email,
+            tier: who.tier,
+            status: who.status,
+            amount: inv.amount_due,
+            currency: inv.currency,
+            // first_paid_at null means this is a trial that never converted,
+            // which is a different conversation from a regular's card bouncing.
+            note: who.status === "past_due" ? "check whether they have ever paid" : null,
+          });
+        }
         break;
       }
       case "invoice.payment_succeeded": {
-        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
+        const inv = event.data.object as Stripe.Invoice;
+        await handlePaymentSucceeded(inv);
+        const subId = subscriptionIdFromInvoice(inv);
+        // Only real money. A zero-value invoice is a trial opening, and
+        // checkout.session.completed has already said so.
+        if (subId && (inv.amount_paid ?? 0) > 0) {
+          const who = await whoFor(subId);
+          await notifyPayment({
+            event: "Payment received",
+            email: who.email,
+            tier: who.tier,
+            status: who.status,
+            amount: inv.amount_paid,
+            currency: inv.currency,
+          });
+        }
         break;
       }
       case "charge.refunded": {
-        await voidReferralForCharge(event.data.object as Stripe.Charge);
+        const charge = event.data.object as Stripe.Charge;
+        await voidReferralForCharge(charge);
+        await notifyPayment({
+          event: "Refund issued",
+          email: charge.billing_details?.email ?? null,
+          amount: charge.amount_refunded,
+          currency: charge.currency,
+        });
         break;
       }
       case "charge.dispute.created": {
@@ -436,6 +519,13 @@ Deno.serve(async (req) => {
         if (chargeId) {
           const charge = await stripe.charges.retrieve(chargeId);
           await voidReferralForCharge(charge);
+          await notifyPayment({
+            event: "Dispute opened",
+            email: charge.billing_details?.email ?? null,
+            amount: dispute.amount,
+            currency: dispute.currency,
+            note: dispute.reason ?? null,
+          });
         }
         break;
       }
