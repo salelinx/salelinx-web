@@ -1,0 +1,53 @@
+export const metadata = {
+  title:
+    "Crosslist Depop drafts to Vinted, redesigned settings, and a fix for categories",
+  date: "2026-09-21",
+  summary:
+    "Version 1.1.8 lets you crosslist Depop drafts to Vinted with an All / Active / Drafts filter, redesigns the settings panels around a preset pill, takes categories from Depop directly, and fixes size and brand lookups on both sides.",
+  tags: ["release"],
+};
+
+# Version 1.1.8
+
+A short release: drafts join the crosslist picker, settings get a cleaner
+layout, and a round of category, size and brand fixes.
+
+## New
+
+- **Crosslist Depop drafts to Vinted.** Drafts now appear in the crosslist
+  picker with a badge, and a draft source always creates a draft on Vinted.
+  Any field a draft is missing is a warning, not a failure, so a half-filled
+  draft crosslists with whatever it has.
+- **An All / Active / Drafts filter** on the crosslist picker, next to the
+  link filter, with its own empty states.
+
+## Fixed
+
+- **Categories come from Depop.** Crosslisting now matches category slugs
+  against Depop's own list instead of a legacy id, tops get a category group,
+  and if a category cannot be resolved the panel says so rather than creating
+  a listing with no category.
+- **Sizes and brands.** The Vinted size is read from where Vinted keeps it,
+  the Depop size is sent as the variants map Depop reads, and a brand lookup
+  tries both apostrophe forms before giving up.
+- **My Listings updates after a crosslist batch.** The panel polls the
+  platform you wrote to once the batch finishes, so new listings show without
+  pressing Refresh All.
+- A Vinted listing with no condition is now flagged, and the price badge no
+  longer shows through the queued pill.
+
+## Improved
+
+- **Redesigned settings panels.** The preset dropdown and Save button are
+  replaced by one small pill at the top right of each panel. Its menu lists
+  your presets and, once you edit a value, offers Save changes, Save as new
+  or Revert. Rows are grouped under short captions, and the forms no longer
+  stretch across the page on Refresh and Relist.
+- The draft marker and filter on the crosslist picker match the rest of the
+  panel.
+
+## Plans and billing
+
+- **Trials and complimentary periods end on their end date.** A trial that
+  has passed its end date no longer keeps its allowances while the plan
+  change catches up.

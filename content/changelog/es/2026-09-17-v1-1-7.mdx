@@ -1,0 +1,77 @@
+export const metadata = {
+  title:
+    "Ajustes predefinidos que siguen a tu cuenta, un relist de Depop más sólido y un aviso de caída",
+  date: "2026-09-17",
+  summary:
+    "La versión 1.1.7 sincroniza tus ajustes predefinidos con tu cuenta, los añade a Relist y Auto-Accept, corrige el relist de Depop de principio a fin, muestra un aviso cuando nuestros servidores no responden y pasa las cuentas nuevas a una prueba de 14 días.",
+  tags: ["release"],
+};
+
+# Versión 1.1.7
+
+Diez días de trabajo: ajustes predefinidos en todas partes, una larga revisión
+del relist de Depop y un panel más sincero sobre lo que está haciendo.
+
+## Novedades
+
+- **Los ajustes predefinidos siguen a tu cuenta.** Los predefinidos guardados
+  en cada panel de ajustes se sincronizan ahora a través de tu cuenta de
+  SaleLinx, así que una reinstalación o un segundo ordenador los recupera.
+  Relist y Auto-Accept estrenan la misma fila de predefinidos que ya tenían
+  las demás pestañas.
+- **Interruptor de animaciones.** Un botón en la cabecera del panel apaga y
+  enciende las animaciones de página y comparte su estado con el ajuste de
+  Pantalla.
+- **El relist se actualiza en directo.** Los artículos terminados dejan de
+  estar en gris y sus sustitutos aparecen mientras avanza la ejecución, en
+  lugar de todos al final, y Linking tiene un interruptor Incluir vendidos que
+  filtra ambas columnas y las parejas recomendadas.
+- **Restocker muestra los recuentos de reposición** y un historial que refleja
+  lo que ocurrió de verdad, y ahora comprueba Depop en cada ciclo.
+- **Un enlace Gestionar cuenta** en Ajustes te lleva directo a tu página de
+  cuenta.
+
+## Correcciones
+
+- **Relist de Depop.** Relistar un artículo de Depop vendido recupera ahora su
+  talla, rellena el tipo de producto y crea el anuncio correctamente. Las
+  ediciones de borrador se escriben donde Depop las guarda, el editor muestra
+  el anuncio publicado en lugar de la copia en la nube, y la cantidad viene
+  rellenada con el número real.
+- **Stock de Depop.** Un artículo con stock 0 se muestra como Agotado en lugar
+  de Oculto, los anuncios vendidos ya no se abren en el editor, y un cambio de
+  cantidad se escribe en las variantes que Depop lee.
+- **Detalles de Vinted.** El selector de marca del editor busca en la lista de
+  marcas de Vinted, el estado se envía al hacer crosslisting a Vinted, y
+  cuando Vinted se niega a ampliar un plazo de publicación, el panel explica
+  por qué.
+- **My Listings se actualiza tras cada crosslist**, para que el nuevo anuncio
+  aparezca sin refrescar a mano, y la cuadrícula actualiza correctamente las
+  filas reutilizadas tras una edición masiva.
+- **Refresh All dice el número real** y se atenúa cuando no hay nada
+  pendiente. El control Detener vuelve a la barra de progreso de Refresh.
+- **Auto-Offers necesita una cuenta de Vinted vinculada**, y ahora lo dice en
+  lugar de mostrar una pestaña vacía.
+- Correcciones menores: la barra de herramientas del crosslist ya no salta al
+  cambiar de filtro, la barra de paginación se queda en su sitio para que la
+  búsqueda deje de moverse, y la selección arrastrando ya no arrastra las
+  imágenes de las tarjetas.
+
+## Mejoras
+
+- **Un aviso de caída de la nube.** Si nuestros servidores no responden, el
+  panel muestra un aviso y la pantalla de inicio de sesión deja claro que no
+  se ha cerrado tu sesión.
+- **Cuadrícula de crosslist.** Los filtros de plataforma cambian sin viaje al
+  servidor, la cuadrícula se funde entre filtros y todas las fichas de logo de
+  marketplace son redondeadas.
+- Los avisos de relist se apilan y sus opciones tienen iconos.
+
+## Planes y facturación
+
+- **Las cuentas nuevas empiezan con una prueba de 14 días** en lugar de un
+  plan gratuito. La prueba pide una tarjeta y pasa a un plan de pago al
+  terminar.
+- **Un cobro de renovación fallido mantiene tu acceso siete días** mientras
+  se reintenta la tarjeta. Una prueba cuyo primer cobro falla termina de
+  inmediato.

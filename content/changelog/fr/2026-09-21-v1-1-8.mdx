@@ -1,0 +1,58 @@
+export const metadata = {
+  title:
+    "Crosslister les brouillons Depop vers Vinted, des réglages redessinés et une correction des catégories",
+  date: "2026-09-21",
+  summary:
+    "La version 1.1.8 permet de crosslister les brouillons Depop vers Vinted avec un filtre Tous / Actifs / Brouillons, redessine les panneaux de réglages autour d'une pastille de préréglage, prend les catégories directement chez Depop et corrige la recherche de taille et de marque des deux côtés.",
+  tags: ["release"],
+};
+
+# Version 1.1.8
+
+Une version courte : les brouillons rejoignent le sélecteur de crosslist, les
+réglages gagnent une mise en page plus nette, et une série de corrections sur
+les catégories, tailles et marques.
+
+## Nouveautés
+
+- **Crosslister les brouillons Depop vers Vinted.** Les brouillons
+  apparaissent désormais dans le sélecteur de crosslist avec un badge, et un
+  brouillon source crée toujours un brouillon sur Vinted. Un champ manquant
+  est un avertissement, pas un échec : un brouillon à moitié rempli est
+  crosslisté avec ce qu&rsquo;il a.
+- **Un filtre Tous / Actifs / Brouillons** sur le sélecteur de crosslist, à
+  côté du filtre de liaison, avec ses propres états vides.
+
+## Corrections
+
+- **Les catégories viennent de Depop.** Le crosslisting fait désormais
+  correspondre les catégories à la liste de Depop plutôt qu&rsquo;à un ancien
+  identifiant, les hauts reçoivent un groupe de catégorie, et si une catégorie
+  ne peut pas être résolue, le panneau le dit au lieu de créer une annonce
+  sans catégorie.
+- **Tailles et marques.** La taille Vinted est lue là où Vinted la conserve,
+  la taille Depop est envoyée sous la forme de variantes que Depop lit, et la
+  recherche de marque essaie les deux formes d&rsquo;apostrophe avant
+  d&rsquo;abandonner.
+- **My Listings se met à jour après un lot de crosslist.** Le panneau
+  interroge la plateforme de destination à la fin du lot, pour que les
+  nouvelles annonces apparaissent sans appuyer sur Refresh All.
+- Une annonce Vinted sans état est désormais signalée, et le badge de prix ne
+  transparaît plus à travers la pastille En file.
+
+## Améliorations
+
+- **Panneaux de réglages redessinés.** Le menu déroulant de préréglages et le
+  bouton Enregistrer sont remplacés par une petite pastille en haut à droite
+  de chaque panneau. Son menu liste vos préréglages et, dès que vous modifiez
+  une valeur, propose Enregistrer, Enregistrer sous ou Rétablir. Les lignes
+  sont regroupées sous de courts intitulés, et les formulaires ne
+  s&rsquo;étirent plus sur toute la page dans Refresh et Relist.
+- Le marqueur et le filtre de brouillon du sélecteur de crosslist suivent le
+  style du reste du panneau.
+
+## Abonnement et facturation
+
+- **Les essais et les périodes offertes s&rsquo;arrêtent à leur date de fin.**
+  Un essai arrivé à échéance ne conserve plus ses quotas en attendant que le
+  changement de plan soit pris en compte.

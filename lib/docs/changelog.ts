@@ -21,6 +21,14 @@ import * as v116En from "@/content/changelog/en/2026-09-07-v1-1-6.mdx";
 import * as v116Fr from "@/content/changelog/fr/2026-09-07-v1-1-6.mdx";
 import * as v116Es from "@/content/changelog/es/2026-09-07-v1-1-6.mdx";
 import * as v116De from "@/content/changelog/de/2026-09-07-v1-1-6.mdx";
+import * as v117En from "@/content/changelog/en/2026-09-17-v1-1-7.mdx";
+import * as v117Fr from "@/content/changelog/fr/2026-09-17-v1-1-7.mdx";
+import * as v117Es from "@/content/changelog/es/2026-09-17-v1-1-7.mdx";
+import * as v117De from "@/content/changelog/de/2026-09-17-v1-1-7.mdx";
+import * as v118En from "@/content/changelog/en/2026-09-21-v1-1-8.mdx";
+import * as v118Fr from "@/content/changelog/fr/2026-09-21-v1-1-8.mdx";
+import * as v118Es from "@/content/changelog/es/2026-09-21-v1-1-8.mdx";
+import * as v118De from "@/content/changelog/de/2026-09-21-v1-1-8.mdx";
 // 1.1.4 was a Chrome Web Store listing update only; the 1.1.5 entry covers it.
 import * as v115En from "@/content/changelog/en/2026-08-29-v1-1-5.mdx";
 import * as v115Fr from "@/content/changelog/fr/2026-08-29-v1-1-5.mdx";
@@ -31,6 +39,8 @@ import * as v115De from "@/content/changelog/de/2026-08-29-v1-1-5.mdx";
 // metadata.date descending, so the order here does not matter.
 const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   en: [
+    v118En as unknown as ChangelogModule,
+    v117En as unknown as ChangelogModule,
     v116En as unknown as ChangelogModule,
     v115En as unknown as ChangelogModule,
     v113En as unknown as ChangelogModule,
@@ -39,6 +49,8 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEn as unknown as ChangelogModule,
   ],
   fr: [
+    v118Fr as unknown as ChangelogModule,
+    v117Fr as unknown as ChangelogModule,
     v116Fr as unknown as ChangelogModule,
     v115Fr as unknown as ChangelogModule,
     v113Fr as unknown as ChangelogModule,
@@ -47,6 +59,8 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseFr as unknown as ChangelogModule,
   ],
   es: [
+    v118Es as unknown as ChangelogModule,
+    v117Es as unknown as ChangelogModule,
     v116Es as unknown as ChangelogModule,
     v115Es as unknown as ChangelogModule,
     v113Es as unknown as ChangelogModule,
@@ -55,6 +69,8 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEs as unknown as ChangelogModule,
   ],
   de: [
+    v118De as unknown as ChangelogModule,
+    v117De as unknown as ChangelogModule,
     v116De as unknown as ChangelogModule,
     v115De as unknown as ChangelogModule,
     v113De as unknown as ChangelogModule,
@@ -66,6 +82,8 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   // read the English ones. Add locale dirs under content/changelog to change
   // that, and add the locale to TRANSLATED_CHANGELOG_LOCALES below.
   ar: [
+    v118En as unknown as ChangelogModule,
+    v117En as unknown as ChangelogModule,
     v116En as unknown as ChangelogModule,
     v115En as unknown as ChangelogModule,
     v113En as unknown as ChangelogModule,
@@ -74,6 +92,8 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEn as unknown as ChangelogModule,
   ],
   zh: [
+    v118En as unknown as ChangelogModule,
+    v117En as unknown as ChangelogModule,
     v116En as unknown as ChangelogModule,
     v115En as unknown as ChangelogModule,
     v113En as unknown as ChangelogModule,

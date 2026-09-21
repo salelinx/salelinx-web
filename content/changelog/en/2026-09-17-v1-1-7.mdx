@@ -1,0 +1,69 @@
+export const metadata = {
+  title:
+    "Settings presets that follow your account, a sturdier Depop relist, and an outage banner",
+  date: "2026-09-17",
+  summary:
+    "Version 1.1.7 syncs your settings presets to your account, adds presets to Relist and Auto-Accept, fixes Depop relisting end to end, shows a banner when our servers are unreachable, and moves new accounts onto a 14-day trial.",
+  tags: ["release"],
+};
+
+# Version 1.1.7
+
+Ten days of work: presets everywhere, a long pass on Depop relisting, and
+some honesty about what the panel is doing.
+
+## New
+
+- **Presets follow your account.** Saved presets on every settings panel now
+  sync through your SaleLinx account, so a reinstall or a second computer
+  picks them up. Relist and Auto-Accept gained the same preset row the other
+  tabs already had.
+- **Page animations toggle.** A button in the panel header turns the page
+  animations off and on, and shares its state with the Display setting.
+- **Relist updates live.** Finished items un-grey and their replacements
+  appear as a run progresses instead of all at once at the end, and Linking
+  has an Include sold toggle that filters both columns and the recommended
+  pairs.
+- **Restocker shows restock counts** and a feed that reflects what actually
+  happened, and it now checks Depop on every cycle.
+- **A Manage account link** in Settings takes you straight to your account
+  page.
+
+## Fixed
+
+- **Depop relisting.** Relisting a sold Depop item now recovers its size,
+  fills in the product type, and creates the listing correctly. Draft edits
+  are written where Depop keeps them, the editor shows the live listing rather
+  than the cloud copy, and the quantity field is prefilled with the real
+  number.
+- **Depop stock.** An item with stock 0 is shown as Sold out rather than
+  Hidden, sold listings are locked out of the editor, and a quantity change
+  is written into the variants Depop reads.
+- **Vinted details.** The editor brand picker searches Vinted's own brand
+  list, condition is sent when crosslisting to Vinted, and when Vinted refuses
+  to extend a posting deadline the panel says why.
+- **My Listings refreshes after each crosslist**, so the new listing shows
+  without a manual refresh, and the grid updates reused rows correctly after
+  a bulk edit.
+- **Refresh All says the real count** and greys out when nothing is due. The
+  Stop control is back on the Refresh progress bar.
+- **Auto-Offers needs a linked Vinted account**, and now says so instead of
+  showing an empty tab.
+- Smaller fixes: the crosslist toolbar no longer jumps when you switch
+  filters, the pagination bar stays put so the search bar stops moving, and
+  drag-select no longer drags card images.
+
+## Improved
+
+- **A cloud outage banner.** If our servers are unreachable the panel shows a
+  banner, and the login screen makes clear you have not been signed out.
+- **Crosslist grid.** Platform filters switch without a round trip, the grid
+  fades between filters, and every marketplace logo tile is rounded.
+- The relist prompts are stacked and their choices have icons.
+
+## Plans and billing
+
+- **New accounts start on a 14-day trial** rather than a free plan. A trial
+  needs a card and moves onto a paid plan when it ends.
+- **A failed renewal payment keeps your access for seven days** while the
+  card is retried. A trial whose first payment fails ends straight away.
