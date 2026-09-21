@@ -156,6 +156,8 @@ All defined in `.env.example`. Public-only by design - the website has no server
 | `NEXT_PUBLIC_ADS_LABEL_PURCHASE`     | client          | Conversion label for "subscription started" (fired on the Checkout success landing)                                                                                                            |
 | `NEXT_PUBLIC_ADS_LABEL_INSTALL`      | client          | Conversion label for the outbound Chrome Web Store click (closest measurable proxy for an install)                                                                                             |
 | `HEALTH_CHECK_TOKEN`                 | server          | Optional shared secret for `/api/health/supabase`. Unset leaves the endpoint open; when set, the monitor must send it as `x-health-token`. Not `NEXT_PUBLIC_` — it must never reach the client |
+| `WATCHDOG_TRIGGER_SECRET`            | server          | Required by `/api/watchdog/trigger`. cron-job.org sends it as `Authorization: Bearer …`. Unset makes the route refuse: it fails closed, unlike the health endpoint          |
+| `WATCHDOG_DISPATCH_TOKEN`            | server          | Fine-grained GitHub PAT, **Actions: write on `salelinx/salelinx-web` only**. Lets the trigger route call `workflow_dispatch`. Deliberately not the Supabase PAT, which has full org access      |
 
 ## Health endpoint (`/api/health/supabase`)
 
@@ -178,9 +180,38 @@ Both use the anon key (public by design) and neither writes. There is no service
 
 `HEALTH_CHECK_TOKEN` is optional: unset, the endpoint is open so it works before anything is configured; set, callers must send `x-health-token`. Worth setting, since each call makes two outbound requests to the service it is protecting.
 
-**Third consumer: the watchdog.** `.github/workflows/supabase-watchdog.yml` runs `scripts/supabase-watchdog.mjs` every 5 minutes, and restarts the project when it is genuinely down. It exists because 2026-09-06 needed a manual restart after 5h18m — the database recovering was never the hard part, noticing was.
+**Third consumer: the watchdog.** `.github/workflows/supabase-watchdog.yml` runs `scripts/supabase-watchdog.mjs` and restarts the project when it is genuinely down. It exists because 2026-09-06 needed a manual restart after 5h18m. The database recovering was never the hard part, noticing was.
 
-A restart is itself an outage, so it needs **two independent signals to agree**: this endpoint failing three probes a minute apart, AND `GET /v1/projects/{ref}` reporting a bad status. If the probe fails while Supabase reports `ACTIVE_HEALTHY` the fault is more likely Vercel, DNS or the runner's network, and it reports without acting. It also declines when the platform is already mid-transition (`RESTARTING`, `COMING_UP`, …) or when the project is paused, which a restart would silently un-pause.
+A restart is itself an outage, so the bar is high, but the two signals are **not** equal, and treating them as if they were is a bug this has already had. `GET /v1/projects/{ref}` returns a *lifecycle* state, not a serving one: `ACTIVE_HEALTHY` means provisioned and not paused, and it stayed green through all 5h18m of 2026-09-06 and again through 2026-09-21. What separates "Supabase is down" from "we could not reach a webpage" is whether **our own endpoint answered**:
+
+| Evidence                                      | Rule                                                                  |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| Any served JSON 503 naming failed probes      | Restart, whatever the platform says. Vercel ran the handler, so the fault is past it |
+| Only unreachable probes (timeout, DNS, HTML)  | Ambiguous, and here `ACTIVE_HEALTHY` does get the final say            |
+
+On 2026-09-17 19:14 UTC the older rule let the platform status veto three served 503s and the watchdog refused to act, armed against precisely the outage it exists for. `tests/supabase-watchdog.test.ts` pins that case; if it goes red the veto is back and the thing is decorative. It still declines when the platform is mid-transition (`RESTARTING`, `COMING_UP`, …) or when the project is paused, which a restart would silently un-pause.
+
+**What triggers it.** Two paths, deliberately:
+
+| Trigger                                                     | Cadence                           | Survives                            |
+| ------------------------------------------------------------ | --------------------------------- | ----------------------------------- |
+| cron-job.org → `/api/watchdog/trigger` → `workflow_dispatch` | every 5 min, a real floor         | Supabase down                       |
+| The workflow's own `schedule:`                              | 4/hr requested, 6-8/day delivered | cron-job.org or Vercel being down   |
+
+GitHub's scheduled runs are best-effort and high-frequency crons are dropped first under load, so the workflow's `cron:` is a request, not a guarantee. On 2026-09-21 Supabase went down at ~17:15 UTC with the last delivered run at 13:54, a 3h24m gap, restart logic armed and correct the whole time, and nothing ran. cron-job.org gives the floor the schedule never had; the GitHub schedule stays as the backstop for when cron-job.org is what broke.
+
+**Why cron-job.org and not somewhere we already pay for.** Both obvious candidates are blocked by a plan, not by design:
+
+- **Vercel cron**: we are on Hobby, where `crons` are capped at one run per day whatever `vercel.json` says. A floor of 24 hours is not a floor.
+- **UptimeRobot webhook**: the monitor already polls this endpoint on a real interval and is what noticed the 2026-09-21 outage, so firing the watchdog from its down-alert would have been the tidiest option. Webhooks are Team/Scale only; we are on Free.
+
+cron-job.org's free tier does 1-minute intervals with custom request headers, and shares infrastructure with neither Vercel nor Supabase, which is the only property that actually matters. If either plan above ever changes, both are drop-in replacements pointed at the same route. **UptimeRobot still does the alerting**: it tells a human; cron-job.org tells the watchdog. They are not redundant.
+
+`/api/watchdog/trigger` exists because a cron service cannot call GitHub directly: `workflow_dispatch` needs a POST with a bearer token, an `Accept` header and a JSON body, more than a URL field allows. It is the adapter, and it keeps the GitHub token server-side where a scheduler's stored job config cannot leak it.
+
+It does not probe. The workflow already probes three times and stands down on its own, and a second copy of that rule could only disagree with the first. That is what makes it safe to call blind every 5 minutes with no idea whether anything is wrong. It **fails closed**: no `WATCHDOG_TRIGGER_SECRET`, no dispatch. Unlike the health endpoint it causes an action, and each call spends a CI run that probes the service the watchdog protects, so an open one is an amplifier.
+
+The secret goes in an `Authorization: Bearer …` header, never the query string, which would put it in access logs.
 
 It runs on GitHub Actions rather than Vercel deliberately: a watchdog must not share infrastructure with what it watches, and the Supabase PAT it needs has full management access to the organisation, so it is better kept out of the web app's runtime env.
 
