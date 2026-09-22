@@ -60,6 +60,8 @@ Consequences:
 | Module loading skeletons | `components/admin/AdminSkeleton.tsx` + `app/admin/**/loading.tsx` |
 | Table row windowing | `lib/admin/use-windowed-rows.ts` + `components/admin/AdminTableFooter.tsx` |
 | Per-module refresh button | `components/admin/AdminRefreshButton.tsx` |
+| Cross-module user drawer | `components/admin/UserDrawerProvider.tsx` (mounted in `app/admin/layout.tsx`) |
+| Clickable user email | `components/admin/UserEmailLink.tsx` |
 | Usage period keys / cap mapping | `lib/admin/period.ts`, `lib/admin/usage-caps.ts` |
 | Byte formatting (Storage module) | `lib/admin/format-bytes.ts` |
 | Marketplace profile URLs (Users module) | `lib/admin/platform-links.ts` |
@@ -351,6 +353,78 @@ automatic"), so nothing is hidden that you would need to open the section to
 learn. The component renders `{open && children}` rather than using
 `<details>`: keeping a collapsed endpoint table in the DOM would mean rendering
 hundreds of rows nobody is looking at.
+
+### Opening a user from anywhere
+
+Any email rendered in the console is a way into the user detail drawer. Click
+the address in Subscriptions, Support, Storage, Usage, Audit, Analytics or the
+Overview and the same panel the Users roster opens slides in over the table you
+are on. It closes back to that table with your filters, sort and scroll
+position intact, which is the point: the user you want to inspect is usually
+one you just found by filtering.
+
+Two pieces:
+
+- `UserDrawerProvider` mounts once in the admin layout and owns the drawer.
+  Modules do not thread callbacks down their trees; they call `useUserDrawer()`.
+- `UserEmailLink` replaces the
+  `{email ? <span>{email}</span> : <span>{user_id}</span>}` pattern the tables
+  all repeated. It falls back to the raw id exactly as before when no email
+  resolved, and renders plain text (no affordance) when there is no id to open
+  or no provider above it.
+
+**The drawer is read-only when opened this way.** `AdminUserDetail` takes a
+`readOnly` prop that hides Edit, Change plan and the Danger zone. The host
+table has no way to update its own rows after a mutation it did not initiate,
+so an edit made from, say, the Storage table would leave that table showing
+stale data. Mutations stay in `/admin/users`, where the roster updates in
+place. The observability sections (tier, usage, devices, linked accounts,
+listings, tickets) are all present either way.
+
+Callers pass only a `user_id`, because that is all a subscriptions row or a
+ticket carries. The provider re-runs `admin_list_users()` and picks that row,
+so this needed **no new migration and no new RPC** - the same `is_admin()` gate
+applies as everywhere else. `/admin/users` still passes its own row straight to
+`AdminUserDetail` and never goes through the provider.
+
+Three call sites sit inside something already clickable (a ticket row, a usage
+group's toggle button). `UserEmailLink` renders a `<span role="button">` rather
+than a `<button>` so it is valid inside them, and stops propagation so clicking
+the email opens the user rather than the row. One site cannot be made
+clickable: the audit module's actor filter, which is an `<option>`.
+
+### Filtering the user roster
+
+`/admin/users` has six filter groups (Tier, Status, Cancelled, Linked, Active,
+plus the search box). Two cuts worth knowing:
+
+- **Tier > Any tier / No tier.** The filter logic always understood a tier of
+  `none` (an account that never subscribed), but the options were built only
+  from tier ids present on a row, so there was no way to select it. "Any tier"
+  is its inverse: everyone who has one. Real tiers list in the canonical
+  `TIER_ORDER` from `lib/admin/tiers.ts` rather than alphabetically, so the
+  buttons read as a ladder.
+- **Linked > Any / Both.** The per-marketplace options are inclusive ("has
+  Depop"), not exclusive, so neither of them answered "who has connected
+  everything" - the accounts crosslisting actually applies to. "Both" covers
+  every marketplace in `LINKED_PLATFORMS`; "Any" is the inverse of "Nothing
+  linked". If a third marketplace is ever added, that list needs updating by
+  hand and "Both" should become "All".
+- **Status > Using.** `active` + `trialing`, i.e. entitled right now. Answering
+  "how many real customers are there" previously meant clicking Active and
+  Trialing separately and adding up two counts. `past_due` is deliberately
+  excluded: it can still be entitled, but only inside the bounded grace window
+  (paid at least once, under 7 days past due, migration `020`), and folding a
+  billing problem in with healthy customers hides it.
+
+Sorting the Tier column ranks by that same ladder, highest first, rather than
+alphabetically (which put business first and trial last). The Status column is
+sortable too, entitled accounts first. Both break ties on email so the order is
+stable.
+
+A "Clear N filters" control appears in the filter bar (and in the empty state)
+whenever anything is narrowing the list, search included. With six groups it is
+easy to land on an empty roster without spotting which control did it.
 
 ### Refreshing a module
 

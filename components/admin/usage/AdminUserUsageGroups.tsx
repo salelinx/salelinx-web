@@ -15,6 +15,7 @@ import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { extensionFeatureLabel } from "@/lib/admin/extension-features";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 
 export type UserUsageFeatureRow = {
   feature: string;
@@ -142,14 +143,12 @@ export function AdminUserUsageGroups({
                   >
                     &gt;
                   </span>
+                  {/* Inside the toggle button, so UserEmailLink renders a
+                      span (not a nested button) and stops propagation: the
+                      email opens the user, the rest of the bar expands the
+                      group. */}
                   <span className="max-w-[20rem] truncate text-sm">
-                    {g.email ? (
-                      <span className="text-zinc-800">{g.email}</span>
-                    ) : (
-                      <span className="font-mono text-xs text-zinc-400">
-                        {g.user_id}
-                      </span>
-                    )}
+                    <UserEmailLink userId={g.user_id} email={g.email} />
                   </span>
                   <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs capitalize text-zinc-600">
                     {g.tier_id}

@@ -11,6 +11,7 @@ import type { AdminSubscriptionRow } from "@/lib/types/admin";
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 
 type Props = {
   initialSubscriptions: AdminSubscriptionRow[];
@@ -166,13 +167,7 @@ export function AdminSubscriptionTable({
                     className="border-b border-[var(--admin-border)] hover:bg-zinc-50"
                   >
                     <td className="max-w-[16rem] truncate px-3 py-2">
-                      {email ? (
-                        <span className="text-zinc-800">{email}</span>
-                      ) : (
-                        <span className="font-mono text-xs text-zinc-400">
-                          {s.user_id}
-                        </span>
-                      )}
+                      <UserEmailLink userId={s.user_id} email={email} />
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 capitalize text-zinc-700">
                       {s.tier_id}{" "}

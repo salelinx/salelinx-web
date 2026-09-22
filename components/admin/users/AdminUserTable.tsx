@@ -24,6 +24,7 @@ import {
 } from "@/lib/admin/relative-time";
 import { useClientNow } from "@/lib/admin/use-client-now";
 import { compareVersions, highestVersion } from "@/lib/admin/version";
+import { TIER_ORDER } from "@/lib/admin/tiers";
 import dynamic from "next/dynamic";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
@@ -47,7 +48,7 @@ type Props = {
   tiers: TierConfig[];
 };
 
-type SortKey = "created_at" | "last_active" | "email" | "tier_id";
+type SortKey = "created_at" | "last_active" | "email" | "tier_id" | "status";
 
 // Activity buckets, evaluated against the same "last active" value the column
 // shows. Thresholds match lib/admin/relative-time.ts's staleness buckets.
@@ -61,6 +62,30 @@ function formatDate(iso: string | null): string {
     day: "numeric",
   });
 }
+
+// Statuses that mean "entitled right now". past_due is deliberately excluded:
+// it can still be entitled, but only inside the bounded grace window (paid at
+// least once AND under 7 days past due, migration 020). It is a billing
+// problem rather than a healthy customer, and folding it in would hide that.
+// Every marketplace the extension supports, for the "Both" cut on the Linked
+// filter. A missing entry here does NOT fail the type check (an array literal
+// may be a subset of the union), so if a third marketplace is ever added this
+// list has to be updated by hand, and "Both" renamed to "All". The adjacent
+// PLATFORM_TONE record does fail in that case, which is the reminder.
+const LINKED_PLATFORMS: LinkedPlatform[] = ["depop", "vinted"];
+
+const ENTITLED_STATUSES = ["active", "trialing"];
+
+// Sort order for the Status column: who is using it, then who is about to stop
+// paying, then the rest. Anything unrecognised sorts last.
+const STATUS_SORT_ORDER = [
+  "active",
+  "trialing",
+  "past_due",
+  "incomplete",
+  "canceled",
+  "none",
+];
 
 const STATUS_TONE: Record<string, string> = {
   active: "bg-emerald-50 text-emerald-700",
@@ -87,6 +112,26 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [activity, setActivity] = useState<ActivityFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
 
+  // With seven filter groups it is easy to end up on an empty table and not
+  // spot which control is responsible, so offer a single way back. Search is
+  // included: it is the most common reason a roster looks empty.
+  const activeFilters =
+    (tier !== "all" ? 1 : 0) +
+    (status !== "all" ? 1 : 0) +
+    (cancelling !== "all" ? 1 : 0) +
+    (platform !== "all" ? 1 : 0) +
+    (activity !== "all" ? 1 : 0) +
+    (search.trim() ? 1 : 0);
+
+  function clearFilters() {
+    setTier("all");
+    setStatus("all");
+    setCancelling("all");
+    setPlatform("all");
+    setActivity("all");
+    setSearch("");
+  }
+
   const supabase = createBrowserClient();
 
   // The roster is snapshotted into state so the detail drawer can apply its
@@ -106,10 +151,27 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   // so relative ages cannot cause a mismatch. See lib/admin/use-client-now.ts.
   const now = useClientNow();
 
+  // "any" and "none" are the two cuts that were missing: the filter logic
+  // below has always understood a tier of "none" (never subscribed), but the
+  // options were built only from tier ids that exist on a row, so there was no
+  // way to select it - and no way to say "anyone with a tier" either.
+  //
+  // Real tiers are listed in the canonical order from lib/admin/tiers.ts
+  // (trial, starter, pro, business) rather than alphabetically, so the buttons
+  // read as a ladder. Custom tier ids sort after them.
   const tierOptions = useMemo(() => {
     const set = new Set<string>();
     for (const u of users) if (u.tier_id) set.add(u.tier_id);
-    return ["all", ...Array.from(set).sort()];
+    const known = TIER_ORDER.filter((t) => set.has(t));
+    const custom = Array.from(set)
+      .filter((t) => !TIER_ORDER.includes(t))
+      .sort();
+    return [
+      ["all", "All"],
+      ["any", "Any tier"],
+      ...[...known, ...custom].map((t) => [t, t] as [string, string]),
+      ["none", "No tier"],
+    ] as [string, string][];
   }, [users]);
 
   // Newest version anyone has reported, used only to tint rows behind it. Read
@@ -124,7 +186,11 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     const term = search.trim().toLowerCase();
     const filtered = users.filter((u) => {
       const effectiveTier = u.tier_id ?? "none";
-      if (tier !== "all" && effectiveTier !== tier) return false;
+      if (tier === "any") {
+        if (effectiveTier === "none") return false;
+      } else if (tier !== "all" && effectiveTier !== tier) {
+        return false;
+      }
       if (cancelling === "leaving" && !u.cancel_at_period_end) return false;
       if (cancelling === "gone" && u.status !== "canceled") return false;
       if (
@@ -136,12 +202,27 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
 
       if (status !== "all") {
         const effectiveStatus = u.status ?? "none";
-        if (effectiveStatus !== status) return false;
+        if (status === "using") {
+          // Entitled right now, paid or on trial. The everyday "who is
+          // actually a customer" cut, which previously meant clicking Active
+          // and Trialing separately and comparing two counts.
+          if (!ENTITLED_STATUSES.includes(effectiveStatus)) return false;
+        } else if (effectiveStatus !== status) {
+          return false;
+        }
       }
       if (platform !== "all") {
         const linked = u.linked_platforms ?? [];
         if (platform === "none") {
           if (linked.length > 0) return false;
+        } else if (platform === "any") {
+          if (linked.length === 0) return false;
+        } else if (platform === "both") {
+          // Everyone who has connected every marketplace we support. Worth its
+          // own cut: these are the accounts crosslisting actually applies to,
+          // and the single-platform options are inclusive ("has Depop"), so
+          // neither of them answers this.
+          if (!LINKED_PLATFORMS.every((pf) => linked.includes(pf))) return false;
         } else if (!linked.includes(platform as LinkedPlatform)) {
           return false;
         }
@@ -164,8 +245,25 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       switch (sortKey) {
         case "email":
           return (a.email ?? "").localeCompare(b.email ?? "");
-        case "tier_id":
-          return (a.tier_id ?? "none").localeCompare(b.tier_id ?? "none");
+        case "tier_id": {
+          // Alphabetical order put business first and trial last, the reverse
+          // of the ladder. Rank by TIER_ORDER instead, highest tier first,
+          // with no-tier accounts at the bottom.
+          const rank = (t: string | null) =>
+            t === null ? -1 : TIER_ORDER.length - TIER_ORDER.indexOf(t);
+          const d = rank(b.tier_id) - rank(a.tier_id);
+          return d !== 0 ? d : (a.email ?? "").localeCompare(b.email ?? "");
+        }
+        case "status": {
+          // Entitled accounts first, then the billing problems, then the rest,
+          // so the top of the list is who is actually using the product.
+          const rank = (st: string | null) => {
+            const i = STATUS_SORT_ORDER.indexOf(st ?? "none");
+            return i === -1 ? STATUS_SORT_ORDER.length : i;
+          };
+          const d = rank(a.status) - rank(b.status);
+          return d !== 0 ? d : (a.email ?? "").localeCompare(b.email ?? "");
+        }
         case "last_active":
           return (
             mostRecent(b.last_sign_in_at, b.last_device_seen_at) ?? ""
@@ -215,7 +313,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         <FilterGroup
           label="Tier"
           value={tier}
-          options={tierOptions.map((t) => [t, t === "all" ? "All" : t])}
+          options={tierOptions}
           onChange={setTier}
         />
         <FilterGroup
@@ -223,6 +321,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           value={status}
           options={[
             ["all", "All"],
+            ["using", "Using"],
             ["active", "Active"],
             ["trialing", "Trialing"],
             ["past_due", "Past due"],
@@ -248,8 +347,10 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           value={platform}
           options={[
             ["all", "All"],
+            ["any", "Any"],
             ["depop", "Depop"],
             ["vinted", "Vinted"],
+            ["both", "Both"],
             ["none", "Nothing linked"],
           ]}
           onChange={setPlatform}
@@ -266,12 +367,30 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           ]}
           onChange={(v) => setActivity(v as ActivityFilter)}
         />
+        {activeFilters > 0 && (
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="ml-auto rounded px-2 py-0.5 text-zinc-500 underline-offset-2 hover:bg-zinc-100 hover:underline"
+          >
+            Clear {activeFilters} filter{activeFilters === 1 ? "" : "s"}
+          </button>
+        )}
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
         {visible.length === 0 ? (
           <p className="px-4 py-8 text-sm text-zinc-500">
-            No users match these filters.
+            No users match these filters.{" "}
+            {activeFilters > 0 && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="underline underline-offset-2 hover:text-zinc-800"
+              >
+                Clear them
+              </button>
+            )}
           </p>
         ) : (
           <table className="w-full border-collapse text-sm">
@@ -288,7 +407,11 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                   active={sortKey === "tier_id"}
                   onClick={() => setSortKey("tier_id")}
                 />
-                <th className="px-3 py-2 font-medium">Status</th>
+                <SortableTh
+                  label="Status"
+                  active={sortKey === "status"}
+                  onClick={() => setSortKey("status")}
+                />
                 <th className="px-3 py-2 font-medium">Cancelled</th>
                 <th className="px-3 py-2 font-medium">Version</th>
                 <SortableTh

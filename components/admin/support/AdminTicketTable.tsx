@@ -11,6 +11,7 @@
 import { useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import { ticketNeedsReply } from "@/lib/admin/needs-reply";
 import dynamic from "next/dynamic";
@@ -319,13 +320,14 @@ export function AdminTicketTable({
                       {tk.message}
                     </td>
                     <td className="max-w-[14rem] truncate px-3 py-2">
-                      {from ? (
-                        <span className="text-zinc-700">{from}</span>
-                      ) : (
-                        <span className="font-mono text-xs text-zinc-400">
-                          {tk.user_id}
-                        </span>
-                      )}
+                      {/* The row opens the TICKET; this opens the USER.
+                          UserEmailLink stops propagation so the two do not
+                          fight. */}
+                      <UserEmailLink
+                        userId={tk.user_id}
+                        email={from}
+                        className="text-zinc-700"
+                      />
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
                       {tk.source ?? "-"}
