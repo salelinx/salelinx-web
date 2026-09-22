@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { isAdmin } from "@/lib/supabase/admin";
 import { getAdminUser, getIsAal2 } from "@/lib/admin/session";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { UserDrawerProvider } from "@/components/admin/UserDrawerProvider";
 import "./admin.css";
 
 // Top-level, non-localized admin console. It is a SIBLING of app/[locale]/ so
@@ -77,10 +78,15 @@ export default async function AdminLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <div className="flex min-h-screen">
-          <AdminSidebar adminEmail={adminEmail} />
-          <main className="min-w-0 flex-1">{children}</main>
-        </div>
+        {/* Lets any module open the user detail drawer from an email, without
+            navigating away from the table you are looking at. Read-only there;
+            mutations stay in /admin/users. See docs/ADMIN.md. */}
+        <UserDrawerProvider>
+          <div className="flex min-h-screen">
+            <AdminSidebar adminEmail={adminEmail} />
+            <main className="min-w-0 flex-1">{children}</main>
+          </div>
+        </UserDrawerProvider>
       </body>
     </html>
   );

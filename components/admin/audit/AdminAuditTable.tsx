@@ -10,6 +10,7 @@ import type { AdminAuditRow } from "@/lib/types/admin";
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 
 type Props = {
   entries: AdminAuditRow[];
@@ -143,9 +144,17 @@ export function AdminAuditTable({ entries, emails, capped, limit }: Props) {
                       {formatWhen(e.created_at)}
                     </td>
                     <td className="max-w-[14rem] truncate px-3 py-2 text-zinc-700">
-                      {(e.actor_id ? emails[e.actor_id] : null) ?? (
+                      {/* actor_id is null for an admin whose account is
+                          gone; there is nothing to open, so it stays text. */}
+                      {e.actor_id ? (
+                        <UserEmailLink
+                          userId={e.actor_id}
+                          email={emails[e.actor_id]}
+                          className="text-zinc-700"
+                        />
+                      ) : (
                         <span className="font-mono text-xs text-zinc-400">
-                          {e.actor_id ?? "Deleted admin"}
+                          Deleted admin
                         </span>
                       )}
                     </td>

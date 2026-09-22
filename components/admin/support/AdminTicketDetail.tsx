@@ -7,6 +7,7 @@
 
 import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 import { requireReauth } from "@/lib/admin/reauth";
 import { ReauthModal } from "@/components/admin/ReauthModal";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
@@ -177,11 +178,12 @@ export function AdminTicketDetail({
       <div className="min-h-0 flex-1 overflow-auto p-4">
         <dl className="grid grid-cols-[5rem_1fr] gap-x-3 gap-y-1 text-xs">
           <Meta label="From">
-            {authorEmail ? (
-              <span>{authorEmail}</span>
-            ) : (
-              <span className="font-mono">{ticket.user_id}</span>
-            )}
+            <UserEmailLink
+              userId={ticket.user_id}
+              email={authorEmail}
+              className=""
+              fallbackClassName="font-mono"
+            />
           </Meta>
           <Meta label="User ID">
             <span className="font-mono break-all">{ticket.user_id}</span>
@@ -217,9 +219,16 @@ export function AdminTicketDetail({
             {replies.map((r) => (
               <div key={r.id}>
                 <div className="text-xs font-medium text-zinc-500">
-                  {r.is_admin
-                    ? "SaleLinx Support"
-                    : (emails[r.user_id] ?? "User")}{" "}
+                  {r.is_admin ? (
+                    "SaleLinx Support"
+                  ) : (
+                    <UserEmailLink
+                      userId={r.user_id}
+                      email={emails[r.user_id]}
+                      className=""
+                      fallbackClassName=""
+                    />
+                  )}{" "}
                   | {formatWhen(r.created_at)}
                 </div>
                 <p className="mt-1 text-sm whitespace-pre-wrap text-zinc-800">

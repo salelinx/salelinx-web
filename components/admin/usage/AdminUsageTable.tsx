@@ -18,6 +18,7 @@ import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { usageLabel } from "@/lib/admin/usage-sources";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 
 export type UsageTableRow = {
   key: string;
@@ -189,13 +190,7 @@ export function AdminUsageTable({
                   className="border-b border-[var(--admin-border)] hover:bg-zinc-50"
                 >
                   <td className="max-w-[16rem] truncate px-3 py-2">
-                    {r.email ? (
-                      <span className="text-zinc-800">{r.email}</span>
-                    ) : (
-                      <span className="font-mono text-xs text-zinc-400">
-                        {r.user_id}
-                      </span>
-                    )}
+                    <UserEmailLink userId={r.user_id} email={r.email} />
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 capitalize text-zinc-600">
                     {r.tier_id}

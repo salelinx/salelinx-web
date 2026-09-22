@@ -4,6 +4,7 @@ import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
 import { AdminSection } from "@/components/admin/AdminSection";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 
 // The /admin home dashboard. Pure presentation (server component): summary
 // cards that link into each live module, plus a recent-activity list from the
@@ -201,9 +202,16 @@ export function AdminDashboard({
                       </span>
                     )}
                     <span className="ml-auto text-xs text-zinc-500">
-                      {(a.actor_id ? actorEmails[a.actor_id] : null) ??
-                        a.actor_id ??
-                        "Deleted admin"}{" "}
+                      {a.actor_id ? (
+                        <UserEmailLink
+                          userId={a.actor_id}
+                          email={actorEmails[a.actor_id]}
+                          className=""
+                          fallbackClassName=""
+                        />
+                      ) : (
+                        "Deleted admin"
+                      )}{" "}
                       | {formatWhen(a.created_at)}
                     </span>
                   </li>

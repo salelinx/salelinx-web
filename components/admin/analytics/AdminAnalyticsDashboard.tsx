@@ -10,6 +10,7 @@ import type { ChurnEntry, ChurnWatch, FunnelStage } from "@/lib/admin/retention"
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 
 // /admin/analytics - the Analytics landing page: a grid of self-contained
 // boxes, each answering one question at a glance and linking to the module
@@ -318,13 +319,12 @@ function TopUserRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="flex min-w-0 items-baseline gap-2">
-            {email ? (
-              <span className="truncate text-sm text-zinc-900">{email}</span>
-            ) : (
-              <span className="truncate font-mono text-xs text-zinc-500">
-                {user.user_id}
-              </span>
-            )}
+            <UserEmailLink
+              userId={user.user_id}
+              email={email}
+              className="truncate text-sm text-zinc-900"
+              fallbackClassName="truncate font-mono text-xs text-zinc-500"
+            />
             <span className="shrink-0 rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] capitalize text-zinc-600">
               {user.tier_id}
             </span>
@@ -588,15 +588,12 @@ function ChurnList({
               className="flex items-baseline justify-between gap-2 text-sm"
             >
               <span className="flex min-w-0 items-baseline gap-2">
-                {emails[e.user_id] ? (
-                  <span className="truncate text-zinc-900">
-                    {emails[e.user_id]}
-                  </span>
-                ) : (
-                  <span className="truncate font-mono text-xs text-zinc-500">
-                    {e.user_id}
-                  </span>
-                )}
+                <UserEmailLink
+                  userId={e.user_id}
+                  email={emails[e.user_id]}
+                  className="truncate text-zinc-900"
+                  fallbackClassName="truncate font-mono text-xs text-zinc-500"
+                />
                 <span className="shrink-0 rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] capitalize text-zinc-600">
                   {e.tier_id}
                 </span>

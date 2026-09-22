@@ -66,6 +66,11 @@ import { useClientNow } from "@/lib/admin/use-client-now";
 type Props = {
   user: AdminUserRow;
   tiers: TierConfig[];
+  // Hides every mutation (Edit, Change plan, Danger zone), leaving the
+  // observability sections. Set when the drawer is opened from a module other
+  // than /admin/users, which cannot update its own rows after an edit and
+  // would otherwise silently show stale data. See UserDrawerProvider.
+  readOnly?: boolean;
   onClose: () => void;
   onSubscriptionChange: (
     userId: string,
@@ -152,6 +157,7 @@ function platformOsLabel(ua: string | null): string | null {
 export function AdminUserDetail({
   user,
   tiers,
+  readOnly = false,
   onClose,
   onSubscriptionChange,
   onDeleted,
@@ -496,6 +502,7 @@ export function AdminUserDetail({
             <Section
               title="Subscription"
               action={
+                !readOnly &&
                 !editing &&
                 !planOpen && (
                   <div className="flex gap-1.5">
@@ -802,7 +809,7 @@ export function AdminUserDetail({
               )}
             </Section>
 
-            {!detail.is_admin && (
+            {!readOnly && !detail.is_admin && (
               <Section title="Danger zone">
                 <p className="mb-2 text-xs text-zinc-500">
                   Deletes the account and everything it owns: listings, images,
