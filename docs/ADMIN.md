@@ -404,6 +404,12 @@ plus the search box). Two cuts worth knowing:
   is its inverse: everyone who has one. Real tiers list in the canonical
   `TIER_ORDER` from `lib/admin/tiers.ts` rather than alphabetically, so the
   buttons read as a ladder.
+- **Linked > Any / Both.** The per-marketplace options are inclusive ("has
+  Depop"), not exclusive, so neither of them answered "who has connected
+  everything" - the accounts crosslisting actually applies to. "Both" covers
+  every marketplace in `LINKED_PLATFORMS`; "Any" is the inverse of "Nothing
+  linked". If a third marketplace is ever added, that list needs updating by
+  hand and "Both" should become "All".
 - **Status > Using.** `active` + `trialing`, i.e. entitled right now. Answering
   "how many real customers are there" previously meant clicking Active and
   Trialing separately and adding up two counts. `past_due` is deliberately

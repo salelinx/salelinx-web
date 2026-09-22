@@ -67,6 +67,13 @@ function formatDate(iso: string | null): string {
 // it can still be entitled, but only inside the bounded grace window (paid at
 // least once AND under 7 days past due, migration 020). It is a billing
 // problem rather than a healthy customer, and folding it in would hide that.
+// Every marketplace the extension supports, for the "Both" cut on the Linked
+// filter. A missing entry here does NOT fail the type check (an array literal
+// may be a subset of the union), so if a third marketplace is ever added this
+// list has to be updated by hand, and "Both" renamed to "All". The adjacent
+// PLATFORM_TONE record does fail in that case, which is the reminder.
+const LINKED_PLATFORMS: LinkedPlatform[] = ["depop", "vinted"];
+
 const ENTITLED_STATUSES = ["active", "trialing"];
 
 // Sort order for the Status column: who is using it, then who is about to stop
@@ -208,6 +215,14 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         const linked = u.linked_platforms ?? [];
         if (platform === "none") {
           if (linked.length > 0) return false;
+        } else if (platform === "any") {
+          if (linked.length === 0) return false;
+        } else if (platform === "both") {
+          // Everyone who has connected every marketplace we support. Worth its
+          // own cut: these are the accounts crosslisting actually applies to,
+          // and the single-platform options are inclusive ("has Depop"), so
+          // neither of them answers this.
+          if (!LINKED_PLATFORMS.every((pf) => linked.includes(pf))) return false;
         } else if (!linked.includes(platform as LinkedPlatform)) {
           return false;
         }
@@ -332,8 +347,10 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           value={platform}
           options={[
             ["all", "All"],
+            ["any", "Any"],
             ["depop", "Depop"],
             ["vinted", "Vinted"],
+            ["both", "Both"],
             ["none", "Nothing linked"],
           ]}
           onChange={setPlatform}
