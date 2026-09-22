@@ -28,11 +28,6 @@ const HERO_BRAND_TAGS = {
   ),
 };
 
-const EYEBROW_BRAND_TAGS = {
-  depop: () => <BrandWordmark brand="depop" height="0.95em" />,
-  vinted: () => <BrandWordmark brand="vinted" height="0.95em" />,
-};
-
 export async function Hero() {
   const t = await getTranslations("Home");
 
@@ -65,7 +60,7 @@ export async function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-            {t.rich("heroEyebrow", EYEBROW_BRAND_TAGS)}
+            {t("introducing")}
           </span>
         </Reveal>
 
