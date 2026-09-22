@@ -81,6 +81,7 @@
     "checkStatus": "Voir l'état du service"
   },
   "Home": {
+    "introducing": "Découvrez SaleLinx",
     "heroEyebrow": "Disponible pour <depop></depop> + <vinted></vinted>",
     "heroTitle": "Un outil pour chaque vendeur <depop></depop> & <vinted></vinted>.",
     "heroSubtitle": "Pour que vous puissiez <word></word>",

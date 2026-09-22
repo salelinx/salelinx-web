@@ -136,11 +136,19 @@ body::before {
   background-size: 100% 80px;
   background-position: left bottom;
   background-repeat: repeat;
-  /* Fades with the viewport, matching the fixed vertical guides. */
-  -webkit-mask-image: var(--guide-fade);
-  mask-image: var(--guide-fade);
-  -webkit-mask-attachment: fixed;
-  mask-attachment: fixed;
+  /* Fades with the viewport, matching the fixed vertical guides. The second
+     layer fades the top of the band in: because the rows are anchored to the
+     bottom, the topmost line sits at whatever the page-height remainder makes
+     it, which can land a few pixels under the header rule and read as a
+     doubled border. Scroll-attached so the fade stays on the band's own top
+     edge rather than the viewport's. */
+  -webkit-mask-image: var(--guide-fade),
+    linear-gradient(to bottom, transparent 0, black 96px);
+  mask-image: var(--guide-fade), linear-gradient(to bottom, transparent 0, black 96px);
+  -webkit-mask-attachment: fixed, scroll;
+  mask-attachment: fixed, scroll;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 /* Dark keeps its dot texture alone; guides on near-black read as banding. */

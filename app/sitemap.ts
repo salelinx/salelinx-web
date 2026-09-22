@@ -21,10 +21,6 @@ const STATIC_PATHS: {
 }[] = [
   { path: '/', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/features', priority: 0.9, changeFrequency: 'weekly' },
-  // English-only ad landing pages: their bodies are hardcoded English, so
-  // they claim no hreflang, same as the legal pages.
-  { path: '/crosslist', priority: 0.8, changeFrequency: 'monthly', locales: ['en'] },
-  { path: '/vendoo-alternative', priority: 0.6, changeFrequency: 'monthly', locales: ['en'] },
   { path: '/help', priority: 0.6, changeFrequency: 'monthly' },
   // The old /faq is a redirect stub; the FAQ itself lives at /help/faq.
   // /help/support is deliberately absent: it redirects logged-out visitors
