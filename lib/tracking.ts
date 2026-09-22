@@ -44,6 +44,15 @@ export function trackSignupConversion() {
 // Fired once per Stripe Checkout success landing on /account. No value is
 // attached client-side; set a static value per conversion action in the
 // Google Ads UI, or move to webhook-driven uploads if that ever matters.
+//
+// TODO: send the real subscription value instead of the static per-action
+// value configured in Google Ads. Today every subscription reports the same
+// amount, so Ads cannot tell an annual plan from a monthly one and value
+// based bidding has nothing to work with. Doing it properly means /account
+// knowing which price was just bought (the Checkout session id is in the
+// URL; the plan is not) and passing value + currency through to gtag. The
+// accurate alternative is server-side: upload conversions from the
+// stripe-webhook Edge Function with a gclid captured at signup.
 export function trackPurchaseConversion() {
   gtagEvent('subscription_started');
   adsConversion('purchase');
