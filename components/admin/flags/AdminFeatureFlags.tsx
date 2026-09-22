@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type { TierConfig } from "@/lib/types/tiers";
 import { collectKeys, tierKey } from "@/lib/admin/tiers";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 
 type Props = {
   tiers: TierConfig[];
@@ -76,9 +77,12 @@ export function AdminFeatureFlags({ tiers }: Props) {
             boolean gates, active versions
           </span>
         </h1>
-        <p className="text-xs text-zinc-500">
-          Click a toggle, then confirm. Changes go live within the cache TTLs.
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-zinc-500">
+            Click a toggle, then confirm. Changes go live within the cache TTLs.
+          </p>
+          <AdminRefreshButton />
+        </div>
       </header>
 
       {pending && (

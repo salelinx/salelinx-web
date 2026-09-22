@@ -17,6 +17,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { usageLabel } from "@/lib/admin/usage-sources";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 
 export type UsageTableRow = {
   key: string;
@@ -134,6 +135,7 @@ export function AdminUsageTable({
             placeholder="Search email or user ID"
             className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
           />
+          <AdminRefreshButton />
         </div>
       </header>
 

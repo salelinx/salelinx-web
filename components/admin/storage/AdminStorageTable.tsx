@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 
 export type StorageTableRow = {
   user_id: string;
@@ -73,13 +74,16 @@ export function AdminStorageTable({ rows }: Props) {
             listing-images bucket
           </span>
         </h1>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search email or user ID"
-          className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search email or user ID"
+            className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
+          />
+          <AdminRefreshButton />
+        </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto">

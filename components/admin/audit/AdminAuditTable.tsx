@@ -9,6 +9,7 @@ import type { AdminAuditRow } from "@/lib/types/admin";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 
 type Props = {
   entries: AdminAuditRow[];
@@ -78,13 +79,16 @@ export function AdminAuditTable({ entries, emails, capped, limit }: Props) {
             {capped ? `+ (showing latest ${limit})` : ""}
           </span>
         </h1>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search target id or table"
-          className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search target id or table"
+            className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
+          />
+          <AdminRefreshButton />
+        </div>
       </header>
 
       <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs">

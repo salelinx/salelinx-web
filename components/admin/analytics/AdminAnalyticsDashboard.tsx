@@ -9,6 +9,7 @@ import { shortMonthLabel } from "@/lib/admin/adoption";
 import type { ChurnEntry, ChurnWatch, FunnelStage } from "@/lib/admin/retention";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 
 // /admin/analytics - the Analytics landing page: a grid of self-contained
 // boxes, each answering one question at a glance and linking to the module
@@ -72,6 +73,9 @@ export function AdminAnalyticsDashboard({
             {adoption.window.label}
           </span>
         </h1>
+        <div className="ml-auto">
+          <AdminRefreshButton />
+        </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto">

@@ -28,6 +28,8 @@ import dynamic from "next/dynamic";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { createBrowserClient } from "@/lib/supabase/client";
 
 // The detail drawer is ~1k lines (subscription editing, Stripe plan change,
 // account deletion, devices, listings) and only ever renders after a row click,
@@ -84,6 +86,20 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [platform, setPlatform] = useState<string>("all");
   const [activity, setActivity] = useState<ActivityFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
+
+  const supabase = createBrowserClient();
+
+  // The roster is snapshotted into state so the detail drawer can apply its
+  // subscription edits and deletions without a refetch. That also means a
+  // server re-render alone would leave this list stale, so Refresh re-runs the
+  // same is_admin()-gated RPC the page used and replaces the snapshot.
+  async function refreshUsers() {
+    const { data } = await supabase.rpc("admin_list_users");
+    // Leave the current roster in place on a failed call rather than blanking
+    // the table; the admin can hit Refresh again.
+    if (data) setUsers(data as AdminUserRow[]);
+  }
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // Null on the server and through hydration, a ticking timestamp afterwards,
@@ -183,13 +199,16 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
               : `${visible.length} / ${users.length}`}
           </span>
         </h1>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search email or user ID"
-          className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search email or user ID"
+            className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
+          />
+          <AdminRefreshButton onRefresh={refreshUsers} />
+        </div>
       </header>
 
       <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs">
