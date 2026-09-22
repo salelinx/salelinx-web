@@ -228,9 +228,12 @@ async function recentRestarts() {
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPOSITORY;
   if (!token || !repo) return null; // not in Actions, or misconfigured
+  // Filter to failures server-side. Asking for completed runs instead caps the
+  // lookback at however many runs fit in per_page, which at a 5 minute cadence
+  // is about five hours - the 24h cap below could never have seen 24 hours.
   const res = await fetch(
     `https://api.github.com/repos/${repo}/actions/workflows/supabase-watchdog.yml/runs` +
-      `?status=completed&per_page=60`,
+      `?status=failure&per_page=60`,
     { headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' } },
   );
   if (!res.ok) return null;
