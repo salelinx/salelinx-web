@@ -203,6 +203,37 @@ async function handleRequest(req: Request): Promise<Response> {
     }
     featureEnabled = tier?.features?.shipping_label_email === true;
   }
+  // Admins get every feature in the extension (its subscription cache forces
+  // all flags on for admin_users members with no tier preview set), so the
+  // Email Labels button shows unlocked for them whatever their real plan is.
+  // Match that here or the button works everywhere except where it counts.
+  // The "self read" RLS policy on admin_users lets the user-scoped client see
+  // its own row and nothing else. The daily send cap below still applies.
+  //
+  // Deliberately NOT is_admin(), which the rest of the codebase uses: that
+  // ANDs the admin_users row with `aal = aal2`, and the extension signs in
+  // with a password and has no TOTP flow, so its JWTs are always aal1.
+  // is_admin() would be false for a real admin here and the feature would
+  // stay broken. Same reasoning as report-selftest. The gap that opens is
+  // narrow on purpose: a password-only attacker gains a paid feature on the
+  // admin's own account, still rate-limited, with no read path to anyone
+  // else's data. Do not "fix" this to is_admin() without giving the
+  // extension an MFA flow first.
+  if (!featureEnabled) {
+    const { data: adminRow, error: adminErr } = await userScoped
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (adminErr) {
+      console.error('[send-shipping-labels] admin lookup failed:', adminErr.message);
+      return json(500, { ok: false, error: 'Entitlement check failed' });
+    }
+    if (adminRow) {
+      console.log(`[send-shipping-labels] admin override: feature not on tier, user=${user.id}`);
+      featureEnabled = true;
+    }
+  }
   if (!featureEnabled) {
     console.log(`[send-shipping-labels] blocked: feature not on tier, user=${user.id}`);
     return json(403, { ok: false, error: 'Your plan does not include emailed labels', code: 'upgrade_required' });
