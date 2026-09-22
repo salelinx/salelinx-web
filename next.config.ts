@@ -8,11 +8,19 @@ const withMDX = createMDX({
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
-// Only two external origins are ever contacted from the browser: Supabase
-// (auth/DB) and Google Analytics (loaded post-consent by CookieConsent.tsx).
+// Only three external origins are ever contacted from the browser: Supabase
+// (auth/DB), Google Analytics and the Google Ads conversion tag (both loaded
+// post-consent by CookieConsent.tsx, each gated on its own category).
 // Stripe Checkout is a full-page redirect built server-side, so js.stripe.com
 // is deliberately absent. If you add a third-party script, extend this list
 // consciously rather than loosening a directive.
+//
+// The Ads tag posts conversions to google.com/ccm/collect and
+// ad.doubleclick.net, and GA4 posts to stats.g.doubleclick.net, none of which
+// are covered by the *.google-analytics.com entries. Without them the tag
+// loads and fires but every hit is refused, which looks exactly like a
+// tracking bug: conversions silently never arrive. The google.<tld> entries
+// are the localized ga-audiences pixel; google.com alone is not enough.
 //
 // script-src needs 'unsafe-inline' because the App Router injects inline
 // bootstrap scripts; moving to nonces requires wiring them through proxy.ts.
@@ -20,9 +28,9 @@ const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://www.googletagmanager.com https://*.google-analytics.com",
+  "img-src 'self' data: blob: https://www.googletagmanager.com https://*.google-analytics.com https://www.google.com https://www.google.co.uk https://ad.doubleclick.net",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
+  "connect-src 'self' https://*.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://ad.doubleclick.net https://stats.g.doubleclick.net",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
