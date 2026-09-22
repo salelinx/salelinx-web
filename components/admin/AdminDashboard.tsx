@@ -3,6 +3,7 @@ import type { AdminAuditRow } from "@/lib/types/admin";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
 import { AdminSection } from "@/components/admin/AdminSection";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 
 // The /admin home dashboard. Pure presentation (server component): summary
 // cards that link into each live module, plus a recent-activity list from the
@@ -62,6 +63,9 @@ export function AdminDashboard({
     <div className="flex h-screen flex-col">
       <header className="flex h-12 shrink-0 items-center border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
         <h1 className="text-sm font-semibold">Overview</h1>
+        <div className="ml-auto">
+          <AdminRefreshButton />
+        </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto">

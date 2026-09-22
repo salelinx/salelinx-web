@@ -59,6 +59,7 @@ Consequences:
 | Per-request memoized gate lookups | `lib/admin/session.ts` (`getAdminUser`, `getIsAal2`) |
 | Module loading skeletons | `components/admin/AdminSkeleton.tsx` + `app/admin/**/loading.tsx` |
 | Table row windowing | `lib/admin/use-windowed-rows.ts` + `components/admin/AdminTableFooter.tsx` |
+| Per-module refresh button | `components/admin/AdminRefreshButton.tsx` |
 | Usage period keys / cap mapping | `lib/admin/period.ts`, `lib/admin/usage-caps.ts` |
 | Byte formatting (Storage module) | `lib/admin/format-bytes.ts` |
 | Marketplace profile URLs (Users module) | `lib/admin/platform-links.ts` |
@@ -350,6 +351,35 @@ automatic"), so nothing is hidden that you would need to open the section to
 learn. The component renders `{open && children}` rather than using
 `<details>`: keeping a collapsed endpoint table in the DOM would mean rendering
 hundreds of rows nobody is looking at.
+
+### Refreshing a module
+
+Every module header carries a **Refresh** button
+(`components/admin/AdminRefreshButton.tsx`). It re-runs the module's data
+without a browser reload, so the current search term, filters, sort order,
+`AdminSection` open/closed state and scroll position all survive. That is the
+whole point: the console is a monitoring tool, and reloading the page to see
+whether a ticket came in throws away the filter you set up to watch for it.
+
+The button calls `router.refresh()`, which re-runs only the route's Server
+Component and streams the new payload into the existing React tree. For most
+modules (subscriptions, storage, audit, health, usage, tiers, flags, analytics,
+Overview) that is sufficient on its own, because they render their server props
+directly.
+
+Two modules snapshot their server props into `useState` so they can apply local
+edits optimistically - **Users** (the detail drawer's subscription edit and
+deletion update the row in place) and **Support** (replies post
+optimistically). For those a server re-render alone would leave the visible
+rows stale, since state still holds the old snapshot. They pass an `onRefresh`
+callback that re-pulls their own data: `AdminUserTable` re-runs
+`admin_list_users()`, `AdminTicketTable` reuses its existing `refreshAll()`.
+**If you add a module that copies its props into state, it needs the callback
+too** - otherwise Refresh will look like it worked and change nothing.
+
+A failed refetch leaves the current rows in place rather than blanking the
+table. The pending state is held for a short floor (400ms) so a fast refresh
+reads as a deliberate action instead of a flicker.
 
 ### Manual status overrides
 

@@ -19,6 +19,7 @@ import type {
 import type { FeatureStatus } from "@/lib/admin/feature-status";
 import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
 import { AdminSection } from "@/components/admin/AdminSection";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 import {
   StatusOverrideControls,
   type OverrideRow,
@@ -137,13 +138,16 @@ export function AdminHealthTable({
           Endpoint health
           <span className="ml-2 font-normal text-zinc-400">{windowLabel}</span>
         </h1>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search endpoint"
-          className="w-64 rounded-md border border-[var(--admin-border)] px-2 py-1 text-sm"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search endpoint"
+            className="w-64 rounded-md border border-[var(--admin-border)] px-2 py-1 text-sm"
+          />
+          <AdminRefreshButton />
+        </div>
       </header>
 
       {/* Summary strip: answers "is anything broken right now" without reading

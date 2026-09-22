@@ -25,6 +25,7 @@ import type {
 } from "@/lib/admin/adoption";
 import { monthLabel } from "@/lib/admin/adoption";
 import { Sparkline } from "@/components/admin/usage/Sparkline";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 
 type Props = {
   report: AdoptionReport;
@@ -104,6 +105,7 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
           >
             Per-user view
           </Link>
+          <AdminRefreshButton />
         </div>
       </header>
 

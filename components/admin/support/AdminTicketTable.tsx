@@ -10,6 +10,7 @@
 
 import { useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import { ticketNeedsReply } from "@/lib/admin/needs-reply";
 import dynamic from "next/dynamic";
@@ -183,13 +184,18 @@ export function AdminTicketTable({
     <div className="flex h-screen flex-col">
       <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
         <h1 className="text-sm font-semibold">Support tickets</h1>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search message, email, or user ID"
-          className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search message, email, or user ID"
+            className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
+          />
+          {/* Tickets and replies live in state so replies can be posted
+              optimistically, so reuse the existing refetch here. */}
+          <AdminRefreshButton onRefresh={refreshAll} />
+        </div>
       </header>
 
       <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs">
