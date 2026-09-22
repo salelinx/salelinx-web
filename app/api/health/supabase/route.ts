@@ -46,11 +46,11 @@ import { safeEqual } from "@/lib/safe-equal";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-/** Per-probe timeout. Well under a monitor's typical 10s so we return a real
- *  answer rather than being cut off - during the outage requests hung rather
- *  than failing fast, and a hung probe is indistinguishable from a hung
- *  monitor. */
-const PROBE_TIMEOUT_MS = 5_000;
+/** Per-probe timeout. Do not lower: at 5s this sat under PostgREST's own
+ *  schema reload (measured peak 5.4s on Nano compute), so a healthy database
+ *  timed out here and the watchdog restarted production seven times on
+ *  2026-09-22. scripts/supabase-watchdog.mjs waits longer still. */
+const PROBE_TIMEOUT_MS = 10_000;
 
 /** Sent to /token deliberately. It is not a credential and never matches a
  *  real token; the point is to make auth perform a database lookup and tell us
