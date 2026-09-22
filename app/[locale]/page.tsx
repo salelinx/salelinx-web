@@ -14,6 +14,7 @@ import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
 import { PricingSection } from '@/components/features/PricingSection';
+import { Reveal } from '@/components/Reveal';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 
 export const revalidate = 60;
@@ -42,8 +43,9 @@ export default async function Home({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [tLayout, tiers] = await Promise.all([
+  const [tLayout, tHome, tiers] = await Promise.all([
     getTranslations('Layout'),
+    getTranslations('Home'),
     getCachedTierConfigs(),
   ]);
 
@@ -140,6 +142,13 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
+      {/* Names the product once between the hero and the scroll demo, which
+          otherwise opens straight into scene 01 with no introduction. */}
+      <Reveal>
+        <p className="mx-auto w-full max-w-7xl px-6 pt-12 text-start text-3xl font-semibold tracking-tight text-zinc-900 sm:pt-20 sm:text-5xl dark:text-zinc-50">
+          {tHome('introducing')}
+        </p>
+      </Reveal>
       <ScrollWorldDemo />
       <div className="section-band">
         <HowItWorks />
