@@ -8,11 +8,11 @@ export async function FinalCta() {
 
   return (
     <section className="cta-band">
-      {/* Top padding is smaller than the bottom on purpose: the section above
-          already ends with its own 80px of padding, so a symmetric py- here
-          left ~208px of dead space above the heading against 128px below it,
-          pushing the whole block visibly low. These values even it up. */}
-      <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-6 pb-24 text-center sm:pt-12 sm:pb-32">
+      {/* Top matches every other section now that they all run py-14 sm:py-20,
+          so this no longer has to compensate for an uneven gap above it. The
+          bottom stays larger on purpose: it is the end of the page, not a seam
+          between two sections. */}
+      <div className="mx-auto flex max-w-4xl flex-col items-center px-6 py-14 pb-24 text-center sm:py-20 sm:pb-32">
         <Reveal delay={0}>
           <h2 className="max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-zinc-950 sm:text-5xl md:text-6xl dark:text-white">
             {t('title')}

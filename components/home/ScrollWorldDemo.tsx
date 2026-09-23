@@ -336,7 +336,7 @@ export function ScrollWorldDemo() {
       aria-label={t("previewEyebrow")}
       className="relative scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl pb-12 pt-4 sm:px-6 sm:py-12">
+      <div className="mx-auto w-full max-w-6xl pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-4">
         {/* Scenes are content-height, one column on phones and two alternating
             columns from lg up.
 
@@ -374,8 +374,8 @@ export function ScrollWorldDemo() {
                 dir="ltr"
                 className={
                   full
-                    ? "flex flex-col items-center justify-center gap-6 px-6 py-14 text-center sm:px-0 sm:py-24"
-                    : `grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
+                    ? "flex flex-col items-center justify-center gap-6 px-6 py-14 text-center sm:px-0 sm:py-20"
+                    : `grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-20 lg:gap-14 ${
                         visualFirst
                           ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
                           : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"

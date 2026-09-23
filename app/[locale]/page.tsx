@@ -145,8 +145,8 @@ export default async function Home({
       {/* Real screenshots land after the animated scenes, not in the hero: the
           scenes are the story and these are the proof, and putting them above
           meant the hero no longer ended on one clean fold. */}
-      <div className="section-band">
-        <div className="mx-auto w-full max-w-5xl px-6 py-16">
+      <div className="section-band border-t border-black/10 dark:border-white/10">
+        <div className="mx-auto w-full max-w-5xl px-6 py-14 sm:py-20">
           <PanelCarousel />
         </div>
       </div>

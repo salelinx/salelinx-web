@@ -982,10 +982,6 @@ span.restock-at-risk {
   animation: featureTicker 64s linear infinite;
 }
 
-.feature-ticker:hover,
-.feature-ticker:focus-within {
-  animation-play-state: paused;
-}
 
 @media (prefers-reduced-motion: reduce) {
   /* Stop the motion, but leave the row scrollable by hand so the content is
