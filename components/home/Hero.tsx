@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/Reveal";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { InstallExtensionButton } from "@/components/InstallExtensionButton";
+import { Logo3D } from "./Logo3D";
 import { RollingPhrase } from "./RollingPhrase";
 
 // Sizes chosen so each wordmark's cap-height optically matches the
@@ -26,11 +27,6 @@ const HERO_BRAND_TAGS = {
       className="mx-[0.06em]"
     />
   ),
-};
-
-const EYEBROW_BRAND_TAGS = {
-  depop: () => <BrandWordmark brand="depop" height="0.95em" />,
-  vinted: () => <BrandWordmark brand="vinted" height="0.95em" />,
 };
 
 export async function Hero() {
@@ -60,12 +56,16 @@ export async function Hero() {
 
       <div className="mx-auto flex max-w-5xl flex-col items-center px-6 py-10 text-center">
         <Reveal delay={0}>
-          <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-700 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
+          <Logo3D />
+        </Reveal>
+
+        <Reveal delay={80}>
+          <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-700 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
             <span className="relative inline-flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-            {t.rich("heroEyebrow", EYEBROW_BRAND_TAGS)}
+            {t("introducing")}
           </span>
         </Reveal>
 
