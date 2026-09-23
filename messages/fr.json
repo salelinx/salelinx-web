@@ -193,6 +193,10 @@
           "body": "Crosslistez, republiez, réapprovisionnez et répondez aux acheteurs depuis un seul panneau. Chaque outil pour faire grandir votre boutique se trouve là où vous vendez."
         }
       }
+    },
+    "panelCarousel": {
+      "title": "Tout se pilote depuis un seul panneau",
+      "subtitle": "Captures réelles d'une boutique Depop active."
     }
   },
   "LanguageSwitcher": {
