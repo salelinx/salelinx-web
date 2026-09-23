@@ -42,9 +42,7 @@ export function Logo3D() {
         introDuration={1.1}
         introFrom={{ zoom: 12, opacity: 0 }}
         animate={still ? 'none' : 'float'}
-        // Decorative: it should not be possible to fling the logo across
-        // the hero and leave it there. The subtle cursor parallax stays.
-        draggable={false}
+        draggable={!still}
         cursorOrbit={!still}
         width="100%"
         height="100%"
