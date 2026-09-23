@@ -60,11 +60,10 @@ export async function Hero() {
         </Reveal>
 
         <Reveal delay={80}>
-          <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-700 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur dark:border-white/15 dark:bg-white/[0.04] dark:text-zinc-300 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
-            <span className="relative inline-flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            </span>
+          {/* Wider tracking than the site's other eyebrows: without a pill
+              around it the line needs the extra air to read as a label
+              rather than a stray sentence above the headline. */}
+          <span className="mt-5 block font-mono text-sm uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
             {t("introducing")}
           </span>
         </Reveal>
