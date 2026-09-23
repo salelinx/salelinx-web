@@ -59,15 +59,6 @@ export async function Hero() {
           <Logo3D />
         </Reveal>
 
-        <Reveal delay={80}>
-          {/* Wider tracking than the site's other eyebrows: without a pill
-              around it the line needs the extra air to read as a label
-              rather than a stray sentence above the headline. */}
-          <span className="mt-5 block font-mono text-sm uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
-            {t("introducing")}
-          </span>
-        </Reveal>
-
         <Reveal delay={120}>
           <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
             {t.rich("heroTitle", HERO_BRAND_TAGS)}
