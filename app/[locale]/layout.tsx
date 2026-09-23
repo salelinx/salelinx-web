@@ -46,13 +46,10 @@ export async function generateMetadata({
     },
     description,
     applicationName: SITE_NAME,
-    icons: {
-      icon: [
-        { url: '/salelinx-icon.png', type: 'image/png' },
-      ],
-      shortcut: '/salelinx-icon.png',
-      apple: '/salelinx-icon.png',
-    },
+    // No `icons` block: app/icon.svg, app/icon.png and app/apple-icon.png
+    // drive the tags through the file convention, which also fingerprints
+    // them for cache busting. An explicit block here silently wins over
+    // those files, which is why the app/ icons went unreferenced before.
     robots: {
       index: true,
       follow: true,
