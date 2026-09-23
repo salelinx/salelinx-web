@@ -11,6 +11,7 @@ import {
 import { TIER_PRICES } from '@/lib/pricing';
 import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
+import { PanelCarousel } from '@/components/home/PanelCarousel';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
 import { PricingSection } from '@/components/features/PricingSection';
@@ -141,6 +142,14 @@ export default async function Home({
       />
       <Hero />
       <ScrollWorldDemo />
+      {/* Real screenshots land after the animated scenes, not in the hero: the
+          scenes are the story and these are the proof, and putting them above
+          meant the hero no longer ended on one clean fold. */}
+      <div className="section-band">
+        <div className="mx-auto w-full max-w-5xl px-6 py-16">
+          <PanelCarousel />
+        </div>
+      </div>
       <div className="section-band">
         <HowItWorks />
       </div>

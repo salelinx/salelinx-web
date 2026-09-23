@@ -95,10 +95,10 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
               alt={t(s.labelKey)}
               width={W}
               height={H}
-              /* Only the first slide is above the fold; the rest must not
-                 compete with it for LCP. */
-              priority={i === 0}
-              loading={i === 0 ? undefined : 'lazy'}
+              /* No priority: both mount points sit below the fold, and
+                 preloading a below-fold image only steals bandwidth from
+                 whatever the real LCP element is. */
+              loading="lazy"
               sizes="(max-width: 1024px) 100vw, 1024px"
               className="w-full rounded-xl border border-black/10 shadow-sm dark:border-white/10"
             />
