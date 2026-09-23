@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
@@ -12,10 +12,16 @@ import { useTranslations } from 'next-intl';
  * stay in the DOM so they are findable and linkable. The buttons only scroll
  * the container; nothing is hidden behind JS.
  *
- * Slides are narrower than the track on purpose. The sliver of the next slide
+ * Slides are narrower than the track on purpose. The sliver of the neighbours
  * is what tells someone there is more than one without needing a hint, and it
  * is the difference between this reading as a carousel and reading as a
  * screenshot with some buttons under it.
+ *
+ * The first and last slides have a neighbour on one side only, which left the
+ * opening view lopsided. Rather than build a looping carousel, the track is
+ * bookended with two decorative clones so both edges have something to peek
+ * at. They are aria-hidden, are not snap targets, and are never navigation
+ * destinations, so the real slides stay six and the indices stay honest.
  *
  * Tab labels reuse `Home.preview.tabs`, already translated in all six locales.
  */
@@ -41,9 +47,13 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
 
+  /** Real slide i is child i+1: child 0 is the leading decorative clone. */
+  const childOf = (track: HTMLElement, i: number) =>
+    track.children[i + 1] as HTMLElement | undefined;
+
   const goTo = useCallback((i: number) => {
     const track = trackRef.current;
-    const slide = track?.children[i] as HTMLElement | undefined;
+    const slide = track && childOf(track, i);
     if (!track || !slide) return;
     // Honour the OS setting: an instant jump is the correct reduced-motion
     // answer here, not a slower animation.
@@ -62,6 +72,19 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
     [active, goTo],
   );
 
+  // Open on the first real slide rather than the leading clone. scrollLeft is
+  // nudged by a measured delta instead of scrollIntoView, which would drag the
+  // whole page down to a carousel that is below the fold on mount.
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    const first = track && childOf(track, 0);
+    if (!track || !first) return;
+    track.scrollLeft +=
+      first.getBoundingClientRect().left -
+      track.getBoundingClientRect().left -
+      (track.clientWidth - first.clientWidth) / 2;
+  }, []);
+
   // Track which slide is centred so the controls reflect swipes and keyboard
   // scrolling, not just clicks. IntersectionObserver rather than a scroll
   // handler so it costs nothing while idle.
@@ -72,14 +95,19 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
       (entries) => {
         for (const e of entries) {
           if (e.isIntersecting) {
-            const i = Array.prototype.indexOf.call(track.children, e.target);
-            if (i !== -1) setActive(i);
+            // -1 for the leading clone; clones are never observed, so a real
+            // slide always maps to a valid index.
+            const i = Array.prototype.indexOf.call(track.children, e.target) - 1;
+            if (i >= 0 && i < SLIDES.length) setActive(i);
           }
         }
       },
       { root: track, threshold: 0.6 },
     );
-    for (const child of Array.from(track.children)) io.observe(child);
+    for (let i = 0; i < SLIDES.length; i++) {
+      const child = childOf(track, i);
+      if (child) io.observe(child);
+    }
     return () => io.disconnect();
   }, []);
 
@@ -109,6 +137,7 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
                      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4
                      focus-visible:outline-emerald-600"
         >
+          <CloneSlide file={SLIDES[SLIDES.length - 1].file} />
           {SLIDES.map((s, i) => (
             <div
               key={s.file}
@@ -139,6 +168,7 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
               />
             </div>
           ))}
+          <CloneSlide file={SLIDES[0].file} />
         </div>
 
         {/* Arrows sit over the peeking neighbours. Hidden from assistive tech:
@@ -195,6 +225,28 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
         {active + 1} / {SLIDES.length}
       </p>
     </section>
+  );
+}
+
+/**
+ * A decorative copy of a slide, so the first and last real slides still have
+ * something peeking on both sides. Deliberately not a snap target and not
+ * observed, so it can never become the active slide or shift the count.
+ */
+function CloneSlide({ file }: { file: string }) {
+  return (
+    <div aria-hidden="true" className="w-[88%] shrink-0 select-none" style={{ scrollSnapAlign: 'none' }}>
+      <Image
+        src={`/panel/${file}`}
+        alt=""
+        width={W}
+        height={H}
+        loading="lazy"
+        quality={75}
+        sizes="(max-width: 640px) 88vw, (max-width: 1024px) 80vw, 900px"
+        className="pointer-events-none w-full rounded-xl border border-black/10 opacity-60 shadow-lg dark:border-white/10"
+      />
+    </div>
   );
 }
 
