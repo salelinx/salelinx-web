@@ -34,7 +34,18 @@ export function Logo3D() {
         svg={LOGO_SVG}
         smoothness={0.6}
         color="#000000"
+        // Default intro is a 2.5s dolly from zoom 18, which at this size
+        // reads as the logo drifting in from somewhere far away long after
+        // the headline has landed. Shorter, and starting much closer, so it
+        // settles about when the rest of the hero finishes its stagger.
+        intro={still ? 'none' : 'zoom'}
+        introDuration={1.1}
+        introFrom={{ zoom: 12, opacity: 0 }}
         animate={still ? 'none' : 'float'}
+        // Decorative: it should not be possible to fling the logo across
+        // the hero and leave it there. The subtle cursor parallax stays.
+        draggable={false}
+        cursorOrbit={!still}
         width="100%"
         height="100%"
       />

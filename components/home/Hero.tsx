@@ -55,9 +55,10 @@ export async function Hero() {
       </div>
 
       <div className="mx-auto flex max-w-5xl flex-col items-center px-6 py-10 text-center">
-        <Reveal delay={0}>
-          <Logo3D />
-        </Reveal>
+        {/* No Reveal wrapper: SVG3D runs its own intro once the renderer is
+            ready, and a CSS fade on the container fired at mount, before the
+            canvas existed, so the two animations ran against each other. */}
+        <Logo3D />
 
         <Reveal delay={120}>
           <h1 className="mt-7 max-w-3xl text-balance text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
