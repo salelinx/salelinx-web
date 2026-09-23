@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/Reveal";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { InstallExtensionButton } from "@/components/InstallExtensionButton";
+import { PanelCarousel } from '@/components/home/PanelCarousel';
 import { Logo3D } from "./Logo3D";
 import { RollingPhrase } from "./RollingPhrase";
 
@@ -106,6 +107,13 @@ export async function Hero() {
             />
           </div>
         </Reveal>
+      </div>
+
+      {/* Real panel screenshots, deliberately not wrapped in Reveal: it is the
+          LCP element, and fading it up from opacity 0 delays the paint the
+          metric measures. */}
+      <div className="mx-auto w-full max-w-5xl px-6 pt-4">
+        <PanelCarousel />
       </div>
 
       {/* The demo itself now lives in ScrollWorldDemo, mounted as its own

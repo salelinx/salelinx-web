@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { RoadmapSection } from '@/components/features/RoadmapSection';
+import { PanelCarousel } from '@/components/home/PanelCarousel';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 import { pageMetadata } from '@/lib/site';
 
@@ -67,6 +68,13 @@ export default async function FeaturesPage({
       </section>
 
       <div className="mx-auto w-full max-w-7xl px-6">
+        {/* Real panel shots ahead of the chapter list: the chapters describe
+            features in words and icons, and this is the only place on the page
+            that shows the thing itself. */}
+        <div className="mx-auto w-full max-w-5xl pb-4 pt-10">
+          <PanelCarousel />
+        </div>
+
         <FeaturesSection />
         <PricingSection tiers={tiers} />
         <RoadmapSection />
