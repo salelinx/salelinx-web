@@ -194,20 +194,25 @@ function FeatureOverview() {
   // loop has no seam. The duplicate is aria-hidden: to a screen reader this is
   // one list of sixteen, read once.
   return (
-    <div className="feature-ticker-viewport relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+    <div className="feature-ticker-viewport relative w-full overflow-hidden py-2 [mask-image:linear-gradient(to_right,transparent,black_7%,black_93%,transparent)]">
       <div className="feature-ticker flex w-max">
         {[0, 1].map((copy) => (
           <div key={copy} aria-hidden={copy === 1} className="flex shrink-0">
             {ALL_FEATURES.map((f) => (
               <div
                 key={f.key}
-                className="flex w-[124px] shrink-0 flex-col items-center gap-2.5 px-2 text-center lg:w-[144px]"
+                className="mx-2.5 flex w-[168px] shrink-0 flex-col items-center gap-4 rounded-2xl
+                           border border-black/[0.07] bg-white/70 px-4 py-7 text-center shadow-sm
+                           backdrop-blur-sm lg:w-[188px]
+                           dark:border-white/[0.08] dark:bg-white/[0.03]"
               >
-                <Icon
-                  name={f.icon}
-                  className="h-5 w-5 flex-shrink-0 text-zinc-400 dark:text-zinc-500"
-                />
-                <span className="text-[12.5px] leading-snug text-zinc-700 lg:text-[13.5px] dark:text-zinc-300">
+                <span
+                  aria-hidden="true"
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10"
+                >
+                  <Icon name={f.icon} className="h-7 w-7 flex-shrink-0 text-emerald-700 dark:text-emerald-400" />
+                </span>
+                <span className="text-[15px] font-medium leading-snug text-zinc-900 dark:text-zinc-100">
                   {tf(`${f.key}.name`)}
                 </span>
               </div>
