@@ -81,6 +81,7 @@
     "checkStatus": "Servicestatus prüfen"
   },
   "Home": {
+    "introducing": "Wir stellen vor: SaleLinx",
     "heroEyebrow": "Verfügbar für <depop></depop> + <vinted></vinted>",
     "heroTitle": "Ein Tool für jeden <depop></depop>- & <vinted></vinted>-Verkäufer.",
     "heroSubtitle": "So kannst du <word></word>",
@@ -192,6 +193,10 @@
           "body": "Crosslisten, neu listen, auffüllen und Käufern antworten, alles aus einem Panel. Jedes Werkzeug für mehr Verkäufe sitzt genau dort, wo du verkaufst."
         }
       }
+    },
+    "panelCarousel": {
+      "title": "Alles läuft über ein einziges Panel",
+      "subtitle": "Echte Screenshots aus einem aktiven Depop-Shop."
     }
   },
   "LanguageSwitcher": {

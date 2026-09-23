@@ -81,6 +81,7 @@
     "checkStatus": "التحقق من حالة الخدمة"
   },
   "Home": {
+    "introducing": "نقدم لكم SaleLinx",
     "heroEyebrow": "متاح لـ <depop></depop> + <vinted></vinted>",
     "heroTitle": "أداة واحدة لكل بائع على <depop></depop> و <vinted></vinted>.",
     "heroSubtitle": "حتى تتمكن من <word></word>",
@@ -192,6 +193,10 @@
           "body": "النشر المتقاطع وإعادة النشر وإعادة التخزين والرد على المشترين من لوحة واحدة. كل أداة لتنمية متجرك موجودة تماماً حيث تبيع."
         }
       }
+    },
+    "panelCarousel": {
+      "title": "كل شيء يعمل من لوحة واحدة",
+      "subtitle": "لقطات شاشة حقيقية من متجر Depop نشط."
     }
   },
   "LanguageSwitcher": {

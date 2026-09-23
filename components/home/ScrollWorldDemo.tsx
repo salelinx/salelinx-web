@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
@@ -186,23 +185,41 @@ function FeatureOverview() {
   // wants to be - you scan it for the one you came for. The detail lines are
   // gone rather than hidden; /features carries them, and the names already
   // say what each feature is.
+  // A single moving line rather than the ruled grid: sixteen names read as a
+  // list you have to work through, where a ticker reads as "and there is more
+  // where that came from" without asking for attention.
+  //
+  // The row is rendered twice. The animation shifts by exactly -50%, so the
+  // second copy is under the cursor at the moment the first runs out and the
+  // loop has no seam. The duplicate is aria-hidden: to a screen reader this is
+  // one list of sixteen, read once.
   return (
-    <div className="grid w-full grid-cols-2 gap-x-7 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-10">
-      {ALL_FEATURES.map((f, i) => (
-        <div
-          key={f.key}
-          className="cascade-item flex items-center gap-2.5 border-b border-black/[0.06] py-2.5 text-start lg:py-3 dark:border-white/[0.08]"
-          style={{ "--stagger-delay": `${i * 28}ms` } as CSSProperties}
-        >
-          <Icon
-            name={f.icon}
-            className="h-3.5 w-3.5 flex-shrink-0 text-zinc-400 dark:text-zinc-500"
-          />
-          <span className="min-w-0 truncate text-[12.5px] leading-snug text-zinc-700 lg:text-[13.5px] dark:text-zinc-300">
-            {tf(`${f.key}.name`)}
-          </span>
-        </div>
-      ))}
+    <div className="feature-ticker-viewport relative w-full overflow-hidden py-2 [mask-image:linear-gradient(to_right,transparent,black_7%,black_93%,transparent)]">
+      <div className="feature-ticker flex w-max">
+        {[0, 1].map((copy) => (
+          <div key={copy} aria-hidden={copy === 1} className="flex shrink-0">
+            {ALL_FEATURES.map((f) => (
+              <div
+                key={f.key}
+                className="mx-2.5 flex w-[168px] shrink-0 flex-col items-center gap-4 rounded-2xl
+                           border border-black/[0.07] bg-white/70 px-4 py-7 text-center shadow-sm
+                           backdrop-blur-sm lg:w-[188px]
+                           dark:border-white/[0.08] dark:bg-white/[0.03]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10"
+                >
+                  <Icon name={f.icon} className="h-7 w-7 flex-shrink-0 text-emerald-700 dark:text-emerald-400" />
+                </span>
+                <span className="text-[15px] font-medium leading-snug text-zinc-900 dark:text-zinc-100">
+                  {tf(`${f.key}.name`)}
+                </span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -319,7 +336,7 @@ export function ScrollWorldDemo() {
       aria-label={t("previewEyebrow")}
       className="relative scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl pb-12 pt-4 sm:px-6 sm:py-12">
+      <div className="mx-auto w-full max-w-6xl pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-4">
         {/* Scenes are content-height, one column on phones and two alternating
             columns from lg up.
 
@@ -357,8 +374,8 @@ export function ScrollWorldDemo() {
                 dir="ltr"
                 className={
                   full
-                    ? "flex flex-col items-center justify-center gap-6 px-6 py-14 text-center sm:px-0 sm:py-24"
-                    : `grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-24 lg:gap-14 ${
+                    ? "flex flex-col items-center justify-center gap-6 px-6 py-14 text-center sm:px-0 sm:py-20"
+                    : `grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-20 lg:gap-14 ${
                         visualFirst
                           ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
                           : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"

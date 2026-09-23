@@ -248,7 +248,7 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
   return (
     <section
       id="pricing"
-      className="scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10"
+      className="scroll-mt-20 border-t border-black/10 py-14 sm:py-20 dark:border-white/10"
     >
       <div className="pb-12">
         <span className={`${MONO} text-zinc-500 dark:text-zinc-400`}>

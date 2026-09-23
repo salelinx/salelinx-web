@@ -81,6 +81,7 @@
     "checkStatus": "Check service status"
   },
   "Home": {
+    "introducing": "Introducing SaleLinx",
     "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
     "heroTitle": "One tool for every <depop></depop> & <vinted></vinted> seller.",
     "heroSubtitle": "So you can <word></word>",
@@ -192,6 +193,10 @@
           "body": "Crosslist, relist, restock and answer buyers from one panel. Every tool to grow your shop is right where you sell."
         }
       }
+    },
+    "panelCarousel": {
+      "title": "Everything runs from one panel",
+      "subtitle": "Real screenshots from a live Depop shop."
     }
   },
   "LanguageSwitcher": {

@@ -136,11 +136,19 @@ body::before {
   background-size: 100% 80px;
   background-position: left bottom;
   background-repeat: repeat;
-  /* Fades with the viewport, matching the fixed vertical guides. */
-  -webkit-mask-image: var(--guide-fade);
-  mask-image: var(--guide-fade);
-  -webkit-mask-attachment: fixed;
-  mask-attachment: fixed;
+  /* Fades with the viewport, matching the fixed vertical guides. The second
+     layer fades the top of the band in: because the rows are anchored to the
+     bottom, the topmost line sits at whatever the page-height remainder makes
+     it, which can land a few pixels under the header rule and read as a
+     doubled border. Scroll-attached so the fade stays on the band's own top
+     edge rather than the viewport's. */
+  -webkit-mask-image: var(--guide-fade),
+    linear-gradient(to bottom, transparent 0, black 96px);
+  mask-image: var(--guide-fade), linear-gradient(to bottom, transparent 0, black 96px);
+  -webkit-mask-attachment: fixed, scroll;
+  mask-attachment: fixed, scroll;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 /* Dark keeps its dot texture alone; guides on near-black read as banding. */
@@ -955,4 +963,34 @@ span.restock-at-risk {
 
 .dark span.restock-at-risk {
   color: var(--color-rose-400);
+}
+
+/* Feature ticker on the homepage overview.
+   Two identical copies of the list translate by exactly -50%, so the seam
+   lands where copy two starts and the loop is invisible. Changing the gap or
+   the copy count without changing this percentage breaks that. */
+@keyframes featureTicker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.feature-ticker {
+  animation: featureTicker 64s linear infinite;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  /* Stop the motion, but leave the row scrollable by hand so the content is
+     still reachable rather than frozen at the first eight items. */
+  .feature-ticker {
+    animation: none;
+    transform: none;
+  }
+  .feature-ticker-viewport {
+    overflow-x: auto;
+  }
 }

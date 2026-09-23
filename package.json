@@ -21,6 +21,7 @@
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.0",
     "@types/mdx": "^2.0.13",
+    "3dsvg": "^0.2.1",
     "fuse.js": "^7.3.0",
     "next": "16.2.4",
     "next-intl": "^4.9.1",

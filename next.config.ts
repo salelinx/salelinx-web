@@ -61,6 +61,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
   poweredByHeader: false,
+  images: {
+    // Next 16 only honours quality values listed here; anything else silently
+    // falls back to 75. The panel screenshots need 90 because they are UI
+    // captures full of 11px text, where 75 is visibly soft.
+    qualities: [75, 90],
+  },
   experimental: {
     viewTransition: true,
   },
