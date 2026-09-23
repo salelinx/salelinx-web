@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
@@ -186,23 +185,36 @@ function FeatureOverview() {
   // wants to be - you scan it for the one you came for. The detail lines are
   // gone rather than hidden; /features carries them, and the names already
   // say what each feature is.
+  // A single moving line rather than the ruled grid: sixteen names read as a
+  // list you have to work through, where a ticker reads as "and there is more
+  // where that came from" without asking for attention.
+  //
+  // The row is rendered twice. The animation shifts by exactly -50%, so the
+  // second copy is under the cursor at the moment the first runs out and the
+  // loop has no seam. The duplicate is aria-hidden: to a screen reader this is
+  // one list of sixteen, read once.
   return (
-    <div className="grid w-full grid-cols-2 gap-x-7 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-10">
-      {ALL_FEATURES.map((f, i) => (
-        <div
-          key={f.key}
-          className="cascade-item flex items-center gap-2.5 border-b border-black/[0.06] py-2.5 text-start lg:py-3 dark:border-white/[0.08]"
-          style={{ "--stagger-delay": `${i * 28}ms` } as CSSProperties}
-        >
-          <Icon
-            name={f.icon}
-            className="h-3.5 w-3.5 flex-shrink-0 text-zinc-400 dark:text-zinc-500"
-          />
-          <span className="min-w-0 truncate text-[12.5px] leading-snug text-zinc-700 lg:text-[13.5px] dark:text-zinc-300">
-            {tf(`${f.key}.name`)}
-          </span>
-        </div>
-      ))}
+    <div className="feature-ticker-viewport relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <div className="feature-ticker flex w-max">
+        {[0, 1].map((copy) => (
+          <div key={copy} aria-hidden={copy === 1} className="flex shrink-0">
+            {ALL_FEATURES.map((f) => (
+              <div
+                key={f.key}
+                className="flex w-[124px] shrink-0 flex-col items-center gap-2.5 px-2 text-center lg:w-[144px]"
+              >
+                <Icon
+                  name={f.icon}
+                  className="h-5 w-5 flex-shrink-0 text-zinc-400 dark:text-zinc-500"
+                />
+                <span className="text-[12.5px] leading-snug text-zinc-700 lg:text-[13.5px] dark:text-zinc-300">
+                  {tf(`${f.key}.name`)}
+                </span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

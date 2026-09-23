@@ -964,3 +964,37 @@ span.restock-at-risk {
 .dark span.restock-at-risk {
   color: var(--color-rose-400);
 }
+
+/* Feature ticker on the homepage overview.
+   Two identical copies of the list translate by exactly -50%, so the seam
+   lands where copy two starts and the loop is invisible. Changing the gap or
+   the copy count without changing this percentage breaks that. */
+@keyframes featureTicker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.feature-ticker {
+  animation: featureTicker 64s linear infinite;
+}
+
+.feature-ticker:hover,
+.feature-ticker:focus-within {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Stop the motion, but leave the row scrollable by hand so the content is
+     still reachable rather than frozen at the first eight items. */
+  .feature-ticker {
+    animation: none;
+    transform: none;
+  }
+  .feature-ticker-viewport {
+    overflow-x: auto;
+  }
+}

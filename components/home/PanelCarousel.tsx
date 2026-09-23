@@ -67,8 +67,11 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
     });
   }, []);
 
+  // Wraps rather than clamping, so both arrows work from every slide. Clamping
+  // left the first slide with a dead back arrow while a previous slide was
+  // visibly peeking next to it, which reads as broken.
   const step = useCallback(
-    (delta: number) => goTo(Math.min(SLIDES.length - 1, Math.max(0, active + delta))),
+    (delta: number) => goTo((active + delta + SLIDES.length) % SLIDES.length),
     [active, goTo],
   );
 
@@ -177,12 +180,11 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
         <button
           type="button"
           onClick={() => step(-1)}
-          disabled={active === 0}
           aria-hidden="true"
           tabIndex={-1}
           className="absolute start-1 top-1/2 hidden -translate-y-1/2 rounded-full border border-black/10
                      bg-white/90 p-2.5 shadow-md backdrop-blur transition hover:bg-white
-                     disabled:pointer-events-none disabled:opacity-0 sm:block
+                     sm:block
                      dark:border-white/15 dark:bg-zinc-900/90"
         >
           <Chevron className="rotate-180 rtl:rotate-0" />
@@ -190,12 +192,11 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
         <button
           type="button"
           onClick={() => step(1)}
-          disabled={active === SLIDES.length - 1}
           aria-hidden="true"
           tabIndex={-1}
           className="absolute end-1 top-1/2 hidden -translate-y-1/2 rounded-full border border-black/10
                      bg-white/90 p-2.5 shadow-md backdrop-blur transition hover:bg-white
-                     disabled:pointer-events-none disabled:opacity-0 sm:block
+                     sm:block
                      dark:border-white/15 dark:bg-zinc-900/90"
         >
           <Chevron className="rtl:rotate-180" />
