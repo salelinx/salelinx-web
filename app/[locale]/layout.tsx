@@ -8,6 +8,7 @@ import '../globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
+import { ConversionTracker } from '@/components/ConversionTracker';
 import { SmoothAnchorScroll } from '@/components/SmoothAnchorScroll';
 import { routing } from '@/i18n/routing';
 import { dirForLocale } from '@/lib/i18n/locales';
@@ -110,6 +111,8 @@ export default async function LocaleLayout({
           </div>
           <Footer />
           <CookieConsent />
+          {/* After CookieConsent: its mount effect defines window.gtag, and sibling effects run in order. */}
+          <ConversionTracker />
         </NextIntlClientProvider>
       </body>
     </html>
