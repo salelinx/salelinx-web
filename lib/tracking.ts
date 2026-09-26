@@ -33,11 +33,11 @@ function adsConversion(label: keyof typeof LABELS) {
   gtagEvent('conversion', { send_to: `${ADS_ID}/${conversionLabel}` });
 }
 
-// Fired on /auth/confirm when a signup email verifies. Runs right before the
-// client-side redirect; gtag queues through the dataLayer, so the hit
-// survives the soft navigation.
-export function trackSignupConversion() {
-  gtagEvent('sign_up', { method: 'email' });
+// Fired on /auth/confirm when a signup email verifies (gtag queues through the
+// dataLayer, so the hit survives the soft navigation that follows), and by
+// ConversionTracker after a first Google sign-in.
+export function trackSignupConversion(method: 'email' | 'google' = 'email') {
+  gtagEvent('sign_up', { method });
   adsConversion('signup');
 }
 

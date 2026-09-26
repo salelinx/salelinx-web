@@ -10,6 +10,8 @@ export async function GET(request: Request) {
   const next = safeNext(url.searchParams.get("next"));
   const localeParam = url.searchParams.get("locale");
 
+  const target = new URL(next, url.origin);
+
   if (code) {
     const supabase = await createServerClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -53,7 +55,13 @@ export async function GET(request: Request) {
         })
         .catch(() => {});
     }
+
+    // Google signups never pass /auth/confirm, where the email signup conversion fires.
+    const createdAt = Date.parse(data.user?.created_at ?? "");
+    if (Date.now() - createdAt < 5 * 60 * 1000) {
+      target.searchParams.set("signup", "google");
+    }
   }
 
-  return NextResponse.redirect(new URL(next, url.origin));
+  return NextResponse.redirect(target);
 }
