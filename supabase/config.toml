@@ -68,3 +68,7 @@ verify_jwt = false
 # comment in its index.ts for why it cannot gate on is_admin() (AAL2).
 [functions.report-selftest]
 verify_jwt = false
+
+# Daily Cron POSTs with x-trial-nudge-secret; unsubscribe links carry an HMAC.
+[functions.trial-nudge]
+verify_jwt = false
