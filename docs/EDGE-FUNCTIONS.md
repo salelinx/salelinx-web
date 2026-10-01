@@ -33,6 +33,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `resolve-category`        | false*       | Intended: extension POSTs category lookups; auth by `getUser(jwt)` + crosslist tier gate + monthly cap. **No caller yet** |
 | `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
+| `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial, day 1 and day 4; also serves the HMAC-signed unsubscribe link |
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 
@@ -126,6 +127,9 @@ supabase secrets set REFERRAL_COUPON_BUSINESS='<coupon id>'
 # one at a time; unset once all three are live.
 supabase secrets set REFERRAL_COUPON_ID='<coupon id>'
 supabase secrets set REFERRAL_CRON_SECRET='<random-string, 32+ bytes>'
+# trial-nudge: the daily Cron job's x-trial-nudge-secret header, and the HMAC
+# key for its unsubscribe links. Rotating it breaks links in sent emails.
+supabase secrets set TRIAL_NUDGE_SECRET='<random-string, 32+ bytes>'
 # delete-account: HMAC key for the emailed deletion-confirmation tokens.
 # Internal only (never leaves the function); rotating it just invalidates
 # any confirmation links already in flight.
