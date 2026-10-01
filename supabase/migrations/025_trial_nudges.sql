@@ -8,7 +8,7 @@ CREATE TABLE public.trial_nudges (
 -- RLS on, zero client policies: only the service role touches it.
 ALTER TABLE public.trial_nudges ENABLE ROW LEVEL SECURITY;
 
--- The 14-day window keeps the first run from mailing the whole backlog.
+-- Caps how far back the first run reaches.
 CREATE OR REPLACE FUNCTION public.trial_nudge_due()
 RETURNS TABLE (user_id UUID, email TEXT, step SMALLINT)
 LANGUAGE sql
@@ -21,7 +21,7 @@ AS $$
   LEFT JOIN public.trial_nudges n ON n.user_id = u.id
   WHERE u.email IS NOT NULL
     AND u.email_confirmed_at IS NOT NULL
-    AND u.created_at > NOW() - INTERVAL '14 days'
+    AND u.created_at > NOW() - INTERVAL '60 days'
     AND n.unsubscribed_at IS NULL
     AND NOT EXISTS (SELECT 1 FROM public.subscriptions s WHERE s.user_id = u.id)
     AND NOT EXISTS (SELECT 1 FROM public.admin_users a WHERE a.user_id = u.id)
