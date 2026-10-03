@@ -13,6 +13,7 @@ import {
   classifyBody,
   decide,
   SUPABASE_DOWN,
+  TIMED_OUT,
   UNREACHABLE,
 } from "../scripts/supabase-watchdog.mjs";
 
@@ -35,6 +36,25 @@ describe("decide", () => {
     // outage because we could not reach a webpage.
     const { action } = decide({
       kinds: unreachable,
+      status: "ACTIVE_HEALTHY",
+      armed: true,
+    });
+    expect(action).toBe("abstain");
+  });
+
+  it("restarts when every check timed out on all three probes", () => {
+    // 2026-10-02: 3.5h of timeouts, no Supabase error, ACTIVE_HEALTHY throughout.
+    const { action } = decide({
+      kinds: [TIMED_OUT, TIMED_OUT, TIMED_OUT],
+      status: "ACTIVE_HEALTHY",
+      armed: true,
+    });
+    expect(action).toBe("restart");
+  });
+
+  it("stands down when only some probes timed out", () => {
+    const { action } = decide({
+      kinds: [TIMED_OUT, UNREACHABLE, TIMED_OUT],
       status: "ACTIVE_HEALTHY",
       armed: true,
     });
@@ -111,7 +131,7 @@ describe("classifyBody", () => {
     detail,
   });
 
-  it("does NOT treat a probe timeout as proof Supabase is down", () => {
+  it("marks a probe where every check timed out, without calling it down", () => {
     // The whole 2026-09-22 loop in one assertion. Our probe gave up after 5s
     // while PostgREST was mid schema reload; Postgres logged no error all
     // night. If this goes red, a slow reload restarts production again.
@@ -121,7 +141,7 @@ describe("classifyBody", () => {
         probe("rest_read", null, "timeout after 5000ms"),
       ],
     });
-    expect(kind).toBe(UNREACHABLE);
+    expect(kind).toBe(TIMED_OUT);
   });
 
   it("does NOT treat a Cloudflare 52x as proof", () => {

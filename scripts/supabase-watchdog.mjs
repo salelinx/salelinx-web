@@ -134,6 +134,9 @@ export const MISCONFIGURED = 'misconfigured';
 /** No answer, or one that did not come from our handler (timeout, DNS, an
  *  edge HTML error page). Says nothing about Supabase on its own. */
 export const UNREACHABLE = 'unreachable';
+/** Our endpoint answered, and every Supabase check in it timed out. One of
+ *  these is a slow reload; three in a row is an outage (see decide). */
+export const TIMED_OUT = 'timed_out';
 
 /**
  * What a served health-check body actually proves. Pure, and the single most
@@ -160,9 +163,11 @@ export function classifyBody(body) {
       !CLOUDFLARE_ORIGIN_CODES.has(p.status),
   );
   const summary = failed.map((p) => `${p.name}=${p.status ?? p.detail ?? 'no-response'}`).join(',');
-  return proving.length
-    ? { kind: SUPABASE_DOWN, detail: ` ${summary}` }
-    : { kind: UNREACHABLE, detail: ` ${summary} (no Supabase-origin error)` };
+  if (proving.length) return { kind: SUPABASE_DOWN, detail: ` ${summary}` };
+  if (failed.every((p) => p.status === null && /^timeout/.test(p.detail ?? ''))) {
+    return { kind: TIMED_OUT, detail: ` ${summary}` };
+  }
+  return { kind: UNREACHABLE, detail: ` ${summary} (no Supabase-origin error)` };
 }
 
 /** One health probe. Returns the kind of evidence it produced, not just
@@ -299,7 +304,12 @@ export function decide({ kinds, status, armed, restarts }) {
   // Proof means Supabase itself answered with an error. A timeout or a
   // Cloudflare 52x is not proof, and treating it as such is what caused
   // 2026-09-22 - see the file header.
-  const proven = kinds.includes(SUPABASE_DOWN);
+  // 2026-10-02 23:30 to 03:05 was all timeouts: Postgres never errored, it
+  // just stopped answering. Both checks timing out on every probe is over a
+  // minute of silence, far past the 5.4s reload the 10s timeout now clears.
+  const proven =
+    kinds.includes(SUPABASE_DOWN) ||
+    (kinds.length === PROBES && kinds.every((k) => k === TIMED_OUT));
   if (!proven && status === 'ACTIVE_HEALTHY') {
     return {
       action: 'abstain',
