@@ -106,9 +106,20 @@ export function SubscribeButton({
       );
 
       if (res.status === 409) {
-        // Already has an active subscription; plan changes happen in the
-        // Customer Portal, reachable from the account page.
-        router.push("/account");
+        // Already subscribed: plan changes happen in the Customer Portal.
+        const portal = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-portal-session`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          },
+        );
+        if (portal.ok) {
+          const { url } = (await portal.json()) as { url: string };
+          window.location.href = url;
+        } else {
+          router.push("/account");
+        }
         return;
       }
 
