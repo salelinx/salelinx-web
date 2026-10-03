@@ -23,7 +23,14 @@ const SITE_URL = Deno.env.get("SITE_URL") || "https://www.salelinx.com";
 const PRICING_URL = `${SITE_URL}/features#pricing`;
 const FUNCTION_URL = `${Deno.env.get("SUPABASE_URL")}/functions/v1/trial-nudge`;
 
-type Step = { subject: string; preheader: string; title: string; body: string[] };
+type Step = {
+  subject: string;
+  preheader: string;
+  title: string;
+  body: string[];
+  eyebrow?: string;
+  cta?: string;
+};
 
 const STEPS: Step[] = [
   {
@@ -47,6 +54,28 @@ const STEPS: Step[] = [
   },
 ];
 
+const WINBACK_PAID: Step = {
+  subject: "We miss you at SaleLinx",
+  preheader: "Your listings, settings and cloud data are still here.",
+  title: "We miss you",
+  eyebrow: "Welcome back",
+  cta: "See plans",
+  body: [
+    "Your SaleLinx plan has ended, but your listings, settings and cloud data are all still here.",
+    "Pick a plan and you're straight back to crosslisting, bulk editing and relisting across Depop and Vinted.",
+  ],
+};
+
+const WINBACK_TRIAL: Step = {
+  ...WINBACK_PAID,
+  subject: "Pick up where your SaleLinx trial left off",
+  preheader: "Your listings and settings are still saved.",
+  body: [
+    "Your free trial has ended, but your listings and settings are still saved.",
+    "Pick a plan to get crosslisting, bulk editing and relisting back across Depop and Vinted.",
+  ],
+};
+
 async function unsubToken(userId: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -68,22 +97,22 @@ async function unsubscribe(userId: string, token: string): Promise<Response> {
     .from("trial_nudges")
     .upsert({ user_id: userId, unsubscribed_at: new Date().toISOString() });
   if (error) return new Response("Something went wrong, try again", { status: 500 });
-  return new Response("You're unsubscribed from SaleLinx trial reminders.");
+  return new Response("You're unsubscribed from SaleLinx reminder emails.");
 }
 
 async function send(userId: string, email: string, step: Step): Promise<void> {
   const unsubUrl = `${FUNCTION_URL}?u=${userId}&t=${await unsubToken(userId)}`;
   const html = emailLayout({
     preheader: step.preheader,
-    eyebrow: "Free trial",
+    eyebrow: step.eyebrow ?? "Free trial",
     bodyHtml:
       heading(step.title) +
       step.body.map((p) => paragraph(p)).join("") +
-      button(PRICING_URL, "Start free trial"),
+      button(PRICING_URL, step.cta ?? "Start free trial"),
     footerNote: `You're getting this because you signed up for SaleLinx. <a href="${unsubUrl}" style="color:inherit;">Unsubscribe</a>`,
     siteUrl: SITE_URL,
   });
-  const text = `${step.body.join("\n\n")}\n\nStart free trial: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}`;
+  const text = `${step.body.join("\n\n")}\n\n${step.cta ?? "Start free trial"}: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -125,26 +154,42 @@ Deno.serve(async (req) => {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { data: rows, error } = await supabase.rpc("trial_nudge_due");
-  if (error) {
-    console.error(`[trial-nudge] scan failed: ${error.message}`);
-    return Response.json({ error: error.message }, { status: 500 });
+  const [trial, winback] = await Promise.all([
+    supabase.rpc("trial_nudge_due"),
+    supabase.rpc("winback_due"),
+  ]);
+  const scanErr = trial.error ?? winback.error;
+  if (scanErr) {
+    console.error(`[trial-nudge] scan failed: ${scanErr.message}`);
+    return Response.json({ error: scanErr.message }, { status: 500 });
   }
 
+  const now = () => new Date().toISOString();
+  const jobs = [
+    ...((trial.data ?? []) as { user_id: string; email: string; step: number }[]).map((r) => ({
+      ...r,
+      step: STEPS[r.step],
+      record: { step: r.step + 1, last_sent_at: now() },
+    })),
+    ...((winback.data ?? []) as { user_id: string; email: string; paid: boolean }[]).map((r) => ({
+      ...r,
+      step: r.paid ? WINBACK_PAID : WINBACK_TRIAL,
+      record: { winback_sent_at: now() },
+    })),
+  ];
+
   const result = { sent: 0, errors: 0 };
-  for (const row of (rows ?? []) as { user_id: string; email: string; step: number }[]) {
+  for (const job of jobs) {
     try {
-      await send(row.user_id, row.email, STEPS[row.step]);
-      const { error: upErr } = await supabase.from("trial_nudges").upsert({
-        user_id: row.user_id,
-        step: row.step + 1,
-        last_sent_at: new Date().toISOString(),
-      });
+      await send(job.user_id, job.email, job.step);
+      const { error: upErr } = await supabase
+        .from("trial_nudges")
+        .upsert({ user_id: job.user_id, ...job.record });
       if (upErr) throw new Error(upErr.message);
       result.sent += 1;
     } catch (err) {
       result.errors += 1;
-      console.error(`[trial-nudge] user ${row.user_id} failed:`, (err as Error).message);
+      console.error(`[trial-nudge] user ${job.user_id} failed:`, (err as Error).message);
     }
   }
 
