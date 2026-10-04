@@ -412,7 +412,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                   active={sortKey === "status"}
                   onClick={() => setSortKey("status")}
                 />
-                <th className="px-3 py-2 font-medium">Cancelled</th>
+                <th className="px-3 py-2 font-medium">Billing</th>
                 <th className="px-3 py-2 font-medium">Version</th>
                 <SortableTh
                   label="Joined"
@@ -482,7 +482,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
-                      <CancellationCell
+                      <BillingCell
                         cancelAtPeriodEnd={u.cancel_at_period_end}
                         status={u.status}
                         periodEnd={u.current_period_end}
@@ -554,20 +554,7 @@ function AdminTag() {
 // Which marketplaces the user has connected. The full username and a link to
 // the shop live in the detail drawer; the roster only needs the presence
 // signal, so this stays a single initial per platform.
-/**
- * Whether this user is on their way out, and how urgently.
- *
- * Three states worth telling apart, which a bare status column cannot:
- *  - "Leaving" + a date: cancel_at_period_end, still paying, still entitled.
- *    The only one you can still do something about, so it gets the warm tone
- *    and the countdown.
- *  - "Gone": the subscription already lapsed. Recorded, not actionable.
- *  - "-": never cancelled, or never subscribed at all.
- *
- * A trial that is set to cancel counts as leaving too: that is a trial the
- * user has actively turned off rather than one that will convert.
- */
-function CancellationCell({
+function BillingCell({
   cancelAtPeriodEnd,
   status,
   periodEnd,
@@ -578,7 +565,7 @@ function CancellationCell({
   periodEnd: string | null;
   /** From useClientNow in the parent: reading the clock during render is both
    *  impure and a hydration mismatch waiting to happen. Null until hydration,
-   *  which is why the countdown degrades to a bare "Leaving". */
+   *  which is why the countdown degrades to a bare label. */
   now: number | null;
 }) {
   if (status === "canceled") {
@@ -589,23 +576,45 @@ function CancellationCell({
     );
   }
 
-  if (!cancelAtPeriodEnd) return <span className="text-zinc-400">-</span>;
+  if (status === "past_due") {
+    return (
+      <span
+        className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
+        title="The last payment failed; Stripe is retrying the card"
+      >
+        Retrying payment
+      </span>
+    );
+  }
+
+  const label = cancelAtPeriodEnd
+    ? "Leaving"
+    : status === "trialing"
+      ? "First payment"
+      : status === "active"
+        ? "Payment"
+        : null;
+  if (!label) return <span className="text-zinc-400">-</span>;
 
   const days =
     periodEnd === null || now === null
       ? null
       : Math.ceil((new Date(periodEnd).getTime() - now) / (24 * 60 * 60 * 1000));
+  const tone = cancelAtPeriodEnd
+    ? "bg-amber-50 text-amber-700"
+    : "bg-emerald-50 text-emerald-700";
+  const verb = cancelAtPeriodEnd ? "Access ends" : "Due";
 
   return (
     <span
-      className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
-      title={periodEnd ? `Access ends ${formatDate(periodEnd)}` : undefined}
+      className={`rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}
+      title={periodEnd ? `${verb} ${formatDate(periodEnd)}` : undefined}
     >
       {days === null
-        ? "Leaving"
+        ? label
         : days <= 0
-          ? "Leaving today"
-          : `Leaving in ${days}d`}
+          ? `${label} today`
+          : `${label} in ${days}d`}
     </span>
   );
 }
