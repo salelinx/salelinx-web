@@ -10,6 +10,7 @@
 // Plus package size defaults and Vinted JSON-LD category → Depop label lookups.
 
 import type { DepopCategoryMapping } from './crosslist-category.ts';
+import { VINTED_DEPOP_TYPES } from './vinted-depop-types.ts';
 
 // ── Reverse Category Mapping: Vinted → Depop ────────────────────────────────
 // Vinted catalog_id → Depop legacy_category_id
@@ -20,692 +21,562 @@ export const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> =
   1868: {
     depopCategoryId: 2,
     depopLabel: 'Menswear > T-shirts',
-    depopType: 'menswear/tops/tshirts',
   },
   1806: {
     depopCategoryId: 2,
     depopLabel: 'Menswear > T-shirts',
-    depopType: 'menswear/tops/tshirts',
   }, // Plain
   1807: {
     depopCategoryId: 2,
     depopLabel: 'Menswear > T-shirts',
-    depopType: 'menswear/tops/tshirts',
   }, // Print
   1808: {
     depopCategoryId: 2,
     depopLabel: 'Menswear > T-shirts',
-    depopType: 'menswear/tops/tshirts',
   }, // Striped
   // 1809 removed — does not exist in Vinted catalog
   1810: {
     depopCategoryId: 2,
     depopLabel: 'Menswear > T-shirts',
-    depopType: 'menswear/tops/tshirts',
   }, // Long-sleeved
   1811: {
     depopCategoryId: 44,
     depopLabel: 'Menswear > Jumpers',
-    depopType: 'menswear/tops/jumpers',
   },
   266: {
     depopCategoryId: 45,
     depopLabel: 'Menswear > Cardigans',
-    depopType: 'menswear/tops/cardigans',
   },
   267: {
     depopCategoryId: 46,
     depopLabel: 'Menswear > Hoodies & Sweaters',
-    depopType: 'menswear/tops/hoodies',
   },
   560: {
     depopCategoryId: 48,
     depopLabel: 'Menswear > Vests',
-    depopType: 'menswear/tops/vests-tanks-camis',
   },
   // Men's Shirts (Vinted subcategories under Shirts)
-  77: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts', depopType: 'menswear/tops/shirts' }, // Shirts parent
+  77: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts' }, // Shirts parent
   // 1800 is Cufflinks (Men > Accessories > Jewellery), not Shirts
   1800: {
     depopCategoryId: 190,
     depopLabel: 'Men > Jewellery > Other',
-    depopType: 'menswear/accessories/jewellery',
   },
-  1801: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts', depopType: 'menswear/tops/shirts' }, // Denim
-  1802: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts', depopType: 'menswear/tops/shirts' }, // Plain
-  1803: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts', depopType: 'menswear/tops/shirts' }, // Print
-  1804: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts', depopType: 'menswear/tops/shirts' }, // Other
-  1805: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts', depopType: 'menswear/tops/shirts' }, // Striped
+  1801: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts' }, // Denim
+  1802: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts' }, // Plain
+  1803: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts' }, // Print
+  1804: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts' }, // Other
+  1805: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts' }, // Striped
 
   // ═══ MENSWEAR — Bottoms ═══
   263: {
     depopCategoryId: 3,
     depopLabel: 'Menswear > Trousers',
-    depopType: 'menswear/bottoms/trousers',
   },
   1816: {
     depopCategoryId: 35,
     depopLabel: 'Menswear > Jeans',
-    depopType: 'menswear/bottoms/jeans',
   }, // Ripped
   1817: {
     depopCategoryId: 35,
     depopLabel: 'Menswear > Jeans',
-    depopType: 'menswear/bottoms/jeans',
   }, // Skinny
   1818: {
     depopCategoryId: 35,
     depopLabel: 'Menswear > Jeans',
-    depopType: 'menswear/bottoms/jeans',
   }, // Slim fit
   1819: {
     depopCategoryId: 35,
     depopLabel: 'Menswear > Jeans',
-    depopType: 'menswear/bottoms/jeans',
   }, // Straight fit
   1821: {
     depopCategoryId: 36,
     depopLabel: 'Menswear > Joggers',
-    depopType: 'menswear/bottoms/joggers-tracksuits',
   },
   272: {
     depopCategoryId: 41,
     depopLabel: 'Menswear > Shorts',
-    depopType: 'menswear/bottoms/shorts',
   },
 
   // ═══ MENSWEAR — Outerwear ═══
   1206: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/other-coats-jackets',
   },
   2553: {
     depopCategoryId: 80,
     depopLabel: 'Menswear > Gilets',
-    depopType: 'menswear/coats-jackets/gilets',
   },
   1223: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Bomber
   1224: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Denim
   1225: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/coats',
   }, // Duffle
   1226: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Harrington
   1227: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/coats',
   }, // Parkas
   1230: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/coats',
   }, // Trench
   1858: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Fleece
   1861: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/coats',
   }, // Peacoats
   1859: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/coats',
   }, // Raincoats
   2533: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/coats',
   }, // Overcoats
   2534: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Biker
   2535: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Field & utility
   2536: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Puffer
   2537: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Quilted
   2538: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Shackets
   2539: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Ski
   2550: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Varsity
   2551: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Windbreakers
   2552: {
     depopCategoryId: 5,
     depopLabel: 'Menswear > Outerwear',
-    depopType: 'menswear/coats-jackets/other-coats-jackets',
   }, // Ponchos
 
   // ═══ MENSWEAR — Suits ═══
-  1789: { depopCategoryId: 81, depopLabel: 'Menswear > Suits', depopType: 'menswear/suits/suits' },
+  1789: { depopCategoryId: 81, depopLabel: 'Menswear > Suits' },
 
   // ═══ MENSWEAR — Shoes ═══
   1242: {
     depopCategoryId: 54,
     depopLabel: 'Menswear > Trainers',
-    depopType: 'menswear/footwear/trainers',
   },
   2968: {
     depopCategoryId: 55,
     depopLabel: 'Menswear > Sandals',
-    depopType: 'menswear/footwear/sandals',
   },
   2662: {
     depopCategoryId: 216,
     depopLabel: 'Menswear > Boots',
-    depopType: 'menswear/footwear/boots',
   },
   1238: {
     depopCategoryId: 217,
     depopLabel: 'Menswear > Formal Shoes',
-    depopType: 'menswear/footwear/oxfords',
   },
   2656: {
     depopCategoryId: 58,
     depopLabel: 'Menswear > Shoes',
-    depopType: 'menswear/footwear/loafers',
   }, // Loafers
   2657: {
     depopCategoryId: 58,
     depopLabel: 'Menswear > Shoes',
-    depopType: 'menswear/footwear/espadrilles',
   }, // Espadrilles
   2659: {
     depopCategoryId: 58,
     depopLabel: 'Menswear > Shoes',
-    depopType: 'menswear/footwear/slippers',
   }, // Slippers
   2969: {
     depopCategoryId: 58,
     depopLabel: 'Menswear > Shoes',
-    depopType: 'menswear/footwear/flipflops',
   }, // Flip-flops
   2661: {
     depopCategoryId: 216,
     depopLabel: 'Menswear > Boots',
-    depopType: 'menswear/footwear/boots',
   }, // Chelsea & slip-on boots
 
   // ═══ MENSWEAR — Accessories ═══
   246: {
     depopCategoryId: 59,
     depopLabel: 'Menswear > Bags & Backpacks',
-    depopType: 'menswear/accessories/bag',
   },
   96: {
     depopCategoryId: 60,
     depopLabel: 'Menswear > Belts',
-    depopType: 'menswear/accessories/belt',
   },
   287: {
     depopCategoryId: 61,
     depopLabel: 'Menswear > Hats & Caps',
-    depopType: 'menswear/accessories/hat',
   }, // Caps
   288: {
     depopCategoryId: 61,
     depopLabel: 'Menswear > Hats & Caps',
-    depopType: 'menswear/accessories/hat',
   }, // Hats
   91: {
     depopCategoryId: 63,
     depopLabel: 'Menswear > Gloves',
-    depopType: 'menswear/accessories/gloves',
   },
   87: {
     depopCategoryId: 64,
     depopLabel: 'Menswear > Scarves',
-    depopType: 'menswear/accessories/scarf-wraps',
   },
   98: {
     depopCategoryId: 65,
     depopLabel: 'Menswear > Sunglasses',
-    depopType: 'menswear/accessories/sunglasses',
   },
   97: {
     depopCategoryId: 66,
     depopLabel: 'Menswear > Watches',
-    depopType: 'menswear/accessories/watch',
   },
   1828: {
     depopCategoryId: 67,
     depopLabel: 'Menswear > Socks',
-    depopType: 'menswear/underwear/socks',
   },
   99: {
     depopCategoryId: 68,
     depopLabel: 'Menswear > Other Accessories',
-    depopType: 'menswear/accessories/other-accessories',
   },
 
   // ═══ MENSWEAR — Underwear & Swimwear ═══
   1829: {
     depopCategoryId: 83,
     depopLabel: 'Menswear > Underwear',
-    depopType: 'menswear/underwear/boxers-and-briefs',
   },
   84: {
     depopCategoryId: 85,
     depopLabel: 'Menswear > Swimwear',
-    depopType: 'menswear/swim-beach-wear/swim-briefs-shorts',
   },
   1830: {
     depopCategoryId: 86,
     depopLabel: 'Menswear > Dressing Gowns',
-    depopType: 'menswear/nightwear/robes',
   },
 
   // ═══ WOMENSWEAR — Tops ═══
   221: {
     depopCategoryId: 87,
     depopLabel: 'Womenswear > T-shirts',
-    depopType: 'womenswear/tops/tshirts',
   },
   1043: {
     depopCategoryId: 88,
     depopLabel: 'Womenswear > Blouses',
-    depopType: 'womenswear/tops/blouses',
   },
   222: {
     depopCategoryId: 208,
     depopLabel: 'Womenswear > Shirts',
-    depopType: 'womenswear/tops/shirts',
   },
   1041: {
     depopCategoryId: 91,
     depopLabel: 'Womenswear > Crop Tops',
-    depopType: 'womenswear/tops/crop-top',
   },
   196: {
     depopCategoryId: 93,
     depopLabel: 'Womenswear > Hoodies & Sweatshirts',
-    depopType: 'womenswear/tops/hoodies',
   },
   529: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   },
   194: {
     depopCategoryId: 95,
     depopLabel: 'Womenswear > Cardigans',
-    depopType: 'womenswear/tops/cardigans',
   },
   534: {
     depopCategoryId: 97,
     depopLabel: 'Womenswear > Vest Tops',
-    depopType: 'womenswear/tops/vests-tanks-camis',
   },
   1835: {
     depopCategoryId: 98,
     depopLabel: 'Womenswear > Bodysuits',
-    depopType: 'womenswear/tops/bodysuits',
   },
   228: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   },
   1874: {
     depopCategoryId: 9,
     depopLabel: 'Womenswear > Waistcoats',
-    depopType: 'womenswear/suits/waistcoats-vests',
   },
 
   // ═══ WOMENSWEAR — Bottoms ═══
   189: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   },
   198: {
     depopCategoryId: 100,
     depopLabel: 'Womenswear > Mini Skirts',
-    depopType: 'womenswear/bottoms/skirts',
   },
   205: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   },
   525: {
     depopCategoryId: 107,
     depopLabel: 'Womenswear > Leggings',
-    depopType: 'womenswear/bottoms/leggings',
   },
 
   // ═══ WOMENSWEAR — Dresses ═══
   176: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   },
 
   // ═══ WOMENSWEAR — Jumpsuits ═══
   1131: {
     depopCategoryId: 113,
     depopLabel: 'Womenswear > Jumpsuits',
-    depopType: 'womenswear/jumpsuit-and-playsuit/jumpsuit',
   },
 
   // ═══ WOMENSWEAR — Outerwear ═══
   1037: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/other-coats-jackets',
   },
   2524: {
     depopCategoryId: 142,
     depopLabel: 'Womenswear > Gilets',
-    depopType: 'womenswear/coats-jackets/gilets',
   },
   1078: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Bomber
   1079: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Denim
   1080: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Raincoats
   1086: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Fleece
   1087: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Parkas
   1076: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Peacoats
   1090: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Faux fur
   1773: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/other-coats-jackets',
   }, // Capes & ponchos
   1834: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Trench
   2525: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Duffle
   2526: {
     depopCategoryId: 13,
     depopLabel: 'Womenswear > Outerwear',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Overcoats
   2527: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Biker
   2528: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Field & utility
   2529: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Shackets
   2530: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Ski
   2531: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Varsity
   2532: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Windbreakers
   2596: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Quilted
   2614: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Puffer
 
   // ═══ WOMENSWEAR — Suits ═══
   1125: {
     depopCategoryId: 129,
     depopLabel: 'Womenswear > Trouser Suits',
-    depopType: 'womenswear/suits/suits',
   },
   532: {
     depopCategoryId: 138,
     depopLabel: 'Womenswear > Blazers',
-    depopType: 'womenswear/suits/tailored-jackets',
   },
 
   // ═══ WOMENSWEAR — Shoes ═══
   2632: {
     depopCategoryId: 171,
     depopLabel: 'Womenswear > Trainers',
-    depopType: 'womenswear/footwear/trainers',
   },
   2949: {
     depopCategoryId: 164,
     depopLabel: 'Womenswear > Sandals',
-    depopType: 'womenswear/footwear/sandals',
   },
   2954: {
     depopCategoryId: 165,
     depopLabel: 'Womenswear > Loafers',
-    depopType: 'womenswear/footwear/loafers',
   },
   2618: {
     depopCategoryId: 166,
     depopLabel: 'Womenswear > Boots',
-    depopType: 'womenswear/footwear/boots',
   },
   2952: {
     depopCategoryId: 170,
     depopLabel: 'Womenswear > Flip-flops & Slides',
-    depopType: 'womenswear/footwear/slides',
   },
   2951: {
     depopCategoryId: 225,
     depopLabel: 'Womenswear > Lace-up Shoes',
-    depopType: 'womenswear/footwear/brogues',
   },
   543: {
     depopCategoryId: 167,
     depopLabel: 'Womenswear > Shoes > Heels',
-    depopType: 'womenswear/footwear/courts',
   },
   2955: {
     depopCategoryId: 174,
     depopLabel: 'Womenswear > Shoes',
-    depopType: 'womenswear/footwear/ballet-shoes',
   }, // Ballerinas
   2950: {
     depopCategoryId: 174,
     depopLabel: 'Womenswear > Shoes',
-    depopType: 'womenswear/footwear/ballet-shoes',
   }, // Mary Janes
   2623: {
     depopCategoryId: 174,
     depopLabel: 'Womenswear > Shoes',
-    depopType: 'womenswear/footwear/clogs',
   }, // Clogs & mules
   215: {
     depopCategoryId: 174,
     depopLabel: 'Womenswear > Shoes',
-    depopType: 'womenswear/footwear/slippers',
   }, // Slippers
   2953: {
     depopCategoryId: 174,
     depopLabel: 'Womenswear > Shoes',
-    depopType: 'womenswear/footwear/espadrilles',
   }, // Espadrilles
   2619: {
     depopCategoryId: 166,
     depopLabel: 'Womenswear > Boots',
-    depopType: 'womenswear/footwear/boots',
   }, // Mid-calf boots
   211: {
     depopCategoryId: 168,
     depopLabel: 'Womenswear > Knee High Boots',
-    depopType: 'womenswear/footwear/boots',
   },
   2620: {
     depopCategoryId: 166,
     depopLabel: 'Womenswear > Boots',
-    depopType: 'womenswear/footwear/boots',
   }, // Over-the-knee boots
   2621: {
     depopCategoryId: 166,
     depopLabel: 'Womenswear > Boots',
-    depopType: 'womenswear/footwear/boots',
   }, // Snow boots
   213: {
     depopCategoryId: 174,
     depopLabel: 'Womenswear > Shoes',
-    depopType: 'womenswear/footwear/boots',
   }, // Wellington boots
   2622: {
     depopCategoryId: 166,
     depopLabel: 'Womenswear > Boots',
-    depopType: 'womenswear/footwear/boots',
   }, // Work boots
   2651: {
     depopCategoryId: 171,
     depopLabel: 'Womenswear > Trainers',
-    depopType: 'womenswear/footwear/trainers',
   }, // Running shoes
 
   // ═══ WOMENSWEAR — Bags ═══
   156: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Handbags',
-    depopType: 'womenswear/accessories/bag',
   },
   160: {
     depopCategoryId: 148,
     depopLabel: 'Womenswear > Wallets & Purses',
-    depopType: 'womenswear/accessories/wallet-purses',
   },
 
   // ═══ WOMENSWEAR — Accessories ═══
   89: {
     depopCategoryId: 147,
     depopLabel: 'Womenswear > Scarves',
-    depopType: 'womenswear/accessories/scarf-wraps',
   },
   20: {
     depopCategoryId: 149,
     depopLabel: 'Womenswear > Belts',
-    depopType: 'womenswear/accessories/belt',
   },
   26: {
     depopCategoryId: 150,
     depopLabel: 'Womenswear > Sunglasses',
-    depopType: 'womenswear/accessories/sunglasses',
   },
   231: {
     depopCategoryId: 151,
     depopLabel: 'Womenswear > Hats',
-    depopType: 'womenswear/accessories/hat',
   },
   1262: {
     depopCategoryId: 153,
     depopLabel: 'Womenswear > Socks',
-    depopType: 'womenswear/underwear/socks',
   },
   22: {
     depopCategoryId: 154,
     depopLabel: 'Womenswear > Watches',
-    depopType: 'womenswear/accessories/watch',
   },
   1140: {
     depopCategoryId: 155,
     depopLabel: 'Womenswear > Other Accessories',
-    depopType: 'womenswear/accessories/other-accessories',
   },
   1123: {
     depopCategoryId: 194,
     depopLabel: 'Womenswear > Hair Accessories',
-    depopType: 'womenswear/accessories/hair-accessories',
   },
   90: {
     depopCategoryId: 212,
     depopLabel: 'Womenswear > Gloves',
-    depopType: 'womenswear/accessories/gloves',
   },
 
   // ═══ JEWELLERY (Women) ═══
@@ -714,888 +585,717 @@ export const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> =
   162: {
     depopCategoryId: 190,
     depopLabel: 'Women > Jewellery > Other',
-    depopType: 'womenswear/accessories/jewellery',
   },
   553: {
     depopCategoryId: 184,
     depopLabel: 'Women > Jewellery > Rings',
-    depopType: 'womenswear/accessories/jewellery',
   },
   165: {
     depopCategoryId: 186,
     depopLabel: 'Women > Jewellery > Bracelets',
-    depopType: 'womenswear/accessories/jewellery',
   },
   164: {
     depopCategoryId: 183,
     depopLabel: 'Women > Jewellery > Necklaces',
-    depopType: 'womenswear/accessories/jewellery',
   },
   163: {
     depopCategoryId: 185,
     depopLabel: 'Women > Jewellery > Earrings',
-    depopType: 'womenswear/accessories/jewellery',
   },
   167: {
     depopCategoryId: 188,
     depopLabel: 'Women > Jewellery > Brooches',
-    depopType: 'womenswear/accessories/jewellery',
   },
   1785: {
     depopCategoryId: 190,
     depopLabel: 'Women > Jewellery > Anklets',
-    depopType: 'womenswear/accessories/jewellery',
   },
   166: {
     depopCategoryId: 190,
     depopLabel: 'Women > Jewellery > Jewellery Sets',
-    depopType: 'womenswear/accessories/jewellery',
   },
 
   // ═══ JEWELLERY (Men) ═══
   241: {
     depopCategoryId: 183,
     depopLabel: 'Men > Jewellery > Necklaces',
-    depopType: 'menswear/accessories/jewellery',
   },
   242: {
     depopCategoryId: 184,
     depopLabel: 'Men > Jewellery > Rings',
-    depopType: 'menswear/accessories/jewellery',
   },
   243: {
     depopCategoryId: 186,
     depopLabel: 'Men > Jewellery > Bracelets',
-    depopType: 'menswear/accessories/jewellery',
   },
   244: {
     depopCategoryId: 190,
     depopLabel: 'Men > Jewellery > Other',
-    depopType: 'menswear/accessories/jewellery',
   },
   2966: {
     depopCategoryId: 185,
     depopLabel: 'Men > Jewellery > Earrings',
-    depopType: 'menswear/accessories/jewellery',
   },
   2967: {
     depopCategoryId: 190,
     depopLabel: 'Men > Jewellery > Other',
-    depopType: 'menswear/accessories/jewellery',
   }, // Charms & pendants
 
   // ═══ WOMENSWEAR — Underwear, Swimwear, Nightwear ═══
   218: {
     depopCategoryId: 156,
     depopLabel: 'Womenswear > Swimwear',
-    depopType: 'womenswear/swim-beach-wear/swimsuit-one-piece',
   }, // One-pieces
   219: {
     depopCategoryId: 156,
     depopLabel: 'Womenswear > Swimwear',
-    depopType: 'womenswear/swim-beach-wear/bikinis-and-tankini-sets',
   }, // Bikinis
   220: {
     depopCategoryId: 156,
     depopLabel: 'Womenswear > Swimwear',
-    depopType: 'womenswear/swim-beach-wear/other-swim-beach-wear',
   }, // Other
   1780: {
     depopCategoryId: 156,
     depopLabel: 'Womenswear > Swimwear',
-    depopType: 'womenswear/swim-beach-wear/cover-ups',
   }, // Cover-ups
   124: {
     depopCategoryId: 157,
     depopLabel: 'Womenswear > Lingerie',
-    depopType: 'womenswear/underwear/other-underwear',
   },
   119: {
     depopCategoryId: 158,
     depopLabel: 'Womenswear > Bras',
-    depopType: 'womenswear/underwear/bras',
   },
   123: {
     depopCategoryId: 161,
     depopLabel: 'Womenswear > Nightwear',
-    depopType: 'womenswear/nightwear/pajamas',
   },
   1030: {
     depopCategoryId: 162,
     depopLabel: 'Womenswear > Dressing Gowns',
-    depopType: 'womenswear/nightwear/robes',
   },
 
   // ═══ KIDSWEAR — Girls Clothing ═══
   1254: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/other-tops',
   },
   1195: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/other-tops',
   }, // Root
   1243: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/sleepsuits-and-bodysuits/sleepsuits-babygrows',
   }, // Baby girls
   1514: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/jumpsuit-and-playsuit/playsuit-romper',
   }, // Rompers
   1515: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/bodysuits',
   }, // Bodysuits
   1516: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/jumpsuit-and-playsuit/dungarees-overalls',
   }, // Dungarees
   1517: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/bundles/bundles',
   }, // Sets
   1875: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/sleepsuits-and-bodysuits/sleepsuits-babygrows',
   }, // Other baby
   1535: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/tshirts',
   }, // T-shirts
   1536: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/polo-shirts',
   }, // Polo
   1537: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/shirts',
   }, // Shirts
   1538: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/tshirts',
   }, // Short-sleeved
   1539: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/tshirts',
   }, // Long-sleeved
   1540: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/vests-tanks-camis',
   }, // Sleeveless
   1541: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/blouses',
   }, // Tunics
   1878: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/other-tops',
   }, // Other tops
   1542: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/jumpers',
   }, // Jumpers
   1550: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/tops/hoodies',
   }, // Hoodies
   1554: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/dresses/dresses',
   }, // Short dresses
   1553: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/dresses/dresses',
   }, // Long dresses
   1248: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/bottoms/skirts',
   }, // Skirts
   1559: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/bottoms/jeans',
   }, // Jeans
   1565: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/bottoms/leggings',
   }, // Leggings
   1250: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/bottoms/shorts',
   }, // Shorts
   1518: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/coats-jackets/gilets',
   }, // Gilets
   1606: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/fancy-dress/fancy-dress',
   }, // Fancy dress
   1253: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/bottoms/joggers-tracksuits',
   }, // Activewear
   // Girls shoes
   1255: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/other-footwear',
   },
   1525: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/first-shoes-baby-shoes',
   }, // Baby shoes
   // Girls accessories
   1258: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/accessories/bag',
   }, // Bags
   1577: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/accessories/hat',
   }, // Caps/hats
   1582: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/accessories/hair-accessories',
   }, // Hairbands
   1586: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/accessories/jewellery',
   }, // Jewellery
   1590: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/swim-beach-wear/swimsuit-one-piece',
   }, // Swimwear one-piece
   1592: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/swim-beach-wear/bikinis-and-tankini-sets',
   }, // Bikinis
   1596: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/nightwear/pajamas',
   }, // One-piece pyjamas
   1597: {
     depopCategoryId: 22,
     depopLabel: 'Kids > Girls Clothing',
-    depopType: 'kidswear/nightwear/pajamas',
   }, // Two-piece pyjamas
 
   // ═══ KIDSWEAR — Boys Clothing ═══
   1205: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/other-tops',
   },
   1194: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/other-tops',
   }, // Root
   1196: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/sleepsuits-and-bodysuits/sleepsuits-babygrows',
   }, // Baby boys
   1642: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/jumpsuit-and-playsuit/playsuit-romper',
   }, // Rompers
   1643: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/bodysuits',
   }, // Bodysuits
   1644: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/jumpsuit-and-playsuit/dungarees-overalls',
   }, // Dungarees
   1645: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/bundles/bundles',
   }, // Sets
   1883: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/sleepsuits-and-bodysuits/sleepsuits-babygrows',
   }, // Other baby
   1662: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/tshirts',
   }, // T-shirts
   1663: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/polo-shirts',
   }, // Polo
   1664: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/shirts',
   }, // Shirts
   1665: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/tshirts',
   }, // Short-sleeved
   1666: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/tshirts',
   }, // Long-sleeved
   1667: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/vests-tanks-camis',
   }, // Sleeveless
   1886: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/other-tops',
   }, // Other tops
   1668: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/jumpers',
   }, // Jumpers
   1672: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/tops/hoodies',
   }, // Hoodies
   1696: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/bottoms/jeans',
   }, // Jeans
   1701: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/bottoms/leggings',
   }, // Leggings
   1201: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/bottoms/shorts',
   }, // Shorts
   1646: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/coats-jackets/gilets',
   }, // Gilets
   1762: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/fancy-dress/fancy-dress',
   }, // Fancy dress
   1204: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/bottoms/joggers-tracksuits',
   }, // Activewear
   // Boys shoes
   1256: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/other-footwear',
   },
   1653: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/first-shoes-baby-shoes',
   }, // Baby shoes
   // Boys accessories
   1257: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/accessories/bag',
   }, // Bags
   1749: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/accessories/hat',
   }, // Caps/hats
   1750: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/swim-beach-wear/swim-briefs-shorts',
   }, // Swimming trunks
   1754: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/nightwear/pajamas',
   }, // One-piece pyjamas
   1755: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/nightwear/pajamas',
   }, // Two-piece pyjamas
 
   // ═══ NON-CLOTHING — Art / Home / Posters ═══
   3849: {
     depopCategoryId: 18,
     depopLabel: 'Art > Prints',
-    depopType: 'everything-else/art/prints',
   },
   3847: {
     depopCategoryId: 18,
     depopLabel: 'Art > Paintings',
-    depopType: 'everything-else/art/paintings',
   },
   3848: {
     depopCategoryId: 18,
     depopLabel: 'Art > Photography',
-    depopType: 'everything-else/art/photography',
   },
   3822: {
     depopCategoryId: 18,
     depopLabel: 'Art > Sculptures',
-    depopType: 'everything-else/art/sculptures',
   },
   3829: {
     depopCategoryId: 18,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   },
 
   // ═══ NON-CLOTHING — Home ═══
   1918: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   },
   1974: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/soft-furnishings-textiles',
   }, // Cushions
   1925: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/soft-furnishings-textiles',
   }, // Blankets
   1940: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Vases
   1956: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Candles
   1957: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Candle holders
   1968: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Wall mirrors
   1969: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Table mirrors
   1966: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Table clocks
   1967: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Wall clocks
   1962: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/storage-and-organisation',
   }, // Baskets
   1963: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/storage-and-organisation',
   }, // Boxes
   1954: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/soft-furnishings-textiles',
   }, // Rugs
-  2006: { depopCategoryId: 21, depopLabel: 'Home', depopType: 'everything-else/home/dinnerware' }, // Cups/mugs
-  1960: { depopCategoryId: 21, depopLabel: 'Home', depopType: 'everything-else/home/dinnerware' }, // Plates
-  1959: { depopCategoryId: 21, depopLabel: 'Home', depopType: 'everything-else/home/dinnerware' }, // Bowls
-  1958: { depopCategoryId: 21, depopLabel: 'Home', depopType: 'everything-else/home/dinnerware' }, // Dinner sets
+  2006: { depopCategoryId: 21, depopLabel: 'Home' }, // Cups/mugs
+  1960: { depopCategoryId: 21, depopLabel: 'Home' }, // Plates
+  1959: { depopCategoryId: 21, depopLabel: 'Home' }, // Bowls
+  1958: { depopCategoryId: 21, depopLabel: 'Home' }, // Dinner sets
 
   // ═══ NON-CLOTHING — Entertainment ═══
   2319: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Fiction
   2320: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Non-fiction
   2363: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Young adults
   2364: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Kids books
   2365: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Babies/toddlers
   5425: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Comics/manga
   5426: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Textbooks
   5427: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Colouring/puzzle books
   5424: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/magazines',
   }, // Magazines
   3041: {
     depopCategoryId: 29,
     depopLabel: 'Music',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // Vinyl records
   3039: {
     depopCategoryId: 29,
     depopLabel: 'Music',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // CDs
   3038: {
     depopCategoryId: 29,
     depopLabel: 'Music',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // Audio cassettes
   3040: {
     depopCategoryId: 29,
     depopLabel: 'Music',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // MiniDiscs
   3045: {
     depopCategoryId: 28,
     depopLabel: 'Film',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // DVD
   3044: {
     depopCategoryId: 28,
     depopLabel: 'Film',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // Blu-ray
   3042: {
     depopCategoryId: 28,
     depopLabel: 'Film',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // 4K Blu-ray
   3048: {
     depopCategoryId: 28,
     depopLabel: 'Film',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // VHS
   3043: {
     depopCategoryId: 28,
     depopLabel: 'Film',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // Betamax
   3046: {
     depopCategoryId: 28,
     depopLabel: 'Film',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // HD DVD
   3047: {
     depopCategoryId: 28,
     depopLabel: 'Film',
-    depopType: 'everything-else/music/cds-and-vinyl',
   }, // LaserDisc
 
   // ═══ NON-CLOTHING — Electronics ═══
   3075: {
     depopCategoryId: 228,
     depopLabel: 'Other > Cameras',
-    depopType: 'everything-else/film/cameras-and-accessories',
   }, // Digital cameras
   3076: {
     depopCategoryId: 228,
     depopLabel: 'Other > Cameras',
-    depopType: 'everything-else/film/cameras-and-accessories',
   }, // Film cameras
   3074: {
     depopCategoryId: 228,
     depopLabel: 'Other > Cameras',
-    depopType: 'everything-else/film/cameras-and-accessories',
   }, // Action cameras
   3077: {
     depopCategoryId: 228,
     depopLabel: 'Other > Cameras',
-    depopType: 'everything-else/film/cameras-and-accessories',
   }, // Instant cameras
   3078: {
     depopCategoryId: 228,
     depopLabel: 'Other > Cameras',
-    depopType: 'everything-else/film/cameras-and-accessories',
   }, // Video cameras
   3661: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/tech-accessories/phone-cases',
   }, // Mobile phones
   3580: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/tech-accessories/laptop-cases-bag',
   }, // Laptops
   3581: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/tech-accessories/laptop-cases-bag',
   }, // Desktop computers
   3728: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/tech-accessories/phone-cases',
   }, // Tablets
   3678: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/music/musical-instruments-and-dj',
   }, // Headphones
   3681: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/music/musical-instruments-and-dj',
   }, // Portable speakers
   3738: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // TVs
   3025: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/puzzles-games',
   }, // Consoles
   3026: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/puzzles-games',
   }, // Games
   3013: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/tech-accessories/phone-cases',
   }, // Other electronics
 
   // ═══ NON-CLOTHING — Hobbies & Collectables ═══
   4875: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/toys/trading-cards',
   }, // Trading cards
   4876: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/toys/trading-cards',
   }, // Booster packs
   4877: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/toys/trading-cards',
   }, // Booster boxes
   4878: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/toys/trading-cards',
   }, // Card decks
   4879: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/toys/trading-cards',
   }, // Lots
   4881: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/puzzles-games',
   }, // Board games
   4882: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/puzzles-games',
   }, // Puzzles
   4883: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/toys/puzzles-games',
   }, // Tabletop gaming
   4897: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Coins
   4896: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Banknotes
   4889: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Stamps individual
   4890: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Stamps lots
   4894: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Postcards
   4902: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Sports memorabilia
   4903: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Music memorabilia
   4904: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Film/TV memorabilia
   4905: {
     depopCategoryId: 178,
     depopLabel: 'Art > Collectibles',
-    depopType: 'everything-else/art/collectibles',
   }, // Other memorabilia
 
   // ═══ NON-CLOTHING — Sports ═══
   4332: {
     depopCategoryId: 24,
     depopLabel: 'Sports Equipment',
-    depopType: 'everything-else/sports-equipment-accesories/fitness',
   },
 
   // ═══ NON-CLOTHING — Kids (non-clothing) ═══
   1764: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/stuffed-animals',
   }, // Soft toys
   1767: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/building-sets-blocks',
   }, // Blocks & building
   3312: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/action-figures-playsets',
   }, // Toy figures
   1766: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'everything-else/toys/learning-toys',
   }, // Musical toys
   1612: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'kidswear/accessories/other-accessories',
   }, // Buggies/pushchairs
   3383: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'kidswear/accessories/other-accessories',
   }, // Car seats
   1502: {
     depopCategoryId: 26,
     depopLabel: 'Other',
-    depopType: 'kidswear/accessories/other-accessories',
   }, // Other kids items
   // ── Additional accessories / jewellery ──
   2938: {
     depopCategoryId: 183,
     depopLabel: 'Women > Jewellery > Necklaces',
-    depopType: 'womenswear/accessories/jewellery',
   }, // Charms & pendants
   1852: {
     depopCategoryId: 68,
     depopLabel: 'Menswear > Other Accessories',
-    depopType: 'menswear/accessories/other-accessories',
   }, // Keychains
   2939: {
     depopCategoryId: 186,
     depopLabel: 'Women > Jewellery > Bracelets',
-    depopType: 'womenswear/accessories/jewellery',
   }, // Anklets
   2937: {
     depopCategoryId: 188,
     depopLabel: 'Women > Jewellery > Brooches',
-    depopType: 'womenswear/accessories/jewellery',
   }, // Brooches & pins
 
   // ═══ ADDITIONAL MAPPINGS (from Vinted catalog audit) ═══
@@ -1604,904 +1304,746 @@ export const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> =
   190: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   }, // V-neck
   191: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   }, // Turtleneck
   192: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   }, // Long
   193: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   }, // ¾-sleeve
   1066: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   }, // Other jumpers
   1067: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Kimonos
   195: {
     depopCategoryId: 95,
     depopLabel: 'Womenswear > Cardigans',
-    depopType: 'womenswear/tops/cardigans',
   }, // Boleros
   197: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   }, // Other jumpers & sweaters
 
   // ── Women's Skirts (variants) ──
   199: {
     depopCategoryId: 100,
     depopLabel: 'Womenswear > Skirts',
-    depopType: 'womenswear/bottoms/skirts',
   }, // Midi
   200: {
     depopCategoryId: 100,
     depopLabel: 'Womenswear > Skirts',
-    depopType: 'womenswear/bottoms/skirts',
   }, // Maxi
   2927: {
     depopCategoryId: 100,
     depopLabel: 'Womenswear > Skirts',
-    depopType: 'womenswear/bottoms/skirts',
   }, // Knee-length
   2928: {
     depopCategoryId: 100,
     depopLabel: 'Womenswear > Skirts',
-    depopType: 'womenswear/bottoms/skirts',
   }, // Asymmetric
   5491: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Skorts
 
   // ── Women's Jumpsuits & Playsuits ──
   1132: {
     depopCategoryId: 113,
     depopLabel: 'Womenswear > Jumpsuits',
-    depopType: 'womenswear/jumpsuit-and-playsuit/playsuit-romper',
   }, // Playsuits
   1134: {
     depopCategoryId: 113,
     depopLabel: 'Womenswear > Jumpsuits',
-    depopType: 'womenswear/jumpsuit-and-playsuit/other-jumpsuit-and-playsuit',
   }, // Other
 
   // ── Women's Tops (additional) ──
   14: {
     depopCategoryId: 90,
     depopLabel: 'Womenswear > Cami Tops',
-    depopType: 'womenswear/tops/vests-tanks-camis',
   }, // Camis
   223: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Short-sleeved
   224: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Long-sleeved
   225: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // ¾-sleeve
   227: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/blouses',
   }, // Tunics
   1042: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Off-the-shoulder
   1044: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Halterneck
   1045: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Turtlenecks
   1837: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Peplum
 
   // ── Women's Jeans (variants) ──
   1839: {
     depopCategoryId: 105,
     depopLabel: 'Womenswear > Bottoms > Boyfriend jeans',
-    depopType: 'womenswear/bottoms/jeans',
   }, // Boyfriend
   1840: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Bottoms',
-    depopType: 'womenswear/bottoms/jeans',
   }, // Cropped - no Depop leaf
   1841: {
     depopCategoryId: 108,
     depopLabel: 'Womenswear > Bottoms > Flare jeans',
-    depopType: 'womenswear/bottoms/jeans',
   }, // Flared
   1842: {
     depopCategoryId: 116,
     depopLabel: 'Womenswear > Bottoms > High waisted jeans',
-    depopType: 'womenswear/bottoms/jeans',
   }, // High waisted
   1843: {
     depopCategoryId: 115,
     depopLabel: 'Womenswear > Bottoms > Ripped jeans',
-    depopType: 'womenswear/bottoms/jeans',
   }, // Ripped
   1844: {
     depopCategoryId: 103,
     depopLabel: 'Womenswear > Bottoms > Skinny jeans',
-    depopType: 'womenswear/bottoms/jeans',
   }, // Skinny
   1845: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Bottoms',
-    depopType: 'womenswear/bottoms/jeans',
   }, // Straight - no Depop leaf
   1864: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Bottoms',
-    depopType: 'womenswear/bottoms/jeans',
   }, // Other - no Depop leaf
 
   // ── Women's Trousers & Leggings (variants) ──
   184: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Leather
   185: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Skinny
   187: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Tailored
   1070: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Cropped
   1071: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Wide-leg
   1846: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Straight-leg
   526: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Harem
 
   // ── Women's Shorts (variants) ──
   538: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Denim
   1099: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // High-waisted
   1100: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Leather
   1101: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Lace
   1103: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Cargo
   1838: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Low-waisted
   203: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Knee-length
   204: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Cropped trousers
 
   // ── Women's Dresses (variants) ──
   178: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   }, // Mini
   179: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   }, // Denim
   1055: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   }, // Long
   1056: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   }, // Midi
   1057: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/formal-dresses',
   }, // Formal
   1058: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/going-out-dresses',
   }, // Little black
   1059: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/casual-dresses',
   }, // Casual
   1060: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/going-out-dresses',
   }, // Backless
   1061: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/going-out-dresses',
   }, // Strapless
   1065: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/summer-dresses',
   }, // Summer
   1775: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/going-out-dresses',
   }, // Party & cocktail
   1776: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/wedding-dresses',
   }, // Wedding
   1777: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/prom-dresses',
   }, // Prom
   1778: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/formal-dresses',
   }, // Evening
   1779: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   }, // Winter
 
   // ── Women's Bags (variants) ──
   157: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Backpacks
   158: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Shoulder bags
   159: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Clutches
   552: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Tote bags
   161: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Makeup bags
   1784: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Satchels & messenger
   1848: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Bum bags
   1849: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Holdalls
   1850: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Luggage
   2940: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Beach bags
   2941: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Briefcases
   2942: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Bucket bags
   2944: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Gym bags
   2945: {
     depopCategoryId: 146,
     depopLabel: 'Womenswear > Bags',
-    depopType: 'womenswear/accessories/bag',
   }, // Hobo bags
 
   // ── Women's Accessories (variants) ──
   230: {
     depopCategoryId: 151,
     depopLabel: 'Womenswear > Hats',
-    depopType: 'womenswear/accessories/hat',
   }, // Caps
   234: {
     depopCategoryId: 151,
     depopLabel: 'Womenswear > Hats',
-    depopType: 'womenswear/accessories/hair-accessories',
   }, // Headbands
   2931: {
     depopCategoryId: 147,
     depopLabel: 'Womenswear > Scarves',
-    depopType: 'womenswear/accessories/scarf-wraps',
   }, // Bandanas
   2934: {
     depopCategoryId: 151,
     depopLabel: 'Womenswear > Hats',
-    depopType: 'womenswear/accessories/hat',
   }, // Beanies
   2935: {
     depopCategoryId: 155,
     depopLabel: 'Womenswear > Other Accessories',
-    depopType: 'womenswear/accessories/other-accessories',
   }, // Earmuffs
   2936: {
     depopCategoryId: 151,
     depopLabel: 'Womenswear > Hats',
-    depopType: 'womenswear/accessories/hat',
   }, // Fascinators
   1851: {
     depopCategoryId: 155,
     depopLabel: 'Womenswear > Other Accessories',
-    depopType: 'everything-else/umbrella/umbrella',
   }, // Umbrellas
 
   // ── Women's Lingerie & Nightwear (variants) ──
   120: {
     depopCategoryId: 157,
     depopLabel: 'Womenswear > Lingerie',
-    depopType: 'womenswear/underwear/panties',
   }, // Panties
   229: {
     depopCategoryId: 157,
     depopLabel: 'Womenswear > Lingerie',
-    depopType: 'womenswear/underwear/other-underwear',
   }, // Sets
   1781: {
     depopCategoryId: 157,
     depopLabel: 'Womenswear > Lingerie',
-    depopType: 'womenswear/underwear/shapewear',
   }, // Shapewear
   1263: {
     depopCategoryId: 153,
     depopLabel: 'Womenswear > Socks & Tights',
-    depopType: 'womenswear/underwear/hosiery-tights',
   }, // Tights
 
   // ── Women's Maternity ──
   1177: {
     depopCategoryId: 10,
     depopLabel: 'Womenswear > Trousers',
-    depopType: 'womenswear/bottoms/trousers',
   }, // Maternity trousers
   1178: {
     depopCategoryId: 100,
     depopLabel: 'Womenswear > Skirts',
-    depopType: 'womenswear/bottoms/skirts',
   }, // Maternity skirts
   1179: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Maternity tops
   1181: {
     depopCategoryId: 113,
     depopLabel: 'Womenswear > Jumpsuits',
-    depopType: 'womenswear/jumpsuit-and-playsuit/jumpsuit',
   }, // Maternity jumpsuits
   1182: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   }, // Maternity dresses
   1183: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/coats',
   }, // Maternity coats
   1184: {
     depopCategoryId: 94,
     depopLabel: 'Womenswear > Jumpers',
-    depopType: 'womenswear/tops/jumpers',
   }, // Maternity jumpers
   1185: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Maternity shorts
   1186: {
     depopCategoryId: 156,
     depopLabel: 'Womenswear > Swimwear',
-    depopType: 'womenswear/swim-beach-wear/other-swim-beach-wear',
   }, // Maternity swim
   1615: {
     depopCategoryId: 157,
     depopLabel: 'Womenswear > Lingerie',
-    depopType: 'womenswear/underwear/panties',
   }, // Maternity panties
   1616: {
     depopCategoryId: 161,
     depopLabel: 'Womenswear > Nightwear',
-    depopType: 'womenswear/nightwear/pajamas',
   }, // Maternity sleepwear
   1618: {
     depopCategoryId: 158,
     depopLabel: 'Womenswear > Bras',
-    depopType: 'womenswear/underwear/bras',
   }, // Maternity bras
   2084: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Maternity activewear
 
   // ── Women's Activewear (clothing items) ──
   571: {
     depopCategoryId: 145,
     depopLabel: 'Womenswear > Jackets',
-    depopType: 'womenswear/coats-jackets/jackets',
   }, // Activewear outerwear
   572: {
     depopCategoryId: 93,
     depopLabel: 'Womenswear > Hoodies & Sweatshirts',
-    depopType: 'womenswear/bottoms/joggers-tracksuits',
   }, // Tracksuits
   573: {
     depopCategoryId: 107,
     depopLabel: 'Womenswear > Leggings',
-    depopType: 'womenswear/bottoms/leggings',
   }, // Activewear trousers
   574: {
     depopCategoryId: 11,
     depopLabel: 'Womenswear > Dresses',
-    depopType: 'womenswear/dresses/dresses',
   }, // Activewear dresses
   575: {
     depopCategoryId: 100,
     depopLabel: 'Womenswear > Skirts',
-    depopType: 'womenswear/bottoms/skirts',
   }, // Activewear skirts
   576: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Activewear tops
   577: {
     depopCategoryId: 93,
     depopLabel: 'Womenswear > Hoodies & Sweatshirts',
-    depopType: 'womenswear/tops/hoodies',
   }, // Activewear hoodies
   578: {
     depopCategoryId: 101,
     depopLabel: 'Womenswear > Shorts',
-    depopType: 'womenswear/bottoms/shorts',
   }, // Activewear shorts
   580: {
     depopCategoryId: 99,
     depopLabel: 'Womenswear > Other Tops',
-    depopType: 'womenswear/tops/other-tops',
   }, // Other activewear
 
   // ── Women's Suits & Blazers (variants) ──
   1126: {
     depopCategoryId: 129,
     depopLabel: 'Womenswear > Suits',
-    depopType: 'womenswear/suits/suits',
   }, // Skirt suits
   1128: {
     depopCategoryId: 129,
     depopLabel: 'Womenswear > Suits',
-    depopType: 'womenswear/suits/suits',
   }, // Suit separates
   1129: {
     depopCategoryId: 129,
     depopLabel: 'Womenswear > Suits',
-    depopType: 'womenswear/suits/other-suits',
   }, // Other
 
   // ── Men's Jumpers & Sweaters (variants) ──
   264: {
     depopCategoryId: 44,
     depopLabel: 'Menswear > Jumpers',
-    depopType: 'menswear/tops/jumpers',
   }, // V-neck
   265: {
     depopCategoryId: 44,
     depopLabel: 'Menswear > Jumpers',
-    depopType: 'menswear/tops/jumpers',
   }, // Turtleneck
   1814: {
     depopCategoryId: 44,
     depopLabel: 'Menswear > Jumpers',
-    depopType: 'menswear/tops/jumpers',
   }, // Long
   1815: {
     depopCategoryId: 44,
     depopLabel: 'Menswear > Jumpers',
-    depopType: 'menswear/tops/jumpers',
   }, // Chunky-knit
   1825: {
     depopCategoryId: 48,
     depopLabel: 'Menswear > Vests',
-    depopType: 'menswear/tops/vests-tanks-camis',
   }, // Sleeveless
   268: {
     depopCategoryId: 44,
     depopLabel: 'Menswear > Jumpers',
-    depopType: 'menswear/tops/jumpers',
   }, // Other
 
   // ── Men's Trousers (variants) ──
   259: {
     depopCategoryId: 37,
     depopLabel: 'Menswear > Trousers',
-    depopType: 'menswear/bottoms/trousers',
   }, // Skinny
   260: {
     depopCategoryId: 37,
     depopLabel: 'Menswear > Trousers',
-    depopType: 'menswear/bottoms/trousers',
   }, // Wide-leg
   261: {
     depopCategoryId: 37,
     depopLabel: 'Menswear > Trousers',
-    depopType: 'menswear/bottoms/trousers',
   }, // Tailored
   271: {
     depopCategoryId: 37,
     depopLabel: 'Menswear > Trousers',
-    depopType: 'menswear/bottoms/trousers',
   }, // Cropped
 
   // ── Men's Shorts (variants) ──
   1822: {
     depopCategoryId: 41,
     depopLabel: 'Menswear > Shorts',
-    depopType: 'menswear/bottoms/shorts',
   }, // Cargo
   1823: {
     depopCategoryId: 41,
     depopLabel: 'Menswear > Shorts',
-    depopType: 'menswear/bottoms/shorts',
   }, // Chino
   1824: {
     depopCategoryId: 41,
     depopLabel: 'Menswear > Shorts',
-    depopType: 'menswear/bottoms/shorts',
   }, // Denim
 
   // ── Men's Sleepwear ──
   2911: {
     depopCategoryId: 86,
     depopLabel: 'Menswear > Dressing Gowns',
-    depopType: 'menswear/nightwear/pajamas',
   }, // One-piece pyjamas
   2912: {
     depopCategoryId: 86,
     depopLabel: 'Menswear > Dressing Gowns',
-    depopType: 'menswear/nightwear/pajamas',
   }, // Pyjama bottoms
   2913: {
     depopCategoryId: 86,
     depopLabel: 'Menswear > Dressing Gowns',
-    depopType: 'menswear/nightwear/pajamas',
   }, // Pyjama sets
   2914: {
     depopCategoryId: 86,
     depopLabel: 'Menswear > Dressing Gowns',
-    depopType: 'menswear/nightwear/pajamas',
   }, // Pyjama tops
 
   // ── Men's Activewear (clothing items) ──
   581: {
     depopCategoryId: 82,
     depopLabel: 'Menswear > Jackets',
-    depopType: 'menswear/coats-jackets/jackets',
   }, // Activewear outerwear
   582: {
     depopCategoryId: 46,
     depopLabel: 'Menswear > Hoodies & Sweaters',
-    depopType: 'menswear/bottoms/joggers-tracksuits',
   }, // Tracksuits
   583: {
     depopCategoryId: 37,
     depopLabel: 'Menswear > Trousers',
-    depopType: 'menswear/bottoms/joggers-tracksuits',
   }, // Activewear trousers
   584: {
     depopCategoryId: 43,
     depopLabel: 'Menswear > T-shirts',
-    depopType: 'menswear/tops/tshirts',
   }, // Activewear tops
   586: {
     depopCategoryId: 41,
     depopLabel: 'Menswear > Shorts',
-    depopType: 'menswear/bottoms/shorts',
   }, // Activewear shorts
 
   // ── Men's Socks & Underwear (additional) ──
   1867: {
     depopCategoryId: 67,
     depopLabel: 'Menswear > Socks',
-    depopType: 'menswear/underwear/other-underwear',
   }, // Other socks & underwear
 
   // ── Men's Accessories (additional) ──
   248: {
     depopCategoryId: 59,
     depopLabel: 'Menswear > Bags',
-    depopType: 'menswear/accessories/wallet-purses',
   }, // Wallets
 
   // ── Women's Shoes — Sports (key types) ──
   2639: {
     depopCategoryId: 171,
     depopLabel: 'Womenswear > Trainers',
-    depopType: 'womenswear/footwear/trainers',
   }, // Basketball
   2642: {
     depopCategoryId: 174,
     depopLabel: 'Womenswear > Shoes',
-    depopType: 'womenswear/footwear/other-footwear',
   }, // Dance
   2643: {
     depopCategoryId: 166,
     depopLabel: 'Womenswear > Boots',
-    depopType: 'womenswear/footwear/other-footwear',
   }, // Football boots
   2645: {
     depopCategoryId: 166,
     depopLabel: 'Womenswear > Boots',
-    depopType: 'womenswear/footwear/boots',
   }, // Hiking boots
   2655: {
     depopCategoryId: 171,
     depopLabel: 'Womenswear > Trainers',
-    depopType: 'womenswear/footwear/trainers',
   }, // Tennis shoes
 
   // ── Men's Shoes — Sports (key types) ──
   2663: {
     depopCategoryId: 54,
     depopLabel: 'Menswear > Trainers',
-    depopType: 'menswear/footwear/trainers',
   }, // Basketball
   2669: {
     depopCategoryId: 54,
     depopLabel: 'Menswear > Trainers',
-    depopType: 'menswear/footwear/trainers',
   }, // Running shoes
   2670: {
     depopCategoryId: 216,
     depopLabel: 'Menswear > Boots',
-    depopType: 'menswear/footwear/boots',
   }, // Hiking boots
   2673: {
     depopCategoryId: 54,
     depopLabel: 'Menswear > Trainers',
-    depopType: 'menswear/footwear/trainers',
   }, // Tennis shoes
 
   // ── Kids' Shoes (expanded) ──
-  2695: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Girls ankle boots
-  2696: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Girls mid-calf boots
-  2697: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Girls snow boots
-  2698: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Girls wellington boots
-  2690: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/clogs' }, // Girls clogs & mules
+  2695: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Girls ankle boots
+  2696: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Girls mid-calf boots
+  2697: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Girls snow boots
+  2698: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Girls wellington boots
+  2690: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Girls clogs & mules
   2753: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/ballet-shoes',
   }, // Girls ballerinas/mary janes
   2701: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/espadrilles',
   }, // Girls espadrilles
   2702: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/brogues',
   }, // Girls lace-up shoes
   2704: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/flipflops',
   }, // Girls flip-flops
   2705: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/sandals',
   }, // Girls sandals
-  2707: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/slides' }, // Girls slides
+  2707: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Girls slides
   1528: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/oxfords',
   }, // Girls formal shoes
   1534: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/slippers',
   }, // Girls slippers
-  2721: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Boys ankle boots
-  2722: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Boys mid-calf boots
-  2723: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Boys snow boots
-  2724: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/boots' }, // Boys wellington boots
+  2721: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Boys ankle boots
+  2722: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Boys mid-calf boots
+  2723: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Boys snow boots
+  2724: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Boys wellington boots
   2726: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/brogues',
   }, // Boys lace-up shoes
   2729: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/flipflops',
   }, // Boys flip-flops
   2730: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/sandals',
   }, // Boys sandals
-  2732: { depopCategoryId: 231, depopLabel: 'Kids > Shoes', depopType: 'kidswear/footwear/slides' }, // Boys slides
+  2732: { depopCategoryId: 231, depopLabel: 'Kids > Shoes' }, // Boys slides
   1656: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/oxfords',
   }, // Boys formal shoes
   1661: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/slippers',
   }, // Boys slippers
   2733: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/trainers',
   }, // Boys trainers
   2691: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/trainers',
   }, // Girls trainers
 
   // ── Costumes & special outfits ──
   1782: {
     depopCategoryId: 155,
     depopLabel: 'Womenswear > Other',
-    depopType: 'womenswear/fancy-dress/fancy-dress',
   }, // Costumes
 
   // ── Gaps found by a crosslist run (2026-10-04) ──
   1786: {
     depopCategoryId: 81,
     depopLabel: 'Menswear > Blazers',
-    depopType: 'menswear/suits/tailored-jackets',
   }, // Men suit jackets & blazers
   3267: {
     depopCategoryId: 205,
     depopLabel: 'Menswear > Jerseys',
-    depopType: 'menswear/tops/jerseys',
   }, // Team shirts & jerseys
   5432: {
     depopCategoryId: 27,
     depopLabel: 'Books & Magazines',
-    depopType: 'everything-else/books-and-magazine/books',
   }, // Bookmarks
   2577: {
     depopCategoryId: 230,
     depopLabel: 'Kids > Boys Clothing',
-    depopType: 'kidswear/coats-jackets/jackets',
   }, // Boys windbreakers
   2080: {
     depopCategoryId: 230,
     depopLabel: 'Kids > Dresses',
-    depopType: 'kidswear/dresses/formal-dresses',
   }, // Kids formal wear
   1937: {
     depopCategoryId: 21,
     depopLabel: 'Home',
-    depopType: 'everything-else/home/decor-home-accesories',
   }, // Picture & photo frames
   2750: {
     depopCategoryId: 231,
     depopLabel: 'Kids > Shoes',
-    depopType: 'kidswear/footwear/trainers',
   }, // Hook-and-loop trainers
 };
 
 /** Look up Depop category from Vinted catalog_id */
 export function vintedCategoryIdToDepop(catalogId: number): DepopCategoryMapping | null {
-  return VINTED_CATEGORY_ID_TO_DEPOP[catalogId] ?? null;
+  const mapping = VINTED_CATEGORY_ID_TO_DEPOP[catalogId];
+  const generated = VINTED_DEPOP_TYPES[catalogId];
+  if (!generated) return mapping ?? null;
+  const [depopType, depopCategoryId] = generated;
+  const [department, , productType] = depopType.split('/');
+  return {
+    depopCategoryId,
+    depopLabel: mapping?.depopLabel ?? `${department} > ${productType}`,
+    depopType,
+  };
 }
 
 // ── Vinted JSON-LD Category → Depop Category Label ──────────────────────────
