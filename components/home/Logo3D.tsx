@@ -42,7 +42,8 @@ export function Logo3D() {
         introDuration={1.1}
         introFrom={{ zoom: 12, opacity: 0 }}
         animate={still ? 'none' : 'spin'}
-        animateSpeed={1.2}
+        animateSpeed={2.4}
+        animateReverse
         shadow={false}
         draggable={!still}
         cursorOrbit={!still}
