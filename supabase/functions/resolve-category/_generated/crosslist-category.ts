@@ -28,6 +28,8 @@ export interface CategoryMapping {
 export interface DepopCategoryMapping {
   depopCategoryId: number;
   depopLabel: string;
+  /** department/group/product_type as Depop's own taxonomy names it. */
+  depopType?: string;
 }
 
 /**
