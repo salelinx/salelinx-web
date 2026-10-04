@@ -2,15 +2,24 @@
 // POST with x-trial-nudge-secret: daily Cron run. Any request carrying u & t:
 // unsubscribe link (GET from the email, POST from one-click List-Unsubscribe).
 
+import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { timingSafeEqual } from "../_shared/security.ts";
 import {
   button,
+  codeBlock,
   EMAIL_ASSETS,
   emailLayout,
   heading,
   paragraph,
 } from "../_shared/email-theme.ts";
+
+const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
+  apiVersion: "2025-02-24.acacia",
+  httpClient: Stripe.createFetchHttpClient(),
+});
+const WINBACK_COUPON = "winback-50-first-month";
+const CODE_DAYS = 30;
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -76,6 +85,31 @@ const WINBACK_TRIAL: Step = {
   ],
 };
 
+// One code per person, redeemable once and only by their Stripe customer, so a
+// code posted publicly is worthless to anyone else.
+async function winbackCode(customer: string): Promise<string> {
+  try {
+    await stripe.coupons.retrieve(WINBACK_COUPON);
+  } catch {
+    await stripe.coupons.create({
+      id: WINBACK_COUPON,
+      percent_off: 50,
+      duration: "once",
+      name: "Welcome back: 50% off your first month",
+    });
+  }
+  const suffix = Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) =>
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("");
+  const promo = await stripe.promotionCodes.create({
+    coupon: WINBACK_COUPON,
+    code: `BACK50-${suffix}`,
+    customer,
+    max_redemptions: 1,
+    expires_at: Math.floor(Date.now() / 1000) + CODE_DAYS * 24 * 60 * 60,
+  });
+  return promo.code;
+}
+
 async function unsubToken(userId: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -100,7 +134,7 @@ async function unsubscribe(userId: string, token: string): Promise<Response> {
   return new Response("You're unsubscribed from SaleLinx reminder emails.");
 }
 
-async function send(userId: string, email: string, step: Step): Promise<void> {
+async function send(userId: string, email: string, step: Step, code?: string): Promise<void> {
   const unsubUrl = `${FUNCTION_URL}?u=${userId}&t=${await unsubToken(userId)}`;
   const html = emailLayout({
     preheader: step.preheader,
@@ -108,11 +142,19 @@ async function send(userId: string, email: string, step: Step): Promise<void> {
     bodyHtml:
       heading(step.title) +
       step.body.map((p) => paragraph(p)).join("") +
+      (code
+        ? paragraph("Here's 50% off your first month back, on any plan. Enter this code at checkout:", 12) +
+          codeBlock(code) +
+          paragraph(`One use, just for you. Expires in ${CODE_DAYS} days.`, 24)
+        : "") +
       button(PRICING_URL, step.cta ?? "Start free trial"),
     footerNote: `You're getting this because you signed up for SaleLinx. <a href="${unsubUrl}" style="color:inherit;">Unsubscribe</a>`,
     siteUrl: SITE_URL,
   });
-  const text = `${step.body.join("\n\n")}\n\n${step.cta ?? "Start free trial"}: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}`;
+  const offer = code
+    ? `\n\n50% off your first month back, on any plan. Code: ${code} (one use, expires in ${CODE_DAYS} days)`
+    : "";
+  const text = `${step.body.join("\n\n")}${offer}\n\n${step.cta ?? "Start free trial"}: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -123,7 +165,7 @@ async function send(userId: string, email: string, step: Step): Promise<void> {
     body: JSON.stringify({
       from: RESEND_FROM,
       to: [email],
-      subject: step.subject,
+      subject: code ? "50% off your first month back at SaleLinx" : step.subject,
       html,
       text,
       headers: {
@@ -171,9 +213,15 @@ Deno.serve(async (req) => {
       step: STEPS[r.step],
       record: { step: r.step + 1, last_sent_at: now() },
     })),
-    ...((winback.data ?? []) as { user_id: string; email: string; paid: boolean }[]).map((r) => ({
+    ...((winback.data ?? []) as {
+      user_id: string;
+      email: string;
+      paid: boolean;
+      stripe_customer_id: string | null;
+    }[]).map((r) => ({
       ...r,
       step: r.paid ? WINBACK_PAID : WINBACK_TRIAL,
+      customer: r.stripe_customer_id,
       record: { winback_sent_at: now() },
     })),
   ];
@@ -181,7 +229,8 @@ Deno.serve(async (req) => {
   const result = { sent: 0, errors: 0 };
   for (const job of jobs) {
     try {
-      await send(job.user_id, job.email, job.step);
+      const code = "customer" in job && job.customer ? await winbackCode(job.customer) : undefined;
+      await send(job.user_id, job.email, job.step, code);
       const { error: upErr } = await supabase
         .from("trial_nudges")
         .upsert({ user_id: job.user_id, ...job.record });
