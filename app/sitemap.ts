@@ -21,6 +21,7 @@ const STATIC_PATHS: {
 }[] = [
   { path: '/', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/features', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/pricing', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/help', priority: 0.6, changeFrequency: 'monthly' },
   // The old /faq is a redirect stub; the FAQ itself lives at /help/faq.
   // /help/support is deliberately absent: it redirects logged-out visitors
