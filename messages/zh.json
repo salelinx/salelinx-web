@@ -249,6 +249,7 @@
       "haveAccount": "已经有账户了？",
       "signIn": "登录",
       "legalNotice": "创建账户即表示你同意我们的<terms>服务条款</terms>，并确认已阅读我们的<privacy>隐私政策</privacy>。",
+      "marketingOptOut": "不要通过电子邮件向我发送 SaleLinx 的技巧和优惠",
       "checkEmailBody": "我们已向 <email></email> 发送了确认链接。点击链接即可完成账户创建。"
     },
     "forgotPassword": {

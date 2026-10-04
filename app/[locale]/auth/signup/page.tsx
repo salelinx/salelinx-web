@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [optOut, setOptOut] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +51,7 @@ export default function SignupPage() {
           preferred_locale: locale,
           terms_version: TERMS_VERSION,
           terms_accepted_at: new Date().toISOString(),
+          ...(optOut ? { marketing_opt_out: true } : {}),
         },
       },
     });
@@ -116,8 +118,18 @@ export default function SignupPage() {
         })}
       </p>
 
+      <label className="mt-4 flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <input
+          type="checkbox"
+          checked={optOut}
+          onChange={(e) => setOptOut(e.target.checked)}
+          className="mt-0.5"
+        />
+        {t("signup.marketingOptOut")}
+      </label>
+
       <div className="mt-6">
-        <GoogleSignInButton />
+        <GoogleSignInButton marketingOptOut={optOut} />
       </div>
 
       <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">

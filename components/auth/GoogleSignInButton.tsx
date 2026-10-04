@@ -8,9 +8,10 @@ type Props = {
   // Where to land after a successful sign-in, same convention as the
   // password form's `next` param (see lib/auth/safe-next.ts).
   next?: string;
+  marketingOptOut?: boolean;
 };
 
-export function GoogleSignInButton({ next = "/account" }: Props) {
+export function GoogleSignInButton({ next = "/account", marketingOptOut = false }: Props) {
   const t = useTranslations("Auth");
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ export function GoogleSignInButton({ next = "/account" }: Props) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}&locale=${locale}`,
+        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}&locale=${locale}${marketingOptOut ? "&mkt=0" : ""}`,
       },
     });
     // On success the browser navigates away to Google immediately; this only
