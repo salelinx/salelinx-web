@@ -1333,13 +1333,41 @@ export const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> =
     depopLabel: 'Music',
     depopType: 'everything-else/music/cds-and-vinyl',
   }, // MiniDiscs
-  3045: { depopCategoryId: 28, depopLabel: 'Film' }, // DVD
-  3044: { depopCategoryId: 28, depopLabel: 'Film' }, // Blu-ray
-  3042: { depopCategoryId: 28, depopLabel: 'Film' }, // 4K Blu-ray
-  3048: { depopCategoryId: 28, depopLabel: 'Film' }, // VHS
-  3043: { depopCategoryId: 28, depopLabel: 'Film' }, // Betamax
-  3046: { depopCategoryId: 28, depopLabel: 'Film' }, // HD DVD
-  3047: { depopCategoryId: 28, depopLabel: 'Film' }, // LaserDisc
+  3045: {
+    depopCategoryId: 28,
+    depopLabel: 'Film',
+    depopType: 'everything-else/music/cds-and-vinyl',
+  }, // DVD
+  3044: {
+    depopCategoryId: 28,
+    depopLabel: 'Film',
+    depopType: 'everything-else/music/cds-and-vinyl',
+  }, // Blu-ray
+  3042: {
+    depopCategoryId: 28,
+    depopLabel: 'Film',
+    depopType: 'everything-else/music/cds-and-vinyl',
+  }, // 4K Blu-ray
+  3048: {
+    depopCategoryId: 28,
+    depopLabel: 'Film',
+    depopType: 'everything-else/music/cds-and-vinyl',
+  }, // VHS
+  3043: {
+    depopCategoryId: 28,
+    depopLabel: 'Film',
+    depopType: 'everything-else/music/cds-and-vinyl',
+  }, // Betamax
+  3046: {
+    depopCategoryId: 28,
+    depopLabel: 'Film',
+    depopType: 'everything-else/music/cds-and-vinyl',
+  }, // HD DVD
+  3047: {
+    depopCategoryId: 28,
+    depopLabel: 'Film',
+    depopType: 'everything-else/music/cds-and-vinyl',
+  }, // LaserDisc
 
   // ═══ NON-CLOTHING — Electronics ═══
   3075: {
@@ -1367,16 +1395,56 @@ export const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> =
     depopLabel: 'Other > Cameras',
     depopType: 'everything-else/film/cameras-and-accessories',
   }, // Video cameras
-  3661: { depopCategoryId: 26, depopLabel: 'Other' }, // Mobile phones
-  3580: { depopCategoryId: 26, depopLabel: 'Other' }, // Laptops
-  3581: { depopCategoryId: 26, depopLabel: 'Other' }, // Desktop computers
-  3728: { depopCategoryId: 26, depopLabel: 'Other' }, // Tablets
-  3678: { depopCategoryId: 26, depopLabel: 'Other' }, // Headphones
-  3681: { depopCategoryId: 26, depopLabel: 'Other' }, // Portable speakers
-  3738: { depopCategoryId: 26, depopLabel: 'Other' }, // TVs
-  3025: { depopCategoryId: 26, depopLabel: 'Other' }, // Consoles
-  3026: { depopCategoryId: 26, depopLabel: 'Other' }, // Games
-  3013: { depopCategoryId: 26, depopLabel: 'Other' }, // Other electronics
+  3661: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/tech-accessories/phone-cases',
+  }, // Mobile phones
+  3580: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/tech-accessories/laptop-cases-bag',
+  }, // Laptops
+  3581: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/tech-accessories/laptop-cases-bag',
+  }, // Desktop computers
+  3728: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/tech-accessories/phone-cases',
+  }, // Tablets
+  3678: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/music/musical-instruments-and-dj',
+  }, // Headphones
+  3681: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/music/musical-instruments-and-dj',
+  }, // Portable speakers
+  3738: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/home/decor-home-accesories',
+  }, // TVs
+  3025: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/toys/puzzles-games',
+  }, // Consoles
+  3026: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/toys/puzzles-games',
+  }, // Games
+  3013: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'everything-else/tech-accessories/phone-cases',
+  }, // Other electronics
 
   // ═══ NON-CLOTHING — Hobbies & Collectables ═══
   4875: {
@@ -1493,9 +1561,21 @@ export const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> =
     depopLabel: 'Other',
     depopType: 'everything-else/toys/learning-toys',
   }, // Musical toys
-  1612: { depopCategoryId: 26, depopLabel: 'Other' }, // Buggies/pushchairs
-  3383: { depopCategoryId: 26, depopLabel: 'Other' }, // Car seats
-  1502: { depopCategoryId: 26, depopLabel: 'Other' }, // Other kids items
+  1612: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'kidswear/accessories/other-accessories',
+  }, // Buggies/pushchairs
+  3383: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'kidswear/accessories/other-accessories',
+  }, // Car seats
+  1502: {
+    depopCategoryId: 26,
+    depopLabel: 'Other',
+    depopType: 'kidswear/accessories/other-accessories',
+  }, // Other kids items
   // ── Additional accessories / jewellery ──
   2938: {
     depopCategoryId: 183,
