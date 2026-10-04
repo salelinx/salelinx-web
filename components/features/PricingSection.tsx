@@ -180,7 +180,13 @@ function FeatureList({
   );
 }
 
-export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
+export async function PricingSection({
+  tiers,
+  standalone = false,
+}: {
+  tiers: TierConfig[];
+  standalone?: boolean;
+}) {
   const t = await getTranslations("Pricing");
   const formatLimit = makeFormatLimit(t);
 
@@ -245,18 +251,26 @@ export async function PricingSection({ tiers }: { tiers: TierConfig[] }) {
 
   const showTrialCard = Boolean(starterTier) && trialEligible;
 
+  const Heading = standalone ? "h1" : "h2";
+
   return (
     <section
       id="pricing"
-      className="scroll-mt-20 border-t border-black/10 py-14 sm:py-20 dark:border-white/10"
+      className={
+        standalone
+          ? "py-14 sm:py-20"
+          : "scroll-mt-20 border-t border-black/10 py-14 sm:py-20 dark:border-white/10"
+      }
     >
       <div className="pb-12">
-        <span className={`${MONO} text-zinc-500 dark:text-zinc-400`}>
-          {t("sectionHeader.eyebrow")}
-        </span>
-        <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+        {!standalone && (
+          <span className={`${MONO} text-zinc-500 dark:text-zinc-400`}>
+            {t("sectionHeader.eyebrow")}
+          </span>
+        )}
+        <Heading className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
           {t("sectionHeader.title")}
-        </h2>
+        </Heading>
         <p className="mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
           {t("sectionHeader.body")}
         </p>
