@@ -616,6 +616,12 @@ const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> = {
 
   // ── Costumes & special outfits ──
   1782: { depopCategoryId: 155, depopLabel: 'Womenswear > Other' }, // Costumes
+
+  // ── Gaps found by a crosslist run (2026-10-04) ──
+  1786: { depopCategoryId: 201, depopLabel: 'Menswear > Blazers' }, // Men suit jackets & blazers
+  3267: { depopCategoryId: 51, depopLabel: 'Menswear > Shirts' }, // Team shirts & jerseys
+  5432: { depopCategoryId: 27, depopLabel: 'Books & Magazines' }, // Bookmarks
+  2577: { depopCategoryId: 231, depopLabel: 'Kids > Boys Clothing' }, // Boys windbreakers
 };
 
 /** Look up Depop category from Vinted catalog_id */
