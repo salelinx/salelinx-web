@@ -46,7 +46,8 @@ export function Logo3D() {
         animateReverse
         shadow={false}
         draggable={!still}
-        cursorOrbit={!still}
+        cursorOrbit={false}
+        resetOnIdle
         width="100%"
         height="100%"
       />
