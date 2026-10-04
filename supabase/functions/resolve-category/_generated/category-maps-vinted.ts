@@ -2402,6 +2402,21 @@ export const VINTED_CATEGORY_ID_TO_DEPOP: Record<number, DepopCategoryMapping> =
     depopLabel: 'Kids > Boys Clothing',
     depopType: 'kidswear/coats-jackets/jackets',
   }, // Boys windbreakers
+  2080: {
+    depopCategoryId: 230,
+    depopLabel: 'Kids > Dresses',
+    depopType: 'kidswear/dresses/formal-dresses',
+  }, // Kids formal wear
+  1937: {
+    depopCategoryId: 21,
+    depopLabel: 'Home',
+    depopType: 'everything-else/home/decor-home-accesories',
+  }, // Picture & photo frames
+  2750: {
+    depopCategoryId: 231,
+    depopLabel: 'Kids > Shoes',
+    depopType: 'kidswear/footwear/trainers',
+  }, // Hook-and-loop trainers
 };
 
 /** Look up Depop category from Vinted catalog_id */
