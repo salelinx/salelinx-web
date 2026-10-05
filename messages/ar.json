@@ -249,6 +249,7 @@
       "haveAccount": "لديك حساب بالفعل؟",
       "signIn": "تسجيل الدخول",
       "legalNotice": "بإنشائك حساباً فإنك توافق على <terms>شروط الخدمة</terms> وتؤكد أنك قرأت <privacy>سياسة الخصوصية</privacy>.",
+      "marketingOptOut": "لا ترسلوا لي نصائح وعروض SaleLinx عبر البريد الإلكتروني",
       "checkEmailBody": "أرسلنا رابط تأكيد إلى <email></email>. اضغط عليه لإكمال إنشاء حسابك."
     },
     "forgotPassword": {

@@ -60,6 +60,11 @@ export async function GET(request: Request) {
     const createdAt = Date.parse(data.user?.created_at ?? "");
     if (Date.now() - createdAt < 5 * 60 * 1000) {
       target.searchParams.set("signup", "google");
+      if (url.searchParams.get("mkt") === "0") {
+        await supabase.auth
+          .updateUser({ data: { marketing_opt_out: true } })
+          .catch(() => {});
+      }
     }
   }
 
