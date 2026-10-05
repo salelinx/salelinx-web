@@ -30,6 +30,7 @@ import {
   refineSwimwearCategory,
   refineShoesCategory,
   refineTshirtCategory,
+  refineDressCategory,
 } from './category-maps-depop.ts';
 import type { CategoryMapping } from './crosslist-category.ts';
 
@@ -61,10 +62,19 @@ export function mapDepopToVintedCategory(
     catMapping = refineTshirtCategory(title, description, gender);
   }
 
-  // Outerwear (Depop IDs 5, 82 for men; 13, 145 for women) — refine coat/jacket type
-  if ([5, 82, 13, 145].includes(categoryId ?? 0) && catMapping) {
+  // Outerwear (Depop IDs 5, 82 for men; 13, 145 for women) — refine coat/jacket type.
+  // Any other id mapped to the bare Outerwear parent goes the same way: Vinted
+  // only takes leaf categories.
+  if (
+    catMapping &&
+    ([5, 82, 13, 145].includes(categoryId ?? 0) || catMapping.vintedLabel.endsWith('> Outerwear'))
+  ) {
     const gender = catMapping.vintedLabel.startsWith('Men') ? 'men' : 'women';
     catMapping = refineOuterwearCategory(title, description, gender);
+  }
+
+  if (catMapping?.vintedCatalogId === 176) {
+    catMapping = refineDressCategory(title, description);
   }
 
   // Jeans (Depop ID 35) — refine skinny/slim/straight/ripped
@@ -343,6 +353,11 @@ export function mapDepopToVintedCategory(
         : { vintedCatalogId: 1205, vintedLabel: "Kids > Boys clothing > Other boys' clothing" };
       warnings.push(`Kids item - no keyword match, defaulted to ${catMapping.vintedLabel}`);
     }
+  }
+
+  // Old listings can carry a retired category id and nothing else.
+  if (!catMapping && /\bhand ?bag|\btote\b|\bclutch\b|\bcross ?body\b|\bshoulder bag/i.test(title)) {
+    catMapping = { vintedCatalogId: 156, vintedLabel: 'Women > Bags > Handbags' };
   }
 
   if (!catMapping) {

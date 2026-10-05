@@ -1035,11 +1035,49 @@ export function refineJeansCategory(title: string, description: string): Categor
   if (/\bskinny\b|\bsuper slim\b/.test(text)) {
     return { vintedCatalogId: 1817, vintedLabel: `${base} > Skinny jeans` };
   }
-  if (/\bstraight\b|\bregular\b|\brelaxed\b|\bloose\b|\bwide\b|\bbaggy\b/.test(text)) {
+  if (/\bstraight\b|\b50[15]s?\b|\bregular\b|\brelaxed\b|\bloose\b|\bwide\b|\bbaggy\b/.test(text)) {
     return { vintedCatalogId: 1819, vintedLabel: `${base} > Straight fit jeans` };
   }
   // Default to Slim fit (most common/generic)
   return { vintedCatalogId: 1818, vintedLabel: `${base} > Slim fit jeans` };
+}
+
+const DRESS_BASE = 'Women > Clothing > Dresses';
+
+// Occasions from the title only: "ideal for a wedding guest" isn't a wedding dress.
+const DRESS_OCCASIONS: Array<[RegExp, number, string]> = [
+  [/\bwedding dress|\bbridal\b/, 1776, 'Special-occasion dresses > Wedding dresses'],
+  [/\bprom\b/, 1777, 'Special-occasion dresses > Prom dresses'],
+  [/\bevening\b|\bball gown\b/, 1778, 'Special-occasion dresses > Evening dresses'],
+  [/\bparty\b|\bcocktail\b/, 1775, 'Special-occasion dresses > Party & cocktail dresses'],
+];
+
+const DRESS_LENGTHS: Array<[RegExp, number, string]> = [
+  [/\bmaxi\b|\blong dress\b/, 1055, 'Long dresses'],
+  [/\bmidi\b|\bmid[- ]?length\b/, 1056, 'Midi-dresses'],
+  [/\bmini\b/, 178, 'Mini-dresses'],
+];
+
+const DRESS_CUTS: Array<[RegExp, number, string]> = [
+  [/\bdenim\b/, 179, 'Denim dresses'],
+  [/\bstrapless\b|\bbandeau\b/, 1061, 'Strapless dresses'],
+  [/\bbackless\b/, 1060, 'Special-occasion dresses > Backless dresses'],
+  [/\blittle black dress\b|\blbd\b/, 1058, 'Little black dresses'],
+  ...DRESS_LENGTHS,
+  [/\bsummer\b|\bsundress\b/, 1065, 'Summer dresses'],
+  [/\bwork\b|\boffice\b/, 1057, 'Formal & work dresses'],
+];
+
+export function refineDressCategory(title: string, description: string): CategoryMapping {
+  const t = title.toLowerCase();
+  const d = description.toLowerCase();
+  const hit =
+    DRESS_OCCASIONS.find(([re]) => re.test(t)) ??
+    DRESS_CUTS.find(([re]) => re.test(t)) ??
+    DRESS_LENGTHS.find(([re]) => re.test(d));
+  return hit
+    ? { vintedCatalogId: hit[1], vintedLabel: `${DRESS_BASE} > ${hit[2]}` }
+    : { vintedCatalogId: 176, vintedLabel: `${DRESS_BASE} > Other dresses` };
 }
 
 /**
