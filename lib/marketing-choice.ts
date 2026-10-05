@@ -10,9 +10,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 //   absent   not asked yet. MarketingChoicePrompt asks on the next signed-in
 //            visit; until then the soft opt-in in docs/GDPR.md applies.
 //
-// Every account is asked: the signup page will not submit without an answer,
-// and anyone who got an account another way (Google from the login page, the
-// extension, accounts older than the question) is asked by the prompt.
+// Every account is asked: the signup form will not submit without an answer,
+// and anyone who got an account another way (Google, unless they answered on
+// the signup page first, the extension, accounts older than the question) is
+// asked by the prompt.
 
 export type MarketingChoice = 'yes' | 'no' | null;
 

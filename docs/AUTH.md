@@ -155,12 +155,13 @@ and win-back offers from the `trial-nudge` Edge Function), and has to answer
 yes or no. Neither is preselected.
 
 - **Signup page:** a yes/no question under the confirm password field, next
-  to the Terms notice and above both the Create account and Google buttons
-  (the Google button sits below the form for that reason). Neither path proceeds without an answer. Password signup writes it
-  into `signUp()`'s metadata; the Google button carries it through OAuth as
-  `?mkt=1|0` and `/auth/callback` stores it (never overwriting an existing
-  answer).
-- **Everyone else** (Google sign-ups from the login page, accounts created in
+  to the Terms notice. The form does not submit without an answer and writes
+  it into `signUp()`'s metadata. The Google button sits above the form and
+  does not wait for the question: if it has been answered the answer rides
+  through OAuth as `?mkt=1|0` and `/auth/callback` stores it (never
+  overwriting an existing answer), otherwise the prompt below asks.
+- **Everyone else** (Google sign-ups that skipped the question or came from
+  the login page, accounts created in
   the extension, accounts older than the question):
   `components/MarketingChoicePrompt.tsx` walls the page on their first
   signed-in visit until they answer. It stays off `/legal/*` and `/auth/*`,

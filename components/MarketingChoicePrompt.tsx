@@ -15,9 +15,9 @@ import {
 
 // Asks a signed-in user who has never answered whether they want marketing
 // email, and walls the page until they pick. The signup form asks the same
-// question, so this catches everyone it could not: Google sign-ups from the
-// login page, accounts made in the extension, and accounts older than the
-// question. See lib/marketing-choice.ts for where the answer is stored.
+// question, so this catches everyone it could not: Google sign-ups (that
+// button does not wait for the answer), accounts made in the extension, and
+// accounts older than the question. See lib/marketing-choice.ts for where the answer is stored.
 //
 // Yes and No share one style on purpose. Consent only counts if refusing is
 // as easy as agreeing, and nothing else on the site depends on the answer.

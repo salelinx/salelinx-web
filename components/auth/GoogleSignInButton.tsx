@@ -8,23 +8,20 @@ type Props = {
   // Where to land after a successful sign-in, same convention as the
   // password form's `next` param (see lib/auth/safe-next.ts).
   next?: string;
-  // The signup page's answer to the marketing email question. It rides
-  // through OAuth as ?mkt=1|0 for /auth/callback to store, for the same
-  // reason as the locale below. The login page has no question and omits it;
-  // MarketingChoicePrompt asks those users after sign-in instead.
+  // The signup page's answer to the marketing email question, if one has
+  // been given. It rides through OAuth as ?mkt=1|0 for /auth/callback to
+  // store, for the same reason as the locale below. When it is omitted (the
+  // login page, or a signup that went straight for this button),
+  // MarketingChoicePrompt asks after sign-in instead.
   marketing?: boolean;
-  // Runs before the redirect; returning false cancels it. The signup page
-  // uses it to insist on an answer to the question first.
-  canStart?: () => boolean;
 };
 
-export function GoogleSignInButton({ next = "/account", marketing, canStart }: Props) {
+export function GoogleSignInButton({ next = "/account", marketing }: Props) {
   const t = useTranslations("Auth");
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
 
   async function onClick() {
-    if (canStart && !canStart()) return;
     setLoading(true);
     const supabase = createBrowserClient();
     // signInWithOAuth cannot set user_metadata (unlike signUp), so the

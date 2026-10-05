@@ -15,8 +15,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  // The marketing email question has no default: both account-creation
-  // paths refuse to go on until it is answered one way or the other.
+  // The marketing email question has no default, and the form refuses to
+  // submit until it is answered one way or the other.
   const [marketing, setMarketing] = useState<boolean | null>(null);
   const [marketingMissing, setMarketingMissing] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
@@ -110,7 +110,20 @@ export default function SignupPage() {
         {t("signup.title")}
       </h1>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      {/* First on purpose: it is the quickest way in. It does not wait for
+          the marketing email question further down. If that is unanswered,
+          MarketingChoicePrompt asks it straight after sign-in instead. */}
+      <div className="mt-6">
+        <GoogleSignInButton marketing={marketing ?? undefined} />
+      </div>
+
+      <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+        {t("orDivider")}
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-4">
         <input
           type="email"
           required
@@ -140,10 +153,9 @@ export default function SignupPage() {
           autoComplete="new-password"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
-        {/* Under the fields but above BOTH account-creation buttons on
-            purpose: the Google button creates an account in one click, so it
-            has to come after the notice too. That is why it sits below the
-            form rather than at the top of the page. */}
+        {/* Worded to cover both ways in ("By creating an account"): the
+            Google button above creates one in a click, and /auth/callback
+            records the Terms acceptance for it. */}
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           {t.rich("signup.legalNotice", {
             terms: (chunks) => (
@@ -159,7 +171,7 @@ export default function SignupPage() {
           })}
         </p>
 
-        {/* Same placement, and neither answer preselected. */}
+        {/* Neither answer preselected; the form will not submit without one. */}
         <fieldset className="text-xs text-zinc-500 dark:text-zinc-400">
           <legend>{t("signup.marketingQuestion")}</legend>
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
@@ -197,23 +209,6 @@ export default function SignupPage() {
       </form>
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-
-      <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">
-        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
-        {t("orDivider")}
-        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
-      </div>
-
-      <div>
-        <GoogleSignInButton
-          marketing={marketing ?? undefined}
-          canStart={() => {
-            if (marketing !== null) return true;
-            setMarketingMissing(true);
-            return false;
-          }}
-        />
-      </div>
 
       <div className="mt-6 text-sm">
         {t("signup.haveAccount")}{" "}
