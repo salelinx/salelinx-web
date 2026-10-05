@@ -1044,8 +1044,7 @@ export function refineJeansCategory(title: string, description: string): Categor
 
 const DRESS_BASE = 'Women > Clothing > Dresses';
 
-// Occasion words count only in the title: a description saying "ideal for a
-// wedding guest" is not a wedding dress.
+// Occasions from the title only: "ideal for a wedding guest" isn't a wedding dress.
 const DRESS_OCCASIONS: Array<[RegExp, number, string]> = [
   [/\bwedding dress|\bbridal\b/, 1776, 'Special-occasion dresses > Wedding dresses'],
   [/\bprom\b/, 1777, 'Special-occasion dresses > Prom dresses'],
@@ -1053,27 +1052,29 @@ const DRESS_OCCASIONS: Array<[RegExp, number, string]> = [
   [/\bparty\b|\bcocktail\b/, 1775, 'Special-occasion dresses > Party & cocktail dresses'],
 ];
 
+const DRESS_LENGTHS: Array<[RegExp, number, string]> = [
+  [/\bmaxi\b|\blong dress\b/, 1055, 'Long dresses'],
+  [/\bmidi\b|\bmid[- ]?length\b/, 1056, 'Midi-dresses'],
+  [/\bmini\b/, 178, 'Mini-dresses'],
+];
+
 const DRESS_CUTS: Array<[RegExp, number, string]> = [
   [/\bdenim\b/, 179, 'Denim dresses'],
   [/\bstrapless\b|\bbandeau\b/, 1061, 'Strapless dresses'],
   [/\bbackless\b/, 1060, 'Special-occasion dresses > Backless dresses'],
   [/\blittle black dress\b|\blbd\b/, 1058, 'Little black dresses'],
-  [/\bmaxi\b|\blong dress\b/, 1055, 'Long dresses'],
-  [/\bmidi\b|\bmid[- ]?length\b/, 1056, 'Midi-dresses'],
-  [/\bmini\b/, 178, 'Mini-dresses'],
+  ...DRESS_LENGTHS,
   [/\bsummer\b|\bsundress\b/, 1065, 'Summer dresses'],
   [/\bwork\b|\boffice\b/, 1057, 'Formal & work dresses'],
 ];
 
-/** Women's dresses arrive as one Depop category; Vinted splits them by cut,
- *  length and occasion. Falls back to Other dresses. */
 export function refineDressCategory(title: string, description: string): CategoryMapping {
   const t = title.toLowerCase();
   const d = description.toLowerCase();
   const hit =
     DRESS_OCCASIONS.find(([re]) => re.test(t)) ??
     DRESS_CUTS.find(([re]) => re.test(t)) ??
-    DRESS_CUTS.find(([re]) => re.test(d));
+    DRESS_LENGTHS.find(([re]) => re.test(d));
   return hit
     ? { vintedCatalogId: hit[1], vintedLabel: `${DRESS_BASE} > ${hit[2]}` }
     : { vintedCatalogId: 176, vintedLabel: `${DRESS_BASE} > Other dresses` };
