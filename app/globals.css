@@ -286,6 +286,20 @@ body::before {
   animation: popIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* While a BlockingWall is up, nothing but the root may be captured in a view
+   transition. React's <ViewTransition> (app/[locale]/layout.tsx) gives the
+   page content its own view-transition-name whenever a transition commits,
+   for example when the homepage's lazy 3D logo finishes loading. A named
+   element is drawn as its own layer ABOVE the root snapshot, and the wall
+   lives in the root snapshot, so for the length of the transition the page
+   (headline, buttons) was painted on top of the cookie popup. With the name
+   removed, the page stays inside the root snapshot, underneath the wall and
+   its blur. !important is needed because React sets the name as an inline
+   style. */
+html:has([data-blocking-wall]) * {
+  view-transition-name: none !important;
+}
+
 /* The hero's interactive preview gets a longer, gentler entrance so it
    reads as the page's hero moment rather than a snappy card pop. Uses
    a softer ease-out curve with no overshoot. */

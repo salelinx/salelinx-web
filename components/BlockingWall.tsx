@@ -47,6 +47,9 @@ export function BlockingWall({ label, children }: { label: string; children: Rea
       aria-modal="true"
       aria-label={label}
       tabIndex={-1}
+      // Hook for the view-transition rule in globals.css. Without it the
+      // page content paints over the wall during any view transition.
+      data-blocking-wall=""
       className="fixed inset-0 z-[60] flex overflow-y-auto overscroll-contain bg-black/25 p-4 outline-none backdrop-blur-sm"
     >
       {children}
