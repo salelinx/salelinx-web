@@ -217,40 +217,51 @@ const RESTART_COOLDOWN_MS = 30 * 60 * 1000;
 /** Nothing legitimate needs more than this. If a restart has not fixed it in
  *  four tries, another will not either, and a human should look. */
 const MAX_RESTARTS_PER_DAY = 4;
+/** Must match the step name in .github/workflows/supabase-watchdog.yml. */
+const PROBE_STEP = 'Probe and restart if down';
 
 /**
  * Our own recent restarts, read back off this workflow's run history. Needs
  * no new secret: GITHUB_TOKEN is injected into every Actions run.
  *
- * ponytail: a `failure` conclusion is the marker, which is why the abstain
- * path below exits 0 - otherwise standing down would look like acting and
- * suppress the next real restart. Only a restart and a genuine misconfig fail
- * the run now, and both are states where restarting again is wrong anyway. If
- * that ever stops being true, write an explicit marker instead of inferring
- * one from the conclusion.
+ * The marker is the probe step failing, which is why the abstain path below
+ * exits 0. A run that fails without that step failing (GitHub never gave it a
+ * runner) restarted nothing.
  */
 async function recentRestarts() {
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPOSITORY;
   if (!token || !repo) return null; // not in Actions, or misconfigured
+  const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' };
   // Filter to failures server-side. Asking for completed runs instead caps the
   // lookback at however many runs fit in per_page, which at a 5 minute cadence
   // is about five hours - the 24h cap below could never have seen 24 hours.
   const res = await fetch(
     `https://api.github.com/repos/${repo}/actions/workflows/supabase-watchdog.yml/runs` +
       `?status=failure&per_page=60`,
-    { headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' } },
+    { headers },
   );
   if (!res.ok) return null;
   const now = Date.now();
   const mine = process.env.GITHUB_RUN_ID;
-  const failures = ((await res.json()).workflow_runs ?? []).filter(
-    (r) => r.conclusion === 'failure' && String(r.id) !== mine,
+  const recent = ((await res.json()).workflow_runs ?? []).filter(
+    (r) =>
+      r.conclusion === 'failure' &&
+      String(r.id) !== mine &&
+      now - Date.parse(r.created_at) < 24 * 60 * 60 * 1000,
   );
+  const failures = [];
+  for (const r of recent) {
+    const jobs = await fetch(r.jobs_url, { headers }).then((j) => (j.ok ? j.json() : null));
+    // Unreadable counts as a restart: wrongly waiting is cheaper than wrongly restarting.
+    if (!jobs || jobs.jobs?.some((j) => j.steps?.some((s) => s.name === PROBE_STEP && s.conclusion === 'failure'))) {
+      failures.push(r);
+    }
+  }
   return {
     sinceCooldown: failures.filter((r) => now - Date.parse(r.created_at) < RESTART_COOLDOWN_MS)
       .length,
-    today: failures.filter((r) => now - Date.parse(r.created_at) < 24 * 60 * 60 * 1000).length,
+    today: failures.length,
   };
 }
 
