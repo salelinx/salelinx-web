@@ -110,67 +110,7 @@ export default function SignupPage() {
         {t("signup.title")}
       </h1>
 
-      {/* Above BOTH account-creation paths on purpose: the Google button
-          creates an account in one click, so the notice must come first. */}
-      <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
-        {t.rich("signup.legalNotice", {
-          terms: (chunks) => (
-            <Link href="/legal/terms" className="underline">
-              {chunks}
-            </Link>
-          ),
-          privacy: (chunks) => (
-            <Link href="/legal/privacy" className="underline">
-              {chunks}
-            </Link>
-          ),
-        })}
-      </p>
-
-      {/* Also above both paths, and neither answer preselected. */}
-      <fieldset className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-        <legend>{t("signup.marketingQuestion")}</legend>
-        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
-          {([true, false] as const).map((value) => (
-            <label key={String(value)} className="flex cursor-pointer items-center gap-2">
-              <input
-                type="radio"
-                name="marketing"
-                checked={marketing === value}
-                onChange={() => {
-                  setMarketing(value);
-                  setMarketingMissing(false);
-                }}
-              />
-              {t(value ? "signup.marketingYes" : "signup.marketingNo")}
-            </label>
-          ))}
-        </div>
-        {marketingMissing && (
-          <p role="alert" className="mt-2 text-red-600">
-            {t("signup.marketingRequired")}
-          </p>
-        )}
-      </fieldset>
-
-      <div className="mt-6">
-        <GoogleSignInButton
-          marketing={marketing ?? undefined}
-          canStart={() => {
-            if (marketing !== null) return true;
-            setMarketingMissing(true);
-            return false;
-          }}
-        />
-      </div>
-
-      <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">
-        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
-        {t("orDivider")}
-        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
-      </div>
-
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <input
           type="email"
           required
@@ -200,6 +140,51 @@ export default function SignupPage() {
           autoComplete="new-password"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
+        {/* Under the fields but above BOTH account-creation buttons on
+            purpose: the Google button creates an account in one click, so it
+            has to come after the notice too. That is why it sits below the
+            form rather than at the top of the page. */}
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          {t.rich("signup.legalNotice", {
+            terms: (chunks) => (
+              <Link href="/legal/terms" className="underline">
+                {chunks}
+              </Link>
+            ),
+            privacy: (chunks) => (
+              <Link href="/legal/privacy" className="underline">
+                {chunks}
+              </Link>
+            ),
+          })}
+        </p>
+
+        {/* Same placement, and neither answer preselected. */}
+        <fieldset className="text-xs text-zinc-500 dark:text-zinc-400">
+          <legend>{t("signup.marketingQuestion")}</legend>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+            {([true, false] as const).map((value) => (
+              <label key={String(value)} className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="marketing"
+                  checked={marketing === value}
+                  onChange={() => {
+                    setMarketing(value);
+                    setMarketingMissing(false);
+                  }}
+                />
+                {t(value ? "signup.marketingYes" : "signup.marketingNo")}
+              </label>
+            ))}
+          </div>
+          {marketingMissing && (
+            <p role="alert" className="mt-2 text-red-600">
+              {t("signup.marketingRequired")}
+            </p>
+          )}
+        </fieldset>
+
         <button
           type="submit"
           disabled={status === "submitting"}
@@ -212,6 +197,23 @@ export default function SignupPage() {
       </form>
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+
+      <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+        {t("orDivider")}
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+      </div>
+
+      <div>
+        <GoogleSignInButton
+          marketing={marketing ?? undefined}
+          canStart={() => {
+            if (marketing !== null) return true;
+            setMarketingMissing(true);
+            return false;
+          }}
+        />
+      </div>
 
       <div className="mt-6 text-sm">
         {t("signup.haveAccount")}{" "}

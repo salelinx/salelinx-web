@@ -154,8 +154,9 @@ Every account is asked whether it wants marketing email (the trial reminders
 and win-back offers from the `trial-nudge` Edge Function), and has to answer
 yes or no. Neither is preselected.
 
-- **Signup page:** a yes/no question above both the Google button and the
-  form. Neither path proceeds without an answer. Password signup writes it
+- **Signup page:** a yes/no question under the confirm password field, next
+  to the Terms notice and above both the Create account and Google buttons
+  (the Google button sits below the form for that reason). Neither path proceeds without an answer. Password signup writes it
   into `signUp()`'s metadata; the Google button carries it through OAuth as
   `?mkt=1|0` and `/auth/callback` stores it (never overwriting an existing
   answer).
