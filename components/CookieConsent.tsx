@@ -26,8 +26,10 @@ import {
 // PECR / UK GDPR requirements implemented here:
 // - gtag.js is injected only after at least one category is granted. No
 //   consent, no request to googletagmanager.com, no _ga / _gcl cookies.
-// - Accept all and Reject all sit on the first layer, same size, with a
-//   Manage preferences layer for per-category choice.
+// - Accept all and Reject all sit on the one and only layer, same size, next
+//   to a checkbox per category and Save choices. The optional checkboxes
+//   start UNTICKED: a pre-ticked box is not consent (CJEU Planet49, and the
+//   ICO says the same), so never default one to on.
 // - Consent Mode v2 defaults everything to denied before the library boots;
 //   grants are per category. ad_personalization stays DENIED even with ads
 //   consent: we measure conversions, we do not build remarketing audiences.
@@ -189,7 +191,6 @@ export function CookieConsent() {
   const [required, setRequired] = useState<boolean>(
     () => typeof document !== 'undefined' && needsChoice(readConsentCookie(), ACTIVE),
   );
-  const [manage, setManage] = useState(false);
   const [toggles, setToggles] = useState<{ analytics: boolean; ads: boolean }>(
     () => {
       if (typeof document === 'undefined') return { analytics: false, ads: false };
@@ -207,8 +208,8 @@ export function CookieConsent() {
     if (!ANY_ACTIVE) return;
     applyConsent(readConsentCookie());
 
-    // The footer's Cookie settings button reopens the banner straight on the
-    // preferences layer, current choices pre-filled.
+    // The footer's Cookie settings button reopens the banner with the current
+    // choices pre-filled.
     const reopen = () => {
       const stored = readConsentCookie();
       setToggles({
@@ -216,7 +217,6 @@ export function CookieConsent() {
         ads: stored.ads === 'granted',
       });
       setRequired(needsChoice(stored, ACTIVE));
-      setManage(true);
       setOpen(true);
     };
     window.addEventListener(REOPEN_EVENT, reopen);
@@ -237,7 +237,6 @@ export function CookieConsent() {
     applyConsent(next);
     setOpen(false);
     setRequired(false);
-    setManage(false);
     window.dispatchEvent(new Event(CONSENT_DECIDED_EVENT));
   }
 
@@ -256,73 +255,65 @@ export function CookieConsent() {
       className={`${
         blocking
           ? 'm-auto w-full bg-white dark:bg-zinc-900'
-          : 'fixed inset-x-4 bottom-4 z-50 mx-auto bg-white/90 backdrop-blur-md dark:bg-zinc-900/90'
+          : 'fixed inset-x-4 bottom-4 z-50 mx-auto max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white/90 backdrop-blur-md dark:bg-zinc-900/90'
       } max-w-md rounded-2xl border border-black/10 p-4 shadow-2xl shadow-black/10 motion-safe:animate-[popIn_0.45s_ease-out] dark:border-white/15 dark:shadow-black/40`}
     >
       <h2 className="text-center font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
         {t('title')}
       </h2>
 
-      {manage ? (
-        <div className="mt-3 space-y-3 text-start">
+      <p className="mt-2 text-center text-sm leading-snug text-zinc-600 dark:text-zinc-400">
+        {t(ACTIVE.ads ? 'bodyWithAds' : 'body')}{' '}
+        <Link
+          href="/legal/privacy#cookies"
+          className="underline underline-offset-2 transition hover:text-black dark:hover:text-white"
+        >
+          {t('privacyLink')}
+        </Link>
+      </p>
+
+      <div className="mt-3 space-y-3 border-t border-black/10 pt-3 text-start dark:border-white/10">
+        <ConsentRow
+          label={t('essentialLabel')}
+          description={t('essentialDesc')}
+          checked
+          disabled
+        />
+        {ACTIVE.analytics ? (
           <ConsentRow
-            label={t('essentialLabel')}
-            description={t('essentialDesc')}
-            checked
-            disabled
+            label={t('analyticsLabel')}
+            description={t('analyticsDesc')}
+            checked={toggles.analytics}
+            onChange={(v) => setToggles((s) => ({ ...s, analytics: v }))}
           />
-          {ACTIVE.analytics ? (
-            <ConsentRow
-              label={t('analyticsLabel')}
-              description={t('analyticsDesc')}
-              checked={toggles.analytics}
-              onChange={(v) => setToggles((s) => ({ ...s, analytics: v }))}
-            />
-          ) : null}
-          {ACTIVE.ads ? (
-            <ConsentRow
-              label={t('adsLabel')}
-              description={t('adsDesc')}
-              checked={toggles.ads}
-              onChange={(v) => setToggles((s) => ({ ...s, ads: v }))}
-            />
-          ) : null}
-          <button
-            type="button"
-            onClick={() => decide(toggles.analytics, toggles.ads)}
-            className={`${buttonClass} w-full`}
-          >
-            {t('save')}
-          </button>
-        </div>
-      ) : (
-        <>
-          <p className="mt-2 text-center text-sm leading-snug text-zinc-600 dark:text-zinc-400">
-            {t(ACTIVE.ads ? 'bodyWithAds' : 'body')}{' '}
-            <Link
-              href="/legal/privacy#cookies"
-              className="underline underline-offset-2 transition hover:text-black dark:hover:text-white"
-            >
-              {t('privacyLink')}
-            </Link>
-          </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <button type="button" onClick={() => decide(true, true)} className={buttonClass}>
-              {t('acceptAll')}
-            </button>
-            <button type="button" onClick={() => decide(false, false)} className={buttonClass}>
-              {t('rejectAll')}
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setManage(true)}
-            className="mt-2 w-full text-center text-sm text-zinc-600 underline underline-offset-2 transition hover:text-black dark:text-zinc-400 dark:hover:text-white"
-          >
-            {t('manage')}
-          </button>
-        </>
-      )}
+        ) : null}
+        {ACTIVE.ads ? (
+          <ConsentRow
+            label={t('adsLabel')}
+            description={t('adsDesc')}
+            checked={toggles.ads}
+            onChange={(v) => setToggles((s) => ({ ...s, ads: v }))}
+          />
+        ) : null}
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <button type="button" onClick={() => decide(true, true)} className={buttonClass}>
+          {t('acceptAll')}
+        </button>
+        <button type="button" onClick={() => decide(false, false)} className={buttonClass}>
+          {t('rejectAll')}
+        </button>
+      </div>
+      {/* Saves exactly what is ticked, so with nothing ticked it equals
+          Reject all. Outlined so it does not outweigh the two above. */}
+      <button
+        type="button"
+        onClick={() => decide(toggles.analytics, toggles.ads)}
+        className="mt-2 w-full rounded-full border border-black/15 px-4 py-2 text-sm font-medium transition hover:bg-black/[0.04] dark:border-white/20 dark:hover:bg-white/[0.06]"
+      >
+        {t('save')}
+      </button>
     </div>
   );
 
