@@ -141,6 +141,19 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
+      <div className="mx-auto w-full max-w-6xl px-6 pt-20 pb-16 sm:pt-32 sm:pb-24">
+        <video
+          className="block aspect-video w-full rounded-3xl object-cover shadow-2xl ring-1 ring-black/10 dark:ring-white/10"
+          src="/videos/salelinx-hero.mp4"
+          poster="/videos/salelinx-hero-poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-label="SaleLinx: Depop and Vinted in one panel"
+        />
+      </div>
       <ScrollWorldDemo />
       {/* Real screenshots land after the animated scenes, not in the hero: the
           scenes are the story and these are the proof, and putting them above
