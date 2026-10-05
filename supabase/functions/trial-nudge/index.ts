@@ -127,10 +127,17 @@ async function unsubscribe(userId: string, token: string): Promise<Response> {
   if (!(await timingSafeEqual(token, await unsubToken(userId)))) {
     return new Response("Invalid link", { status: 400 });
   }
+  const now = new Date().toISOString();
+  // Also recorded in the user's own metadata, where the website reads the
+  // answer: without it /account would go on showing these emails as on.
+  // updateUserById merges user_metadata, so other keys are untouched.
+  const { error: metaErr } = await supabase.auth.admin.updateUserById(userId, {
+    user_metadata: { marketing_opt_out: true, marketing_choice_at: now },
+  });
   const { error } = await supabase
     .from("trial_nudges")
-    .upsert({ user_id: userId, unsubscribed_at: new Date().toISOString() });
-  if (error) return new Response("Something went wrong, try again", { status: 500 });
+    .upsert({ user_id: userId, unsubscribed_at: now });
+  if (metaErr || error) return new Response("Something went wrong, try again", { status: 500 });
   return new Response("You're unsubscribed from SaleLinx reminder emails.");
 }
 

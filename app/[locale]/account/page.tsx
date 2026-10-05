@@ -14,6 +14,8 @@ import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
 import { DeleteAccountCard } from "@/components/DeleteAccountCard";
+import { EmailPreferencesCard } from "@/components/EmailPreferencesCard";
+import { marketingChoice } from "@/lib/marketing-choice";
 import { ReferralsCard } from "@/components/ReferralsCard";
 import { isAuthUnreachable } from "@/lib/supabase/auth-errors";
 
@@ -65,6 +67,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
     getReferralSummary(),
   ]);
   const entitled = isEntitled(subscription);
+  const emailChoice = marketingChoice(user.user_metadata);
   const trialDaysLeft = trialDaysRemaining(subscription);
 
   const tierLabel = (id: string) => {
@@ -233,6 +236,10 @@ export default async function AccountPage({ params, searchParams }: Props) {
       {user.email && (
         <AccountSecurityCard email={user.email} hasPassword={hasPassword} />
       )}
+
+      {/* Keyed on the stored answer so the card picks up one given in
+          MarketingChoicePrompt, which refreshes this page. */}
+      <EmailPreferencesCard key={String(emailChoice)} choice={emailChoice} />
 
       {referrals.code && (
         <ReferralsCard

@@ -61,6 +61,14 @@
     "adsDesc": "Nous indique si l'une de nos annonces Google vous a amené ici. Nous n'affichons jamais de publicité sur ce site.",
     "settings": "Paramètres des cookies"
   },
+  "EmailChoice": {
+    "title": "E-mails de SaleLinx",
+    "body": "Pouvons-nous vous envoyer par e-mail des astuces pour bien démarrer et, de temps en temps, des offres ? Vous recevrez dans tous les cas les e-mails liés à votre compte, comme les reçus et les réinitialisations de mot de passe, et vous pouvez changer d'avis à tout moment dans votre compte.",
+    "privacyLink": "Politique de confidentialité",
+    "yes": "Oui, écrivez-moi",
+    "no": "Non merci",
+    "error": "Impossible d'enregistrer votre choix. Veuillez réessayer."
+  },
   "NotFound": {
     "metaTitle": "Page introuvable",
     "title": "Page introuvable",
@@ -249,7 +257,10 @@
       "haveAccount": "Vous avez déjà un compte ?",
       "signIn": "Se connecter",
       "legalNotice": "En créant un compte, vous acceptez nos <terms>Conditions d'utilisation</terms> et confirmez avoir lu notre <privacy>Politique de confidentialité</privacy>.",
-      "marketingOptOut": "Ne pas m'envoyer d'astuces ni d'offres SaleLinx par e-mail",
+      "marketingQuestion": "Pouvons-nous vous envoyer par e-mail des astuces pour bien démarrer et, de temps en temps, des offres SaleLinx ?",
+      "marketingYes": "Oui, écrivez-moi",
+      "marketingNo": "Non merci",
+      "marketingRequired": "Veuillez choisir oui ou non avant de continuer.",
       "checkEmailBody": "Nous avons envoyé un lien de confirmation à <email></email>. Cliquez dessus pour finaliser la création de votre compte."
     },
     "forgotPassword": {
@@ -340,6 +351,12 @@
     "loading": "Chargement...",
     "cta": "Gérer l'abonnement",
     "errorAlert": "Impossible d'ouvrir le portail de facturation. Veuillez réessayer."
+  },
+  "EmailPreferences": {
+    "title": "Préférences e-mail",
+    "body": "Les e-mails liés à votre compte, comme les reçus, les réinitialisations de mot de passe et les réponses à vos tickets d'assistance, sont toujours envoyés.",
+    "toggle": "M'envoyer par e-mail des astuces et, de temps en temps, des offres SaleLinx",
+    "error": "Impossible d'enregistrer votre choix. Veuillez réessayer."
   },
   "AccountSecurity": {
     "title": "Sécurité",

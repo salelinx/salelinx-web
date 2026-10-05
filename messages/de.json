@@ -61,6 +61,14 @@
     "adsDesc": "Zeigt uns, ob dich eine unserer Google-Anzeigen hierher gebracht hat. Wir zeigen auf dieser Website nie Werbung an.",
     "settings": "Cookie-Einstellungen"
   },
+  "EmailChoice": {
+    "title": "E-Mails von SaleLinx",
+    "body": "Dürfen wir dir per E-Mail Tipps für den Einstieg und gelegentlich Angebote schicken? E-Mails zu deinem Konto wie Belege und Passwort-Zurücksetzungen bekommst du in jedem Fall, und du kannst das jederzeit in deinem Konto ändern.",
+    "privacyLink": "Datenschutzerklärung",
+    "yes": "Ja, gern",
+    "no": "Nein, danke",
+    "error": "Deine Auswahl konnte nicht gespeichert werden. Bitte versuche es erneut."
+  },
   "NotFound": {
     "metaTitle": "Seite nicht gefunden",
     "title": "Seite nicht gefunden",
@@ -249,7 +257,10 @@
       "haveAccount": "Hast du bereits ein Konto?",
       "signIn": "Anmelden",
       "legalNotice": "Mit der Erstellung eines Kontos stimmst du unseren <terms>Nutzungsbedingungen</terms> zu und bestätigst, dass du unsere <privacy>Datenschutzerklärung</privacy> gelesen hast.",
-      "marketingOptOut": "Keine Tipps und Angebote von SaleLinx per E-Mail",
+      "marketingQuestion": "Dürfen wir dir per E-Mail Tipps für den Einstieg und gelegentlich Angebote von SaleLinx schicken?",
+      "marketingYes": "Ja, gern",
+      "marketingNo": "Nein, danke",
+      "marketingRequired": "Bitte wähle Ja oder Nein, bevor du fortfährst.",
       "checkEmailBody": "Wir haben einen Bestätigungslink an <email></email> gesendet. Klicke darauf, um die Kontoerstellung abzuschließen."
     },
     "forgotPassword": {
@@ -340,6 +351,12 @@
     "loading": "Wird geladen...",
     "cta": "Abonnement verwalten",
     "errorAlert": "Das Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut."
+  },
+  "EmailPreferences": {
+    "title": "E-Mail-Einstellungen",
+    "body": "E-Mails zu deinem Konto wie Belege, Passwort-Zurücksetzungen und Antworten auf deine Support-Tickets werden immer gesendet.",
+    "toggle": "Schickt mir per E-Mail Tipps und gelegentlich Angebote von SaleLinx",
+    "error": "Deine Auswahl konnte nicht gespeichert werden. Bitte versuche es erneut."
   },
   "AccountSecurity": {
     "title": "Sicherheit",

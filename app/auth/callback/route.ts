@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/auth/safe-next";
 import { routing } from "@/i18n/routing";
 import { TERMS_VERSION } from "@/lib/site";
+import { marketingChoice, marketingChoiceMetadata } from "@/lib/marketing-choice";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -60,11 +61,21 @@ export async function GET(request: Request) {
     const createdAt = Date.parse(data.user?.created_at ?? "");
     if (Date.now() - createdAt < 5 * 60 * 1000) {
       target.searchParams.set("signup", "google");
-      if (url.searchParams.get("mkt") === "0") {
-        await supabase.auth
-          .updateUser({ data: { marketing_opt_out: true } })
-          .catch(() => {});
-      }
+    }
+
+    // The signup page's Google button carries the answer to its marketing
+    // email question (see GoogleSignInButton). Store it once and never
+    // overwrite an answer the account already has: someone with an existing
+    // account can land here from the signup page too.
+    const mkt = url.searchParams.get("mkt");
+    if (
+      (mkt === "0" || mkt === "1") &&
+      data.user &&
+      marketingChoice(data.user.user_metadata) === null
+    ) {
+      await supabase.auth
+        .updateUser({ data: marketingChoiceMetadata(mkt === "1") })
+        .catch(() => {});
     }
   }
 

@@ -58,3 +58,12 @@ export function needsChoice(
     (active.ads && state.ads === null)
   );
 }
+
+// The first-visit choice blocks the page until it is answered (ConsentWall in
+// components/CookieConsent.tsx), except on the legal pages: the banner links
+// to the privacy policy, and a visitor has to be able to read what they are
+// being asked about before answering. There the banner stays a corner card.
+// Takes the locale-less pathname from next-intl's usePathname.
+export function isConsentWallExempt(pathname: string): boolean {
+  return pathname === '/legal' || pathname.startsWith('/legal/');
+}

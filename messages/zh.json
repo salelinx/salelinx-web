@@ -61,6 +61,14 @@
     "adsDesc": "用于了解您是否通过我们在 Google 上投放的广告来到这里。本网站从不展示任何广告。",
     "settings": "Cookie 设置"
   },
+  "EmailChoice": {
+    "title": "来自 SaleLinx 的邮件",
+    "body": "我们可以通过电子邮件向你发送入门技巧和偶尔的优惠吗？无论如何选择，你都会收到收据、密码重置等账户邮件，并且可以随时在账户中更改此设置。",
+    "privacyLink": "隐私政策",
+    "yes": "可以，发给我",
+    "no": "不用了，谢谢",
+    "error": "无法保存你的选择，请重试。"
+  },
   "NotFound": {
     "metaTitle": "页面未找到",
     "title": "页面未找到",
@@ -249,7 +257,10 @@
       "haveAccount": "已经有账户了？",
       "signIn": "登录",
       "legalNotice": "创建账户即表示你同意我们的<terms>服务条款</terms>，并确认已阅读我们的<privacy>隐私政策</privacy>。",
-      "marketingOptOut": "不要通过电子邮件向我发送 SaleLinx 的技巧和优惠",
+      "marketingQuestion": "我们可以通过电子邮件向你发送 SaleLinx 的入门技巧和偶尔的优惠吗？",
+      "marketingYes": "可以，发给我",
+      "marketingNo": "不用了，谢谢",
+      "marketingRequired": "请先选择“可以”或“不用了”，然后再继续。",
       "checkEmailBody": "我们已向 <email></email> 发送了确认链接。点击链接即可完成账户创建。"
     },
     "forgotPassword": {
@@ -340,6 +351,12 @@
     "loading": "加载中...",
     "cta": "管理订阅",
     "errorAlert": "无法打开账单门户，请重试。"
+  },
+  "EmailPreferences": {
+    "title": "邮件偏好",
+    "body": "收据、密码重置和支持工单回复等账户邮件始终会发送。",
+    "toggle": "通过电子邮件向我发送 SaleLinx 的技巧和偶尔的优惠",
+    "error": "无法保存你的选择，请重试。"
   },
   "AccountSecurity": {
     "title": "安全",

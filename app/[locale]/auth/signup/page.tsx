@@ -7,6 +7,7 @@ import { createBrowserClient } from "@/lib/supabase/client";
 import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { TERMS_VERSION } from "@/lib/site";
+import { marketingChoiceMetadata } from "@/lib/marketing-choice";
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
@@ -14,13 +15,21 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [optOut, setOptOut] = useState(false);
+  // The marketing email question has no default: both account-creation
+  // paths refuse to go on until it is answered one way or the other.
+  const [marketing, setMarketing] = useState<boolean | null>(null);
+  const [marketingMissing, setMarketingMissing] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (marketing === null) {
+      setMarketingMissing(true);
+      return;
+    }
 
     if (password.length < 8) {
       setError(t("pwTooShort"));
@@ -51,7 +60,7 @@ export default function SignupPage() {
           preferred_locale: locale,
           terms_version: TERMS_VERSION,
           terms_accepted_at: new Date().toISOString(),
-          ...(optOut ? { marketing_opt_out: true } : {}),
+          ...marketingChoiceMetadata(marketing),
         },
       },
     });
@@ -118,18 +127,41 @@ export default function SignupPage() {
         })}
       </p>
 
-      <label className="mt-4 flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-        <input
-          type="checkbox"
-          checked={optOut}
-          onChange={(e) => setOptOut(e.target.checked)}
-          className="mt-0.5"
-        />
-        {t("signup.marketingOptOut")}
-      </label>
+      {/* Also above both paths, and neither answer preselected. */}
+      <fieldset className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+        <legend>{t("signup.marketingQuestion")}</legend>
+        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+          {([true, false] as const).map((value) => (
+            <label key={String(value)} className="flex cursor-pointer items-center gap-2">
+              <input
+                type="radio"
+                name="marketing"
+                checked={marketing === value}
+                onChange={() => {
+                  setMarketing(value);
+                  setMarketingMissing(false);
+                }}
+              />
+              {t(value ? "signup.marketingYes" : "signup.marketingNo")}
+            </label>
+          ))}
+        </div>
+        {marketingMissing && (
+          <p role="alert" className="mt-2 text-red-600">
+            {t("signup.marketingRequired")}
+          </p>
+        )}
+      </fieldset>
 
       <div className="mt-6">
-        <GoogleSignInButton marketingOptOut={optOut} />
+        <GoogleSignInButton
+          marketing={marketing ?? undefined}
+          canStart={() => {
+            if (marketing !== null) return true;
+            setMarketingMissing(true);
+            return false;
+          }}
+        />
       </div>
 
       <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">

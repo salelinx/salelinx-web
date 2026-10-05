@@ -148,6 +148,34 @@ Without this, access tokens silently expire and users get unexpectedly logged ou
 
 `getClaims()` is deliberate: `getUser()` makes a network round-trip to the Supabase Auth server, and the proxy runs on every request, so swapping it back adds that latency to every page view. The claims are only used for routing decisions; RLS remains the real data boundary.
 
+## Marketing email choice
+
+Every account is asked whether it wants marketing email (the trial reminders
+and win-back offers from the `trial-nudge` Edge Function), and has to answer
+yes or no. Neither is preselected.
+
+- **Signup page:** a yes/no question above both the Google button and the
+  form. Neither path proceeds without an answer. Password signup writes it
+  into `signUp()`'s metadata; the Google button carries it through OAuth as
+  `?mkt=1|0` and `/auth/callback` stores it (never overwriting an existing
+  answer).
+- **Everyone else** (Google sign-ups from the login page, accounts created in
+  the extension, accounts older than the question):
+  `components/MarketingChoicePrompt.tsx` walls the page on their first
+  signed-in visit until they answer. It stays off `/legal/*` and `/auth/*`,
+  and waits for the cookie wall.
+- **Changing it:** the Email preferences card on `/account`.
+
+The answer is `marketing_opt_out` (`true` = no, `false` = yes, absent = not
+asked) plus `marketing_choice_at` in auth user metadata; helpers are in
+`lib/marketing-choice.ts`. `trial_nudge_due()` and `winback_due()` skip
+`marketing_opt_out = true` and anyone with `trial_nudges.unsubscribed_at` set.
+Saying yes again calls the `clear_marketing_unsubscribe()` RPC (migration 029)
+so an earlier email-link unsubscribe does not silently keep blocking.
+
+User metadata is user-writable, which is fine for a preference, but never cast
+or otherwise trust it in SQL: compare it as text, as 028 does.
+
 ## Email verification banner
 
 `components/VerifyEmailBanner.tsx` - appears on `/account` when `user.email_confirmed_at` is null. Has a "Resend link" button that calls `supabase.auth.resend({ type: 'signup' })`.
