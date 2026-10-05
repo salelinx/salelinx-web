@@ -229,6 +229,6 @@ export const config = {
   // so a bare `api` would also swallow a future localized page at /api-docs
   // and leave it unlocalized. Anchoring to the path segment is the difference.
   matcher: [
-    "/((?!api(?:/|$)|_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|webmanifest)$).*)",
+    "/((?!api(?:/|$)|_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|webmanifest|mp4)$).*)",
   ],
 };
