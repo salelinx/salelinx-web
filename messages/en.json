@@ -51,7 +51,6 @@
     "privacyLink": "How we use cookies",
     "acceptAll": "Accept all",
     "rejectAll": "Reject all",
-    "manage": "Manage preferences",
     "save": "Save choices",
     "essentialLabel": "Essential",
     "essentialDesc": "Sign-in, language, and this cookie choice. Always on.",
@@ -60,6 +59,14 @@
     "adsLabel": "Ad measurement",
     "adsDesc": "Tells us whether one of our Google ads brought you here. We never show ads on this site.",
     "settings": "Cookie settings"
+  },
+  "EmailChoice": {
+    "title": "Emails from SaleLinx",
+    "body": "Can we email you tips for getting started and occasional offers? You get account emails like receipts and password resets either way, and you can change this any time in your account.",
+    "privacyLink": "Privacy Policy",
+    "yes": "Yes, email me",
+    "no": "No thanks",
+    "error": "Could not save your choice. Please try again."
   },
   "NotFound": {
     "metaTitle": "Page not found",
@@ -249,7 +256,10 @@
       "haveAccount": "Already have an account?",
       "signIn": "Sign in",
       "legalNotice": "By creating an account you agree to our <terms>Terms of Service</terms> and confirm you have read our <privacy>Privacy Policy</privacy>.",
-      "marketingOptOut": "Don't email me tips and offers about SaleLinx",
+      "marketingQuestion": "Can we email you tips for getting started and occasional offers from SaleLinx?",
+      "marketingYes": "Yes, email me",
+      "marketingNo": "No thanks",
+      "marketingRequired": "Please choose yes or no before continuing.",
       "checkEmailBody": "We sent a confirmation link to <email></email>. Click it to finish creating your account."
     },
     "forgotPassword": {
@@ -340,6 +350,12 @@
     "loading": "Loading...",
     "cta": "Manage subscription",
     "errorAlert": "Could not open the billing portal. Please try again."
+  },
+  "EmailPreferences": {
+    "title": "Email preferences",
+    "body": "Account emails such as receipts, password resets and replies to your support tickets are always sent.",
+    "toggle": "Email me tips and occasional offers from SaleLinx",
+    "error": "Could not save your choice. Please try again."
   },
   "AccountSecurity": {
     "title": "Security",

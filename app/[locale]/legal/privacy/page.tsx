@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "4 October 2026";
+const LAST_UPDATED = "5 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -94,7 +94,7 @@ const SECTIONS: LegalSection[] = [
       "To enforce the usage limits of your subscription plan.",
       "To process subscription payments and manage your plan (via Stripe).",
       "To send service emails such as email verification, password resets, payment issues, and replies to your support tickets (via Resend).",
-      "To send occasional emails about SaleLinx itself, such as a reminder to start your free trial or an offer to come back after your plan ends. You can opt out when you sign up, and every one of these emails has an unsubscribe link that takes effect immediately. We never send marketing about anyone else's products.",
+      "To send occasional emails about SaleLinx itself, such as a reminder to start your free trial or an offer to come back after your plan ends. We ask whether you want these when you create your account, or the first time you sign in if you were never asked. You can change your answer at any time under Email preferences on your account page, and every one of these emails has an unsubscribe link that takes effect immediately. We never send marketing about anyone else's products.",
       "To fix bugs and improve the product.",
     ],
     trailing: [
@@ -136,7 +136,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Legal bases",
     paragraphs: [
-      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for, including authenticating you when you sign in with your email and password or with Google), our legitimate interests (securing and improving the service, and emailing you about SaleLinx, which you can object to at any time by unsubscribing), legal obligations (tax and accounting records), and your consent (optional analytics and ad-measurement cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
+      "Where UK GDPR or EU GDPR applies, we process your data on the following bases: performance of our contract with you (providing the service you signed up for, including authenticating you when you sign in with your email and password or with Google), our legitimate interests (securing and improving the service, and emailing you about SaleLinx, which you can object to at any time by unsubscribing or by switching it off on your account page), legal obligations (tax and accounting records), and your consent (optional analytics and ad-measurement cookies, which you can withdraw at any time via the Cookie settings link in the footer).",
     ],
   },
   {

@@ -7,6 +7,7 @@ import { createBrowserClient } from "@/lib/supabase/client";
 import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { TERMS_VERSION } from "@/lib/site";
+import { marketingChoiceMetadata } from "@/lib/marketing-choice";
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
@@ -14,13 +15,21 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [optOut, setOptOut] = useState(false);
+  // The marketing email question has no default, and the form refuses to
+  // submit until it is answered one way or the other.
+  const [marketing, setMarketing] = useState<boolean | null>(null);
+  const [marketingMissing, setMarketingMissing] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (marketing === null) {
+      setMarketingMissing(true);
+      return;
+    }
 
     if (password.length < 8) {
       setError(t("pwTooShort"));
@@ -51,7 +60,7 @@ export default function SignupPage() {
           preferred_locale: locale,
           terms_version: TERMS_VERSION,
           terms_accepted_at: new Date().toISOString(),
-          ...(optOut ? { marketing_opt_out: true } : {}),
+          ...marketingChoiceMetadata(marketing),
         },
       },
     });
@@ -101,35 +110,11 @@ export default function SignupPage() {
         {t("signup.title")}
       </h1>
 
-      {/* Above BOTH account-creation paths on purpose: the Google button
-          creates an account in one click, so the notice must come first. */}
-      <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
-        {t.rich("signup.legalNotice", {
-          terms: (chunks) => (
-            <Link href="/legal/terms" className="underline">
-              {chunks}
-            </Link>
-          ),
-          privacy: (chunks) => (
-            <Link href="/legal/privacy" className="underline">
-              {chunks}
-            </Link>
-          ),
-        })}
-      </p>
-
-      <label className="mt-4 flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-        <input
-          type="checkbox"
-          checked={optOut}
-          onChange={(e) => setOptOut(e.target.checked)}
-          className="mt-0.5"
-        />
-        {t("signup.marketingOptOut")}
-      </label>
-
+      {/* First on purpose: it is the quickest way in. It does not wait for
+          the marketing email question further down. If that is unanswered,
+          MarketingChoicePrompt asks it straight after sign-in instead. */}
       <div className="mt-6">
-        <GoogleSignInButton marketingOptOut={optOut} />
+        <GoogleSignInButton marketing={marketing ?? undefined} />
       </div>
 
       <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">
@@ -168,6 +153,50 @@ export default function SignupPage() {
           autoComplete="new-password"
           className="w-full rounded-lg border border-black/10 px-4 py-3 dark:border-white/20 dark:bg-transparent"
         />
+        {/* Worded to cover both ways in ("By creating an account"): the
+            Google button above creates one in a click, and /auth/callback
+            records the Terms acceptance for it. */}
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          {t.rich("signup.legalNotice", {
+            terms: (chunks) => (
+              <Link href="/legal/terms" className="underline">
+                {chunks}
+              </Link>
+            ),
+            privacy: (chunks) => (
+              <Link href="/legal/privacy" className="underline">
+                {chunks}
+              </Link>
+            ),
+          })}
+        </p>
+
+        {/* Neither answer preselected; the form will not submit without one. */}
+        <fieldset className="text-xs text-zinc-500 dark:text-zinc-400">
+          <legend>{t("signup.marketingQuestion")}</legend>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+            {([true, false] as const).map((value) => (
+              <label key={String(value)} className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="marketing"
+                  checked={marketing === value}
+                  onChange={() => {
+                    setMarketing(value);
+                    setMarketingMissing(false);
+                  }}
+                />
+                {t(value ? "signup.marketingYes" : "signup.marketingNo")}
+              </label>
+            ))}
+          </div>
+          {marketingMissing && (
+            <p role="alert" className="mt-2 text-red-600">
+              {t("signup.marketingRequired")}
+            </p>
+          )}
+        </fieldset>
+
         <button
           type="submit"
           disabled={status === "submitting"}

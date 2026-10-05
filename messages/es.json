@@ -51,7 +51,6 @@
     "privacyLink": "Cómo usamos las cookies",
     "acceptAll": "Aceptar todo",
     "rejectAll": "Rechazar todo",
-    "manage": "Gestionar preferencias",
     "save": "Guardar mis opciones",
     "essentialLabel": "Esenciales",
     "essentialDesc": "Inicio de sesión, idioma y tu elección de cookies. Siempre activas.",
@@ -60,6 +59,14 @@
     "adsLabel": "Medición de anuncios",
     "adsDesc": "Nos indica si uno de nuestros anuncios de Google te trajo aquí. Nunca mostramos anuncios en este sitio.",
     "settings": "Configuración de cookies"
+  },
+  "EmailChoice": {
+    "title": "Correos de SaleLinx",
+    "body": "¿Podemos enviarte por correo consejos para empezar y, de vez en cuando, ofertas? Recibirás igualmente los correos de tu cuenta, como recibos y restablecimientos de contraseña, y puedes cambiarlo cuando quieras en tu cuenta.",
+    "privacyLink": "Política de privacidad",
+    "yes": "Sí, quiero recibirlos",
+    "no": "No, gracias",
+    "error": "No se pudo guardar tu elección. Inténtalo de nuevo."
   },
   "NotFound": {
     "metaTitle": "Página no encontrada",
@@ -249,7 +256,10 @@
       "haveAccount": "¿Ya tienes una cuenta?",
       "signIn": "Iniciar sesión",
       "legalNotice": "Al crear una cuenta, aceptas nuestros <terms>Términos del servicio</terms> y confirmas que has leído nuestra <privacy>Política de privacidad</privacy>.",
-      "marketingOptOut": "No enviarme consejos ni ofertas de SaleLinx por correo",
+      "marketingQuestion": "¿Podemos enviarte por correo consejos para empezar y, de vez en cuando, ofertas de SaleLinx?",
+      "marketingYes": "Sí, quiero recibirlos",
+      "marketingNo": "No, gracias",
+      "marketingRequired": "Elige sí o no antes de continuar.",
       "checkEmailBody": "Enviamos un enlace de confirmación a <email></email>. Haz clic en él para terminar de crear tu cuenta."
     },
     "forgotPassword": {
@@ -340,6 +350,12 @@
     "loading": "Cargando...",
     "cta": "Gestionar suscripción",
     "errorAlert": "No se pudo abrir el portal de facturación. Inténtalo de nuevo."
+  },
+  "EmailPreferences": {
+    "title": "Preferencias de correo",
+    "body": "Los correos de tu cuenta, como recibos, restablecimientos de contraseña y respuestas a tus tickets de soporte, se envían siempre.",
+    "toggle": "Enviarme por correo consejos y, de vez en cuando, ofertas de SaleLinx",
+    "error": "No se pudo guardar tu elección. Inténtalo de nuevo."
   },
   "AccountSecurity": {
     "title": "Seguridad",

@@ -8,10 +8,15 @@ type Props = {
   // Where to land after a successful sign-in, same convention as the
   // password form's `next` param (see lib/auth/safe-next.ts).
   next?: string;
-  marketingOptOut?: boolean;
+  // The signup page's answer to the marketing email question, if one has
+  // been given. It rides through OAuth as ?mkt=1|0 for /auth/callback to
+  // store, for the same reason as the locale below. When it is omitted (the
+  // login page, or a signup that went straight for this button),
+  // MarketingChoicePrompt asks after sign-in instead.
+  marketing?: boolean;
 };
 
-export function GoogleSignInButton({ next = "/account", marketingOptOut = false }: Props) {
+export function GoogleSignInButton({ next = "/account", marketing }: Props) {
   const t = useTranslations("Auth");
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
@@ -26,7 +31,7 @@ export function GoogleSignInButton({ next = "/account", marketingOptOut = false 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}&locale=${locale}${marketingOptOut ? "&mkt=0" : ""}`,
+        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}&locale=${locale}${marketing === undefined ? "" : `&mkt=${marketing ? 1 : 0}`}`,
       },
     });
     // On success the browser navigates away to Google immediately; this only
