@@ -182,25 +182,6 @@
       "secondary": "Ver precios",
       "tertiary": "Añadir a Chrome"
     },
-    "howItWorks": {
-      "eyebrow": "Cómo funciona",
-      "title": "Listo en dos minutos.",
-      "body": "Instala, vincula tus tiendas y tu panel está listo en cada página de Depop y Vinted.",
-      "steps": {
-        "install": {
-          "title": "Instala la extensión",
-          "body": "Instalación en un clic desde la Chrome Web Store. Sin cuentas que crear, sin ajustes que tocar."
-        },
-        "link": {
-          "title": "Vincula tus tiendas",
-          "body": "Inicia sesión en Depop y Vinted como siempre. SaleLinx detecta la sesión, nada que reintroducir."
-        },
-        "crosslist": {
-          "title": "Vende más, haz menos clics",
-          "body": "Crosslista, republica, repón y responde a los compradores desde un solo panel. Cada herramienta para crecer tu tienda está justo donde vendes."
-        }
-      }
-    },
     "panelCarousel": {
       "eyebrow": "Dentro del panel",
       "title": "Todo funciona desde un solo panel",
@@ -220,11 +201,11 @@
     "promoVideos": {
       "eyebrow": "Vídeos",
       "title": "Míralo en acción",
-      "body": "Clips cortos de SaleLinx haciendo el trabajo pesado.",
       "open": "Ver el clip {n}",
       "close": "Cerrar"
     },
-    "pricingEyebrow": "Precios"
+    "pricingEyebrow": "Precios",
+    "faqMore": "Ver todas las preguntas"
   },
   "LanguageSwitcher": {
     "label": "Idioma",

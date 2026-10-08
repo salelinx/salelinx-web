@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { ViewTransition } from 'react';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import '../globals.css';
+import { PageTransition } from '@/components/PageTransition';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
@@ -108,7 +108,7 @@ export default async function LocaleLayout({
               this element's bottom edge, the last guide lands exactly on the
               footer's top rule. See globals.css. */}
           <div className="grid-rows flex flex-1 flex-col">
-            <ViewTransition>{children}</ViewTransition>
+            <PageTransition>{children}</PageTransition>
           </div>
           <Footer />
           <CookieConsent />
