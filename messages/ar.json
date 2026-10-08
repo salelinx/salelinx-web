@@ -202,9 +202,29 @@
       }
     },
     "panelCarousel": {
+      "eyebrow": "داخل اللوحة",
       "title": "كل شيء يعمل من لوحة واحدة",
       "subtitle": "لقطات شاشة حقيقية من متجر Depop نشط."
-    }
+    },
+    "featuresSection": {
+      "eyebrow": "الميزات",
+      "title": "كل الأدوات، حيث تبيع.",
+      "scenes": {
+        "crosslist": "اختر أي إعلان وسيملأ SaleLinx الجهة الأخرى نيابةً عنك.",
+        "restocker": "بِعه على تطبيق ويُحذف من الآخر تلقائيًا.",
+        "followBot": "تابع تلقائيًا المشترين الأكثر احتمالًا للشراء منك.",
+        "inbox": "كل العروض والرسائل من المتجرين في قائمة واحدة.",
+        "labels": "كل ملصقات اليوم مدمجة في ملف PDF واحد للطباعة."
+      }
+    },
+    "promoVideos": {
+      "eyebrow": "شاهد",
+      "title": "شاهده أثناء العمل",
+      "body": "مقاطع قصيرة لـ SaleLinx وهو ينجز المهام الروتينية.",
+      "open": "شاهد المقطع {n}",
+      "close": "إغلاق"
+    },
+    "pricingEyebrow": "الأسعار"
   },
   "LanguageSwitcher": {
     "label": "اللغة",
@@ -572,7 +592,6 @@
     },
     "marketplaceOnly": "<marketplace></marketplace> فقط",
     "sectionNavAria": "أقسام الصفحة",
-    "overviewBody": "بعض الميزات موضحة أعلاه. وهذه هي المجموعة الكاملة.",
     "headlines": {
       "eyebrow": "ابدأ من هنا",
       "title": "لماذا يثبّت البائعون SaleLinx.",

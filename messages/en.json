@@ -202,9 +202,29 @@
       }
     },
     "panelCarousel": {
+      "eyebrow": "Inside the panel",
       "title": "Everything runs from one panel",
       "subtitle": "Real screenshots from a live Depop shop."
-    }
+    },
+    "featuresSection": {
+      "eyebrow": "Features",
+      "title": "Every tool, right where you sell.",
+      "scenes": {
+        "crosslist": "Pick any listing and SaleLinx fills in the other side for you.",
+        "restocker": "Sell it on one app and it comes down from the other, automatically.",
+        "followBot": "Automatically follow the buyers most likely to shop with you.",
+        "inbox": "Every offer and message from both shops, in one list.",
+        "labels": "Every label for the day, merged into one PDF to print."
+      }
+    },
+    "promoVideos": {
+      "eyebrow": "Watch",
+      "title": "See it in action",
+      "body": "Short clips of SaleLinx doing the busywork.",
+      "open": "Watch clip {n}",
+      "close": "Close"
+    },
+    "pricingEyebrow": "Pricing"
   },
   "LanguageSwitcher": {
     "label": "Language",
@@ -572,7 +592,6 @@
     },
     "marketplaceOnly": "<marketplace></marketplace> only",
     "sectionNavAria": "Page sections",
-    "overviewBody": "A handful of the features are above. Here is the full set.",
     "headlines": {
       "eyebrow": "Start here",
       "title": "What sellers install SaleLinx for.",

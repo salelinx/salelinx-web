@@ -41,47 +41,15 @@ interface Scene {
    *  label/detail, while the merged inbox scene reuses the headline pair
    *  under `headlines.items.*` as title/body. */
   titleKey: string;
-  bodyKey: string;
-  /** A few words for phones, where the full `bodyKey` sentence is longer than
-   *  the animation it introduces. Falls back to bodyKey when absent. */
+  /** Equal columns on desktop, for a panel too narrow for the wide side. */
+  even?: boolean;
+  /** Tab label in the phone carousel. Falls back to titleKey when absent. */
   shortKey?: string;
-  /** 'split' is the default copy-beside-visual scene. 'full' centres the copy
-   *  above a full-width visual, for the closing overview. */
-  layout?: "split" | "full";
+  /** Lighter panel for the phone carousel, where every card shares the
+   *  tallest card's height. */
+  mobileRender?: () => ReactNode;
   render: () => ReactNode;
 }
-
-/**
- * Every feature the extension ships, for the closing overview. Both the name
- * and the one-line description come from the /features page's own chapter tree
- * (Features.chapter.*.items.*), which is already translated into all six
- * locales, so the grid stays in step with that page without a second set of
- * strings to maintain. Only the icon is chosen here.
- */
-// Deliberately excludes anything already shown as a scene above, so the
-// heading ("Everything else SaleLinx does") is literally true rather than
-// repeating the five features the visitor just scrolled through. The six left
-// out are: crosslisting.items.bidirectional, sales.items.restocker,
-// visibility.items.followBot, sales.items.offersInbox, sales.items.messages
-// and sales.items.shipping. Re-add a key here if its scene is ever parked.
-const ALL_FEATURES: { key: string; icon: IconName }[] = [
-  { key: "crosslisting.items.autoMap", icon: "puzzle" },
-  { key: "sales.items.relister", icon: "rotate" },
-  { key: "visibility.items.refresher", icon: "refresh" },
-  { key: "visibility.items.scheduler", icon: "clock" },
-  { key: "visibility.items.autoMarkdown", icon: "tag" },
-  { key: "visibility.items.deadStock", icon: "search" },
-  { key: "visibility.items.filters", icon: "filter" },
-  { key: "sales.items.autoOffers", icon: "sparkle" },
-  { key: "crosslisting.items.shopDesigner", icon: "layout" },
-  { key: "crosslisting.items.csvImport", icon: "upload" },
-  { key: "listings.items.dashboard", icon: "grid" },
-  { key: "listings.items.linkAccounts", icon: "link" },
-  { key: "listings.items.backup", icon: "cloud" },
-  { key: "listings.items.sync", icon: "sync" },
-  { key: "visibility.items.activityLog", icon: "list" },
-  { key: "listings.items.multilanguage", icon: "globe" },
-];
 
 /**
  * Holds a scene's panel: keeps its measured height, and unmounts it while it
@@ -174,50 +142,114 @@ function SceneFrame({ children }: { children: ReactNode }) {
   );
 }
 
-function FeatureOverview() {
-  const tf = useTranslations("Features.chapter");
-  // Sixteen bordered cards read as a wall: sixteen boxes, sixteen icon
-  // badges, sixteen two-line descriptions, all competing at once. It was the
-  // busiest block on the page and it closes a section whose whole argument is
-  // that the product is calm.
-  //
-  // So: no boxes. A ruled list of names, which is what "everything else"
-  // wants to be - you scan it for the one you came for. The detail lines are
-  // gone rather than hidden; /features carries them, and the names already
-  // say what each feature is.
-  // A single moving line rather than the ruled grid: sixteen names read as a
-  // list you have to work through, where a ticker reads as "and there is more
-  // where that came from" without asking for attention.
-  //
-  // The row is rendered twice. The animation shifts by exactly -50%, so the
-  // second copy is under the cursor at the moment the first runs out and the
-  // loop has no seam. The duplicate is aria-hidden: to a screen reader this is
-  // one list of sixteen, read once.
+/**
+ * Phones and tablets: one card per feature, swiped sideways, with tabs that
+ * track the current card. Stacked vertically the five scenes ran to several
+ * screens and it was easy to lose track of which feature an animation showed.
+ * SceneFrame unmounts cards clipped out of view, so each animation restarts
+ * from the beginning when its card is swiped in.
+ */
+function MobileScenes() {
+  const tf = useTranslations("Features");
+  const th = useTranslations("Home");
+  const trackRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const onScroll = () => {
+    const track = trackRef.current!;
+    const mid = track.scrollLeft + track.clientWidth / 2;
+    const cards = [...track.children] as HTMLElement[];
+    const i = cards.reduce(
+      (best, c, j) =>
+        Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid) <
+        Math.abs(cards[best].offsetLeft + cards[best].offsetWidth / 2 - mid)
+          ? j
+          : best,
+      0,
+    );
+    setActive(i);
+  };
+
+  useEffect(() => {
+    // Scroll the tab row itself, never the page.
+    const tabs = tabsRef.current!;
+    const tab = tabs.children[active] as HTMLElement;
+    tabs.scrollTo({ left: tab.offsetLeft - (tabs.clientWidth - tab.offsetWidth) / 2, behavior: "smooth" });
+  }, [active]);
+
+  const goTo = (i: number) => {
+    const track = trackRef.current!;
+    const card = track.children[i] as HTMLElement;
+    track.scrollTo({ left: card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2, behavior: "smooth" });
+  };
+
   return (
-    <div className="feature-ticker-viewport relative w-full overflow-hidden py-2 [mask-image:linear-gradient(to_right,transparent,black_7%,black_93%,transparent)]">
-      <div className="feature-ticker flex w-max">
-        {[0, 1].map((copy) => (
-          <div key={copy} aria-hidden={copy === 1} className="flex shrink-0">
-            {ALL_FEATURES.map((f) => (
-              <div
-                key={f.key}
-                className="mx-2.5 flex w-[168px] shrink-0 flex-col items-center gap-4 rounded-2xl
-                           border border-black/[0.07] bg-white/70 px-4 py-7 text-center shadow-sm
-                           backdrop-blur-sm lg:w-[188px]
-                           dark:border-white/[0.08] dark:bg-white/[0.03]"
-              >
-                <span
-                  aria-hidden="true"
-                  className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10"
-                >
-                  <Icon name={f.icon} className="h-7 w-7 flex-shrink-0 text-emerald-700 dark:text-emerald-400" />
+    <div className="pt-8 pb-10 sm:pt-10 lg:hidden">
+      <div
+        ref={tabsRef}
+        role="tablist"
+        className="flex gap-2 overflow-x-auto px-6 pb-5 [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
+      >
+        {SCENES.map((s, i) => (
+          <button
+            key={s.id}
+            type="button"
+            role="tab"
+            aria-selected={i === active}
+            onClick={() => goTo(i)}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+              i === active
+                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                : "bg-black/[0.04] text-zinc-600 dark:bg-white/[0.06] dark:text-zinc-300"
+            }`}
+          >
+            <Icon name={s.icon} className="h-3.5 w-3.5" />
+            {tf(s.shortKey ?? s.titleKey)}
+          </button>
+        ))}
+      </div>
+
+      <Reveal panel>
+        <div
+          ref={trackRef}
+          dir="ltr"
+          onScroll={onScroll}
+          className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto overscroll-x-contain px-[4%] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {SCENES.map((s, i) => (
+            <article
+              key={s.id}
+              aria-label={tf(s.titleKey)}
+              className="flex w-[92%] max-w-xl shrink-0 snap-center flex-col rounded-3xl border border-black/[0.08] bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900"
+            >
+              <div dir="auto">
+                <span className="font-mono text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+                  {i + 1} / {SEGMENTS}
                 </span>
-                <span className="text-[15px] font-medium leading-snug text-zinc-900 dark:text-zinc-100">
-                  {tf(`${f.key}.name`)}
-                </span>
+                <h3 className="mt-2 text-balance text-xl font-semibold leading-snug tracking-tight text-zinc-900 dark:text-zinc-50">
+                  {tf(s.titleKey)}
+                </h3>
+                <p className="mt-2 text-pretty text-[0.95rem] leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  {th(`featuresSection.scenes.${s.id}`)}
+                </p>
               </div>
-            ))}
-          </div>
+              <div className="mt-5 min-w-0 flex-1">
+                <SceneFrame>{(s.mobileRender ?? s.render)()}</SceneFrame>
+              </div>
+            </article>
+          ))}
+        </div>
+      </Reveal>
+
+      <div className="mt-5 flex justify-center gap-1.5" aria-hidden>
+        {SCENES.map((s, i) => (
+          <span
+            key={s.id}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              i === active ? "w-5 bg-zinc-900 dark:bg-white" : "w-1.5 bg-zinc-300 dark:bg-zinc-700"
+            }`}
+          />
         ))}
       </div>
     </div>
@@ -235,7 +267,6 @@ export const SCENES: Scene[] = [
     id: "crosslist",
     icon: "swap",
     titleKey: "chapter.crosslisting.items.bidirectional.label",
-    bodyKey: "chapter.crosslisting.items.bidirectional.detail",
     shortKey: "chapter.crosslisting.items.bidirectional.name",
     render: () => <CrosslistPanel />,
   },
@@ -247,7 +278,6 @@ export const SCENES: Scene[] = [
     // own key rather than the plain `name` because the scene wants the
     // cross-platform framing that the grid tile doesn't have room for.
     titleKey: "chapter.sales.items.restocker.sceneTitle",
-    bodyKey: "chapter.sales.items.restocker.detail",
     shortKey: "chapter.sales.items.restocker.name",
     render: () => <RestockerScene />,
   },
@@ -255,7 +285,6 @@ export const SCENES: Scene[] = [
     id: "followBot",
     icon: "users",
     titleKey: "chapter.visibility.items.followBot.label",
-    bodyKey: "chapter.visibility.items.followBot.detail",
     shortKey: "chapter.visibility.items.followBot.name",
     render: () => <FollowBotPanel />,
   },
@@ -265,7 +294,8 @@ export const SCENES: Scene[] = [
     id: "inbox",
     icon: "message",
     titleKey: "headlines.items.oneInbox.title",
-    bodyKey: "headlines.items.oneInbox.body",
+    shortKey: "chapter.sales.items.offersInbox.name",
+    mobileRender: () => <OffersPanel />,
     // items-stretch, not items-start: both panels are flex columns whose footer
     // ("Pending offers" / "Inbox") sits on mt-auto, so stretching them to a
     // shared height lands both footers on the same line. With items-start each
@@ -287,20 +317,14 @@ export const SCENES: Scene[] = [
     id: "labels",
     icon: "box",
     titleKey: "chapter.sales.items.shipping.label",
-    bodyKey: "chapter.sales.items.shipping.detail",
     shortKey: "chapter.sales.items.shipping.name",
-    render: () => <LabelsPanel />,
-  },
-  {
-    // Closing overview: the scenes above are a handful of the features, so the
-    // scroll ends by naming all of them at once rather than implying that is
-    // the whole product.
-    id: "more",
-    icon: "sparkle",
-    titleKey: "sectionHeader.title",
-    bodyKey: "overviewBody",
-    layout: "full",
-    render: () => <FeatureOverview />,
+    // A list of short rows: in the wide visual column the rows stretch thin.
+    even: true,
+    render: () => (
+      <div className="mx-auto max-w-xl">
+        <LabelsPanel />
+      </div>
+    ),
   },
 ];
 
@@ -310,8 +334,8 @@ export function ScrollWorldDemo() {
   const tf = useTranslations("Features");
 
   // Copy block for a scene.
-  const sceneCopy = (s: Scene, i: number, compact: boolean) => (
-    <div className={compact ? "" : "max-w-md"}>
+  const sceneCopy = (s: Scene, i: number) => (
+    <div className="max-w-md">
       <span className="inline-flex items-center gap-2.5 font-mono text-[0.66rem] uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-500">
         <span className="text-emerald-600 dark:text-emerald-400">
           <Icon name={s.icon} className="h-3.5 w-3.5" />
@@ -321,11 +345,8 @@ export function ScrollWorldDemo() {
       <h3 className="mt-3 text-balance text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-zinc-900 sm:text-3xl lg:text-4xl dark:text-zinc-50">
         {tf(s.titleKey)}
       </h3>
-      {/* Hidden on phones: with one scene per screen the heading and the
-          animation carry it, and a sentence underneath was the only thing
-          making a scene feel crowded. */}
-      <p className="mt-3 hidden max-w-[42ch] text-pretty text-sm leading-relaxed text-zinc-500 sm:block dark:text-zinc-500">
-        {tf(s.bodyKey)}
+      <p className="mt-4 max-w-[42ch] text-pretty text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+        {t(`featuresSection.scenes.${s.id}`)}
       </p>
     </div>
   );
@@ -334,9 +355,17 @@ export function ScrollWorldDemo() {
     <section
       id="features"
       aria-label={t("previewEyebrow")}
-      className="relative scroll-mt-20"
+      className="relative scroll-mt-20 border-t border-black/10 dark:border-white/10"
     >
-      <div className="mx-auto w-full max-w-6xl pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-4">
+      <div className="mx-auto w-full max-w-7xl pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-4">
+        <Reveal as="div" className="px-6 pt-10 text-center sm:px-0 sm:pt-14">
+          <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
+            {t("featuresSection.eyebrow")}
+          </span>
+          <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+            {t("featuresSection.title")}
+          </h2>
+        </Reveal>
         {/* Scenes are content-height, one column on phones and two alternating
             columns from lg up.
 
@@ -351,14 +380,11 @@ export function ScrollWorldDemo() {
             ("01 / 06") was the only thing saying otherwise. The rule sits
             midway because the space comes from each scene's own padding, not
             from a flex gap, so there is equal air above and below it. */}
-        <div className="flex flex-col divide-y divide-black/[0.08] dark:divide-white/10">
+        <MobileScenes />
+        <div className="hidden flex-col divide-y divide-black/[0.08] lg:flex dark:divide-white/10">
           {SCENES.map((s, i) => {
             // Alternate which side the animation sits on as you move down.
-            // Split layouts only: the closing overview stacks vertically, so
-            // the same CSS order would push its heading underneath the grid
-            // instead of swapping columns.
-            const visualFirst = s.layout !== "full" && i % 2 === 1;
-            const full = s.layout === "full";
+            const visualFirst = i % 2 === 1;
             return (
               /* Reveal's `panel` variant puts `panel-swap` on this block once
                  it scrolls into view, which is load-bearing rather than
@@ -372,15 +398,13 @@ export function ScrollWorldDemo() {
                 panel
                 key={s.id}
                 dir="ltr"
-                className={
-                  full
-                    ? "flex flex-col items-center justify-center gap-6 px-6 py-14 text-center sm:px-0 sm:py-20"
-                    : `grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-20 lg:gap-14 ${
-                        visualFirst
-                          ? "lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
-                          : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
-                      }`
-                }
+                className={`grid grid-cols-1 content-center items-center gap-7 px-6 py-14 sm:gap-8 sm:px-0 sm:py-20 lg:gap-14 ${
+                  s.even
+                    ? "lg:grid-cols-2"
+                    : visualFirst
+                    ? "lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]"
+                    : "lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1.35fr)]"
+                }`}
               >
                 {/* content-center matters on phones: the scene is
                     min-h-[100svh] and a grid's default align-content is
@@ -394,28 +418,13 @@ export function ScrollWorldDemo() {
                     the decorative panel on every scene. */}
                 <div
                   dir="auto"
-                  className={
-                    full
-                      ? "max-w-xl"
-                      : visualFirst
-                        ? "lg:order-2"
-                        : "lg:order-1"
-                  }
+                  className={visualFirst ? "lg:order-2" : "lg:order-1"}
                 >
-                  {sceneCopy(s, i, full)}
+                  {sceneCopy(s, i)}
                 </div>
 
-                {/* Pinned LTR because the panels mock an extension UI that is
-                    laid out left to right. The overview is a responsive text
-                    grid and reads fine at any width, so it renders at full
-                    size. The other panels don't reflow below their design
-                    width, so they get scaled. */}
-                <div
-                  className={`w-full min-w-0 ${
-                    full ? "" : visualFirst ? "lg:order-1" : "lg:order-2"
-                  }`}
-                >
-                  {full ? s.render() : <SceneFrame>{s.render()}</SceneFrame>}
+                <div className={`w-full min-w-0 ${visualFirst ? "lg:order-1" : "lg:order-2"}`}>
+                  <SceneFrame>{s.render()}</SceneFrame>
                 </div>
               </Reveal>
             );

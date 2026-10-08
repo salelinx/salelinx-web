@@ -202,9 +202,29 @@
       }
     },
     "panelCarousel": {
+      "eyebrow": "面板内部",
       "title": "一切都在一个面板中完成",
       "subtitle": "来自真实 Depop 店铺的截图。"
-    }
+    },
+    "featuresSection": {
+      "eyebrow": "功能",
+      "title": "所有工具，就在你销售的地方。",
+      "scenes": {
+        "crosslist": "选择任意商品，SaleLinx 帮你填好另一边。",
+        "restocker": "在一个平台售出，另一个平台自动下架。",
+        "followBot": "自动关注最有可能向你购买的买家。",
+        "inbox": "两家店铺的所有议价和消息，集中在一个列表。",
+        "labels": "当天所有运单合并成一个 PDF，直接打印。"
+      }
+    },
+    "promoVideos": {
+      "eyebrow": "视频",
+      "title": "看看它如何运作",
+      "body": "SaleLinx 替你完成繁琐工作的短片。",
+      "open": "观看第 {n} 个短片",
+      "close": "关闭"
+    },
+    "pricingEyebrow": "价格"
   },
   "LanguageSwitcher": {
     "label": "语言",
@@ -572,7 +592,6 @@
     },
     "marketplaceOnly": "仅 <marketplace></marketplace>",
     "sectionNavAria": "页面章节",
-    "overviewBody": "上面展示了部分功能。以下是完整列表。",
     "headlines": {
       "eyebrow": "从这里开始",
       "title": "卖家安装 SaleLinx 的理由。",

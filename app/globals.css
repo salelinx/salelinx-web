@@ -996,6 +996,11 @@ span.restock-at-risk {
   animation: featureTicker 64s linear infinite;
 }
 
+/* Unlayered like the rule above, so a Tailwind utility could not override it. */
+.promo-belt {
+  animation-duration: 110s;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   /* Stop the motion, but leave the row scrollable by hand so the content is

@@ -11,7 +11,8 @@ import {
 import { TIER_PRICES } from '@/lib/pricing';
 import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
-import { PanelCarousel } from '@/components/home/PanelCarousel';
+import { HeroVideo } from '@/components/home/HeroVideo';
+import { PromoVideos } from '@/components/home/PromoVideos';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FinalCta } from '@/components/home/FinalCta';
 import { PricingSection } from '@/components/features/PricingSection';
@@ -43,8 +44,9 @@ export default async function Home({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [tLayout, tiers] = await Promise.all([
+  const [tLayout, tHome, tiers] = await Promise.all([
     getTranslations('Layout'),
+    getTranslations('Home'),
     getCachedTierConfigs(),
   ]);
 
@@ -141,28 +143,11 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
-      <div className="mx-auto w-full max-w-6xl px-6 pt-20 pb-16 sm:pt-32 sm:pb-24">
-        <video
-          className="block aspect-video w-full rounded-3xl object-cover shadow-2xl ring-1 ring-black/10 dark:ring-white/10"
-          src="/videos/salelinx-hero.mp4"
-          poster="/videos/salelinx-hero-poster.jpg"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-label="SaleLinx: Depop and Vinted in one panel"
-        />
+      <div className="mx-auto w-full max-w-6xl px-6 pb-14 sm:pt-8 sm:pb-20">
+        <HeroVideo label="SaleLinx: Depop and Vinted in one panel" />
       </div>
       <ScrollWorldDemo />
-      {/* Real screenshots land after the animated scenes, not in the hero: the
-          scenes are the story and these are the proof, and putting them above
-          meant the hero no longer ended on one clean fold. */}
-      <div className="section-band border-t border-black/10 dark:border-white/10">
-        <div className="mx-auto w-full max-w-5xl px-6 py-14 sm:py-20">
-          <PanelCarousel />
-        </div>
-      </div>
+      <PromoVideos />
       <div className="section-band">
         <HowItWorks />
       </div>
@@ -173,7 +158,7 @@ export default async function Home({
           HeadlineFeatures itself is still used by the /features page. */}
       <div className="section-band">
         <div className="mx-auto w-full max-w-7xl px-6">
-          <PricingSection tiers={tiers} />
+          <PricingSection tiers={tiers} eyebrow={tHome('pricingEyebrow')} centered />
         </div>
       </div>
       <FinalCta />

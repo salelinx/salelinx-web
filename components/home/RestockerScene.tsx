@@ -144,17 +144,14 @@ export function RestockerScene() {
             scenes in a row. The hue is the placeholder tint if the file fails
             to load.
 
-            The frame is 5:2, not square, even though the file is 1254x1254:
-            the watch itself is only 419px tall in there, with ~400px of empty
-            margin above and below. A square box spent two thirds of its height
-            rendering nothing, which is what made the watch look small. At 5:2
-            object-cover crops to the middle 502px band - comfortably clear of
-            the product at 403..822 - so the same box width renders a much
-            bigger watch. */}
+            The frame is 5:2 and so is the file: it is the middle band of the
+            original 1254px square, where the watch sits, at 2x the widest
+            render. A square box spent two thirds of its height on empty
+            margin, which is what made the watch look small. */}
         <ProductImage
           type="tee"
           hue={210}
-          src="/watch.png"
+          src="/watch.webp"
           imgClassName="restock-idle"
           noBackdrop
           className="aspect-[5/2] w-72 sm:w-80 lg:w-[30rem]"
