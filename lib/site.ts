@@ -18,6 +18,12 @@ export const CHROME_WEB_STORE_URL = process.env.NEXT_PUBLIC_EXTENSION_ID
   ? `https://chromewebstore.google.com/detail/salelinx/${process.env.NEXT_PUBLIC_EXTENSION_ID}`
   : 'https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj';
 
+export const SOCIAL_LINKS = {
+  tiktok: 'https://www.tiktok.com/@salelinx',
+  instagram: 'https://www.instagram.com/salelinx/',
+  youtube: 'https://www.youtube.com/@Salelinx',
+};
+
 export function localePathPrefix(locale: string): string {
   return locale === routing.defaultLocale ? '' : `/${locale}`;
 }

@@ -13,7 +13,7 @@ import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HeroVideo } from '@/components/home/HeroVideo';
 import { PromoVideos } from '@/components/home/PromoVideos';
-import { HowItWorks } from '@/components/home/HowItWorks';
+import { HomeFaq } from '@/components/home/HomeFaq';
 import { FinalCta } from '@/components/home/FinalCta';
 import { PricingSection } from '@/components/features/PricingSection';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
@@ -148,9 +148,6 @@ export default async function Home({
       </div>
       <ScrollWorldDemo />
       <PromoVideos />
-      <div className="section-band">
-        <HowItWorks />
-      </div>
       {/* The HeadlineFeatures block used to sit here. The scroll section above
           now covers the same ground (and closes on a grid of every feature),
           so this was saying it twice. The `#features` anchor the header and
@@ -161,6 +158,7 @@ export default async function Home({
           <PricingSection tiers={tiers} eyebrow={tHome('pricingEyebrow')} centered />
         </div>
       </div>
+      <HomeFaq />
       <FinalCta />
     </main>
   );

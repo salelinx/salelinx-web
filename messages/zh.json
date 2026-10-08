@@ -182,25 +182,6 @@
       "secondary": "查看价格",
       "tertiary": "添加到 Chrome"
     },
-    "howItWorks": {
-      "eyebrow": "使用方法",
-      "title": "两分钟就能用起来。",
-      "body": "安装扩展，连接你的店铺，面板就会出现在每一个 Depop 和 Vinted 页面上。",
-      "steps": {
-        "install": {
-          "title": "安装扩展",
-          "body": "在 Chrome Web Store 一键安装。不用注册新账号，也不用调整设置。"
-        },
-        "link": {
-          "title": "连接你的店铺",
-          "body": "像平时一样登录 Depop 和 Vinted。SaleLinx 会沿用当前的登录状态，不需要重新输入任何信息。"
-        },
-        "crosslist": {
-          "title": "多卖货，少点击",
-          "body": "在一个面板里完成跨平台上架、重新上架、库存同步和买家回复。做大店铺需要的每个工具，都在你卖货的地方。"
-        }
-      }
-    },
     "panelCarousel": {
       "eyebrow": "面板内部",
       "title": "一切都在一个面板中完成",
@@ -220,11 +201,11 @@
     "promoVideos": {
       "eyebrow": "视频",
       "title": "看看它如何运作",
-      "body": "SaleLinx 替你完成繁琐工作的短片。",
       "open": "观看第 {n} 个短片",
       "close": "关闭"
     },
-    "pricingEyebrow": "价格"
+    "pricingEyebrow": "价格",
+    "faqMore": "查看全部问题"
   },
   "LanguageSwitcher": {
     "label": "语言",

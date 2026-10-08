@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Reveal } from '@/components/Reveal';
+import { SocialLinks } from '@/components/home/SocialLinks';
 
 // Web encodes of the 4K renders in Marketing/tiktok/out: 540px for the belt,
 // hd/ at 1080px for the enlarged player. None has audio.
@@ -152,9 +153,9 @@ export function PromoVideos() {
         <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
           {t('title')}
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-balance text-base text-zinc-600 dark:text-zinc-400">
-          {t('body')}
-        </p>
+        <div className="mt-6">
+          <SocialLinks />
+        </div>
       </Reveal>
 
       {/* Reuses the feature ticker's -50% loop and its reduced-motion fallback. */}

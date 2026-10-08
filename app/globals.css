@@ -300,6 +300,41 @@ html:has([data-blocking-wall]) * {
   view-transition-name: none !important;
 }
 
+/* Page navigation: the old page fades out, the new one fades up. The root
+   snaps so the header and footer never ghost between two positions. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(.page-exit) {
+  animation: page-out 120ms ease-in both;
+}
+
+::view-transition-new(.page-enter) {
+  animation: page-in 280ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both;
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(.page-exit),
+  ::view-transition-new(.page-enter) {
+    animation: none;
+  }
+}
+
 /* The hero's interactive preview gets a longer, gentler entrance so it
    reads as the page's hero moment rather than a snappy card pop. Uses
    a softer ease-out curve with no overshoot. */
@@ -1012,4 +1047,17 @@ span.restock-at-risk {
   .feature-ticker-viewport {
     overflow-x: auto;
   }
+}
+
+/* Homepage FAQ: question bubbles drift slowly in the gutters. */
+@keyframes faqBubbleFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+.faq-bubble {
+  animation: faqBubbleFloat 7s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-bubble { animation: none; }
 }
