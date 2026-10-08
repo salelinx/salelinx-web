@@ -183,9 +183,13 @@ function FeatureList({
 export async function PricingSection({
   tiers,
   standalone = false,
+  eyebrow,
+  centered = false,
 }: {
   tiers: TierConfig[];
   standalone?: boolean;
+  eyebrow?: string;
+  centered?: boolean;
 }) {
   const t = await getTranslations("Pricing");
   const formatLimit = makeFormatLimit(t);
@@ -262,16 +266,22 @@ export async function PricingSection({
           : "scroll-mt-20 border-t border-black/10 py-14 sm:py-20 dark:border-white/10"
       }
     >
-      <div className="pb-12">
+      <div className={centered ? "pb-12 text-center" : "pb-12"}>
         {!standalone && (
           <span className={`${MONO} text-zinc-500 dark:text-zinc-400`}>
-            {t("sectionHeader.eyebrow")}
+            {eyebrow ?? t("sectionHeader.eyebrow")}
           </span>
         )}
-        <Heading className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+        <Heading
+          className={
+            centered
+              ? "mx-auto mt-4 max-w-2xl text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50"
+              : "mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl"
+          }
+        >
           {t("sectionHeader.title")}
         </Heading>
-        <p className="mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
+        <p className={`mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400 ${centered ? "mx-auto text-balance" : ""}`}>
           {t("sectionHeader.body")}
         </p>
       </div>

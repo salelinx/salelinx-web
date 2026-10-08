@@ -202,9 +202,29 @@
       }
     },
     "panelCarousel": {
+      "eyebrow": "Dans le panneau",
       "title": "Tout se pilote depuis un seul panneau",
       "subtitle": "Captures réelles d'une boutique Depop active."
-    }
+    },
+    "featuresSection": {
+      "eyebrow": "Fonctionnalités",
+      "title": "Tous les outils, là où vous vendez.",
+      "scenes": {
+        "crosslist": "Choisissez une annonce, SaleLinx remplit l'autre plateforme pour vous.",
+        "restocker": "Vendu sur une appli, retiré de l'autre, automatiquement.",
+        "followBot": "Suivez automatiquement les acheteurs les plus susceptibles d'acheter chez vous.",
+        "inbox": "Toutes les offres et tous les messages des deux boutiques, dans une seule liste.",
+        "labels": "Toutes les étiquettes du jour, fusionnées en un seul PDF à imprimer."
+      }
+    },
+    "promoVideos": {
+      "eyebrow": "Vidéos",
+      "title": "Voyez-le en action",
+      "body": "De courts extraits de SaleLinx qui fait le travail à votre place.",
+      "open": "Regarder le clip {n}",
+      "close": "Fermer"
+    },
+    "pricingEyebrow": "Tarifs"
   },
   "LanguageSwitcher": {
     "label": "Langue",
@@ -572,7 +592,6 @@
     },
     "marketplaceOnly": "<marketplace></marketplace> uniquement",
     "sectionNavAria": "Sections de la page",
-    "overviewBody": "Quelques fonctionnalites sont ci-dessus. Voici l'ensemble complet.",
     "headlines": {
       "eyebrow": "Commencez ici",
       "title": "Pourquoi les vendeurs installent SaleLinx.",

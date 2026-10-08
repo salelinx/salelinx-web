@@ -75,9 +75,6 @@ export default function PreviewPage() {
               <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 {s.id}
               </h2>
-              <p className="font-mono text-[10px] text-zinc-400">
-                {s.layout === "full" ? "full-width overview scene" : "split scene"}
-              </p>
             </div>
 
             <div className="flex flex-wrap items-start gap-8">
