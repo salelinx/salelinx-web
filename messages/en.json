@@ -198,12 +198,6 @@
         "labels": "Every label for the day, merged into one PDF to print."
       }
     },
-    "promoVideos": {
-      "eyebrow": "Watch",
-      "title": "See it in action",
-      "open": "Watch clip {n}",
-      "close": "Close"
-    },
     "pricingEyebrow": "Pricing",
     "faqMore": "See all questions"
   },
