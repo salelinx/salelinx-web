@@ -198,12 +198,6 @@
         "labels": "当天所有运单合并成一个 PDF，直接打印。"
       }
     },
-    "promoVideos": {
-      "eyebrow": "视频",
-      "title": "看看它如何运作",
-      "open": "观看第 {n} 个短片",
-      "close": "关闭"
-    },
     "pricingEyebrow": "价格",
     "faqMore": "查看全部问题"
   },

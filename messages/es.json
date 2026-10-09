@@ -198,12 +198,6 @@
         "labels": "Todas las etiquetas del día, unidas en un solo PDF para imprimir."
       }
     },
-    "promoVideos": {
-      "eyebrow": "Vídeos",
-      "title": "Míralo en acción",
-      "open": "Ver el clip {n}",
-      "close": "Cerrar"
-    },
     "pricingEyebrow": "Precios",
     "faqMore": "Ver todas las preguntas"
   },

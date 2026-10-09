@@ -198,12 +198,6 @@
         "labels": "Alle Etiketten des Tages, zusammengeführt in einem PDF zum Drucken."
       }
     },
-    "promoVideos": {
-      "eyebrow": "Videos",
-      "title": "Sieh es in Aktion",
-      "open": "Clip {n} ansehen",
-      "close": "Schließen"
-    },
     "pricingEyebrow": "Preise",
     "faqMore": "Alle Fragen ansehen"
   },

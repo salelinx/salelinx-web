@@ -12,7 +12,6 @@ import { TIER_PRICES } from '@/lib/pricing';
 import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HeroVideo } from '@/components/home/HeroVideo';
-import { PromoVideos } from '@/components/home/PromoVideos';
 import { HomeFaq } from '@/components/home/HomeFaq';
 import { FinalCta } from '@/components/home/FinalCta';
 import { PricingSection } from '@/components/features/PricingSection';
@@ -147,7 +146,6 @@ export default async function Home({
         <HeroVideo label="SaleLinx: Depop and Vinted in one panel" />
       </div>
       <ScrollWorldDemo />
-      <PromoVideos />
       {/* The HeadlineFeatures block used to sit here. The scroll section above
           now covers the same ground (and closes on a grid of every feature),
           so this was saying it twice. The `#features` anchor the header and
