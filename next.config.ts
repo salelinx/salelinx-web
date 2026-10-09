@@ -58,8 +58,26 @@ const securityHeaders = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
 ];
 
+// Clean links to share in bios and posts. Each lands on the homepage with
+// utm_source set, which lib/signup-source.ts records as the first touch.
+const SHORT_LINKS: Record<string, string> = {
+  yt: 'youtube',
+  tt: 'tiktok',
+  ig: 'instagram',
+  fb: 'facebook',
+  x: 'x',
+  reddit: 'reddit',
+};
+
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
+  async redirects() {
+    return Object.entries(SHORT_LINKS).map(([path, source]) => ({
+      source: `/${path}`,
+      destination: `/?utm_source=${source}&utm_medium=social`,
+      permanent: false,
+    }));
+  },
   poweredByHeader: false,
   images: {
     // Next 16 only honours quality values listed here; anything else silently
