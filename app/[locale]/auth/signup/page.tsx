@@ -8,6 +8,7 @@ import { isDisposableEmail } from "@/lib/auth/disposable-domains";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { TERMS_VERSION } from "@/lib/site";
 import { marketingChoiceMetadata } from "@/lib/marketing-choice";
+import { readSignupSource } from "@/lib/signup-source";
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
@@ -61,6 +62,7 @@ export default function SignupPage() {
           terms_version: TERMS_VERSION,
           terms_accepted_at: new Date().toISOString(),
           ...marketingChoiceMetadata(marketing),
+          signup_source: readSignupSource(),
         },
       },
     });
