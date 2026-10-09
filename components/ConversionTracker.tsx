@@ -3,6 +3,8 @@
 import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { trackPurchaseConversion, trackSignupConversion } from '@/lib/tracking';
+import { readSignupSource } from '@/lib/signup-source';
+import { createBrowserClient } from '@/lib/supabase/client';
 
 // Fires Ads conversions from URL markers: ?checkout=success (Stripe Checkout
 // return, keyed by session_id) and ?signup=google (first Google sign-in, set by
@@ -30,6 +32,13 @@ function Tracker() {
   useEffect(() => {
     if (checkout) fireOnce(`slx_purchase_tracked_${sessionId ?? 'unknown'}`, trackPurchaseConversion);
     if (googleSignup) fireOnce('slx_signup_tracked', () => trackSignupConversion('google'));
+    // signInWithOAuth cannot set metadata, so a new Google account gets its source here.
+    const signupSource = googleSignup ? readSignupSource() : undefined;
+    if (signupSource) {
+      fireOnce('slx_source_saved', () => {
+        createBrowserClient().auth.updateUser({ data: { signup_source: signupSource } }).catch(() => {});
+      });
+    }
   }, [checkout, sessionId, googleSignup]);
 
   return null;

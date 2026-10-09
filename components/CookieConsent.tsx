@@ -13,6 +13,7 @@ import {
   parseConsentValue,
   serializeConsent,
 } from '@/lib/consent';
+import { captureSignupSource, clearSignupSource } from '@/lib/signup-source';
 
 // Cookie consent banner + Google tag loader, one component so the "Google
 // tags only ever load after consent" invariant lives in a single file.
@@ -172,6 +173,9 @@ function applyConsent(state: ConsentState) {
     script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID ?? ADS_ID}`;
     document.head.appendChild(script);
   }
+
+  if (analytics || ads) captureSignupSource();
+  else clearSignupSource();
 
   if (!analytics) expireCookies((n) => n === '_ga' || n.startsWith('_ga_'));
   if (!ads) expireCookies((n) => n.startsWith('_gcl'));

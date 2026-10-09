@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "5 October 2026";
+const LAST_UPDATED = "9 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -160,6 +160,7 @@ const SECTIONS: LegalSection[] = [
       "slx_ref: set only if you arrive through a referral share link (salelinx.com/r/...), and kept for up to 30 days so we can credit the person who referred you if you sign up. It contains only the referral code, is deleted on your first signed-in visit whether or not a referral is credited, and is not used for advertising or cross-site tracking.",
       "Google Analytics cookies (_ga and _ga_..., optional, only with your consent): if you accept analytics cookies in our banner, Google Analytics sets these for up to 2 years to help us understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. They are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer, which also removes them. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
       "Google Ads conversion cookies (names starting _gcl, optional, only with your consent): we advertise SaleLinx on Google, and if you accept ad-measurement cookies in our banner, Google sets these for up to 90 days so we can tell that a visit came from one of our own ads and measure whether our advertising works (for example, that an ad click led to a signup). We never show ads on salelinx.com, and we have configured these cookies for conversion measurement only, not for building advertising profiles of you or showing you personalised ads elsewhere. You can change your mind at any time via the Cookie settings link in the footer, which also removes them. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
+      "slx_src (browser local storage, optional, only with your consent): if you accept analytics or ad-measurement cookies, we note how you first reached salelinx.com (for example the website or campaign that linked to us, or that you clicked one of our ads) and the page you landed on. If you then sign up on the website, this is saved with your account so we can see which channels bring us customers. It is removed from your browser if you withdraw consent, and from our systems when you delete your account.",
     ],
     trailing: [
       "We never show ads on salelinx.com, and we set no advertising or cross-site tracking cookies beyond the optional, consent-gated ad-measurement cookies described above.",

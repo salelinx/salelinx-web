@@ -110,6 +110,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [cancelling, setCancelling] = useState<string>("all");
   const [platform, setPlatform] = useState<string>("all");
   const [activity, setActivity] = useState<ActivityFilter>("all");
+  const [source, setSource] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
 
   // With seven filter groups it is easy to end up on an empty table and not
@@ -121,6 +122,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     (cancelling !== "all" ? 1 : 0) +
     (platform !== "all" ? 1 : 0) +
     (activity !== "all" ? 1 : 0) +
+    (source !== "all" ? 1 : 0) +
     (search.trim() ? 1 : 0);
 
   function clearFilters() {
@@ -129,6 +131,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     setCancelling("all");
     setPlatform("all");
     setActivity("all");
+    setSource("all");
     setSearch("");
   }
 
@@ -171,6 +174,21 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       ["any", "Any tier"],
       ...[...known, ...custom].map((t) => [t, t] as [string, string]),
       ["none", "No tier"],
+    ] as [string, string][];
+  }, [users]);
+
+  // Counts in the labels make this filter double as the "where did users come from" breakdown.
+  const sourceOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const u of users) {
+      const s = u.signup_source ?? "unknown";
+      counts.set(s, (counts.get(s) ?? 0) + 1);
+    }
+    return [
+      ["all", "All"],
+      ...[...counts]
+        .sort((a, b) => b[1] - a[1])
+        .map(([s, n]) => [s, `${s} (${n})`] as [string, string]),
     ] as [string, string][];
   }, [users]);
 
@@ -234,6 +252,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         const active = mostRecent(u.last_sign_in_at, u.last_device_seen_at);
         if (staleness(active, now) !== activity) return false;
       }
+      if (source !== "all" && (u.signup_source ?? "unknown") !== source) return false;
       if (term) {
         const haystack = `${u.email ?? ""} ${u.user_id}`.toLowerCase();
         if (!haystack.includes(term)) return false;
@@ -276,7 +295,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
     });
     return sorted;
-  }, [users, search, tier, status, cancelling, platform, activity, sortKey, now]);
+  }, [users, search, tier, status, cancelling, platform, activity, source, sortKey, now]);
 
   // Cap how many rows reach the DOM. Filtering/sorting above still runs over
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
@@ -367,6 +386,12 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           ]}
           onChange={(v) => setActivity(v as ActivityFilter)}
         />
+        <FilterGroup
+          label="Source"
+          value={source}
+          options={sourceOptions}
+          onChange={setSource}
+        />
         {activeFilters > 0 && (
           <button
             type="button"
@@ -414,6 +439,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                 />
                 <th className="px-3 py-2 font-medium">Billing</th>
                 <th className="px-3 py-2 font-medium">Version</th>
+                <th className="px-3 py-2 font-medium">Source</th>
                 <SortableTh
                   label="Joined"
                   active={sortKey === "created_at"}
@@ -494,6 +520,12 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                         version={u.extension_version}
                         newest={newestVersion}
                       />
+                    </td>
+                    <td
+                      className="whitespace-nowrap px-3 py-2 text-zinc-700"
+                      title={u.signup_campaign ?? undefined}
+                    >
+                      {u.signup_source ?? <span className="text-zinc-400">-</span>}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
                       {formatDate(u.created_at)}

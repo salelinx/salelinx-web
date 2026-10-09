@@ -36,6 +36,10 @@ export type AdminUserRow = {
   // for an install on a build older than 015, or one that has never checked
   // in. Self-reported: display only.
   extension_version: string | null;
+  // First-touch source from user metadata (lib/signup-source.ts). Null for
+  // signups before migration 030, extension-only signups, or no cookie consent.
+  signup_source: string | null;
+  signup_campaign: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.
