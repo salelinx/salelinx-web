@@ -528,8 +528,17 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                     >
                       {u.signup_source ?? <span className="text-zinc-400">-</span>}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-zinc-700">
-                      {u.country ?? <span className="text-zinc-400">-</span>}
+                    <td
+                      className="whitespace-nowrap px-3 py-2 text-base"
+                      title={u.country ?? undefined}
+                    >
+                      {u.country ? (
+                        String.fromCodePoint(
+                          ...[...u.country].map((c) => 0x1f1a5 + c.charCodeAt(0)),
+                        )
+                      ) : (
+                        <span className="text-sm text-zinc-400">-</span>
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
                       {formatDate(u.created_at)}
