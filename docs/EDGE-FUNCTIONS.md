@@ -16,7 +16,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`change-plan`** - the self-serve counterpart to `admin-change-plan`. A trialing user is already a live Stripe subscription, so `create-checkout-session` refuses them with 409 and the trial cap had no release valve: someone who burned their 50 crosslists on day 3 sat at 50 until day 14 or churned. This ends the trial (`trial_end: "now"`) and optionally swaps the price, in one Stripe call. **It charges the card immediately** - the caller must confirm with the user first. Deliberately up-only: downgrades and cancellations stay in the Customer Portal, where Stripe owns the proration and refund wording. Never writes `tier_id`/`status`; `stripe-webhook` syncs the row. Rate limited to 10/day per caller.
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 
-## The fourteen functions
+## The sixteen functions
 
 | Function                  | `verify_jwt` | Purpose                                                                                                  |
 | ------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -36,6 +36,8 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial (day 1 and day 4) and send one win-back email after a plan or trial ends, with a per-customer one-use 50% first-month promo code; also serves the HMAC-signed unsubscribe link, which sets `trial_nudges.unsubscribed_at` and `marketing_opt_out` in the user's metadata so `/account` shows the emails as off |
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
+| `ebay`                    | false*       | Extension's only route to eBay: OAuth link, listings, item detail, revise, photo upload, end. Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
+| `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The two `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -83,6 +85,8 @@ supabase functions deploy admin-delete-user --no-verify-jwt
 supabase functions deploy delete-account --no-verify-jwt
 supabase functions deploy resolve-category --no-verify-jwt
 supabase functions deploy process-referral-rewards --no-verify-jwt
+supabase functions deploy ebay --no-verify-jwt
+supabase functions deploy ebay-account-deletion --no-verify-jwt
 ```
 
 ## Secrets
@@ -114,6 +118,13 @@ supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # (unchanged behavior); set to the site origin to stop other sites' frontends
 # reading responses. The extension is unaffected (host permissions bypass CORS).
 supabase secrets set ALLOWED_ORIGIN='https://www.salelinx.com'
+# eBay (developer.ebay.com keyset). EBAY_RUNAME is the RuName whose accept URL
+# is the extension's https://<extension-id>.chromiumapp.org/ebay. EBAY_ENV=sandbox
+# switches both eBay functions to the sandbox hosts.
+supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=...
+# Entered in the portal's Marketplace Account Deletion settings as well.
+supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=<32-80 chars>
+supabase secrets set EBAY_DELETION_ENDPOINT='https://<project>.supabase.co/functions/v1/ebay-account-deletion'
 # Referrals (docs/REFERRALS.md): the referee first-month-discount coupons
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.

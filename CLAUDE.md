@@ -69,6 +69,8 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `get-referral-discount` - `verify_jwt = false` (public on purpose: returns only the referee coupon's terms (percent/amount, duration), never the coupon id)
 - `report-telemetry` - `verify_jwt = false` (extension POSTs anonymous endpoint-health counters once a day; handler validates via `getUser(jwt)` as a spam gate only and discards the identity, then forwards to `record_endpoint_health`; read side is `/admin/health`)
 - `report-selftest` - `verify_jwt = false` (admin console self-test; extension POSTs one endpoint self-test run with the user's JWT. Handler validates via `getUser(jwt)`, KEEPS the identity, and re-checks `admin_users` with the service role before writing. Cannot gate on `is_admin()` because that needs AAL2 and the extension has no MFA flow - it is write-only and exposes no read path, so reads still require AAL2 via `admin_selftest_runs()`)
+- `ebay` - `verify_jwt = false` (handler validates via `getUser(jwt)`; the extension's only route to eBay. Holds the app secret and per-user OAuth tokens in `ebay_tokens`, which has RLS on and no policies, and speaks the Trading API. `EBAY_ENV=sandbox` switches hosts)
+- `ebay-account-deletion` - `verify_jwt = false` (eBay's required Marketplace Account Deletion endpoint; GET answers the challenge, POSTs are verified against `x-ebay-signature` and delete that eBay account's tokens, link and listings)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 
