@@ -440,6 +440,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                 <th className="px-3 py-2 font-medium">Billing</th>
                 <th className="px-3 py-2 font-medium">Version</th>
                 <th className="px-3 py-2 font-medium">Source</th>
+                <th className="px-3 py-2 font-medium">Country</th>
                 <SortableTh
                   label="Joined"
                   active={sortKey === "created_at"}
@@ -526,6 +527,9 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       title={u.signup_campaign ?? undefined}
                     >
                       {u.signup_source ?? <span className="text-zinc-400">-</span>}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-zinc-700">
+                      {u.country ?? <span className="text-zinc-400">-</span>}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
                       {formatDate(u.created_at)}
