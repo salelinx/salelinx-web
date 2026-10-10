@@ -1,6 +1,6 @@
 import { SOCIAL_LINKS } from '@/lib/site';
 
-const SOCIALS = [
+export const SOCIALS = [
   {
     name: 'TikTok',
     href: SOCIAL_LINKS.tiktok,
