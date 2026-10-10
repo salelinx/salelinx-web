@@ -26,6 +26,7 @@ import { useClientNow } from "@/lib/admin/use-client-now";
 import { compareVersions, highestVersion } from "@/lib/admin/version";
 import { TIER_ORDER } from "@/lib/admin/tiers";
 import dynamic from "next/dynamic";
+import { SOCIALS } from "@/components/home/SocialLinks";
 
 import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
@@ -76,6 +77,63 @@ const LINKED_PLATFORMS: LinkedPlatform[] = ["depop", "vinted"];
 
 const ENTITLED_STATUSES = ["active", "trialing"];
 
+const socialPath = (name: string) => SOCIALS.find((s) => s.name === name)!.path;
+
+// Brand marks for signup sources; anything else falls back to its label.
+const SOURCE_ICONS: Record<string, { path: string; color: string; name: string }> = {
+  google: {
+    name: "Google",
+    color: "text-[#4285F4]",
+    path: "M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z",
+  },
+  facebook: {
+    name: "Facebook",
+    color: "text-[#0866FF]",
+    path: "M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z",
+  },
+  x: {
+    name: "X",
+    color: "text-zinc-950",
+    path: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z",
+  },
+  tiktok: { name: "TikTok", color: "text-zinc-950", path: socialPath("TikTok") },
+  youtube: { name: "YouTube", color: "text-[#FF0000]", path: socialPath("YouTube") },
+  instagram: { name: "Instagram", color: "text-[#FF0069]", path: socialPath("Instagram") },
+};
+SOURCE_ICONS.meta = { ...SOURCE_ICONS.facebook, name: "Meta" };
+
+// "google_ads" -> the Google mark plus "Ads"; utm values are free text, so
+// unknown ones are just tidied up.
+function sourceParts(source: string) {
+  const ads = source.endsWith("_ads");
+  const icon = SOURCE_ICONS[ads ? source.slice(0, -4) : source];
+  return { icon, ads };
+}
+
+function sourceLabel(source: string) {
+  const { icon, ads } = sourceParts(source);
+  if (icon) return ads ? `${icon.name} Ads` : icon.name;
+  const words = source.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function SourceCell({ source }: { source: string }) {
+  const { icon, ads } = sourceParts(source);
+  if (!icon) return <>{sourceLabel(source)}</>;
+  return (
+    <span className="inline-flex items-center gap-1.5" title={sourceLabel(source)}>
+      <svg viewBox="0 0 24 24" className={`h-4 w-4 fill-current ${icon.color}`} aria-label={icon.name}>
+        <path d={icon.path} />
+      </svg>
+      {ads && <span className="text-xs text-zinc-500">Ads</span>}
+    </span>
+  );
+}
+
+// ISO 3166-1 alpha-2 code to its regional-indicator flag.
+const flag = (code: string) =>
+  String.fromCodePoint(...[...code].map((c) => 0x1f1a5 + c.charCodeAt(0)));
+
 // Sort order for the Status column: who is using it, then who is about to stop
 // paying, then the rest. Anything unrecognised sorts last.
 const STATUS_SORT_ORDER = [
@@ -111,9 +169,11 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [platform, setPlatform] = useState<string>("all");
   const [activity, setActivity] = useState<ActivityFilter>("all");
   const [source, setSource] = useState<string>("all");
+  const [country, setCountry] = useState<string>("all");
+  const [version, setVersion] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
 
-  // With seven filter groups it is easy to end up on an empty table and not
+  // With nine filter groups it is easy to end up on an empty table and not
   // spot which control is responsible, so offer a single way back. Search is
   // included: it is the most common reason a roster looks empty.
   const activeFilters =
@@ -123,6 +183,8 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     (platform !== "all" ? 1 : 0) +
     (activity !== "all" ? 1 : 0) +
     (source !== "all" ? 1 : 0) +
+    (country !== "all" ? 1 : 0) +
+    (version !== "all" ? 1 : 0) +
     (search.trim() ? 1 : 0);
 
   function clearFilters() {
@@ -132,6 +194,8 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     setPlatform("all");
     setActivity("all");
     setSource("all");
+    setCountry("all");
+    setVersion("all");
     setSearch("");
   }
 
@@ -188,7 +252,21 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       ["all", "All"],
       ...[...counts]
         .sort((a, b) => b[1] - a[1])
-        .map(([s, n]) => [s, `${s} (${n})`] as [string, string]),
+        .map(([s, n]) => [s, `${sourceLabel(s)} (${n})`] as [string, string]),
+    ] as [string, string][];
+  }, [users]);
+
+  const countryOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const u of users) {
+      const c = u.country ?? "unknown";
+      counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+    return [
+      ["all", "All"],
+      ...[...counts]
+        .sort((a, b) => b[1] - a[1])
+        .map(([c, n]) => [c, `${c === "unknown" ? "Unknown" : `${flag(c)} ${c}`} (${n})`] as [string, string]),
     ] as [string, string][];
   }, [users]);
 
@@ -253,6 +331,15 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         if (staleness(active, now) !== activity) return false;
       }
       if (source !== "all" && (u.signup_source ?? "unknown") !== source) return false;
+      if (country !== "all" && (u.country ?? "unknown") !== country) return false;
+      if (version !== "all") {
+        const v = u.extension_version;
+        if (version === "none" ? v !== null : v === null) return false;
+        if (version !== "none" && newestVersion !== null) {
+          const behind = compareVersions(v!, newestVersion) < 0;
+          if (behind !== (version === "outdated")) return false;
+        }
+      }
       if (term) {
         const haystack = `${u.email ?? ""} ${u.user_id}`.toLowerCase();
         if (!haystack.includes(term)) return false;
@@ -295,7 +382,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
     });
     return sorted;
-  }, [users, search, tier, status, cancelling, platform, activity, source, sortKey, now]);
+  }, [users, search, tier, status, cancelling, platform, activity, source, country, version, newestVersion, sortKey, now]);
 
   // Cap how many rows reach the DOM. Filtering/sorting above still runs over
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
@@ -328,19 +415,13 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         </div>
       </header>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs">
-        <FilterGroup
-          label="Tier"
-          value={tier}
-          options={tierOptions}
-          onChange={setTier}
-        />
-        <FilterGroup
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2.5 text-xs">
+        <FilterSelect
           label="Status"
           value={status}
           options={[
             ["all", "All"],
-            ["using", "Using"],
+            ["using", "Active or trialing"],
             ["active", "Active"],
             ["trialing", "Trialing"],
             ["past_due", "Past due"],
@@ -350,53 +431,61 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           ]}
           onChange={setStatus}
         />
-        <FilterGroup
-          label="Cancelled"
+        <FilterSelect label="Tier" value={tier} options={tierOptions} onChange={setTier} />
+        <FilterSelect
+          label="Cancellation"
           value={cancelling}
           options={[
             ["all", "All"],
-            ["leaving", "Leaving"],
-            ["gone", "Gone"],
-            ["staying", "Staying"],
+            ["leaving", "Ends at period end"],
+            ["gone", "Already canceled"],
+            ["staying", "Renewing"],
           ]}
           onChange={setCancelling}
         />
-        <FilterGroup
-          label="Linked"
-          value={platform}
-          options={[
-            ["all", "All"],
-            ["any", "Any"],
-            ["depop", "Depop"],
-            ["vinted", "Vinted"],
-            ["both", "Both"],
-            ["none", "Nothing linked"],
-          ]}
-          onChange={setPlatform}
-        />
-        <FilterGroup
-          label="Active"
+        <FilterSelect
+          label="Last active"
           value={activity}
           options={[
-            ["all", "All"],
+            ["all", "Any time"],
             ["fresh", "Last 7 days"],
             ["recent", "Last 30 days"],
-            ["stale", "Dormant"],
+            ["stale", "Over 30 days ago"],
             ["none", "Never"],
           ]}
           onChange={(v) => setActivity(v as ActivityFilter)}
         />
-        <FilterGroup
-          label="Source"
-          value={source}
-          options={sourceOptions}
-          onChange={setSource}
+        <FilterSelect
+          label="Linked"
+          value={platform}
+          options={[
+            ["all", "All"],
+            ["any", "Any marketplace"],
+            ["depop", "Depop"],
+            ["vinted", "Vinted"],
+            ["both", "Depop and Vinted"],
+            ["none", "Nothing linked"],
+          ]}
+          onChange={setPlatform}
         />
+        <FilterSelect
+          label="Version"
+          value={version}
+          options={[
+            ["all", "All"],
+            ["latest", "Up to date"],
+            ["outdated", "Outdated"],
+            ["none", "Never reported"],
+          ]}
+          onChange={setVersion}
+        />
+        <FilterSelect label="Country" value={country} options={countryOptions} onChange={setCountry} />
+        <FilterSelect label="Source" value={source} options={sourceOptions} onChange={setSource} />
         {activeFilters > 0 && (
           <button
             type="button"
             onClick={clearFilters}
-            className="ml-auto rounded px-2 py-0.5 text-zinc-500 underline-offset-2 hover:bg-zinc-100 hover:underline"
+            className="ml-auto rounded-md px-2 py-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
           >
             Clear {activeFilters} filter{activeFilters === 1 ? "" : "s"}
           </button>
@@ -526,16 +615,18 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       className="whitespace-nowrap px-3 py-2 text-zinc-700"
                       title={u.signup_campaign ?? undefined}
                     >
-                      {u.signup_source ?? <span className="text-zinc-400">-</span>}
+                      {u.signup_source ? (
+                        <SourceCell source={u.signup_source} />
+                      ) : (
+                        <span className="text-zinc-400">-</span>
+                      )}
                     </td>
                     <td
                       className="whitespace-nowrap px-3 py-2 text-base"
                       title={u.country ?? undefined}
                     >
                       {u.country ? (
-                        String.fromCodePoint(
-                          ...[...u.country].map((c) => 0x1f1a5 + c.charCodeAt(0)),
-                        )
+                        flag(u.country)
                       ) : (
                         <span className="text-sm text-zinc-400">-</span>
                       )}
@@ -686,7 +777,7 @@ function PlatformTags({ platforms }: { platforms: LinkedPlatform[] }) {
   );
 }
 
-function FilterGroup({
+function FilterSelect({
   label,
   value,
   options,
@@ -697,26 +788,36 @@ function FilterGroup({
   options: [string, string][];
   onChange: (value: string) => void;
 }) {
+  const set = value !== "all";
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-zinc-500">{label}:</span>
-      <div className="flex flex-wrap gap-1">
+    <label
+      className={
+        "relative flex cursor-pointer items-center gap-1.5 rounded-md border py-1 pl-2.5 pr-6 " +
+        (set
+          ? "border-zinc-900 bg-zinc-900 text-white"
+          : "border-[var(--admin-border)] bg-white text-zinc-800 hover:border-zinc-400")
+      }
+    >
+      <span className={set ? "text-zinc-400" : "text-zinc-500"}>{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="cursor-pointer appearance-none bg-transparent font-medium outline-none"
+      >
         {options.map(([v, l]) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => onChange(v)}
-            className={
-              value === v
-                ? "rounded bg-zinc-900 px-2 py-0.5 font-medium text-white"
-                : "rounded px-2 py-0.5 capitalize text-zinc-600 hover:bg-zinc-100"
-            }
-          >
+          <option key={v} value={v} className="text-zinc-900">
             {l}
-          </button>
+          </option>
         ))}
-      </div>
-    </div>
+      </select>
+      <svg
+        aria-hidden
+        viewBox="0 0 12 12"
+        className="pointer-events-none absolute right-2 h-2.5 w-2.5 opacity-60"
+      >
+        <path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    </label>
   );
 }
 
@@ -737,15 +838,20 @@ function VersionCell({
 }) {
   if (!version) return <span className="text-zinc-400">-</span>;
   const outdated = newest !== null && compareVersions(version, newest) < 0;
+  if (!outdated) {
+    return (
+      <span
+        className="rounded bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700"
+        title={version}
+      >
+        Latest
+      </span>
+    );
+  }
   return (
     <span
-      className={
-        "rounded px-1.5 py-0.5 font-mono text-xs " +
-        (outdated ? "bg-amber-50 text-amber-700" : "text-zinc-600")
-      }
-      title={
-        outdated ? `Behind the newest reported version (${newest})` : undefined
-      }
+      className="rounded bg-amber-50 px-1.5 py-0.5 font-mono text-xs text-amber-700"
+      title={`Behind the newest reported version (${newest})`}
     >
       {version}
     </span>
