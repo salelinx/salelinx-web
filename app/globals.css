@@ -1053,6 +1053,89 @@ span.restock-at-risk {
   animation: faqBubbleFloat 7s ease-in-out infinite;
   will-change: transform;
 }
+.faq-cloud {
+  transition:
+    left 2400ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    top 2400ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.faq-cloud-pop {
+  transition:
+    scale 1800ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1400ms ease-out;
+}
+.faq-cloud-pop.is-hidden {
+  scale: 0.7;
+  opacity: 0;
+}
+.faq-cloud-pop.is-leaving {
+  transition:
+    scale 1200ms ease-in-out,
+    opacity 1000ms ease-in-out;
+}
+.faq-disclosure::details-content {
+  transition-duration: 450ms;
+}
 @media (prefers-reduced-motion: reduce) {
   .faq-bubble { animation: none; }
+  .faq-cloud,
+  .faq-cloud-pop { transition: none; }
+}
+
+.hero-seek {
+  --p: 0%;
+  appearance: none;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.hero-seek::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(to right, rgb(24 24 27 / 0.9) var(--p), rgb(24 24 27 / 0.14) var(--p));
+  transition: height 200ms ease;
+}
+.hero-seek::-moz-range-track {
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(to right, rgb(24 24 27 / 0.9) var(--p), rgb(24 24 27 / 0.14) var(--p));
+}
+.hero-seek::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  background: #18181b;
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.85), 0 2px 8px rgb(0 0 0 / 0.3);
+  transform: scale(0);
+  transition: transform 200ms ease;
+}
+.hero-seek::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: #18181b;
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.85), 0 2px 8px rgb(0 0 0 / 0.3);
+  transform: scale(0);
+  transition: transform 200ms ease;
+}
+.group:hover .hero-seek::-webkit-slider-thumb,
+.hero-seek:focus-visible::-webkit-slider-thumb {
+  transform: scale(1);
+}
+.group:hover .hero-seek::-moz-range-thumb,
+.hero-seek:focus-visible::-moz-range-thumb {
+  transform: scale(1);
+}
+.hero-seek:focus-visible {
+  outline: none;
+}
+@media (hover: none) {
+  .hero-seek::-webkit-slider-thumb {
+    transform: scale(1);
+  }
+  .hero-seek::-moz-range-thumb {
+    transform: scale(1);
+  }
 }
