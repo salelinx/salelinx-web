@@ -69,11 +69,10 @@ export function HeroVideo({ label }: { label: string }) {
         preload="none"
         aria-label={label}
       >
-        <source src="/videos/salelinx-hero-4k.mp4" type="video/mp4" media="(min-width: 1024px)" />
         <source src="/videos/salelinx-hero.mp4" type="video/mp4" />
       </video>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-3 sm:p-5">
-        <div className="pointer-events-auto flex w-full max-w-md items-center rounded-full bg-white/45 px-5 py-3 opacity-70 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.8)] ring-1 ring-black/[0.06] backdrop-blur-2xl backdrop-saturate-[1.8] transition duration-300 group-hover:opacity-100 focus-within:opacity-100 focus-within:ring-black/25 [@media(hover:none)]:opacity-100">
+        <div className="pointer-events-auto flex w-full max-w-md items-center rounded-full bg-white/80 px-5 py-3 opacity-70 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.8)] ring-1 ring-black/[0.06] transition duration-300 group-hover:opacity-100 focus-within:opacity-100 focus-within:ring-black/25 [@media(hover:none)]:opacity-100">
           <input
             ref={seek}
             type="range"

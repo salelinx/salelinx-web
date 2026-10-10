@@ -147,8 +147,8 @@ export function FaqClouds() {
       {clouds.map((c) => (
         <div
           key={c.id}
-          className={`faq-cloud absolute ${c.vis}`}
-          style={{ left: `${c.x}%`, top: `${c.y}%` }}
+          className={`faq-cloud absolute inset-0 ${c.vis}`}
+          style={{ translate: `${c.x}% ${c.y}%` }}
         >
           <div className={`faq-cloud-pop ${c.state === 'in' ? '' : 'is-hidden'} ${c.state === 'out' ? 'is-leaving' : ''}`}>
             <div
