@@ -3,6 +3,7 @@ import { routing } from '@/i18n/routing';
 import { SITE_URL, absoluteUrl } from '@/lib/site';
 import { ARTICLE_MODULES_BY_LOCALE, TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { TRANSLATED_CHANGELOG_LOCALES } from '@/lib/docs/changelog';
+import { LANDING_PAGES } from '@/lib/landing/pages';
 
 // `locales` limits which language alternates an entry claims; it must match
 // the contentLocales the page itself passes to pageMetadata. Untranslated
@@ -61,6 +62,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency,
       priority,
       alternates: alternatesFor(path, locales ?? routing.locales),
+    });
+  }
+
+  for (const { slug } of LANDING_PAGES) {
+    entries.push({
+      url: absoluteUrl(routing.defaultLocale, `/features/${slug}`),
+      changeFrequency: 'monthly',
+      priority: 0.8,
     });
   }
 

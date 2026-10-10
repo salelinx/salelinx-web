@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CookieSettingsButton } from '@/components/CookieConsent';
+import { LANDING_PAGES } from '@/lib/landing/pages';
 
 const MONO =
   'font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400';
@@ -48,6 +49,13 @@ export async function Footer() {
                   {t('linkRoadmap')}
                 </Link>
               </li>
+              {LANDING_PAGES.map(({ slug, navLabel }) => (
+                <li key={slug}>
+                  <Link href={`/features/${slug}`} className={linkClass}>
+                    {navLabel}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
