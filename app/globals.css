@@ -1054,9 +1054,7 @@ span.restock-at-risk {
   will-change: transform;
 }
 .faq-cloud {
-  transition:
-    left 2400ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    top 2400ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: translate 2400ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .faq-cloud-pop {
   transition:
