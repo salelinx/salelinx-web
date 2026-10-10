@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "9 October 2026";
+const LAST_UPDATED = "10 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -61,7 +61,7 @@ const SECTIONS: LegalSection[] = [
       "Referrals. If you take part in our referral program, we record the link between you and the people you refer, the status of each referral, and any reward amounts. If you refer others and the app offers a referral leaderboard, a display name and your number of successful referrals may be shown on it to other participants. The display name used is any name you have chosen for the leaderboard, otherwise your linked shop username, or failing that a neutral placeholder (never any part of your email address). A name you choose is visible to other participants, must be unique, and can be removed by us if it is offensive or misleading. The referral program and its conditions are described in our Referral Program Terms.",
       "Diagnostics from the extension. The extension reports anonymous technical counters to us: whether calls to marketplace endpoints succeeded or failed, and, when something in the extension crashes, where it happened and the class of error (for example the error type name, never the error message, your listings, or anything you typed). These reports contain no account identifier and cannot be linked to you; we use them to detect marketplace changes and fix bugs.",
       "Uninstall feedback. If you remove the extension, the page that opens invites you to tell us why. The survey is anonymous: it records only the reason you pick, an optional comment, the extension version, and its language. It is not linked to your account, email address, or IP address, so please do not put personal details in the comment box.",
-      "Approximate location. When you visit salelinx.com, our hosting provider (Vercel) derives a two-letter country code from your network address, and we use it to show prices in your likely currency and to suggest a language. The country code is used only while building the page; we do not store it or use it for tracking.",
+      "Approximate location. When you visit salelinx.com, our hosting provider (Vercel) derives a two-letter country code from your network address, and we use it to show prices in your likely currency and to suggest a language. If you are signed in, we also store the most recent country code with your account so we know which countries our customers are in. We do not store your network address for this or use the country for tracking or advertising.",
     ],
   },
   {

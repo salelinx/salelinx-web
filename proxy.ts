@@ -133,6 +133,19 @@ export async function proxy(request: NextRequest) {
     response.cookies.set("slx_ref", "", { maxAge: 0, path: "/" });
   }
 
+  // Admin roster country. The refresh re-mints the JWT with the new
+  // app_metadata, so this fires once per change rather than every page view.
+  const country = request.headers.get("x-vercel-ip-country");
+  const appMeta = claims?.app_metadata as { country?: string } | undefined;
+  if (claims && country && /^[A-Z]{2}$/.test(country) && appMeta?.country !== country) {
+    try {
+      await supabase.rpc("set_my_country", { p_country: country });
+      await supabase.auth.refreshSession();
+    } catch {
+      // never fail the request over this
+    }
+  }
+
   // Legacy cleanup: builds up to May 2026 wrote a `theme` cookie that nothing
   // ever read (ThemeToggle was dropped in 99b4e2e and deleted in Sep 2026).
   // Expire it on the first request that still carries it. It had a 1-year

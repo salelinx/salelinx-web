@@ -40,6 +40,8 @@ export type AdminUserRow = {
   // signups before migration 030, extension-only signups, or no cookie consent.
   signup_source: string | null;
   signup_campaign: string | null;
+  // Last country Vercel geolocated a signed-in visit to (migration 031).
+  country: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.
