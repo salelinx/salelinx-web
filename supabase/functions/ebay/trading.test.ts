@@ -216,7 +216,11 @@ Deno.test('ended unsold listings come back as hidden, unless also active or sold
   const { listings } = listingsFromResponse(
     {
       ActiveList: { ItemArray: { Item: [item('1')] } },
-      UnsoldList: { ItemArray: { Item: [item('1'), item('2')] } },
+      UnsoldList: {
+        ItemArray: {
+          Item: [item('1'), item('2'), { ...item('3'), ListingDetails: { RelistedItemID: '4' } }],
+        },
+      },
     },
     1,
   );

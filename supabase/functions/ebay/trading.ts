@@ -102,6 +102,8 @@ export function listingsFromResponse(body, page: number) {
   const taken = new Set([...activeIds, ...sold.map((l) => l.itemId)]);
   // Ended without selling: relistable from eBay's Unsold list, so the panel keeps showing it.
   const unsold = (body.UnsoldList?.ItemArray?.Item ?? [])
+    // A relisted item lives on under its new id in the active list.
+    .filter((item) => !item.ListingDetails?.RelistedItemID)
     .map((item) => ({ ...summaryFromActive(item), quantity: 0, watchCount: null, status: 'hidden' }))
     .filter((l) => !taken.has(l.itemId));
   const pages = Math.max(
