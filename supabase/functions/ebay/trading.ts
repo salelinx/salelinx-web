@@ -51,6 +51,8 @@ export function parseTrading(call: string, text: string) {
   return body;
 }
 
+const idOrNull = (v) => (v == null ? null : String(v));
+
 const money = (amount) =>
   amount ? { value: Number(amount['#text'] ?? amount), currency: amount['@currencyID'] ?? null } : null;
 
@@ -148,6 +150,12 @@ export function itemFromResponse(body) {
       shipping: it.SellerProfiles?.SellerShippingProfile?.ShippingProfileName ?? null,
       returns: it.SellerProfiles?.SellerReturnProfile?.ReturnProfileName ?? null,
       payment: it.SellerProfiles?.SellerPaymentProfile?.PaymentProfileName ?? null,
+    },
+    // Ids too, so a crosslist to eBay can reuse this listing's postage, returns and payment.
+    policyIds: {
+      shipping: idOrNull(it.SellerProfiles?.SellerShippingProfile?.ShippingProfileID),
+      returns: idOrNull(it.SellerProfiles?.SellerReturnProfile?.ReturnProfileID),
+      payment: idOrNull(it.SellerProfiles?.SellerPaymentProfile?.PaymentProfileID),
     },
     photos: (it.PictureDetails?.PictureURL ?? []).map(String),
     specifics,
