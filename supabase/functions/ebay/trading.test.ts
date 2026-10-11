@@ -15,6 +15,8 @@ import {
   addItemXml,
   policiesFromPreferences,
   shippingFromItemXml,
+  postageXml,
+  shippingServicesFromDetails,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -281,4 +283,27 @@ Deno.test('a listing without policies lends its postage and returns, inputs only
   );
   assertEquals(xml!.includes('SellerProfiles'), false);
   assertEquals(xml!.includes('<DispatchTimeMax>2</DispatchTimeMax>'), true);
+});
+
+Deno.test('postage entered in SaleLinx goes on the listing', () => {
+  const out = postageXml({ service: 'UK_RoyalMailSecondClassStandard', cost: 3.2, dispatchDays: 2, returnsDays: 30, returnsPaidBy: 'Buyer' });
+  for (const part of ['<ShippingService>UK_RoyalMailSecondClassStandard</ShippingService>', '<ShippingServiceCost>3.20</ShippingServiceCost>',
+    '<ReturnsWithinOption>Days_30</ReturnsWithinOption>', '<DispatchTimeMax>2</DispatchTimeMax>']) {
+    assertEquals(out.includes(part), true, part);
+  }
+  assertEquals(postageXml({ service: 'X', cost: 0, returnsDays: 0 }).includes('ReturnsNotAccepted'), true);
+  assertEquals(postageXml({ service: '<bad>', cost: 1 }), '');
+  const { xml } = addItemXml(
+    { title: 't', categoryId: '1', price: 5, photos: ['u'], postcode: 'SN8 1UF', postage: { service: 'X', cost: 1 } },
+    'EBAY_GB',
+  );
+  assertEquals(xml!.includes('<ShippingService>X</ShippingService>'), true);
+  assertEquals(
+    shippingServicesFromDetails({ ShippingServiceDetails: [
+      { ShippingService: 'A', Description: 'Royal Mail', ValidForSellingFlow: 'true' },
+      { ShippingService: 'B', ValidForSellingFlow: 'true', InternationalService: 'true' },
+      { ShippingService: 'C', ValidForSellingFlow: 'false' },
+    ] }),
+    [{ id: 'A', name: 'Royal Mail' }],
+  );
 });

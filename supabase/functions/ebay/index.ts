@@ -18,6 +18,7 @@
 //   end        { itemId }                    -> { ok }
 //   relist     { itemId }                    -> { itemId } (the new listing's id)
 //   add        { item }                      -> { itemId } (AddFixedPriceItem; item.templateItemId copies that listing's postage and returns)
+//   shippingServices {}                      -> { services } ({ id, name }[], domestic, listable)
 //   policies   {}                            -> { shipping, returns, payment } ({ id, name }[] each)
 //   aspects    { categoryId }                -> { aspects } (Taxonomy item specifics)
 //   categories { q }                         -> { categories } (Taxonomy suggestions)
@@ -49,6 +50,7 @@ import {
   addItemXml,
   policiesFromPreferences,
   shippingFromItemXml,
+  shippingServicesFromDetails,
 } from './trading.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
@@ -461,6 +463,15 @@ Deno.serve(async (req: Request) => {
         if (built.error) return json(400, { error: built.error, code: 'bad_request' });
         const res = await trading('AddFixedPriceItem', auth, built.xml);
         return json(200, { itemId: String(res.ItemID) });
+      }
+
+      case 'shippingServices': {
+        const res = await trading(
+          'GeteBayDetails',
+          await accessTokenFor(admin, user.id),
+          '<DetailName>ShippingServiceDetails</DetailName>',
+        );
+        return json(200, { services: shippingServicesFromDetails(res) });
       }
 
       case 'policies': {

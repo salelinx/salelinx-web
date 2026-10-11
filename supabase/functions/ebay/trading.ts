@@ -9,6 +9,7 @@ const ARRAY_PATHS = new Set([
   'GetMyeBaySellingResponse.ActiveList.ItemArray.Item',
   'GetMyeBaySellingResponse.UnsoldList.ItemArray.Item',
   'GetUserPreferencesResponse.SellerProfilePreferences.SupportedSellerProfiles.SupportedSellerProfile',
+  'GeteBayDetailsResponse.ShippingServiceDetails',
   'GetMyeBaySellingResponse.SoldList.OrderTransactionArray.OrderTransaction',
   'GetMyeBaySellingResponse.SoldList.OrderTransactionArray.OrderTransaction.Order.TransactionArray.Transaction',
   'GetItemResponse.Item.PictureDetails.PictureURL',
@@ -291,7 +292,12 @@ const MARKET_COUNTRY = {
 export function addItemXml(c, marketplace: string): { xml?: string; error?: string } {
   const [country, currency] = MARKET_COUNTRY[marketplace] ?? MARKET_COUNTRY.EBAY_GB;
   const p = c.policies ?? {};
-  const copied = typeof c.copiedShipping === 'string' ? c.copiedShipping : '';
+  const copied =
+    typeof c.copiedShipping === 'string' && c.copiedShipping
+      ? c.copiedShipping
+      : c.postage
+        ? postageXml(c.postage)
+        : '';
   if (typeof c.title !== 'string' || !c.title.trim()) return { error: 'Missing title' };
   if (typeof c.categoryId !== 'string' || !/^\d+$/.test(c.categoryId)) return { error: 'Missing category' };
   if (typeof c.price !== 'number' || c.price <= 0) return { error: 'Missing price' };
@@ -348,4 +354,31 @@ export function shippingFromItemXml(itemXml: string): string {
   const dispatch = block(itemXml, 'DispatchTimeMax');
   const shipTo = [...itemXml.matchAll(/<ShipToLocations>[\s\S]*?<\/ShipToLocations>/g)].map((m) => m[0]).join('');
   return shipping + (returnFields.length ? `<ReturnPolicy>${returnFields.join('')}</ReturnPolicy>` : '') + dispatch + shipTo;
+}
+
+const RETURN_DAYS = new Set([14, 30, 60]);
+
+/** Postage, returns and dispatch the seller entered in SaleLinx, sent with the listing itself. */
+export function postageXml(p): string {
+  if (typeof p?.service !== 'string' || !/^[A-Za-z0-9_]+$/.test(p.service)) return '';
+  const cost = Number(p.cost);
+  if (!Number.isFinite(cost) || cost < 0) return '';
+  const dispatch = Number.isInteger(p.dispatchDays) && p.dispatchDays >= 0 && p.dispatchDays <= 30 ? p.dispatchDays : 2;
+  const returns = RETURN_DAYS.has(p.returnsDays)
+    ? `<ReturnsAcceptedOption>ReturnsAccepted</ReturnsAcceptedOption><ReturnsWithinOption>Days_${p.returnsDays}</ReturnsWithinOption>` +
+      `<ShippingCostPaidByOption>${p.returnsPaidBy === 'Seller' ? 'Seller' : 'Buyer'}</ShippingCostPaidByOption>`
+    : '<ReturnsAcceptedOption>ReturnsNotAccepted</ReturnsAcceptedOption>';
+  return (
+    `<ShippingDetails><ShippingType>Flat</ShippingType><ShippingServiceOptions>` +
+    `<ShippingServicePriority>1</ShippingServicePriority><ShippingService>${p.service}</ShippingService>` +
+    `<ShippingServiceCost>${cost.toFixed(2)}</ShippingServiceCost></ShippingServiceOptions></ShippingDetails>` +
+    `<ReturnPolicy>${returns}</ReturnPolicy><DispatchTimeMax>${dispatch}</DispatchTimeMax>`
+  );
+}
+
+/** Domestic postage services a seller can pick on this site, from GeteBayDetails. */
+export function shippingServicesFromDetails(body) {
+  return (body.ShippingServiceDetails ?? [])
+    .filter((s) => String(s.ValidForSellingFlow) === 'true' && String(s.InternationalService) !== 'true')
+    .map((s) => ({ id: String(s.ShippingService), name: String(s.Description ?? s.ShippingService) }));
 }
