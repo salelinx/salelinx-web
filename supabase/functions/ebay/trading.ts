@@ -123,6 +123,22 @@ export function itemFromResponse(body) {
     quantity,
     conditionId: it.ConditionID != null ? Number(it.ConditionID) : null,
     conditionName: it.ConditionDisplayName ?? null,
+    conditionDescription: it.ConditionDescription ?? '',
+    sku: it.SKU ?? null,
+    bestOffer: {
+      enabled: String(it.BestOfferDetails?.BestOfferEnabled) === 'true',
+      minimum: money(it.ListingDetails?.MinimumBestOfferPrice)?.value ?? null,
+      autoAccept: money(it.ListingDetails?.BestOfferAutoAcceptPrice)?.value ?? null,
+    },
+    dispatchDays: it.DispatchTimeMax != null ? Number(it.DispatchTimeMax) : null,
+    postcode: it.PostalCode ?? null,
+    location: it.Location ?? null,
+    returnsAccepted: it.ReturnPolicy?.ReturnsAcceptedOption ?? null,
+    policies: {
+      shipping: it.SellerProfiles?.SellerShippingProfile?.ShippingProfileName ?? null,
+      returns: it.SellerProfiles?.SellerReturnProfile?.ReturnProfileName ?? null,
+      payment: it.SellerProfiles?.SellerPaymentProfile?.PaymentProfileName ?? null,
+    },
     photos: (it.PictureDetails?.PictureURL ?? []).map(String),
     specifics,
     categoryId: it.PrimaryCategory?.CategoryID ?? null,
@@ -149,6 +165,21 @@ export function reviseFields(c): string {
   // Revise takes the available quantity; eBay adds the units already sold.
   if (Number.isInteger(c.quantity)) fields += `<Quantity>${c.quantity}</Quantity>`;
   if (Number.isInteger(c.conditionId)) fields += `<ConditionID>${c.conditionId}</ConditionID>`;
+  if (typeof c.conditionDescription === 'string') {
+    fields += `<ConditionDescription>${esc(c.conditionDescription.slice(0, 1000))}</ConditionDescription>`;
+  }
+  if (c.bestOffer && typeof c.bestOffer === 'object') {
+    const { enabled, minimum, autoAccept } = c.bestOffer;
+    fields += `<BestOfferDetails><BestOfferEnabled>${enabled === true}</BestOfferEnabled></BestOfferDetails>`;
+    let prices = '';
+    if (enabled === true && typeof autoAccept === 'number') {
+      prices += `<BestOfferAutoAcceptPrice>${autoAccept.toFixed(2)}</BestOfferAutoAcceptPrice>`;
+    }
+    if (enabled === true && typeof minimum === 'number') {
+      prices += `<MinimumBestOfferPrice>${minimum.toFixed(2)}</MinimumBestOfferPrice>`;
+    }
+    if (prices) fields += `<ListingDetails>${prices}</ListingDetails>`;
+  }
   // Both of these replace the whole list on eBay, so the caller sends the full set.
   if (Array.isArray(c.photos)) {
     fields += `<PictureDetails>${c.photos.map((u) => `<PictureURL>${esc(u)}</PictureURL>`).join('')}</PictureDetails>`;
@@ -193,4 +224,24 @@ export function viewsFromTrafficReport(report): Record<string, number> {
     if (Number.isFinite(n)) views[String(id)] = n;
   }
   return views;
+}
+
+/** Taxonomy item aspects for a category, trimmed to what the editor renders. */
+export function aspectsFromResponse(body) {
+  return (body?.aspects ?? []).map((a) => ({
+    name: a.localizedAspectName,
+    required: a.aspectConstraint?.aspectRequired === true,
+    recommended: a.aspectConstraint?.aspectUsage === 'RECOMMENDED',
+    freeText: a.aspectConstraint?.aspectMode !== 'SELECTION_ONLY',
+    multi: a.aspectConstraint?.itemToAspectCardinality === 'MULTI',
+    values: (a.aspectValues ?? []).slice(0, 300).map((v) => v.localizedValue),
+  }));
+}
+
+export function conditionsFromResponse(body) {
+  const policy = body?.itemConditionPolicies?.[0];
+  return (policy?.itemConditions ?? []).map((c) => ({
+    id: Number(c.conditionId),
+    name: c.conditionDescription,
+  }));
 }

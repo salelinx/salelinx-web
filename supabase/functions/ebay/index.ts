@@ -15,6 +15,8 @@
 //   revise     { itemId, changes }           -> { ok }
 //   uploadPhoto { dataUrl }                  -> { url }
 //   end        { itemId }                    -> { ok }
+//   aspects    { categoryId }                -> { aspects } (Taxonomy item specifics)
+//   conditions { categoryId }                -> { conditions } (allowed condition ids)
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
@@ -35,6 +37,8 @@ import {
   parseTrading,
   trafficQuery,
   viewsFromTrafficReport,
+  aspectsFromResponse,
+  conditionsFromResponse,
   reviseFields,
 } from './trading.ts';
 
@@ -183,6 +187,17 @@ async function revise(auth, itemId: string, c) {
 
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024;
 const TRAFFIC_BATCH = 200;
+
+const MARKETPLACE_BY_SITE = Object.fromEntries(Object.entries(SITE_IDS).map(([m, id]) => [id, m]));
+
+async function rest(auth, path: string) {
+  const res = await fetch(`${API_HOST}${path}`, { headers: { Authorization: `Bearer ${auth.token}` } });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new EbayError(body?.errors?.[0]?.message ?? `eBay request failed (${res.status})`, 'ebay', 502);
+  }
+  return body;
+}
 
 async function uploadPhoto(auth, dataUrl: string): Promise<string> {
   const m = /^data:(image\/[a-z+]+);base64,(.+)$/s.exec(dataUrl ?? '');
@@ -343,6 +358,31 @@ Deno.serve(async (req: Request) => {
 
       case 'uploadPhoto': {
         return json(200, { url: await uploadPhoto(await accessTokenFor(admin, user.id), body.dataUrl) });
+      }
+
+      case 'aspects': {
+        const categoryId = String(body.categoryId ?? '');
+        if (!/^\d+$/.test(categoryId)) return json(400, { error: 'Missing categoryId' });
+        const auth = await accessTokenFor(admin, user.id);
+        const marketplace = MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB';
+        const tree = await rest(auth, `/commerce/taxonomy/v1/get_default_category_tree_id?marketplace_id=${marketplace}`);
+        const aspects = await rest(
+          auth,
+          `/commerce/taxonomy/v1/category_tree/${tree.categoryTreeId}/get_item_aspects_for_category?category_id=${categoryId}`,
+        );
+        return json(200, { aspects: aspectsFromResponse(aspects) });
+      }
+
+      case 'conditions': {
+        const categoryId = String(body.categoryId ?? '');
+        if (!/^\d+$/.test(categoryId)) return json(400, { error: 'Missing categoryId' });
+        const auth = await accessTokenFor(admin, user.id);
+        const marketplace = MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB';
+        const policies = await rest(
+          auth,
+          `/sell/metadata/v1/marketplace/${marketplace}/get_item_condition_policies?filter=${encodeURIComponent(`categoryIds:{${categoryId}}`)}`,
+        );
+        return json(200, { conditions: conditionsFromResponse(policies) });
       }
 
       case 'traffic': {

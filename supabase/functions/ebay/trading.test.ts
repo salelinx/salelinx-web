@@ -10,6 +10,7 @@ import {
   reviseFields,
   trafficQuery,
   viewsFromTrafficReport,
+  aspectsFromResponse,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -162,4 +163,30 @@ Deno.test('traffic: 90 days ending yesterday, listing ids piped, views keyed by 
     }),
     { '111': 42 },
   );
+});
+
+Deno.test('revise sends offers and condition text', () => {
+  assertEquals(
+    reviseFields({ conditionDescription: 'Small mark', bestOffer: { enabled: true, minimum: 20, autoAccept: 35 } }),
+    '<ConditionDescription>Small mark</ConditionDescription>' +
+      '<BestOfferDetails><BestOfferEnabled>true</BestOfferEnabled></BestOfferDetails>' +
+      '<ListingDetails><BestOfferAutoAcceptPrice>35.00</BestOfferAutoAcceptPrice><MinimumBestOfferPrice>20.00</MinimumBestOfferPrice></ListingDetails>',
+  );
+  assertEquals(
+    reviseFields({ bestOffer: { enabled: false, minimum: 20 } }),
+    '<BestOfferDetails><BestOfferEnabled>false</BestOfferEnabled></BestOfferDetails>',
+  );
+});
+
+Deno.test('aspects keep required/recommended/free-text flags and values', () => {
+  const [brand] = aspectsFromResponse({
+    aspects: [
+      {
+        localizedAspectName: 'Brand',
+        aspectConstraint: { aspectRequired: true, aspectMode: 'FREE_TEXT', itemToAspectCardinality: 'SINGLE', aspectUsage: 'RECOMMENDED' },
+        aspectValues: [{ localizedValue: 'Oakley' }, { localizedValue: 'Nike' }],
+      },
+    ],
+  });
+  assertEquals(brand, { name: 'Brand', required: true, recommended: true, freeText: true, multi: false, values: ['Oakley', 'Nike'] });
 });
