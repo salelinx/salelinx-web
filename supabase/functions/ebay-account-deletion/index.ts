@@ -12,12 +12,13 @@
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { createHash, createVerify } from 'node:crypto';
+import { createHash, createPublicKey, createVerify, type KeyObject } from 'node:crypto';
+import { Buffer } from 'node:buffer';
 
 const SANDBOX = Deno.env.get('EBAY_ENV') === 'sandbox';
 const API_HOST = SANDBOX ? 'https://api.sandbox.ebay.com' : 'https://api.ebay.com';
 
-const keyCache = new Map<string, { pem: string; at: number }>();
+const keyCache = new Map<string, { key: KeyObject; at: number }>();
 
 async function appToken(): Promise<string> {
   const basic = btoa(`${Deno.env.get('EBAY_CLIENT_ID')}:${Deno.env.get('EBAY_CLIENT_SECRET')}`);
@@ -33,20 +34,22 @@ async function appToken(): Promise<string> {
   return (await res.json()).access_token;
 }
 
-async function publicKey(kid: string): Promise<string> {
+/** eBay returns the PEM with its armour and body run together, which the PEM parser refuses, so load the DER bytes. */
+export function ebayPublicKey(key: string): KeyObject {
+  const body = key.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, '').replace(/\s+/g, '');
+  return createPublicKey({ key: Buffer.from(body, 'base64'), format: 'der', type: 'spki' });
+}
+
+async function publicKey(kid: string): Promise<KeyObject> {
   const hit = keyCache.get(kid);
-  if (hit && Date.now() - hit.at < 3_600_000) return hit.pem;
+  if (hit && Date.now() - hit.at < 3_600_000) return hit.key;
   const res = await fetch(`${API_HOST}/commerce/notification/v1/public_key/${encodeURIComponent(kid)}`, {
     headers: { Authorization: `Bearer ${await appToken()}` },
   });
   if (!res.ok) throw new Error(`public key ${res.status}`);
-  const { key } = await res.json();
-  // eBay returns the PEM body with its armour lines run together.
-  const pem = key
-    .replace('-----BEGIN PUBLIC KEY-----', '-----BEGIN PUBLIC KEY-----\n')
-    .replace('-----END PUBLIC KEY-----', '\n-----END PUBLIC KEY-----');
-  keyCache.set(kid, { pem, at: Date.now() });
-  return pem;
+  const key = ebayPublicKey((await res.json()).key);
+  keyCache.set(kid, { key, at: Date.now() });
+  return key;
 }
 
 async function verified(signatureHeader: string | null, raw: string): Promise<boolean> {
@@ -63,7 +66,7 @@ async function verified(signatureHeader: string | null, raw: string): Promise<bo
   }
 }
 
-Deno.serve(async (req: Request) => {
+export async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
   if (req.method === 'GET') {
@@ -100,4 +103,6 @@ Deno.serve(async (req: Request) => {
     return new Response('Retry', { status: 500 });
   }
   return new Response(null, { status: 204 });
-});
+}
+
+if (import.meta.main) Deno.serve(handler);
