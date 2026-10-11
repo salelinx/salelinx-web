@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { InstallExtensionButton } from '@/components/InstallExtensionButton';
+import { isSignedIn } from '@/lib/auth/session';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { RoadmapSection } from '@/components/features/RoadmapSection';
@@ -34,9 +36,11 @@ export default async function FeaturesPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, tiers] = await Promise.all([
+  const [t, tHeader, tiers, signedIn] = await Promise.all([
     getTranslations('Features'),
+    getTranslations('Header'),
     getCachedTierConfigs(),
+    isSignedIn(),
   ]);
 
   return (
@@ -52,12 +56,19 @@ export default async function FeaturesPage({
           {t('hero.description')}
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/auth/signup"
-            className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-          >
-            {t('hero.installExtension')}
-          </Link>
+          {signedIn ? (
+            <InstallExtensionButton
+              label={tHeader('addToChrome')}
+              className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
+            />
+          ) : (
+            <Link
+              href="/auth/signup"
+              className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
+            >
+              {t('hero.installExtension')}
+            </Link>
+          )}
           <a
             href="#pricing"
             className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
@@ -85,12 +96,19 @@ export default async function FeaturesPage({
             {t('ctaSection.title')}
           </h2>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/auth/signup"
-              className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-            >
-              {t('ctaSection.getStarted')}
-            </Link>
+            {signedIn ? (
+              <InstallExtensionButton
+                label={tHeader('addToChrome')}
+                className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
+              />
+            ) : (
+              <Link
+                href="/auth/signup"
+                className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
+              >
+                {t('ctaSection.getStarted')}
+              </Link>
+            )}
             <a
               href="#pricing"
               className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
