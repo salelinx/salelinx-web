@@ -234,7 +234,7 @@ export function aspectsFromResponse(body) {
     recommended: a.aspectConstraint?.aspectUsage === 'RECOMMENDED',
     freeText: a.aspectConstraint?.aspectMode !== 'SELECTION_ONLY',
     multi: a.aspectConstraint?.itemToAspectCardinality === 'MULTI',
-    values: (a.aspectValues ?? []).slice(0, 300).map((v) => v.localizedValue),
+    values: (a.aspectValues ?? []).slice(0, 10000).map((v) => v.localizedValue),
   }));
 }
 
