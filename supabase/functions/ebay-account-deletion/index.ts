@@ -12,8 +12,8 @@
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { createHash, createPublicKey, createVerify, type KeyObject } from 'node:crypto';
-import { Buffer } from 'node:buffer';
+import { createHash, createVerify, type KeyObject } from 'node:crypto';
+import { ebayPublicKey } from './key.ts';
 
 const SANDBOX = Deno.env.get('EBAY_ENV') === 'sandbox';
 const API_HOST = SANDBOX ? 'https://api.sandbox.ebay.com' : 'https://api.ebay.com';
@@ -32,12 +32,6 @@ async function appToken(): Promise<string> {
   });
   if (!res.ok) throw new Error(`app token ${res.status}`);
   return (await res.json()).access_token;
-}
-
-/** eBay returns the PEM with its armour and body run together, which the PEM parser refuses, so load the DER bytes. */
-export function ebayPublicKey(key: string): KeyObject {
-  const body = key.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, '').replace(/\s+/g, '');
-  return createPublicKey({ key: Buffer.from(body, 'base64'), format: 'der', type: 'spki' });
 }
 
 async function publicKey(kid: string): Promise<KeyObject> {
@@ -66,7 +60,7 @@ async function verified(signatureHeader: string | null, raw: string): Promise<bo
   }
 }
 
-export async function handler(req: Request): Promise<Response> {
+Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
 
   if (req.method === 'GET') {
@@ -103,6 +97,4 @@ export async function handler(req: Request): Promise<Response> {
     return new Response('Retry', { status: 500 });
   }
   return new Response(null, { status: 204 });
-}
-
-if (import.meta.main) Deno.serve(handler);
+});

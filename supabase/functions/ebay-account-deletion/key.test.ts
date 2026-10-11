@@ -1,6 +1,6 @@
 import { assert } from 'jsr:@std/assert@1';
 import { generateKeyPairSync, createSign } from 'node:crypto';
-import { ebayPublicKey } from './index.ts';
+import { ebayPublicKey } from './key.ts';
 import { createVerify } from 'node:crypto';
 
 Deno.test('reads eBay public key with armour and body run together', () => {
