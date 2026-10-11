@@ -167,6 +167,7 @@ async function listings(auth, page: number) {
     auth,
     `<ActiveList><Include>true</Include><IncludeWatchCount>true</IncludeWatchCount>${pagination}</ActiveList>` +
       `<SoldList><Include>true</Include><DurationInDays>60</DurationInDays>${pagination}</SoldList>` +
+      `<UnsoldList><Include>true</Include><DurationInDays>60</DurationInDays>${pagination}</UnsoldList>` +
       `<DetailLevel>ReturnAll</DetailLevel>`,
   );
   return listingsFromResponse(body, page);

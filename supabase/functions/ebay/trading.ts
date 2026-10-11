@@ -7,6 +7,7 @@ import { XMLParser } from 'https://esm.sh/fast-xml-parser@4.5.0';
 
 const ARRAY_PATHS = new Set([
   'GetMyeBaySellingResponse.ActiveList.ItemArray.Item',
+  'GetMyeBaySellingResponse.UnsoldList.ItemArray.Item',
   'GetMyeBaySellingResponse.SoldList.OrderTransactionArray.OrderTransaction',
   'GetMyeBaySellingResponse.SoldList.OrderTransactionArray.OrderTransaction.Order.TransactionArray.Transaction',
   'GetItemResponse.Item.PictureDetails.PictureURL',
@@ -98,11 +99,17 @@ export function listingsFromResponse(body, page: number) {
   const sold = soldTransactions(body.SoldList)
     .map(summaryFromSold)
     .filter((l) => !activeIds.has(l.itemId));
+  const taken = new Set([...activeIds, ...sold.map((l) => l.itemId)]);
+  // Ended without selling: relistable from eBay's Unsold list, so the panel keeps showing it.
+  const unsold = (body.UnsoldList?.ItemArray?.Item ?? [])
+    .map((item) => ({ ...summaryFromActive(item), quantity: 0, watchCount: null, status: 'hidden' }))
+    .filter((l) => !taken.has(l.itemId));
   const pages = Math.max(
     Number(body.ActiveList?.PaginationResult?.TotalNumberOfPages ?? 0),
     Number(body.SoldList?.PaginationResult?.TotalNumberOfPages ?? 0),
+    Number(body.UnsoldList?.PaginationResult?.TotalNumberOfPages ?? 0),
   );
-  return { listings: [...sold, ...active], hasMore: page < pages };
+  return { listings: [...sold, ...unsold, ...active], hasMore: page < pages };
 }
 
 export function itemFromResponse(body) {

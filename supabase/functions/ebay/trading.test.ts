@@ -210,3 +210,15 @@ Deno.test('category suggestions read as a root-to-leaf path', () => {
   );
   assertEquals(reviseFields({ categoryId: '169291' }), '<PrimaryCategory><CategoryID>169291</CategoryID></PrimaryCategory>');
 });
+
+Deno.test('ended unsold listings come back as hidden, unless also active or sold', () => {
+  const item = (id: string) => ({ ItemID: id, Title: 't', SellingStatus: { CurrentPrice: '5.00' } });
+  const { listings } = listingsFromResponse(
+    {
+      ActiveList: { ItemArray: { Item: [item('1')] } },
+      UnsoldList: { ItemArray: { Item: [item('1'), item('2')] } },
+    },
+    1,
+  );
+  assertEquals(listings.map((l) => [l.itemId, l.status]), [['2', 'hidden'], ['1', 'active']]);
+});
