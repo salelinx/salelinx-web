@@ -1,7 +1,7 @@
 // Supabase Edge Function: resolve-category
 // ------------------------------------------------------------------------
-// Resolves Depop <-> Vinted categories for the SaleLinx extension's
-// crosslister.
+// Resolves Depop <-> Vinted categories, and eBay categories from listing
+// wording, for the SaleLinx extension's crosslister.
 //
 // Why this exists: the category mapping tables (~116KB) used to ship inside
 // the extension bundle, where anyone who installed it could unzip the .crx and
@@ -43,6 +43,7 @@ import {
 } from './_generated/category-resolve.ts';
 import { DEPOP_ID_TO_DRAFT_CATEGORY } from './_generated/category-maps-depop.ts';
 import { vintedCategoryIdToDepop } from './_generated/category-maps-vinted.ts';
+import { ebayCategoriesFor } from './ebay-category.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -235,7 +236,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── Resolve ──────────────────────────────────────────────────────────────
-  const results = items.map((raw: Record<string, unknown>) => {
+  const results = await Promise.all(items.map(async (raw: Record<string, unknown>) => {
     const id = typeof raw?.id === 'string' ? raw.id : '';
     if (!id) return { id: '', error: 'Missing id' };
 
@@ -267,6 +268,11 @@ Deno.serve(async (req: Request) => {
           return { id, depopDraft: DEPOP_ID_TO_DRAFT_CATEGORY[raw.depopCategoryId] ?? null };
         }
 
+        case 'toEbay': {
+          const req = (raw.toEbay ?? {}) as Record<string, unknown>;
+          return { id, toEbay: await ebayCategoriesFor(clampText(req.query), req.marketplace) };
+        }
+
         case 'depopProductType': {
           const text = (raw.text ?? {}) as Record<string, unknown>;
           return {
@@ -286,7 +292,7 @@ Deno.serve(async (req: Request) => {
       console.error('[resolve-category] item failed:', err instanceof Error ? err.message : err);
       return { id, error: 'Resolution failed' };
     }
-  });
+  }));
 
   console.log(`[resolve-category] user=${user.id} resolved=${results.length}`);
   return json(200, { results });
