@@ -17,6 +17,8 @@
 //   uploadPhoto { dataUrl }                  -> { url }
 //   end        { itemId }                    -> { ok }
 //   relist     { itemId }                    -> { itemId } (the new listing's id)
+//   add        { item }                      -> { itemId } (AddFixedPriceItem)
+//   policies   {}                            -> { shipping, returns, payment } ({ id, name }[] each)
 //   aspects    { categoryId }                -> { aspects } (Taxonomy item specifics)
 //   categories { q }                         -> { categories } (Taxonomy suggestions)
 //   conditions { categoryId }                -> { conditions } (allowed condition ids)
@@ -44,6 +46,7 @@ import {
   conditionsFromResponse,
   categorySuggestionsFromResponse,
   reviseFields,
+  addItemXml,
 } from './trading.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
@@ -432,6 +435,29 @@ Deno.serve(async (req: Request) => {
           Object.assign(views, viewsFromTrafficReport(report));
         }
         return json(200, { views });
+      }
+
+      case 'add': {
+        const auth = await accessTokenFor(admin, user.id);
+        const built = addItemXml(body.item ?? {}, MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB');
+        if (built.error) return json(400, { error: built.error, code: 'bad_request' });
+        const res = await trading('AddFixedPriceItem', auth, built.xml);
+        return json(200, { itemId: String(res.ItemID) });
+      }
+
+      case 'policies': {
+        const auth = await accessTokenFor(admin, user.id);
+        const market = MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB';
+        const list = async (kind: string, key: string) =>
+          ((await rest(auth, `/sell/account/v1/${kind}_policy?marketplace_id=${market}`))[key] ?? []).map(
+            (p) => ({ id: String(p[`${kind}PolicyId`]), name: p.name ?? '' }),
+          );
+        const [shipping, returns, payment] = await Promise.all([
+          list('fulfillment', 'fulfillmentPolicies'),
+          list('return', 'returnPolicies'),
+          list('payment', 'paymentPolicies'),
+        ]);
+        return json(200, { shipping, returns, payment });
       }
 
       case 'relist': {

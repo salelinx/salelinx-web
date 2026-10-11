@@ -12,6 +12,7 @@ import {
   viewsFromTrafficReport,
   aspectsFromResponse,
   categorySuggestionsFromResponse,
+  addItemXml,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -225,4 +226,18 @@ Deno.test('ended unsold listings come back as hidden, unless also active or sold
     1,
   );
   assertEquals(listings.map((l) => [l.itemId, l.status]), [['2', 'hidden'], ['1', 'active']]);
+});
+
+Deno.test('a new listing carries policies, location and the item fields', () => {
+  const item = {
+    title: 'Levi 501 jeans', categoryId: '11483', price: 25, photos: ['https://i.ebayimg.com/1.jpg'],
+    conditionId: 3000, specifics: { Brand: ['Levi'] }, postcode: 'SN8 1UF',
+    policies: { shipping: '1', returns: '2', payment: '3' },
+  };
+  const { xml } = addItemXml(item, 'EBAY_GB');
+  for (const part of ['<Quantity>1</Quantity>', '<Currency>GBP</Currency>', '<PostalCode>SN8 1UF</PostalCode>',
+    '<ShippingProfileID>1</ShippingProfileID>', '<CategoryID>11483</CategoryID>', '<ListingDuration>GTC</ListingDuration>']) {
+    assertEquals(xml!.includes(part), true, part);
+  }
+  assertEquals(addItemXml({ ...item, policies: {} }, 'EBAY_GB').error?.includes('policies'), true);
 });
