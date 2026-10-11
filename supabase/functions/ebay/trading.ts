@@ -8,6 +8,7 @@ import { XMLParser } from 'https://esm.sh/fast-xml-parser@4.5.0';
 const ARRAY_PATHS = new Set([
   'GetMyeBaySellingResponse.ActiveList.ItemArray.Item',
   'GetMyeBaySellingResponse.UnsoldList.ItemArray.Item',
+  'GetUserPreferencesResponse.SellerProfilePreferences.SupportedSellerProfiles.SupportedSellerProfile',
   'GetMyeBaySellingResponse.SoldList.OrderTransactionArray.OrderTransaction',
   'GetMyeBaySellingResponse.SoldList.OrderTransactionArray.OrderTransaction.Order.TransactionArray.Transaction',
   'GetItemResponse.Item.PictureDetails.PictureURL',
@@ -301,4 +302,14 @@ export function addItemXml(c, marketplace: string): { xml?: string; error?: stri
     `<SellerPaymentProfile><PaymentProfileID>${p.payment}</PaymentProfileID></SellerPaymentProfile>` +
     `</SellerProfiles></Item>`;
   return { xml };
+}
+
+/** The seller's business policies by kind, from GetUserPreferences. */
+export function policiesFromPreferences(body) {
+  const profiles = body.SellerProfilePreferences?.SupportedSellerProfiles?.SupportedSellerProfile ?? [];
+  const of = (type: string) =>
+    profiles
+      .filter((p) => p.ProfileType === type)
+      .map((p) => ({ id: String(p.ProfileID), name: String(p.ProfileName ?? '') }));
+  return { shipping: of('SHIPPING'), returns: of('RETURN_POLICY'), payment: of('PAYMENT') };
 }

@@ -47,6 +47,7 @@ import {
   categorySuggestionsFromResponse,
   reviseFields,
   addItemXml,
+  policiesFromPreferences,
 } from './trading.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
@@ -446,18 +447,12 @@ Deno.serve(async (req: Request) => {
       }
 
       case 'policies': {
-        const auth = await accessTokenFor(admin, user.id);
-        const market = MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB';
-        const list = async (kind: string, key: string) =>
-          ((await rest(auth, `/sell/account/v1/${kind}_policy?marketplace_id=${market}`))[key] ?? []).map(
-            (p) => ({ id: String(p[`${kind}PolicyId`]), name: p.name ?? '' }),
-          );
-        const [shipping, returns, payment] = await Promise.all([
-          list('fulfillment', 'fulfillmentPolicies'),
-          list('return', 'returnPolicies'),
-          list('payment', 'paymentPolicies'),
-        ]);
-        return json(200, { shipping, returns, payment });
+        const res = await trading(
+          'GetUserPreferences',
+          await accessTokenFor(admin, user.id),
+          '<ShowSellerProfilePreferences>true</ShowSellerProfilePreferences>',
+        );
+        return json(200, policiesFromPreferences(res));
       }
 
       case 'relist': {

@@ -13,6 +13,7 @@ import {
   aspectsFromResponse,
   categorySuggestionsFromResponse,
   addItemXml,
+  policiesFromPreferences,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -240,4 +241,22 @@ Deno.test('a new listing carries policies, location and the item fields', () => 
     assertEquals(xml!.includes(part), true, part);
   }
   assertEquals(addItemXml({ ...item, policies: {} }, 'EBAY_GB').error?.includes('policies'), true);
+});
+
+Deno.test('business policies are grouped by kind', () => {
+  const profile = (id: number, type: string, name: string) => ({ ProfileID: id, ProfileType: type, ProfileName: name });
+  assertEquals(
+    policiesFromPreferences({
+      SellerProfilePreferences: {
+        SupportedSellerProfiles: {
+          SupportedSellerProfile: [profile(1, 'SHIPPING', 'Royal Mail'), profile(2, 'RETURN_POLICY', '30 days'), profile(3, 'PAYMENT', 'Managed')],
+        },
+      },
+    }),
+    {
+      shipping: [{ id: '1', name: 'Royal Mail' }],
+      returns: [{ id: '2', name: '30 days' }],
+      payment: [{ id: '3', name: 'Managed' }],
+    },
+  );
 });
