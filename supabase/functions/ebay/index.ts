@@ -17,7 +17,7 @@
 //   uploadPhoto { dataUrl }                  -> { url }
 //   end        { itemId }                    -> { ok }
 //   relist     { itemId }                    -> { itemId } (the new listing's id)
-//   add        { item }                      -> { itemId } (AddFixedPriceItem)
+//   add        { item }                      -> { itemId } (AddFixedPriceItem; item.templateItemId copies that listing's postage and returns)
 //   policies   {}                            -> { shipping, returns, payment } ({ id, name }[] each)
 //   aspects    { categoryId }                -> { aspects } (Taxonomy item specifics)
 //   categories { q }                         -> { categories } (Taxonomy suggestions)
@@ -48,6 +48,7 @@ import {
   reviseFields,
   addItemXml,
   policiesFromPreferences,
+  shippingFromItemXml,
 } from './trading.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
@@ -146,6 +147,10 @@ async function accessTokenFor(admin, userId: string): Promise<{ token: string; s
 // ── Trading API ────────────────────────────────────────────────────────────
 
 async function trading(call: string, auth: { token: string; siteId: number }, inner: string) {
+  return parseTrading(call, await tradingText(call, auth, inner));
+}
+
+async function tradingText(call: string, auth: { token: string; siteId: number }, inner: string) {
   const res = await fetch(`${API_HOST}/ws/api.dll`, {
     method: 'POST',
     headers: {
@@ -160,7 +165,7 @@ async function trading(call: string, auth: { token: string; siteId: number }, in
       `<${call}Request xmlns="urn:ebay:apis:eBLBaseComponents">` +
       `<ErrorLanguage>en_GB</ErrorLanguage>${inner}</${call}Request>`,
   });
-  return parseTrading(call, await res.text());
+  return res.text();
 }
 
 const PAGE_SIZE = 200;
@@ -440,7 +445,19 @@ Deno.serve(async (req: Request) => {
 
       case 'add': {
         const auth = await accessTokenFor(admin, user.id);
-        const built = addItemXml(body.item ?? {}, MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB');
+        const item = { ...(body.item ?? {}) };
+        // No business policies: copy postage, returns and location from one of the seller's listings.
+        if (typeof item.templateItemId === 'string' && /^\d+$/.test(item.templateItemId)) {
+          const text = await tradingText(
+            'GetItem',
+            auth,
+            `<ItemID>${item.templateItemId}</ItemID><DetailLevel>ReturnAll</DetailLevel>`,
+          );
+          const template = parseTrading('GetItem', text).Item ?? {};
+          item.copiedShipping = shippingFromItemXml(text);
+          item.postcode = item.postcode || template.PostalCode || '';
+        }
+        const built = addItemXml(item, MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB');
         if (built.error) return json(400, { error: built.error, code: 'bad_request' });
         const res = await trading('AddFixedPriceItem', auth, built.xml);
         return json(200, { itemId: String(res.ItemID) });

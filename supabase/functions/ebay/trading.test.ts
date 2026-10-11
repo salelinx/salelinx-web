@@ -14,6 +14,7 @@ import {
   categorySuggestionsFromResponse,
   addItemXml,
   policiesFromPreferences,
+  shippingFromItemXml,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -259,4 +260,25 @@ Deno.test('business policies are grouped by kind', () => {
       payment: [{ id: '3', name: 'Managed' }],
     },
   );
+});
+
+Deno.test('a listing without policies lends its postage and returns, inputs only', () => {
+  const item =
+    '<Item><ShippingDetails><ShippingServiceOptions><ShippingService>UK_RoyalMailSecondClassStandard</ShippingService>' +
+    '<ShippingServiceCost currencyID="GBP">3.20</ShippingServiceCost><ShippingTimeMin>2</ShippingTimeMin></ShippingServiceOptions>' +
+    '<ShippingType>Flat</ShippingType></ShippingDetails><DispatchTimeMax>2</DispatchTimeMax>' +
+    '<ReturnPolicy><ReturnsAcceptedOption>ReturnsNotAccepted</ReturnsAcceptedOption><ReturnsAccepted>No returns accepted</ReturnsAccepted></ReturnPolicy>' +
+    '<ShipToLocations>GB</ShipToLocations><PostalCode>SN8 1UF</PostalCode></Item>';
+  const out = shippingFromItemXml(item);
+  assertEquals(out.includes('<ShippingService>UK_RoyalMailSecondClassStandard</ShippingService>'), true);
+  assertEquals(out.includes('ShippingTimeMin'), false);
+  assertEquals(out.includes('<ReturnPolicy><ReturnsAcceptedOption>ReturnsNotAccepted</ReturnsAcceptedOption></ReturnPolicy>'), true);
+  assertEquals(out.includes('<DispatchTimeMax>2</DispatchTimeMax>'), true);
+  assertEquals(out.includes('<ShipToLocations>GB</ShipToLocations>'), true);
+  const { xml } = addItemXml(
+    { title: 't', categoryId: '1', price: 5, photos: ['u'], postcode: 'SN8 1UF', copiedShipping: out },
+    'EBAY_GB',
+  );
+  assertEquals(xml!.includes('SellerProfiles'), false);
+  assertEquals(xml!.includes('<DispatchTimeMax>2</DispatchTimeMax>'), true);
 });

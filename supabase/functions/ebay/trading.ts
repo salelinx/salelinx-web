@@ -291,24 +291,29 @@ const MARKET_COUNTRY = {
 export function addItemXml(c, marketplace: string): { xml?: string; error?: string } {
   const [country, currency] = MARKET_COUNTRY[marketplace] ?? MARKET_COUNTRY.EBAY_GB;
   const p = c.policies ?? {};
+  const copied = typeof c.copiedShipping === 'string' ? c.copiedShipping : '';
   if (typeof c.title !== 'string' || !c.title.trim()) return { error: 'Missing title' };
   if (typeof c.categoryId !== 'string' || !/^\d+$/.test(c.categoryId)) return { error: 'Missing category' };
   if (typeof c.price !== 'number' || c.price <= 0) return { error: 'Missing price' };
   if (!Array.isArray(c.photos) || c.photos.length === 0) return { error: 'At least one photo is needed' };
-  if (![p.shipping, p.returns, p.payment].every((id) => typeof id === 'string' && /^\d+$/.test(id))) {
+  const hasPolicies = [p.shipping, p.returns, p.payment].every((id) => typeof id === 'string' && /^\d+$/.test(id));
+  if (!hasPolicies && !copied) {
     return { error: 'Choose your eBay postage, returns and payment policies first' };
   }
   if (typeof c.postcode !== 'string' || !c.postcode.trim()) return { error: 'Missing item location postcode' };
+  const delivery = hasPolicies
+    ? `<SellerProfiles>` +
+      `<SellerShippingProfile><ShippingProfileID>${p.shipping}</ShippingProfileID></SellerShippingProfile>` +
+      `<SellerReturnProfile><ReturnProfileID>${p.returns}</ReturnProfileID></SellerReturnProfile>` +
+      `<SellerPaymentProfile><PaymentProfileID>${p.payment}</PaymentProfileID></SellerPaymentProfile>` +
+      `</SellerProfiles>`
+    : copied;
   const xml =
     `<Item>${reviseFields({ ...c, quantity: Number.isInteger(c.quantity) ? c.quantity : 1 })}` +
     `<ListingType>FixedPriceItem</ListingType><ListingDuration>GTC</ListingDuration>` +
     `<Country>${country}</Country><Currency>${currency}</Currency>` +
     `<PostalCode>${esc(c.postcode.trim().slice(0, 20))}</PostalCode>` +
-    `<SellerProfiles>` +
-    `<SellerShippingProfile><ShippingProfileID>${p.shipping}</ShippingProfileID></SellerShippingProfile>` +
-    `<SellerReturnProfile><ReturnProfileID>${p.returns}</ReturnProfileID></SellerReturnProfile>` +
-    `<SellerPaymentProfile><PaymentProfileID>${p.payment}</PaymentProfileID></SellerPaymentProfile>` +
-    `</SellerProfiles></Item>`;
+    `${delivery}</Item>`;
   return { xml };
 }
 
@@ -320,4 +325,27 @@ export function policiesFromPreferences(body) {
       .filter((p) => p.ProfileType === type)
       .map((p) => ({ id: String(p.ProfileID), name: String(p.ProfileName ?? '') }));
   return { shipping: of('SHIPPING'), returns: of('RETURN_POLICY'), payment: of('PAYMENT') };
+}
+
+const block = (xmlText: string, tag: string) =>
+  new RegExp(`<${tag}>[\\s\\S]*?</${tag}>`).exec(xmlText)?.[0] ?? '';
+
+// GetItem echoes display-only fields alongside the ones a listing call takes.
+const SHIPPING_OUTPUT_ONLY = ['ShippingTimeMin', 'ShippingTimeMax', 'ExpeditedService', 'SellingManagerSalesRecordNumber', 'ShippingServiceUsed', 'ThirdPartyCheckout'];
+
+/**
+ * A listing's own postage, returns and dispatch time, as raw Trading XML to put
+ * on a new listing: how a seller without business policies is crosslisted to eBay.
+ */
+export function shippingFromItemXml(itemXml: string): string {
+  let shipping = block(itemXml, 'ShippingDetails');
+  for (const tag of SHIPPING_OUTPUT_ONLY) {
+    shipping = shipping.replace(new RegExp(`<${tag}>[\\s\\S]*?</${tag}>`, 'g'), '');
+  }
+  // Only the *Option fields and the description are inputs; the rest is how eBay displays them.
+  const returns = block(itemXml, 'ReturnPolicy');
+  const returnFields = [...returns.matchAll(/<(\w+Option|Description)>[\s\S]*?<\/\1>/g)].map((m) => m[0]);
+  const dispatch = block(itemXml, 'DispatchTimeMax');
+  const shipTo = [...itemXml.matchAll(/<ShipToLocations>[\s\S]*?<\/ShipToLocations>/g)].map((m) => m[0]).join('');
+  return shipping + (returnFields.length ? `<ReturnPolicy>${returnFields.join('')}</ReturnPolicy>` : '') + dispatch + shipTo;
 }
