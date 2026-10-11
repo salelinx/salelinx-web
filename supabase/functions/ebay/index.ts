@@ -10,6 +10,7 @@
 //   consentUrl { state }                     -> { url }
 //   link       { code }                      -> { userId, username, marketplace }
 //   unlink     {}                            -> { ok }
+//   account    {}                            -> { accountType } ('INDIVIDUAL' or 'BUSINESS')
 //   listings   { page }                      -> { listings, hasMore }
 //   item       { itemId }                    -> { item }
 //   revise     { itemId, changes }           -> { ok }
@@ -335,6 +336,16 @@ Deno.serve(async (req: Request) => {
           global: { headers: { Authorization: `Bearer ${jwt}` } },
         });
         return json(200, await link(admin, userScoped, user.id, body.code));
+      }
+
+      case 'account': {
+        const auth = await accessTokenFor(admin, user.id);
+        const res = await fetch(`${APIZ_HOST}/commerce/identity/v1/user/`, {
+          headers: { Authorization: `Bearer ${auth.token}` },
+        });
+        if (!res.ok) throw new EbayError(`eBay identity lookup failed (${res.status})`, 'ebay', 502);
+        const me = await res.json();
+        return json(200, { accountType: me.accountType === 'BUSINESS' ? 'BUSINESS' : 'INDIVIDUAL' });
       }
 
       case 'unlink': {
