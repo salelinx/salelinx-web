@@ -8,7 +8,7 @@
 //
 // Request body: { action, ...params }
 //   consentUrl { state }                     -> { url }
-//   link       { code }                      -> { userId, username }
+//   link       { code }                      -> { userId, username, marketplace }
 //   unlink     {}                            -> { ok }
 //   listings   { page }                      -> { listings, hasMore }
 //   item       { itemId }                    -> { item }
@@ -265,7 +265,7 @@ async function link(admin, userScoped, userId: string, code: string) {
     console.error('[ebay] token store failed:', tokErr.message);
     throw new EbayError('Could not save the eBay connection', 'unavailable', 500);
   }
-  return { userId: me.userId, username: me.username ?? null };
+  return { userId: me.userId, username: me.username ?? null, marketplace: me.registrationMarketplaceId ?? null };
 }
 
 // ── Handler ────────────────────────────────────────────────────────────────
