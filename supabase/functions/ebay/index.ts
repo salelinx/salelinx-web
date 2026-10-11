@@ -16,6 +16,7 @@
 //   revise     { itemId, changes }           -> { ok }
 //   uploadPhoto { dataUrl }                  -> { url }
 //   end        { itemId }                    -> { ok }
+//   relist     { itemId }                    -> { itemId } (the new listing's id)
 //   aspects    { categoryId }                -> { aspects } (Taxonomy item specifics)
 //   categories { q }                         -> { categories } (Taxonomy suggestions)
 //   conditions { categoryId }                -> { conditions } (allowed condition ids)
@@ -431,6 +432,16 @@ Deno.serve(async (req: Request) => {
           Object.assign(views, viewsFromTrafficReport(report));
         }
         return json(200, { views });
+      }
+
+      case 'relist': {
+        if (typeof body.itemId !== 'string') return json(400, { error: 'Missing itemId' });
+        const res = await trading(
+          'RelistFixedPriceItem',
+          await accessTokenFor(admin, user.id),
+          `<Item><ItemID>${esc(body.itemId)}</ItemID></Item>`,
+        );
+        return json(200, { itemId: String(res.ItemID) });
       }
 
       case 'end': {
