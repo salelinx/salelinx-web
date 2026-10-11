@@ -118,6 +118,22 @@ export function listingsFromResponse(body, page: number) {
   return { listings: [...sold, ...unsold, ...active], hasMore: page < pages };
 }
 
+/** A listing's first domestic postage option, returns and dispatch, in the shape a new listing takes. */
+export function postageFromItem(it) {
+  const options = it.ShippingDetails?.ShippingServiceOptions;
+  const first = Array.isArray(options) ? options[0] : options;
+  if (!first?.ShippingService) return null;
+  const returns = it.ReturnPolicy ?? {};
+  const days = Number(/Days_(\d+)/.exec(String(returns.ReturnsWithinOption ?? ''))?.[1] ?? 0);
+  return {
+    service: String(first.ShippingService),
+    cost: money(first.ShippingServiceCost)?.value ?? 0,
+    dispatchDays: Number(it.DispatchTimeMax ?? 2),
+    returnsDays: returns.ReturnsAcceptedOption === 'ReturnsAccepted' ? days : 0,
+    returnsPaidBy: returns.ShippingCostPaidByOption === 'Seller' ? 'Seller' : 'Buyer',
+  };
+}
+
 export function itemFromResponse(body) {
   const it = body.Item;
   const price = money(it.StartPrice ?? it.SellingStatus?.CurrentPrice);
@@ -158,6 +174,7 @@ export function itemFromResponse(body) {
       returns: idOrNull(it.SellerProfiles?.SellerReturnProfile?.ReturnProfileID),
       payment: idOrNull(it.SellerProfiles?.SellerPaymentProfile?.PaymentProfileID),
     },
+    postage: postageFromItem(it),
     photos: (it.PictureDetails?.PictureURL ?? []).map(String),
     specifics,
     categoryId: it.PrimaryCategory?.CategoryID ?? null,

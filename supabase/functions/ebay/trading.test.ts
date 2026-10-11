@@ -17,6 +17,7 @@ import {
   shippingFromItemXml,
   postageXml,
   shippingServicesFromDetails,
+  postageFromItem,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -306,4 +307,16 @@ Deno.test('postage entered in SaleLinx goes on the listing', () => {
     ] }),
     [{ id: 'A', name: 'Royal Mail' }],
   );
+});
+
+Deno.test('a listing tells its postage in the shape a new listing takes', () => {
+  assertEquals(
+    postageFromItem({
+      ShippingDetails: { ShippingServiceOptions: [{ ShippingService: 'UK_RoyalMailSecondClassStandard', ShippingServiceCost: { '#text': '3.20', '@currencyID': 'GBP' } }] },
+      DispatchTimeMax: '1',
+      ReturnPolicy: { ReturnsAcceptedOption: 'ReturnsAccepted', ReturnsWithinOption: 'Days_30', ShippingCostPaidByOption: 'Buyer' },
+    }),
+    { service: 'UK_RoyalMailSecondClassStandard', cost: 3.2, dispatchDays: 1, returnsDays: 30, returnsPaidBy: 'Buyer' },
+  );
+  assertEquals(postageFromItem({}), null);
 });
