@@ -165,6 +165,9 @@ export function reviseFields(c): string {
   // Revise takes the available quantity; eBay adds the units already sold.
   if (Number.isInteger(c.quantity)) fields += `<Quantity>${c.quantity}</Quantity>`;
   if (Number.isInteger(c.conditionId)) fields += `<ConditionID>${c.conditionId}</ConditionID>`;
+  if (typeof c.categoryId === 'string' && /^\d+$/.test(c.categoryId)) {
+    fields += `<PrimaryCategory><CategoryID>${c.categoryId}</CategoryID></PrimaryCategory>`;
+  }
   if (typeof c.conditionDescription === 'string') {
     fields += `<ConditionDescription>${esc(c.conditionDescription.slice(0, 1000))}</ConditionDescription>`;
   }
@@ -244,4 +247,18 @@ export function conditionsFromResponse(body) {
     id: Number(c.conditionId),
     name: c.conditionDescription,
   }));
+}
+
+/** Taxonomy category suggestions as leaf id, name and full path. */
+export function categorySuggestionsFromResponse(body) {
+  return (body?.categorySuggestions ?? []).map((sug) => {
+    const ancestors = [...(sug.categoryTreeNodeAncestors ?? [])]
+      .sort((a, b) => (b.categoryTreeNodeLevel ?? 0) - (a.categoryTreeNodeLevel ?? 0))
+      .map((a) => a.categoryName);
+    return {
+      id: String(sug.category?.categoryId),
+      name: sug.category?.categoryName,
+      path: [...ancestors.reverse(), sug.category?.categoryName].join(' > '),
+    };
+  });
 }

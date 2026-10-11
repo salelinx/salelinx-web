@@ -11,6 +11,7 @@ import {
   trafficQuery,
   viewsFromTrafficReport,
   aspectsFromResponse,
+  categorySuggestionsFromResponse,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -189,4 +190,23 @@ Deno.test('aspects keep required/recommended/free-text flags and values', () => 
     ],
   });
   assertEquals(brand, { name: 'Brand', required: true, recommended: true, freeText: true, multi: false, values: ['Oakley', 'Nike'] });
+});
+
+Deno.test('category suggestions read as a root-to-leaf path', () => {
+  assertEquals(
+    categorySuggestionsFromResponse({
+      categorySuggestions: [
+        {
+          category: { categoryId: '169291', categoryName: 'Bags' },
+          categoryTreeNodeAncestors: [
+            { categoryName: "Men's Accessories", categoryTreeNodeLevel: 3 },
+            { categoryName: 'Men', categoryTreeNodeLevel: 2 },
+            { categoryName: 'Clothes, Shoes & Accessories', categoryTreeNodeLevel: 1 },
+          ],
+        },
+      ],
+    }),
+    [{ id: '169291', name: 'Bags', path: "Clothes, Shoes & Accessories > Men > Men's Accessories > Bags" }],
+  );
+  assertEquals(reviseFields({ categoryId: '169291' }), '<PrimaryCategory><CategoryID>169291</CategoryID></PrimaryCategory>');
 });

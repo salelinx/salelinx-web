@@ -16,6 +16,7 @@
 //   uploadPhoto { dataUrl }                  -> { url }
 //   end        { itemId }                    -> { ok }
 //   aspects    { categoryId }                -> { aspects } (Taxonomy item specifics)
+//   categories { q }                         -> { categories } (Taxonomy suggestions)
 //   conditions { categoryId }                -> { conditions } (allowed condition ids)
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
 //
@@ -39,6 +40,7 @@ import {
   viewsFromTrafficReport,
   aspectsFromResponse,
   conditionsFromResponse,
+  categorySuggestionsFromResponse,
   reviseFields,
 } from './trading.ts';
 
@@ -371,6 +373,19 @@ Deno.serve(async (req: Request) => {
           `/commerce/taxonomy/v1/category_tree/${tree.categoryTreeId}/get_item_aspects_for_category?category_id=${categoryId}`,
         );
         return json(200, { aspects: aspectsFromResponse(aspects) });
+      }
+
+      case 'categories': {
+        const q = typeof body.q === 'string' ? body.q.trim().slice(0, 100) : '';
+        if (q.length < 2) return json(200, { categories: [] });
+        const auth = await accessTokenFor(admin, user.id);
+        const marketplace = MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB';
+        const tree = await rest(auth, `/commerce/taxonomy/v1/get_default_category_tree_id?marketplace_id=${marketplace}`);
+        const found = await rest(
+          auth,
+          `/commerce/taxonomy/v1/category_tree/${tree.categoryTreeId}/get_category_suggestions?q=${encodeURIComponent(q)}`,
+        );
+        return json(200, { categories: categorySuggestionsFromResponse(found) });
       }
 
       case 'conditions': {
