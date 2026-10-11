@@ -15,6 +15,7 @@
 //   revise     { itemId, changes }           -> { ok }
 //   uploadPhoto { dataUrl }                  -> { url }
 //   end        { itemId }                    -> { ok }
+//   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect eBay again, 'ebay' for an eBay-side refusal.
@@ -32,6 +33,8 @@ import {
   itemFromResponse,
   listingsFromResponse,
   parseTrading,
+  trafficQuery,
+  viewsFromTrafficReport,
   reviseFields,
 } from './trading.ts';
 
@@ -49,6 +52,7 @@ const SCOPES = [
   'https://api.ebay.com/oauth/api_scope/sell.inventory',
   'https://api.ebay.com/oauth/api_scope/sell.account',
   'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.analytics.readonly',
 ].join(' ');
 
 const TRADING_VERSION = '1451';
@@ -178,6 +182,7 @@ async function revise(auth, itemId: string, c) {
 }
 
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024;
+const TRAFFIC_BATCH = 200;
 
 async function uploadPhoto(auth, dataUrl: string): Promise<string> {
   const m = /^data:(image\/[a-z+]+);base64,(.+)$/s.exec(dataUrl ?? '');
@@ -338,6 +343,27 @@ Deno.serve(async (req: Request) => {
 
       case 'uploadPhoto': {
         return json(200, { url: await uploadPhoto(await accessTokenFor(admin, user.id), body.dataUrl) });
+      }
+
+      case 'traffic': {
+        const ids = Array.isArray(body.itemIds) ? body.itemIds.filter((i) => typeof i === 'string') : [];
+        if (ids.length === 0) return json(200, { views: {} });
+        const auth = await accessTokenFor(admin, user.id);
+        const views: Record<string, number> = {};
+        for (let i = 0; i < ids.length; i += TRAFFIC_BATCH) {
+          const res = await fetch(
+            `${API_HOST}/sell/analytics/v1/traffic_report?${trafficQuery(ids.slice(i, i + TRAFFIC_BATCH), new Date())}`,
+            { headers: { Authorization: `Bearer ${auth.token}` } },
+          );
+          const report = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            // A token from before the analytics scope was asked for is refused here.
+            const code = res.status === 403 ? 'scope' : 'ebay';
+            throw new EbayError(report?.errors?.[0]?.message ?? `Traffic report failed (${res.status})`, code, res.status === 403 ? 403 : 502);
+          }
+          Object.assign(views, viewsFromTrafficReport(report));
+        }
+        return json(200, { views });
       }
 
       case 'end': {

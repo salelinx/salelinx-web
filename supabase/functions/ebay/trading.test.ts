@@ -8,6 +8,8 @@ import {
   listingsFromResponse,
   parseTrading,
   reviseFields,
+  trafficQuery,
+  viewsFromTrafficReport,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -144,5 +146,20 @@ Deno.test('revise escapes text and sends only what changed', () => {
   assertEquals(
     reviseFields({ photos: ['https://i.ebayimg.com/1.jpg?a=1&b=2'] }),
     '<PictureDetails><PictureURL>https://i.ebayimg.com/1.jpg?a=1&amp;b=2</PictureURL></PictureDetails>',
+  );
+});
+
+Deno.test('traffic: 90 days ending yesterday, listing ids piped, views keyed by id', () => {
+  const q = new URLSearchParams(trafficQuery(['111', '222'], new Date('2026-10-11T12:00:00Z')));
+  assertEquals(q.get('dimension'), 'LISTING');
+  assertEquals(q.get('filter'), 'listing_ids:{111|222},date_range:[20260713..20261010]');
+  assertEquals(
+    viewsFromTrafficReport({
+      records: [
+        { dimensionValues: [{ value: '111' }], metricValues: [{ value: 42, applicable: true }] },
+        { dimensionValues: [{ value: '222' }], metricValues: [{ value: null, applicable: false }] },
+      ],
+    }),
+    { '111': 42 },
   );
 });

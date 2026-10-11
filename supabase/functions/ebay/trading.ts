@@ -169,3 +169,28 @@ export function reviseFields(c): string {
   }
   return fields;
 }
+
+const ymd = (d: Date) => d.toISOString().slice(0, 10).replaceAll('-', '');
+
+/** Query string for a LISTING traffic report over the 90 days before `now`. */
+export function trafficQuery(itemIds: string[], now: Date): string {
+  const end = new Date(now.getTime() - 86_400_000);
+  const start = new Date(end.getTime() - 89 * 86_400_000);
+  return new URLSearchParams({
+    dimension: 'LISTING',
+    metric: 'LISTING_VIEWS_TOTAL',
+    filter: `listing_ids:{${itemIds.join('|')}},date_range:[${ymd(start)}..${ymd(end)}]`,
+  }).toString();
+}
+
+export function viewsFromTrafficReport(report): Record<string, number> {
+  const views: Record<string, number> = {};
+  for (const r of report?.records ?? []) {
+    const id = r.dimensionValues?.[0]?.value;
+    const metric = r.metricValues?.[0];
+    if (id == null || metric?.applicable === false || metric?.value == null) continue;
+    const n = Number(metric.value);
+    if (Number.isFinite(n)) views[String(id)] = n;
+  }
+  return views;
+}
