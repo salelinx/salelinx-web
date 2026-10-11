@@ -841,10 +841,10 @@ function VersionCell({
   if (!outdated) {
     return (
       <span
-        className="rounded bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700"
-        title={version}
+        className="rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-xs text-emerald-700"
+        title="Newest reported version"
       >
-        Latest
+        {version}
       </span>
     );
   }
