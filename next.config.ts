@@ -91,7 +91,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // /embed/* sets its own headers: it is framed by the extension, which DENY would block.
+        source: '/((?!embed/).*)',
         headers: securityHeaders,
       },
       {

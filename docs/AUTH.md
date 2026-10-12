@@ -46,6 +46,10 @@ Session cookie set
 router.push('/account') + router.refresh() (triggers server component re-render so Header updates)
 ```
 
+## Extension login form (`/embed/login`)
+
+The extension's email login is this page, framed inside the extension's sign-in bubble, so Chrome saves SaleLinx passwords under salelinx.com on any marketplace. It never signs in itself: on submit it posts the email and password to its direct parent, which must be a SaleLinx extension origin (store ID plus `EMBED_EXTENSION_IDS`, a comma list for unpacked builds). The extension signs in and posts the result back; on success the page navigates to `?done=1`, which is what tells Chrome to offer saving the password. It sets its own headers (excluded from the site-wide `X-Frame-Options: DENY` in `next.config.ts`, and from locale routing in `proxy.ts`). `frame-ancestors` has to allow `https:` because every ancestor is checked, the marketplace page included; the parent-origin check in the script is what keeps the form hidden anywhere else.
+
 ## MFA (TOTP)
 
 Optional for regular users, required for admins (`is_admin()` in Postgres only returns true for AAL2 sessions - migration `003_support.sql`, see `docs/ADMIN.md`).
