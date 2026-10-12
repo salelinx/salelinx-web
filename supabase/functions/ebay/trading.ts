@@ -52,6 +52,26 @@ export function parseTrading(call: string, text: string) {
   return body;
 }
 
+/** VerifyAddFixedPriceItem: eBay checks the listing and quotes fees without creating it. */
+export function verifyFromResponse(text: string) {
+  const body = xml.parse(text)?.VerifyAddFixedPriceItemResponse;
+  if (!body) throw new EbayError('Unexpected eBay response to VerifyAddFixedPriceItem', 'ebay', 502);
+  const messages = (severity: string) =>
+    (body.Errors ?? [])
+      .filter((e) => e.SeverityCode === severity)
+      .map((e) => `${e.ErrorCode}: ${e.LongMessage ?? e.ShortMessage}`);
+  const fees = [].concat(body.Fees?.Fee ?? [])
+    .map((f) => ({ name: String(f.Name), amount: Number(f.Fee?.['#text'] ?? 0) }))
+    .filter((f) => f.amount > 0);
+  return {
+    ok: body.Ack !== 'Failure' && body.Ack !== 'PartialFailure',
+    errors: messages('Error'),
+    warnings: messages('Warning'),
+    fees,
+    categoryId: body.CategoryID ? String(body.CategoryID) : null,
+  };
+}
+
 const idOrNull = (v) => (v == null ? null : String(v));
 
 const money = (amount) =>

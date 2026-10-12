@@ -18,6 +18,7 @@ import {
   postageXml,
   shippingServicesFromDetails,
   postageFromItem,
+  verifyFromResponse,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -319,4 +320,21 @@ Deno.test('a listing tells its postage in the shape a new listing takes', () => 
     { service: 'UK_RoyalMailSecondClassStandard', cost: 3.2, dispatchDays: 1, returnsDays: 30, returnsPaidBy: 'Buyer' },
   );
   assertEquals(postageFromItem({}), null);
+});
+
+Deno.test('verifyFromResponse: errors, warnings and fees without throwing', () => {
+  const text = `<?xml version="1.0"?><VerifyAddFixedPriceItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+    <Ack>Failure</Ack>
+    <Errors><ShortMessage>Missing</ShortMessage><LongMessage>Material is required.</LongMessage><ErrorCode>21919303</ErrorCode><SeverityCode>Error</SeverityCode></Errors>
+    <Errors><LongMessage>Return policy adjusted.</LongMessage><ErrorCode>21920214</ErrorCode><SeverityCode>Warning</SeverityCode></Errors>
+    <Fees><Fee><Name>InsertionFee</Name><Fee currencyID="GBP">0.35</Fee></Fee><Fee><Name>BoldFee</Name><Fee currencyID="GBP">0.0</Fee></Fee></Fees>
+    <CategoryID>36027</CategoryID>
+  </VerifyAddFixedPriceItemResponse>`;
+  assertEquals(verifyFromResponse(text), {
+    ok: false,
+    errors: ['21919303: Material is required.'],
+    warnings: ['21920214: Return policy adjusted.'],
+    fees: [{ name: 'InsertionFee', amount: 0.35 }],
+    categoryId: '36027',
+  });
 });

@@ -51,6 +51,7 @@ import {
   policiesFromPreferences,
   shippingFromItemXml,
   shippingServicesFromDetails,
+  verifyFromResponse,
 } from './trading.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
@@ -461,6 +462,10 @@ Deno.serve(async (req: Request) => {
         }
         const built = addItemXml(item, MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB');
         if (built.error) return json(400, { error: built.error, code: 'bad_request' });
+        // A test run: eBay checks everything a real listing would go through, and nothing goes live.
+        if (body.verifyOnly === true) {
+          return json(200, verifyFromResponse(await tradingText('VerifyAddFixedPriceItem', auth, built.xml)));
+        }
         const res = await trading('AddFixedPriceItem', auth, built.xml);
         return json(200, { itemId: String(res.ItemID) });
       }
