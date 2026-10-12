@@ -1,0 +1,75 @@
+export const metadata = {
+  title:
+    "Connexion rétablie, vos prix dans votre devise et une ligne Price Drops plus claire",
+  date: "2026-09-29",
+  summary:
+    "La version 1.1.9 rétablit la connexion pour ceux qui ont installé la 1.1.8 depuis le Chrome Web Store, affiche les prix dans la devise de votre boutique sur tous les onglets, redessine la ligne Price Drops en une phrase et une échelle de prix, et rend l'onglet Étiquettes plus rapide et plus fiable.",
+  tags: ["release"],
+};
+
+# Version 1.1.9
+
+Un correctif rapide de la 1.1.8 qui rétablit la connexion, accompagné
+d&rsquo;une semaine de travail sur les devises, Price Drops et les
+étiquettes d&rsquo;expédition.
+
+## Nouveautés
+
+- **Votre devise partout.** SaleLinx déduit désormais la devise de votre
+  boutique à partir de vos annonces et l&rsquo;utilise sur tous les onglets,
+  y compris les animations, les champs de seuil et les états vides qui
+  affichaient un £ ou un $ fixe. Il connaît 16 devises, couvrant tous les
+  marchés Vinted, et place le symbole après le montant quand votre devise le
+  fait (12,00 zł).
+- **Une période de recherche pour les commandes terminées** dans
+  l&rsquo;onglet Étiquettes : 7, 14, 30, 60 ou 90 jours, enregistrée dès que
+  vous la choisissez. La réduire est instantané, et l&rsquo;élargir ne
+  charge que les commandes pas encore récupérées.
+
+## Corrections
+
+- **La connexion fonctionne à nouveau.** La version 1.1.8 du Chrome Web
+  Store ne parvenait pas à joindre nos serveurs : le panneau indiquait
+  qu&rsquo;il n&rsquo;était pas configuré et refusait la connexion. La 1.1.9
+  la rétablit.
+- **Étiquettes Vinted sans adresse par défaut.** Si aucune de vos adresses
+  Vinted enregistrées n&rsquo;était marquée par défaut, chaque commande
+  d&rsquo;étiquette était refusée. SaleLinx choisit désormais dans votre
+  liste d&rsquo;adresses, en privilégiant celle qui a un numéro de
+  téléphone.
+- **Dates de Price Drops.** Une annonce plus ancienne que son propre
+  intervalle de baisse affichait chaque étape de son calendrier comme due
+  immédiatement. La première baisse est maintenant comptée à partir
+  d&rsquo;aujourd&rsquo;hui, comme les baisses se déroulent réellement : une
+  par annonce et par passage, puis un intervalle complet avant la suivante.
+- **Prix dans la mauvaise devise.** La fenêtre de relist affichait des
+  dollars pour toute devise hors des cinq principales, si bien que les
+  vendeurs polonais et suédois voyaient leurs vrais prix avec un $, et
+  certains onglets disaient £ quand d&rsquo;autres disaient $.
+- **Totaux de Dead Stock.** La bannière de capital n&rsquo;additionnait que
+  votre devise la plus courante tout en comptant chaque article, si bien que
+  300 £ et 500 € répartis sur 18 articles donnaient « 300 £ bloqués dans 18
+  articles ». Elle affiche désormais un total par devise.
+- **Auto-Offers sans compte Vinted lié** floute désormais tout
+  l&rsquo;onglet, statistiques comprises. Les statistiques restaient
+  lisibles et pouvaient afficher des chiffres réalistes datant
+  d&rsquo;avant la dissociation.
+- La liste des commandes terminées ne se vide plus quand elle ne peut pas se
+  charger. Elle garde les commandes qu&rsquo;elle a, et explique pourquoi
+  elle est vide lorsqu&rsquo;elle l&rsquo;est.
+
+## Améliorations
+
+- **Une ligne Price Drops redessinée.** Chaque annonce suivie se lit comme
+  une seule phrase, « Baisser de 15 % tous les 3 jours jusqu&rsquo;à 11 £ »,
+  avec son calendrier dessiné en dessous comme une échelle : le prix actuel,
+  la prochaine baisse mise en avant, et le plancher où le calendrier
+  s&rsquo;arrête. L&rsquo;interrupteur principal s&rsquo;appelle désormais
+  Activer les baisses de prix, comme l&rsquo;onglet.
+- **L&rsquo;onglet Étiquettes ne se recharge plus tout seul.** Les commandes
+  sont mises en cache pendant 20 minutes, le cache survit au redémarrage de
+  l&rsquo;extension en arrière-plan, et les commandes inchangées ne sont pas
+  récupérées à nouveau : revenir sur l&rsquo;onglet est rapide. La barre de
+  progression ne compte que le travail réellement effectué.
+- La description de l&rsquo;onglet Étiquettes indique désormais qu&rsquo;il
+  couvre Depop aussi bien que Vinted.
