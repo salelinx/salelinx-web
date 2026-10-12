@@ -1,0 +1,62 @@
+export const metadata = {
+  title:
+    "Sign-in fixed, prices in your own currency, and a clearer Price Drops row",
+  date: "2026-09-29",
+  summary:
+    "Version 1.1.9 fixes sign-in for anyone who installed 1.1.8 from the Chrome Web Store, shows prices in your shop's own currency on every tab, redraws the Price Drops row as a sentence and a price ladder, and makes the Labels tab faster and more reliable.",
+  tags: ["release"],
+};
+
+# Version 1.1.9
+
+A quick follow-up to 1.1.8 that puts sign-in right, with a week of currency,
+Price Drops and shipping label work alongside it.
+
+## New
+
+- **Your own currency everywhere.** SaleLinx now works out your shop's
+  currency from your listings and uses it on every tab, including the
+  animations, threshold inputs and empty states that used to show a fixed £
+  or $. It knows 16 currencies, covering every Vinted market, and puts the
+  symbol after the amount where your currency does (12,00 zł).
+- **A look-back window for completed orders** on the Labels tab: 7, 14, 30,
+  60 or 90 days, saved as soon as you pick it. Narrowing it is instant, and
+  widening it only fetches the orders you have not loaded yet.
+
+## Fixed
+
+- **Signing in works again.** Version 1.1.8 from the Chrome Web Store could
+  not reach our servers, so the panel said it was not configured and would
+  not let you sign in. 1.1.9 restores it.
+- **Vinted labels without a default address.** If none of your saved Vinted
+  addresses was marked as the default, every label order was refused.
+  SaleLinx now picks from your address list instead, preferring one with a
+  phone number.
+- **Price Drops dates.** A listing older than its own drop interval showed
+  every step of its schedule as due now. The first drop is now counted from
+  today, which matches how drops really run: one per listing per run, then a
+  full interval before the next.
+- **Prices in the wrong currency.** The relist overlay showed dollars for any
+  currency outside five majors, so Polish and Swedish sellers saw their real
+  prices with a $ sign, and some tabs said £ while others said $.
+- **Dead Stock totals.** The capital banner added up only your most common
+  currency while counting every item, so £300 and €500 across 18 items read
+  as "£300 stuck in 18 items". It now shows one total per currency.
+- **Auto-Offers without a linked Vinted account** now blurs the whole tab,
+  stats included. The stats used to stay readable and could show
+  real-looking numbers from before you unlinked.
+- The completed orders list no longer goes blank when it cannot load. It
+  keeps the orders it has, and says why it is empty when it is.
+
+## Improved
+
+- **A redesigned Price Drops row.** Each tracked listing reads as one
+  sentence, "Drop 15% every 3 days down to £11", with its schedule drawn
+  underneath as a ladder: the live price, the next drop highlighted, and the
+  floor where the schedule ends. The main switch is now called Run price
+  drops, to match the tab.
+- **The Labels tab stops reloading itself.** Orders are cached for 20
+  minutes, the cache survives the extension restarting in the background,
+  and orders that have not changed are not fetched again, so going back to
+  the tab is quick. The progress bar only counts work it is really doing.
+- The Labels tab description now says it covers Depop as well as Vinted.

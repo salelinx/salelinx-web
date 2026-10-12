@@ -1,0 +1,57 @@
+export const metadata = {
+  title:
+    "Vinted edits that stick, parcel sizes that fit, and a toolbar icon for dark mode",
+  date: "2026-10-10",
+  summary:
+    "Version 1.1.11 makes Vinted size, condition and brand edits stick, gives each Vinted category its own parcel sizes, speeds up cloud saves, restyles the toolbar popup with an icon that follows Chrome's light or dark mode, and lets you start your paid plan before the trial ends.",
+  tags: ["release"],
+};
+
+# Version 1.1.11
+
+A short release: Vinted editing fixes and a round of visual polish.
+
+## Fixed
+
+- **Vinted size and condition edits stick.** Vinted accepted a size change
+  from the quick editor and then ignored it. Size and condition are now
+  saved where Vinted reads them.
+- **Vinted brands stay put.** Saving a quick edit without touching the brand
+  could make Vinted drop it or match a different one. The brand is now sent
+  back exactly as it was.
+- **Sizeless categories.** Bags, homeware and other categories without sizes
+  show Not available instead of a size list.
+- **Parcel sizes fit the category.** The editor lists each category's own
+  parcel sizes, a bulk Small, Medium or Large maps onto that category's
+  scale, and publishing keeps your draft's size when the category allows it,
+  otherwise the smallest it offers.
+- **Depop "everything else" items** get their category when crosslisted.
+- **Bulk jobs release each listing as they go**, rather than holding every
+  listing until the whole job ends.
+
+## Improved
+
+- **Faster cloud saves.** Photo backups no longer pause between photos.
+- **One Cloud button** in the listings toolbar opens Save, Remove and
+  Update. Remove asks first, then deletes the cloud copy and its photo
+  backups.
+- **A calmer toolbar popup** in neutral tones, and a toolbar icon that
+  follows Chrome's light or dark mode. The icon updates once a Depop or
+  Vinted tab loads or you open the popup.
+- **A how-it-works card for Crosslist**: three points and a short animation
+  (tick items, press Crosslist, drafts appear).
+- "Failed to load listings" now shows as a proper card, and the sign-out and
+  unlink dialogs cover the whole panel, sidebar included.
+- The brand picker lists Zara, Nike, H&M, Adidas and Shein first, and the
+  arrows on price inputs move by 1.
+
+## Plans and billing
+
+- **Start your plan before the trial ends.** During a trial, your account
+  page lets you start paying for your plan straight away. It shows the price
+  before charging, and if your card is declined you can update it and try
+  again.
+- **A confirmation page** after checkout or a plan change says your plan has
+  started and what to do next.
+- **Signing out of the website** no longer signs you out of the extension or
+  your other devices.
