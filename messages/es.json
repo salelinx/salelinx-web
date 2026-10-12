@@ -19,7 +19,6 @@
     "accountSecurity": "Seguridad",
     "accountReferrals": "Referidos",
     "accountSupport": "Tickets de soporte",
-    "accountDanger": "Eliminar cuenta",
     "navStatus": "Estado",
     "supportContact": "Contactar con soporte"
   },
@@ -298,12 +297,12 @@
   "Account": {
     "title": "Tu cuenta",
     "signOut": "Cerrar sesión",
-    "checkoutSuccess": "Suscripción activada. Puede tardar unos segundos en actualizarse la información de abajo.",
     "currentPlanTitle": "Plan actual",
     "noSubscriptionBody": "No tienes un plan activo. Empieza tu prueba gratuita de 14 días para usar SaleLinx.",
     "startTrial": "Empezar prueba gratuita",
     "trialEndsInDays": "Tu prueba gratuita termina en {days} días. Después se te cobrará el plan Starter.",
     "trialEndsTomorrow": "Tu prueba gratuita termina mañana. Después se te cobrará el plan Starter.",
+    "startStarterNow": "Empezar Starter ahora",
     "lockedNote": "Tu suscripción no está activa. Vuelve a suscribirte para seguir usando SaleLinx.",
     "seePricing": "Ver precios",
     "tier": "Plan",
@@ -508,7 +507,14 @@
     "loading": "Cargando...",
     "label": "Suscribirse",
     "errorAlert": "No se pudo iniciar el pago. Inténtalo de nuevo.",
-    "endTrialConfirm": "Empezar tu plan ahora? Esto finaliza tu prueba: se te cobrara hoy y perderas los dias restantes. Tus nuevos limites se aplican de inmediato.",
+    "endTrialTitle": "Empezar {plan} hoy",
+    "endTrialBody": "Esto termina tu prueba gratuita. Se te cobrará {price} ahora y cada mes hasta que canceles, y tus nuevos límites se aplican al instante.",
+    "declinedTitle": "Pago rechazado",
+    "declinedBody": "Tu tarjeta ha sido rechazada, así que tu plan no ha cambiado. Actualiza tu tarjeta e inténtalo de nuevo.",
+    "updateCard": "Actualizar tarjeta",
+    "tryAgain": "Reintentar",
+    "endTrialCta": "Pagar {price} y empezar",
+    "cancel": "Cancelar",
     "downgradeViaPortal": "Para cambiar a un plan inferior, usa Gestionar suscripcion en la pagina de tu cuenta."
   },
   "Legal": {
@@ -763,6 +769,7 @@
     "whatsIncluded": "Qué incluye",
     "installExtension": "Instalar extensión",
     "comingSoon": "Próximamente",
+    "startStarterNow": "Empezar Starter ahora",
     "perMonth": "/mes",
     "vatNote": "Los precios mostrados son el precio final que pagas. No se anade IVA. Cancela cuando quieras, con una garantia de reembolso de 14 dias sobre tu primer pago.",
     "unlimited": "Ilimitado",
@@ -773,9 +780,9 @@
     "supportDays": "{value} días",
     "trial": {
       "name": "Prueba gratuita de 14 días",
-      "tagline": "Acceso completo a Starter, con tarjeta.",
+      "tagline": "Funciones Starter, límites menores.",
       "priceSuffix": "durante {days} días",
-      "thenPrice": "Después {price} / mes salvo que canceles antes de que termine la prueba",
+      "thenPrice": "Con tarjeta. Después {price} / mes salvo que canceles antes de que termine la prueba",
       "cta": "Empezar prueba gratuita"
     },
     "tier": {
@@ -1047,5 +1054,20 @@
     "openDepop": "Abrir Depop",
     "openVinted": "Abrir Vinted",
     "docsLink": "O lee las guías"
+  },
+  "PlanStarted": {
+    "metaTitle": "Todo listo",
+    "titleTrial": "Tu prueba gratuita ha empezado",
+    "bodyTrial": "Pruébalo todo hasta el {date}. No se te cobrará nada antes, y puedes cancelar cuando quieras desde tu cuenta.",
+    "bodyTrialNoDate": "No se te cobrará nada hasta que termine la prueba, y puedes cancelar cuando quieras desde tu cuenta.",
+    "titlePaid": "Gracias por suscribirte",
+    "bodyPaid": "Ya estás en {plan}, con tus nuevos límites listos para usar.",
+    "nextTitle": "Siguiente paso",
+    "nextBody": "Abre Depop o Vinted y haz clic en el lanzador de SaleLinx en la página.",
+    "noExtension": "¿Aún no tienes la extensión?",
+    "addToChrome": "Añadir a Chrome",
+    "toAccount": "Ir a tu cuenta",
+    "pendingTitle": "Terminando la configuración",
+    "pendingBody": "Estamos confirmando tu plan con Stripe. Solo tarda unos segundos."
   }
 }

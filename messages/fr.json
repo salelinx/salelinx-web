@@ -19,7 +19,6 @@
     "accountSecurity": "Sécurité",
     "accountReferrals": "Parrainage",
     "accountSupport": "Tickets d'assistance",
-    "accountDanger": "Supprimer le compte",
     "navStatus": "Statut",
     "supportContact": "Contacter le support"
   },
@@ -298,12 +297,12 @@
   "Account": {
     "title": "Votre compte",
     "signOut": "Déconnexion",
-    "checkoutSuccess": "Abonnement activé. Les détails ci-dessous peuvent prendre quelques secondes à se mettre à jour.",
     "currentPlanTitle": "Forfait actuel",
     "noSubscriptionBody": "Vous n'avez pas de forfait actif. Démarrez votre essai gratuit de 14 jours pour utiliser SaleLinx.",
     "startTrial": "Démarrer l'essai gratuit",
     "trialEndsInDays": "Votre essai gratuit se termine dans {days} jours. Ensuite, le forfait Starter sera facturé.",
     "trialEndsTomorrow": "Votre essai gratuit se termine demain. Ensuite, le forfait Starter sera facturé.",
+    "startStarterNow": "Passer à Starter maintenant",
     "lockedNote": "Votre abonnement n'est pas actif. Réabonnez-vous pour continuer à utiliser SaleLinx.",
     "seePricing": "Voir les tarifs",
     "tier": "Forfait",
@@ -508,7 +507,14 @@
     "loading": "Chargement...",
     "label": "S'abonner",
     "errorAlert": "Impossible de démarrer le paiement. Veuillez réessayer.",
-    "endTrialConfirm": "Demarrer votre abonnement maintenant ? Cela met fin a votre essai : vous serez debite aujourd'hui et les jours restants seront perdus. Vos nouveaux quotas s'appliquent immediatement.",
+    "endTrialTitle": "Passer à {plan} aujourd'hui",
+    "endTrialBody": "Cela met fin à votre essai gratuit. Vous serez débité de {price} maintenant puis chaque mois jusqu'à résiliation, et vos nouvelles limites s'appliquent immédiatement.",
+    "declinedTitle": "Paiement refusé",
+    "declinedBody": "Votre carte a été refusée, votre forfait n'a donc pas changé. Mettez à jour votre carte, puis réessayez.",
+    "updateCard": "Mettre à jour la carte",
+    "tryAgain": "Réessayer",
+    "endTrialCta": "Payer {price} et commencer",
+    "cancel": "Annuler",
     "downgradeViaPortal": "Pour passer a un forfait inferieur, utilisez Gerer l'abonnement sur la page de votre compte."
   },
   "Legal": {
@@ -763,6 +769,7 @@
     "whatsIncluded": "Ce qui est inclus",
     "installExtension": "Installer l'extension",
     "comingSoon": "Bientôt disponible",
+    "startStarterNow": "Passer à Starter maintenant",
     "perMonth": "/mois",
     "vatNote": "Les prix affiches sont le prix final que vous payez. Aucune TVA n'est ajoutee. Annulez a tout moment, avec une garantie de remboursement de 14 jours sur votre premier paiement.",
     "unlimited": "Illimité",
@@ -773,9 +780,9 @@
     "supportDays": "{value} jours",
     "trial": {
       "name": "Essai gratuit de 14 jours",
-      "tagline": "Accès complet à Starter, carte requise.",
+      "tagline": "Fonctions Starter, limites réduites.",
       "priceSuffix": "pendant {days} jours",
-      "thenPrice": "Puis {price} / mois sauf annulation avant la fin de l'essai",
+      "thenPrice": "Carte requise. Puis {price} / mois sauf annulation avant la fin de l'essai",
       "cta": "Démarrer l'essai gratuit"
     },
     "tier": {
@@ -1047,5 +1054,20 @@
     "openDepop": "Ouvrir Depop",
     "openVinted": "Ouvrir Vinted",
     "docsLink": "Ou lisez les guides"
+  },
+  "PlanStarted": {
+    "metaTitle": "Tout est prêt",
+    "titleTrial": "Votre essai gratuit a commencé",
+    "bodyTrial": "Essayez tout jusqu'au {date}. Rien ne vous sera facturé avant, et vous pouvez résilier à tout moment depuis votre compte.",
+    "bodyTrialNoDate": "Rien ne vous sera facturé avant la fin de l'essai, et vous pouvez résilier à tout moment depuis votre compte.",
+    "titlePaid": "Merci pour votre abonnement",
+    "bodyPaid": "Vous êtes maintenant sur {plan}, avec vos nouvelles limites prêtes à l'emploi.",
+    "nextTitle": "Et maintenant",
+    "nextBody": "Ouvrez Depop ou Vinted et cliquez sur le lanceur SaleLinx sur la page.",
+    "noExtension": "Pas encore l'extension ?",
+    "addToChrome": "Ajouter à Chrome",
+    "toAccount": "Aller à votre compte",
+    "pendingTitle": "Finalisation",
+    "pendingBody": "Nous confirmons votre forfait auprès de Stripe. Cela ne prend que quelques secondes."
   }
 }

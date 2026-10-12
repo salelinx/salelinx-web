@@ -19,7 +19,6 @@
     "accountSecurity": "安全",
     "accountReferrals": "推荐好友",
     "accountSupport": "支持工单",
-    "accountDanger": "删除账户",
     "navStatus": "状态",
     "supportContact": "联系客服"
   },
@@ -298,12 +297,12 @@
   "Account": {
     "title": "你的账户",
     "signOut": "退出登录",
-    "checkoutSuccess": "订阅已开通。下方的详情可能需要几秒钟才会刷新。",
     "currentPlanTitle": "当前套餐",
     "noSubscriptionBody": "你还没有生效的套餐。开始 14 天免费试用即可使用 SaleLinx。",
     "startTrial": "开始免费试用",
     "trialEndsInDays": "你的免费试用将在 {days} 天后结束。之后会按 Starter 套餐扣费。",
     "trialEndsTomorrow": "你的免费试用将在明天结束。之后会按 Starter 套餐扣费。",
+    "startStarterNow": "立即开通 Starter",
     "lockedNote": "你的订阅未生效。重新订阅即可继续使用 SaleLinx。",
     "seePricing": "查看价格",
     "tier": "级别",
@@ -508,7 +507,14 @@
     "loading": "加载中...",
     "label": "订阅",
     "errorAlert": "无法开始结账。请重试。",
-    "endTrialConfirm": "立即开始订阅？这将结束试用，今天就会扣款，剩余试用天数将失效。新的额度会立即生效。",
+    "endTrialTitle": "今天开通 {plan}",
+    "endTrialBody": "这将结束你的免费试用。现在将扣款 {price}，之后每月扣款直到你取消，新额度立即生效。",
+    "declinedTitle": "付款被拒",
+    "declinedBody": "你的银行卡被拒，套餐未更改。请更新银行卡后重试。",
+    "updateCard": "更新银行卡",
+    "tryAgain": "重试",
+    "endTrialCta": "支付 {price} 并开始",
+    "cancel": "取消",
     "downgradeViaPortal": "如需降级，请在账户页面使用“管理订阅”。"
   },
   "Legal": {
@@ -763,6 +769,7 @@
     "whatsIncluded": "包含内容",
     "installExtension": "安装扩展",
     "comingSoon": "即将推出",
+    "startStarterNow": "立即开通 Starter",
     "perMonth": "/月",
     "vatNote": "显示的价格就是你最终支付的金额，不额外收取增值税。可随时取消，首次付款享有 14 天退款保证。",
     "unlimited": "无限",
@@ -773,9 +780,9 @@
     "supportDays": "{value} 天",
     "trial": {
       "name": "14 天免费试用",
-      "tagline": "完整的 Starter 权限，需要绑定支付卡。",
+      "tagline": "Starter 全部功能，额度较低。",
       "priceSuffix": "共 {days} 天",
-      "thenPrice": "之后按 {price} / 月收费，除非你在试用结束前取消",
+      "thenPrice": "需绑定支付卡。之后按 {price} / 月收费，除非你在试用结束前取消",
       "cta": "开始免费试用"
     },
     "tier": {
@@ -1047,5 +1054,20 @@
     "openDepop": "打开 Depop",
     "openVinted": "打开 Vinted",
     "docsLink": "或阅读使用指南"
+  },
+  "PlanStarted": {
+    "metaTitle": "一切就绪",
+    "titleTrial": "你的免费试用已开始",
+    "bodyTrial": "在 {date} 之前尽情试用。在此之前不会扣款，你也可以随时在账户中取消。",
+    "bodyTrialNoDate": "试用结束前不会扣款，你也可以随时在账户中取消。",
+    "titlePaid": "感谢你的订阅",
+    "bodyPaid": "你现在使用的是 {plan}，新额度已可使用。",
+    "nextTitle": "下一步",
+    "nextBody": "打开 Depop 或 Vinted，点击页面上的 SaleLinx 启动按钮。",
+    "noExtension": "还没有安装扩展？",
+    "addToChrome": "添加到 Chrome",
+    "toAccount": "前往你的账户",
+    "pendingTitle": "正在完成设置",
+    "pendingBody": "我们正在向 Stripe 确认你的套餐，只需几秒钟。"
   }
 }

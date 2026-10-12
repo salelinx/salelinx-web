@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -20,6 +20,20 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  // A session revoked on the server (signed out elsewhere) still has a valid
+  // JWT cookie, so the header keeps showing "signed in". Drop it here.
+  useEffect(() => {
+    const supabase = createBrowserClient();
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      const { error } = await supabase.auth.getUser();
+      if (error) {
+        await supabase.auth.signOut({ scope: "local" });
+        router.refresh();
+      }
+    });
+  }, [router]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
