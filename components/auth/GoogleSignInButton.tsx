@@ -20,6 +20,7 @@ export function GoogleSignInButton({ next = "/account", marketing }: Props) {
   const t = useTranslations("Auth");
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onClick() {
     setLoading(true);
@@ -39,20 +40,25 @@ export function GoogleSignInButton({ next = "/account", marketing }: Props) {
     // configured on the Supabase project).
     if (error) {
       setLoading(false);
-      alert(error.message);
+      setError(error.message);
     }
   }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={loading}
-      className="flex w-full items-center justify-center gap-2 rounded-lg border border-black/10 px-4 py-3 text-sm font-medium transition hover:bg-black/[0.03] disabled:opacity-50 dark:border-white/20 dark:hover:bg-white/[0.06]"
-    >
-      <GoogleIcon />
-      {loading ? t("continueWithGoogleLoading") : t("continueWithGoogle")}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={loading}
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-black/10 px-4 py-3 text-sm font-medium transition hover:bg-black/[0.03] disabled:opacity-50 dark:border-white/20 dark:hover:bg-white/[0.06]"
+      >
+        <GoogleIcon />
+        {loading ? t("continueWithGoogleLoading") : t("continueWithGoogle")}
+      </button>
+      {error && (
+        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+      )}
+    </>
   );
 }
 

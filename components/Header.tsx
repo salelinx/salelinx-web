@@ -90,7 +90,6 @@ export async function Header() {
                         ["#security", t("accountSecurity")],
                         ["#referrals", t("accountReferrals")],
                         ["#support", t("accountSupport")],
-                        ["#danger", t("accountDanger")],
                       ] as const
                     ).map(([hash, label]) => (
                       <Link

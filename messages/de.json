@@ -19,7 +19,6 @@
     "accountSecurity": "Sicherheit",
     "accountReferrals": "Empfehlungen",
     "accountSupport": "Support-Tickets",
-    "accountDanger": "Konto löschen",
     "navStatus": "Status",
     "supportContact": "Support kontaktieren"
   },
@@ -304,12 +303,12 @@
   "Account": {
     "title": "Dein Konto",
     "signOut": "Abmelden",
-    "checkoutSuccess": "Abonnement aktiviert. Es kann einige Sekunden dauern, bis die Details unten aktualisiert sind.",
     "currentPlanTitle": "Aktuelles Paket",
     "noSubscriptionBody": "Du hast kein aktives Paket. Starte deine kostenlose 14-tägige Testphase, um SaleLinx zu nutzen.",
     "startTrial": "Kostenlose Testphase starten",
     "trialEndsInDays": "Deine kostenlose Testphase endet in {days} Tagen. Danach wird das Starter-Paket berechnet.",
     "trialEndsTomorrow": "Deine kostenlose Testphase endet morgen. Danach wird das Starter-Paket berechnet.",
+    "startStarterNow": "Starter jetzt starten",
     "lockedNote": "Dein Abonnement ist nicht aktiv. Abonniere erneut, um SaleLinx weiter zu nutzen.",
     "seePricing": "Preise ansehen",
     "tier": "Paket",
@@ -514,7 +513,14 @@
     "loading": "Wird geladen...",
     "label": "Abonnieren",
     "errorAlert": "Der Bezahlvorgang konnte nicht gestartet werden. Bitte versuche es erneut.",
-    "endTrialConfirm": "Tarif jetzt starten? Damit endet deine Testphase: Du wirst heute abgerechnet und die verbleibenden Tage verfallen. Deine neuen Limits gelten sofort.",
+    "endTrialTitle": "{plan} heute starten",
+    "endTrialBody": "Damit endet deine Testphase. Dir werden jetzt und dann monatlich {price} berechnet, bis du kündigst. Deine neuen Limits gelten sofort.",
+    "declinedTitle": "Zahlung abgelehnt",
+    "declinedBody": "Deine Karte wurde abgelehnt, dein Tarif bleibt unverändert. Aktualisiere deine Karte und versuche es erneut.",
+    "updateCard": "Karte aktualisieren",
+    "tryAgain": "Erneut versuchen",
+    "endTrialCta": "{price} zahlen und starten",
+    "cancel": "Abbrechen",
     "downgradeViaPortal": "Fuer einen niedrigeren Tarif nutze Abo verwalten auf deiner Kontoseite."
   },
   "Legal": {
@@ -769,6 +775,7 @@
     "whatsIncluded": "Was enthalten ist",
     "installExtension": "Erweiterung installieren",
     "comingSoon": "Bald verfügbar",
+    "startStarterNow": "Starter jetzt starten",
     "perMonth": "/Mon.",
     "vatNote": "Die angezeigten Preise sind der Endpreis, den du zahlst. Es wird keine Mehrwertsteuer hinzugefuegt. Jederzeit kuendbar, mit einer 14-taegigen Geld-zurueck-Garantie auf deine erste Zahlung.",
     "unlimited": "Unbegrenzt",
@@ -779,9 +786,9 @@
     "supportDays": "{value} Tage",
     "trial": {
       "name": "Kostenlose 14-Tage-Testphase",
-      "tagline": "Voller Starter-Zugriff, Karte nötig.",
+      "tagline": "Starter-Funktionen, geringere Limits.",
       "priceSuffix": "für {days} Tage",
-      "thenPrice": "Danach {price} / Monat, sofern nicht vor Ende der Testphase gekündigt",
+      "thenPrice": "Karte nötig. Danach {price} / Monat, sofern nicht vor Ende der Testphase gekündigt",
       "cta": "Kostenlose Testphase starten"
     },
     "tier": {
@@ -1053,5 +1060,20 @@
     "openDepop": "Depop öffnen",
     "openVinted": "Vinted öffnen",
     "docsLink": "Oder lies die Anleitungen"
+  },
+  "PlanStarted": {
+    "metaTitle": "Alles bereit",
+    "titleTrial": "Deine kostenlose Testphase hat begonnen",
+    "bodyTrial": "Teste alles bis zum {date}. Bis dahin wird nichts berechnet, und du kannst jederzeit in deinem Konto kündigen.",
+    "bodyTrialNoDate": "Bis zum Ende der Testphase wird nichts berechnet, und du kannst jederzeit in deinem Konto kündigen.",
+    "titlePaid": "Danke für dein Abo",
+    "bodyPaid": "Du nutzt jetzt {plan}, deine neuen Limits sind sofort verfügbar.",
+    "nextTitle": "Wie geht es weiter",
+    "nextBody": "Öffne Depop oder Vinted und klicke auf der Seite auf den SaleLinx-Launcher.",
+    "noExtension": "Noch keine Erweiterung?",
+    "addToChrome": "Zu Chrome hinzufügen",
+    "toAccount": "Zu deinem Konto",
+    "pendingTitle": "Einrichtung wird abgeschlossen",
+    "pendingBody": "Wir bestätigen deinen Tarif bei Stripe. Das dauert nur ein paar Sekunden."
   }
 }

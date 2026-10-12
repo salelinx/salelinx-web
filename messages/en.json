@@ -19,7 +19,6 @@
     "accountSecurity": "Security",
     "accountReferrals": "Referrals",
     "accountSupport": "Support tickets",
-    "accountDanger": "Delete account",
     "navStatus": "Status",
     "supportContact": "Contact support"
   },
@@ -304,12 +303,12 @@
   "Account": {
     "title": "Your account",
     "signOut": "Sign out",
-    "checkoutSuccess": "Subscription activated. It may take a few seconds for the details below to refresh.",
     "currentPlanTitle": "Current plan",
     "noSubscriptionBody": "You don't have an active plan. Start your free 14-day trial to use SaleLinx.",
     "startTrial": "Start free trial",
     "trialEndsInDays": "Your free trial ends in {days} days. After that you'll be billed for Starter.",
     "trialEndsTomorrow": "Your free trial ends tomorrow. After that you'll be billed for Starter.",
+    "startStarterNow": "Start Starter now",
     "lockedNote": "Your subscription isn't active. Re-subscribe to keep using SaleLinx.",
     "seePricing": "See pricing",
     "tier": "Tier",
@@ -514,7 +513,14 @@
     "loading": "Loading...",
     "label": "Subscribe",
     "errorAlert": "Could not start checkout. Please try again.",
-    "endTrialConfirm": "Start your plan now? This ends your trial, so you are billed today and the days left on the trial are lost. Your new allowances apply straight away.",
+    "endTrialTitle": "Start {plan} today",
+    "endTrialBody": "This ends your free trial. You'll be charged {price} now and every month until you cancel, and your new limits apply straight away.",
+    "declinedTitle": "Payment declined",
+    "declinedBody": "Your card was declined, so your plan hasn't changed. Update your card, then try again.",
+    "updateCard": "Update card",
+    "tryAgain": "Try again",
+    "endTrialCta": "Pay {price} and start",
+    "cancel": "Cancel",
     "downgradeViaPortal": "To move to a lower plan, use Manage subscription on your account page."
   },
   "Legal": {
@@ -769,6 +775,7 @@
     "whatsIncluded": "What's included",
     "installExtension": "Install extension",
     "comingSoon": "Coming soon",
+    "startStarterNow": "Start Starter now",
     "perMonth": "/mo",
     "vatNote": "Prices shown are the final price you pay. No VAT is added. Cancel any time, with a 14-day money-back guarantee on your first payment.",
     "unlimited": "Unlimited",
@@ -779,9 +786,9 @@
     "supportDays": "{value} days",
     "trial": {
       "name": "Free 14-day trial",
-      "tagline": "Full Starter access, card required.",
+      "tagline": "Starter features, lower limits.",
       "priceSuffix": "for {days} days",
-      "thenPrice": "Then {price} / month unless you cancel before the trial ends",
+      "thenPrice": "Card required. Then {price} / month unless you cancel before the trial ends",
       "cta": "Start free trial"
     },
     "tier": {
@@ -1053,5 +1060,20 @@
     "openDepop": "Open Depop",
     "openVinted": "Open Vinted",
     "docsLink": "Or read the guides"
+  },
+  "PlanStarted": {
+    "metaTitle": "You're all set",
+    "titleTrial": "Your free trial has started",
+    "bodyTrial": "Try everything until {date}. You won't be charged before then, and you can cancel any time from your account.",
+    "bodyTrialNoDate": "You won't be charged until the trial ends, and you can cancel any time from your account.",
+    "titlePaid": "Thank you for subscribing",
+    "bodyPaid": "You're on {plan} now, with your new limits ready to use.",
+    "nextTitle": "What's next",
+    "nextBody": "Open Depop or Vinted and click the SaleLinx launcher on the page.",
+    "noExtension": "No extension yet?",
+    "addToChrome": "Add to Chrome",
+    "toAccount": "Go to your account",
+    "pendingTitle": "Finishing setup",
+    "pendingBody": "We're confirming your plan with Stripe. This only takes a few seconds."
   }
 }
