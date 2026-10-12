@@ -327,7 +327,7 @@ Deno.test('verifyFromResponse: errors, warnings and fees without throwing', () =
     <Ack>Failure</Ack>
     <Errors><ShortMessage>Missing</ShortMessage><LongMessage>Material is required.</LongMessage><ErrorCode>21919303</ErrorCode><SeverityCode>Error</SeverityCode></Errors>
     <Errors><LongMessage>Return policy adjusted.</LongMessage><ErrorCode>21920214</ErrorCode><SeverityCode>Warning</SeverityCode></Errors>
-    <Fees><Fee><Name>InsertionFee</Name><Fee currencyID="GBP">0.35</Fee></Fee><Fee><Name>BoldFee</Name><Fee currencyID="GBP">0.0</Fee></Fee></Fees>
+    <Fees><Fee><Name>InsertionFee</Name><Fee currencyID="GBP">0.35</Fee></Fee><Fee><Name>BoldFee</Name><Fee currencyID="GBP">0.0</Fee></Fee><Fee><Name>ListingFee</Name><Fee currencyID="GBP">0.35</Fee></Fee></Fees>
     <CategoryID>36027</CategoryID>
   </VerifyAddFixedPriceItemResponse>`;
   assertEquals(verifyFromResponse(text), {

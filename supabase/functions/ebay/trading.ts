@@ -62,7 +62,8 @@ export function verifyFromResponse(text: string) {
       .map((e) => `${e.ErrorCode}: ${e.LongMessage ?? e.ShortMessage}`);
   const fees = [].concat(body.Fees?.Fee ?? [])
     .map((f) => ({ name: String(f.Name), amount: Number(f.Fee?.['#text'] ?? 0) }))
-    .filter((f) => f.amount > 0);
+    // ListingFee is eBay's total of the lines above it, not a charge of its own.
+    .filter((f) => f.amount > 0 && f.name !== 'ListingFee');
   return {
     ok: body.Ack !== 'Failure' && body.Ack !== 'PartialFailure',
     errors: messages('Error'),
