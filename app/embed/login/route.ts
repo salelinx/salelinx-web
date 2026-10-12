@@ -16,6 +16,7 @@ const page = (origins: string[]) => `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<link rel="icon" href="/icon.png">
 <title>SaleLinx</title>
 <style>
   :root { --field: #fafafa; --line: rgba(0,0,0,.12); --text: #18181b; --muted: #52525b; --focus: #059669; --accent: #047857; --accentText: #fff; --error: #ef4444; color-scheme: light; }
@@ -98,6 +99,7 @@ export function GET(): Response {
       'Content-Security-Policy': [
         "default-src 'none'",
         "script-src 'unsafe-inline'",
+        "img-src 'self'",
         "style-src 'unsafe-inline'",
         "form-action 'none'",
         "base-uri 'none'",
