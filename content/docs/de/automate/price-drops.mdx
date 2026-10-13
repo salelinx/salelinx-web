@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Preissenkungen',
   description:
-    'Plane prozentuale Preissenkungen für veraltete Inserate, um die Suchsichtbarkeit aufzufrischen und langsamen Bestand zu bewegen.',
+    'Plane prozentuale Preissenkungen für veraltete Anzeigen, damit sie in der Suche sichtbar bleiben und langsamer Bestand sich bewegt.',
   category: 'automate',
   slug: 'price-drops',
   order: 5,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['markdown', 'preis', 'automatisierung'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,15 +13,23 @@ export const metadata = {
 
 # Preissenkungen
 
-Die Preissenkungen (Auto-Markdown) senken den Preis der von dir
-aktivierten Inserate in dem Takt, den du je Artikel festlegst.
-Jede Senkung frischt den Zeitstempel des Inserats auf und bringt
-es wieder in die relevanten Feeds.
+**Preissenkungen** senkt den Preis der Anzeigen, die du dafür
+ausgewählt hast, nach einem Zeitplan, den du je Artikel festlegst. So
+bewegt sich langsamer Bestand, ohne dass du daran denken musst, und
+der Preis fällt nie unter die Untergrenze, die du wählst.
+
+Die Senkungen sind kumulativ, nicht zusammengesetzt: Jede Stufe zieht
+denselben Prozentsatz vom ursprünglichen Preis ab. Bei 10 % pro
+Zyklus fällt ein Artikel für 30 £ also auf 27 £, dann auf 24 £, dann
+auf 21 £. Die Funktion arbeitet mit aktiven Anzeigen, die du in der
+Cloud gespeichert hast.
 
 <Callout>
-Vollständige deutsche Übersetzung folgt. Details zur kumulativen
-(nicht zusammengesetzten) Berechnung, zur Einrichtung, zum Trigger,
-zur Mindestpreis-Untergrenze, zur Historie und zu den Abostufen
+Vollständige deutsche Übersetzung folgt. Details zur Berechnung,
+dazu, welche Anzeigen du verfolgen kannst, zur Einrichtung (Regel je
+Anzeige, Sammelbearbeitung, **Preissenkungen ausführen**), zum
+Zeitplan der Senkungen, dazu, wann Senkungen laufen und was
+übersprungen wird, zum **Verlauf**, zum Beenden und zu den Abostufen
 findest du in der
 [englischen Version](/en/docs/automate/price-drops).
 </Callout>

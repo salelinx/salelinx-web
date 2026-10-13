@@ -644,7 +644,7 @@
           "backup": {
             "name": "Cloud-Backup",
             "label": "Dein Shop, sicher gesichert",
-            "detail": "Jedes Inserat und seine Fotos werden verschlüsselt in der Cloud gespeichert. So kostet dich ein Marktplatzfehler nie einen Verkauf, und ein verkaufter Artikel lässt sich direkt aus dem Backup neu einstellen."
+            "detail": "Sichere die Inserate deiner Wahl samt Fotos in der Cloud. So kostet dich ein Marktplatzfehler nie einen Verkauf, und ein verkaufter Artikel lässt sich direkt aus dem Backup neu einstellen."
           },
           "sync": {
             "name": "Geraetesync",

@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Shop Designer',
   description:
-    'Drag-and-drop layout tool for the Depop shop profile. Pin, reorder and preview your shop without dragging items around in Depop\'s own UI.',
+    'Drag-and-drop layout tool for your Depop shop. Rearrange your listings, preview the result on mobile and desktop, then apply it in one go.',
   category: 'inventory',
   slug: 'shop-designer',
   order: 6,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['shop', 'depop', 'design', 'layout'],
   marketplaces: ['depop'],
   status: 'published',
@@ -13,91 +13,108 @@ export const metadata = {
 
 # Shop Designer
 
-Shop Designer is a visual layout tool for your Depop shop. It lets
-you pin, re-order, and group your active listings without dragging
-items around inside Depop&rsquo;s own UI, which is fiddly on the web
-and slow on mobile.
+Shop Designer lets you rearrange the listings on your Depop shop by
+dragging them into the order you want, then applies that order for
+you. It&rsquo;s handy for putting featured pieces first and pushing
+older stock further down.
 
-This feature is **Depop only**. Vinted doesn&rsquo;t expose a public
-way to re-order a shop, so the equivalent doesn&rsquo;t exist for
-Vinted listings.
+It works because Depop shows your shop with the most recently saved
+listing first. When you apply a layout, SaleLinx re-saves your
+listings in the right order so each one lands where you put it.
 
-## What it does
-
-- **Reorder listings** by dragging cards in the panel preview. Saving
-  pushes the new order to Depop in one batch.
-- **Pin items to the top** so featured pieces always show first.
-- **Preview** the resulting shop layout before you commit.
-
-The panel reads your active listings from Depop, shows them as a
-draggable grid, and lets you save the result back to Depop in one go.
+This feature is **Depop only**.
 
 ## Opening the designer
 
-Inside the SaleLinx panel, open the **Shop Designer** tab. The first
-time you open it on a new account, it pulls your active listings
-(this can take a few seconds for shops with hundreds of items).
+Open the **Shop Designer** tab. It works from any page, as long as a
+Depop tab is open somewhere in Chrome. Each time you open it, it loads
+your active listings straight from Depop, in the order your shop shows
+them now. Large shops can take a few seconds.
 
-The grid mirrors the order Depop currently shows on your shop page.
+Your shop appears twice, side by side:
 
-## Reordering
+- **Mobile** - your shop as it looks on a phone.
+- **Desktop** - your shop as it looks in a browser.
 
-Drag any card to a new position. The preview updates instantly. Drop
-targets highlight as you drag.
+Both show your profile picture, bio and follower, following and sold
+counts above the grid, so you can judge the layout the way a buyer
+sees it. A change in one preview shows in both.
 
-Use the toolbar:
+## Rearranging
 
-- **Sort by date** - resets the preview to newest-first.
-- **Reverse** - flips the current order.
-- **Reset** - throws away changes and reloads from Depop.
+- **Drag** any listing to a new spot.
+- **Bring to top** and **Bring to bottom**, the two arrow buttons on
+  each listing, send it straight to the first or last spot.
+- Listings that are no longer in their original spot are marked, so
+  you can see what has changed.
+- **Reset** puts everything back in your shop&rsquo;s current order.
 
-## Saving
+The reload button next to the item count fetches your listings from
+Depop again.
 
-Click **Save layout**. SaleLinx pushes the new order to Depop one
-item at a time, using the same [Refresh](/docs/inventory/refresh)
-mechanism under the hood (each repositioned item is bumped by a
-re-save, in reverse order, to land in the target position). Safe
-pacing between calls means the marketplace doesn&rsquo;t flag the
-burst as automated activity.
+## Applying the layout
 
-The save can take a minute or two for a large shop. The panel shows
-progress and you can keep working in other tabs - nothing else is
-blocked.
+Click **Apply Layout**. SaleLinx re-saves the listings that need to
+move, starting with the lowest and working up, so the last one it
+saves lands on top. Listings at the bottom of your shop that are
+already in the right order are left alone.
 
-<Callout variant="tip" title="When ordering matters">
-Depop&rsquo;s search and feed surface listings partly based on shop
-activity, so a recently re-ordered shop can briefly get a small
-visibility bump. Don&rsquo;t re-order daily - the bump diminishes if
-Depop sees the same items being shuffled in a tight loop.
+That makes moving a listing up cheap and moving one down expensive.
+Bringing one listing to the top re-saves just that listing. Sending
+one to the bottom means re-saving every listing that should sit above
+it.
+
+A progress bar shows how far it has got, and **Stop** ends it early.
+If you stop partway, the listings re-saved so far sit at the top of
+your shop and the rest keep their old order below them.
+
+Each listing that moves takes several seconds, because SaleLinx paces
+the saves like a person working through them, so a big rearrangement
+can take a while. You can close the panel and carry on browsing; keep
+the Depop tab open. Other SaleLinx jobs wait until it finishes. When
+it&rsquo;s done, the designer reloads your shop from Depop so you can
+check the result.
+
+Re-saving is the same thing a [refresh](/docs/inventory/refresh) does,
+so the listings that moved also get a fresh &ldquo;last edited&rdquo;
+time. Applying a layout doesn&rsquo;t use your daily refresh
+allowance.
+
+<Callout variant="tip" title="Keeping your layout">
+Your layout lasts until something else saves a listing. A new listing,
+an edit or a refresh puts that listing at the top of your shop. Refresh
+All and Auto-Refresh keep your order when they cover your whole shop;
+when a run is cut short (by its cap, your allowance or the skip
+setting), the listings it reached move to the top. Apply your layout
+again after that.
 </Callout>
 
 ## Common tasks
 
-**Featuring a new collection.** Drag the new pieces to the top, save.
-They&rsquo;ll be the first thing shoppers see when they land on your
-profile.
+**Featuring a new collection.** Drag the new pieces to the top (or use
+**Bring to top** on each, starting with the one you want last), then
+click **Apply Layout**. They&rsquo;ll be the first thing shoppers see
+on your profile.
 
-**Cleaning up a messy shop.** Use **Sort by date** to reset, then
-nudge the items you want featured to the top. Saves you the
-click-by-click drag in Depop&rsquo;s native shop editor.
+**Bringing older pieces back up.** Older listings sink as you list new
+ones. Move the ones you want seen to the top and apply. Because moving
+up is cheap, this is quick even in a large shop.
 
 ## Limitations
 
-- **Depop only** - Vinted has no equivalent.
-- **Active listings only** - sold and draft items aren&rsquo;t shown.
-- **No grouping** - Depop doesn&rsquo;t support sections, so neither
-  does the designer. Order is a single flat list.
+- **Depop only.**
+- **Active listings only** - sold items and drafts aren&rsquo;t shown.
+- **One flat order** - there are no sections or groups.
 
 ## Plan and access
 
-Shop Designer is included on Starter and above, and on the 14-day
-free trial (which grants Starter access). Once the trial ends
-without subscribing, the tab locks.
+Shop Designer is included on Starter, Pro and Business, and on the
+14-day free trial. Without one of those plans, the tab shows a lock.
 
 ## Next steps
 
+- [Refresh](/docs/inventory/refresh) - the re-save that powers the
+  designer, for bumping listings without changing the order.
 - [Crosslist](/docs/inventory/crosslist) - post any listing to the
   other marketplace.
-- [Refresh](/docs/inventory/refresh) - the mechanism that powers the
-  designer&rsquo;s save.
-- [Listings](/docs/inventory/listings) - the unified inventory view.
+- [My Listings](/docs/inventory/listings) - the unified inventory view.

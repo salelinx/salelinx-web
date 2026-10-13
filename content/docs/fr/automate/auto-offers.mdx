@@ -1,38 +1,45 @@
 export const metadata = {
-  title: 'Auto-Offers',
+  title: 'Acceptation automatique des offres',
   description:
-    'Accepte automatiquement les offres entrantes au-dessus d\'un seuil en pourcentage, selon un calendrier que vous contrôlez.',
+    'Acceptez automatiquement les offres entrantes des acheteurs au-dessus d\'un seuil en pourcentage, selon un calendrier que vous contrôlez.',
   category: 'automate',
   slug: 'auto-offers',
   order: 2,
-  updated: '2026-09-20',
-  tags: ['offres', 'automatisation', 'depop', 'vinted', 'préréglages'],
+  updated: '2026-10-13',
+  tags: ['offres', 'acceptation automatique', 'automatisation', 'depop', 'vinted', 'préréglages'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
-# Auto-Offers
+# Acceptation automatique des offres
 
-Auto-Offers scanne périodiquement vos offres Depop et Vinted en
-attente et accepte celles qui dépassent un seuil que vous fixez.
-Cela supprime l'étape manuelle pour les petits articles où toute
-offre au-dessus de N&#37; du prix est acceptable, tout en vous
-laissant gérer les offres plus importantes à la main.
+L'acceptation automatique vérifie vos offres Depop et Vinted en
+attente selon un calendrier et accepte celles qui atteignent un seuil
+que vous fixez. Elle supprime l'étape manuelle pour les offres
+auxquelles vous diriez toujours oui, tout en vous laissant gérer à la
+main les offres plus importantes ou plus intéressantes.
+
+Il s'agit du bloc **Acceptation automatique** en haut de l'onglet
+**Offres**, au-dessus de la liste des offres en attente. Ce n'est pas
+l'onglet **Offres auto**&nbsp;: celui-ci envoie des offres *aux*
+personnes qui ont liké vos articles Vinted, voir
+[Envoi d'offres](/docs/automate/send-offers).
 
 <Callout>
 Traduction française complète à venir. Voir la
 [version anglaise](/en/docs/automate/auto-offers) pour la logique
-de décision, la configuration (seuil &#37;, prix minimum, plateformes,
-intervalle), le statut, les compromis et les paliers d'abonnement.
+de décision, la configuration (pourcentage, prix plancher, plateformes,
+fréquence), les onglets de marketplace à garder ouverts, le statut,
+les compromis et les paliers d'abonnement.
 </Callout>
 
 ## Préréglages
 
-Le seuil, le prix plancher, les plateformes et l'intervalle peuvent
-être remplis d'un coup depuis un préréglage (**Par défaut**&nbsp;:
-90&nbsp;%, pas de plancher, les deux plateformes, toutes les
-15&nbsp;minutes&nbsp;; **Prudent**&nbsp;: 95&nbsp;%, toutes les
-30&nbsp;minutes), et vous pouvez enregistrer les vôtres.
-L'interrupteur marche/arrêt ne fait jamais partie d'un préréglage.
-Voir [Offres](/docs/buyers/offers) pour le fonctionnement et la
-synchronisation des préréglages.
+Le pourcentage, le prix plancher, les plateformes et la fréquence de
+vérification peuvent être remplis d'un coup depuis un préréglage
+(**Par défaut**&nbsp;: 90&nbsp;%, pas de plancher, les deux
+plateformes, toutes les 15&nbsp;minutes&nbsp;; **Prudent**&nbsp;:
+95&nbsp;%, toutes les 30&nbsp;minutes), et vous pouvez enregistrer les
+vôtres. L'interrupteur marche/arrêt ne fait jamais partie d'un
+préréglage. Voir [Offres](/docs/buyers/offers) pour le fonctionnement
+et la synchronisation des préréglages.

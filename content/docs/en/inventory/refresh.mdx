@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'refresh',
   order: 4,
-  updated: '2026-09-18',
+  updated: '2026-10-13',
   tags: ['refresh', 'depop', 'visibility', 'scheduler', 'presets'],
   marketplaces: ['depop'],
   status: 'published',
@@ -13,110 +13,127 @@ export const metadata = {
 
 # Refresh
 
-The Refresh tab re-saves your Depop listings so they jump back to the
-top of your shop and re-enter the &ldquo;newest&rdquo; feed. Nothing
-about the listing changes for the buyer: same price, same photos,
-same words. Only the listing&rsquo;s edit timestamp moves forward,
-and Depop&rsquo;s search treats it as fresh content.
+The Refresh tab re-saves your Depop listings without changing them.
+Each re-saved listing moves back to the top of your shop and gets a
+fresh &ldquo;last edited&rdquo; time, which bumps it in Depop search.
+Buyers see the same price, the same photos and the same words.
 
-The tab has two halves:
+The tab has two parts:
 
-- **Manual refresh** - tick the listings you want, click Refresh.
-  Available on every plan (subject to a daily cap).
-- **Auto-refresh scheduler** - run a full shop refresh every 4 to 24
-  hours in the background, even with the panel closed. Pro and
-  Business only.
+- **Auto-Refresh** - refreshes your shop on a schedule, every 4 to 24
+  hours, even with the panel closed. Pro and Business only.
+- **Manual refresh** - tick the listings you want and click
+  **Refresh**, or use **Refresh All**. On every plan, within a daily
+  allowance.
+
+Refresh is Depop only. It works from any page, as long as a Depop tab
+is open somewhere in Chrome.
 
 ## When to use it
 
 - You list infrequently and your shop has slipped down the feed.
 - A handful of items have gone quiet but you don&rsquo;t want to
   recreate them from scratch.
-- You want to redo your shop&rsquo;s display order without deleting
-  anything (see [Shop Designer](/docs/inventory/shop-designer), which
-  uses the refresher under the hood).
 
 If a listing has been live for weeks and still has near-zero views, a
 refresh probably won&rsquo;t save it. Try
 [Price Drops](/docs/automate/price-drops) or
-[Relist](/docs/inventory/relist) instead.
+[Relist](/docs/inventory/relist) instead. To put your shop in a
+different order, use [Shop Designer](/docs/inventory/shop-designer),
+which works by re-saving listings in the order you choose.
 
 ## How a refresh works
 
-For each listing the refresher does two API calls:
+For each listing, SaleLinx opens the listing&rsquo;s edit details on
+Depop and, a few seconds later, saves them straight back. Nothing
+visible changes (unless you turn on the price nudge, below), but Depop
+records the listing as edited.
 
-1. **GET** the full edit payload for the listing (title, price,
-   photos, category, etc.).
-2. **PUT** that exact same payload straight back to Depop.
+### Your shop order is kept
 
-Because the body is identical to what&rsquo;s already on the
-listing, nothing visible changes. But Depop&rsquo;s backend marks the
-listing as edited, which bumps its sort position in your shop and in
-the relevant search feeds.
+Re-saving a listing moves it to the top of your shop, so refreshing
+from the top down would turn your shop upside down. SaleLinx works
+from the bottom up instead: the lowest listing is refreshed first and
+the top one last, so it ends up on top again.
 
-There&rsquo;s a small, randomised pause between the GET and the PUT
-(roughly half a second to just over a second) so the request pair
-looks like a human editing through the website rather than two
-back-to-back API hits.
+- **Refresh All** reads your whole shop first (leaving out sold
+  items), then works from the bottom up.
+- **Refresh** puts the listings you ticked into shop order and does
+  the same.
 
-### Order is preserved
+When a run covers your whole shop, it looks the same afterwards. When
+it covers only part of it (because of the per-run cap, your daily
+allowance or the skip setting), the listings it refreshed end up above
+the ones it didn&rsquo;t, in the same order among themselves.
 
-Refreshing bumps an item to the top of your shop. So if you refresh
-five items top-to-bottom, your shop order would be inverted
-afterwards.
+### Nudge the price by 0.01
 
-The refresher works around this by walking your listings
-**bottom-up**:
-
-- For **Refresh all**, SaleLinx fetches every page of your shop
-  first, reverses the full list, then refreshes the bottom item, then
-  the next one up, and so on. The top item refreshes last, so it
-  stays on top.
-- For **Refresh selected**, the rows you ticked are reversed in the
-  same way before processing.
-
-The result is that your shop layout looks identical after the run,
-but every listing has a fresh edit timestamp.
-
-### Penny toggle
-
-There&rsquo;s an optional **penny toggle** setting. With it on, each
-refresh nudges the price by &plusmn;&#36;0.01, alternating up and down
-per listing. The buyer-facing price effectively oscillates by a
-single cent.
-
-This is useful for shops that have been refreshing heavily and want
-extra confidence the bumps are landing. Most users don&rsquo;t need
-it.
+**Nudge the price by 0.01 each time**, in Refresh settings, changes
+each listing&rsquo;s price by 0.01 in your shop currency on every
+refresh: down one time, back up the next. Depop then sees a real edit
+rather than an unchanged save. It&rsquo;s off by default; with it off,
+the listing is saved back exactly as it was. Auto-Refresh uses this
+setting too.
 
 ## Running it manually
 
 From the **Refresh** tab:
 
-1. Wait for your listings to load. They appear newest-first, matching
-   your shop order.
-2. Tick the listings you want to refresh, or click **Refresh all** to
-   do the lot.
-3. Click **Refresh selected** (or **Refresh all**).
-4. Confirm. SaleLinx asks before it starts a run and tells you how many
-   listings it is about to touch, so a mis-click on **Refresh all**
-   doesn&rsquo;t commit your whole shop to a long run.
-5. Watch the progress bar at the top of the tab.
+1. Wait for your listings to load. They&rsquo;re sorted stale-first:
+   the listing that has gone longest without being re-saved is at the
+   top.
+2. Tick the listings you want and click **Refresh**, or click
+   **Refresh All**.
+3. Confirm. SaleLinx asks before it starts and tells you how many
+   listings it&rsquo;s about to touch, so a mis-click on **Refresh
+   All** doesn&rsquo;t commit your whole shop to a long run.
+4. Watch the progress bar. The &times; at the end of the bar cancels
+   the run.
 
-You can keep working in other Chrome tabs while it runs. If you close
-the side panel mid-run, the bot keeps going in the background and
-picks up where it left off if the service worker restarts.
+Each row shows when the listing was last re-saved (&ldquo;Refreshed 2
+days ago&rdquo;), in green when it&rsquo;s recent, orange from 3 days
+and red after a week. This counts any save of the listing, including
+edits you make on Depop. Listings on sale show the original price
+struck through next to the sale price.
 
-## Presets
+**Refresh All** is greyed out when there&rsquo;s nothing for it to do:
+no listings have loaded yet (use the reload button next to the search
+box), or every listing was refreshed within your skip window.
 
-The preset picker at the top of the Settings panel saves the refresh
-settings as a named set: the per-run cap for Refresh all, the seconds
-between listings, whether to skip listings refreshed within the last
-N days, and the penny toggle. Picking a preset fills in all four at
-once. Two are built in:
+You can close the panel while a run is going. It carries on in the
+background as long as Chrome and a Depop tab stay open. If Chrome or
+the extension restarts mid-run, the job is paused: press **Resume** in
+the job queue and it carries on from where it stopped.
+
+## Refresh settings
+
+**Refresh settings**, the section under Auto-Refresh, holds:
+
+- **Max listings per Refresh All** - Refresh All stops after this
+  many. Default 100. **Refresh** always does exactly the listings you
+  ticked.
+- **Skip listings refreshed in the last (days)** - Refresh All and
+  Auto-Refresh leave out anything re-saved more recently than this.
+  0, the default, refreshes everything. Listings you tick are always
+  refreshed.
+- **Seconds between listings** - how long to wait after each listing,
+  on average. Default 7, minimum 5. The first few listings and the
+  later ones in a long run get a little extra, and long runs take the
+  odd longer break (the job queue shows **On break**), so a big run
+  can sit idle for several minutes partway through.
+- **Nudge the price by 0.01 each time** - see above.
+
+Auto-Refresh uses all of these except **Max listings per Refresh
+All**.
+
+### Presets
+
+The preset picker at the top of **Refresh settings** saves these as a
+named set. Picking a preset fills in all four at once. Two are built
+in:
 
 - **Default** - 100 listings per run, 7 seconds between listings,
-  skip off, penny toggle off.
+  skip off, price nudge off.
 - **Careful** - 50 listings per run, 15 seconds between listings.
   Slower, and does less per run.
 
@@ -132,89 +149,98 @@ survive a reinstall and follow you to another computer. See
 [Account and subscription](/docs/getting-started/account-and-subscription)
 for how syncing, sign-out and per-device selection work.
 
-## Auto-refresh on a schedule
+## Auto-Refresh on a schedule
 
-The **Auto-refresh** section at the top of the Refresh tab schedules
-the same logic to run automatically. Set the cadence (4h, 6h, 8h,
-12h, or 24h) and flip the toggle on.
+The **Auto-Refresh** section at the top of the Refresh tab runs
+Refresh All for you on a schedule. On plans without it, the section
+shows a lock.
 
 ### Setup
 
-1. Pick an interval from the dropdown. Defaults to 8h.
-2. Flip the **Auto-refresh** toggle on.
+1. Turn on the **Auto-Refresh** toggle.
+2. Pick an interval in **Refresh every**: 4h, 6h, 8h (the default),
+   12h or 24h.
 
-The status row underneath populates after the first scheduled run
-with:
+The first run happens one interval after you turn it on. To run one
+straight away, click **Start now**.
 
-- **Last run** - when it ran and how many listings were refreshed out
-  of the total.
-- **Next run** - countdown to the next scheduled fire.
+The status rows show:
 
-Changing the interval while auto-refresh is on re-schedules the next
-run for `now + new_interval`.
+- **Last run** - how long ago the last Auto-Refresh run finished, and
+  how many listings it refreshed out of how many it tried.
+- **Next run** - a countdown to the next one.
 
-### What happens on each tick
+The next run is always timed from when the previous one finished, so
+a run started with **Start now** resets the countdown. Changing the
+interval while Auto-Refresh is on restarts the countdown from now.
 
-The scheduler runs even when the panel is closed, using Chrome&rsquo;s
-alarm system that survives the service worker sleeping. On each tick
-SaleLinx checks that the toggle is still on, that no other bot is
-running, and that the right Depop account is signed in, then triggers
-a full Refresh all bottom-up. The run summary is stored for the panel
-to display, and the next tick is scheduled.
+While a scheduled run is going, **Start now** becomes **Cancel
+auto-refresh**. Cancelling the run (there or from the job queue) also
+turns Auto-Refresh off, so switch it back on when you want the
+schedule again.
 
-If a scheduled tick can&rsquo;t run cleanly (another bot is busy, no
-Depop tab is open), the scheduler will quietly defer and try again
-shortly. If you&rsquo;re signed into the wrong Depop account, the run
-is skipped and logged.
+### What each scheduled run does
+
+Each run refreshes up to 200 listings, bottom-up like Refresh All, and
+fewer if your daily allowance has less left. Your skip setting, seconds
+between listings and price nudge all apply. Because every run starts
+from the bottom of your shop, a shop too big for one run is covered
+over several: the next run starts with the listings the last one
+didn&rsquo;t reach.
+
+Scheduled runs only happen while Chrome is open. Each one needs a
+Depop tab open and signed in to the Depop account linked in SaleLinx.
+If another SaleLinx job is running, or no Depop tab is open,
+Auto-Refresh tries again every 5 minutes, up to 3 times, then waits
+for the next scheduled run. If you&rsquo;re signed in to a different
+Depop account, the run is skipped until the next scheduled time.
 
 ### Picking an interval
 
-- **4h** - aggressive. Best for large shops that turn over fast and
-  have the daily allowance to support it.
-- **8h** (default) - sensible for most shops. Three refreshes a day,
-  roughly aligned to morning, afternoon and evening browsing peaks.
+- **4h** - aggressive. Best for large shops with the daily allowance
+  to support it.
+- **8h** (default) - sensible for most shops: about three runs a day.
 - **12h / 24h** - light maintenance for shops where listings rarely
   change.
 
-Each scheduled run is a full shop refresh, so the more listings you
-have the more refreshes a single tick performs. Pick an interval
-that fits comfortably inside your plan&rsquo;s daily allowance.
+Scheduled runs use the same daily allowance as manual refreshes, so
+pick an interval that fits inside it.
 
 ## Pacing and safety
 
-Both manual and scheduled runs go through SaleLinx&rsquo;s pacing
-engine, which mimics real human editing so the marketplace
-doesn&rsquo;t flag the burst as automated activity. If Depop
-pushes back, the run quietly backs off and resumes; if a session
-gets flagged outright, the run stops immediately and you should
-re-sign-in before trying again.
+Manual and scheduled runs go through SaleLinx&rsquo;s pacing, so the
+run looks like normal editing rather than a burst. If Depop starts
+refusing requests, the run backs off and retries a few times; if it
+keeps happening, the run stops. If Depop denies access outright, the
+run stops immediately, and you should sign out of Depop and back in
+before trying again.
 
-There&rsquo;s a hard ceiling on how long a single run can last;
-anything not finished in one go continues automatically on the next
-run.
+There&rsquo;s no time limit on a run. It carries on until it has done
+the listings it set out to do, or you stop it.
+
+If Depop won&rsquo;t save a particular listing, that listing is left
+exactly as it was and the run moves on. This usually means its
+category or size needs re-selecting on depop.com.
 
 ## Daily allowance
 
-Each successful refresh counts against your daily refresh allowance,
-which resets at midnight in your local time and varies by plan. The
-**Membership** card at the top of the panel shows your remaining
-allowance.
+Each successful refresh counts against your daily refresh allowance.
+Manual refreshes and Auto-Refresh share it. It varies by plan (see
+[pricing](/pricing)) and resets at midnight UTC. If a run asks for
+more than you have left, it&rsquo;s cut to what&rsquo;s left. The
+**Membership** card in the Settings tab shows what you have left
+today; see [Settings](/docs/getting-started/settings).
 
-Auto-refresh on a schedule is gated to **Pro and Business**. Manual
-refresh is available on every paid plan including the free trial.
+Applying a layout in [Shop Designer](/docs/inventory/shop-designer)
+doesn&rsquo;t use this allowance.
 
-## Activity log
-
-Every refresh writes a line to the activity log so you can see what
-ran. Scheduled-run events are prefixed `[Auto-Refresh]` so you can
-scroll back through what happened overnight. If a refresh fails, your
-listing isn&rsquo;t touched - the original is still there with its
-original timestamp.
+Manual refresh is on every plan, including the free trial.
+Auto-Refresh is Pro and Business only.
 
 ## Next steps
 
-- [Shop Designer](/docs/inventory/shop-designer) - use the refresher
-  to lay out your shop in any order.
+- [Shop Designer](/docs/inventory/shop-designer) - put your shop in
+  any order you like.
 - [Relist](/docs/inventory/relist) - the heavier alternative for
   genuinely dead listings.
 - [Price Drops](/docs/automate/price-drops) - move stale items down

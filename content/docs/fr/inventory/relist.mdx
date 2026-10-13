@@ -1,50 +1,59 @@
 export const metadata = {
-  title: 'Relist',
+  title: 'Republier',
   description:
     'Recréez une annonce de zéro avec des modifications de photos optionnelles, puis supprimez l\'originale pour qu\'elle réapparaisse comme nouveau contenu dans la recherche.',
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-09-18',
-  tags: ['relist', 'depop', 'vinted', 'préréglages'],
+  updated: '2026-10-13',
+  tags: ['republier', 'depop', 'vinted', 'préréglages'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
-# Relist
+# Republier
 
-Relist est un rafraîchissement avec du mordant. Il supprime une
-annonce dormante et publie une copie toute neuve du même contenu,
-avec des modifications subtiles des photos pour que la détection de
-doublons de la marketplace ne la signale pas.
+L'onglet **Republier** est un rafraîchissement avec du mordant. Il
+publie une copie toute neuve d'une annonce dormante, puis supprime
+l'originale. Les photos sont réenregistrées avec de petites
+modifications (et, si vous le souhaitez, le titre, la description et
+le prix) pour que la copie soit publiée comme une nouvelle annonce
+plutôt que comme un doublon de l'ancienne.
+
+Résultat&nbsp;: votre article reçoit une nouvelle date de publication
+et repart vers les acheteurs comme du stock neuf. La copie est une
+annonce distincte avec son propre lien, donc les likes et les vues de
+l'ancienne ne sont pas conservés.
 
 <Callout>
 Traduction française complète à venir. Voir la
 [version anglaise](/en/docs/inventory/relist) pour le fonctionnement
-détaillé (ordre publier-d'abord-supprimer-ensuite), les modifications
-de photos (crop, hue/luminosité, ordre), la cadence et les paliers
-d'abonnement.
+détaillé (publication d'abord, suppression ensuite), le lancement
+d'une republication, les articles cloud et vendus, la fenêtre
+**Confirmation de republication** (photos, titre, description, prix,
+brouillon), les remises Depop, la cadence et le quota mensuel.
 </Callout>
 
 ## Préréglages
 
-Le sélecteur de préréglages en haut du panneau des réglages
-enregistre les réglages de republication sous un nom&nbsp;: le
-délai entre deux republications, plus chaque option de la fenêtre
-de republication (modifications de photos, changements de titre et
-de description, changement de prix, enregistrement en brouillon).
-Choisir un préréglage remplit tout d'un coup. Deux sont
+Le sélecteur de préréglages en haut de **Réglages de republication**
+enregistre les réglages de republication sous un nom&nbsp;: les
+secondes entre deux annonces, plus chaque option de la fenêtre
+**Confirmation de republication** (modifications des photos, du titre
+et de la description, changement de prix, enregistrement en
+brouillon). Choisir un préréglage remplit tout d'un coup. Deux sont
 intégrés&nbsp;:
 
-- **Par défaut** - 10 secondes entre deux republications&nbsp;;
+- **Par défaut** - 10 secondes entre deux annonces&nbsp;;
   modifications de photos activées, à &plusmn;2&deg; de rotation,
   &plusmn;2&nbsp;% d'échelle et &plusmn;1,8&nbsp;% de
   luminosité&nbsp;; changements de titre et de description
   activés&nbsp;; changement de prix désactivé&nbsp;; brouillon
   désactivé.
-- **Prudent** - 20 secondes entre deux republications, et chaque
-  republication est d'abord enregistrée en brouillon. Plus lent, et
-  fait moins par exécution.
+- **Prudent** - 20 secondes entre deux annonces, et chaque
+  republication est enregistrée en brouillon. Plus lent, et rien n'est
+  mis en ligne tant que vous ne l'avez pas publié (les originales sont
+  tout de même supprimées).
 
 Modifiez un réglage à la main et le sélecteur signale les valeurs
 comme non enregistrées&nbsp;; vous pouvez alors les enregistrer

@@ -644,7 +644,7 @@
           "backup": {
             "name": "Cloud backup",
             "label": "Your shop, safely backed up",
-            "detail": "Every listing and its photos are stored in the cloud and encrypted, so a marketplace mistake never costs you a sale, and a sold item can be relisted straight from its backup."
+            "detail": "Back up the listings you choose, photos included, so a marketplace mistake never costs you a sale and a sold item can be relisted straight from its backup."
           },
           "sync": {
             "name": "Device sync",

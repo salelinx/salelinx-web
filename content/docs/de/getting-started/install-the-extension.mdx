@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'SaleLinx-Erweiterung installieren',
   description:
-    'Wie du SaleLinx in Chrome installierst, an die Symbolleiste heftest und dich anmeldest.',
+    'Wie du SaleLinx in Chrome installierst, an die Symbolleiste heftest, dich anmeldest und das Panel zum ersten Mal öffnest.',
   category: 'getting-started',
   slug: 'install-the-extension',
   order: 1,
-  updated: '2026-09-15',
+  updated: '2026-10-13',
   tags: ['installieren', 'einrichten', 'chrome'],
   marketplaces: [],
   status: 'published',
@@ -13,25 +13,30 @@ export const metadata = {
 
 # SaleLinx-Erweiterung installieren
 
-SaleLinx läuft komplett in deinem Browser. Installiere sie einmal, hefte sie
-an deine Symbolleiste und melde dich mit dem Konto an, das du für die
-Abrechnung nutzt.
+SaleLinx ist eine Chrome-Erweiterung, die in deinen Depop- und Vinted-Tabs
+arbeitet. Installiere sie einmal, hefte sie an deine Symbolleiste und melde
+dich mit deinem SaleLinx-Konto an.
 
-Du brauchst Google Chrome oder einen Chromium-Browser (Edge, Brave, Arc) und
-ein SaleLinx-Konto.
+Du brauchst Google Chrome oder einen anderen Chromium-Browser (Microsoft Edge,
+Brave, Arc oder Opera). Safari und Firefox werden nicht unterstützt.
 
 ## 1. Aus dem Chrome Web Store installieren
 
 <InstallExtensionButton label="Zu Chrome hinzufügen" className="my-6 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_10px_30px_-12px_rgba(0,0,0,0.45)] transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100" />
 
-Oder öffne den [SaleLinx-Eintrag](https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj) im Chrome Web Store und klicke auf **Zu Chrome
-hinzufügen**. Chrome fordert dich auf, die benötigten Berechtigungen zu
-bestätigen. Klicke auf **Erweiterung hinzufügen**, um fortzufahren.
+Oder öffne den [SaleLinx-Eintrag](https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj) im Chrome Web Store und klicke auf **Zu Chrome hinzufügen**.
+Chrome bittet dich, die Berechtigungen zu bestätigen, die die Erweiterung
+braucht. Klicke auf **Erweiterung hinzufügen**, um fortzufahren.
 
 <Callout variant="tip" title="Was die Berechtigungen bedeuten">
-SaleLinx fragt nach Zugriff auf depop.com und vinted.com, um deine eigenen
-Inserate lesen und Formulare in deinem Namen ausfüllen zu können. Auf keiner
-anderen Seite läuft die Erweiterung.
+SaleLinx fragt nach Zugriff auf Depop und auf die Vinted-Länderseiten, die
+unterstützt werden. Damit liest die Erweiterung deine eigenen Anzeigen,
+Bestellungen und Nachrichten und stellt Artikel für dich ein, bearbeitet sie
+und stellt sie neu ein, über dieselben Verbindungen, die auch die Website des
+Marktplatzes nutzt. Außerdem spricht sie mit einigen unterstützenden Diensten:
+der SaleLinx-Cloud (dein Konto und deine Sicherungen), den Fotoservern der
+Marktplätze und dem Anbieter der Versandetiketten. Das SaleLinx-Panel
+erscheint nur auf Depop- und Vinted-Seiten.
 </Callout>
 
 ## 2. Erweiterung anheften
@@ -42,39 +47,71 @@ Klick erreichst.
 
 <InstallPinCallout />
 
-Es gibt außerdem ein Tastenkürzel: **Alt+S** öffnet und schließt das Panel.
-Chrome behandelt es als Vorschlag. Wenn eine andere Erweiterung es bereits
-belegt, kannst du unter `chrome://extensions/shortcuts` dein eigenes
-festlegen.
-
 ## 3. Anmelden
 
-Klicke auf das angeheftete SaleLinx-Symbol (oder drücke Alt+S), um das
-Seitenpanel zu öffnen. Melde dich mit **Google** an, oder mit der E-Mail und
-dem Passwort, mit denen du dich auf salelinx.com registriert hast. Wenn du dich noch nicht registriert hast,
-nutze den Link **Konto erstellen** unten im Panel.
+Klicke auf das angeheftete SaleLinx-Symbol. Es öffnet sich ein kleines
+Fenster, in dem du dich mit **Continue with Google** anmelden kannst oder mit
+deiner E-Mail-Adresse, deinem Passwort und **Log in**. Wenn du noch kein Konto
+hast, klicke auf **Sign up**, um direkt dort eines zu erstellen. Wenn du dich
+mit einer E-Mail-Adresse registrierst, bestätige sie über die E-Mail, die wir
+dir schicken, und melde dich dann an.
+
+Du kannst dich auch im Panel selbst anmelden: Wenn du es abgemeldet auf Depop
+oder Vinted öffnest, zeigt es dieselben Anmeldeoptionen.
+
+Sobald du angemeldet bist, zeigt das Fenster, welches Konto du nutzt, mit
+Buttons zum Öffnen von Depop oder Vinted, einem Link **Account &amp; billing**
+zu deiner Kontoseite auf salelinx.com und **Log out**.
 
 <Callout>
-Abrechnung und Erweiterung nutzen dasselbe Konto. Wenn du dein Passwort auf
-der Website zurücksetzt, nutze das neue Passwort auch hier.
+Website und Erweiterung nutzen dasselbe Konto, aber du meldest dich bei beiden
+getrennt an. Wenn du dein Passwort auf der Website zurücksetzt, nutze das neue
+Passwort auch in der Erweiterung.
 </Callout>
 
-## 4. Erster Start
+## 4. Panel öffnen
 
-Gehe auf [depop.com](https://www.depop.com) oder [vinted.com](https://www.vinted.com).
-Das SaleLinx-Panel öffnet sich automatisch auf Produkt- und Profilseiten. Du
-siehst eine kurze Checkliste, um deine Marktplatz-Konten zu verknüpfen, deine
-Inserate zu importieren und dein erstes Crosslisting durchzuführen.
+Geh auf [depop.com](https://www.depop.com) oder deine Vinted-Seite. Unten
+rechts auf der Seite sitzt ein kleiner SaleLinx-Button. Klicke darauf, um das
+Panel zu öffnen. Das Panel gibt es nur auf Depop- und Vinted-Seiten; über das
+Symbol in der Symbolleiste öffnet es sich nicht.
+
+Wenn du schon vor der Installation Depop- oder Vinted-Tabs offen hattest, lade
+sie einmal neu, damit der Button erscheint.
+
+Es gibt auch ein Tastenkürzel: **Alt+S** öffnet und schließt das Panel,
+solange du auf einem Depop- oder Vinted-Tab bist. Auf anderen Seiten passiert
+nichts. Wenn eine andere Erweiterung Alt+S schon belegt, lege unter
+`chrome://extensions/shortcuts` ein eigenes Kürzel fest, oder öffne im Panel
+**Einstellungen** und klicke neben **Panel-Tastenkürzel** auf **Ändern**.
+
+## 5. Der erste Start
+
+Wenn du das Panel zum ersten Mal öffnest, führt es dich durch zwei
+Bildschirme:
+
+1. **Willkommen bei SaleLinx.** Wenn dein Konto noch keinen Tarif hat, klicke
+   auf **Testphase starten**. Das öffnet die Preisseite auf salelinx.com, wo du
+   deine 14-tägige Testphase startest (melde dich dort mit demselben Konto an,
+   falls du danach gefragt wirst; eine Karte ist nötig, aber während der
+   Testphase wird nichts abgebucht). Wenn du fertig bist, geh zurück ins Panel
+   und klicke auf **Schon einen Plan? Aktualisieren**.
+2. **Verbinde deine Shops.** Wähle unter **Ich verkaufe auf** Depop, Vinted
+   oder beide und klicke dann bei jedem Konto auf **Verknüpfen**. Zeigt eine
+   Zeile stattdessen **Anmelden**, bist du in diesem Browser noch nicht bei
+   diesem Marktplatz angemeldet.
+
+Danach öffnet sich das Panel mit **Meine Anzeigen**. Die vollständige Anleitung
+zum Verknüpfen steht unter
+[Deinen ersten Marktplatz verbinden](/docs/getting-started/connect-your-first-marketplace).
 
 ## Fehlerbehebung
 
-Wenn etwas schiefläuft, bietet die [FAQ](/faq#troubleshooting) schnelle Lösungen
-für die häufigsten Installationsprobleme (Panel erscheint nicht, Chrome
-blockiert die Installation, Anmeldung auf falschem Konto).
+Wenn etwas schiefläuft, bietet die [FAQ](/help/faq#troubleshooting) schnelle
+Lösungen für die häufigsten Probleme, etwa wenn das Panel nicht erscheint oder
+die Anmeldung nicht klappt.
 
 ## Nächste Schritte
 
-Sobald die Erweiterung installiert und angemeldet ist, verbinde deinen ersten
-Marktplatz:
-
 - [Deinen ersten Marktplatz verbinden](/docs/getting-started/connect-your-first-marketplace)
+- [Konto und Abonnement](/docs/getting-started/account-and-subscription)

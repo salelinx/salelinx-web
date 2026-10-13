@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Ofertas',
   description:
-    'Ofertas pendientes de Depop y Vinted en una sola bandeja. Acepta, rechaza o contraoferta desde el panel sin abrir el marketplace.',
+    'Ofertas pendientes de Depop y Vinted en una sola bandeja. Acepta, rechaza o contraoferta desde el panel sin abrir la marketplace.',
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-09-18',
+  updated: '2026-10-13',
   tags: ['ofertas', 'depop', 'vinted', 'ajustes guardados'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,44 +13,54 @@ export const metadata = {
 
 # Ofertas
 
-La pestaña **Ofertas** reúne tus ofertas pendientes de Depop y
-Vinted en un solo sitio. Cada tarjeta tiene el nombre del comprador,
-el importe de la oferta, el precio original y tres botones de
-acción: Aceptar, Rechazar, Contraofertar. La pestaña también aloja
-los controles de Auto-Offers en la parte superior.
+La pestaña **Ofertas** reúne tus ofertas pendientes de Depop y Vinted
+en un solo sitio, en dos columnas una al lado de la otra. La columna de
+la marketplace en la que estás aparece a la izquierda. Cada tarjeta
+muestra el artículo, el usuario del comprador, cuándo llegó la oferta,
+el importe ofrecido, tu precio y el descuento que pide el comprador,
+con tres botones: **Aceptar**, **Rechazar** y **Contraoferta**.
+
+La pestaña también aloja en la parte superior el bloque
+[Aceptar ofertas automáticamente](/docs/automate/auto-offers), para
+aceptar sin intervenir las ofertas que superan un umbral.
 
 <Callout>
 Traducción completa al español próximamente. Consulta la
 [versión en inglés](/en/docs/buyers/offers) para qué se muestra, el
-filtro de antigüedad de ofertas, las acciones, la caché de Vinted
-compartida con Messages y los planes que lo incluyen.
+filtro de antigüedad de Vinted, las acciones (incluidos los botones de
+contraoferta rápida), la actualización, la caché de Vinted compartida
+con Mensajes, la ausencia de rechazo masivo y los planes que lo
+incluyen.
 </Callout>
 
 ## Ajustes guardados de la aceptación automática
 
-Los controles de aceptación automática tienen un selector de ajustes
-guardados en la parte superior de su panel de ajustes. Un ajuste
+Los ajustes de
+[Aceptar ofertas automáticamente](/docs/automate/auto-offers) tienen
+un selector de ajustes guardados en la parte superior. Un ajuste
 guardado almacena el porcentaje mínimo del precio pedido, el precio
-mínimo absoluto, qué plataformas revisar (Depop, Vinted) y cada
-cuánto comprobar. Elegir uno rellena todos los ajustes de golpe, y
-en la aceptación automática el ajuste elegido pasa a ser la regla
-activa de inmediato. Hay dos incorporados:
+mínimo, qué plataformas revisar (Depop, Vinted) y cada cuánto
+comprobar. Elegir uno rellena todos los ajustes de golpe, y en la
+aceptación automática el ajuste elegido pasa a ser la regla activa de
+inmediato. Hay dos incorporados:
 
 - **Predeterminado** - 90 % del precio pedido, sin precio mínimo,
   ambas plataformas, comprobación cada 15 minutos.
-- **Prudente** - 95 % del precio pedido, comprobación cada 30
-  minutos. Más lento, y hace menos por ejecución.
+- **Prudente** - 95 % del precio pedido, sin precio mínimo, ambas
+  plataformas, comprobación cada 30 minutos.
 
 Un ajuste guardado no incluye, a propósito, el interruptor de
-encendido de la aceptación automática. Activarla es siempre una
-decisión aparte y explícita, sea cual sea el ajuste elegido.
+encendido de la aceptación automática. Activarla es siempre un paso
+aparte y explícito, sea cual sea el ajuste elegido.
 
-Cambia cualquier ajuste a mano y el selector marca los valores como
-sin guardar; desde ahí puedes guardarlos como un ajuste propio.
+Cambia cualquier ajuste a mano y el selector mantiene el nombre del
+ajuste con un punto al lado, para indicar que los valores han
+cambiado. Su menú ofrece entonces **Guardar como nuevo&hellip;**,
+**Revertir** y, si es uno de tus propios ajustes, **Guardar cambios**.
 Guardar con el nombre de uno de tus ajustes existentes pide
 confirmación antes de sobrescribirlo, y los nombres incorporados no
 se pueden reutilizar. Tus propios ajustes guardados se pueden borrar
-tras una confirmación; los incorporados, no.
+desde el menú tras una confirmación; los incorporados, no.
 
 Tus ajustes guardados se almacenan con tu cuenta de SaleLinx, así
 que sobreviven a una reinstalación y te siguen a otro ordenador.

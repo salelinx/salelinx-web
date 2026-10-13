@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Restocker',
   description:
-    'Plattformübergreifende Bestandssynchronisation. Wenn ein verknüpfter Artikel auf einem Marktplatz verkauft wird, postet die andere Seite automatisch neu (oder wird deaktiviert).',
+    'Plattformübergreifender Bestandsabgleich. Stellt verkaufte Vinted-Anzeigen neu ein, solange du noch Bestand hast, führt verknüpfte Depop- und Vinted-Anzeigen auf einem gemeinsamen Bestand und nimmt die andere Seite offline, wenn der Artikel ausverkauft ist.',
   category: 'automate',
   slug: 'restocker',
   order: 4,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['restocker', 'bestand', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,16 +13,32 @@ export const metadata = {
 
 # Restocker
 
-Der Restocker hält deinen Bestand zwischen Marktplätzen ehrlich.
-Zwei Szenarien: Vinted-Verkäufer mit mehreren Einheiten (3 T-Shirts
-im Bestand, repostet bei jedem Verkauf bis erschöpft) und
-plattformübergreifend verknüpfte Artikel (auf Depop verkauft
-&rarr; von Vinted entfernt, um Doppelverkauf zu vermeiden).
+Der Restocker hält deinen Bestand zwischen den Marktplätzen ehrlich.
+Zwei Szenarien:
+
+1. **Mehrere Stück auf Vinted.** Du hast 3 gleiche T-Shirts. Stell
+   **2 Restocks** ein: Bei jedem der ersten beiden Verkäufe stellt der
+   Restocker eine frische Vinted-Anzeige für das nächste Stück ein.
+   Der dritte Verkauf schließt den Artikel ab.
+2. **Verknüpfte Artikel.** Derselbe Artikel ist auf Depop und Vinted
+   eingestellt und [verknüpft](/docs/automate/linking). Beide Seiten
+   teilen sich einen Bestand. Wenn das letzte Stück auf einer Seite
+   verkauft wird, nimmt der Restocker die andere Seite offline, damit
+   du nichts doppelt verkaufst.
+
+Neu eingestellt werden nur Vinted-Anzeigen. Auf Depop schreibt
+SaleLinx deinen Bestand stattdessen in Depops eigenes Mengenfeld, und
+Depop hält die Anzeige online, bis sie ausverkauft ist. Ein Artikel
+muss [in der Cloud gespeichert](/docs/inventory/cloud-sync) sein,
+bevor der Restocker ihn verfolgen kann.
 
 <Callout>
-Vollständige deutsche Übersetzung folgt. Details zu beiden Abläufen
-(Vinted Mehrfachmenge, plattformübergreifend), zum Hinzufügen eines
-Artikels, zum Zeitplan, zu dem, was der Restocker nicht tut, und
-zu den Abostufen findest du in der
+Vollständige deutsche Übersetzung folgt. Details zum Restocker-Tab,
+zum Hinzufügen von Artikeln (aus Meine Anzeigen oder dem
+Restocker-Tab), zu Entwürfen, zu **Bestand exportieren** und
+**Bestand importieren**, zum Starten und Stoppen des Restockers, zu
+den Abläufen (Vinted-Neueinstellung, verknüpfte Paare), zu den
+Einstellungen, zu dem, was er nicht tut, und zu den Abostufen findest
+du in der
 [englischen Version](/en/docs/automate/restocker).
 </Callout>

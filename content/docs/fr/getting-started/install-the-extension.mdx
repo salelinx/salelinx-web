@@ -1,11 +1,11 @@
 export const metadata = {
   title: "Installer l'extension SaleLinx",
   description:
-    "Comment installer SaleLinx dans Chrome, l'épingler à votre barre d'outils et se connecter.",
+    "Comment installer SaleLinx dans Chrome, l'épingler à votre barre d'outils, vous connecter et ouvrir le panneau pour la première fois.",
   category: 'getting-started',
   slug: 'install-the-extension',
   order: 1,
-  updated: '2026-09-15',
+  updated: '2026-10-13',
   tags: ['installer', 'configuration', 'chrome'],
   marketplaces: [],
   status: 'published',
@@ -13,12 +13,13 @@ export const metadata = {
 
 # Installer l'extension SaleLinx
 
-SaleLinx fonctionne entièrement dans votre navigateur. Installez-le une fois,
-épinglez-le à votre barre d'outils et connectez-vous avec le compte que vous
-utilisez pour la facturation.
+SaleLinx est une extension Chrome qui fonctionne dans vos onglets Depop et
+Vinted. Installez-la une fois, épinglez-la à votre barre d'outils et
+connectez-vous avec votre compte SaleLinx.
 
-Vous aurez besoin de Google Chrome ou d'un navigateur Chromium (Edge, Brave,
-Arc) et d'un compte SaleLinx.
+Vous aurez besoin de Google Chrome ou d'un autre navigateur Chromium
+(Microsoft Edge, Brave, Arc ou Opera). Safari et Firefox ne sont pas pris en
+charge.
 
 ## 1. Installer depuis le Chrome Web Store
 
@@ -29,9 +30,14 @@ Chrome**. Chrome vous demandera de confirmer les permissions dont l'extension
 a besoin. Cliquez sur **Ajouter l'extension** pour continuer.
 
 <Callout variant="tip" title="Ce que signifient les permissions">
-SaleLinx demande l'accès à depop.com et vinted.com pour pouvoir lire vos
-propres annonces et remplir les formulaires en votre nom. L'extension ne
-s'exécute sur aucun autre site.
+SaleLinx demande l'accès à Depop et aux sites Vinted des pays qu'il prend en
+charge. Il utilise cet accès pour lire vos propres annonces, commandes et
+messages, et pour publier, modifier et republier des articles pour vous, via
+les mêmes connexions que le site de la marketplace. Il communique aussi avec
+quelques services complémentaires&nbsp;: le cloud SaleLinx (votre compte et
+vos sauvegardes), les serveurs photo des marketplaces et le fournisseur des
+étiquettes d'expédition. Le panneau SaleLinx n'apparaît que sur les pages
+Depop et Vinted.
 </Callout>
 
 ## 2. Épingler l'extension
@@ -41,40 +47,73 @@ puzzle dans la barre d'outils. Épinglez SaleLinx pour y accéder en un clic.
 
 <InstallPinCallout />
 
-Il existe aussi un raccourci clavier&nbsp;: **Alt+S** ouvre et ferme le
-panneau. Chrome le traite comme une suggestion, donc si une autre extension
-l'utilise déjà, vous pouvez définir le vôtre dans
-`chrome://extensions/shortcuts`.
-
 ## 3. Se connecter
 
-Cliquez sur l'icône SaleLinx épinglée (ou appuyez sur Alt+S) pour ouvrir le
-panneau latéral. Connectez-vous avec **Google**, ou avec l'adresse e-mail et
-le mot de passe utilisés à l'inscription sur salelinx.com. Si vous n'êtes pas encore inscrit, utilisez le
-lien **Créer un compte** en bas du panneau.
+Cliquez sur l'icône SaleLinx épinglée. Une petite fenêtre s'ouvre, où vous
+pouvez vous connecter avec **Continue with Google**, ou avec votre adresse
+e-mail et votre mot de passe puis **Log in**. Si vous n'avez pas encore de
+compte, cliquez sur **Sign up** pour en créer un directement. Si vous vous
+inscrivez avec une adresse e-mail, confirmez-la depuis l'e-mail que nous vous
+envoyons, puis revenez vous connecter.
+
+Vous pouvez aussi vous connecter depuis le panneau lui-même&nbsp;: si vous
+l'ouvrez sur Depop ou Vinted sans être connecté, il propose les mêmes options
+de connexion.
+
+Une fois connecté, la fenêtre indique le compte que vous utilisez, avec des
+boutons pour ouvrir Depop ou Vinted, un lien **Account &amp; billing** vers
+votre page de compte sur salelinx.com, et **Log out**.
 
 <Callout>
-La facturation et l'extension utilisent le même compte. Si vous réinitialisez
-votre mot de passe sur le site, utilisez aussi le nouveau mot de passe ici.
+Le site et l'extension utilisent le même compte, mais vous vous connectez à
+chacun séparément. Si vous réinitialisez votre mot de passe sur le site,
+utilisez aussi le nouveau mot de passe dans l'extension.
 </Callout>
 
-## 4. Votre première utilisation
+## 4. Ouvrir le panneau
 
-Rendez-vous sur [depop.com](https://www.depop.com) ou [vinted.com](https://www.vinted.com).
-Le panneau SaleLinx s'ouvre automatiquement sur les pages produit et profil.
-Vous verrez une courte liste pour lier vos comptes de marketplace, importer
-vos annonces et lancer votre premier crosslisting.
+Rendez-vous sur [depop.com](https://www.depop.com) ou sur votre site Vinted.
+Un petit bouton SaleLinx se trouve en bas à droite de la page. Cliquez dessus
+pour ouvrir le panneau. Le panneau n'existe que sur les pages Depop et
+Vinted&nbsp;; il ne s'ouvre pas depuis l'icône de la barre d'outils.
+
+Si des onglets Depop ou Vinted étaient déjà ouverts avant l'installation,
+rechargez-les une fois pour que le bouton apparaisse.
+
+Il existe aussi un raccourci clavier&nbsp;: **Alt+S** ouvre et ferme le
+panneau quand vous êtes sur un onglet Depop ou Vinted. Il ne fait rien sur
+les autres sites. Si une autre extension utilise déjà Alt+S, définissez votre
+propre raccourci dans `chrome://extensions/shortcuts`, ou ouvrez
+**Paramètres** dans le panneau et cliquez sur **Modifier** à côté de
+**Raccourci du panneau**.
+
+## 5. Votre première utilisation
+
+La première fois que vous ouvrez le panneau, il vous guide à travers deux
+écrans&nbsp;:
+
+1. **Bienvenue sur SaleLinx.** Si votre compte n'a pas encore de forfait,
+   cliquez sur **Démarrer l'essai gratuit**. La page des tarifs s'ouvre sur
+   salelinx.com, où vous démarrez votre essai de 14&nbsp;jours (connectez-vous
+   avec le même compte si on vous le demande&nbsp;; une carte est requise,
+   mais rien n'est débité pendant l'essai). Une fois que c'est fait, revenez
+   au panneau et cliquez sur **Déjà une offre&nbsp;? Actualiser**.
+2. **Associez vos boutiques.** Sous **Je vends sur**, choisissez Depop,
+   Vinted ou les deux, puis cliquez sur **Lier** à côté de chaque compte. Si
+   une ligne affiche **Se connecter** à la place, c'est que vous n'êtes pas
+   encore connecté à cette marketplace dans ce navigateur.
+
+Ensuite, le panneau s'ouvre sur **Mes annonces**. Le guide complet de
+liaison se trouve dans
+[Connecter votre première marketplace](/docs/getting-started/connect-your-first-marketplace).
 
 ## Dépannage
 
-Si quelque chose ne va pas, la [FAQ](/faq#troubleshooting) propose des
-solutions rapides aux problèmes d'installation les plus courants (panneau
-qui n'apparaît pas, Chrome qui bloque l'installation, connexion sur le
-mauvais compte).
+En cas de problème, la [FAQ](/help/faq#troubleshooting) propose des solutions
+rapides aux problèmes les plus courants, comme un panneau qui n'apparaît pas
+ou des difficultés de connexion.
 
 ## Étapes suivantes
 
-Une fois l'extension installée et connectée, connectez votre première
-marketplace :
-
 - [Connecter votre première marketplace](/docs/getting-started/connect-your-first-marketplace)
+- [Compte et abonnement](/docs/getting-started/account-and-subscription)

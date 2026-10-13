@@ -5,7 +5,7 @@ export const metadata = {
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-09-18',
+  updated: '2026-10-13',
   tags: ['offers', 'depop', 'vinted', 'presets'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -14,100 +14,106 @@ export const metadata = {
 # Offers
 
 The **Offers** tab gathers your pending offers from Depop and Vinted
-in one place. Each card has the buyer&rsquo;s name, their offer
-amount, the original price, and three action buttons: **Accept**,
-**Decline**, **Counter**.
+in one place, in two columns side by side. The marketplace you are
+browsing has its column on the left. Each card shows the item, the
+buyer&rsquo;s username, when the offer came in, the offer amount, your
+listed price and the discount the buyer is asking for, with three
+buttons: **Accept**, **Decline** and **Counter**.
 
-The tab also hosts the [Auto-accept](/docs/automate/auto-offers)
-controls at the top - settings for automatically accepting offers
-above a threshold without you clicking through.
+The tab also hosts the [Auto-Accept Offers](/docs/automate/auto-offers)
+block at the top, for accepting offers above a threshold without you
+clicking through.
 
 ## What shows up
 
-- **Depop** - all active offer transactions where the buyer is
-  waiting on you.
-- **Vinted** - inbox entries that look like offers (the
-  `description` field is the offer text), filtered to skip
-  already-handled offers (those Vinted marks as &ldquo;You accepted
-  X&rsquo;s offer!&rdquo; or &ldquo;You declined X&rsquo;s
-  offer!&rdquo;).
+- **Depop** - offers on listings you are selling that are waiting for
+  your answer.
+- **Vinted** - offers buyers have made in your inbox conversations
+  that you haven&rsquo;t answered yet. Offers you made as a buyer are
+  not shown.
 
-Bundle offers (multiple items in one Vinted offer) display each item
-in the bundle inside the card.
+Bundle offers (several items in one Vinted offer) list each item in
+the bundle inside the card.
 
-The tab opens on whichever marketplace you are currently browsing, so
-the column you are most likely to want is the one in front of you.
+A column with nothing waiting says **No new offers**. If SaleLinx
+couldn&rsquo;t reach a marketplace, for example because no tab is open
+for it, the column tells you that instead of showing an empty list.
+Open a tab for that marketplace and refresh. A column for a
+marketplace you haven&rsquo;t linked is blurred, with a prompt to link
+the account in Settings.
 
-## Age filter
+## Age filter (Vinted)
 
-The top of the tab has a max-age dropdown (default 3 days). Offers
-older than that are hidden. Most sellers want to act on fresh
-offers; old ones are usually irrelevant.
+The dropdown at the top of the tab sets how far back SaleLinx looks
+through your Vinted inbox: 1, 3, 5, 7, 14 or 30 days (default 3).
+Most sellers want to act on fresh offers; older ones are usually
+irrelevant. The filter applies to Vinted only. Depop always shows
+every offer still waiting for your answer.
 
 ## Acting on an offer
 
 Each card has three buttons:
 
-- **Accept** - confirms the buyer&rsquo;s price. The transaction
-  moves to the sold/paid flow on the marketplace.
-- **Decline** - closes the offer. Vinted notifies the buyer; Depop
-  marks the offer as declined without a notification.
-- **Counter** - opens an input where you type your counter-price.
-  Submitting posts the counter and removes the card from the list.
+- **Accept** - accepts the buyer&rsquo;s offer on the marketplace.
+- **Decline** - declines the offer.
+- **Counter** - opens a price box, already filled in halfway between
+  the offer and your listed price. Type your own price, or use a
+  quick-counter button: **-10%** fills in 10% off your listed price,
+  and **-£1** fills in 1 off it (in the offer&rsquo;s currency). Then
+  press **Send**. **Cancel** closes the box without sending.
 
-All three actions go through the task queue at normal priority.
+After you act, the card stays where it is and shows the result:
+**Accepted**, **Declined**, or **Countered at** with your price.
+Answered offers drop off the list the next time it loads.
 
-## Shared cache with Messages
-
-The Vinted side of Offers and [Messages](/docs/buyers/messages)
-share a single inbox fetch and conversation-detail cache. If you
-open both tabs in the same session, the second tab to open
-doesn&rsquo;t re-fetch what the first one already has.
-
-This drops the API cost considerably (on a shop with 50
-conversations, the combined load of both tabs goes from 102 API
-calls to roughly 8 to 15). Caches invalidate automatically when you
-send a reply, accept, decline, or counter, so you never see a stale
-view.
+Offer actions go ahead of other SaleLinx jobs waiting on the same
+marketplace, so they go through promptly even while a bot is running.
 
 ## Refreshing
 
-The **Refresh** button at the top of the tab re-fetches both Depop
-and Vinted in parallel. There&rsquo;s no auto-refresh on a timer -
-live polling the inbox would burn through API budget for no real
-benefit.
+Offers load when you open the tab. The **Refresh** button (the
+circular arrow at the top of the tab) loads both marketplaces again.
+There&rsquo;s no auto-refresh on a timer. To avoid repeat requests,
+SaleLinx reuses offers it fetched in the last two minutes, so a
+brand-new offer can take a couple of minutes to appear.
 
-## Why there&rsquo;s no bulk decline
+## Shared with Messages
 
-SaleLinx doesn&rsquo;t bulk-decline because that&rsquo;s exactly
-the kind of action that looks automated to the marketplace and
-risks flagging your session. Lowball offers can be declined one at
-a time, or just left to expire.
+On Vinted, Offers and [Messages](/docs/buyers/messages) share the
+inbox and conversations SaleLinx has already loaded, so opening both
+tabs doesn&rsquo;t fetch the same chats twice. Accepting, declining or
+countering clears that saved copy, so you never see a stale view.
+
+## No bulk decline
+
+There is no button to decline many offers at once. Answer offers one
+card at a time, or leave the ones you don&rsquo;t want to expire.
 
 ## Auto-accept presets
 
-The auto-accept controls have a preset picker at the top of their
-Settings panel. A preset saves the minimum percentage of the asking
-price, the absolute price floor, which platforms (Depop, Vinted) to
-scan, and how often to check. Picking a preset fills in every setting
+The [Auto-Accept Offers](/docs/automate/auto-offers) settings have a
+preset picker at the top. A preset saves the minimum percentage of the
+asking price, the price floor, which platforms (Depop, Vinted) to
+check, and how often to check. Picking a preset fills in every setting
 at once, and for auto-accept the picked preset is the live rule
 immediately. Two are built in:
 
 - **Default** - 90% of asking, no price floor, both platforms,
   checked every 15 minutes.
-- **Careful** - 95% of asking, checked every 30 minutes. Slower, and
-  does less per run.
+- **Careful** - 95% of asking, no price floor, both platforms,
+  checked every 30 minutes.
 
-A preset deliberately does not include the auto-accept on/off toggle.
+A preset deliberately does not include the auto-accept on/off switch.
 Turning auto-accept on is always a separate, explicit step, whichever
 preset is selected.
 
-Change any setting by hand and the picker marks the current values as
-unsaved; from there you can save them as a preset of your own. Saving
-under the name of one of your existing presets asks before
-overwriting it, and the built-in names can&rsquo;t be reused. Your
-own presets can be deleted after a confirmation; the built-ins
-can&rsquo;t.
+Change any setting by hand and the picker keeps the preset&rsquo;s
+name with a dot next to it, to show the values have changed. Its menu
+then offers **Save as new&hellip;**, **Revert**, and, for one of your
+own presets, **Save changes**. Saving under the name of one of your
+existing presets asks before overwriting it, and the built-in names
+can&rsquo;t be reused. Your own presets can be deleted from the menu
+after a confirmation; the built-ins can&rsquo;t.
 
 Your saved presets are stored with your SaleLinx account, so they
 survive a reinstall and follow you to another computer. See
@@ -116,14 +122,14 @@ for how syncing, sign-out and per-device selection work.
 
 ## Plan and access
 
-The manual offers inbox is available on **Starter and above**
-(which includes the 14-day free trial). The [Auto-accept](/docs/automate/auto-offers)
-auto-accept controls at the top of the tab are **Pro and above**.
+The Offers tab is available on **Starter, Pro and Business**, and on
+the free trial. The [Auto-Accept Offers](/docs/automate/auto-offers)
+block at the top of the tab is **Pro and Business** only.
 
 ## Next steps
 
-- [Auto-accept](/docs/automate/auto-offers) - auto-accept offers
-  above a threshold.
+- [Auto-Accept Offers](/docs/automate/auto-offers) - accept offers
+  above a threshold automatically.
 - [Messages](/docs/buyers/messages) - reply to buyer conversations
   in the same shared inbox.
 - [Price Drops](/docs/automate/price-drops) - if you&rsquo;re
