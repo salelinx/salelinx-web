@@ -380,7 +380,7 @@
     "errorSameEmail": "That's already your current email.",
     "errorRateLimited": "Too many email change requests. Please try again tomorrow.",
     "mfaHeading": "Two-factor authentication",
-    "mfaBody": "Protect your account with a 6-digit code from an authenticator app as a second sign-in step.",
+    "mfaBody": "Required for the admin console. After you sign in, admin pages ask for a 6-digit code from your authenticator app.",
     "mfaLoading": "Loading…",
     "mfaEnable": "Enable 2FA",
     "mfaWorking": "Working…",

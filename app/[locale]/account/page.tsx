@@ -71,10 +71,21 @@ export default async function AccountPage({ params, searchParams }: Props) {
   // and delete cards adapt: no password prompt to a user who has none.
   const hasPassword =
     user.identities?.some((i) => i.provider === "email") ?? true;
-  const [{ subscription, tier }, referrals] = await Promise.all([
-    getCurrentSubscription(user.id),
-    getReferralSummary(),
-  ]);
+  const [{ subscription, tier }, referrals, { data: adminRow }] =
+    await Promise.all([
+      getCurrentSubscription(user.id),
+      getReferralSummary(),
+      // Decides only whether the security card offers 2FA, which nothing but
+      // the admin console enforces. Bare membership rather than is_admin() on
+      // purpose: an admin who has not enrolled yet is at AAL1, where
+      // is_admin() is false, and this card is where they enroll. It grants
+      // nothing, so the "always go through is_admin()" rule does not apply.
+      supabase
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    ]);
   const entitled = isEntitled(subscription);
   const emailChoice = marketingChoice(user.user_metadata);
   const trialDaysLeft = trialDaysRemaining(subscription);
@@ -257,7 +268,11 @@ export default async function AccountPage({ params, searchParams }: Props) {
       </section>
 
       {user.email && (
-        <AccountSecurityCard email={user.email} hasPassword={hasPassword} />
+        <AccountSecurityCard
+          email={user.email}
+          hasPassword={hasPassword}
+          showTwoFactor={Boolean(adminRow)}
+        />
       )}
 
       {/* Keyed on the stored answer so the card picks up one given in

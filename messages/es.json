@@ -380,7 +380,7 @@
     "errorSameEmail": "Ese ya es tu correo actual.",
     "errorRateLimited": "Demasiadas solicitudes de cambio de correo. Inténtalo de nuevo mañana.",
     "mfaHeading": "Autenticación de dos factores",
-    "mfaBody": "Protege tu cuenta con un código de 6 dígitos de una aplicación de autenticación como segundo paso de inicio de sesión.",
+    "mfaBody": "Obligatoria para la consola de administración. Después de iniciar sesión, las páginas de administración te piden un código de 6 dígitos de tu aplicación de autenticación.",
     "mfaLoading": "Cargando…",
     "mfaEnable": "Activar 2FA",
     "mfaWorking": "Procesando…",

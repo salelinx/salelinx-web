@@ -380,7 +380,7 @@
     "errorSameEmail": "C'est déjà votre adresse e-mail actuelle.",
     "errorRateLimited": "Trop de demandes de changement d'e-mail. Veuillez réessayer demain.",
     "mfaHeading": "Authentification à deux facteurs",
-    "mfaBody": "Protégez votre compte avec un code à 6 chiffres d'une application d'authentification comme seconde étape de connexion.",
+    "mfaBody": "Obligatoire pour la console d'administration. Après votre connexion, les pages d'administration demandent un code à 6 chiffres de votre application d'authentification.",
     "mfaLoading": "Chargement…",
     "mfaEnable": "Activer la 2FA",
     "mfaWorking": "Traitement…",
