@@ -24,7 +24,7 @@ export async function Header() {
               src="/salelinx-logo.png"
               alt=""
               aria-hidden="true"
-              width={20}
+              width={21}
               height={28}
               className="relative -top-0.5 h-7 w-auto object-contain dark:invert"
             />
