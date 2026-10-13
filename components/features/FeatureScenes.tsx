@@ -215,7 +215,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
             y1={100}
             x2={p.x}
             y2={p.y}
-            stroke={VINTED}
+            stroke={i % 2 ? VINTED : DEPOP}
             strokeWidth={1.5}
             strokeDasharray="80"
             style={a("fa-draw", 5, i * 0.35, { "--len": "80" } as CSSProperties)}
@@ -228,7 +228,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
           <g key={`c${i}`} style={a("fa-pop", 5, 0.4 + i * 0.35)}>
             <circle cx={p.x} cy={p.y} r={17} fill={PAPER} stroke={INK} strokeWidth={1.5} />
             <Photo id={`gr${i}`} x={p.x - 15} y={p.y - 15} w={30} h={30} src={avatars[i]} rx={15} />
-            <Mark x={p.x + 13} y={p.y + 12} brand="vinted" r={7} />
+            <Mark x={p.x + 13} y={p.y + 12} brand={i % 2 ? "vinted" : "depop"} r={7} />
           </g>
         ))}
       </>
