@@ -54,11 +54,11 @@ extension sees, and vice versa.
 - Public marketing page (`/features` - one page that hosts features, pricing, and roadmap as scroll-linked sections)
 - Legal pages (`/legal/*`)
 - Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`)
-- Redirect stubs (`/pricing` -> `/features#pricing`, `/roadmap` -> `/features#roadmap`) so old links and Stripe `cancelUrl` keep working
+- Standalone `/features`, `/pricing` and `/roadmap` pages (Stripe `cancelUrl` points at `/pricing`)
 - Email/password auth UI (`/auth/*`) - Supabase Auth does the work
 - Account dashboard (`/account`) - current tier, manage subscription
 - **Stripe integration** - Checkout session, Customer Portal, webhook (all in `supabase/functions/`)
-- Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
+- Server-rendered tier cards on `/pricing` (reads `tier_limits` from Supabase)
 - **Support** - user-facing: a login-gated contact form at `/help/support` (create a ticket, reached from the public `/help` hub) and the ticket history at `/account/tickets` (track + reply). The extension only files + reads.
 - **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
 - Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `delete-account`, `process-referral-rewards`, `get-referral-discount`

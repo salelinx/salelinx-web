@@ -54,7 +54,7 @@ export async function FinalCta() {
               </Link>
             )}
             <Link
-              href="/features#pricing"
+              href="/pricing"
               className="inline-flex items-center rounded-full border border-black/10 bg-white/70 px-6 py-3 text-sm font-medium text-zinc-900 backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/[0.08]"
             >
               {t('secondary')}

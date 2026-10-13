@@ -36,14 +36,14 @@ const HEADLINES: Headline[] = [
     id: 'crosslist',
     icon: 'crosslist-arrows',
     accent: 'violet',
-    href: '/docs/inventory/crosslist',
+    href: '/features/crosslist-depop-vinted',
     span: 'md:col-span-2',
   },
   {
     id: 'relist',
     icon: 'relist',
     accent: 'emerald',
-    href: '/docs/inventory/relist',
+    href: '/features/relist-depop-vinted',
     span: 'md:col-span-2',
   },
   {
@@ -64,7 +64,7 @@ const HEADLINES: Headline[] = [
     id: 'labels',
     icon: 'truck',
     accent: 'rose',
-    href: '/docs/buyers/labels',
+    href: '/features/print-shipping-labels',
     span: 'md:col-span-3',
   },
 ];

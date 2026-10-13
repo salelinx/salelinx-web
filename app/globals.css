@@ -47,7 +47,7 @@
 }
 
 html {
-  /* In-page anchor jumps (header nav -> #features, #pricing) snap instantly
+  /* In-page anchor jumps snap instantly
      so navigating across long sections doesn't feel like a long scroll. */
   scroll-behavior: auto;
   /* Without this, pulling past the edge of the page (trackpad/touch

@@ -4,13 +4,8 @@ import { Link } from '@/i18n/navigation';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import { isSignedIn } from '@/lib/auth/session';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
-import { PricingSection } from '@/components/features/PricingSection';
-import { RoadmapSection } from '@/components/features/RoadmapSection';
 import { PanelCarousel } from '@/components/home/PanelCarousel';
-import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 import { pageMetadata } from '@/lib/site';
-
-export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -36,10 +31,9 @@ export default async function FeaturesPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, tHeader, tiers, signedIn] = await Promise.all([
+  const [t, tHeader, signedIn] = await Promise.all([
     getTranslations('Features'),
     getTranslations('Header'),
-    getCachedTierConfigs(),
     isSignedIn(),
   ]);
 
@@ -69,12 +63,12 @@ export default async function FeaturesPage({
               {t('hero.installExtension')}
             </Link>
           )}
-          <a
-            href="#pricing"
+          <Link
+            href="/pricing"
             className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
           >
             {t('hero.seePricing')}
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -87,8 +81,6 @@ export default async function FeaturesPage({
         </div>
 
         <FeaturesSection />
-        <PricingSection tiers={tiers} />
-        <RoadmapSection />
 
         <section className="border-t border-black/10 py-20 text-center dark:border-white/10">
           <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('ctaSection.eyebrow')}</span>
@@ -109,12 +101,12 @@ export default async function FeaturesPage({
                 {t('ctaSection.getStarted')}
               </Link>
             )}
-            <a
-              href="#pricing"
+            <Link
+              href="/pricing"
               className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
             >
               {t('ctaSection.seePricing')}
-            </a>
+            </Link>
           </div>
         </section>
       </div>
