@@ -53,12 +53,6 @@ export async function Header() {
           >
             {t("navRoadmap")}
           </Link>
-          <Link
-            href="/help/faq"
-            className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
-          >
-            {t("navFaq")}
-          </Link>
         </nav>
 
         <nav className="hidden flex-1 items-center justify-end gap-4 text-sm text-zinc-600 sm:flex dark:text-zinc-400">
