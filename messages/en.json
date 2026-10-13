@@ -699,6 +699,24 @@
     "only": {
       "depop": "Depop only",
       "vinted": "Vinted only"
+    },
+    "sections": {
+      "crosslisting": {
+        "title": "List once, sell on both",
+        "blurb": "Move listings between Depop and Vinted without retyping a thing, and keep track of which items are the same."
+      },
+      "visibility": {
+        "title": "Get seen by more buyers",
+        "blurb": "Keep your listings near the top of search and put your shop in front of people who are likely to buy."
+      },
+      "sales": {
+        "title": "Close the sale, ship it out",
+        "blurb": "Offers, messages and labels from both shops in one place, with rules handling the repetitive parts."
+      },
+      "stock": {
+        "title": "Stock, listings and your account",
+        "blurb": "Keep stock in step across both shops, edit in bulk, and pick up where you left off on any laptop."
+      }
     }
   },
   "Pricing": {

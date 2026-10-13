@@ -68,7 +68,7 @@ interface Scene {
  * long as the page is open. The outer box keeps the measured height so
  * nothing collapses or shifts when a panel drops out and comes back.
  */
-function SceneFrame({ children }: { children: ReactNode }) {
+export function SceneFrame({ children }: { children: ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number | null>(null);
