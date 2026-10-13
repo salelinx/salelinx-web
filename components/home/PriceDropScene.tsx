@@ -54,7 +54,9 @@ export function PriceDropScene() {
           type="tee"
           hue={30}
           src="/products/black-sunglasses.jpg"
-          className="aspect-square w-36 rounded-2xl sm:w-40 lg:w-48"
+          // 3:2 because the file is (800x533). A square frame cropped the
+          // arms off both sides of the glasses.
+          className="aspect-[3/2] w-52 rounded-2xl sm:w-60 lg:w-72"
         />
         <span
           aria-hidden={!sold}
