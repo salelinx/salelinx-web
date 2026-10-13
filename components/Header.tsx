@@ -42,13 +42,13 @@ export async function Header() {
             {t("navFeatures")}
           </Link>
           <Link
-            href="/features#pricing"
+            href="/pricing"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navPricing")}
           </Link>
           <Link
-            href="/features#roadmap"
+            href="/roadmap"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navRoadmap")}
