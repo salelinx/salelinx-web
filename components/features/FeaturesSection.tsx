@@ -1,324 +1,80 @@
-import type { CSSProperties, ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Icon, type IconName } from "@/components/Icon";
 import { Reveal } from "@/components/Reveal";
-import { BrandWordmark } from "@/components/BrandWordmark";
-import { HeadlineFeatures } from "@/components/features/HeadlineFeatures";
+import { FeatureScene, type SceneId } from "@/components/features/FeatureScenes";
 
-type Marketplace = "depop" | "vinted" | "both";
-
-type FeatureItem = {
-  id: string;
-  icon: IconName;
-  on: Marketplace;
+type Feature = {
+  id: SceneId;
+  only?: "depop" | "vinted";
   href: string;
 };
 
-type ChapterId = "listings" | "crosslisting" | "visibility" | "sales";
-
-type Chapter = {
-  id: ChapterId;
-  items: FeatureItem[];
-};
-
-const CHAPTERS: Chapter[] = [
-  {
-    id: "listings",
-    items: [
-      {
-        id: "dashboard",
-        icon: "grid",
-        on: "both",
-        href: "/docs/inventory/listings",
-      },
-      {
-        // The selection toolbar in My Listings: bulk editor, photo editor,
-        // Depop discounts, duplicate and split photos, as one card.
-        id: "bulkEdit",
-        icon: "pencil",
-        on: "both",
-        href: "/docs/inventory/listings",
-      },
-      {
-        id: "linkAccounts",
-        icon: "link",
-        on: "both",
-        href: "/docs/getting-started/connect-your-first-marketplace",
-      },
-      {
-        id: "backup",
-        icon: "lock",
-        on: "both",
-        href: "/docs/inventory/cloud-sync",
-      },
-      {
-        id: "sync",
-        icon: "sync",
-        on: "both",
-        href: "/docs/inventory/listings",
-      },
-      {
-        id: "multilanguage",
-        icon: "globe",
-        on: "both",
-        href: "/docs/inventory/listings",
-      },
-    ],
-  },
-  {
-    id: "crosslisting",
-    items: [
-      {
-        id: "bidirectional",
-        icon: "swap",
-        on: "both",
-        href: "/docs/inventory/crosslist",
-      },
-      {
-        id: "autoMap",
-        icon: "tree",
-        on: "both",
-        href: "/docs/inventory/crosslist",
-      },
-      {
-        id: "csvImport",
-        icon: "upload",
-        on: "both",
-        href: "/docs/inventory/csv-import",
-      },
-      {
-        id: "shopDesigner",
-        icon: "layout",
-        on: "depop",
-        href: "/docs/inventory/shop-designer",
-      },
-    ],
-  },
-  {
-    id: "visibility",
-    items: [
-      { id: "refresher", icon: "refresh", on: "depop", href: "/docs/inventory/refresh" },
-      { id: "scheduler", icon: "clock", on: "depop", href: "/docs/inventory/refresh" },
-      { id: "followBot", icon: "users", on: "both", href: "/docs/inventory/bots" },
-      { id: "filters", icon: "filter", on: "both", href: "/docs/inventory/listings" },
-      {
-        id: "deadStock",
-        icon: "search",
-        on: "both",
-        href: "/docs/automate/dead-stock",
-      },
-      {
-        id: "autoMarkdown",
-        icon: "sparkle",
-        on: "both",
-        href: "/docs/automate/price-drops",
-      },
-      { id: "activityLog", icon: "list", on: "both", href: "/docs/inventory/listings" },
-    ],
-  },
-  {
-    id: "sales",
-    items: [
-      { id: "offersInbox", icon: "tag", on: "both", href: "/docs/buyers/offers" },
-      {
-        // Auto-ACCEPT, from the Offers tab. The extension's own "Auto-Offers"
-        // tab is the different feature below (sendOffers); the id stays
-        // autoOffers so existing translations and links keep working.
-        id: "autoOffers",
-        icon: "zap",
-        on: "both",
-        href: "/docs/automate/auto-offers",
-      },
-      {
-        id: "sendOffers",
-        icon: "send",
-        on: "vinted",
-        href: "/docs/automate/send-offers",
-      },
-      { id: "messages", icon: "message", on: "both", href: "/docs/buyers/messages" },
-      {
-        id: "shipping",
-        icon: "box",
-        on: "both",
-        href: "/docs/buyers/labels",
-      },
-      {
-        id: "relister",
-        icon: "rotate",
-        on: "both",
-        href: "/docs/inventory/relist",
-      },
-      {
-        id: "restocker",
-        icon: "wave",
-        on: "both",
-        href: "/docs/automate/restocker",
-      },
-    ],
-  },
+// The 14 panel tabs, most wanted first: in-app usage, then reseller search interest.
+const FEATURES: Feature[] = [
+  { id: "crosslist", href: "/features/crosslist-depop-vinted" },
+  { id: "relist", href: "/features/relist-depop-vinted" },
+  { id: "refresh", only: "depop", href: "/features/depop-auto-refresh" },
+  { id: "grow", href: "/features/depop-vinted-follow-bot" },
+  { id: "listings", href: "/docs/inventory/listings" },
+  { id: "restocker", href: "/docs/automate/restocker" },
+  { id: "offers", href: "/features/auto-accept-offers" },
+  { id: "autoOffers", only: "vinted", href: "/docs/automate/auto-offers" },
+  { id: "labels", href: "/features/print-shipping-labels" },
+  { id: "shopDesigner", only: "depop", href: "/docs/inventory/shop-designer" },
+  { id: "priceDrops", href: "/features/automatic-price-drops" },
+  { id: "messages", href: "/docs/buyers/messages" },
+  { id: "linking", href: "/docs/automate/linking" },
+  { id: "deadStock", href: "/docs/automate/dead-stock" },
 ];
 
-// Per-chapter accent. Used on the giant chapter number, the icon halo on
-// hover, and a thin gradient bar at the top of each chapter card. Light +
-// dark variants tuned to read against the page background without dominating.
-const CHAPTER_ACCENT: Record<
-  ChapterId,
-  {
-    text: string;
-    bar: string;
-    iconHover: string;
-    glow: string;
-  }
-> = {
-  listings: {
-    text: "text-amber-500 dark:text-amber-400",
-    bar: "from-amber-400/70 via-amber-500/40 to-transparent",
-    iconHover: "group-hover:text-amber-500 dark:group-hover:text-amber-400",
-    glow: "bg-amber-500/10 dark:bg-amber-400/10",
-  },
-  crosslisting: {
-    text: "text-violet-500 dark:text-violet-400",
-    bar: "from-violet-400/70 via-violet-500/40 to-transparent",
-    iconHover: "group-hover:text-violet-500 dark:group-hover:text-violet-400",
-    glow: "bg-violet-500/10 dark:bg-violet-400/10",
-  },
-  visibility: {
-    text: "text-emerald-500 dark:text-emerald-400",
-    bar: "from-emerald-400/70 via-emerald-500/40 to-transparent",
-    iconHover: "group-hover:text-emerald-500 dark:group-hover:text-emerald-400",
-    glow: "bg-emerald-500/10 dark:bg-emerald-400/10",
-  },
-  sales: {
-    text: "text-sky-500 dark:text-sky-400",
-    bar: "from-sky-400/70 via-sky-500/40 to-transparent",
-    iconHover: "group-hover:text-sky-500 dark:group-hover:text-sky-400",
-    glow: "bg-sky-500/10 dark:bg-sky-400/10",
-  },
-};
-
 const MONO = "font-mono text-[0.68rem] uppercase tracking-[0.12em]";
-
-function MarketplaceBadge({ on, label }: { on: Marketplace; label: ReactNode }) {
-  if (on === "both") return null;
-  return (
-    <span
-      className={`${MONO} ml-2 inline-flex shrink-0 items-center gap-1 rounded border border-black/10 px-1.5 py-0.5 text-zinc-600 dark:border-white/15 dark:text-zinc-400`}
-    >
-      {label}
-    </span>
-  );
-}
 
 export async function FeaturesSection() {
   const t = await getTranslations("Features");
 
   return (
-    <section id="features" className="scroll-mt-20 py-20">
-      <HeadlineFeatures />
-
-      <Reveal as="div" className="mt-24 border-t border-black/10 pt-16 pb-4 dark:border-white/10">
-        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
-          {t("sectionHeader.eyebrow")}
-        </span>
-        <h2 className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl">
-          {t("sectionHeader.title")}
-        </h2>
-        <p className="mt-4 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
-          {t("sectionHeader.body")}
-        </p>
-      </Reveal>
-
-      {CHAPTERS.map((chapter, chapterIdx) => {
-        const accent = CHAPTER_ACCENT[chapter.id];
+    <div className="mx-auto max-w-6xl divide-y divide-black/[0.08] py-10 dark:divide-white/10">
+      {FEATURES.map((f, i) => {
+        const sceneFirst = i % 2 === 1;
         return (
           <Reveal
-            key={chapter.id}
-            as="article"
-            className={`relative grid grid-cols-1 gap-10 border-t border-black/10 py-20 md:grid-cols-12 md:gap-12 dark:border-white/10 ${
-              chapterIdx === 0 ? "pt-14" : ""
-            }`}
+            key={f.id}
+            as="section"
+            className="grid grid-cols-1 items-center gap-10 py-16 sm:py-20 lg:grid-cols-2 lg:gap-20"
           >
-            {/* Accent bar runs along the top, fades into the page. Anchors
-                each chapter visually without imagery. */}
-            <div
-              className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r ${accent.bar}`}
-              aria-hidden
-            />
-
-            <header className="md:col-span-5 md:sticky md:top-24 md:self-start">
-              {/* Giant chapter number anchors the gutter, accent-coloured so
-                  chapters are scan-able at a glance. */}
-              <span
-                className={`block font-mono text-6xl font-semibold leading-none tracking-tight tabular-nums sm:text-7xl ${accent.text}`}
-                aria-hidden
-              >
-                {t(`chapter.${chapter.id}.number`)}
-              </span>
-              <h3 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">
-                {t(`chapter.${chapter.id}.title`)}
-              </h3>
-              <p className="mt-5 max-w-md text-base text-zinc-600 dark:text-zinc-400">
-                {t(`chapter.${chapter.id}.blurb`)}
+            <div className={sceneFirst ? "lg:order-2" : ""}>
+              <div className="flex items-center gap-3">
+                <span className={`${MONO} text-zinc-500 dark:text-zinc-400`}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {f.only && (
+                  <span className={`${MONO} rounded-full border border-black/15 px-2 py-0.5 text-zinc-600 dark:border-white/20 dark:text-zinc-400`}>
+                    {t(`only.${f.only}`)}
+                  </span>
+                )}
+              </div>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+                {t(`list.${f.id}.name`)}
+              </h2>
+              <p className="mt-4 max-w-md text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+                {t(`list.${f.id}.detail`)}
               </p>
-            </header>
-
-            <ul className="cascade-list md:col-span-6 md:col-start-7 md:space-y-2">
-              {chapter.items.map((item, itemIdx) => (
-                <li
-                  key={item.id}
-                  className="cascade-item"
-                  style={
-                    {
-                      "--stagger-delay": `${Math.min(itemIdx * 70, 420)}ms`,
-                    } as CSSProperties
-                  }
-                >
-                  <Link
-                    href={item.href}
-                    className="group flex gap-4 rounded-xl border border-transparent p-3 transition-colors hover:border-black/[0.06] hover:bg-black/[0.02] dark:hover:border-white/[0.08] dark:hover:bg-white/[0.03]"
-                  >
-                    <span
-                      className={`relative mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-700 transition-colors dark:text-zinc-300 ${accent.iconHover}`}
-                    >
-                      <span
-                        className={`absolute inset-0 rounded-lg opacity-0 transition-opacity group-hover:opacity-100 ${accent.glow}`}
-                        aria-hidden
-                      />
-                      <Icon name={item.icon} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-baseline">
-                        <span className="font-medium underline-offset-4 group-hover:underline">
-                          {t(`chapter.${chapter.id}.items.${item.id}.label`)}
-                        </span>
-                        <MarketplaceBadge
-                          on={item.on}
-                          label={
-                            item.on === "both"
-                              ? null
-                              : t.rich("marketplaceOnly", {
-                                  marketplace: () => (
-                                    <BrandWordmark
-                                      brand={item.on as "depop" | "vinted"}
-                                      height="0.85em"
-                                    />
-                                  ),
-                                })
-                          }
-                        />
-                      </div>
-                      <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                        {t(`chapter.${chapter.id}.items.${item.id}.detail`)}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+              <Link
+                href={f.href}
+                className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 hover:underline"
+              >
+                {t("learnMore")}
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+            <div
+              className={`rounded-3xl border border-black/[0.08] bg-white p-6 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.25)] sm:p-10 ${sceneFirst ? "lg:order-1" : ""}`}
+            >
+              <FeatureScene id={f.id} />
+            </div>
           </Reveal>
         );
       })}
-    </section>
+    </div>
   );
 }

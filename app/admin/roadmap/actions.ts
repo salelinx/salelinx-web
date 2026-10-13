@@ -38,11 +38,12 @@ async function run(
   const result = data as { ok?: boolean; error?: string } | null;
   if (!result?.ok) return { ok: false, error: result?.error ?? "failed" };
 
-  // The homepage reads through unstable_cache under this tag; expiring it
+  // Both public pages read through unstable_cache under this tag; expiring it
   // means the next visit fetches fresh rows instead of waiting out the 60s
-  // TTL. The page path is revalidated too, since the homepage is itself ISR.
+  // TTL. The page paths are revalidated too, since the homepage is ISR.
   revalidateTag(ROADMAP_CACHE_TAG, { expire: 0 });
   revalidatePath("/[locale]", "page");
+  revalidatePath("/[locale]/roadmap", "page");
   revalidatePath("/admin/roadmap");
   return { ok: true };
 }

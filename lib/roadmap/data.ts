@@ -32,7 +32,7 @@ const loadPublished = unstable_cache(
   { revalidate: 60, tags: [ROADMAP_CACHE_TAG] },
 );
 
-/** Published cards for the homepage, or null if the read failed. */
+/** Published cards for /roadmap and the homepage, or null if the read failed. */
 export async function getCachedRoadmapItems(): Promise<RoadmapItem[] | null> {
   try {
     return await loadPublished();

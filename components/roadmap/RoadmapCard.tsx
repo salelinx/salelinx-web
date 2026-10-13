@@ -20,13 +20,18 @@ export async function RoadmapCard({ item }: { item: RoadmapItem }) {
       : meta.key === 'shipped'
         ? t('meta.shipped', {
             date: format.dateTime(meta.month, {
-              month: 'long',
+              // "Shipped Oct 2026" in English; the other locales spell the
+              // month out, as their copy always has.
+              month: locale === 'en' ? 'short' : 'long',
               year: 'numeric',
               timeZone: 'UTC',
               // Arabic would otherwise get Arabic-Indic digits, which the rest
               // of the site does not use.
               numberingSystem: 'latn',
             }),
+            // For locales whose phrasing wants the parts (zh: "2026 年 10 月").
+            year: String(meta.month.getUTCFullYear()),
+            month: String(meta.month.getUTCMonth() + 1),
           })
         : t(`meta.${meta.key}`);
   return (

@@ -36,22 +36,28 @@ export async function Header() {
 
         <nav className="hidden flex-1 items-center justify-center gap-6 text-[0.9375rem] font-medium tracking-tight md:flex md:gap-8">
           <Link
-            href="/#features"
+            href="/features"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navFeatures")}
           </Link>
           <Link
-            href="/#pricing"
+            href="/pricing"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navPricing")}
           </Link>
           <Link
-            href="/#roadmap"
+            href="/roadmap"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navRoadmap")}
+          </Link>
+          <Link
+            href="/help/faq"
+            className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
+          >
+            {t("navFaq")}
           </Link>
         </nav>
 

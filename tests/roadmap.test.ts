@@ -101,8 +101,11 @@ describe('Roadmap.meta messages', () => {
       const target = t('target', { quarter: '4', year: '2026' });
       expect(target).toContain('2026');
       expect(target).not.toContain('{');
-      const shipped = t('shipped', { date: 'DATE' });
-      expect(shipped).toContain('DATE');
+      // RoadmapCard passes the formatted month and its parts; a locale may
+      // use either.
+      const shipped = t('shipped', { date: 'DATE', year: '2026', month: '10' });
+      expect(shipped).toMatch(/DATE|2026/);
+      expect(shipped).not.toContain('{');
     });
   }
 
@@ -118,5 +121,15 @@ describe('Roadmap.meta messages', () => {
     expect(target('fr')).toBe('Cible T4 2026');
     expect(target('ar')).toBe('الهدف الربع الرابع 2026');
     expect(target('zh')).toBe('目标 2026 年第四季度');
+
+    const shipped = (l: string, date: string) =>
+      createTranslator({ locale: l, messages: read(l), namespace: 'Roadmap.meta' })('shipped', {
+        date,
+        year: '2026',
+        month: '10',
+      });
+    expect(shipped('en', 'Oct 2026')).toBe('Shipped Oct 2026');
+    expect(shipped('es', 'octubre de 2026')).toBe('Lanzado en octubre de 2026');
+    expect(shipped('zh', 'unused')).toBe('2026 年 10 月发布');
   });
 });

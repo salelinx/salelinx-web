@@ -12,7 +12,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
-| Roadmap | `/admin/roadmap` | Live, read/write | Edit the public roadmap at the bottom of the homepage (`roadmap_items`, migration `032_roadmap_items.sql`): create, edit, hide, delete, reorder within a column, move between Exploring / Building / Shipped. English copy required, other locales optional. See "Roadmap" below. |
+| Roadmap | `/admin/roadmap` | Live, read/write | Edit the public roadmap shown on `/roadmap` and at the bottom of the homepage (`roadmap_items`, migrations `032_roadmap_items.sql` + `033_roadmap_sync_main.sql`): create, edit, hide, delete, reorder within a column, move between Exploring / Building / Shipped. English copy required, other locales optional. See "Roadmap" below. |
 | Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for a selectable period (current period by default; last 5 / 15 / 30 minutes, last 1 / 2 / 12 / 24 / 48 / 72 hours, last 7 / 30 days, all time, or a custom from/to range of UTC hours via `?range=` / `?from=&to=` URL params; the resolver also still accepts day-shaped `?from=YYYY-MM-DD&to=YYYY-MM-DD` for old links, but the picker only offers hours), grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. On the current-period view the five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); range views drop caps/percent because caps are per-period. Day ranges sum day buckets plus every month bucket touched, and monthly counters only exist as month buckets, so a range partially covering a month includes that whole month's count for them. Trailing presets (`?range=` with one of `5m`, `15m`, `30m`, `1h`, `2h`, `12h`, `24h`, `48h`, `72h`) are exact windows ending now, answered from `usage_events` (migration 017; see "Usage events" below), so "last hour" at 15:42 is 14:42 to 15:42. Custom hour ranges (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, UTC) sum the server-derived hour buckets only, which are exact for every counter but exist only from `HOUR_EPOCH` and for `HOUR_RETENTION_DAYS` (60 days) in `lib/admin/period.ts`; a request outside that window is clamped and the header shows a "(clamped)" marker with the reason. See "Hour buckets" below. The rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
 | Analytics dashboard | `/admin/analytics` | Live, read-only | Landing page for the Analytics sidebar group: a grid of one-glance boxes fixed to the current month (last month as comparison), each linking to the module with the detail. Boxes: Top features (three most used by distinct users, with share of active users, actions, change vs last month), Top users (three most active accounts by total actions, with tier, features touched and top feature; emails resolved for just those ids), Active users (six-month column chart of distinct active users, `components/admin/analytics/ColumnChart.tsx`, with delta vs last month and the prior three-month average), Movers (largest gains and drops in users per feature vs last month, `featureMovers` in `lib/admin/adoption.ts`), Churn watch (paying users with `cancel_at_period_end` set, and paying users with no extension activity for 30+ days judged by `usage_counters.updated_at`; `lib/admin/retention.ts`, tested in `tests/retention.test.ts`), Signup funnel (accounts, linked a shop, ran an action, paying, each as a share of all accounts), Marketplace health (broken / degraded feature counts from the same `loadHealthRows(24)` the health module uses). The page reads usage rows once via `loadAnalyticsSource` and folds them for every usage-derived box; it is `force-dynamic`. Add a box by loading its data in the page's `Promise.all` and dropping a component into the grid (`components/admin/analytics/AdminAnalyticsDashboard.tsx`). |
 | Feature adoption | `/admin/usage/features` | Live, read-only | The per-feature cut of the same extension counters. Three kinds of window: a run of whole months (one / 3 / 6 / all time via `?months=`, anchored by `?to=YYYY-MM`), the same exact trailing presets as the usage pages (`?range=5m` to `72h`, read from `usage_events`), or a custom UTC hour range (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, read from the hour buckets). In every kind each of the 28 roster features shows distinct users, share of a selectable base (`?base=active` users with any extension activity, `paid`, or `all` accounts), change in users against the preceding window of equal length, actions, median actions per user, and a 6-month sparkline of users. A second table splits adoption by plan, greying out cells the plan cannot use (via the counter-to-gate map in `lib/admin/adoption.ts`). The sparkline is per month for month windows and per hour for hour ranges; trailing presets have no per-bucket breakdown, so it is hidden for them. Months before 26 Aug 2026 are flagged as unmeasured for the activity counters. Windows reaching before the hour or event epochs are clamped with a "(clamped)" marker. See "Feature adoption" below. |
@@ -213,15 +213,17 @@ Emails come from `admin_user_emails`, tiers from `admin_list_users` / `admin_lis
 
 ## Roadmap
 
-`/admin/roadmap` edits the public roadmap, the last section of the homepage
-(`/#roadmap`). It replaced a code constant (`lib/roadmap/data.ts`) whose copy
-sat in `messages/*.json`, which meant every column move was a deploy.
+`/admin/roadmap` edits the public roadmap: the `/roadmap` page and the last
+section of the homepage, both rendered by `RoadmapSection`. It replaced a code
+constant (`lib/roadmap/data.ts`) whose copy sat in `messages/*.json`, which
+meant every column move was a deploy.
 
 - **Storage.** One `roadmap_items` row per card (migration
-  `032_roadmap_items.sql`). `title` and `description` are JSONB keyed by locale;
+  `032_roadmap_items.sql`; `033_roadmap_sync_main.sql` replays the roadmap
+  PR #200 rewrote in code while 032 was in review, touching only unedited cards). `title` and `description` are JSONB keyed by locale;
   English is required, the others optional, and the site falls back to English
   for a missing one. Cards with gaps say which locales are missing.
-- **The footer is derived, not stored.** "Target Q4 2026" / "Shipped April
+- **The footer is derived, not stored.** "Target Q4 2026" / "Shipped Oct
   2026" / "In development" come from `status` plus `target_quarter`
   (`YYYY-QN`) or `shipped_month` (`YYYY-MM`) through `roadmapMeta()` and the
   `Roadmap.meta.*` messages, so they are translated without anyone typing them
@@ -237,9 +239,9 @@ sat in `messages/*.json`, which meant every column move was a deploy.
   `roadmap.item_update` / `roadmap.item_delete` / `roadmap.reorder`), so every
   change, a delete included, is reversible from the audit log. That is why none
   of them asks for step-up reauth.
-- **Propagation.** The homepage reads through `unstable_cache` (60s) under the
-  `roadmap-items` tag; the server actions expire that tag and revalidate the
-  homepage, so a change shows on the next page load.
+- **Propagation.** Both pages read through `unstable_cache` (60s) under the
+  `roadmap-items` tag; the server actions expire that tag and revalidate both
+  paths, so a change shows on the next page load.
 - **No personal data.** The table has no actor column; who changed what lives
   in `admin_audit_log`. Nothing to add to the ROPA or the deletion runbook.
 

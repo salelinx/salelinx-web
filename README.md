@@ -79,8 +79,9 @@ All DB schema lives in this repo under `supabase/migrations/` - a consolidated b
 app/
 ├── [locale]/                All public pages, localized via next-intl
 │   ├── page.tsx             Landing
-│   ├── features/            Features + pricing (one page with anchor sections)
-│   ├── roadmap/, faq/       One-line redirect() stubs to /#roadmap and /help/faq
+│   ├── features/            Features overview + /features/[slug] landing pages
+│   ├── pricing/, roadmap/   Pricing and roadmap pages (both also homepage sections)
+│   ├── faq/                 One-line redirect() stub to /help/faq
 │   ├── docs/                Product docs (MDX): [category]/[slug] articles, status/, changelog/
 │   ├── help/                Help hub: faq/ (accordion Q&A) + support/ (contact)
 │   ├── invited/             Referral landing page for invited users
@@ -100,7 +101,7 @@ components/
 ├── Header.tsx, Footer.tsx, MobileMenu.tsx, LanguageSwitcher.tsx, ThemeToggle.tsx
 ├── CookieConsent.tsx        Consent banner - the ONLY place Google Analytics may load
 ├── auth/                    Login/signup forms, GoogleSignInButton
-├── features/, home/         Landing (incl. the roadmap section) + features/pricing section components
+├── features/, home/         Landing + features/pricing/roadmap section components
 ├── docs/                    Docs-only components (sidebar, search, cards, MDX widgets)
 ├── faq/, roadmap/, support/, admin/, legal/
 └── Account cards: ManageSubscriptionButton, AccountSecurityCard, ReferralsCard,

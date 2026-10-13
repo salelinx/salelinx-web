@@ -1,7 +1,7 @@
 {
   "Layout": {
     "metaTitle": "SaleLinx - Vende en Depop y Vinted",
-    "metaDescription": "Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo lugar."
+    "metaDescription": "La extensión de Chrome para vendedores de Depop y Vinted. Crosslista, republica, actualiza y repone desde un solo panel, con ofertas, mensajes y etiquetas en un mismo lugar."
   },
   "Header": {
     "navFeatures": "Funciones",
@@ -108,9 +108,9 @@
       "vender con cabeza, no a la fuerza."
     ],
     "ctaSeePricing": "Ver precios",
-    "ctaAddToChrome": "Añadir a Chrome",
     "ctaSeeFeatures": "Ver funciones",
     "ctaGetStarted": "Empezar",
+    "ctaAddToChrome": "Añadir a Chrome",
     "ctaSignIn": "Iniciar sesión",
     "previewEyebrow": "Prueba la demo interactiva",
     "preview": {
@@ -565,21 +565,16 @@
     "termsLink": "Ver los términos del programa de recomendación"
   },
   "Features": {
-    "metaTitle": "Producto, precios, hoja de ruta",
-    "metaDescription": "Todo lo que hace la extensión de Chrome SaleLinx, cuánto cuesta y qué viene después. Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo panel.",
+    "metaTitle": "Funciones: crosslista, republica y automatiza Depop y Vinted",
+    "metaDescription": "Todas las funciones de SaleLinx para vendedores de Depop y Vinted: crosslisting, republicación, actualización, reposición, ofertas, mensajes, etiquetas de envío y más, desde un solo panel del navegador.",
     "hero": {
-      "eyebrow": "Resumen del producto",
-      "title": "Todo lo que hace SaleLinx, cuánto cuesta y qué viene después.",
-      "description": "Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo panel del navegador.",
-      "installExtension": "Instalar extensión",
-      "seePricing": "Ver precios"
+      "title": "Todo lo que SaleLinx hace por tus tiendas de Depop y Vinted."
     },
     "sectionHeader": {
       "eyebrow": "Sección 01 / Funciones",
       "title": "Todo lo demás que hace SaleLinx.",
       "body": "Agrupado por lo que haces con ello. Hojea las categorías o salta directo a la función que viniste a buscar."
     },
-    "marketplaceOnly": "Solo <marketplace></marketplace>",
     "sectionNavAria": "Secciones de la página",
     "headlines": {
       "eyebrow": "Empieza aquí",
@@ -607,7 +602,7 @@
         },
         "oneInbox": {
           "short": "Bandeja unificada",
-          "title": "Ofertas y mensajes en una bandeja",
+          "title": "Ofertas y mensajes en un solo lugar",
           "body": "Cada oferta y cada mensaje de comprador de ambas tiendas, fusionados en una lista. Define una regla para aceptar automáticamente las buenas ofertas y solo entra a las conversaciones que importan.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
@@ -775,6 +770,73 @@
           }
         }
       }
+    },
+    "list": {
+      "listings": {
+        "name": "Mis anuncios",
+        "detail": "Todos tus anuncios de Depop y Vinted, uno al lado del otro. Ordena y filtra por precio, fecha o estado, edita rápido cualquier artículo o cambia un lote entero de una vez, arregla las fotos con el editor integrado, programa borradores para publicarlos más tarde y exporta todo a CSV."
+      },
+      "grow": {
+        "name": "Crecer",
+        "detail": "Un bot que sigue a los seguidores o seguidos de cualquier cuenta en Depop y Vinted. En Depop también puede apuntar a los compradores de una cuenta, a quienes le dejaron reseñas o a todos los que dieron like a un anuncio, y el bot de dejar de seguir limpia los seguimientos antiguos."
+      },
+      "relist": {
+        "name": "Republicar",
+        "detail": "Recrea los anuncios estancados con fotos, título y precio retocados y luego borra los originales para que vuelvan a salir como nuevos en la búsqueda. Elige un lote entero y deja que se encargue."
+      },
+      "refresh": {
+        "name": "Actualizar",
+        "detail": "Vuelve a guardar tus anuncios de abajo arriba en un clic, para que suban de nuevo en la búsqueda de Depop y tu tienda mantenga el orden que elegiste. Prográmalo para que se ejecute solo cada 4, 6, 8, 12 o 24 horas."
+      },
+      "crosslist": {
+        "name": "Crosslist",
+        "detail": "Publica cualquier anuncio de Depop en Vinted, o de Vinted en Depop, sin volver a escribirlo. Categorías, tallas, estados, colores y marcas se adaptan por ti, y un paso de revisión te deja comprobar y editar cada artículo antes de publicarlo. Pega varios enlaces de anuncios para añadirlos de una vez. ¿Traes stock de otro sitio? Importa un CSV de dotb o Shopify."
+      },
+      "shopDesigner": {
+        "name": "Diseñador de tienda",
+        "detail": "Arrastra los anuncios al orden en que quieres que los vean los compradores, y SaleLinx los vuelve a guardar para que tu tienda de Depop coincida."
+      },
+      "deadStock": {
+        "name": "Stock estancado",
+        "detail": "Detecta los anuncios antiguos que reciben poca atención, muestra cuánto dinero tienes inmovilizado en ellos y te deja bajar el precio un 10%, republicar o borrar en un clic."
+      },
+      "autoOffers": {
+        "name": "Auto-ofertas",
+        "detail": "Los compradores que dieron like a uno de tus anuncios de Vinted reciben automáticamente una oferta tuya, y los likes se convierten en ventas."
+      },
+      "linking": {
+        "name": "Vinculación",
+        "detail": "Sugiere qué anuncios de Depop y Vinted son el mismo artículo y los vincula en un clic. Los artículos vinculados aparecen en una sola fila y activan el Restocker."
+      },
+      "restocker": {
+        "name": "Restocker",
+        "detail": "Cuando un artículo se vende en una tienda, SaleLinx retira o repone al momento el anuncio equivalente en la otra, para que puedas publicar el mismo stock en ambas sin vender dos veces. Funciona con los artículos que hayas vinculado."
+      },
+      "priceDrops": {
+        "name": "Bajadas de precio",
+        "detail": "Elige los anuncios, un porcentaje y cada cuánto, y SaleLinx baja el precio según lo programado hasta llegar al mínimo que fijes."
+      },
+      "offers": {
+        "name": "Ofertas",
+        "detail": "Todas las ofertas de ambas tiendas, una al lado de otra, para aceptar, contraofertar o rechazar sin cambiar de pestaña. Define una regla de aceptación automática, un porcentaje del precio pedido más un mínimo, y las buenas ofertas se aceptan solas."
+      },
+      "messages": {
+        "name": "Mensajes",
+        "detail": "Los mensajes de compradores de Depop y Vinted en una sola bandeja, para que no se te escape nada."
+      },
+      "labels": {
+        "name": "Etiquetas",
+        "detail": "Selecciona los pedidos de Depop y Vinted de un día y SaleLinx combina sus etiquetas en un solo PDF, listo para imprimir de una vez o enviártelo por correo. También puede dejar valoraciones en tus pedidos de Vinted completados por ti."
+      }
+    },
+    "only": {
+      "depop": "Solo Depop",
+      "vinted": "Solo Vinted"
+    },
+    "learnMore": "Más información",
+    "finalCta": {
+      "title": "Esas son las 14. Un panel, las dos tiendas.",
+      "body": "Prueba todas las funciones gratis durante 14 días y luego elige el plan que mejor encaje con tu tienda."
     }
   },
   "Pricing": {
@@ -989,8 +1051,8 @@
       "scoping": "En estudio",
       "inDevelopment": "En desarrollo",
       "target": "Objetivo T{quarter} {year}",
-      "shipped": "Enviado en {date}",
-      "shippedUndated": "Enviado"
+      "shipped": "Lanzado en {date}",
+      "shippedUndated": "Lanzado"
     },
     "request": {
       "eyebrow": "¿Tienes una petición?",

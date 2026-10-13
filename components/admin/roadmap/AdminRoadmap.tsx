@@ -194,8 +194,8 @@ export function AdminRoadmap({
         </h1>
         <div className="flex items-center gap-3">
           <p className="hidden text-xs text-zinc-500 md:block">
-            Shown at the bottom of the homepage. Changes appear on the next page
-            load.
+            Shown on /roadmap and at the bottom of the homepage. Changes appear
+            on the next page load.
           </p>
           <button
             type="button"

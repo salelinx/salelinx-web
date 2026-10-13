@@ -13,7 +13,7 @@ import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HomeFaq } from '@/components/home/HomeFaq';
 import { FinalCta } from '@/components/home/FinalCta';
-import { RoadmapSection } from '@/components/home/RoadmapSection';
+import { RoadmapSection } from '@/components/features/RoadmapSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 
@@ -146,10 +146,7 @@ export default async function Home({
       <Hero />
       <ScrollWorldDemo />
       {/* The HeadlineFeatures block used to sit here. The feature carousel
-          above covers the same ground, so this was saying it twice. The
-          `#features` anchor the header and mobile menu link to moved onto
-          ScrollWorldDemo with it. HeadlineFeatures itself is still used by
-          the /features page. */}
+          above covers the same ground, so this was saying it twice. */}
       <div className="section-band">
         <div className="mx-auto w-full max-w-7xl px-6">
           <PricingSection tiers={tiers} eyebrow={tHome('pricingEyebrow')} centered />
@@ -160,8 +157,9 @@ export default async function Home({
           still deciding. */}
       <FinalCta />
       <HomeFaq />
-      {/* Roadmap closes the page, under the FAQ. The header, mobile menu and
-          footer link here (`/#roadmap`), and /roadmap redirects here. */}
+      {/* Roadmap closes the page, under the FAQ, like pricing above it. Nav
+          links go to the /roadmap page instead (real URLs for sitelinks);
+          both render the same cards from roadmap_items. */}
       <div className="mx-auto w-full max-w-7xl px-6">
         <RoadmapSection />
       </div>

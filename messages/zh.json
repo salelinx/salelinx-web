@@ -1,7 +1,7 @@
 {
   "Layout": {
     "metaTitle": "SaleLinx - 在 Depop 和 Vinted 上同时销售",
-    "metaDescription": "在一个面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。"
+    "metaDescription": "专为 Depop 和 Vinted 卖家打造的 Chrome 扩展。在一个面板里完成跨平台上架、重新上架、刷新和库存同步，报价、消息和面单也集中在一处。"
   },
   "Header": {
     "navFeatures": "功能",
@@ -500,15 +500,15 @@
     "supportMetaDescription": "给 SaleLinx 团队发消息。",
     "supportTitle": "联系支持",
     "supportBody": "给我们发消息，我们会通过邮件和你的账户回复。",
-    "supportDocsLink": "使用指南",
-    "supportEmailBody": "直接发邮件给我们，我们会回复到该邮箱。如果问题与某个商品有关，请附上你的平台用户名。",
+    "supportSignedOutBody": "无需账户也可以通过邮件联系我们。登录后可在一处跟进所有回复。",
     "supportEmailHeading": "发邮件给我们",
-    "supportFaqLink": "常见问题",
-    "supportSelfServe": "很多问题已经解答于",
+    "supportEmailBody": "直接发邮件给我们，我们会回复到该邮箱。如果问题与某个商品有关，请附上你的平台用户名。",
+    "supportSignInHeading": "登录以创建工单",
     "supportSignInBody": "工单会将完整对话保存在你的账户中，我们回复时你会收到通知。",
     "supportSignInCta": "登录",
-    "supportSignInHeading": "登录以创建工单",
-    "supportSignedOutBody": "无需账户也可以通过邮件联系我们。登录后可在一处跟进所有回复。",
+    "supportSelfServe": "很多问题已经解答于",
+    "supportFaqLink": "常见问题",
+    "supportDocsLink": "使用指南",
     "supportStatusLink": "状态页面"
   },
   "Subscribe": {
@@ -565,21 +565,16 @@
     "termsLink": "查看推荐计划条款"
   },
   "Features": {
-    "metaTitle": "产品、价格、路线图",
-    "metaDescription": "SaleLinx Chrome 扩展的全部功能、价格，以及接下来的计划。在一个面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。",
+    "metaTitle": "功能：Depop 和 Vinted 的跨平台上架、重新上架与自动化",
+    "metaDescription": "SaleLinx 为 Depop 和 Vinted 卖家提供的全部功能：跨平台上架、重新上架、刷新、库存同步、报价、消息、快递面单等，都在一个浏览器面板里完成。",
     "hero": {
-      "eyebrow": "产品概览",
-      "title": "SaleLinx 的全部功能、价格和下一步计划。",
-      "description": "在一个浏览器面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。",
-      "installExtension": "安装扩展",
-      "seePricing": "查看价格"
+      "title": "SaleLinx 能为你的 Depop 和 Vinted 店铺做的一切。"
     },
     "sectionHeader": {
       "eyebrow": "第 01 部分 / 功能",
       "title": "SaleLinx 还能做的其他事。",
       "body": "按你实际的使用场景分组。可以快速浏览各个分类，也可以直接跳到你想找的功能。"
     },
-    "marketplaceOnly": "仅 <marketplace></marketplace>",
     "sectionNavAria": "页面章节",
     "headlines": {
       "eyebrow": "从这里开始",
@@ -607,7 +602,7 @@
         },
         "oneInbox": {
           "short": "统一收件箱",
-          "title": "报价和消息都在一个收件箱",
+          "title": "报价和消息集中一处",
           "body": "两个店铺的每一条报价和每一条买家消息，都汇总到同一个列表。设置规则自动接受合适的报价，你只需要处理真正重要的对话。",
           "works": "<depop></depop> + <vinted></vinted>"
         },
@@ -775,6 +770,73 @@
           }
         }
       }
+    },
+    "list": {
+      "listings": {
+        "name": "我的商品",
+        "detail": "Depop 和 Vinted 的所有商品并排显示。按价格、日期或状态排序和筛选，快速编辑单件商品或一次批量修改，用内置编辑器整理照片，安排草稿稍后发布，还能把全部商品导出为 CSV。"
+      },
+      "grow": {
+        "name": "涨粉",
+        "detail": "关注机器人可以关注 Depop 和 Vinted 上任意账号的粉丝或其关注的人。在 Depop 上还能以某个账号的买家、评价者或点赞某件商品的所有人为目标，取消关注机器人则帮你清理旧的关注。"
+      },
+      "relist": {
+        "name": "重新上架",
+        "detail": "用微调过的照片、标题和价格重新创建表现乏力的商品，然后删除原商品，让它们在搜索中以新品身份重新出现。选好一整批，交给它逐个处理。"
+      },
+      "refresh": {
+        "name": "刷新",
+        "detail": "一键从下往上重新保存你的商品，让它们在 Depop 搜索中重新靠前，同时店铺保持你设定的顺序。可设置每 4、6、8、12 或 24 小时自动运行。"
+      },
+      "crosslist": {
+        "name": "跨平台上架",
+        "detail": "把任意 Depop 商品发布到 Vinted，或把 Vinted 商品发布到 Depop，无需重新输入。类目、尺码、成色、颜色和品牌都会自动转换，审核步骤让你在上线前检查和编辑每件商品。粘贴多个商品链接即可一次添加。库存来自别处？导入 dotb 或 Shopify 的 CSV 即可。"
+      },
+      "shopDesigner": {
+        "name": "店铺设计器",
+        "detail": "把商品拖成你希望买家看到的顺序，SaleLinx 会重新保存它们，让你的 Depop 店铺保持一致。"
+      },
+      "deadStock": {
+        "name": "滞销库存",
+        "detail": "标记出上架已久、关注度低的商品，显示压在其中的资金，并让你一键降价 10%、重新上架或删除。"
+      },
+      "autoOffers": {
+        "name": "自动报价",
+        "detail": "点赞过你 Vinted 商品的买家会自动收到你的报价，把点赞变成成交。"
+      },
+      "linking": {
+        "name": "关联",
+        "detail": "自动识别哪些 Depop 和 Vinted 商品是同一件，一键关联。关联后的商品显示为一行，并启用库存同步。"
+      },
+      "restocker": {
+        "name": "库存同步",
+        "detail": "当商品在一个店铺售出，SaleLinx 会立即下架或补货另一个店铺里的对应商品，让你在两边上架同一批库存也不会超卖。适用于已关联的商品。"
+      },
+      "priceDrops": {
+        "name": "降价",
+        "detail": "选择商品、降价比例和频率，SaleLinx 会按计划降价，直到达到你设定的最低价。"
+      },
+      "offers": {
+        "name": "报价",
+        "detail": "两个店铺的所有报价并排显示，无需切换标签页即可接受、还价或拒绝。设置自动接受规则，即要价的百分比加上一个最低价，合适的报价会自动帮你接下。"
+      },
+      "messages": {
+        "name": "消息",
+        "detail": "Depop 和 Vinted 的买家消息集中在一个收件箱，不会漏掉任何一条。"
+      },
+      "labels": {
+        "name": "面单",
+        "detail": "选中某一天的 Depop 和 Vinted 订单，SaleLinx 会把它们的面单合并成一个 PDF，可一次性打印或发到你的邮箱。它还能替你给已完成的 Vinted 订单留下评价。"
+      }
+    },
+    "only": {
+      "depop": "仅限 Depop",
+      "vinted": "仅限 Vinted"
+    },
+    "learnMore": "了解更多",
+    "finalCta": {
+      "title": "这就是全部 14 项。一个面板，两个店铺。",
+      "body": "免费试用全部功能 14 天，然后选择适合你店铺的方案。"
     }
   },
   "Pricing": {
@@ -906,20 +968,20 @@
         "degraded": "运行异常",
         "down": "服务中断"
       },
-      "featureColumn": "功能",
-      "featuresBody": "SaleLinx 扩展各项功能的实时状态，按平台分组，根据真实使用情况自动更新。",
       "featuresHeading": "扩展功能",
-      "inferredNote": "平台与功能状态是根据所有 SaleLinx 安装的匿名汇总使用数据推断得出的，并非 Depop 或 Vinted 的官方状态源。近期使用较少的功能可能会显示为正常。",
-      "intro": "SaleLinx 所连接平台的实时状态，以及在其上运行的扩展功能。",
-      "marketplacesBody": "各平台是否可访问且运行正常。",
-      "marketplacesHeading": "平台",
-      "notAvailable": "不适用",
+      "featuresBody": "SaleLinx 扩展各项功能的实时状态，按平台分组，根据真实使用情况自动更新。",
+      "selfHelpHeading": "显示一切正常，但我这里用不了",
       "selfHelpBody": "此处的状态反映的是同时影响大量卖家的问题。只影响你个人账户的问题，通常由以下原因之一造成：",
       "selfHelpCaptcha": "平台正在显示人机验证，或已临时限制你的会话。请打开该平台的标签页，完成验证后重试。",
-      "selfHelpContact": "仍然无法解决？联系客服，我们会帮你查看。",
-      "selfHelpHeading": "显示一切正常，但我这里用不了",
       "selfHelpLogin": "你的平台登录已过期。请在普通标签页中重新登录 Depop 或 Vinted。",
-      "selfHelpTab": "没有打开平台标签页。SaleLinx 通过已登录的标签页执行操作，运行期间请保持一个标签页打开。"
+      "selfHelpTab": "没有打开平台标签页。SaleLinx 通过已登录的标签页执行操作，运行期间请保持一个标签页打开。",
+      "selfHelpContact": "仍然无法解决？联系客服，我们会帮你查看。",
+      "inferredNote": "平台与功能状态是根据所有 SaleLinx 安装的匿名汇总使用数据推断得出的，并非 Depop 或 Vinted 的官方状态源。近期使用较少的功能可能会显示为正常。",
+      "featureColumn": "功能",
+      "notAvailable": "不适用",
+      "intro": "SaleLinx 所连接平台的实时状态，以及在其上运行的扩展功能。",
+      "marketplacesHeading": "平台",
+      "marketplacesBody": "各平台是否可访问且运行正常。"
     },
     "changelog": {
       "metaTitle": "更新日志",
@@ -989,7 +1051,7 @@
       "scoping": "评估中",
       "inDevelopment": "开发中",
       "target": "目标 {year} 年第{quarter, select, 1 {一} 2 {二} 3 {三} other {四}}季度",
-      "shipped": "{date}发布",
+      "shipped": "{year} 年 {month} 月发布",
       "shippedUndated": "已发布"
     },
     "request": {
