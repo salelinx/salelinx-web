@@ -33,11 +33,11 @@ export default async function FeaturesPage({
   return (
     <main className="mx-auto w-full max-w-7xl px-6">
       <Reveal>
-        <h1 className="mx-auto max-w-3xl pt-16 pb-10 text-center text-4xl font-semibold leading-[1.05] tracking-tight text-balance sm:pt-24 sm:text-5xl">
+        <h1 className="mx-auto max-w-3xl pt-10 pb-8 text-center text-4xl font-semibold leading-[1.05] tracking-tight text-balance sm:pt-12 sm:text-5xl">
           {t('hero.title')}
         </h1>
       </Reveal>
-      <Reveal delay={150} className="mx-auto w-full max-w-5xl">
+      <Reveal delay={150} className="mx-auto w-full max-w-4xl">
         <PanelCarousel />
       </Reveal>
       <FeaturesSection />
