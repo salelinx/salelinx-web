@@ -133,7 +133,7 @@ export function CrosslistPanel() {
   // from a moving line.
   const FIELDS = ["brand", "category", "size", "condition"] as const;
   const label = done
-    ? "Listed on Depop"
+    ? "Draft saved on Depop"
     : `Mapping ${FIELDS[Math.min(step, FIELDS.length - 1)]}`;
   const progress = (step / STEP_TICKS.length) * 100;
 

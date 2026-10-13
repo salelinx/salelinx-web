@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Auto-Offers',
+  title: 'Auto-Accept',
   description:
     'Auto-accept incoming buyer offers above a percentage threshold on a schedule you control.',
   category: 'automate',
@@ -11,9 +11,9 @@ export const metadata = {
   status: 'published',
 };
 
-# Auto-Offers
+# Auto-Accept
 
-Auto-Offers periodically scans your pending Depop and Vinted offers
+Auto-accept periodically scans your pending Depop and Vinted offers
 and accepts any that meet a threshold you set. It removes the manual
 step for small-ticket items where any offer above N% of asking is
 fine, while still letting you handle bigger or more interesting
@@ -21,7 +21,10 @@ offers by hand.
 
 ## Where it lives
 
-Inside the **Offers** tab in the panel. The auto-accept controls
+Inside the **Offers** tab in the panel, not the panel&rsquo;s
+**Auto-Offers** tab: that one sends offers *to* people who liked your
+items, and is covered in [Send Offers](/docs/automate/send-offers).
+The auto-accept controls
 are at the top of the tab, above the manual offers list.
 
 ## How it decides
@@ -73,7 +76,7 @@ The auto-accept block shows:
 
 ## Trade-offs
 
-Auto-Offers will sometimes accept offers you would have countered.
+Auto-accept will sometimes accept offers you would have countered.
 The guidance: set the threshold conservatively. 90% is a sensible
 default. If you set it to 70%, you&rsquo;ll auto-accept lowballs
 you could have nudged up by a few quid.
@@ -105,3 +108,5 @@ above (which includes the trial).
   below your threshold.
 - [Price Drops](/docs/automate/price-drops) - reduce prices so
   lower offers stop coming in at all.
+- [Send Offers](/docs/automate/send-offers) - make offers to people
+  who liked your Vinted items.

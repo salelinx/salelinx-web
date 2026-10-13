@@ -33,6 +33,14 @@ const CHAPTERS: Chapter[] = [
         href: "/docs/inventory/listings",
       },
       {
+        // The selection toolbar in My Listings: bulk editor, photo editor,
+        // Depop discounts, duplicate and split photos, as one card.
+        id: "bulkEdit",
+        icon: "pencil",
+        on: "both",
+        href: "/docs/inventory/listings",
+      },
+      {
         id: "linkAccounts",
         icon: "link",
         on: "both",
@@ -42,7 +50,7 @@ const CHAPTERS: Chapter[] = [
         id: "backup",
         icon: "lock",
         on: "both",
-        href: "/docs/inventory/listings",
+        href: "/docs/inventory/cloud-sync",
       },
       {
         id: "sync",
@@ -114,10 +122,19 @@ const CHAPTERS: Chapter[] = [
     items: [
       { id: "offersInbox", icon: "tag", on: "both", href: "/docs/buyers/offers" },
       {
+        // Auto-ACCEPT, from the Offers tab. The extension's own "Auto-Offers"
+        // tab is the different feature below (sendOffers); the id stays
+        // autoOffers so existing translations and links keep working.
         id: "autoOffers",
         icon: "zap",
         on: "both",
         href: "/docs/automate/auto-offers",
+      },
+      {
+        id: "sendOffers",
+        icon: "send",
+        on: "vinted",
+        href: "/docs/automate/send-offers",
       },
       { id: "messages", icon: "message", on: "both", href: "/docs/buyers/messages" },
       {

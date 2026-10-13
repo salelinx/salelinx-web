@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'listings',
   order: 1,
-  updated: '2026-09-15',
+  updated: '2026-10-13',
   tags: ['listings', 'inventory', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -55,8 +55,18 @@ actions:
   feed (Depop). See [Refresh](/docs/inventory/refresh).
 - **Relist** - deletes and re-creates each listing from scratch with
   optional photo modifications. See [Relist](/docs/inventory/relist).
-- **Price change** - flat percentage drop or fixed amount across
-  selection.
+- **Edit** - opens the bulk editor. Set prices to a value or raise
+  or lower them by an amount or a percentage, and change titles,
+  descriptions, brand, condition, colour, size, quantity and category
+  across the whole selection.
+- **Edit photos** - rotate, flip, crop or brighten every photo in the
+  selection, or **Randomise** to give each one a slight tweak.
+- **Discount** (Depop) - puts the selected items on sale with
+  Depop&rsquo;s own discount, so the original price shows struck
+  through. Remove it the same way.
+- **Duplicate** - copies listings as drafts on the same marketplace.
+- **Split photos** (Depop) - turns each photo of a listing into its
+  own draft, for a bundle you want to sell piece by piece.
 - **Delete** - removes the listings from the marketplace. There is no
   undo.
 

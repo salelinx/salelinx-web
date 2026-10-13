@@ -191,12 +191,14 @@
       "title": "Todas las herramientas, donde vendes.",
       "scenes": {
         "crosslist": "Elige un anuncio y SaleLinx rellena el otro lado por ti.",
+        "bulkEdit": "Selecciona los anuncios que quieras y cambia precios y fotos, lanza rebajas en Depop o cópialos como borradores.",
         "restocker": "Véndelo en una app y se retira de la otra, automáticamente.",
         "deadStock": "Cada anuncio puntuado por antigüedad, visitas y me gusta, con una solución para los que no se venden.",
         "priceDrops": "Los precios bajan según el calendario que elijas, nunca por debajo de tu mínimo.",
         "refresher": "Tu tienda de Depop se vuelve a guardar de abajo arriba, para que suba al principio en el mismo orden.",
         "followBot": "Sigue automáticamente a los compradores con más probabilidades de comprarte.",
         "inbox": "Todas las ofertas y mensajes de ambas tiendas, en una sola lista.",
+        "sendOffers": "Todos los que dieron me gusta a un artículo reciben una oferta con el descuento que elijas, nunca por debajo de tu mínimo.",
         "autoOffers": "Las ofertas por encima de tu límite se aceptan solas. El resto espera a que tú decidas.",
         "labels": "Todas las etiquetas del día, unidas en un solo PDF para imprimir."
       },
@@ -588,7 +590,7 @@
         "crosslist": {
           "short": "Crosslist",
           "title": "Crosslista Depop y Vinted en un clic",
-          "body": "Elige un anuncio, pulsa crosslist y el formulario de la otra marketplace se rellena solo. Categorías, tallas y condiciones se traducen por ti, así el mismo artículo sale en ambas tiendas en segundos.",
+          "body": "Elige un anuncio, pulsa crosslist y el formulario de la otra marketplace se rellena solo. Categorías, tallas y condiciones se traducen por ti, y la copia te espera como borrador en la otra tienda en segundos, lista para revisar y publicar.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -606,7 +608,7 @@
         "oneInbox": {
           "short": "Bandeja unificada",
           "title": "Ofertas y mensajes en una bandeja",
-          "body": "Cada oferta y cada mensaje de comprador de ambas tiendas, fusionados en una lista. Define reglas para aceptar o contraofertar automáticamente y solo entra a las conversaciones que importan.",
+          "body": "Cada oferta y cada mensaje de comprador de ambas tiendas, fusionados en una lista. Define una regla para aceptar automáticamente las buenas ofertas y solo entra a las conversaciones que importan.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "labels": {
@@ -634,6 +636,11 @@
             "label": "Todo tu stock en una cuadrícula",
             "detail": "Ambas tiendas lado a lado. Ordena por fecha, precio o estado y filtra justo lo que necesitas."
           },
+          "bulkEdit": {
+            "name": "Edición masiva",
+            "label": "Edita, rebaja y duplica en masa",
+            "detail": "Cambia precios, títulos, tallas y fotos en toda una selección, lanza rebajas en Depop, o copia anuncios y separa sus fotos en nuevos borradores."
+          },
           "linkAccounts": {
             "name": "Vinculacion de cuentas",
             "label": "Vincula tus tiendas una sola vez",
@@ -642,7 +649,7 @@
           "backup": {
             "name": "Copia en la nube",
             "label": "Tu tienda, a salvo en la nube",
-            "detail": "Cada anuncio se guarda cifrado en la nube, para que un portátil cerrado o un fallo de la marketplace nunca te cueste una venta."
+            "detail": "Cada anuncio y sus fotos se guardan cifrados en la nube, así un fallo de la marketplace nunca te cuesta una venta y puedes volver a publicar un artículo vendido desde su copia."
           },
           "sync": {
             "name": "Sincronizacion",
@@ -669,7 +676,7 @@
           "autoMap": {
             "name": "Mapeo de categorias",
             "label": "Categorías y tallas traducidas por ti",
-            "detail": "Las etiquetas de Depop se convierten en las de Vinted, y al revés. Sin tablas de mapeo que configurar."
+            "detail": "Las etiquetas de Depop se convierten en las de Vinted, y al revés. Los precios se convierten si tus tiendas usan monedas distintas, sin tablas de mapeo que configurar."
           },
           "csvImport": {
             "name": "Importacion CSV",
@@ -736,9 +743,14 @@
             "detail": "Cada oferta de ambas tiendas aparece en una bandeja, así no saltas entre pestañas para seguir el ritmo."
           },
           "autoOffers": {
-            "name": "Auto-ofertas",
-            "label": "Responde a ofertas automáticamente",
-            "detail": "Define reglas como 'acepta cualquier oferta por encima del 80 por ciento' o 'contraoferta siempre al 90 por ciento' y deja que SaleLinx se encargue."
+            "name": "Aceptación auto",
+            "label": "Acepta las buenas ofertas automáticamente",
+            "detail": "Fija un porcentaje mínimo del precio y un precio mínimo. Las ofertas que cumplen ambos se aceptan solas y el resto espera a que tú decidas."
+          },
+          "sendOffers": {
+            "name": "Enviar ofertas",
+            "label": "Envía una oferta a todos los que le dieron me gusta",
+            "detail": "SaleLinx encuentra quién dio me gusta a tus artículos de Vinted y envía a cada uno una oferta, con el descuento que elijas y nunca por debajo de tu mínimo."
           },
           "messages": {
             "name": "Conversaciones",
@@ -1008,8 +1020,8 @@
         "description": "Herramienta de diseño por arrastrar y soltar para el perfil de la tienda Depop."
       },
       "auto-offers": {
-        "title": "Respuestas automáticas a ofertas",
-        "description": "Aceptación, contraoferta o rechazo basados en reglas para ofertas entrantes en ambas marketplaces."
+        "title": "Aceptación automática de ofertas",
+        "description": "Acepta automáticamente las ofertas por encima de un porcentaje de tu precio, en ambas marketplaces."
       },
       "follow-bot": {
         "title": "Bot de seguir y dejar de seguir",

@@ -110,7 +110,8 @@ export default async function Home({
           'Scheduled price drops',
           'Dead stock detection',
           'Restock tracking across both marketplaces',
-          'Send and auto-accept offers',
+          'Send offers to likers and auto-accept offers',
+          'Bulk listing and photo editor',
           'Shipping labels merged into one PDF',
         ],
         // Name the brand image explicitly. Without this the only images Google

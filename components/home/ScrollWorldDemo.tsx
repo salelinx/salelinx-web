@@ -24,6 +24,8 @@ import { DeadStockScene } from "./DeadStockScene";
 import { PriceDropScene } from "./PriceDropScene";
 import { RefresherScene } from "./RefresherScene";
 import { AutoOffersScene } from "./AutoOffersScene";
+import { SendOffersScene } from "./SendOffersScene";
+import { BulkEditScene } from "./BulkEditScene";
 import { Reveal } from "@/components/Reveal";
 
 /**
@@ -262,12 +264,14 @@ function SceneCarousel() {
       {/* The first/last auto margins centre the row when it fits and let it
           scroll from the true start when it does not. justify-center on an
           overflowing row clips the first tabs off the left edge with no way
-          to scroll back to them. */}
+          to scroll back to them. From lg up the row wraps instead, and its
+          max width is set so eleven tabs break into two even rows rather
+          than a full row and a stray two. */}
       <div
         ref={tabsRef}
         role="tablist"
         onKeyDown={onTabKey}
-        className="relative flex gap-2 overflow-x-auto px-6 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>:first-child]:ms-auto [&>:last-child]:me-auto lg:mx-auto lg:max-w-6xl lg:flex-wrap lg:justify-center lg:overflow-visible lg:pb-8 lg:[&>:first-child]:ms-0 lg:[&>:last-child]:me-0"
+        className="relative flex gap-2 overflow-x-auto px-6 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>:first-child]:ms-auto [&>:last-child]:me-auto lg:mx-auto lg:max-w-[50rem] lg:flex-wrap lg:justify-center lg:overflow-visible lg:pb-8 lg:[&>:first-child]:ms-0 lg:[&>:last-child]:me-0"
       >
         {SCENES.map((s, i) => (
           <button
@@ -384,8 +388,8 @@ function SceneCarousel() {
 // the homepage had stopped showing and omitted one it had added.
 //
 // Ordered as a seller meets the problems: get stock onto both shops and keep
-// it in sync, deal with what is not selling, find buyers, then handle offers
-// and ship.
+// it in sync and tidy, deal with what is not selling, find buyers, then
+// handle offers and ship.
 export const SCENES: Scene[] = [
   {
     id: "crosslist",
@@ -394,6 +398,16 @@ export const SCENES: Scene[] = [
     shortKey: "chapter.crosslisting.items.bidirectional.name",
     href: "/docs/inventory/crosslist",
     render: () => <CrosslistPanel />,
+  },
+  {
+    // The My Listings selection toolbar: bulk editor, photo editor, Depop
+    // discounts and duplicate, as one scene.
+    id: "bulkEdit",
+    icon: "pencil",
+    titleKey: "chapter.listings.items.bulkEdit.label",
+    shortKey: "chapter.listings.items.bulkEdit.name",
+    href: "/docs/inventory/listings",
+    render: () => <BulkEditScene />,
   },
   {
     id: "restocker",
@@ -463,6 +477,18 @@ export const SCENES: Scene[] = [
     ),
   },
   {
+    // Outgoing offers to likers: what the extension's own "Auto-Offers" tab
+    // does. Vinted only.
+    id: "sendOffers",
+    icon: "send",
+    titleKey: "chapter.sales.items.sendOffers.label",
+    shortKey: "chapter.sales.items.sendOffers.name",
+    href: "/docs/automate/send-offers",
+    render: () => <SendOffersScene />,
+  },
+  {
+    // Auto-ACCEPT of incoming offers, from the extension's Offers tab. The
+    // id predates the rename and is kept so the translation keys stay put.
     id: "autoOffers",
     icon: "zap",
     titleKey: "chapter.sales.items.autoOffers.label",
