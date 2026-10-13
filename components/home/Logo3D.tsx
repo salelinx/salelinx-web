@@ -37,6 +37,7 @@ export function Logo3D() {
   const [still, setStill] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [tilt, setTilt] = useState(0);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -44,6 +45,12 @@ export function Logo3D() {
     sync();
     mq.addEventListener('change', sync);
     return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  // Never leave the logo hidden if WebGL fails and onReady never fires.
+  useEffect(() => {
+    const t = window.setTimeout(() => setReady(true), 2500);
+    return () => clearTimeout(t);
   }, []);
 
   // Tweened here because 3dsvg writes rotationY straight onto the mesh: a bare
@@ -80,7 +87,14 @@ export function Logo3D() {
   }, [still]);
 
   return (
-    <div aria-hidden className="h-32 w-32 shrink-0 sm:h-48 sm:w-48">
+    // The renderer arrives on its own chunk well after first paint, so the fade
+    // keys off onReady rather than mount, or it would pop in at full size.
+    <div
+      aria-hidden
+      className={`h-32 w-32 shrink-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] sm:h-48 sm:w-48 ${
+        ready || still ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+      }`}
+    >
       <SVG3D
         svg={LOGO_SVG}
         smoothness={0.6}
@@ -99,6 +113,7 @@ export function Logo3D() {
         cursorOrbit={false}
         width="100%"
         height="100%"
+        onReady={() => setReady(true)}
       />
     </div>
   );
