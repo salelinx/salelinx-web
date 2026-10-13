@@ -154,8 +154,7 @@ export default async function Home({
       {/* The HeadlineFeatures block used to sit here. The scroll section above
           now covers the same ground (and closes on a grid of every feature),
           so this was saying it twice. The `#features` anchor the header and
-          mobile menu link to moved onto ScrollWorldDemo with it.
-          HeadlineFeatures itself is still used by the /features page. */}
+          mobile menu link to moved onto ScrollWorldDemo with it. */}
       <div className="section-band">
         <div className="mx-auto w-full max-w-7xl px-6">
           <PricingSection tiers={tiers} eyebrow={tHome('pricingEyebrow')} centered />
