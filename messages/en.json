@@ -562,7 +562,6 @@
     "hero": {
       "title": "Everything SaleLinx does for your Depop and Vinted shops."
     },
-    "marketplaceOnly": "<marketplace></marketplace> only",
     "list": {
       "crosslist": {
         "name": "Crosslist",
@@ -696,6 +695,10 @@
           }
         }
       }
+    },
+    "only": {
+      "depop": "Depop only",
+      "vinted": "Vinted only"
     }
   },
   "Pricing": {
