@@ -52,7 +52,7 @@ The extension's email login is this page, framed inside the extension's sign-in 
 
 ## MFA (TOTP)
 
-Optional for regular users, required for admins (`is_admin()` in Postgres only returns true for AAL2 sessions - migration `003_support.sql`, see `docs/ADMIN.md`).
+Admins only. It is required for the admin console (`is_admin()` in Postgres only returns true for AAL2 sessions - migration `003_support.sql`, see `docs/ADMIN.md`) and enforced nowhere else: the login page, the Google callback, the extension and customer RLS all accept an AAL1 session. So the Security card on `/account` only shows the 2FA section to `admin_users` members (bare membership, so an admin at AAL1 can still enroll). Offering it to customers would mean adding a challenge step to the web login, the Google callback and the extension login first, and only then AAL2 checks in RLS and the Edge Functions; doing it the other way round locks enrolled users out of the extension.
 
 - **Enroll:** Account > Security card > "Enable 2FA". `mfa.enroll({ factorType: 'totp' })` -> QR + manual key -> user enters the first code -> `challenge()` + `verify()` activates the factor. Abandoned (unverified) factors are cleaned up before re-enrolling.
 - **Challenge:** a password login always starts at AAL1. `/auth/mfa` prompts for a code and upgrades the session to AAL2. The admin gates redirect there with `?next=<path>`.

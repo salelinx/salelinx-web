@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "10 October 2026";
+const LAST_UPDATED = "13 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -68,7 +68,8 @@ const SECTIONS: LegalSection[] = [
     heading: "Information the extension handles but does not send to us",
     paragraphs: [
       "To do its job, the extension reads and uses data from Depop and Vinted inside your browser: your session cookies and tokens, your listings, offers, orders, and conversations. This data is processed locally on your device.",
-      "Except for the optional cloud features described above, none of it is transmitted to SaleLinx servers. In particular, we never receive your Depop or Vinted passwords, session cookies, or authentication tokens.",
+      "Except for the optional cloud features described above, the category matching described next, and the label emails described under Order and buyer information, none of it is transmitted to SaleLinx servers. In particular, we never receive your Depop or Vinted passwords, session cookies, or authentication tokens.",
+      "Category matching for crosslisting. When you crosslist a listing, the extension sends its title, description (each cut to 2,000 characters) and marketplace category to our servers, which work out the matching category on the other marketplace and send it back. The text is processed in memory to make that match and is never stored or logged; the only lasting record is a count of the crosslist against your plan's allowance.",
     ],
   },
   {
@@ -94,7 +95,7 @@ const SECTIONS: LegalSection[] = [
       "To enforce the usage limits of your subscription plan.",
       "To process subscription payments and manage your plan (via Stripe).",
       "To send service emails such as email verification, password resets, payment issues, and replies to your support tickets (via Resend).",
-      "To send occasional emails about SaleLinx itself, such as a reminder to start your free trial or an offer to come back after your plan ends. We ask whether you want these when you create your account, or the first time you sign in if you were never asked. You can change your answer at any time under Email preferences on your account page, and every one of these emails has an unsubscribe link that takes effect immediately. We never send marketing about anyone else's products.",
+      "To send occasional emails about SaleLinx itself, such as a reminder to start your free trial or an offer to come back after your plan ends. We ask whether you want these when you create your account, or the first time you sign in if you were never asked, and we only send them if you said yes. You can change your answer at any time under Email preferences on your account page, and every one of these emails has an unsubscribe link that takes effect immediately. We never send marketing about anyone else's products.",
       "To fix bugs and improve the product.",
     ],
     trailing: [
