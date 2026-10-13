@@ -848,7 +848,7 @@
   },
   "Roadmap": {
     "sectionHeader": {
-      "eyebrow": "Section 03 / Roadmap",
+      "eyebrow": "Roadmap",
       "title": "Where SaleLinx is going.",
       "body": "A public view of what's being scoped, built, and already shipped. Dates are targets, not commitments."
     },
@@ -881,12 +881,20 @@
     "meta": {
       "scoping": "Scoping",
       "targetQ4_2026": "Target Q4 2026",
-      "shippedApr_2026": "Shipped Apr 2026"
+      "shippedApr_2026": "Shipped Apr 2026",
+      "nextRelease": "Next release",
+      "shippedOct_2026": "Shipped Oct 2026",
+      "shippedSep_2026": "Shipped Sep 2026",
+      "shippedAug_2026": "Shipped Aug 2026"
     },
     "items": {
       "ebay-integration": {
-        "title": "eBay integration",
-        "description": "Crosslist to eBay with auto-mapped categories, item specifics, and conditions."
+        "title": "eBay",
+        "description": "Link your eBay account, see and edit your eBay listings in My Listings, and crosslist between eBay, Depop and Vinted in any direction."
+      },
+      "bulk-price-edit": {
+        "title": "Bulk price changes",
+        "description": "Set one price across a batch, or raise or lower every selected listing by an amount or a percentage."
       },
       "poshmark-integration": {
         "title": "Poshmark integration",
@@ -894,7 +902,7 @@
       },
       "scheduled-relisting": {
         "title": "Scheduled relisting",
-        "description": "Queue relists to run on a schedule you set, not manually."
+        "description": "Pick listings and a schedule, and Relist runs on its own instead of you starting each batch."
       },
       "ai-description-polish": {
         "title": "AI description polish",
@@ -903,6 +911,34 @@
       "analytics-dashboard": {
         "title": "Analytics dashboard",
         "description": "Sell-through rate, views per listing, and cross-marketplace sales trends."
+      },
+      "crosslist-review": {
+        "title": "Review before you crosslist",
+        "description": "Check and edit every item before it posts, with a full editor in the other marketplace's own terms, and paste as many listing links as you like."
+      },
+      "local-currency": {
+        "title": "Your own currency",
+        "description": "Prices, totals and limits show in your shop's currency everywhere in the panel."
+      },
+      "crosslist-drafts": {
+        "title": "Crosslist Depop drafts",
+        "description": "Send Depop drafts to Vinted too, with an All, Active and Drafts filter on the crosslist picker."
+      },
+      "synced-presets": {
+        "title": "Presets follow your account",
+        "description": "Saved presets on every settings panel sync through your account, so any device you sign in on is set up."
+      },
+      "label-carriers": {
+        "title": "Carrier picker for labels",
+        "description": "Choose your carrier when printing shipping labels, with bulk QR codes and a look-back window for completed orders."
+      },
+      "choose-marketplaces": {
+        "title": "Choose your marketplaces",
+        "description": "Sell only on Depop or only on Vinted? Hide the other one, and reply to support tickets from inside the panel."
+      },
+      "google-sign-in": {
+        "title": "Google sign-in and Refer & Earn",
+        "description": "Sign in with Google, and refer other sellers from its own tab in the panel."
       },
       "depop-vinted-crosslist": {
         "title": "Depop and Vinted crosslisting",
@@ -913,12 +949,12 @@
         "description": "Drag-and-drop layout tool for the Depop shop profile."
       },
       "auto-offers": {
-        "title": "Auto-offer replies",
-        "description": "Rule-based accept, counter, or decline on incoming offers across both marketplaces."
+        "title": "Auto-accept offers",
+        "description": "Accept any offer above a percentage of your asking price and a minimum, on Depop and Vinted."
       },
       "follow-bot": {
         "title": "Follow and unfollow bot",
-        "description": "Target followers, following, buyers, review-givers, or likers with human-looking pacing."
+        "description": "Follow the followers or following of any account, and on Depop its buyers, reviewers or likers, with human-looking pacing."
       }
     },
     "request": {
