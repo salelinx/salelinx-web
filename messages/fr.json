@@ -644,7 +644,7 @@
           "backup": {
             "name": "Sauvegarde cloud",
             "label": "Votre boutique, à l'abri",
-            "detail": "Chaque annonce et ses photos sont stockées chiffrées dans le cloud : un bug marketplace ne vous coûte jamais une vente, et un article vendu se remet en ligne directement depuis sa sauvegarde."
+            "detail": "Sauvegardez les annonces de votre choix, photos comprises : un bug marketplace ne vous coûte jamais une vente, et un article vendu se remet en ligne directement depuis sa sauvegarde."
           },
           "sync": {
             "name": "Synchronisation",

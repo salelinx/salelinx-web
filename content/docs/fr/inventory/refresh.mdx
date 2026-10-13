@@ -1,44 +1,58 @@
 export const metadata = {
-  title: 'Refresh',
+  title: 'Rafraîchir',
   description:
-    'Re-enregistrez vos annonces Depop pour les remonter dans la recherche sans changer le prix, les photos ou la description. Manuellement ou en arrière-plan selon un calendrier.',
+    'Re-enregistrez vos annonces Depop pour les remonter dans la recherche sans changer le prix, les photos ou le texte. Manuellement ou en arrière-plan selon un calendrier.',
   category: 'inventory',
   slug: 'refresh',
   order: 4,
-  updated: '2026-09-18',
+  updated: '2026-10-13',
   tags: ['rafraîchir', 'depop', 'visibilité', 'planificateur', 'préréglages'],
   marketplaces: ['depop'],
   status: 'stub',
 };
 
-# Refresh
+# Rafraîchir
 
-L'onglet Refresh re-enregistre vos annonces Depop pour qu'elles
-remontent en haut de votre boutique et ré-entrent dans le flux
-&laquo;&nbsp;les plus récentes&nbsp;&raquo;. L'onglet a deux
-parties&nbsp;: rafraîchissement manuel (disponible sur tous les
-plans) et planificateur auto-refresh (Pro et Business, toutes les 4
-à 24&nbsp;heures en arrière-plan).
+L'onglet **Rafraîchir** re-enregistre vos annonces Depop sans les
+modifier. Chaque annonce re-enregistrée remonte en haut de votre
+boutique et reçoit une nouvelle heure de &laquo;&nbsp;dernière
+modification&nbsp;&raquo;, ce qui la fait remonter dans la recherche
+Depop. Les acheteurs voient le même prix, les mêmes photos et le même
+texte.
+
+L'onglet a deux parties&nbsp;:
+
+- **Rafraîchissement auto** - rafraîchit votre boutique selon un
+  calendrier, toutes les 4 à 24&nbsp;heures, même panneau fermé. Pro
+  et Business uniquement.
+- **Rafraîchissement manuel** - cochez les annonces voulues et cliquez
+  sur **Rafraîchir**, ou utilisez **Tout rafraîchir**. Sur tous les
+  forfaits, dans la limite d'un quota quotidien.
+
+Cette fonctionnalité est Depop uniquement. Elle marche depuis n'importe
+quelle page, tant qu'un onglet Depop est ouvert quelque part dans
+Chrome.
 
 <Callout>
 Traduction française complète à venir. Voir la
 [version anglaise](/en/docs/inventory/refresh) pour le fonctionnement
-détaillé (GET+PUT, conservation de l'ordre, penny toggle), la
-configuration du planificateur, le choix d'intervalle, la cadence
-et les paliers d'abonnement.
+détaillé (conservation de l'ordre de la boutique, décalage du prix de
+0,01), l'utilisation manuelle, les réglages, la configuration du
+rafraîchissement auto, le choix de l'intervalle, la cadence et le
+quota quotidien.
 </Callout>
 
 ## Préréglages
 
-Le sélecteur de préréglages en haut du panneau des réglages
-enregistre les réglages de rafraîchissement sous un nom&nbsp;: le
-plafond par exécution de Refresh all, les secondes entre deux
-annonces, l'option qui ignore les annonces rafraîchies depuis moins
-de N jours, et le penny toggle. Choisir un préréglage remplit les
-quatre d'un coup. Deux sont intégrés&nbsp;:
+Le sélecteur de préréglages en haut de **Réglages du rafraîchissement**
+les enregistre sous un nom&nbsp;: **Annonces max par Tout
+rafraîchir**, **Ignorer les annonces rafraîchies ces derniers
+(jours)**, **Secondes entre les annonces** et **Décaler le prix de
+0,01 à chaque fois**. Choisir un préréglage remplit les quatre d'un
+coup. Deux sont intégrés&nbsp;:
 
 - **Par défaut** - 100 annonces par exécution, 7 secondes entre
-  deux annonces, option d'ignorer désactivée, penny toggle
+  deux annonces, option d'ignorer désactivée, décalage du prix
   désactivé.
 - **Prudent** - 50 annonces par exécution, 15 secondes entre deux
   annonces. Plus lent, et fait moins par exécution.

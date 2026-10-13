@@ -1,7 +1,7 @@
 export const metadata = {
-  title: 'Listings',
+  title: 'My Listings',
   description:
-    'The unified Listings tab merges your Depop and Vinted catalogue into one sortable, filterable grid with bulk actions.',
+    'The My Listings tab puts your Depop and Vinted listings in one grid you can search, filter, sort and act on in bulk.',
   category: 'inventory',
   slug: 'listings',
   order: 1,
@@ -11,105 +11,179 @@ export const metadata = {
   status: 'published',
 };
 
-# Listings
+# My Listings
 
-The **Listings** tab merges your Depop and Vinted catalogue into one
-sortable grid. Each row is one listing with a platform badge so you
-always know where it lives. Filters, bulk edits, refresh, relist,
-price changes and delete all work across both marketplaces from the
-same screen.
+**My Listings** is the first tab in the SaleLinx panel. It puts your Depop
+and Vinted listings in one grid, with a marketplace logo on every row so you
+always know where an item lives. From here you can search, filter and sort
+your whole catalogue, then select listings and act on them in bulk.
+
+## Where the listings come from
+
+SaleLinx reads your listings from Depop and Vinted through your open
+marketplace tabs. If the grid is empty the first time you open it, browse
+your shop or open one of your listings on Depop or Vinted and it fills in.
+
+Above the grid there is a sync indicator for each marketplace. The dot tells
+you how fresh that marketplace&rsquo;s data is:
+
+- **Green** - read in the last five minutes. While a marketplace tab is
+  open, SaleLinx re-reads your listings in the background to stay inside
+  that window, and the dot pulses.
+- **Yellow** - between 5 and 30 minutes old.
+- **Orange** - more than 30 minutes old, or the last read came back
+  incomplete.
+- **Red** - more than two hours old, never read, or your marketplace session
+  has expired.
+- **Grey** - that marketplace account isn&rsquo;t linked to SaleLinx yet.
+
+When something needs fixing, the indicator says what and gives you a
+one-click fix such as **open site**, **reload tab** or **link account**.
+
+From version 1.1.12 the dot stays green for the whole five minutes. In
+version 1.1.11 it turns grey after the first minute.
+
+Each indicator has its own refresh button, and **Refresh All** re-reads
+both marketplaces. These only update what SaleLinx knows about your
+listings. They don&rsquo;t bump anything up the marketplace&rsquo;s search
+feed; for that, use the [Refresh tab](/docs/inventory/refresh).
 
 ## What the grid shows
 
-Per row, the grid shows:
+Each row is one listing, with these columns:
 
-- Photo, title and platform badge.
-- Status (active, sold, draft, hidden).
-- Price.
-- Listed date and age.
-- Restock toggle and quantity (when available).
-- Quick-edit buttons.
+- **Item** - the title, with the brand and size underneath. A chain-link
+  icon marks a linked pair, and a **Queued** badge appears while the listing
+  is waiting on another job.
+- **Site** - the Depop or Vinted logo. A linked Depop and Vinted pair shares
+  one row with both logos, and the other columns show a value for each side.
+- **Status** - active, sold, draft, hidden or delayed (Vinted is still
+  reviewing it). **Not synced** means SaleLinx couldn&rsquo;t read it; open
+  a tab for that marketplace.
+- **Price** - a Depop listing on sale shows its original price struck
+  through above the sale price.
+- **Discount** - the Depop sale percentage, if there is one.
+- **Views** and **Likes**.
+- **Boost** - a rocket icon when the listing is boosted.
+- **Restock** and **Qty** - the Restocker switch and how many restocks are
+  left (see below).
+- **Listed** - the date and time the listing went up. Vinted doesn&rsquo;t
+  share this for every listing, so some Vinted rows show an estimated date
+  with no time. Hover over it for details.
+- **Cloud** - the cloud backup switch, one per marketplace on a linked row.
 
-Click any column header to sort. Click a row to expand the detail
-drawer with the full description, all photos, tags and the edit form.
+Click a column header to sort by it. Use the page controls above the grid to
+move between pages and to show between 10 and 200 rows at a time.
 
-## Filtering and search
+Double-click a row to open the listing on the marketplace in a new tab. A
+Vinted draft opens in Vinted&rsquo;s edit form, and a linked pair asks which
+marketplace to open.
 
-The toolbar above the grid has filters for:
+## Searching
 
-- **Platform** - Depop only, Vinted only, or both.
-- **Status** - active, sold, draft, hidden.
-- **Marketplace search** - types into the source marketplace&rsquo;s
-  search index. Useful when you remember a phrase from the title.
+The search box narrows the grid as you type. It matches the title and the
+brand of the listings already in SaleLinx. It doesn&rsquo;t search Depop or
+Vinted themselves.
 
-Filters stack: platform = Vinted + status = active + search =
-&ldquo;jeans&rdquo; narrows the grid to just those rows.
+## Filtering
 
-## Bulk actions
+The toolbar above the grid has quick filters:
 
-Select multiple rows by clicking their checkboxes (or use the header
-checkbox to select everything visible). The toolbar reveals bulk
-actions:
+- **Platform** - **All**, Depop only or Vinted only.
+- **Linked** - the chain-link button next to them shows only listings that
+  are linked across both marketplaces.
+- **Status** - **All**, **Active**, **Sold**, **Draft**, **Hidden** or
+  **Delayed**.
+- **Cloud** - the cloud button cycles through all listings, cloud-saved
+  listings only, and listings that aren&rsquo;t saved to the cloud.
 
-- **Refresh** - re-saves selected listings to push them up the search
-  feed (Depop). See [Refresh](/docs/inventory/refresh).
-- **Relist** - deletes and re-creates each listing from scratch with
-  optional photo modifications. See [Relist](/docs/inventory/relist).
-- **Edit** - opens the bulk editor. Set prices to a value or raise
-  or lower them by an amount or a percentage, and change titles,
-  descriptions, brand, condition, colour, size, quantity and category
-  across the whole selection.
-- **Edit photos** - rotate, flip, crop or brighten every photo in the
-  selection, or **Randomise** to give each one a slight tweak.
-- **Discount** (Depop) - puts the selected items on sale with
-  Depop&rsquo;s own discount, so the original price shows struck
-  through. Remove it the same way.
-- **Duplicate** - copies listings as drafts on the same marketplace.
-- **Split photos** (Depop) - turns each photo of a listing into its
-  own draft, for a bundle you want to sell piece by piece.
-- **Delete** - removes the listings from the marketplace. There is no
-  undo.
+Filters stack with each other and with the search box. Vinted + **Active**
++ &ldquo;jeans&rdquo; narrows the grid to active Vinted listings with
+&ldquo;jeans&rdquo; in the title or brand.
 
-The toolbar is shared across the grid rather than rebuilt per
-selection, so it stays put as you tick rows instead of the page
-shifting under you.
+### Filter & Sort
 
-## Quick edit
+**Filter & Sort** opens two extra rows for more precise views:
 
-The pencil icon on any row opens an inline editor for title,
-description and price. Save commits to the marketplace immediately.
-Useful for one-off typo fixes without leaving the dashboard.
+1. On the **Filter:** row, click **+ Add** and build a rule from a field, a
+   comparison and a value. Number fields (**Price**, **Discount**,
+   **Views**, **Likes**, **Quantity**, **Age (days)**) take **at least**,
+   **at most**, **exactly**, **more than** or **less than**. **Title** takes
+   **contains** or **excludes**. **Restock** and **Boosted** take **Yes** or
+   **No**. A listing has to match every rule to stay in the grid.
+2. On the **Sort:** row, click **+ Add** to add sort levels, for example
+   price, then listed date. **Clear** puts the sort back to newest listed
+   first.
 
-The bulk editor goes further: on Depop it also writes brand, category,
-size, department, colour and condition.
+For example, &ldquo;Age (days) more than 30&rdquo; plus &ldquo;Likes at most
+2&rdquo; finds old listings nobody is interested in.
 
-## Restocker columns
+### Presets
 
-If a row supports restocking (active Vinted item, or a Depop item
-linked to a Vinted item), the **Restock** toggle and **Qty** input
-appear in-row. See [Restocker](/docs/automate/restocker) for the full
-flow.
+**Presets** saves a view you use often so you can get it back in one click.
+
+1. Set up the filters and sort you want.
+2. Open **Presets** and click **+ Save current view**.
+3. Give it a name and press Enter.
+
+A preset remembers the platform, **Linked**, status and cloud filters, your
+filter rules and your sort. It doesn&rsquo;t keep search text. Pick a preset
+from the menu to apply it. While one is applied the button shows its name,
+and the &times; beside it takes you back to the default view. You can keep up
+to 20.
+
+These presets are saved in your browser on this computer. They don&rsquo;t
+follow your account to another browser or computer.
+
+## Selecting listings
+
+- **Click a row** to select it, and click it again to deselect it.
+- **The checkbox in the header** selects every row on the current page.
+- **Drag** - press on a row and drag up or down to select a run of rows.
+  Start the drag on a row that is already selected to deselect instead.
+
+Your selection is kept when you change page. Rows that are queued for
+another job, or are still saving to the cloud, can&rsquo;t be selected until
+they finish.
+
+As soon as something is selected, a toolbar appears with the number
+selected and every action that applies to it: edit, discount, duplicate,
+crosslist, cloud, link, export, delete and more. Each one is covered step by
+step in [Bulk editor](/docs/inventory/bulk-editor).
 
 ## Cloud sync
 
-A cloud icon on each row toggles backup to your SaleLinx account.
-Local data stays in the browser; cloud sync is opt-in per listing and
-powers cross-device, cross-platform features. See
-[Cloud sync](/docs/inventory/cloud-sync) for the full picture.
+The **Cloud** switch on each row saves that listing&rsquo;s details and
+photos to your SaleLinx account. It is part of the Pro and Business plans.
+Only active listings can be switched on. Sold and draft listings that are
+already saved can be switched off to tidy up.
 
-## Multi-language
+Cloud-saved listings are what make linking, relisting sold items and the
+Restocker possible. See [Cloud sync](/docs/inventory/cloud-sync) for the
+full picture.
 
-The panel itself is available in English, French, Spanish and German
-with light and dark themes. Listing data stays in whatever language
-you wrote it in - SaleLinx never re-translates user content.
+## Restocker columns
+
+The **Restock** switch and **Qty** stepper start and manage restocking for a
+row. They need the Business plan and a listing that is saved to the cloud
+and still active (or already being restocked). See
+[Restocker](/docs/automate/restocker) for the full flow.
+
+## Language and theme
+
+The panel is available in English, French, Spanish and German, with light
+and dark themes. Your listings stay in whatever language you wrote them in.
+SaleLinx never translates your listing text.
 
 ## Next steps
 
-- [Crosslist](/docs/inventory/crosslist) - post any listing to the
-  other marketplace.
-- [Refresh](/docs/inventory/refresh) - bump listings to the top of
-  your shop.
-- [Cloud sync](/docs/inventory/cloud-sync) - opt in to encrypted
-  backup of your catalogue.
-- [Restocker](/docs/automate/restocker) - auto-repost when a linked
-  item sells.
+- [Bulk editor](/docs/inventory/bulk-editor) - everything you can do to
+  selected listings.
+- [Crosslist](/docs/inventory/crosslist) - copy listings to the other
+  marketplace.
+- [Refresh](/docs/inventory/refresh) - bump listings to the top of your
+  shop.
+- [Cloud sync](/docs/inventory/cloud-sync) - back up your listings to your
+  SaleLinx account.
+- [Restocker](/docs/automate/restocker) - repost automatically when a
+  restockable item sells.

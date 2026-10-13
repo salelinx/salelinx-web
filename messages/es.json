@@ -644,7 +644,7 @@
           "backup": {
             "name": "Copia en la nube",
             "label": "Tu tienda, a salvo en la nube",
-            "detail": "Cada anuncio y sus fotos se guardan cifrados en la nube, así un fallo de la marketplace nunca te cuesta una venta y puedes volver a publicar un artículo vendido desde su copia."
+            "detail": "Guarda en la nube los anuncios que elijas, con sus fotos, así un fallo de la marketplace nunca te cuesta una venta y puedes volver a publicar un artículo vendido desde su copia."
           },
           "sync": {
             "name": "Sincronizacion",

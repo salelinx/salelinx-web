@@ -1,28 +1,38 @@
 export const metadata = {
-  title: 'Linking',
+  title: 'Liaison',
   description:
-    'Associez une annonce Depop à son équivalent Vinted. Le fuzzy-match suggère le bon partenaire ; un clic les lie pour que le Restocker et les autres fonctionnalités sachent qu\'elles sont le même article.',
+    'Associez une annonce Depop à son équivalent Vinted. Un score de correspondance suggère le bon partenaire ; un clic les lie pour que le Restockeur et les autres fonctionnalités sachent qu\'il s\'agit du même article.',
   category: 'automate',
   slug: 'linking',
   order: 3,
-  updated: '2026-05-18',
-  tags: ['linking', 'restocker', 'depop', 'vinted'],
+  updated: '2026-10-13',
+  tags: ['liaison', 'restockeur', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
-# Linking
+# Liaison
 
-L'onglet Linking associe une annonce Depop à son équivalent Vinted
-pour que le reste de SaleLinx sache qu'elles sont le même article.
-Un crosslist réussi définit le lien automatiquement&nbsp;; l'onglet
-Linking est pour le cas où vous avez crosslisté manuellement en
-dehors de SaleLinx ou perdu un lien.
+L'onglet **Liaison** associe une annonce Depop à son équivalent Vinted
+pour que le reste de SaleLinx sache qu'il s'agit du même article
+physique. Une fois deux annonces liées, le
+[Restockeur](/docs/automate/restocker) garde leur stock synchronisé et
+retire l'autre côté quand l'article est épuisé, et
+[Mes annonces](/docs/inventory/listings) affiche la paire sur une
+seule ligne avec les deux logos.
+
+Le crosslisting ne lie pas l'annonce d'origine et sa copie à votre
+place. Après un [Crosslist](/docs/inventory/crosslist), associez les
+deux annonces ici (ou depuis Mes annonces). Il en va de même pour les
+articles que vous avez publiés vous-même sur les deux marketplaces et
+pour les paires dont le lien a été supprimé. Les deux annonces doivent
+être sauvegardées dans le cloud pour pouvoir être liées.
 
 <Callout>
 Traduction française complète à venir. Voir la
-[version anglaise](/en/docs/automate/linking) pour le picker à
-deux colonnes, le fuzzy-match (Dice + Jaro-Winkler + bonus prix),
-les bandes de score (Good / Maybe / Weak), le bouton Link 100&#37;,
-l'unlinking et les paliers d'abonnement.
+[version anglaise](/en/docs/automate/linking) pour les prérequis
+(sauvegarde cloud, onglets Depop et Vinted ouverts), la lecture de
+l'onglet, l'association manuelle, le score de correspondance (badges
+vert, orange et gris), les **Liens recommandés**, la liaison depuis
+Mes annonces, la suppression d'un lien et les paliers d'abonnement.
 </Callout>

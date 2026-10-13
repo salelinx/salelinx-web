@@ -5,7 +5,7 @@ export const metadata = {
   category: 'automate',
   slug: 'price-drops',
   order: 5,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['markdown', 'prix', 'automatisation'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,14 +13,20 @@ export const metadata = {
 
 # Baisses de prix
 
-Les baisses de prix (auto-markdown) réduisent le prix des annonces
-que vous avez activées, à la cadence que vous fixez par article.
-Chaque baisse rafraîchit l'horodatage de l'annonce et la replace
-dans les flux pertinents.
+L'onglet **Baisses de prix** réduit le prix des annonces que vous avez
+choisi de suivre, selon un calendrier que vous fixez pour chaque
+article. Il écoule le stock lent sans que vous ayez à y penser, et ne
+descend jamais sous le prix plancher que vous choisissez.
+
+Les baisses sont cumulatives, pas composées&nbsp;: chaque cycle retire
+le même pourcentage du prix d'origine, jamais du prix actuel. Seules
+les annonces actives sauvegardées dans le cloud peuvent être suivies
+(voir [Synchronisation cloud](/docs/inventory/cloud-sync)), et la
+fonctionnalité est réservée au forfait **Business**.
 
 <Callout>
 Traduction française complète à venir. Voir la
 [version anglaise](/en/docs/automate/price-drops) pour le calcul
-cumulatif (pas composé), la mise en place, le déclenchement, le
-plancher de prix minimum, l'historique et les paliers d'abonnement.
+détaillé, la mise en place, le calendrier des baisses, le
+déroulement des vérifications, l'historique et l'arrêt du suivi.
 </Callout>

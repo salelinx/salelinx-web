@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Restocker',
   description:
-    'Cross-platform stock sync. When a linked item sells on one marketplace, the other side reposts (or deactivates) automatically.',
+    'Cross-platform stock sync. Reposts sold Vinted listings while you have stock left, keeps linked Depop and Vinted listings on one stock count, and takes the other side down when the item sells out.',
   category: 'automate',
   slug: 'restocker',
   order: 4,
-  updated: '2026-09-15',
+  updated: '2026-10-13',
   tags: ['restocker', 'stock', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -17,104 +17,194 @@ The Restocker keeps your stock honest across marketplaces. Two
 scenarios it handles:
 
 1. **Multi-quantity Vinted seller.** You have 3 of a t-shirt. Set it
-   to **2 restocks**: as each of the first two sells, the restocker
-   reposts a fresh listing for the next unit so the item stays
-   continuously listed without you doing anything. The third sale
-   closes it out.
-2. **Cross-platform linked items.** Same item listed on both Depop
-   and Vinted. When it sells on Depop, the restocker takes the
-   Vinted copy down so you don&rsquo;t oversell. (And vice versa.)
+   to **2 restocks**: as each of the first two sells, the Restocker
+   reposts a fresh Vinted listing for the next unit, so the item stays
+   listed without you doing anything. The third sale closes it out.
+2. **Linked items.** The same item is listed on both Depop and Vinted
+   and [linked](/docs/automate/linking). Both sides share one stock
+   count. When the last unit sells on either side, the Restocker takes
+   the other side down so you don&rsquo;t sell the same item twice.
+
+Only Vinted listings are reposted. Vinted has no quantity field, so a
+fresh listing is how an item stays up there. On Depop, SaleLinx writes
+your stock into Depop&rsquo;s own quantity field instead, and Depop
+keeps the listing live until it runs out.
 
 ## Where it lives
 
-The **Restocker** tab in the panel. Each tracked item is one row.
+The **Restocker** tab in the panel is where you choose what to track:
+
+- **Open Restocker** opens the Restocker itself (see Running the
+  Restocker below). While it runs, a **Stop Restocker** button appears
+  here too.
+- **Export Stock** and **Import Stock** move your restock numbers in
+  and out as a CSV file.
+- **Add Items** lists your cloud-saved listings that aren&rsquo;t
+  tracked yet.
+- **Tracked Items** lists everything being tracked, with a
+  **Restocks** number on each row. You can search it and filter by
+  marketplace or by linked and unlinked items.
+- **Drafts (locked)** appears when any of your cloud-saved listings
+  are drafts (see below).
 
 ## Adding an item
 
-From the **Listings** tab, find the row, set **Restock = on**, and
-enter the number of **restocks**: how many times you want SaleLinx to
-put the item back up after it sells.
+An item has to be [saved to the cloud](/docs/inventory/cloud-sync)
+before it can be tracked, because reposts are rebuilt from the cloud
+copy. Then either:
 
-That is one fewer than the number of units you have, and it is worth
-getting the right way round:
+- **From My Listings** - switch **Restock** on in an active
+  listing&rsquo;s row and set the number of restocks in the **Qty**
+  column. The two are separate: typing a number doesn&rsquo;t start
+  tracking until the **Restock** switch is on.
+- **From the Restocker tab** - under **Add Items**, click **Add** next
+  to a listing, or tick several and click **Add selected**. Items
+  added this way start at 1 restock unless they already had a number
+  saved. Change it in **Tracked Items**.
 
-- **0 restocks** is the default, and it is the ordinary
-  one-of-a-kind case. The item stays tracked, Depop advertises it as
-  1, and the first sale closes it out and takes the linked partner
-  down. It is never reposted.
+The number is how many times you want SaleLinx to put the item back
+up after it sells. That is one fewer than the number of units you
+have, and it is worth getting the right way round:
+
+- **0 restocks** is the default in My Listings, and it is the
+  ordinary one-of-a-kind case. The item stays tracked, Depop
+  advertises it as 1, and the first sale closes it out and takes the
+  linked partner down. It is never reposted.
 - **2 restocks** means 3 units: two reposts, then the item closes out.
 
-The Restock toggle and the number live inline on each Listings row, so
-you can set up multiple items without leaving the dashboard.
+### Drafts
 
-## How it works (Vinted multi-quantity)
+Drafts can&rsquo;t be tracked. They sit in the **Drafts (locked)**
+section until you publish them. If a draft already had a restock
+number saved, it comes back automatically once the listing is live.
 
-When you have N units tracked:
+### Export and import stock
 
-1. The marketplace listing sells. Vinted marks it sold.
-2. The restocker checks (next scan tick) and confirms the item is
-   closed using a live API check, not just a cached state.
-3. It reposts a fresh copy of the same listing - same title,
-   description, photos, price, mapped fields.
-4. The remaining count decrements by 1 in your SaleLinx record.
-5. The last sale closes the item out instead of reposting it, so you
-   never end up with a live listing and no stock behind it. Restock
-   then auto-disables for that item.
+**Export Stock** downloads your tracked items as a CSV with each
+listing&rsquo;s ID, marketplace, title, number of restocks and whether
+tracking is on. Change the numbers in a spreadsheet, then use
+**Import Stock** to apply them all at once. Each row in the file
+switches tracking on with its number, unless the file has an enabled
+column, in which case only rows marked true are switched on. Import
+also accepts the CSV that **Export All** in My Listings produces.
 
-Reposts use the cloud-stored copy of the listing (title,
-description, photos, mapped fields) so nothing is lost even if the
-marketplace removes the old listing.
+## Running the Restocker
 
-## How it works (cross-platform)
+1. In the **Restocker** tab, click **Open Restocker**. SaleLinx opens
+   your Vinted sold orders page in a new tab and shows the Restocker
+   there, with its status, settings and activity feed.
+2. Click **Start Restocker**. You need a Vinted tab open, plus a Depop
+   tab if any tracked item is on Depop or linked, both signed into the
+   accounts linked to SaleLinx. If something is missing, the
+   Restocker tells you what to open instead of starting.
+3. It first catches up: it picks up Depop sales made while it was
+   stopped, checks every tracked Vinted listing, and sends your stock
+   numbers to Depop. Then it switches to **Live monitoring**, checking
+   for new sales every 60 to 105 seconds by default.
+4. Click **Stop Restocker** to stop it, either on that page or in the
+   panel&rsquo;s Restocker tab.
 
-When you have an item linked across Depop and Vinted (typically
-because you crosslisted it):
+Keep the Restocker tab open while it works. Closing it stops the
+Restocker, and so does Chrome or SaleLinx restarting (after an update,
+for example). Sales that happen while it is stopped are picked up the
+next time you press **Start Restocker**.
 
-1. The item sells on one marketplace.
-2. The restocker takes the other side down so you can&rsquo;t
-   accidentally sell the same physical unit twice.
-3. If you have restocks left, it then reposts the listing on
-   whichever side is configured. If that sale was the last unit,
-   both sides stay down.
+While a repost runs, the page shows each step as it happens (waiting,
+fetching data, photos, creating the draft, publishing). The
+**Activity** feed lists sales, restocks, stock updates and listings
+taken down.
 
-[Linking](/docs/automate/linking) is what powers the &ldquo;these
-are the same physical item&rdquo; relationship. Successful
-crosslists set links automatically; you can also pair pre-existing
-inventory manually in the Linking tab.
+## How it works (Vinted reposts)
 
-## Schedule
+1. A tracked Vinted listing sells.
+2. On its next check, the Restocker confirms the sale with Vinted
+   directly rather than trusting a cached status, then checks once
+   more just before reposting.
+3. It reposts a fresh copy built from the cloud copy (title,
+   description, photos, price and item details), with the changes
+   from your settings (below) applied.
+4. The restock count drops by 1. The link and tracking move over to
+   the new listing.
+5. A sale with no restocks left closes the item out instead of
+   reposting it, so you never end up with a live listing and no stock
+   behind it. Tracking then switches off for that item.
 
-The restocker runs as part of the panel&rsquo;s background bot loop
-while the panel is open. It uses safe pacing between checks and
-reposts so the marketplaces don&rsquo;t flag the burst as automated
-activity.
+## How it works (linked pairs)
+
+When a Depop and a Vinted listing are [linked](/docs/automate/linking),
+they share one stock count, and Depop shows it as the listing&rsquo;s
+quantity. The Restocker only acts on linked pairs while it is
+running.
+
+- **A unit sells on Vinted** - the Vinted listing is reposted if there
+  are restocks left, and the Depop quantity goes down to match.
+- **A unit sells on Depop** - Depop lowers its own quantity and keeps
+  the listing up, and the Vinted listing stays live. SaleLinx brings
+  the shared count down the next time it checks your Depop stock.
+- **The last unit sells** - the other side comes down. Depop only
+  marks a listing as sold once its quantity reaches zero, so a Depop
+  listing showing as sold is treated as a full sell-out.
+
+The partner listing only comes down when the stock reaches 0. On
+Depop, that means setting its quantity to 0 so it shows as sold out.
+On Vinted, it follows the **When a linked item sells out** setting:
+the listing is hidden (the default, and reversible) or deleted.
+
+## Settings
+
+The Restocker page has a **Settings** section. Changes save as you
+make them and apply to this browser only.
+
+- **Photo modifications** (on by default) - makes small random
+  changes to each photo so every repost goes live as a fresh listing.
+  You can set the range for **Rotation (°)**, **Scale (%)** and
+  **Brightness (%)**.
+- **Text modifications** - **Toggle random letter case in title** and
+  **Toggle random letter case in description** are both on by
+  default. Each swaps the case of one random letter on every repost.
+- **Price modification** - **None** by default. Choose **Reduce %** or
+  **Reduce fixed** to knock a little off the price of each repost.
+- **Timing** - **Delay before reposting** (0 minutes by default),
+  **Min delay between reposts** and **Max delay between reposts**
+  (40 to 80 seconds by default), and **Time between checks** (1 minute
+  by default, from 30 seconds up to 30 minutes).
+- **When a linked item sells out** - **Hide the Vinted listing**
+  (default) or **Delete the Vinted listing**. Hiding can be undone,
+  deleting is permanent.
+- **Advanced** - **Publish as drafts** (off by default) saves each
+  repost as a Vinted draft for you to publish yourself.
+
+If you&rsquo;d rather each new listing looked completely different,
+use [Relist](/docs/inventory/relist) instead.
 
 ## What it won&rsquo;t do
 
 - **Won&rsquo;t restock without a confirmed sale.** SaleLinx waits
-  for a clean sold signal before acting, so transient marketplace
-  glitches don&rsquo;t trigger phantom reposts.
-- **Won&rsquo;t loop on stale state.** If something marks a listing
-  as sold incorrectly, the next check spots the live signal and
-  self-corrects without reposting.
-- **Doesn&rsquo;t modify photos.** If you want each repost to look
-  fresh (different photo crop, different first image), use
-  [Relist](/docs/inventory/relist) instead - it&rsquo;s designed
-  for that.
+  for a clear sold signal before acting, so a passing marketplace
+  glitch doesn&rsquo;t trigger a phantom repost.
+- **Won&rsquo;t repost something you already put back up.** If the
+  listing turns out to be live again when it is about to repost, the
+  repost is cancelled.
+- **Won&rsquo;t repost on Depop.** Depop listings stay up through
+  their quantity until they sell out.
+- **Won&rsquo;t act while stopped.** Nothing happens until you press
+  **Start Restocker**, and it then catches up on what it missed.
 
 ## Plan and access
 
-Restocker is **Business only**. Pro doesn&rsquo;t include it.
+Restocker is **Business only**. Pro doesn&rsquo;t include it, and on
+other plans the Restocker tab and the **Restock** column in My
+Listings are locked.
 
-Restocker also requires [Cloud sync](/docs/inventory/cloud-sync)
-(for the reposted content) and, for cross-platform pairs,
-[Linking](/docs/automate/linking).
+Restocker also needs [Cloud sync](/docs/inventory/cloud-sync) (for
+the reposted content) and, for cross-platform pairs,
+[Linking](/docs/automate/linking). Both are included with Business.
 
 ## Next steps
 
-- [Linking](/docs/automate/linking) - pair the items the restocker
-  acts on.
-- [Cloud sync](/docs/inventory/cloud-sync) - the source of truth
-  for the reposted content.
+- [Linking](/docs/automate/linking) - pair the items the Restocker
+  acts on. Crosslisted copies aren&rsquo;t linked automatically.
+- [Cloud sync](/docs/inventory/cloud-sync) - the source of the
+  reposted content.
 - [Relist](/docs/inventory/relist) - the heavier alternative when
   you want each repost to look genuinely new.

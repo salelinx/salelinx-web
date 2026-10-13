@@ -13,7 +13,8 @@ export function InstallPinCallout() {
         <p className="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
           Click the puzzle icon at the top right of Chrome, find SaleLinx in the
           list, and click the pin icon next to it. The SaleLinx icon will stay
-          visible in your toolbar so you can open the side panel with one click.
+          visible in your toolbar, so signing in and checking your plan is one
+          click away.
         </p>
       </div>
     </div>

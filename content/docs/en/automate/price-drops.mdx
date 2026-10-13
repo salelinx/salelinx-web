@@ -5,7 +5,7 @@ export const metadata = {
   category: 'automate',
   slug: 'price-drops',
   order: 5,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['markdown', 'price', 'automation'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -13,11 +13,10 @@ export const metadata = {
 
 # Price Drops
 
-Price Drops (also called auto-markdown) reduces prices on listings
-you&rsquo;ve opted in, on a cadence you set per item. Each drop
-bumps the listing&rsquo;s edit timestamp, which puts it back in the
-relevant feeds. It also turns slow-moving inventory over without you
-having to remember to revisit it.
+Price Drops lowers the price of listings you&rsquo;ve opted in, on a
+schedule you set per item. It turns slow-moving stock over without
+you having to remember to revisit it, and it never goes below the
+floor you choose.
 
 ## How the maths works
 
@@ -36,67 +35,118 @@ So at 10% per cycle, an item priced at £30 drops:
 
 The percentage is always &ldquo;N% of the original price&rdquo;,
 never of the current price. That means the per-cycle pound amount
-stays constant rather than shrinking each round.
+stays constant rather than shrinking each round. The original price
+is the one the listing had when its first drop happened.
 
-When the cumulative percent reaches 100%, drops stop. You can set a
-**minimum price** floor so the item never drops below a number you
-choose.
+If a drop would take the price below the item&rsquo;s **floor
+price**, the price is set to the floor instead. Once an item sits at
+its floor, drops stop. Without a floor, drops stop when the
+cumulative percentage reaches 100%.
+
+## Which listings you can track
+
+Price Drops works from the listings you have saved to the cloud. Only
+active, cloud-saved listings appear in the tab, so save a listing to
+the cloud in **My Listings** first if it&rsquo;s missing. See
+[Cloud sync](/docs/inventory/cloud-sync).
 
 ## Setting it up
 
 In the **Price Drops** tab:
 
-1. Pick listings to track. Select rows in the &ldquo;Available&rdquo;
-   grid and click **Add selected**. They move to the
-   &ldquo;Tracked&rdquo; grid.
-2. Per tracked item, set:
-   - **Percent per cycle** - 1 to 90.
-   - **Interval (days)** - 1 to 180. Also the minimum age before the
-     first drop fires.
-   - **Minimum price** (optional) - hard floor.
-   - **Start from** - original-listing age, or now (resets the
-     clock).
-3. Toggle **Enable auto-markdown** at the top of the tab. The
-   scheduler starts running.
+1. Under **Available listings**, tick the listings you want and click
+   **Add selected**, or click **Add** on a single row. The search box,
+   marketplace filter and age filter help you find stale items. Added
+   listings move to **Tracked listings**.
+2. Each tracked listing has its own rule, written as a sentence you
+   edit in place: **Drop** (a percentage) **every** (a number of)
+   **days** **down to** (a floor price) **counting from** **Listing
+   age** or **Now**.
+   - The percentage is 1 to 90 per cycle.
+   - The days between drops is 1 to 180. It is also how old the
+     listing must be (counted from the start point) before the first
+     drop.
+   - The floor is optional. Leave it empty for no floor.
+   - **Listing age** counts from when the listing was created, so an
+     item older than its interval is due straight away. **Now**
+     counts from the moment you click it, so the first drop waits a
+     full interval.
+3. Switch on **Run price drops** at the top of the tab, and pick how
+   often SaleLinx checks for due drops under **Check every**: 12h,
+   24h (1 day), 48h (2 days), 3 days, 7 days or 14 days. The default
+   is 24h.
 
-You can edit any item&rsquo;s settings later by clicking it in the
-tracked grid.
+Listings you add start at 15% every 3 days, with a floor at half the
+current price, counting from the listing&rsquo;s age. Change any of
+these before the next check if they don&rsquo;t suit you.
 
-## When drops fire
+To change several items at once, tick them in **Tracked listings** and
+click **Bulk edit**. Fill in only the fields you want to change
+(discount, how often, floor price, start from) and click **Apply**;
+anything left blank stays as it is on each item.
 
-The scheduler runs on a 12, 24 or 48 hour alarm (your choice). On
-each tick it asks Depop and Vinted for the current state of every
-tracked item, then for each:
+## The drop schedule
 
-- Skip if item is sold or hidden.
-- Skip if the item hasn&rsquo;t aged past its interval since the
-  last drop (or, for never-dropped items, since it was created).
-- Skip if the next computed price would be below the minimum-price
-  floor.
-- Otherwise, post the new price.
+Under each tracked listing, a row of price steps shows what will
+happen: the current price (**Now**), then each upcoming drop with its
+date, ending at **floor** when the floor is what stops it. It shows up
+to 12 drops. Above it, the listing&rsquo;s line shows its price, how
+many days it has been active, how many drops have happened so far, and
+when the next one is due.
+
+## When drops run
+
+Once **Run price drops** is on, SaleLinx checks your tracked listings
+at the interval you picked; the first check comes one interval after
+you switch it on. **Next run** shows when the next check is, and
+**Run now** starts one straight away.
+
+Each check uses the prices and statuses SaleLinx last synced from
+your shop, rather than asking the marketplace again. For each tracked
+listing it:
+
+- Skips the listing if it has sold or is no longer active.
+- Skips it if its interval hasn&rsquo;t passed since the last drop
+  (or, for a listing that hasn&rsquo;t dropped yet, since its start
+  point).
+- Skips it if it is already at its floor.
+- Skips a Depop listing that is in a Depop sale, because changing the
+  price would end the sale.
+- Otherwise, sets the new price on the marketplace.
 
 At most one drop per item per run. An item that&rsquo;s been on for
-60 days with a 14-day interval drops once on the next tick - it
+60 days with a 14-day interval drops once on the next run. It
 doesn&rsquo;t catch up by firing 4 drops back-to-back.
+
+A drop always sets a price lower than the one SaleLinx last synced.
+If you lower a price by hand on the marketplace, let SaleLinx sync
+your listings (open the panel on Depop or Vinted) before the next
+check, so a drop is never worked out from the old, higher price.
+
+Keep a Depop or Vinted tab open for the listings you track, because
+SaleLinx changes prices through those tabs. If another SaleLinx job is
+running when a check is due, it waits and tries again a few minutes
+later.
 
 ## History
 
-The tab shows the last 500 markdown attempts in a scrollable log:
-which listing, which marketplace, the price before and after, and
-whether the post succeeded. Useful for spotting items hitting their
-floor or items where the post failed (rate-limited, item gone,
-etc.).
+Click **History** to open **Recent drops**, a log of the last 500
+price changes SaleLinx made or tried to make: which listing, which
+marketplace, the price before and after, the percentage, and when.
+A change that failed (for example because the listing is gone) is
+marked with the error.
 
-You can clear the history at any time without affecting tracked
-items.
+**Clear history** empties the log without affecting tracked items.
 
 ## Stopping markdowns on an item
 
-Click the item in the tracked grid and pick **Remove**. The next
-scheduler tick won&rsquo;t touch it. Already-applied drops stay in
-place - the listing just stops moving.
+Click the &times; on a tracked listing (**Stop tracking**), or tick
+several and click **Remove selected**. The listing goes back to
+**Available listings** and no further drops happen. Drops already
+applied stay in place; the listing just stops moving. If you add it
+again later, it starts a fresh schedule from its price at that time.
 
-You can also stop everything at once with the master toggle.
+To stop everything at once, switch off **Run price drops**.
 
 ## Plan and access
 
@@ -106,7 +156,7 @@ Price Drops is **Business only**. Pro doesn&rsquo;t include it.
 
 - [Dead Stock](/docs/automate/dead-stock) - find which listings are
   candidates for markdowns.
-- [Listings](/docs/inventory/listings) - the inventory view where
-  tracked items still appear with their normal row data.
-- [Refresh](/docs/inventory/refresh) - the lighter-touch
-  alternative for items where you don&rsquo;t want to drop price.
+- [Cloud sync](/docs/inventory/cloud-sync) - save the listings you
+  want to track to the cloud.
+- [Refresh](/docs/inventory/refresh) - the lighter-touch alternative
+  for items where you don&rsquo;t want to drop the price.

@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Mensajes',
   description:
-    'Lee y responde a los mensajes de compradores de Depop y Vinted desde un único panel, sin salir de la página.',
+    'Lee y responde a los mensajes de compradores de Depop y Vinted desde un solo panel, sin salir de la página en la que estás.',
   category: 'buyers',
   slug: 'messages',
   order: 2,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['mensajes', 'conversaciones', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,17 +13,23 @@ export const metadata = {
 
 # Mensajes
 
-La pestaña **Mensajes** fusiona los mensajes no leídos de Depop y
-Vinted en una vista de dos columnas. Cada tarjeta muestra el
-avatar del comprador, el usuario, el tiempo transcurrido desde su
-último mensaje, una vista previa de dos líneas, el badge de no
-leído y una miniatura del artículo en cuestión.
+La pestaña **Mensajes** muestra tus chats de Depop y Vinted en dos
+columnas, una al lado de la otra, para que puedas leer y responder sin
+abrir la bandeja de entrada de cada marketplace. La columna del sitio
+en el que estás aparece a la izquierda.
+
+Cada tarjeta muestra el avatar y el usuario de la otra persona, cuánto
+hace que se envió el último mensaje, una vista previa de ese mensaje y
+el artículo del que trata la conversación. Las columnas incluyen todas
+las conversaciones con algún mensaje dentro del periodo elegido,
+leídas o no, y las que tienen mensajes sin leer llevan una marca de no
+leído.
 
 <Callout>
 Traducción completa al español próximamente. Consulta la
-[versión en inglés](/en/docs/buyers/messages) para la definición
-de &laquo;&nbsp;no leído&nbsp;&raquo; (distinta en Depop y Vinted),
-la apertura de hilos, el envío vía task queue (alta prioridad), la
-caché de bandeja de entrada compartida con Ofertas y los planes
-que lo incluyen.
+[versión en inglés](/en/docs/buyers/messages) para lo que muestran
+las columnas (periodo, límites de Depop y Vinted, chats en los que
+eres el comprador), la apertura de hilos, las respuestas, la
+actualización, qué significa una columna vacía y los planes que lo
+incluyen.
 </Callout>

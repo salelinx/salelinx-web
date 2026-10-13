@@ -1,48 +1,65 @@
 export const metadata = {
-  title: 'Relist',
+  title: 'Neu einstellen',
   description:
-    'Erstelle ein Inserat von Grund auf neu mit optionalen Foto-Anpassungen, dann lösche das Original, damit es als neuer Inhalt in der Suche auftaucht.',
+    'Stellt eine eingeschlafene Anzeige als neue Kopie mit leicht veränderten Fotos ein und löscht danach das Original, damit sie als neue Ware wieder in der Suche auftaucht.',
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-09-18',
-  tags: ['relist', 'depop', 'vinted', 'voreinstellungen'],
+  updated: '2026-10-13',
+  tags: ['neu einstellen', 'relist', 'depop', 'vinted', 'voreinstellungen'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
-# Relist
+# Neu einstellen
 
-Relist ist Aktualisieren mit Biss. Es löscht ein eingeschlafenes
-Inserat und veröffentlicht eine brandneue Kopie desselben Inhalts,
-mit subtilen Foto-Anpassungen, damit die Duplikat-Erkennung des
-Marktplatzes es nicht markiert.
+Der Tab **Neu einstellen** veröffentlicht eine brandneue Kopie einer
+eingeschlafenen Anzeige und löscht danach das Original. Die Fotos
+werden mit kleinen Änderungen neu gespeichert (auf Wunsch auch Titel,
+Beschreibung und Preis), damit die Kopie als neue Anzeige online geht
+und nicht als Duplikat der alten. Likes und Aufrufe der alten Anzeige
+werden nicht übernommen.
+
+SaleLinx liest jede Anzeige live von Depop oder Vinted und legt eine
+Sicherungskopie in deinem Browser ab. Zuerst wird die neue Anzeige
+veröffentlicht, danach das Original gelöscht. Klappt das
+Veröffentlichen nicht, bleibt das Original unangetastet.
+
+Die **Foto-Änderungen** sind eine leichte zufällige Drehung,
+Skalierung und Helligkeitsänderung. Auch wenn du sie ausschaltest,
+bekommt jedes Foto eine minimale Farbverschiebung und einen winzigen
+Zoom und wird neu gespeichert. Die Reihenfolge der Fotos bleibt
+gleich.
+
+Verkaufte Artikel erscheinen nicht in diesem Tab. Hast du einen
+verkauften Artikel in der Cloud gesichert, stellst du ihn über
+**Meine Anzeigen** neu ein, siehe
+[Massenbearbeitung](/docs/inventory/bulk-editor).
 
 <Callout>
-Vollständige deutsche Übersetzung folgt. Details zur Funktionsweise
-(Reihenfolge zuerst-veröffentlichen-dann-löschen), zu den
-Foto-Anpassungen (Zuschnitt, Farbton/Helligkeit, Reihenfolge), zur
-Taktung und zu den Abostufen findest du in der
-[englischen Version](/en/docs/inventory/relist).
+Vollständige deutsche Übersetzung folgt. Details zum Ablauf, zu den
+Filtern im Tab, zum Bestätigungsfenster (Foto-, Titel-,
+Beschreibungs- und Preis-Änderungen, Speichern als Entwurf), zu
+Rabatten auf Depop, zur Taktung und zu deinem monatlichen Kontingent
+findest du in der [englischen Version](/en/docs/inventory/relist).
 </Callout>
 
 ## Voreinstellungen
 
-Die Auswahl für Voreinstellungen oben im Einstellungsbereich
-speichert die Relist-Einstellungen unter einem Namen: die Wartezeit
-zwischen zwei Neueinstellungen plus jede Option im
-Neu-einstellen-Fenster (Foto-Anpassungen, Titel- und
-Beschreibungsänderungen, Preisänderung, als Entwurf speichern). Eine
-Voreinstellung auszuwählen füllt alles auf einmal aus. Zwei sind
-eingebaut:
+Die Auswahl für Voreinstellungen oben in den
+**Neu-einstellen-Einstellungen** speichert die Einstellungen unter
+einem Namen: **Sekunden zwischen Anzeigen** plus jede Option im
+Bestätigungsfenster (Foto-, Titel- und Beschreibungs-Änderungen,
+Preis-Änderung, als Entwurf speichern). Eine Voreinstellung
+auszuwählen füllt alles auf einmal aus. Zwei sind eingebaut:
 
-- **Standard** - 10 Sekunden zwischen zwei Neueinstellungen;
-  Foto-Anpassungen an, mit &plusmn;2&deg; Drehung, &plusmn;2 %
-  Skalierung und &plusmn;1,8 % Helligkeit; Titel- und
-  Beschreibungsänderungen an; Preisänderung aus; Entwurf aus.
-- **Vorsichtig** - 20 Sekunden zwischen zwei Neueinstellungen, und
-  jedes Inserat landet zuerst als Entwurf. Langsamer, und erledigt
-  weniger pro Lauf.
+- **Standard** - 10 Sekunden zwischen zwei Anzeigen; Foto-Änderungen
+  an, mit &plusmn;2&deg; Drehung, &plusmn;2 % Skalierung und
+  &plusmn;1,8 % Helligkeit; Titel- und Beschreibungs-Änderungen an;
+  Preis-Änderung aus; Entwurf aus.
+- **Vorsichtig** - 20 Sekunden zwischen zwei Anzeigen, und jede Kopie
+  landet als Entwurf. Langsamer, und nichts geht online, bevor du es
+  veröffentlichst (die Originale werden trotzdem gelöscht).
 
 Änderst du eine Einstellung von Hand, markiert die Auswahl die
 aktuellen Werte als nicht gespeichert; von dort kannst du sie als
