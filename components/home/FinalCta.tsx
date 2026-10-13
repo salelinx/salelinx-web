@@ -4,7 +4,7 @@ import { Reveal } from '@/components/Reveal';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import { isSignedIn } from '@/lib/auth/session';
 
-export async function FinalCta() {
+export async function FinalCta({ title, body }: { title?: string; body?: string } = {}) {
   const t = await getTranslations('Home.finalCta');
   const signedIn = await isSignedIn();
 
@@ -16,13 +16,13 @@ export async function FinalCta() {
       <div className="mx-auto flex max-w-4xl flex-col items-center px-6 py-14 text-center sm:py-20">
         <Reveal delay={0}>
           <h2 className="max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-zinc-950 sm:text-5xl md:text-6xl dark:text-white">
-            {t('title')}
+            {title ?? t('title')}
           </h2>
         </Reveal>
 
         <Reveal delay={120}>
           <p className="mt-5 max-w-xl text-balance text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-300">
-            {t('body')}
+            {body ?? t('body')}
           </p>
         </Reveal>
 
@@ -53,7 +53,7 @@ export async function FinalCta() {
               </Link>
             )}
             <Link
-              href="/features#pricing"
+              href="/pricing"
               className="inline-flex items-center rounded-full border border-black/10 bg-white/70 px-6 py-3 text-sm font-medium text-zinc-900 backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/[0.08]"
             >
               {t('secondary')}

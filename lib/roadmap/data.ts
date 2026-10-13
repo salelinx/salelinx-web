@@ -5,6 +5,8 @@ export type RoadmapStatus = 'exploring' | 'building' | 'shipped';
 export type RoadmapMetaKey =
   | 'scoping'
   | 'targetQ4_2026'
+  | 'shippedOct_2026'
+  | 'shippedAug_2026'
   | 'shippedApr_2026';
 
 export type RoadmapTagKey =
@@ -32,12 +34,19 @@ export const ROADMAP_COLUMNS: RoadmapColumn[] = [
   { status: 'shipped' },
 ];
 
+// Shipped items are newest first; dates come from content/changelog.
 export const ROADMAP_ITEMS: RoadmapItem[] = [
   {
     id: 'ebay-integration',
-    status: 'exploring',
+    status: 'building',
     tagKey: 'marketplaces',
-    metaKey: 'scoping',
+    metaKey: 'targetQ4_2026',
+  },
+  {
+    id: 'ebay-only-sellers',
+    status: 'building',
+    tagKey: 'marketplaces',
+    metaKey: 'targetQ4_2026',
   },
   {
     id: 'poshmark-integration',
@@ -57,28 +66,31 @@ export const ROADMAP_ITEMS: RoadmapItem[] = [
     tagKey: 'ai',
     metaKey: 'scoping',
   },
-
   {
     id: 'analytics-dashboard',
-    status: 'building',
+    status: 'exploring',
     tagKey: 'insights',
-    metaKey: 'targetQ4_2026',
+    metaKey: 'scoping',
   },
-
   {
-    id: 'depop-vinted-crosslist',
+    id: 'crosslist-review',
     status: 'shipped',
     marketplaces: ['depop', 'vinted'],
-    metaKey: 'shippedApr_2026',
+    metaKey: 'shippedOct_2026',
   },
   {
-    id: 'shop-designer',
+    id: 'label-carriers',
     status: 'shipped',
-    marketplaces: ['depop'],
-    metaKey: 'shippedApr_2026',
+    marketplaces: ['depop', 'vinted'],
+    metaKey: 'shippedAug_2026',
   },
   {
-    id: 'auto-offers',
+    id: 'google-sign-in',
+    status: 'shipped',
+    metaKey: 'shippedAug_2026',
+  },
+  {
+    id: 'depop-vinted-crosslist',
     status: 'shipped',
     marketplaces: ['depop', 'vinted'],
     metaKey: 'shippedApr_2026',

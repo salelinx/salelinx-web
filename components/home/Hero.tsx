@@ -69,7 +69,11 @@ export async function Hero() {
         </Reveal>
 
         <Reveal delay={220}>
-          <p className="mt-6 max-w-xl text-balance text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-400">
+          {/* Google stitched the rolling phrases into a run-on search snippet. */}
+          <p
+            data-nosnippet
+            className="mt-6 max-w-xl text-balance text-base leading-relaxed text-zinc-600 sm:text-lg dark:text-zinc-400"
+          >
             {t.rich("heroSubtitle", {
               word: () => (
                 <RollingPhrase words={t.raw("heroWords") as string[]} />

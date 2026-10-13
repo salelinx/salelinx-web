@@ -128,17 +128,13 @@ export function MobileMenu({ isAuthed, labels }: Props) {
   const sectionClass =
     "px-2.5 pb-1 pt-3 font-mono text-[9.5px] uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-600";
 
-  // Only pathname routes light up. Five of these are hash links into the home
-  // and features pages, and there is no reliable way to know which section the
-  // reader is looking at from here — guessing would leave the wrong row
-  // highlighted more often than the right one.
-  const isActive = (href: string) => !href.includes("#") && pathname === href;
+  const isActive = (href: string) => pathname === href;
   const row = (href: string) => (isActive(href) ? activeRowClass : rowClass);
 
   const NAV: { href: string; label: string; icon: IconName }[] = [
-    { href: "/#features", label: labels.navFeatures, icon: "sparkle" },
-    { href: "/#pricing", label: labels.navPricing, icon: "tag" },
-    { href: "/features#roadmap", label: labels.navRoadmap, icon: "tree" },
+    { href: "/features", label: labels.navFeatures, icon: "sparkle" },
+    { href: "/pricing", label: labels.navPricing, icon: "tag" },
+    { href: "/roadmap", label: labels.navRoadmap, icon: "tree" },
     { href: "/help/faq", label: labels.navFaq, icon: "message" },
     { href: "/docs", label: labels.navDocs, icon: "book" },
   ];

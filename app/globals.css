@@ -47,7 +47,7 @@
 }
 
 html {
-  /* In-page anchor jumps (header nav -> #features, #pricing) snap instantly
+  /* In-page anchor jumps snap instantly
      so navigating across long sections doesn't feel like a long scroll. */
   scroll-behavior: auto;
   /* Without this, pulling past the edge of the page (trackpad/touch
@@ -1135,4 +1135,194 @@ span.restock-at-risk {
     opacity: 0;
     transform: translate3d(var(--drift), 105vh, 0) rotate(var(--spin));
   }
+}
+
+/* /features scene animations. Each runs only once its row is in view. */
+.fa * {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-play-state: paused !important;
+}
+.in-view .fa * {
+  animation-play-state: running !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fa * {
+    animation: none !important;
+  }
+}
+@keyframes fa-pop {
+  0% { opacity: 0; transform: scale(0.85); }
+  12%, 82% { opacity: 1; transform: scale(1); }
+  94%, 100% { opacity: 0; transform: scale(0.85); }
+}
+@keyframes fa-appear {
+  0%, 70% { opacity: 0; }
+  80%, 95% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes fa-draw {
+  0%, 8% { stroke-dashoffset: var(--len); }
+  35%, 85% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: var(--len); }
+}
+@keyframes fa-dash {
+  to { stroke-dashoffset: -18; }
+}
+@keyframes fa-pulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fa-relist-old {
+  0%, 35% { opacity: 1; transform: none; }
+  50%, 92% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes fa-relist-new {
+  0%, 45% { opacity: 0; transform: translateY(50px); }
+  62%, 88% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
+}
+@keyframes fa-refresh-row {
+  0% { opacity: 1; transform: translateY(0); }
+  18%, 25% { transform: translateY(36px); }
+  43%, 50% { transform: translateY(72px); }
+  68%, 75% { opacity: 1; transform: translateY(108px); }
+  80% { opacity: 0; transform: translateY(116px); }
+  81% { opacity: 0; transform: translateY(-12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fa-travel {
+  0%, 12% { opacity: 0; transform: translate(0, 0); }
+  20% { opacity: 1; }
+  45% { transform: translate(90px, -34px); }
+  70% { opacity: 1; transform: translate(180px, 0); }
+  78%, 100% { opacity: 0; transform: translate(180px, 0); }
+}
+@keyframes fa-fill {
+  0%, 70% { transform: scaleX(0); }
+  82%, 95% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+@keyframes fa-swap {
+  0%, 20% { transform: none; }
+  45%, 70% { transform: translate(var(--dx), var(--dy)); }
+  92%, 100% { transform: none; }
+}
+@keyframes fa-dim {
+  0%, 22% { opacity: 1; }
+  35%, 80% { opacity: 0.3; }
+  95%, 100% { opacity: 1; }
+}
+@keyframes fa-rise {
+  0% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; }
+  70%, 100% { opacity: 0; transform: translateY(-28px); }
+}
+@keyframes fa-stamp {
+  0%, 25% { opacity: 0; transform: scale(1.7); }
+  35%, 85% { opacity: 1; transform: scale(1); }
+  95%, 100% { opacity: 0; transform: scale(1); }
+}
+@keyframes fa-vanish {
+  0%, 40% { opacity: 1; transform: none; }
+  55%, 85% { opacity: 0.15; transform: scale(0.92); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes fa-step-draw {
+  0%, 25% { stroke-dashoffset: 220; opacity: 1; }
+  30%, 55% { stroke-dashoffset: 120; }
+  60%, 88% { stroke-dashoffset: 25; opacity: 1; }
+  96% { stroke-dashoffset: 25; opacity: 0; }
+  100% { stroke-dashoffset: 220; opacity: 0; }
+}
+@keyframes fa-step-move {
+  0%, 25% { transform: translate(0, 0); opacity: 1; }
+  30%, 55% { transform: translate(60px, 40px); }
+  60%, 88% { transform: translate(120px, 75px); opacity: 1; }
+  96% { transform: translate(120px, 75px); opacity: 0; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+@keyframes fa-s1 {
+  0%, 26% { opacity: 1; }
+  29%, 100% { opacity: 0; }
+}
+@keyframes fa-s2 {
+  0%, 26% { opacity: 0; }
+  29%, 56% { opacity: 1; }
+  59%, 100% { opacity: 0; }
+}
+@keyframes fa-s3 {
+  0%, 56% { opacity: 0; }
+  59%, 100% { opacity: 1; }
+}
+@keyframes fa-of-in1 {
+  0%, 0% { opacity: 0; transform: translateX(30px); }
+  8%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
+}
+@keyframes fa-of-in2 {
+  0%, 8% { opacity: 0; transform: translateX(30px); }
+  16%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
+}
+@keyframes fa-of-in3 {
+  0%, 16% { opacity: 0; transform: translateX(30px); }
+  24%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
+}
+@keyframes fa-of-dec1 {
+  0%, 32% { opacity: 0; transform: scale(0.5); }
+  38%, 86% { opacity: 1; transform: scale(1); }
+  94%, 100% { opacity: 0; transform: scale(1); }
+}
+@keyframes fa-of-dec2 {
+  0%, 44% { opacity: 0; transform: scale(0.5); }
+  50%, 86% { opacity: 1; transform: scale(1); }
+  94%, 100% { opacity: 0; transform: scale(1); }
+}
+@keyframes fa-of-dec3 {
+  0%, 56% { opacity: 0; transform: scale(0.5); }
+  62%, 86% { opacity: 1; transform: scale(1); }
+  94%, 100% { opacity: 0; transform: scale(1); }
+}
+@keyframes fa-lb-drop1 {
+  0%, 0% { opacity: 0; transform: translateY(-40px); }
+  10%, 36% { opacity: 1; transform: none; }
+  46%, 100% { opacity: 0; transform: translateX(110px) scale(0.6); }
+}
+@keyframes fa-lb-drop2 {
+  0%, 10% { opacity: 0; transform: translateY(-40px); }
+  20%, 36% { opacity: 1; transform: none; }
+  46%, 100% { opacity: 0; transform: translateX(110px) scale(0.6); }
+}
+@keyframes fa-lb-drop3 {
+  0%, 20% { opacity: 0; transform: translateY(-40px); }
+  30%, 36% { opacity: 1; transform: none; }
+  46%, 100% { opacity: 0; transform: translateX(110px) scale(0.6); }
+}
+@keyframes fa-lb-sheet {
+  0%, 42% { opacity: 0; transform: translateX(-20px); }
+  50%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
+}
+@keyframes fa-lb-row1 {
+  0%, 50% { opacity: 0; transform: scaleX(0.4); }
+  56%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
+}
+@keyframes fa-lb-row2 {
+  0%, 56% { opacity: 0; transform: scaleX(0.4); }
+  62%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
+}
+@keyframes fa-lb-row3 {
+  0%, 62% { opacity: 0; transform: scaleX(0.4); }
+  68%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
+}
+@keyframes fa-lb-pill {
+  0%, 70% { opacity: 0; transform: scale(0.6); }
+  76%, 86% { opacity: 1; transform: none; }
+  94%, 100% { opacity: 0; transform: none; }
 }

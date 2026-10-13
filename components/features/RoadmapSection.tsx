@@ -4,16 +4,22 @@ import { ROADMAP_COLUMNS, itemsByStatus } from '@/lib/roadmap/data';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-export async function RoadmapSection() {
+export async function RoadmapSection({ standalone = false }: { standalone?: boolean } = {}) {
   const t = await getTranslations('Roadmap');
+  const Heading = standalone ? 'h1' : 'h2';
 
   return (
-    <section id="roadmap" className="scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10">
+    <section
+      id="roadmap"
+      className={standalone ? 'py-14 sm:py-20' : 'scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10'}
+    >
       <div className="pb-12">
-        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('sectionHeader.eyebrow')}</span>
-        <h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+        {!standalone && (
+          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('sectionHeader.eyebrow')}</span>
+        )}
+        <Heading className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
           {t('sectionHeader.title')}
-        </h2>
+        </Heading>
         <p className="mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
           {t('sectionHeader.body')}
         </p>

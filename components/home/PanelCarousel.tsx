@@ -115,22 +115,9 @@ export function PanelCarousel({ className = '' }: { className?: string }) {
   }, []);
 
   return (
-    <section className={className} aria-labelledby="panel-carousel-title">
-      <div className="text-center">
-        <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
-          {tc('eyebrow')}
-        </span>
-        <h2
-          id="panel-carousel-title"
-          className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl"
-        >
-          {tc('title')}
-        </h2>
-        <p className="mt-3 text-base text-zinc-600 dark:text-zinc-400">{tc('subtitle')}</p>
-      </div>
-
+    <section className={className}>
       <div
-        className="relative mt-10"
+        className="relative"
         role="group"
         aria-roledescription="carousel"
         aria-label={tc('title')}

@@ -145,10 +145,7 @@ export default async function Home({
       <Hero />
       <ScrollWorldDemo />
       {/* The HeadlineFeatures block used to sit here. The feature carousel
-          above covers the same ground, so this was saying it twice. The
-          `#features` anchor the header and mobile menu link to moved onto
-          ScrollWorldDemo with it. HeadlineFeatures itself is still used by
-          the /features page. */}
+          above covers the same ground, so this was saying it twice. */}
       <div className="section-band">
         <div className="mx-auto w-full max-w-7xl px-6">
           <PricingSection tiers={tiers} eyebrow={tHome('pricingEyebrow')} centered />
