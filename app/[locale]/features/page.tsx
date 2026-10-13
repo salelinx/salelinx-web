@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PanelCarousel } from '@/components/home/PanelCarousel';
 import { FinalCta } from '@/components/home/FinalCta';
+import { Reveal } from '@/components/Reveal';
 import { pageMetadata } from '@/lib/site';
 
 export async function generateMetadata({
@@ -31,12 +32,14 @@ export default async function FeaturesPage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6">
-      <h1 className="mx-auto max-w-3xl pt-16 pb-10 text-center text-4xl font-semibold leading-[1.05] tracking-tight text-balance sm:pt-24 sm:text-5xl">
-        {t('hero.title')}
-      </h1>
-      <div className="mx-auto w-full max-w-5xl">
+      <Reveal>
+        <h1 className="mx-auto max-w-3xl pt-16 pb-10 text-center text-4xl font-semibold leading-[1.05] tracking-tight text-balance sm:pt-24 sm:text-5xl">
+          {t('hero.title')}
+        </h1>
+      </Reveal>
+      <Reveal delay={150} className="mx-auto w-full max-w-5xl">
         <PanelCarousel />
-      </div>
+      </Reveal>
       <FeaturesSection />
       <FinalCta title={t('finalCta.title')} body={t('finalCta.body')} />
     </main>
