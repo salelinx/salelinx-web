@@ -72,7 +72,7 @@
     "title": "Page not found",
     "body": "The page you are looking for does not exist or has been moved.",
     "goHome": "Back to home",
-    "getHelp": "Visit the help center"
+    "getHelp": "Visit the help centre"
   },
   "Maintenance": {
     "label": "Maintenance",
@@ -326,7 +326,7 @@
       "active": "Active",
       "trialing": "Trialing",
       "past_due": "Payment failed",
-      "canceled": "Canceled",
+      "canceled": "Cancelled",
       "incomplete": "Incomplete"
     },
     "supportTitle": "Support",
@@ -388,7 +388,7 @@
   },
   "DeleteAccount": {
     "title": "Delete account",
-    "body": "Permanently delete your account and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "body": "Permanently delete your account and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is cancelled immediately, with no refund for time left in the billing period. This cannot be undone.",
     "cta": "Delete account",
     "confirmBody": "We'll send a confirmation link to <email></email>. Nothing is deleted until you open that link and confirm one more time. Enter your password to continue.",
     "confirmBodyNoPassword": "We'll send a confirmation link to <email></email>. Nothing is deleted until you open that link and confirm one more time. Your account uses Google sign-in, so no password is needed.",
@@ -403,7 +403,7 @@
   },
   "DeleteAccountConfirm": {
     "title": "Delete your account?",
-    "body": "This is the final step. Confirming permanently deletes <email></email> and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is canceled immediately, with no refund for time left in the billing period. This cannot be undone.",
+    "body": "This is the final step. Confirming permanently deletes <email></email> and everything in it: listings, images, linked marketplace accounts, usage history, and support tickets. Any active subscription is cancelled immediately, with no refund for time left in the billing period. This cannot be undone.",
     "confirm": "Permanently delete my account",
     "deleting": "Deleting...",
     "keepAccount": "Keep my account",
@@ -479,7 +479,7 @@
   "Help": {
     "metaTitle": "Help",
     "metaDescription": "Find answers, browse the docs, or contact the SaleLinx team.",
-    "eyebrow": "Help center",
+    "eyebrow": "Help centre",
     "title": "How can we help?",
     "body": "Search the FAQ, read the docs, or send us a message. We'll reply by email and in your account.",
     "faqCardTitle": "FAQ",

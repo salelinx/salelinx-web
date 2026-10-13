@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { intlLocale } from "@/lib/i18n/locales";
 import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { createServerClient } from "@/lib/supabase/server";
@@ -104,7 +105,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
   const dateFallback = t("dateFallback");
   const formatDate = (iso: string | null): string => {
     if (!iso) return dateFallback;
-    return new Date(iso).toLocaleDateString(locale, {
+    return new Date(iso).toLocaleDateString(intlLocale(locale), {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -272,7 +273,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
           rewarded={referrals.rewarded}
           creditEarned={
             referrals.rewardedTotalCents > 0 && referrals.rewardCurrency
-              ? new Intl.NumberFormat(locale, {
+              ? new Intl.NumberFormat(intlLocale(locale), {
                   style: "currency",
                   currency: referrals.rewardCurrency.toUpperCase(),
                 }).format(referrals.rewardedTotalCents / 100)

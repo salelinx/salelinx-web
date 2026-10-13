@@ -14,6 +14,11 @@ export const LOCALE_LABELS: Record<Locale, { short: string; name: string }> = {
   zh: { short: 'ZH', name: '简体中文' },
 };
 
+/** BCP 47 tag for <html lang> and Intl formatting. Our English is British. */
+export function intlLocale(locale: string): string {
+  return locale === 'en' ? 'en-GB' : locale;
+}
+
 /** Locales written right to left. Drives the <html dir> attribute. */
 export const RTL_LOCALES: readonly Locale[] = ['ar'];
 

@@ -7,6 +7,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { intlLocale } from "@/lib/i18n/locales";
 import { createBrowserClient } from "@/lib/supabase/client";
 import type {
   SupportTicket,
@@ -140,7 +141,7 @@ function UserTicketCard({
   })();
 
   const formatWhen = (iso: string) =>
-    new Date(iso).toLocaleDateString(locale, {
+    new Date(iso).toLocaleDateString(intlLocale(locale), {
       year: "numeric",
       month: "short",
       day: "numeric",

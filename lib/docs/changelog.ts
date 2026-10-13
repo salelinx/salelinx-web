@@ -1,4 +1,4 @@
-import type { Locale } from "@/lib/i18n/locales";
+import { intlLocale, type Locale } from "@/lib/i18n/locales";
 import type { ChangelogEntryMetadata, ChangelogModule } from "./types";
 
 import * as initialReleaseEn from "@/content/changelog/en/2026-04-15-initial-release.mdx";
@@ -166,7 +166,7 @@ export function getRecentChangelog(
 export function formatChangelogDate(iso: string, locale: Locale): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(locale, {
+  return d.toLocaleDateString(intlLocale(locale), {
     year: "numeric",
     month: "short",
     day: "numeric",

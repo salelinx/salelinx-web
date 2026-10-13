@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { intlLocale } from "@/lib/i18n/locales";
 import { getTranslations } from "next-intl/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { getCurrentSubscription } from "@/lib/supabase/subscription";
@@ -55,7 +56,7 @@ export default async function PlanStartedPage({ params, searchParams }: Props) {
     }
   })();
   const date = subscription?.current_period_end
-    ? new Date(subscription.current_period_end).toLocaleDateString(locale, {
+    ? new Date(subscription.current_period_end).toLocaleDateString(intlLocale(locale), {
         day: "numeric",
         month: "long",
         year: "numeric",
