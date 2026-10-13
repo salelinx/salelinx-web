@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const STEPS = 1000;
 
@@ -9,13 +9,23 @@ const STEPS = 1000;
 export function HeroVideo({ label }: { label: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const seek = useRef<HTMLInputElement>(null);
+  // Set when the browser refuses to start the video without a tap: iOS in Low
+  // Power Mode does this even for muted inline video, as do some data-saver
+  // and autoplay settings. A play button then replaces the seek bar, which
+  // has nothing to seek until the video has loaded.
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     const v = ref.current!;
     const bar = seek.current!;
     // No margin: the video starts just below the first screen on phones.
     const io = new IntersectionObserver(([e]) =>
-      e.isIntersecting ? v.play().catch(() => {}) : v.pause(),
+      e.isIntersecting
+        ? v.play().catch((err: DOMException) => {
+            // AbortError just means a pause() (scrolled away) beat the start.
+            if (err.name === 'NotAllowedError') setBlocked(true);
+          })
+        : v.pause(),
     );
     io.observe(v);
 
@@ -33,6 +43,7 @@ export function HeroVideo({ label }: { label: string }) {
       frame = requestAnimationFrame(loop);
     };
     const start = () => {
+      setBlocked(false);
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(loop);
     };
@@ -71,7 +82,25 @@ export function HeroVideo({ label }: { label: string }) {
       >
         <source src="/videos/salelinx-hero.mp4" type="video/mp4" />
       </video>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-3 sm:p-5">
+      {blocked ? (
+        // Covers the whole video so a tap anywhere on it counts. A tap is a
+        // user gesture, which every browser lets start playback.
+        <button
+          type="button"
+          onClick={() => ref.current!.play().catch(() => {})}
+          aria-label="Play video"
+          className="absolute inset-0 grid place-items-center rounded-3xl"
+        >
+          <span className="grid h-16 w-16 place-items-center rounded-full bg-white/85 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.8)] ring-1 ring-black/[0.06] transition group-hover:scale-105">
+            <svg viewBox="0 0 24 24" aria-hidden className="ms-1 h-7 w-7 fill-zinc-900">
+              <path d="M8 5.6v12.8a1 1 0 0 0 1.53.85l10.2-6.4a1 1 0 0 0 0-1.7L9.53 4.75A1 1 0 0 0 8 5.6Z" />
+            </svg>
+          </span>
+        </button>
+      ) : null}
+      <div
+        className={`pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-3 sm:p-5 ${blocked ? 'hidden' : ''}`}
+      >
         <div className="pointer-events-auto flex w-full max-w-md items-center rounded-full bg-white/80 px-5 py-3 opacity-70 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.8)] ring-1 ring-black/[0.06] transition duration-300 group-hover:opacity-100 focus-within:opacity-100 focus-within:ring-black/25 [@media(hover:none)]:opacity-100">
           <input
             ref={seek}
