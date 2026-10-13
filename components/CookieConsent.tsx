@@ -277,7 +277,7 @@ export function CookieConsent() {
       </p>
       <Link
         href="/legal/privacy#cookies"
-        className="mt-2 inline-block text-sm font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:decoration-zinc-100"
+        className="mx-auto mt-2 block w-fit text-sm font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:decoration-zinc-100"
       >
         {t('privacyLink')}
       </Link>
