@@ -28,7 +28,7 @@ type Glyph = {
 // Inline SVGs so the marks scale with surrounding text, need no network
 // roundtrip, and render even with images disabled. "mark" paths are cropped
 // to just the first letter of the wordmark.
-const GLYPH: Record<Brand, Record<BrandVariant, Glyph>> = {
+export const GLYPH: Record<Brand, Record<BrandVariant, Glyph>> = {
   depop: {
     mark: {
       viewBox: '0 0 246 251',

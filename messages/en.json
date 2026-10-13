@@ -664,7 +664,11 @@
       "depop": "Depop only",
       "vinted": "Vinted only"
     },
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "finalCta": {
+      "title": "That's all 14. One panel, both shops.",
+      "body": "Try every feature free for 14 days, then pick the plan that fits your shop."
+    }
   },
   "Pricing": {
     "sectionHeader": {

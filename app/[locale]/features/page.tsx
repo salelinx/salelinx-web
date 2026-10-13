@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PanelCarousel } from '@/components/home/PanelCarousel';
+import { FinalCta } from '@/components/home/FinalCta';
 import { pageMetadata } from '@/lib/site';
 
 export async function generateMetadata({
@@ -37,6 +38,7 @@ export default async function FeaturesPage({
         <PanelCarousel />
       </div>
       <FeaturesSection />
+      <FinalCta title={t('finalCta.title')} body={t('finalCta.body')} />
     </main>
   );
 }

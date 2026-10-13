@@ -68,7 +68,7 @@ export async function FeaturesSection() {
               </Link>
             </div>
             <div
-              className={`rounded-3xl border border-black/[0.08] bg-zinc-50 p-6 sm:p-10 dark:border-white/10 dark:bg-zinc-100 ${sceneFirst ? "lg:order-1" : ""}`}
+              className={`rounded-3xl border border-black/[0.08] bg-white p-6 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.25)] sm:p-10 ${sceneFirst ? "lg:order-1" : ""}`}
             >
               <FeatureScene id={f.id} />
             </div>
