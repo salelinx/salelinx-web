@@ -273,14 +273,14 @@ export function CookieConsent() {
       </div>
 
       <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {t('body')}{' '}
-        <Link
-          href="/legal/privacy#cookies"
-          className="font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:decoration-zinc-100"
-        >
-          {t('privacyLink')}
-        </Link>
+        {t('body')}
       </p>
+      <Link
+        href="/legal/privacy#cookies"
+        className="mt-2 inline-block text-sm font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:decoration-zinc-100"
+      >
+        {t('privacyLink')}
+      </Link>
 
       <div className="mt-4 divide-y divide-black/[0.06] overflow-hidden rounded-xl border border-black/[0.08] bg-zinc-50/80 dark:divide-white/[0.08] dark:border-white/10 dark:bg-white/[0.03]">
         <ConsentRow
