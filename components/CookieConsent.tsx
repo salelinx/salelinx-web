@@ -263,7 +263,7 @@ export function CookieConsent() {
           : 'fixed inset-x-4 bottom-4 z-50 mx-auto max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white/90 backdrop-blur-md dark:bg-zinc-900/90'
       } max-w-md rounded-2xl border border-black/10 p-5 shadow-2xl shadow-black/10 motion-safe:animate-[popIn_0.45s_ease-out] dark:border-white/15 dark:shadow-black/40`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-center gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-700 ring-1 ring-amber-200/70 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-300/20">
           <Icon name="cookie" className="h-5 w-5" />
         </span>
@@ -272,7 +272,7 @@ export function CookieConsent() {
         </h2>
       </div>
 
-      <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+      <p className="mt-3 text-center text-sm leading-relaxed text-balance text-zinc-600 dark:text-zinc-400">
         {t('body')}
       </p>
       <Link
