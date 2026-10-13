@@ -563,9 +563,13 @@
       "title": "Everything SaleLinx does for your Depop and Vinted shops."
     },
     "list": {
-      "crosslist": {
-        "name": "Crosslist",
-        "detail": "Post any Depop listing to Vinted, or Vinted to Depop, without retyping it. Categories, sizes, conditions, colours and brands are translated for you, and a review step lets you check and edit each item before it goes live. Paste several listing links to add them in one go."
+      "listings": {
+        "name": "My Listings",
+        "detail": "Every Depop and Vinted listing side by side. Sort and filter by price, date or status, quick-edit any item or change a whole batch at once, tidy photos with the built-in editor, schedule drafts to post later, and export everything to CSV."
+      },
+      "grow": {
+        "name": "Grow",
+        "detail": "A follow bot that follows the followers or following of any account on Depop and Vinted. On Depop it can also target an account's buyers, its reviewers, or everyone who liked a listing, and the unfollow bot clears out old follows."
       },
       "relist": {
         "name": "Relist",
@@ -575,85 +579,45 @@
         "name": "Refresh",
         "detail": "Re-saves your listings from the bottom up in one click, so they climb back up Depop search and your shop keeps the order you set. Set it to run on its own every 4, 6, 8, 12 or 24 hours."
       },
-      "restocker": {
-        "name": "Restocker",
-        "detail": "When an item sells on one shop, SaleLinx removes or restocks the matching listing on the other straight away, so you can list the same stock on both without double sales. Works on items you have linked."
+      "crosslist": {
+        "name": "Crosslist",
+        "detail": "Post any Depop listing to Vinted, or Vinted to Depop, without retyping it. Categories, sizes, conditions, colours and brands are translated for you, and a review step lets you check and edit each item before it goes live. Paste several listing links to add them in one go. Bringing stock in from elsewhere? Import a dotb or Shopify CSV."
+      },
+      "shopDesigner": {
+        "name": "Shop Designer",
+        "detail": "Drag listings into the order you want buyers to see, and SaleLinx re-saves them so your Depop shop matches."
+      },
+      "deadStock": {
+        "name": "Dead Stock",
+        "detail": "Flags listings that are old and getting little attention, shows how much money is tied up in them, and lets you cut the price 10%, relist or delete in one click."
+      },
+      "autoOffers": {
+        "name": "Auto-Offers",
+        "detail": "Buyers who liked one of your Vinted listings get an offer from you automatically, turning likes into sales."
       },
       "linking": {
         "name": "Linking",
         "detail": "Suggests which Depop and Vinted listings are the same item and links them in one click. Linked items show as one row and switch on the Restocker."
       },
+      "restocker": {
+        "name": "Restocker",
+        "detail": "When an item sells on one shop, SaleLinx removes or restocks the matching listing on the other straight away, so you can list the same stock on both without double sales. Works on items you have linked."
+      },
+      "priceDrops": {
+        "name": "Price Drops",
+        "detail": "Pick the listings, a percentage and how often, and SaleLinx lowers the price on schedule until it reaches the minimum you set."
+      },
+      "offers": {
+        "name": "Offers",
+        "detail": "Every offer from both shops side by side, to accept, counter or decline without switching tabs. Set an auto-accept rule, a percentage of the asking price plus a minimum, and the good offers are taken for you."
+      },
       "messages": {
         "name": "Messages",
         "detail": "Buyer messages from Depop and Vinted in a single inbox, so nothing gets missed."
       },
-      "offers": {
-        "name": "Offers",
-        "detail": "Every offer from both shops side by side, to accept, counter or decline without switching tabs."
-      },
-      "autoAccept": {
-        "name": "Auto-accept offers",
-        "detail": "Set a percentage of the asking price and a minimum, and SaleLinx accepts any offer that clears both. Everything else waits for you."
-      },
-      "offerLikers": {
-        "name": "Offers to likers",
-        "detail": "Buyers who liked one of your Vinted listings get an offer from you automatically, turning likes into sales."
-      },
-      "priceDrops": {
-        "name": "Price drops",
-        "detail": "Pick the listings, a percentage and how often, and SaleLinx lowers the price on schedule until it reaches the minimum you set."
-      },
-      "deadStock": {
-        "name": "Dead stock",
-        "detail": "Flags listings that are old and getting little attention, shows how much money is tied up in them, and lets you cut the price 10%, relist or delete in one click."
-      },
-      "followBot": {
-        "name": "Follow bot",
-        "detail": "Follow the followers or following of any account on Depop and Vinted. On Depop you can also target an account's buyers, its reviewers, or everyone who liked a listing, and clear old follows with the unfollow bot."
-      },
       "labels": {
-        "name": "Shipping labels",
-        "detail": "Select a day's Depop and Vinted orders and SaleLinx merges their labels into one PDF, ready to print in one go or email to yourself."
-      },
-      "feedbackBot": {
-        "name": "Feedback bot",
-        "detail": "Leaves feedback on your completed Vinted orders, so reviews keep coming without the clicks."
-      },
-      "listings": {
-        "name": "Listings",
-        "detail": "Every Depop and Vinted listing side by side. Sort and filter by price, date or status, open any item to quick-edit it, and export the lot to CSV."
-      },
-      "bulkEdit": {
-        "name": "Bulk editor",
-        "detail": "Change prices or details across a batch at once, tidy photos with the built-in editor, and schedule drafts to post later."
-      },
-      "shopDesigner": {
-        "name": "Shop designer",
-        "detail": "Drag listings into the order you want buyers to see, and SaleLinx re-saves them so your Depop shop matches."
-      },
-      "csvImport": {
-        "name": "CSV import",
-        "detail": "Upload a dotb or Shopify export and SaleLinx maps the columns onto your listings for you."
-      },
-      "activityLog": {
-        "name": "Activity log",
-        "detail": "A live feed shows what SaleLinx is doing right now. Pause or stop a run part-way, and search or export the full log from Settings."
-      },
-      "backup": {
-        "name": "Cloud backup",
-        "detail": "Every listing is saved to your SaleLinx account, so a closed laptop or a marketplace mistake never costs you the listing."
-      },
-      "sync": {
-        "name": "Device sync",
-        "detail": "Settings, presets and price-drop rules follow your account, so any laptop you sign in on is ready to go."
-      },
-      "accounts": {
-        "name": "Account linking",
-        "detail": "Sign in to Depop and Vinted as you normally would and SaleLinx picks up the session. No passwords to hand over."
-      },
-      "languages": {
-        "name": "Languages",
-        "detail": "The panel is available in English, French, Spanish and German, with light and dark themes."
+        "name": "Labels",
+        "detail": "Select a day's Depop and Vinted orders and SaleLinx merges their labels into one PDF, ready to print in one go or email to yourself. It can also leave feedback on your completed Vinted orders for you."
       }
     },
     "headlines": {
@@ -700,24 +664,7 @@
       "depop": "Depop only",
       "vinted": "Vinted only"
     },
-    "sections": {
-      "crosslisting": {
-        "title": "List once, sell on both",
-        "blurb": "Move listings between Depop and Vinted without retyping a thing, and keep track of which items are the same."
-      },
-      "visibility": {
-        "title": "Get seen by more buyers",
-        "blurb": "Keep your listings near the top of search and put your shop in front of people who are likely to buy."
-      },
-      "sales": {
-        "title": "Close the sale, ship it out",
-        "blurb": "Offers, messages and labels from both shops in one place, with rules handling the repetitive parts."
-      },
-      "stock": {
-        "title": "Stock, listings and your account",
-        "blurb": "Keep stock in step across both shops, edit in bulk, and pick up where you left off on any laptop."
-      }
-    }
+    "learnMore": "Learn more"
   },
   "Pricing": {
     "sectionHeader": {
