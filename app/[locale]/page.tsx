@@ -153,8 +153,11 @@ export default async function Home({
           <PricingSection tiers={tiers} eyebrow={tHome('pricingEyebrow')} centered />
         </div>
       </div>
-      <HomeFaq />
+      {/* FAQ after the closing CTA rather than before it: the CTA lands
+          straight after pricing, and the questions are there for anyone
+          still deciding. */}
       <FinalCta />
+      <HomeFaq />
     </main>
   );
 }
