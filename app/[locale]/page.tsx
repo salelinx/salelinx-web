@@ -142,7 +142,12 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
-      <div className="mx-auto w-full max-w-6xl px-6 pb-14 sm:pt-8 sm:pb-20">
+      {/* Desktop and tablet only: on phones the film was small, stuttered,
+          and pushed the features further down. Hidden rather than unmounted
+          so there is no hydration flash; a display:none video never
+          intersects, so HeroVideo never calls play() and the file is never
+          fetched there. */}
+      <div className="mx-auto hidden w-full max-w-6xl px-6 pb-14 sm:pt-8 sm:pb-20 md:block">
         <HeroVideo label="SaleLinx: Depop and Vinted in one panel" />
       </div>
       <ScrollWorldDemo />
