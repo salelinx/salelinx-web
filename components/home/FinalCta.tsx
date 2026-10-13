@@ -10,11 +10,10 @@ export async function FinalCta() {
 
   return (
     <section className="cta-band">
-      {/* Top matches every other section now that they all run py-14 sm:py-20,
-          so this no longer has to compensate for an uneven gap above it. The
-          bottom stays larger on purpose: it is the end of the page, not a seam
-          between two sections. */}
-      <div className="mx-auto flex max-w-4xl flex-col items-center px-6 py-14 pb-24 text-center sm:py-20 sm:pb-32">
+      {/* Same py-14 sm:py-20 as every other section. It used to keep a larger
+          bottom as the end of the page; the FAQ comes after it now and carries
+          that instead. */}
+      <div className="mx-auto flex max-w-4xl flex-col items-center px-6 py-14 text-center sm:py-20">
         <Reveal delay={0}>
           <h2 className="max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-zinc-950 sm:text-5xl md:text-6xl dark:text-white">
             {t('title')}

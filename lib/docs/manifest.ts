@@ -24,6 +24,7 @@ import * as autoOffersEn from '@/content/docs/en/automate/auto-offers.mdx';
 import * as linkingEn from '@/content/docs/en/automate/linking.mdx';
 import * as restockerEn from '@/content/docs/en/automate/restocker.mdx';
 import * as priceDropsEn from '@/content/docs/en/automate/price-drops.mdx';
+import * as sendOffersEn from '@/content/docs/en/automate/send-offers.mdx';
 
 // Buyer messages (sidebar group 3)
 import * as offersEn from '@/content/docs/en/buyers/offers.mdx';
@@ -50,6 +51,7 @@ import * as autoOffersFr from '@/content/docs/fr/automate/auto-offers.mdx';
 import * as linkingFr from '@/content/docs/fr/automate/linking.mdx';
 import * as restockerFr from '@/content/docs/fr/automate/restocker.mdx';
 import * as priceDropsFr from '@/content/docs/fr/automate/price-drops.mdx';
+import * as sendOffersFr from '@/content/docs/fr/automate/send-offers.mdx';
 
 import * as offersFr from '@/content/docs/fr/buyers/offers.mdx';
 import * as messagesFr from '@/content/docs/fr/buyers/messages.mdx';
@@ -75,6 +77,7 @@ import * as autoOffersEs from '@/content/docs/es/automate/auto-offers.mdx';
 import * as linkingEs from '@/content/docs/es/automate/linking.mdx';
 import * as restockerEs from '@/content/docs/es/automate/restocker.mdx';
 import * as priceDropsEs from '@/content/docs/es/automate/price-drops.mdx';
+import * as sendOffersEs from '@/content/docs/es/automate/send-offers.mdx';
 
 import * as offersEs from '@/content/docs/es/buyers/offers.mdx';
 import * as messagesEs from '@/content/docs/es/buyers/messages.mdx';
@@ -100,6 +103,7 @@ import * as autoOffersDe from '@/content/docs/de/automate/auto-offers.mdx';
 import * as linkingDe from '@/content/docs/de/automate/linking.mdx';
 import * as restockerDe from '@/content/docs/de/automate/restocker.mdx';
 import * as priceDropsDe from '@/content/docs/de/automate/price-drops.mdx';
+import * as sendOffersDe from '@/content/docs/de/automate/send-offers.mdx';
 
 import * as offersDe from '@/content/docs/de/buyers/offers.mdx';
 import * as messagesDe from '@/content/docs/de/buyers/messages.mdx';
@@ -122,6 +126,7 @@ const ARTICLE_MODULES_EN: ArticleModule[] = [
   linkingEn as unknown as ArticleModule,
   restockerEn as unknown as ArticleModule,
   priceDropsEn as unknown as ArticleModule,
+  sendOffersEn as unknown as ArticleModule,
   offersEn as unknown as ArticleModule,
   messagesEn as unknown as ArticleModule,
   labelsEn as unknown as ArticleModule,
@@ -146,6 +151,7 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     linkingFr as unknown as ArticleModule,
     restockerFr as unknown as ArticleModule,
     priceDropsFr as unknown as ArticleModule,
+    sendOffersFr as unknown as ArticleModule,
     offersFr as unknown as ArticleModule,
     messagesFr as unknown as ArticleModule,
     labelsFr as unknown as ArticleModule,
@@ -167,6 +173,7 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     linkingEs as unknown as ArticleModule,
     restockerEs as unknown as ArticleModule,
     priceDropsEs as unknown as ArticleModule,
+    sendOffersEs as unknown as ArticleModule,
     offersEs as unknown as ArticleModule,
     messagesEs as unknown as ArticleModule,
     labelsEs as unknown as ArticleModule,
@@ -188,6 +195,7 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     linkingDe as unknown as ArticleModule,
     restockerDe as unknown as ArticleModule,
     priceDropsDe as unknown as ArticleModule,
+    sendOffersDe as unknown as ArticleModule,
     offersDe as unknown as ArticleModule,
     messagesDe as unknown as ArticleModule,
     labelsDe as unknown as ArticleModule,

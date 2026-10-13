@@ -191,11 +191,19 @@
       "title": "Jedes Tool, genau dort, wo du verkaufst.",
       "scenes": {
         "crosslist": "Wähle ein Angebot und SaleLinx füllt die andere Seite für dich aus.",
+        "bulkEdit": "Wähle beliebig viele Inserate und ändere Preise und Fotos, starte einen Depop-Sale oder kopiere sie als Entwürfe.",
         "restocker": "Auf einer App verkauft, auf der anderen automatisch entfernt.",
+        "deadStock": "Jedes Angebot nach Alter, Aufrufen und Likes bewertet, mit einer Lösung für alles, was sich nicht verkauft.",
+        "priceDrops": "Preise sinken nach deinem Zeitplan und nie unter deine Untergrenze.",
+        "refresher": "Dein Depop-Shop wird von unten nach oben neu gespeichert und steht wieder ganz oben, in derselben Reihenfolge.",
         "followBot": "Folge automatisch den Käufern, die am ehesten bei dir kaufen.",
         "inbox": "Alle Angebote und Nachrichten beider Shops in einer Liste.",
+        "sendOffers": "Alle, die einen Artikel geliked haben, bekommen ein Angebot mit deinem Rabatt, nie unter deiner Untergrenze.",
+        "autoOffers": "Angebote über deinem Limit werden für dich angenommen. Alles andere wartet auf deine Entscheidung.",
         "labels": "Alle Etiketten des Tages, zusammengeführt in einem PDF zum Drucken."
-      }
+      },
+      "prev": "Vorherige Funktion",
+      "next": "Nächste Funktion"
     },
     "pricingEyebrow": "Preise",
     "faqMore": "Alle Fragen ansehen"
@@ -582,7 +590,7 @@
         "crosslist": {
           "short": "Crosslisten",
           "title": "Depop und Vinted mit einem Klick crosslisten",
-          "body": "Wähle ein Inserat, klick auf Crosslist und das Formular des anderen Marktplatzes füllt sich von selbst aus. Kategorien, Größen und Zustand werden übersetzt, sodass derselbe Artikel in Sekunden in beiden Shops online ist.",
+          "body": "Wähle ein Inserat, klick auf Crosslist und das Formular des anderen Marktplatzes füllt sich von selbst aus. Kategorien, Größen und Zustand werden übersetzt, sodass die Kopie in Sekunden als Entwurf im anderen Shop bereitliegt, fertig zum Prüfen und Veröffentlichen.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -600,7 +608,7 @@
         "oneInbox": {
           "short": "Posteingang",
           "title": "Angebote und Nachrichten in einem Posteingang",
-          "body": "Jedes Angebot und jede Nachricht aus beiden Shops, zusammengeführt in einer Liste. Lege Regeln fest, die Angebote automatisch annehmen oder kontern, sodass du nur dort eingreifst, wo es wirklich zählt.",
+          "body": "Jedes Angebot und jede Nachricht aus beiden Shops, zusammengeführt in einer Liste. Lege eine Regel fest, die gute Angebote automatisch annimmt, sodass du nur dort eingreifst, wo es wirklich zählt.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "labels": {
@@ -628,6 +636,11 @@
             "label": "Dein gesamter Bestand in einem Raster",
             "detail": "Beide Shops nebeneinander. Sortiere nach Datum, Preis oder Status und filtere genau das raus, was du brauchst."
           },
+          "bulkEdit": {
+            "name": "Massenbearbeitung",
+            "label": "In großen Mengen bearbeiten, rabattieren und duplizieren",
+            "detail": "Ändere Preise, Titel, Größen und Fotos für eine ganze Auswahl, starte einen Depop-Sale oder kopiere Inserate und teile ihre Fotos in neue Entwürfe auf."
+          },
           "linkAccounts": {
             "name": "Konten verknuepfen",
             "label": "Verknüpfe deine Shops einmal",
@@ -636,7 +649,7 @@
           "backup": {
             "name": "Cloud-Backup",
             "label": "Dein Shop, sicher gesichert",
-            "detail": "Jedes Inserat wird verschlüsselt in der Cloud gespeichert, damit ein zugeklappter Laptop oder ein Marktplatzfehler dich nie einen Verkauf kostet."
+            "detail": "Jedes Inserat und seine Fotos werden verschlüsselt in der Cloud gespeichert. So kostet dich ein Marktplatzfehler nie einen Verkauf, und ein verkaufter Artikel lässt sich direkt aus dem Backup neu einstellen."
           },
           "sync": {
             "name": "Geraetesync",
@@ -663,7 +676,7 @@
           "autoMap": {
             "name": "Kategorie-Zuordnung",
             "label": "Kategorien und Größen automatisch übersetzt",
-            "detail": "Depop-Tags werden zu Vinted-Tags und umgekehrt. Keine manuellen Zuordnungstabellen."
+            "detail": "Depop-Tags werden zu Vinted-Tags und umgekehrt. Preise werden umgerechnet, wenn deine Shops verschiedene Währungen nutzen, ganz ohne Zuordnungstabellen."
           },
           "csvImport": {
             "name": "CSV-Import",
@@ -730,9 +743,14 @@
             "detail": "Jedes Angebot aus beiden Shops landet in einem Posteingang, damit du nicht zwischen Tabs hin und her springst."
           },
           "autoOffers": {
-            "name": "Auto-Angebote",
-            "label": "Automatische Antworten auf Angebote",
-            "detail": "Lege Regeln fest wie 'alles über 80 Prozent annehmen' oder 'immer mit 90 Prozent kontern' und SaleLinx übernimmt den Rest."
+            "name": "Auto-Annahme",
+            "label": "Gute Angebote automatisch annehmen",
+            "detail": "Lege einen Mindestanteil am Preis und eine Preisuntergrenze fest. Angebote, die beides erfüllen, werden für dich angenommen, der Rest wartet auf deine Entscheidung."
+          },
+          "sendOffers": {
+            "name": "Angebote senden",
+            "label": "Allen ein Angebot schicken, die es geliked haben",
+            "detail": "SaleLinx findet, wer deine Vinted-Artikel geliked hat, und schickt jedem ein Angebot, mit dem Rabatt deiner Wahl und nie unter deiner Untergrenze."
           },
           "messages": {
             "name": "Unterhaltungen",
@@ -1002,8 +1020,8 @@
         "description": "Drag-and-Drop-Layout-Tool für das Depop-Shop-Profil."
       },
       "auto-offers": {
-        "title": "Automatische Angebotsantworten",
-        "description": "Regelbasierte Annahme, Kontern oder Ablehnung eingehender Angebote auf beiden Marktplätzen."
+        "title": "Automatische Angebotsannahme",
+        "description": "Nimm eingehende Angebote über einem Prozentsatz deines Preises automatisch an, auf beiden Marktplätzen."
       },
       "follow-bot": {
         "title": "Folgen- und Entfolgen-Bot",

@@ -1,0 +1,86 @@
+export const metadata = {
+  title: 'Send Offers',
+  description:
+    'Send a discounted offer to everyone who liked your Vinted items, with a price floor you control.',
+  category: 'automate',
+  slug: 'send-offers',
+  order: 6,
+  updated: '2026-10-13',
+  tags: ['offers', 'likers', 'vinted', 'automation'],
+  marketplaces: ['vinted'],
+  status: 'published',
+};
+
+# Send Offers
+
+Someone who liked an item is the warmest buyer you have: they have
+seen it, they want it, and something is holding them back. Usually
+it is the price. The **Auto-Offers** tab in the panel finds the people
+who liked your Vinted items and sends each of them an offer, so you
+turn likes into sales without messaging anyone by hand.
+
+This is a different feature from
+[Auto-accept](/docs/automate/auto-offers), which accepts offers
+buyers send *you*. Send Offers is outgoing: you make the offer.
+
+## When to use it
+
+- An item has plenty of likes but no sales.
+- You want to clear stock before a restock or a season change.
+- You would rather offer a small discount to interested buyers than
+  drop the price for everyone with a
+  [Price Drop](/docs/automate/price-drops).
+
+## How it works
+
+1. **Scan Likers.** SaleLinx reads your recent Vinted notifications
+   and groups the likes by item, so you see each item with the people
+   who liked it.
+2. **Pick items.** Tick the items you want to send offers on, or use
+   Select all.
+3. **Set the price.** Choose a **Discount %** and a **Min price
+   floor**. You can also type a custom offer price for any item, which
+   overrides the discount for that item.
+4. **Send Offers.** SaleLinx sends one offer to each liker of each
+   selected item, in the background.
+
+The offer is the listed price minus your discount, but never below
+your floor. If the discount would take an item under the floor, the
+offer goes out at the floor price instead. An item whose discounted
+price would not be lower than its listed price is skipped.
+
+## Built-in safeguards
+
+- **One offer per liker per item.** Someone who already received an
+  offer on an item is not sent another for 30 days, however many
+  times you scan.
+- **Human pacing.** Offers are not fired the instant a like arrives.
+  SaleLinx waits a natural-looking interval and paces sends through
+  the same queue as every other job, with breaks and rate-limit
+  handling.
+- **Runs in the background.** The job keeps going if you close the
+  panel, and you can pause or cancel it from the queue.
+
+## Stats
+
+The tab tracks how the offers are doing:
+
+- **Offers sent** in the last 30 days.
+- **Items sold** among the items you sent offers on.
+- **Sell rate**, items sold as a share of offers sent.
+- **Recently sent**, a list of the latest offers.
+
+## Plan and access
+
+Send Offers is Vinted only, and needs a linked Vinted account. It is
+included on **Pro and Business**; on Starter and the free trial the
+tab is locked.
+
+## Next steps
+
+- [Auto-accept](/docs/automate/auto-offers) - accept incoming offers
+  above your threshold automatically.
+- [Offers](/docs/buyers/offers) - accept, counter or decline offers by
+  hand.
+- [Dead Stock](/docs/automate/dead-stock) - find the items most in
+  need of a nudge.

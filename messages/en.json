@@ -191,11 +191,19 @@
       "title": "Every tool, right where you sell.",
       "scenes": {
         "crosslist": "Pick any listing and SaleLinx fills in the other side for you.",
+        "bulkEdit": "Select any number of listings, then change prices and photos, start a Depop sale or copy them as drafts.",
         "restocker": "Sell it on one app and it comes down from the other, automatically.",
+        "deadStock": "Every listing scored on age, views and likes, with a fix for each one that isn't selling.",
+        "priceDrops": "Prices step down on a schedule you set, and never below your floor.",
+        "refresher": "Your Depop shop re-saved from the bottom up, so it jumps back to the top in the same order.",
         "followBot": "Automatically follow the buyers most likely to shop with you.",
         "inbox": "Every offer and message from both shops, in one list.",
+        "sendOffers": "Everyone who liked an item gets an offer at the discount you pick, never below your floor.",
+        "autoOffers": "Offers above your limit are accepted for you. Everything else waits for you to decide.",
         "labels": "Every label for the day, merged into one PDF to print."
-      }
+      },
+      "prev": "Previous feature",
+      "next": "Next feature"
     },
     "pricingEyebrow": "Pricing",
     "faqMore": "See all questions"
@@ -582,7 +590,7 @@
         "crosslist": {
           "short": "Crosslist",
           "title": "Crosslist Depop and Vinted in one click",
-          "body": "Pick a listing, hit crosslist, and the other marketplace's form fills itself in. Categories, sizes and conditions are translated for you, so the same item goes live on both shops in seconds.",
+          "body": "Pick a listing, hit crosslist, and the other marketplace's form fills itself in. Categories, sizes and conditions are translated for you, so the copy is waiting on the other shop as a draft in seconds, ready to check and post.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -600,7 +608,7 @@
         "oneInbox": {
           "short": "Unified inbox",
           "title": "Offers and messages in one inbox",
-          "body": "Every offer and every buyer message from both shops, merged into a single list. Set rules to auto-accept or counter incoming offers, so you only step in for the conversations that matter.",
+          "body": "Every offer and every buyer message from both shops, merged into a single list. Set a rule to auto-accept good offers, so you only step in for the conversations that matter.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "labels": {
@@ -628,6 +636,11 @@
             "label": "All your stock in one grid",
             "detail": "Both shops side by side. Sort by date, price or status, and filter down to exactly what you need."
           },
+          "bulkEdit": {
+            "name": "Bulk editor",
+            "label": "Edit, discount and duplicate in bulk",
+            "detail": "Change prices, titles, sizes and photos across a whole selection, start a Depop sale, or copy listings and split their photos into new drafts."
+          },
           "linkAccounts": {
             "name": "Account linking",
             "label": "Link your shops once",
@@ -636,7 +649,7 @@
           "backup": {
             "name": "Cloud backup",
             "label": "Your shop, safely backed up",
-            "detail": "Every listing is stored in the cloud and encrypted, so a closed laptop or a marketplace mistake never costs you a sale."
+            "detail": "Every listing and its photos are stored in the cloud and encrypted, so a marketplace mistake never costs you a sale, and a sold item can be relisted straight from its backup."
           },
           "sync": {
             "name": "Device sync",
@@ -663,7 +676,7 @@
           "autoMap": {
             "name": "Category mapping",
             "label": "Categories and sizes translated for you",
-            "detail": "Depop's tags become Vinted's, and the other way round. No mapping tables to set up."
+            "detail": "Depop's tags become Vinted's, and the other way round. Prices are converted when your shops use different currencies, with no mapping tables to set up."
           },
           "csvImport": {
             "name": "CSV import",
@@ -730,9 +743,14 @@
             "detail": "Every offer from both shops shows up in one inbox, so you don't bounce between tabs to keep up."
           },
           "autoOffers": {
-            "name": "Auto-offers",
-            "label": "Auto-reply to offers",
-            "detail": "Set rules like 'accept anything above 80 percent' or 'always counter at 90 percent' and let SaleLinx handle the rest."
+            "name": "Auto-accept",
+            "label": "Accept good offers automatically",
+            "detail": "Set a minimum share of the asking price and a price floor. Offers that clear both are accepted for you, and the rest wait for you to decide."
+          },
+          "sendOffers": {
+            "name": "Send offers",
+            "label": "Send offers to everyone who liked it",
+            "detail": "SaleLinx finds who liked your Vinted items and sends each of them an offer, at the discount you choose and never below your floor."
           },
           "messages": {
             "name": "Conversations",
@@ -1002,8 +1020,8 @@
         "description": "Drag-and-drop layout tool for the Depop shop profile."
       },
       "auto-offers": {
-        "title": "Auto-offer replies",
-        "description": "Rule-based accept, counter, or decline on incoming offers across both marketplaces."
+        "title": "Auto-accept offers",
+        "description": "Accept incoming offers above a percentage of your asking price automatically, on both marketplaces."
       },
       "follow-bot": {
         "title": "Follow and unfollow bot",
