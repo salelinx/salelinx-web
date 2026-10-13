@@ -2,21 +2,21 @@ import { getTranslations } from 'next-intl/server';
 import { Icon } from '@/components/Icon';
 import { Link } from '@/i18n/navigation';
 import { RoadmapCard } from './RoadmapCard';
-import type { RoadmapColumn as Column, RoadmapItem } from '@/lib/roadmap/data';
+import type { RoadmapItem, RoadmapStatus } from '@/lib/roadmap/types';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
-const DOT: Record<Column['status'], string> = {
+const DOT: Record<RoadmapStatus, string> = {
   exploring: 'bg-zinc-400 dark:bg-zinc-600',
   building: 'bg-amber-500',
   shipped: 'bg-emerald-500',
 };
 
 export async function RoadmapColumn({
-  column,
+  status,
   items,
 }: {
-  column: Column;
+  status: RoadmapStatus;
   items: RoadmapItem[];
 }) {
   const t = await getTranslations('Roadmap');
@@ -24,19 +24,19 @@ export async function RoadmapColumn({
     <section className="flex flex-col">
       <header className="pb-6">
         <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>
-          {t(`columns.${column.status}.eyebrow`)}
+          {t(`columns.${status}.eyebrow`)}
         </span>
         <div className="mt-3 flex items-center gap-2.5">
           <span
-            className={`inline-block h-2 w-2 rounded-full ${DOT[column.status]}`}
+            className={`inline-block h-2 w-2 rounded-full ${DOT[status]}`}
           />
           <h2 className="text-2xl font-semibold tracking-tight">
-            {t(`columns.${column.status}.title`)}
+            {t(`columns.${status}.title`)}
           </h2>
           <span className={`${MONO} ml-1 text-zinc-600 dark:text-zinc-400`}>{items.length}</span>
         </div>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          {t(`columns.${column.status}.blurb`)}
+          {t(`columns.${status}.blurb`)}
         </p>
       </header>
 
@@ -52,7 +52,7 @@ export async function RoadmapColumn({
         </div>
       )}
 
-      {column.status === 'shipped' && (
+      {status === 'shipped' && (
         <Link
           href="/docs/changelog"
           className="mt-5 inline-flex items-center gap-1.5 self-start text-sm text-zinc-700 hover:text-black dark:text-zinc-300 dark:hover:text-white"

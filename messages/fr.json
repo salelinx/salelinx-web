@@ -955,7 +955,7 @@
   },
   "Roadmap": {
     "sectionHeader": {
-      "eyebrow": "Section 03 / Feuille de route",
+      "eyebrow": "Feuille de route",
       "title": "Où va SaleLinx.",
       "body": "Une vue publique de ce qui est à l'étude, en construction et déjà livré. Les dates sont des cibles, pas des engagements."
     },
@@ -987,46 +987,10 @@
     },
     "meta": {
       "scoping": "À l'étude",
-      "targetQ4_2026": "Cible T4 2026",
-      "shippedApr_2026": "Livré en avril 2026"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "Intégration eBay",
-        "description": "Publiez sur eBay avec des catégories, caractéristiques et états mappés automatiquement."
-      },
-      "poshmark-integration": {
-        "title": "Intégration Poshmark",
-        "description": "Ajoutez Poshmark au flux de crosslisting aux côtés de Depop et Vinted."
-      },
-      "scheduled-relisting": {
-        "title": "Republication planifiée",
-        "description": "Mettez les republications en file d'attente selon un planning, pas manuellement."
-      },
-      "ai-description-polish": {
-        "title": "Retouche IA des descriptions",
-        "description": "Réécriture en un clic pour des titres et descriptions qui semblent rédigés à la main, pas générés."
-      },
-      "analytics-dashboard": {
-        "title": "Tableau de bord analytique",
-        "description": "Taux de vente, vues par annonce et tendances de ventes entre marketplaces."
-      },
-      "depop-vinted-crosslist": {
-        "title": "Crosslisting Depop et Vinted",
-        "description": "Crosslisting bidirectionnel avec catégories, tailles et états mappés automatiquement."
-      },
-      "shop-designer": {
-        "title": "Depop Shop Designer",
-        "description": "Outil de mise en page glisser-déposer pour le profil de la boutique Depop."
-      },
-      "auto-offers": {
-        "title": "Acceptation automatique des offres",
-        "description": "Acceptez automatiquement les offres au-dessus d'un pourcentage de votre prix, sur les deux marketplaces."
-      },
-      "follow-bot": {
-        "title": "Bot de suivi et de désabonnement",
-        "description": "Ciblez abonnés, abonnements, acheteurs, évaluateurs ou likeurs avec un rythme d'apparence humaine."
-      }
+      "inDevelopment": "En développement",
+      "target": "Cible T{quarter} {year}",
+      "shipped": "Livré en {date}",
+      "shippedUndated": "Livré"
     },
     "request": {
       "eyebrow": "Une demande ?",

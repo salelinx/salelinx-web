@@ -955,7 +955,7 @@
   },
   "Roadmap": {
     "sectionHeader": {
-      "eyebrow": "第 03 部分 / 路线图",
+      "eyebrow": "路线图",
       "title": "SaleLinx 要往哪里走。",
       "body": "公开展示正在评估、正在开发和已经发布的内容。日期是目标，不是承诺。"
     },
@@ -987,46 +987,10 @@
     },
     "meta": {
       "scoping": "评估中",
-      "targetQ4_2026": "目标 2026 年第四季度",
-      "shippedApr_2026": "2026 年 4 月发布"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "eBay 集成",
-        "description": "跨平台发布到 eBay，自动映射类目、商品属性和成色。"
-      },
-      "poshmark-integration": {
-        "title": "Poshmark 集成",
-        "description": "将 Poshmark 纳入与 Depop 和 Vinted 并行的跨平台发布流程。"
-      },
-      "scheduled-relisting": {
-        "title": "定时重新上架",
-        "description": "把重新上架排进你设定的时间表，不用手动操作。"
-      },
-      "ai-description-polish": {
-        "title": "AI 描述润色",
-        "description": "一键改写标题和描述，读起来像手写的，而不是套模板的。"
-      },
-      "analytics-dashboard": {
-        "title": "数据看板",
-        "description": "售出率、每个商品的浏览量，以及跨平台的销售趋势。"
-      },
-      "depop-vinted-crosslist": {
-        "title": "Depop 和 Vinted 跨平台上架",
-        "description": "双向跨平台上架，自动匹配分类、尺码和成色。"
-      },
-      "shop-designer": {
-        "title": "Depop 店铺设计器",
-        "description": "Depop 店铺主页的拖放布局工具。"
-      },
-      "auto-offers": {
-        "title": "自动接受报价",
-        "description": "在两个平台上自动接受高于标价一定比例的报价。"
-      },
-      "follow-bot": {
-        "title": "关注与取消关注机器人",
-        "description": "以粉丝、关注的人、买家、评价者或点赞者为目标，节奏拟人化。"
-      }
+      "inDevelopment": "开发中",
+      "target": "目标 {year} 年第{quarter, select, 1 {一} 2 {二} 3 {三} other {四}}季度",
+      "shipped": "{date}发布",
+      "shippedUndated": "已发布"
     },
     "request": {
       "eyebrow": "有想提的需求？",

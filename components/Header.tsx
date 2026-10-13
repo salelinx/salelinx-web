@@ -48,7 +48,7 @@ export async function Header() {
             {t("navPricing")}
           </Link>
           <Link
-            href="/features#roadmap"
+            href="/#roadmap"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navRoadmap")}

@@ -955,7 +955,7 @@
   },
   "Roadmap": {
     "sectionHeader": {
-      "eyebrow": "Section 03 / Roadmap",
+      "eyebrow": "Roadmap",
       "title": "Where SaleLinx is going.",
       "body": "A public view of what's being scoped, built, and already shipped. Dates are targets, not commitments."
     },
@@ -987,46 +987,10 @@
     },
     "meta": {
       "scoping": "Scoping",
-      "targetQ4_2026": "Target Q4 2026",
-      "shippedApr_2026": "Shipped Apr 2026"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "eBay integration",
-        "description": "Crosslist to eBay with auto-mapped categories, item specifics, and conditions."
-      },
-      "poshmark-integration": {
-        "title": "Poshmark integration",
-        "description": "Bring Poshmark into the crosslisting flow alongside Depop and Vinted."
-      },
-      "scheduled-relisting": {
-        "title": "Scheduled relisting",
-        "description": "Queue relists to run on a schedule you set, not manually."
-      },
-      "ai-description-polish": {
-        "title": "AI description polish",
-        "description": "One-click rewrite for titles and descriptions that look hand-written, not templated."
-      },
-      "analytics-dashboard": {
-        "title": "Analytics dashboard",
-        "description": "Sell-through rate, views per listing, and cross-marketplace sales trends."
-      },
-      "depop-vinted-crosslist": {
-        "title": "Depop and Vinted crosslisting",
-        "description": "Bi-directional crosslisting with auto-mapped categories, sizes, and conditions."
-      },
-      "shop-designer": {
-        "title": "Depop Shop Designer",
-        "description": "Drag-and-drop layout tool for the Depop shop profile."
-      },
-      "auto-offers": {
-        "title": "Auto-accept offers",
-        "description": "Accept incoming offers above a percentage of your asking price automatically, on both marketplaces."
-      },
-      "follow-bot": {
-        "title": "Follow and unfollow bot",
-        "description": "Target followers, following, buyers, review-givers, or likers with human-looking pacing."
-      }
+      "inDevelopment": "In development",
+      "target": "Target Q{quarter} {year}",
+      "shipped": "Shipped {date}",
+      "shippedUndated": "Shipped"
     },
     "request": {
       "eyebrow": "Have a request?",

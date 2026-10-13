@@ -4,7 +4,7 @@
 // Modules marked `enabled: false` render in the sidebar as disabled
 // placeholders so the planned shape of the console is visible while the
 // section is still being built. All registered modules are live: Support,
-// Users, Subscriptions, Tier limits, Feature flags, the Analytics group
+// Users, Subscriptions, Tier limits, Feature flags, Roadmap, the Analytics group
 // (Feature adoption, Extension usage, Web usage, Endpoint health, Storage),
 // Audit log.
 
@@ -48,6 +48,8 @@ export const ADMIN_MODULES: AdminModule[] = [
     href: "/admin/flags",
     enabled: true,
   },
+  // Public roadmap cards at the bottom of the homepage (roadmap_items).
+  { key: "roadmap", label: "Roadmap", href: "/admin/roadmap", enabled: true },
 
   // Analytics: the read-only "what is the extension doing" views. A landing
   // dashboard of one-glance boxes, then three cuts of usage_counters (per

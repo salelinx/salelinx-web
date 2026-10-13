@@ -955,7 +955,7 @@
   },
   "Roadmap": {
     "sectionHeader": {
-      "eyebrow": "Abschnitt 03 / Roadmap",
+      "eyebrow": "Roadmap",
       "title": "Wohin SaleLinx sich entwickelt.",
       "body": "Eine öffentliche Ansicht dessen, was in Planung ist, gebaut wird und bereits ausgeliefert wurde. Daten sind Ziele, keine Zusagen."
     },
@@ -987,46 +987,10 @@
     },
     "meta": {
       "scoping": "In Prüfung",
-      "targetQ4_2026": "Ziel Q4 2026",
-      "shippedApr_2026": "Ausgeliefert April 2026"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "eBay-Integration",
-        "description": "Crossliste auf eBay mit automatisch zugeordneten Kategorien, Artikelmerkmalen und Zuständen."
-      },
-      "poshmark-integration": {
-        "title": "Poshmark-Integration",
-        "description": "Hole Poshmark neben Depop und Vinted in den Crosslisting-Ablauf."
-      },
-      "scheduled-relisting": {
-        "title": "Geplantes Reposten",
-        "description": "Reposts nach einem Zeitplan in die Warteschlange stellen, nicht manuell."
-      },
-      "ai-description-polish": {
-        "title": "KI-Feinschliff für Beschreibungen",
-        "description": "Ein-Klick-Neufassung für Titel und Beschreibungen, die handgeschrieben wirken, nicht aus Vorlagen."
-      },
-      "analytics-dashboard": {
-        "title": "Analytics-Dashboard",
-        "description": "Verkaufsrate, Ansichten pro Inserat und marktplatzübergreifende Verkaufstrends."
-      },
-      "depop-vinted-crosslist": {
-        "title": "Depop- und Vinted-Crosslisting",
-        "description": "Bidirektionales Crosslisting mit automatisch zugeordneten Kategorien, Größen und Zuständen."
-      },
-      "shop-designer": {
-        "title": "Depop Shop Designer",
-        "description": "Drag-and-Drop-Layout-Tool für das Depop-Shop-Profil."
-      },
-      "auto-offers": {
-        "title": "Automatische Angebotsannahme",
-        "description": "Nimm eingehende Angebote über einem Prozentsatz deines Preises automatisch an, auf beiden Marktplätzen."
-      },
-      "follow-bot": {
-        "title": "Folgen- und Entfolgen-Bot",
-        "description": "Ziele auf Follower, Abonnements, Käufer, Bewerter oder Likende mit menschlich wirkendem Tempo."
-      }
+      "inDevelopment": "In Entwicklung",
+      "target": "Ziel Q{quarter} {year}",
+      "shipped": "Ausgeliefert {date}",
+      "shippedUndated": "Ausgeliefert"
     },
     "request": {
       "eyebrow": "Ein Wunsch?",

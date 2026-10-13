@@ -5,7 +5,6 @@ import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import { isSignedIn } from '@/lib/auth/session';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
 import { PricingSection } from '@/components/features/PricingSection';
-import { RoadmapSection } from '@/components/features/RoadmapSection';
 import { PanelCarousel } from '@/components/home/PanelCarousel';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 import { pageMetadata } from '@/lib/site';
@@ -88,7 +87,6 @@ export default async function FeaturesPage({
 
         <FeaturesSection />
         <PricingSection tiers={tiers} />
-        <RoadmapSection />
 
         <section className="border-t border-black/10 py-20 text-center dark:border-white/10">
           <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('ctaSection.eyebrow')}</span>

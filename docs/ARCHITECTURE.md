@@ -51,10 +51,10 @@ extension sees, and vice versa.
 
 ### Website (`salelinx-web`) owns
 
-- Public marketing page (`/features` - one page that hosts features, pricing, and roadmap as scroll-linked sections)
+- Public marketing pages: the homepage (feature carousel, pricing, FAQ, then the public roadmap at `/#roadmap`, whose cards live in `roadmap_items` and are edited in `/admin/roadmap`), and `/features` (feature chapters and pricing)
 - Legal pages (`/legal/*`)
 - Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`)
-- Redirect stubs (`/pricing` -> `/features#pricing`, `/roadmap` -> `/features#roadmap`) so old links and Stripe `cancelUrl` keep working
+- Redirect stub `/roadmap` -> `/#roadmap` so old links keep working
 - Email/password auth UI (`/auth/*`) - Supabase Auth does the work
 - Account dashboard (`/account`) - current tier, manage subscription
 - **Stripe integration** - Checkout session, Customer Portal, webhook (all in `supabase/functions/`)

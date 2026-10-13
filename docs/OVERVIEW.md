@@ -56,9 +56,9 @@ Step 3 is a fallback on purpose: browser language is what someone chose, country
 ```
 app/[locale]/                Every user-facing route is localized (next-intl).
 ├── page.tsx                 Landing
-├── features/                Single page hosting Features + Pricing + Roadmap (tabs scroll to #features, #pricing, #roadmap). Tiers rendered from tier_limits.
+├── features/                Feature chapters + Pricing (#features, #pricing). Tiers rendered from tier_limits.
 ├── pricing/                 Redirect stub -> /features#pricing (keeps Stripe cancelUrl compatibility)
-├── roadmap/                 Redirect stub -> /features#roadmap
+├── roadmap/                 Redirect stub -> /#roadmap (the roadmap is the last homepage section)
 ├── auth/
 │   ├── login/               Password login
 │   ├── signup/              Password signup
@@ -96,7 +96,8 @@ app/admin/                   Internal staff console. Owns its own <html>/theme/s
 components/                  Shared React components (Header, VerifyEmailBanner, …)
 components/admin/            Admin console components (AdminSidebar, support/AdminTicketTable, …)
 components/docs/             Docs-only components (Sidebar, CategoryCard, DocsSearch, MDX widgets)
-components/features/         FeaturesSection / PricingSection / RoadmapSection (stacked on /features)
+components/features/         FeaturesSection / PricingSection (stacked on /features; PricingSection also on the homepage)
+components/home/             Homepage sections, including RoadmapSection (cards from roadmap_items, see lib/roadmap/)
 
 content/docs/                MDX article source, filed by <category>/<slug>.mdx
 content/changelog/           MDX release notes, filed by <date>-<slug>.mdx

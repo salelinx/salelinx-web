@@ -138,7 +138,7 @@ export function MobileMenu({ isAuthed, labels }: Props) {
   const NAV: { href: string; label: string; icon: IconName }[] = [
     { href: "/#features", label: labels.navFeatures, icon: "sparkle" },
     { href: "/#pricing", label: labels.navPricing, icon: "tag" },
-    { href: "/features#roadmap", label: labels.navRoadmap, icon: "tree" },
+    { href: "/#roadmap", label: labels.navRoadmap, icon: "tree" },
     { href: "/help/faq", label: labels.navFaq, icon: "message" },
     { href: "/docs", label: labels.navDocs, icon: "book" },
   ];

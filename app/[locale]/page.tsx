@@ -13,6 +13,7 @@ import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HomeFaq } from '@/components/home/HomeFaq';
 import { FinalCta } from '@/components/home/FinalCta';
+import { RoadmapSection } from '@/components/home/RoadmapSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 
@@ -159,6 +160,11 @@ export default async function Home({
           still deciding. */}
       <FinalCta />
       <HomeFaq />
+      {/* Roadmap closes the page, under the FAQ. The header, mobile menu and
+          footer link here (`/#roadmap`), and /roadmap redirects here. */}
+      <div className="mx-auto w-full max-w-7xl px-6">
+        <RoadmapSection />
+      </div>
     </main>
   );
 }

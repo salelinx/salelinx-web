@@ -33,9 +33,10 @@ export async function HomeFaq() {
   return (
     <section id="faq" className="relative overflow-hidden">
       <FaqClouds />
-      {/* Larger bottom than the other sections: this is the end of the page,
-          not a seam between two sections. */}
-      <div className="relative mx-auto w-full max-w-3xl px-6 pt-14 pb-24 sm:pt-20 sm:pb-32">
+      {/* Same padding as every other section. It used to keep a larger bottom
+          as the end of the page; the roadmap comes after it now and carries
+          that instead. */}
+      <div className="relative mx-auto w-full max-w-3xl px-6 py-14 sm:py-20">
       <Reveal as="div" className="pb-10 text-center">
         <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('eyebrow')}</span>
         <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">

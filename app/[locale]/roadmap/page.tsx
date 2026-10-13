@@ -6,5 +6,5 @@ export default async function RoadmapPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect({ href: '/features#roadmap', locale });
+  redirect({ href: '/#roadmap', locale });
 }
