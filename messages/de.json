@@ -192,10 +192,16 @@
       "scenes": {
         "crosslist": "Wähle ein Angebot und SaleLinx füllt die andere Seite für dich aus.",
         "restocker": "Auf einer App verkauft, auf der anderen automatisch entfernt.",
+        "deadStock": "Jedes Angebot nach Alter, Aufrufen und Likes bewertet, mit einer Lösung für alles, was sich nicht verkauft.",
+        "priceDrops": "Preise sinken nach deinem Zeitplan und nie unter deine Untergrenze.",
+        "refresher": "Dein Depop-Shop wird von unten nach oben neu gespeichert und steht wieder ganz oben, in derselben Reihenfolge.",
         "followBot": "Folge automatisch den Käufern, die am ehesten bei dir kaufen.",
         "inbox": "Alle Angebote und Nachrichten beider Shops in einer Liste.",
+        "autoOffers": "Angebote über deinem Limit werden für dich angenommen. Alles andere wartet auf deine Entscheidung.",
         "labels": "Alle Etiketten des Tages, zusammengeführt in einem PDF zum Drucken."
-      }
+      },
+      "prev": "Vorherige Funktion",
+      "next": "Nächste Funktion"
     },
     "pricingEyebrow": "Preise",
     "faqMore": "Alle Fragen ansehen"

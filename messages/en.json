@@ -192,10 +192,16 @@
       "scenes": {
         "crosslist": "Pick any listing and SaleLinx fills in the other side for you.",
         "restocker": "Sell it on one app and it comes down from the other, automatically.",
+        "deadStock": "Every listing scored on age, views and likes, with a fix for each one that isn't selling.",
+        "priceDrops": "Prices step down on a schedule you set, and never below your floor.",
+        "refresher": "Your Depop shop re-saved from the bottom up, so it jumps back to the top in the same order.",
         "followBot": "Automatically follow the buyers most likely to shop with you.",
         "inbox": "Every offer and message from both shops, in one list.",
+        "autoOffers": "Offers above your limit are accepted for you. Everything else waits for you to decide.",
         "labels": "Every label for the day, merged into one PDF to print."
-      }
+      },
+      "prev": "Previous feature",
+      "next": "Next feature"
     },
     "pricingEyebrow": "Pricing",
     "faqMore": "See all questions"

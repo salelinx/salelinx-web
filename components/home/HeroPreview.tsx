@@ -68,13 +68,13 @@ function avatarStyle(hue: number): CSSProperties {
   return { background: `hsl(${hue} 55% 42%)` };
 }
 
-function platformBorder(platform: "depop" | "vinted"): string {
+export function platformBorder(platform: "depop" | "vinted"): string {
   return platform === "depop"
     ? "border-l-[2px] border-l-[rgba(255,35,0,0.55)]"
     : "border-l-[2px] border-l-[rgba(9,177,136,0.55)]";
 }
 
-function PlatformBadge({
+export function PlatformBadge({
   platform,
   size = 14,
 }: {
