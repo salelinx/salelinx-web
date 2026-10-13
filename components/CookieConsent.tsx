@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useHydrated } from '@/lib/use-hydrated';
 import { BlockingWall } from '@/components/BlockingWall';
+import { Icon } from '@/components/Icon';
 import {
   type Consent,
   type ConsentState,
@@ -28,9 +29,9 @@ import { captureSignupSource, clearSignupSource } from '@/lib/signup-source';
 // - gtag.js is injected only after at least one category is granted. No
 //   consent, no request to googletagmanager.com, no _ga / _gcl cookies.
 // - Accept all and Reject all sit on the one and only layer, same size, next
-//   to a checkbox per category and Save choices. The optional checkboxes
-//   start UNTICKED: a pre-ticked box is not consent (CJEU Planet49, and the
-//   ICO says the same), so never default one to on.
+//   to a switch per category and Save choices. The optional switches start
+//   OFF: a pre-ticked box is not consent (CJEU Planet49, and the ICO says the
+//   same), so never default one to on.
 // - Consent Mode v2 defaults everything to denied before the library boots;
 //   grants are per category. ad_personalization stays DENIED even with ads
 //   consent: we measure conversions, we do not build remarketing audiences.
@@ -249,7 +250,7 @@ export function CookieConsent() {
   // ICO expects Accept all and Reject all to be equally prominent, so the
   // buttons deliberately share the same style.
   const buttonClass =
-    'rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200';
+    'rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200';
 
   const card = (
     <div
@@ -260,28 +261,32 @@ export function CookieConsent() {
         blocking
           ? 'm-auto w-full bg-white dark:bg-zinc-900'
           : 'fixed inset-x-4 bottom-4 z-50 mx-auto max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white/90 backdrop-blur-md dark:bg-zinc-900/90'
-      } max-w-md rounded-2xl border border-black/10 p-4 shadow-2xl shadow-black/10 motion-safe:animate-[popIn_0.45s_ease-out] dark:border-white/15 dark:shadow-black/40`}
+      } max-w-md rounded-2xl border border-black/10 p-5 shadow-2xl shadow-black/10 motion-safe:animate-[popIn_0.45s_ease-out] dark:border-white/15 dark:shadow-black/40`}
     >
-      <h2 className="text-center font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
-        {t('title')}
-      </h2>
+      <div className="flex items-center gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-700 ring-1 ring-amber-200/70 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-300/20">
+          <Icon name="cookie" className="h-5 w-5" />
+        </span>
+        <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+          {t('title')}
+        </h2>
+      </div>
 
-      <p className="mt-2 text-center text-sm leading-snug text-zinc-600 dark:text-zinc-400">
-        {t(ACTIVE.ads ? 'bodyWithAds' : 'body')}{' '}
+      <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        {t('body')}{' '}
         <Link
           href="/legal/privacy#cookies"
-          className="underline underline-offset-2 transition hover:text-black dark:hover:text-white"
+          className="font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:decoration-zinc-100"
         >
           {t('privacyLink')}
         </Link>
       </p>
 
-      <div className="mt-3 space-y-3 border-t border-black/10 pt-3 text-start dark:border-white/10">
+      <div className="mt-4 divide-y divide-black/[0.06] overflow-hidden rounded-xl border border-black/[0.08] bg-zinc-50/80 dark:divide-white/[0.08] dark:border-white/10 dark:bg-white/[0.03]">
         <ConsentRow
           label={t('essentialLabel')}
           description={t('essentialDesc')}
-          checked
-          disabled
+          alwaysOn={t('alwaysOn')}
         />
         {ACTIVE.analytics ? (
           <ConsentRow
@@ -301,7 +306,7 @@ export function CookieConsent() {
         ) : null}
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+      <div className="mt-5 grid gap-2 sm:grid-cols-2">
         <button type="button" onClick={() => decide(true, true)} className={buttonClass}>
           {t('acceptAll')}
         </button>
@@ -309,12 +314,12 @@ export function CookieConsent() {
           {t('rejectAll')}
         </button>
       </div>
-      {/* Saves exactly what is ticked, so with nothing ticked it equals
+      {/* Saves exactly what is switched on, so with nothing on it equals
           Reject all. Outlined so it does not outweigh the two above. */}
       <button
         type="button"
         onClick={() => decide(toggles.analytics, toggles.ads)}
-        className="mt-2 w-full rounded-full border border-black/15 px-4 py-2 text-sm font-medium transition hover:bg-black/[0.04] dark:border-white/20 dark:hover:bg-white/[0.06]"
+        className="mt-2 w-full rounded-full border border-black/15 px-4 py-2.5 text-sm font-medium transition hover:bg-black/[0.04] dark:border-white/20 dark:hover:bg-white/[0.06]"
       >
         {t('save')}
       </button>
@@ -327,32 +332,53 @@ export function CookieConsent() {
 function ConsentRow({
   label,
   description,
-  checked,
-  disabled = false,
+  alwaysOn,
+  checked = false,
   onChange,
 }: {
   label: string;
   description: string;
-  checked: boolean;
-  disabled?: boolean;
+  // Shown in place of the switch for the category that cannot be turned off.
+  alwaysOn?: string;
+  checked?: boolean;
   onChange?: (value: boolean) => void;
 }) {
-  return (
-    <label
-      className={`flex items-start justify-between gap-3 ${disabled ? '' : 'cursor-pointer'}`}
-    >
-      <span className="min-w-0">
-        <span className="block text-sm font-medium">{label}</span>
-        <span className="block text-xs leading-snug text-zinc-600 dark:text-zinc-400">
-          {description}
-        </span>
+  const text = (
+    <span className="min-w-0">
+      <span className="block text-sm font-medium text-zinc-900 dark:text-zinc-100">{label}</span>
+      <span className="mt-0.5 block text-xs leading-snug text-zinc-600 dark:text-zinc-400">
+        {description}
       </span>
+    </span>
+  );
+
+  if (alwaysOn) {
+    return (
+      <div className="flex items-start justify-between gap-4 px-4 py-3">
+        {text}
+        <span className="mt-0.5 shrink-0 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          {alwaysOn}
+        </span>
+      </div>
+    );
+  }
+
+  // A real checkbox (role="switch"), visually hidden; the track after it is
+  // drawn from its checked and focus state. The knob moves with
+  // inset-inline-start so it slides the right way in RTL locales too.
+  return (
+    <label className="relative flex cursor-pointer items-start justify-between gap-4 px-4 py-3 transition hover:bg-black/[0.02] dark:hover:bg-white/[0.03]">
+      {text}
       <input
         type="checkbox"
+        role="switch"
         checked={checked}
-        disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)}
-        className="mt-1 h-4 w-4 shrink-0 accent-black dark:accent-white"
+        className="peer sr-only"
+      />
+      <span
+        aria-hidden
+        className="relative h-5 w-9 shrink-0 rounded-full bg-zinc-300 transition-colors peer-checked:bg-black peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-black after:absolute after:start-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-[inset-inline-start] peer-checked:after:start-[1.125rem] motion-reduce:transition-none motion-reduce:after:transition-none dark:bg-zinc-600 dark:peer-checked:bg-white dark:peer-focus-visible:outline-white dark:peer-checked:after:bg-zinc-900"
       />
     </label>
   );
