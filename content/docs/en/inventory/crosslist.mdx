@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Crosslist',
   description:
-    'Post any listing from one marketplace to the other in a single click. API-based, no limit on batch size, fully automated.',
+    'Copy any listing from one marketplace to the other as a draft in a single click. API-based, no limit on batch size.',
   category: 'inventory',
   slug: 'crosslist',
   order: 5,
-  updated: '2026-09-15',
+  updated: '2026-10-13',
   tags: ['crosslist', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -14,14 +14,14 @@ export const metadata = {
 # Crosslist
 
 The Crosslist tab takes any listing you&rsquo;ve already created on one
-marketplace and posts it to the other. It does the entire transfer over
+marketplace and creates a copy on the other as a draft. It does the entire transfer over
 the marketplace APIs in the background. There&rsquo;s no form to fill,
 no new tab to babysit, and no waiting for an editor to load. You pick
 the items, click the button, and watch the queue run.
 
 ## When to use it
 
-- You list something new on Depop and want it live on Vinted too.
+- You list something new on Depop and want it on Vinted too.
 - You&rsquo;re cleaning up an old shop and want every unlinked listing
   mirrored to the other side.
 - You&rsquo;re moving to SaleLinx and need to bulk-mirror your existing
@@ -53,13 +53,14 @@ Three controls sit above the grid:
   so the grid only shows items that don&rsquo;t yet have a partner on
   the other side. Switch to **All** if you want to see your full
   catalogue.
-- **Auto-post toggle** (off by default). When off, SaleLinx creates
-  **drafts** on the target. When on, it publishes live listings
-  straight away.
+- **Status filter** (All / Active / Drafts). Depop drafts can be
+  crosslisted as well as live listings.
 
 Tick the cards you want to crosslist, single or multiple, and click
 **Crosslist to [target logo]**. There&rsquo;s no limit on how many you
-select in one go.
+select in one go. A review step opens first, where you can edit or
+remove items and see any warnings (a size that was estimated, a
+category that doesn&rsquo;t match the title) before anything is sent.
 
 Cards belonging to a listing that another job already owns (a Relist,
 Refresh, Dead Stock, Auto-Markdown or Restocker run) appear greyed out
@@ -83,7 +84,7 @@ open new tabs and doesn&rsquo;t inject anything into the marketplace
 editor. For each item it reads the source listing, translates the
 platform-specific fields (category, condition, colour, brand, size,
 shipping) into the target marketplace&rsquo;s equivalents, re-uploads
-the photos, and posts the result.
+the photos, and saves the result as a draft on the target.
 
 Common edge cases handled automatically:
 
@@ -94,6 +95,10 @@ Common edge cases handled automatically:
   otherwise.
 - **Size missing from the target&rsquo;s catalogue** - left blank for
   you to set manually.
+- **Different currencies** - if your two shops use different
+  currencies, the price is converted at the day&rsquo;s exchange rate.
+  If no rate can be fetched, the review step warns you to check the
+  price.
 - **Photo download blocked** - the source platform occasionally throws
   a transient block on a fresh page load; refresh the source and
   retry.
@@ -119,22 +124,16 @@ error), the batch advances to the next item rather than stalling.
 Failed items stay unlinked, so you can re-select and retry them
 later.
 
-## Auto-post: drafts vs live
+## Copies are saved as drafts
 
-The Auto-post toggle is **off by default**. There&rsquo;s a deliberate
-reason for that: posting straight to live means any mapping mistake
-(wrong category, wrong size, missing brand) lands on a real, visible
-listing. Drafts let you eyeball the result first.
+Every crosslisted copy lands as a **draft** on the target marketplace,
+never as a live listing. That way any mapping mistake (wrong category,
+wrong size, missing brand) sits in a draft you can check, rather than
+on a real, visible listing.
 
-- **Auto-post off (recommended for first runs).** SaleLinx writes a
-  draft to the target. Open the draft on the marketplace, tweak
-  anything that looks wrong, and publish manually.
-- **Auto-post on.** SaleLinx publishes immediately. Faster for known-
-  good mapping cases (your usual brands, common categories, simple
-  sizes) but you lose the review step.
-
-You can flip the toggle at any time. The setting persists across
-sessions.
+Open the draft on the marketplace, tweak anything that looks wrong,
+and publish it when you&rsquo;re happy. There used to be an Auto-post
+toggle that published straight away; it has been removed.
 
 ## Plan and access
 

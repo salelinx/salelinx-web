@@ -1014,6 +1014,28 @@ span.restock-at-risk {
   color: var(--color-rose-400);
 }
 
+/* A value or card replacing the one before it in a homepage scene (the
+   price-drop price, the auto-offer card). The element is keyed on what it
+   shows, so this runs once per swap rather than once per mount of the scene. */
+@keyframes scene-swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.scene-swap-in {
+  animation: scene-swap-in 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-swap-in {
+    animation: none;
+  }
+}
+
 /* Feature ticker on the homepage overview.
    Two identical copies of the list translate by exactly -50%, so the seam
    lands where copy two starts and the loop is invisible. Changing the gap or
@@ -1077,65 +1099,6 @@ span.restock-at-risk {
   .faq-bubble { animation: none; }
   .faq-cloud,
   .faq-cloud-pop { transition: none; }
-}
-
-.hero-seek {
-  --p: 0%;
-  appearance: none;
-  height: 16px;
-  background: transparent;
-  cursor: pointer;
-}
-.hero-seek::-webkit-slider-runnable-track {
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(to right, rgb(24 24 27 / 0.9) var(--p), rgb(24 24 27 / 0.14) var(--p));
-  transition: height 200ms ease;
-}
-.hero-seek::-moz-range-track {
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(to right, rgb(24 24 27 / 0.9) var(--p), rgb(24 24 27 / 0.14) var(--p));
-}
-.hero-seek::-webkit-slider-thumb {
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  margin-top: -4.5px;
-  border-radius: 50%;
-  background: #18181b;
-  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.85), 0 2px 8px rgb(0 0 0 / 0.3);
-  transform: scale(0);
-  transition: transform 200ms ease;
-}
-.hero-seek::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  border: 0;
-  border-radius: 50%;
-  background: #18181b;
-  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.85), 0 2px 8px rgb(0 0 0 / 0.3);
-  transform: scale(0);
-  transition: transform 200ms ease;
-}
-.group:hover .hero-seek::-webkit-slider-thumb,
-.hero-seek:focus-visible::-webkit-slider-thumb {
-  transform: scale(1);
-}
-.group:hover .hero-seek::-moz-range-thumb,
-.hero-seek:focus-visible::-moz-range-thumb {
-  transform: scale(1);
-}
-.hero-seek:focus-visible {
-  outline: none;
-}
-@media (hover: none) {
-  .hero-seek::-webkit-slider-thumb {
-    transform: scale(1);
-  }
-  .hero-seek::-moz-range-thumb {
-    transform: scale(1);
-  }
 }
 
 .confetti-piece {

@@ -191,11 +191,19 @@
       "title": "Tous les outils, là où vous vendez.",
       "scenes": {
         "crosslist": "Choisissez une annonce, SaleLinx remplit l'autre plateforme pour vous.",
+        "bulkEdit": "Sélectionnez autant d'annonces que vous voulez, puis changez prix et photos, lancez des soldes Depop ou copiez-les en brouillons.",
         "restocker": "Vendu sur une appli, retiré de l'autre, automatiquement.",
+        "deadStock": "Chaque annonce notée selon son âge, ses vues et ses likes, avec une solution pour celles qui ne se vendent pas.",
+        "priceDrops": "Les prix baissent au rythme que vous choisissez, jamais sous votre prix plancher.",
+        "refresher": "Votre boutique Depop réenregistrée de bas en haut, pour remonter en tête dans le même ordre.",
         "followBot": "Suivez automatiquement les acheteurs les plus susceptibles d'acheter chez vous.",
         "inbox": "Toutes les offres et tous les messages des deux boutiques, dans une seule liste.",
+        "sendOffers": "Chaque personne qui a liké un article reçoit une offre à la remise choisie, jamais sous votre prix plancher.",
+        "autoOffers": "Les offres au-dessus de votre seuil sont acceptées pour vous. Les autres attendent votre décision.",
         "labels": "Toutes les étiquettes du jour, fusionnées en un seul PDF à imprimer."
-      }
+      },
+      "prev": "Fonctionnalité précédente",
+      "next": "Fonctionnalité suivante"
     },
     "pricingEyebrow": "Tarifs",
     "faqMore": "Voir toutes les questions"
@@ -582,7 +590,7 @@
         "crosslist": {
           "short": "Crosslist",
           "title": "Crosslistez Depop et Vinted en un clic",
-          "body": "Choisissez une annonce, cliquez sur crosslist et le formulaire de l'autre marketplace se remplit tout seul. Catégories, tailles et états sont traduits pour vous, le même article est en ligne sur les deux boutiques en quelques secondes.",
+          "body": "Choisissez une annonce, cliquez sur crosslist et le formulaire de l'autre marketplace se remplit tout seul. Catégories, tailles et états sont traduits pour vous, et la copie vous attend en brouillon sur l'autre boutique en quelques secondes, prête à vérifier et publier.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -600,7 +608,7 @@
         "oneInbox": {
           "short": "Boîte unifiée",
           "title": "Offres et messages dans une seule boîte",
-          "body": "Chaque offre et chaque message d'acheteur des deux boutiques, regroupés dans une liste unique. Définissez des règles pour accepter ou contre-proposer automatiquement, vous n'intervenez que sur ce qui compte.",
+          "body": "Chaque offre et chaque message d'acheteur des deux boutiques, regroupés dans une liste unique. Définissez une règle pour accepter automatiquement les bonnes offres, vous n'intervenez que sur ce qui compte.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "labels": {
@@ -628,6 +636,11 @@
             "label": "Tout votre stock dans une grille",
             "detail": "Les deux boutiques côte à côte. Triez par date, prix ou statut et filtrez exactement ce dont vous avez besoin."
           },
+          "bulkEdit": {
+            "name": "Édition groupée",
+            "label": "Modifiez, soldez et dupliquez en masse",
+            "detail": "Changez prix, titres, tailles et photos sur toute une sélection, lancez des soldes Depop, ou copiez des annonces et séparez leurs photos en nouveaux brouillons."
+          },
           "linkAccounts": {
             "name": "Liaison des comptes",
             "label": "Liez vos boutiques une seule fois",
@@ -636,7 +649,7 @@
           "backup": {
             "name": "Sauvegarde cloud",
             "label": "Votre boutique, à l'abri",
-            "detail": "Chaque annonce est stockée chiffrée dans le cloud, un portable fermé ou un bug marketplace ne vous coûte jamais une vente."
+            "detail": "Chaque annonce et ses photos sont stockées chiffrées dans le cloud : un bug marketplace ne vous coûte jamais une vente, et un article vendu se remet en ligne directement depuis sa sauvegarde."
           },
           "sync": {
             "name": "Synchronisation",
@@ -663,7 +676,7 @@
           "autoMap": {
             "name": "Correspondance des categories",
             "label": "Catégories et tailles traduites pour vous",
-            "detail": "Les tags Depop deviennent ceux de Vinted, et inversement. Aucune table de mapping à configurer."
+            "detail": "Les tags Depop deviennent ceux de Vinted, et inversement. Les prix sont convertis si vos boutiques utilisent des devises différentes, sans table de mapping à configurer."
           },
           "csvImport": {
             "name": "Import CSV",
@@ -730,9 +743,14 @@
             "detail": "Chaque offre des deux boutiques arrive dans une seule boîte, vous ne sautez plus entre les onglets."
           },
           "autoOffers": {
-            "name": "Auto-offres",
-            "label": "Répondez aux offres automatiquement",
-            "detail": "Définissez des règles comme 'acceptez tout au-dessus de 80 pour cent' ou 'contre-proposez toujours à 90 pour cent', SaleLinx s'occupe du reste."
+            "name": "Acceptation auto",
+            "label": "Acceptez les bonnes offres automatiquement",
+            "detail": "Fixez un pourcentage minimum du prix demandé et un prix plancher. Les offres qui passent les deux sont acceptées pour vous, les autres attendent votre décision."
+          },
+          "sendOffers": {
+            "name": "Envoi d'offres",
+            "label": "Envoyez une offre à chaque personne qui a liké",
+            "detail": "SaleLinx repère qui a liké vos articles Vinted et envoie une offre à chacun, avec la remise de votre choix et jamais sous votre prix plancher."
           },
           "messages": {
             "name": "Messages",
@@ -1002,8 +1020,8 @@
         "description": "Outil de mise en page glisser-déposer pour le profil de la boutique Depop."
       },
       "auto-offers": {
-        "title": "Réponses d'offres automatiques",
-        "description": "Acceptation, contre-proposition ou refus basés sur des règles pour les offres entrantes sur les deux marketplaces."
+        "title": "Acceptation automatique des offres",
+        "description": "Acceptez automatiquement les offres au-dessus d'un pourcentage de votre prix, sur les deux marketplaces."
       },
       "follow-bot": {
         "title": "Bot de suivi et de désabonnement",

@@ -20,17 +20,17 @@ export const LANDING_PAGES: LandingPage[] = [
       'Copy your Depop listings to Vinted, or Vinted to Depop, in bulk. Photos, title, price, size, brand and category carried over. Free 14-day trial.',
     title: 'Crosslist from Depop to Vinted, and Vinted to Depop',
     intro:
-      'SaleLinx copies any listing you already have on one marketplace to the other. Pick the items, click once, and the queue posts them in the background over the marketplace APIs. There is no form to fill in and no editor to babysit, and there is no cap on how many you send in one batch.',
+      'SaleLinx copies any listing you already have on one marketplace to the other. Pick the items, click once, and the queue creates them as drafts in the background over the marketplace APIs. There is no form to fill in and no editor to babysit, and there is no cap on how many you send in one batch.',
     steps: [
       'Install the SaleLinx Chrome extension and sign in to Depop and Vinted.',
       'Open the Crosslist tab and choose the direction: Depop to Vinted or Vinted to Depop.',
       'Tick the listings you want. The grid shows only unlinked items by default, so nothing is copied twice.',
-      'Click Crosslist. Items are created as drafts for you to check, or published live if you turn on auto-post.',
+      'Click Crosslist. Each item is saved as a draft on the other marketplace, so you can check it and post it when you are ready.',
     ],
     points: [
       {
         title: 'Categories and sizes mapped for you',
-        body: 'Depop and Vinted use different category trees, size systems and condition labels. SaleLinx translates each one, so a listing lands in the right place on the other side.',
+        body: 'Depop and Vinted use different category trees, size systems and condition labels. SaleLinx translates each one, and converts the price if your shops use different currencies, so a listing lands in the right place on the other side.',
       },
       {
         title: 'Linked listings stay in sync',
@@ -215,7 +215,7 @@ export const LANDING_PAGES: LandingPage[] = [
         a: 'Each marketplace runs independently, and you can save presets for the settings you use most.',
       },
     ],
-    doc: { label: 'Auto-Offers guide', path: '/docs/automate/auto-offers' },
+    doc: { label: 'Auto-accept guide', path: '/docs/automate/auto-offers' },
   },
   {
     slug: 'automatic-price-drops',
