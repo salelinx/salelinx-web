@@ -13,6 +13,7 @@ import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
 import { HomeFaq } from '@/components/home/HomeFaq';
 import { FinalCta } from '@/components/home/FinalCta';
+import { RoadmapSection } from '@/components/features/RoadmapSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 
@@ -156,6 +157,12 @@ export default async function Home({
           still deciding. */}
       <FinalCta />
       <HomeFaq />
+      {/* Roadmap closes the page, under the FAQ, like pricing above it. Nav
+          links go to the /roadmap page instead (real URLs for sitelinks);
+          both render the same cards from roadmap_items. */}
+      <div className="mx-auto w-full max-w-7xl px-6">
+        <RoadmapSection />
+      </div>
     </main>
   );
 }

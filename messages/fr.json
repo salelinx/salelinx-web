@@ -1049,56 +1049,10 @@
     },
     "meta": {
       "scoping": "À l'étude",
-      "targetQ4_2026": "Cible T4 2026",
-      "shippedApr_2026": "Livré en avril 2026",
-      "shippedOct_2026": "Livré en octobre 2026",
-      "shippedAug_2026": "Livré en août 2026"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "Crosslisting eBay",
-        "description": "Liez votre compte eBay, gérez vos annonces eBay dans Mes annonces et crosslistez entre eBay, Depop et Vinted dans tous les sens."
-      },
-      "ebay-only-sellers": {
-        "title": "SaleLinx pour les vendeurs eBay",
-        "description": "Ouvrez le panneau sur eBay et utilisez SaleLinx même si vous ne vendez ni sur Depop ni sur Vinted."
-      },
-      "poshmark-integration": {
-        "title": "Intégration Poshmark",
-        "description": "Ajoutez Poshmark au flux de crosslisting aux côtés de Depop et Vinted."
-      },
-      "scheduled-relisting": {
-        "title": "Republication planifiée",
-        "description": "Choisissez des annonces et un planning, et Republier tourne tout seul, sans que vous ayez à lancer chaque lot."
-      },
-      "ai-description-polish": {
-        "title": "Retouche IA des descriptions",
-        "description": "Réécriture en un clic pour des titres et descriptions qui semblent rédigés à la main, pas générés."
-      },
-      "analytics-dashboard": {
-        "title": "Tableau de bord analytique",
-        "description": "Taux de vente, vues par annonce et tendances de ventes entre marketplaces."
-      },
-      "crosslist-review": {
-        "title": "Vérifiez avant de crosslister",
-        "description": "Contrôlez et modifiez chaque article avant sa publication, avec un éditeur complet dans les termes propres à l'autre plateforme, et collez autant de liens d'annonces que vous voulez."
-      },
-      "label-carriers": {
-        "title": "Étiquettes d'expédition groupées",
-        "description": "Fusionnez une journée d'étiquettes Depop et Vinted en un seul PDF, choisissez votre transporteur, puis imprimez-les ou envoyez-les par e-mail d'un coup."
-      },
-      "google-sign-in": {
-        "title": "Parrainez et gagnez",
-        "description": "Invitez d'autres vendeurs depuis un onglet dédié et gagnez du crédit sur votre forfait quand ils s'abonnent. Et en prime, la connexion avec Google."
-      },
-      "depop-vinted-crosslist": {
-        "title": "Crosslisting Depop et Vinted",
-        "description": "Crosslisting bidirectionnel avec catégories, tailles et états mappés automatiquement."
-      },
-      "follow-bot": {
-        "title": "Bot de suivi et de désabonnement",
-        "description": "Suivez les abonnés ou les abonnements de n'importe quel compte, et sur Depop ses acheteurs, évaluateurs ou likeurs, avec un rythme d'apparence humaine."
-      }
+      "inDevelopment": "En développement",
+      "target": "Cible T{quarter} {year}",
+      "shipped": "Livré en {date}",
+      "shippedUndated": "Livré"
     },
     "request": {
       "eyebrow": "Une demande ?",

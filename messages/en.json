@@ -1049,56 +1049,10 @@
     },
     "meta": {
       "scoping": "Scoping",
-      "targetQ4_2026": "Target Q4 2026",
-      "shippedApr_2026": "Shipped Apr 2026",
-      "shippedOct_2026": "Shipped Oct 2026",
-      "shippedAug_2026": "Shipped Aug 2026"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "eBay crosslisting",
-        "description": "Link your eBay account, manage your eBay listings in My Listings, and crosslist between eBay, Depop and Vinted in any direction."
-      },
-      "ebay-only-sellers": {
-        "title": "SaleLinx for eBay sellers",
-        "description": "Open the panel on eBay and use SaleLinx even if you do not sell on Depop or Vinted."
-      },
-      "poshmark-integration": {
-        "title": "Poshmark integration",
-        "description": "Bring Poshmark into the crosslisting flow alongside Depop and Vinted."
-      },
-      "scheduled-relisting": {
-        "title": "Scheduled relisting",
-        "description": "Pick listings and a schedule, and Relist runs on its own instead of you starting each batch."
-      },
-      "ai-description-polish": {
-        "title": "AI description polish",
-        "description": "One-click rewrite for titles and descriptions that look hand-written, not templated."
-      },
-      "analytics-dashboard": {
-        "title": "Analytics dashboard",
-        "description": "Sell-through rate, views per listing, and cross-marketplace sales trends."
-      },
-      "crosslist-review": {
-        "title": "Review before you crosslist",
-        "description": "Check and edit every item before it posts, with a full editor in the other marketplace's own terms, and paste as many listing links as you like."
-      },
-      "label-carriers": {
-        "title": "Bulk shipping labels",
-        "description": "Merge a day of Depop and Vinted labels into one PDF, pick your carrier, and print or email them in one go."
-      },
-      "google-sign-in": {
-        "title": "Refer & Earn",
-        "description": "Invite other sellers from its own tab and earn credit off your plan when they subscribe. Plus sign-in with Google."
-      },
-      "depop-vinted-crosslist": {
-        "title": "Depop and Vinted crosslisting",
-        "description": "Bi-directional crosslisting with auto-mapped categories, sizes, and conditions."
-      },
-      "follow-bot": {
-        "title": "Follow and unfollow bot",
-        "description": "Follow the followers or following of any account, and on Depop its buyers, reviewers or likers, with human-looking pacing."
-      }
+      "inDevelopment": "In development",
+      "target": "Target Q{quarter} {year}",
+      "shipped": "Shipped {date}",
+      "shippedUndated": "Shipped"
     },
     "request": {
       "eyebrow": "Have a request?",

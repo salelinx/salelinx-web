@@ -51,7 +51,7 @@ extension sees, and vice versa.
 
 ### Website (`salelinx-web`) owns
 
-- Public marketing page (`/features` - one page that hosts features, pricing, and roadmap as scroll-linked sections)
+- Public marketing pages: the homepage (feature carousel, pricing, FAQ, then the public roadmap, whose cards live in `roadmap_items` and are edited in `/admin/roadmap`)
 - Legal pages (`/legal/*`)
 - Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`)
 - Standalone `/features`, `/pricing` and `/roadmap` pages (Stripe `cancelUrl` points at `/pricing`)

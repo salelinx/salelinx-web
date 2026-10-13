@@ -1,39 +1,71 @@
 import { getTranslations } from 'next-intl/server';
+import { Reveal } from '@/components/Reveal';
 import { RoadmapColumn } from '@/components/roadmap/RoadmapColumn';
-import { ROADMAP_COLUMNS, itemsByStatus } from '@/lib/roadmap/data';
+import { getCachedRoadmapItems } from '@/lib/roadmap/data';
+import { ROADMAP_STATUSES, itemsByStatus } from '@/lib/roadmap/types';
 
 const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
 
+// The public roadmap. `standalone` is the /roadmap page (h1, no eyebrow);
+// the default is the last homepage section, under the FAQ. Same split as
+// PricingSection. Cards come from roadmap_items and are edited in
+// /admin/roadmap; the header, column and tag labels stay in messages/*.json
+// under Roadmap.
 export async function RoadmapSection({ standalone = false }: { standalone?: boolean } = {}) {
-  const t = await getTranslations('Roadmap');
-  const Heading = standalone ? 'h1' : 'h2';
+  const [t, items] = await Promise.all([
+    getTranslations('Roadmap'),
+    getCachedRoadmapItems(),
+  ]);
+
+  // Read failed. The homepage leaves the section out rather than show three
+  // empty columns, which would read as "nothing planned"; the /roadmap page
+  // keeps its heading and drops only the board.
+  if (!items && !standalone) return null;
 
   return (
     <section
       id="roadmap"
-      className={standalone ? 'py-14 sm:py-20' : 'scroll-mt-20 border-t border-black/10 py-20 dark:border-white/10'}
+      className={
+        standalone
+          ? 'py-14 sm:py-20'
+          : // Larger bottom than the other sections: this is the end of the page.
+            'scroll-mt-20 border-t border-black/10 pt-14 pb-24 sm:pt-20 sm:pb-32 dark:border-white/10'
+      }
     >
-      <div className="pb-12">
-        {!standalone && (
-          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('sectionHeader.eyebrow')}</span>
-        )}
-        <Heading className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-          {t('sectionHeader.title')}
-        </Heading>
-        <p className="mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
-          {t('sectionHeader.body')}
-        </p>
-      </div>
+      {standalone ? (
+        <div className="pb-12">
+          <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+            {t('sectionHeader.title')}
+          </h1>
+          <p className="mt-5 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
+            {t('sectionHeader.body')}
+          </p>
+        </div>
+      ) : (
+        <Reveal as="div" className="pb-12 text-center">
+          <span className={`${MONO} text-zinc-500 dark:text-zinc-400`}>
+            {t('sectionHeader.eyebrow')}
+          </span>
+          <h2 className="mx-auto mt-4 max-w-2xl text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+            {t('sectionHeader.title')}
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-balance text-base text-zinc-600 dark:text-zinc-400">
+            {t('sectionHeader.body')}
+          </p>
+        </Reveal>
+      )}
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-8">
-        {ROADMAP_COLUMNS.map((column) => (
-          <RoadmapColumn
-            key={column.status}
-            column={column}
-            items={itemsByStatus(column.status)}
-          />
-        ))}
-      </div>
+      {items && (
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-8">
+          {ROADMAP_STATUSES.map((status) => (
+            <RoadmapColumn
+              key={status}
+              status={status}
+              items={itemsByStatus(items, status)}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="mt-16 flex flex-col items-start gap-4 border-t border-black/10 pt-10 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
         <div>

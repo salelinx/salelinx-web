@@ -1049,56 +1049,10 @@
     },
     "meta": {
       "scoping": "评估中",
-      "targetQ4_2026": "目标 2026 年第四季度",
-      "shippedApr_2026": "2026 年 4 月发布",
-      "shippedOct_2026": "2026 年 10 月发布",
-      "shippedAug_2026": "2026 年 8 月发布"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "eBay 跨平台上架",
-        "description": "关联你的 eBay 账号，在“我的商品”中管理 eBay 商品，并在 eBay、Depop 和 Vinted 之间任意方向跨平台上架。"
-      },
-      "ebay-only-sellers": {
-        "title": "面向 eBay 卖家的 SaleLinx",
-        "description": "在 eBay 上打开面板即可使用 SaleLinx，即使你不在 Depop 或 Vinted 上卖货。"
-      },
-      "poshmark-integration": {
-        "title": "Poshmark 集成",
-        "description": "将 Poshmark 纳入与 Depop 和 Vinted 并行的跨平台发布流程。"
-      },
-      "scheduled-relisting": {
-        "title": "定时重新上架",
-        "description": "选好商品和时间表，重新上架会自动运行，不用你每批手动启动。"
-      },
-      "ai-description-polish": {
-        "title": "AI 描述润色",
-        "description": "一键改写标题和描述，读起来像手写的，而不是套模板的。"
-      },
-      "analytics-dashboard": {
-        "title": "数据看板",
-        "description": "售出率、每个商品的浏览量，以及跨平台的销售趋势。"
-      },
-      "crosslist-review": {
-        "title": "跨平台上架前先审核",
-        "description": "在发布前检查和编辑每件商品，编辑器完整采用目标平台自己的术语，商品链接想粘贴多少就粘贴多少。"
-      },
-      "label-carriers": {
-        "title": "批量快递面单",
-        "description": "把一天的 Depop 和 Vinted 面单合并成一个 PDF，选择快递公司，一次性打印或发到邮箱。"
-      },
-      "google-sign-in": {
-        "title": "邀请得奖励",
-        "description": "在专属标签页邀请其他卖家，他们订阅后你可获得抵扣方案费用的额度。另外支持 Google 登录。"
-      },
-      "depop-vinted-crosslist": {
-        "title": "Depop 和 Vinted 跨平台上架",
-        "description": "双向跨平台上架，自动匹配分类、尺码和成色。"
-      },
-      "follow-bot": {
-        "title": "关注与取消关注机器人",
-        "description": "关注任意账号的粉丝或其关注的人，在 Depop 上还可以关注其买家、评价者或点赞者，节奏拟人化。"
-      }
+      "inDevelopment": "开发中",
+      "target": "目标 {year} 年第{quarter, select, 1 {一} 2 {二} 3 {三} other {四}}季度",
+      "shipped": "{year} 年 {month} 月发布",
+      "shippedUndated": "已发布"
     },
     "request": {
       "eyebrow": "有想提的需求？",

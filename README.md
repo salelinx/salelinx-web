@@ -79,8 +79,9 @@ All DB schema lives in this repo under `supabase/migrations/` - a consolidated b
 app/
 ├── [locale]/                All public pages, localized via next-intl
 │   ├── page.tsx             Landing
-│   ├── features/            Features + pricing + roadmap (one page with anchor sections)
-│   ├── pricing/, roadmap/, faq/   One-line redirect() stubs to /features anchors and /help/faq
+│   ├── features/            Features overview + /features/[slug] landing pages
+│   ├── pricing/, roadmap/   Pricing and roadmap pages (both also homepage sections)
+│   ├── faq/                 One-line redirect() stub to /help/faq
 │   ├── docs/                Product docs (MDX): [category]/[slug] articles, status/, changelog/
 │   ├── help/                Help hub: faq/ (accordion Q&A) + support/ (contact)
 │   ├── invited/             Referral landing page for invited users
@@ -93,7 +94,7 @@ app/
 │   ├── callback/            OAuth / code exchange route handler
 │   └── signout/             POST handler -> sign out + redirect
 ├── admin/                   Admin console (MFA-gated): users, subscriptions, tiers, usage,
-│                            storage, support, flags, audit
+│                            storage, support, flags, roadmap, audit
 └── r/                       /r/CODE referral share links (sets the slx_ref cookie)
 
 components/
