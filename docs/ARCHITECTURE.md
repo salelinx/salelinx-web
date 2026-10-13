@@ -189,7 +189,7 @@ See `docs/STRIPE.md` + `docs/EDGE-FUNCTIONS.md`.
 
 - **Website** - Vercel. Push to `main` → auto-deploy. Env vars set in Vercel dashboard.
 - **Edge Functions** - deployed to Supabase via Dashboard (paste) or CLI (`supabase functions deploy <name>`). Secrets set via `supabase secrets set`.
-- **Migrations** - applied to Supabase via Dashboard SQL Editor or CLI (`supabase db push`). Source of truth: `salelinx-web/supabase/migrations/` (this repo).
+- **Migrations** - applied by hand, in numeric order, via Dashboard SQL Editor or CLI (`supabase db query --linked -f <file>`). Never `supabase db push`: the live history table still holds pre-squash numbers (see `supabase/migrations/README.md`). Source of truth: `salelinx-web/supabase/migrations/` (this repo).
 - **Extension** - `npm run build` in the extension repo → zip `dist/` → upload to Chrome Web Store developer dashboard. Users get the new version via Chrome's auto-update.
 
 ## Environments
