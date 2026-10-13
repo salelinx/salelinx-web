@@ -9,22 +9,22 @@ type Feature = {
   href: string;
 };
 
-// The panel's own tabs, in sidebar order.
+// The 14 panel tabs, most wanted first: in-app usage, then reseller search interest.
 const FEATURES: Feature[] = [
-  { id: "listings", href: "/docs/inventory/listings" },
-  { id: "grow", href: "/features/depop-vinted-follow-bot" },
+  { id: "crosslist", href: "/features/crosslist-depop-vinted" },
   { id: "relist", href: "/features/relist-depop-vinted" },
   { id: "refresh", only: "depop", href: "/features/depop-auto-refresh" },
-  { id: "crosslist", href: "/features/crosslist-depop-vinted" },
-  { id: "shopDesigner", only: "depop", href: "/docs/inventory/shop-designer" },
-  { id: "deadStock", href: "/docs/automate/dead-stock" },
-  { id: "autoOffers", only: "vinted", href: "/docs/automate/auto-offers" },
-  { id: "linking", href: "/docs/automate/linking" },
+  { id: "grow", href: "/features/depop-vinted-follow-bot" },
+  { id: "listings", href: "/docs/inventory/listings" },
   { id: "restocker", href: "/docs/automate/restocker" },
-  { id: "priceDrops", href: "/features/automatic-price-drops" },
   { id: "offers", href: "/features/auto-accept-offers" },
-  { id: "messages", href: "/docs/buyers/messages" },
+  { id: "autoOffers", only: "vinted", href: "/docs/automate/auto-offers" },
   { id: "labels", href: "/features/print-shipping-labels" },
+  { id: "shopDesigner", only: "depop", href: "/docs/inventory/shop-designer" },
+  { id: "priceDrops", href: "/features/automatic-price-drops" },
+  { id: "messages", href: "/docs/buyers/messages" },
+  { id: "linking", href: "/docs/automate/linking" },
+  { id: "deadStock", href: "/docs/automate/dead-stock" },
 ];
 
 const MONO = "font-mono text-[0.68rem] uppercase tracking-[0.12em]";

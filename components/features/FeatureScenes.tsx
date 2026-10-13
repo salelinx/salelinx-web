@@ -205,7 +205,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
       const t = (i / 6) * Math.PI * 2 - Math.PI / 2;
       return { x: 160 + Math.cos(t) * 82, y: 100 + Math.sin(t) * 70 };
     });
-    const avatars = [P.ukBeanie, P.rings, P.shades, P.rose, P.belt, P.catRing];
+    const avatars = [1, 2, 3, 4, 5, 6].map((n) => `/people/seller-${n}.jpg`);
     return (
       <>
         {ring.map((p, i) => (
@@ -215,7 +215,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
             y1={100}
             x2={p.x}
             y2={p.y}
-            stroke={i % 2 ? VINTED : DEPOP}
+            stroke={VINTED}
             strokeWidth={1.5}
             strokeDasharray="80"
             style={a("fa-draw", 5, i * 0.35, { "--len": "80" } as CSSProperties)}
@@ -228,7 +228,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
           <g key={`c${i}`} style={a("fa-pop", 5, 0.4 + i * 0.35)}>
             <circle cx={p.x} cy={p.y} r={17} fill={PAPER} stroke={INK} strokeWidth={1.5} />
             <Photo id={`gr${i}`} x={p.x - 15} y={p.y - 15} w={30} h={30} src={avatars[i]} rx={15} />
-            <Mark x={p.x + 13} y={p.y + 12} brand={i % 2 ? "vinted" : "depop"} r={7} />
+            <Mark x={p.x + 13} y={p.y + 12} brand="vinted" r={7} />
           </g>
         ))}
       </>
@@ -376,7 +376,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
         <rect x={60} y={60} width={66} height={26} rx={4} fill={PAPER} stroke={DEPOP} strokeWidth={2.5} transform="rotate(-12 93 73)" />
         <text x={93} y={78} textAnchor="middle" fontSize={13} fontWeight={800} fill={DEPOP} transform="rotate(-12 93 73)" fontFamily="ui-sans-serif, system-ui" letterSpacing={1}>SOLD</text>
       </g>
-      <path d="M144 98h32" stroke={INK} strokeWidth={1.5} strokeDasharray="4 4" style={a("fa-dash", 1.2)} />
+      <path d="M144 98h32" stroke={INK} strokeWidth={1.5} strokeDasharray="4.5 4.5" style={a("fa-dash", 1.2)} />
     </>
   ),
 
@@ -385,18 +385,15 @@ const SCENES: Record<SceneId, () => ReactNode> = {
       <Card id="pd0" x={232} y={14} w={66} h={80} src={P.whiteBeanie} brand="vinted" />
       <line x1={30} y1={170} x2={290} y2={170} stroke={GREEN} strokeWidth={1.5} strokeDasharray="4 4" />
       <text x={290} y={186} textAnchor="end" fontSize={9} fill={GREEN} fontFamily="ui-monospace, monospace">MIN £30</text>
-      <path d="M30 60H90V100H150V135H210V160" fill="none" stroke={INK} strokeWidth={2.5} strokeLinejoin="round" strokeDasharray="330" style={a("fa-draw", 6, 0, { "--len": "330" } as CSSProperties)} />
-      {(
-        [
-          ["fa-t1", "£40", 30, 60],
-          ["fa-t2", "£36", 90, 100],
-          ["fa-t3", "£32", 150, 135],
-        ] as const
-      ).map(([k, label, x, y]) => (
-        <g key={k} style={a(k, 6)}>
-          <Pill x={x + 10} y={y - 26} text={label} w={40} fill={DEPOP} />
-        </g>
-      ))}
+      <path d="M30 60H90V100H150V135H210V160" fill="none" stroke={SOFT} strokeWidth={2.5} strokeLinejoin="round" />
+      <path d="M30 60H90V100H150V135H210V160" fill="none" stroke={INK} strokeWidth={2.5} strokeLinejoin="round" strokeDasharray="280" style={a("fa-step-draw", 6)} />
+      <g style={a("fa-step-move", 6)}>
+        {(["fa-s1", "fa-s2", "fa-s3"] as const).map((k, i) => (
+          <g key={k} style={a(k, 6)}>
+            <Pill x={40} y={34} text={["£40", "£36", "£32"][i]} w={40} fill={DEPOP} />
+          </g>
+        ))}
+      </g>
     </>
   ),
 
@@ -409,7 +406,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
     return (
       <>
         {rows.map((r, i) => (
-          <g key={i} style={a("fa-slide-in", 5, i * 0.4)}>
+          <g key={i} style={a(["fa-of-in1", "fa-of-in2", "fa-of-in3"][i], 6)}>
             <Row
               id={`of${i}`}
               x={40}
@@ -427,12 +424,12 @@ const SCENES: Record<SceneId, () => ReactNode> = {
           </g>
         ))}
         {[0, 2].map((i) => (
-          <g key={`c${i}`} style={a("fa-pop", 5, 1.6 + i * 0.2)}>
+          <g key={`c${i}`} style={a(i ? "fa-of-dec3" : "fa-of-dec1", 6)}>
             <circle cx={256} cy={46 + i * 50} r={14} fill={GREEN} />
             <path d={`M250 ${46 + i * 50}l4 4 8-8`} fill="none" stroke={PAPER} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
           </g>
         ))}
-        <g style={a("fa-pop", 5, 1.8)}>
+        <g style={a("fa-of-dec2", 6)}>
           <circle cx={256} cy={96} r={14} fill={PAPER} stroke={INK} strokeWidth={1.5} />
           <path d="M250 96h12m-4-4l4 4-4 4" fill="none" stroke={INK} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
         </g>
@@ -467,7 +464,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
     return (
       <>
         {carriers.map((src, i) => (
-          <g key={i} style={a("fa-drop", 5, i * 0.3)}>
+          <g key={i} style={a(`fa-lb-drop${i + 1}`, 6)}>
             <rect x={40 + i * 18} y={50 + i * 12} width={60} height={80} rx={5} fill={PAPER} stroke={INK} strokeWidth={1.5} />
             <image href={src} x={46 + i * 18} y={56 + i * 12} width={16} height={16} />
             <rect x={66 + i * 18} y={60 + i * 12} width={28} height={4} rx={2} fill={INK} />
@@ -475,17 +472,17 @@ const SCENES: Record<SceneId, () => ReactNode> = {
           </g>
         ))}
         <path d="M150 110h26m-8-8l8 8-8 8" fill="none" stroke={INK} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
-        <g style={a("fa-sheet-out", 5)}>
+        <g style={a("fa-lb-sheet", 6)}>
           <rect x={194} y={26} width={92} height={140} rx={6} fill={PAPER} stroke={INK} strokeWidth={1.5} />
           {carriers.map((src, j) => (
-            <g key={j}>
+            <g key={j} style={a(`fa-lb-row${j + 1}`, 6)}>
               <rect x={202} y={36 + j * 40} width={76} height={32} rx={3} fill={SOFT} />
               <image href={src} x={206} y={40 + j * 40} width={14} height={14} />
               <rect x={224} y={44 + j * 40} width={40} height={3.5} rx={1.75} fill={INK} />
               <rect x={206} y={58 + j * 40} width={60} height={5} rx={1} fill={INK} opacity={0.7} />
             </g>
           ))}
-          <Pill x={218} y={156} text="PDF" fill={DEPOP} />
+          <Pill x={218} y={156} text="PDF" fill={DEPOP} style={a("fa-lb-pill", 6)} />
         </g>
       </>
     );
