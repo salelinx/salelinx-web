@@ -5,9 +5,7 @@ export type RoadmapStatus = 'exploring' | 'building' | 'shipped';
 export type RoadmapMetaKey =
   | 'scoping'
   | 'targetQ4_2026'
-  | 'nextRelease'
   | 'shippedOct_2026'
-  | 'shippedSep_2026'
   | 'shippedAug_2026'
   | 'shippedApr_2026';
 
@@ -45,10 +43,10 @@ export const ROADMAP_ITEMS: RoadmapItem[] = [
     metaKey: 'targetQ4_2026',
   },
   {
-    id: 'bulk-price-edit',
+    id: 'ebay-only-sellers',
     status: 'building',
-    tagKey: 'inventory',
-    metaKey: 'nextRelease',
+    tagKey: 'marketplaces',
+    metaKey: 'targetQ4_2026',
   },
   {
     id: 'poshmark-integration',
@@ -81,31 +79,7 @@ export const ROADMAP_ITEMS: RoadmapItem[] = [
     metaKey: 'shippedOct_2026',
   },
   {
-    id: 'local-currency',
-    status: 'shipped',
-    marketplaces: ['depop', 'vinted'],
-    metaKey: 'shippedSep_2026',
-  },
-  {
-    id: 'crosslist-drafts',
-    status: 'shipped',
-    marketplaces: ['depop', 'vinted'],
-    metaKey: 'shippedSep_2026',
-  },
-  {
-    id: 'synced-presets',
-    status: 'shipped',
-    marketplaces: ['depop', 'vinted'],
-    metaKey: 'shippedSep_2026',
-  },
-  {
     id: 'label-carriers',
-    status: 'shipped',
-    marketplaces: ['depop', 'vinted'],
-    metaKey: 'shippedAug_2026',
-  },
-  {
-    id: 'choose-marketplaces',
     status: 'shipped',
     marketplaces: ['depop', 'vinted'],
     metaKey: 'shippedAug_2026',
@@ -117,18 +91,6 @@ export const ROADMAP_ITEMS: RoadmapItem[] = [
   },
   {
     id: 'depop-vinted-crosslist',
-    status: 'shipped',
-    marketplaces: ['depop', 'vinted'],
-    metaKey: 'shippedApr_2026',
-  },
-  {
-    id: 'shop-designer',
-    status: 'shipped',
-    marketplaces: ['depop'],
-    metaKey: 'shippedApr_2026',
-  },
-  {
-    id: 'auto-offers',
     status: 'shipped',
     marketplaces: ['depop', 'vinted'],
     metaKey: 'shippedApr_2026',
