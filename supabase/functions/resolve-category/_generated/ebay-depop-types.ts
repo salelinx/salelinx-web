@@ -166,10 +166,12 @@ export function depopTypeForEbay(
       if (dept && t.dept !== dept && t.dept !== 'everything-else') continue;
       if (!hits(t, last)) continue;
       // With no department to go on, Depop's non-clothing and then womenswear win a tie; an
-      // "other-" catch-all loses one.
+      // "other-" catch-all loses one, and so does a type the level names only part of ("bag"
+      // over "laptop cases bag").
       const lean =
         (dept ? 0 : t.dept === 'everything-else' ? 0.2 : t.dept === 'womenswear' ? 0.1 : 0) -
-        (t.depopType.includes('/other-') ? 0.5 : 0);
+        (t.depopType.includes('/other-') ? 0.5 : 0) -
+        0.15 * [...t.pt].filter((w) => !last.has(w)).length;
       const score = 10 * hits(t, last) + 3 * hits(t, prev) + hits(t, titled) + lean;
       if (!best || score > best.score) best = { score, row: t.row };
     }
