@@ -4,6 +4,7 @@ import { SITE_URL, absoluteUrl } from '@/lib/site';
 import { ARTICLE_MODULES_BY_LOCALE, TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { TRANSLATED_CHANGELOG_LOCALES } from '@/lib/docs/changelog';
 import { LANDING_PAGES } from '@/lib/landing/pages';
+import { listPosts } from '@/lib/blog/posts';
 
 // `locales` limits which language alternates an entry claims; it must match
 // the contentLocales the page itself passes to pageMetadata. Untranslated
@@ -37,6 +38,7 @@ const STATIC_PATHS: {
     locales: TRANSLATED_CHANGELOG_LOCALES,
   },
   { path: '/docs/status', priority: 0.5, changeFrequency: 'daily' },
+  { path: '/blog', priority: 0.7, changeFrequency: 'weekly', locales: ['en'] },
   { path: '/legal/privacy', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
   { path: '/legal/terms', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
 ];
@@ -71,6 +73,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: absoluteUrl(routing.defaultLocale, `/features/${slug}`),
       changeFrequency: 'monthly',
       priority: 0.8,
+    });
+  }
+
+  // English-only, like the landing pages: no alternates.
+  for (const { metadata } of listPosts()) {
+    entries.push({
+      url: absoluteUrl(routing.defaultLocale, `/blog/${metadata.slug}`),
+      lastModified: new Date(metadata.updated),
+      changeFrequency: 'monthly',
+      priority: 0.7,
     });
   }
 

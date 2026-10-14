@@ -4,6 +4,8 @@ import { Figure } from '@/components/docs/mdx/Figure';
 import { VideoEmbed } from '@/components/docs/mdx/VideoEmbed';
 import { InstallPinCallout } from '@/components/docs/mdx/InstallPinCallout';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
+import { CompareTable } from '@/components/blog/CompareTable';
+import { PlanPrice } from '@/components/blog/PlanPrice';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -69,6 +71,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     VideoEmbed,
     InstallPinCallout,
     InstallExtensionButton,
+    CompareTable,
+    PlanPrice,
     ...components,
   };
 }

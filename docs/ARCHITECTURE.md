@@ -53,7 +53,7 @@ extension sees, and vice versa.
 
 - Public marketing pages: the homepage (feature carousel, pricing, FAQ, then the public roadmap, whose cards live in `roadmap_items` and are edited in `/admin/roadmap`)
 - Legal pages (`/legal/*`)
-- Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`)
+- Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`) and the English-only SEO blog (`/blog`)
 - Standalone `/features`, `/pricing` and `/roadmap` pages (Stripe `cancelUrl` points at `/pricing`)
 - Email/password auth UI (`/auth/*`) - Supabase Auth does the work
 - Account dashboard (`/account`) - current tier, manage subscription
