@@ -1115,5 +1115,13 @@
     "toAccount": "前往你的账户",
     "pendingTitle": "正在完成设置",
     "pendingBody": "我们正在向 Stripe 确认你的套餐，只需几秒钟。"
+  },
+  "GetStarted": {
+    "metaTitle": "欢迎使用 SaleLinx",
+    "eyebrow": "账户已创建",
+    "title": "欢迎使用 SaleLinx",
+    "subtitle": "最后一步：将 SaleLinx 添加到 Chrome。它直接在 Depop 和 Vinted 中运行。",
+    "addToChrome": "添加到 Chrome",
+    "toAccount": "前往我的账户"
   }
 }

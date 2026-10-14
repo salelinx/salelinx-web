@@ -19,20 +19,20 @@ Email + password auth via Supabase. No magic links, no social providers (for now
 ```
 User submits email + password
   â–¼
-supabase.auth.signUp({ email, password, emailRedirectTo: /auth/callback?next=/account })
+supabase.auth.signUp({ email, password, emailRedirectTo: /auth/callback?next=/get-started })
   â–¼
 Supabase sends verification email
   â–¼
-User clicks link â†’ /auth/callback?code=...&next=/account
+User clicks link â†’ /auth/callback?code=...&next=/get-started
   â–¼
 exchangeCodeForSession â†’ session cookie set
   â–¼
-redirect to /account
+redirect to /get-started (welcome + Add to Chrome, links on to /account)
   â–¼
 user.email_confirmed_at now set â†’ banner hidden
 ```
 
-**If Supabase "Confirm email" is OFF** - signup returns a session immediately and the user lands on `/account` without the email step. The signup page handles both.
+**If Supabase "Confirm email" is OFF** - signup returns a session immediately and the user lands on `/get-started` without the email step. The signup page handles both. Google signups from the signup page land there too; login keeps going to `/account`.
 
 ## Login flow
 

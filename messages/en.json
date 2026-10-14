@@ -1115,5 +1115,13 @@
     "toAccount": "Go to your account",
     "pendingTitle": "Finishing setup",
     "pendingBody": "We're confirming your plan with Stripe. This only takes a few seconds."
+  },
+  "GetStarted": {
+    "metaTitle": "Welcome to SaleLinx",
+    "eyebrow": "Account created",
+    "title": "Welcome to SaleLinx",
+    "subtitle": "One last step: add SaleLinx to Chrome. It runs right inside Depop and Vinted.",
+    "addToChrome": "Add to Chrome",
+    "toAccount": "Go to my account"
   }
 }

@@ -1115,5 +1115,13 @@
     "toAccount": "Zu deinem Konto",
     "pendingTitle": "Einrichtung wird abgeschlossen",
     "pendingBody": "Wir bestätigen deinen Tarif bei Stripe. Das dauert nur ein paar Sekunden."
+  },
+  "GetStarted": {
+    "metaTitle": "Willkommen bei SaleLinx",
+    "eyebrow": "Konto erstellt",
+    "title": "Willkommen bei SaleLinx",
+    "subtitle": "Ein letzter Schritt: Füge SaleLinx zu Chrome hinzu. Es läuft direkt in Depop und Vinted.",
+    "addToChrome": "Zu Chrome hinzufügen",
+    "toAccount": "Zu meinem Konto"
   }
 }
