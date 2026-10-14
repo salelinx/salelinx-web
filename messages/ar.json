@@ -1115,5 +1115,12 @@
     "toAccount": "انتقل إلى حسابك",
     "pendingTitle": "جارٍ إكمال الإعداد",
     "pendingBody": "نؤكد خطتك مع Stripe. يستغرق ذلك بضع ثوانٍ فقط."
+  },
+  "GetStarted": {
+    "metaTitle": "مرحبًا بك في SaleLinx",
+    "title": "مرحبًا بك في SaleLinx",
+    "subtitle": "أضف SaleLinx إلى Chrome للبدء.",
+    "addToChrome": "إضافة إلى Chrome",
+    "toAccount": "الانتقال إلى حسابي"
   }
 }

@@ -1115,5 +1115,12 @@
     "toAccount": "Zu deinem Konto",
     "pendingTitle": "Einrichtung wird abgeschlossen",
     "pendingBody": "Wir bestätigen deinen Tarif bei Stripe. Das dauert nur ein paar Sekunden."
+  },
+  "GetStarted": {
+    "metaTitle": "Willkommen bei SaleLinx",
+    "title": "Willkommen bei SaleLinx",
+    "subtitle": "Füge SaleLinx zu Chrome hinzu, um loszulegen.",
+    "addToChrome": "Zu Chrome hinzufügen",
+    "toAccount": "Zu meinem Konto"
   }
 }

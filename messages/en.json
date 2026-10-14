@@ -1115,5 +1115,12 @@
     "toAccount": "Go to your account",
     "pendingTitle": "Finishing setup",
     "pendingBody": "We're confirming your plan with Stripe. This only takes a few seconds."
+  },
+  "GetStarted": {
+    "metaTitle": "Welcome to SaleLinx",
+    "title": "Welcome to SaleLinx",
+    "subtitle": "Add SaleLinx to Chrome to get started.",
+    "addToChrome": "Add to Chrome",
+    "toAccount": "Go to my account"
   }
 }

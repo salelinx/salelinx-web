@@ -1115,5 +1115,12 @@
     "toAccount": "Aller à votre compte",
     "pendingTitle": "Finalisation",
     "pendingBody": "Nous confirmons votre forfait auprès de Stripe. Cela ne prend que quelques secondes."
+  },
+  "GetStarted": {
+    "metaTitle": "Bienvenue sur SaleLinx",
+    "title": "Bienvenue sur SaleLinx",
+    "subtitle": "Ajoutez SaleLinx à Chrome pour commencer.",
+    "addToChrome": "Ajouter à Chrome",
+    "toAccount": "Aller à mon compte"
   }
 }

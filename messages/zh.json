@@ -1115,5 +1115,12 @@
     "toAccount": "前往你的账户",
     "pendingTitle": "正在完成设置",
     "pendingBody": "我们正在向 Stripe 确认你的套餐，只需几秒钟。"
+  },
+  "GetStarted": {
+    "metaTitle": "欢迎使用 SaleLinx",
+    "title": "欢迎使用 SaleLinx",
+    "subtitle": "将 SaleLinx 添加到 Chrome 即可开始。",
+    "addToChrome": "添加到 Chrome",
+    "toAccount": "前往我的账户"
   }
 }
