@@ -18,7 +18,7 @@ export function docsCanonicalLocale(locale: string): string {
 // Referenced (not restated) by @id on every page: the full Organization node
 // with aliases and sameAs lives in the homepage graph. A compact copy here
 // keeps the article graph self-contained for parsers that read one page.
-function organizationNode() {
+export function organizationNode() {
   return {
     '@type': 'Organization',
     '@id': `${SITE_URL}/#organization`,

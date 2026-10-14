@@ -56,6 +56,15 @@ export async function Header() {
         </nav>
 
         <nav className="hidden flex-1 items-center justify-end gap-4 text-sm text-zinc-600 sm:flex dark:text-zinc-400">
+          {/* Blog sits with the quieter links on this side rather than in the
+              centre nav, which is kept for the product pages. Same md
+              breakpoint as Support so the two appear together. */}
+          <Link
+            href="/blog"
+            className="hidden transition-colors duration-200 hover:text-black md:block dark:hover:text-white"
+          >
+            {t("navBlog")}
+          </Link>
           {isAuthed ? (
             <>
               <div className="group relative hidden md:block">
@@ -163,6 +172,7 @@ export async function Header() {
               navRoadmap: t("navRoadmap"),
               navFaq: t("navFaq"),
               navDocs: t("navDocs"),
+              navBlog: t("navBlog"),
               account: t("account"),
               support: t("support"),
               signOut: t("signOut"),

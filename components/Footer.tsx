@@ -98,6 +98,11 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/blog" className={linkClass}>
+                  {t('linkBlog')}
+                </Link>
+              </li>
+              <li>
                 <Link href="/docs/changelog" className={linkClass}>
                   {t('linkChangelog')}
                 </Link>

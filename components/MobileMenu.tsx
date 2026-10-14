@@ -14,6 +14,7 @@ interface Labels {
   navRoadmap: string;
   navFaq: string;
   navDocs: string;
+  navBlog: string;
   account: string;
   support: string;
   signOut: string;
@@ -137,6 +138,7 @@ export function MobileMenu({ isAuthed, labels }: Props) {
     { href: "/roadmap", label: labels.navRoadmap, icon: "tree" },
     { href: "/help/faq", label: labels.navFaq, icon: "message" },
     { href: "/docs", label: labels.navDocs, icon: "book" },
+    { href: "/blog", label: labels.navBlog, icon: "pencil" },
   ];
 
   return (
