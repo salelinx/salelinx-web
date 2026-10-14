@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 const ROOT = path.resolve(__dirname, '..');
 const BLOG_DIR = path.join(ROOT, 'content', 'blog', 'en');
 const MANIFEST = readFileSync(path.join(ROOT, 'lib', 'blog', 'posts.ts'), 'utf8');
-const CATEGORIES = ['guides', 'comparisons'];
+const CATEGORIES = ['guides'];
 const WORDS_PER_MINUTE = 220;
 
 const files = readdirSync(BLOG_DIR).filter((f) => f.endsWith('.mdx'));

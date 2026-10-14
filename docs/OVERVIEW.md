@@ -98,7 +98,7 @@ app/admin/                   Internal staff console. Owns its own <html>/theme/s
 components/                  Shared React components (Header, VerifyEmailBanner, …)
 components/admin/            Admin console components (AdminSidebar, support/AdminTicketTable, …)
 components/docs/             Docs-only components (Sidebar, CategoryCard, DocsSearch, MDX widgets)
-components/blog/             Blog-only components (PostCard, PostCta, MDX CompareTable + PlanPrice)
+components/blog/             Blog-only components (PostCard, PostCta, MDX CompareTable)
 components/features/         FeaturesSection (/features), PricingSection (/pricing + homepage), RoadmapSection (/roadmap + homepage, under the FAQ)
 
 content/docs/                MDX article source, filed by <category>/<slug>.mdx

@@ -1,17 +1,17 @@
 import type { ReactNode } from 'react';
 
 // Docs and blog MDX have no remark-gfm, so pipe tables render as raw text.
-// Comparison posts pass the table as props instead:
+// Posts pass the table as props instead:
 //
 //   <CompareTable
-//     caption="SaleLinx and Vendoo at a glance"
-//     columns={['', 'SaleLinx', 'Vendoo']}
-//     rows={[['Marketplaces', 'Depop, Vinted', '...'], ...]}
+//     caption="Depop and Vinted fees at a glance"
+//     columns={['', 'Depop', 'Vinted']}
+//     rows={[['Selling fee', 'None', 'None'], ...]}
 //   />
 //
-// The first cell of each row is its header. Keep cells to plain facts that a
-// reader could check on the competitor's own site; the `note` is the place
-// for the date the facts were last checked.
+// The first cell of each row is its header. Keep cells to plain facts a
+// reader could check at the source; the `note` is the place to say where
+// the figures come from and when they were last checked.
 export function CompareTable({
   caption,
   columns,

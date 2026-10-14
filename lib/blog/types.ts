@@ -1,6 +1,6 @@
 import type { Marketplace } from '@/lib/docs/types';
 
-export type BlogCategory = 'guides' | 'comparisons';
+export type BlogCategory = 'guides';
 
 export type PostMetadata = {
   // Used for the h1, <title> and og:title, so keep it under about 60 characters.
