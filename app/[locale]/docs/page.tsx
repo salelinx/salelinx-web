@@ -63,7 +63,7 @@ export default async function DocsHomePage({
         <p className="mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
           {t.rich('heroBody', {
             faq: (chunks) => (
-              <Link href="/faq" className="underline underline-offset-4">
+              <Link href="/help/faq" className="underline underline-offset-4">
                 {chunks}
               </Link>
             ),
