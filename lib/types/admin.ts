@@ -42,6 +42,8 @@ export type AdminUserRow = {
   signup_campaign: string | null;
   // Last country Vercel geolocated a signed-in visit to (migration 031).
   country: string | null;
+  // From the same freshest install as extension_version (migration 035).
+  user_agent: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.

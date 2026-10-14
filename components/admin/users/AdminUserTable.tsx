@@ -25,6 +25,7 @@ import {
 import { useClientNow } from "@/lib/admin/use-client-now";
 import { compareVersions, highestVersion } from "@/lib/admin/version";
 import { TIER_ORDER } from "@/lib/admin/tiers";
+import { browserName } from "@/lib/admin/browser";
 import dynamic from "next/dynamic";
 import { SOCIALS } from "@/components/home/SocialLinks";
 
@@ -170,6 +171,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [activity, setActivity] = useState<ActivityFilter>("all");
   const [source, setSource] = useState<string>("all");
   const [country, setCountry] = useState<string>("all");
+  const [browser, setBrowser] = useState<string>("all");
   const [version, setVersion] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
 
@@ -184,6 +186,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     (activity !== "all" ? 1 : 0) +
     (source !== "all" ? 1 : 0) +
     (country !== "all" ? 1 : 0) +
+    (browser !== "all" ? 1 : 0) +
     (version !== "all" ? 1 : 0) +
     (search.trim() ? 1 : 0);
 
@@ -195,6 +198,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     setActivity("all");
     setSource("all");
     setCountry("all");
+    setBrowser("all");
     setVersion("all");
     setSearch("");
   }
@@ -270,6 +274,20 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     ] as [string, string][];
   }, [users]);
 
+  const browserOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const u of users) {
+      const b = browserName(u.user_agent) ?? "Unknown";
+      counts.set(b, (counts.get(b) ?? 0) + 1);
+    }
+    return [
+      ["all", "All"],
+      ...[...counts]
+        .sort((a, b) => b[1] - a[1])
+        .map(([b, n]) => [b, `${b} (${n})`] as [string, string]),
+    ] as [string, string][];
+  }, [users]);
+
   // Newest version anyone has reported, used only to tint rows behind it. Read
   // from the whole roster rather than the filtered view so the ceiling does not
   // move when a filter is applied and half the users stop looking outdated.
@@ -332,6 +350,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
       if (source !== "all" && (u.signup_source ?? "unknown") !== source) return false;
       if (country !== "all" && (u.country ?? "unknown") !== country) return false;
+      if (browser !== "all" && (browserName(u.user_agent) ?? "Unknown") !== browser) return false;
       if (version !== "all") {
         const v = u.extension_version;
         if (version === "none" ? v !== null : v === null) return false;
@@ -382,7 +401,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
     });
     return sorted;
-  }, [users, search, tier, status, cancelling, platform, activity, source, country, version, newestVersion, sortKey, now]);
+  }, [users, search, tier, status, cancelling, platform, activity, source, country, browser, version, newestVersion, sortKey, now]);
 
   // Cap how many rows reach the DOM. Filtering/sorting above still runs over
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
@@ -480,6 +499,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           onChange={setVersion}
         />
         <FilterSelect label="Country" value={country} options={countryOptions} onChange={setCountry} />
+        <FilterSelect label="Browser" value={browser} options={browserOptions} onChange={setBrowser} />
         <FilterSelect label="Source" value={source} options={sourceOptions} onChange={setSource} />
         {activeFilters > 0 && (
           <button
@@ -530,6 +550,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                 <th className="px-3 py-2 font-medium">Version</th>
                 <th className="px-3 py-2 font-medium">Source</th>
                 <th className="px-3 py-2 font-medium">Country</th>
+                <th className="px-3 py-2 font-medium">Browser</th>
                 <SortableTh
                   label="Joined"
                   active={sortKey === "created_at"}
@@ -629,6 +650,14 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                         flag(u.country)
                       ) : (
                         <span className="text-sm text-zinc-400">-</span>
+                      )}
+                    </td>
+                    <td
+                      className="whitespace-nowrap px-3 py-2 text-zinc-700"
+                      title={u.user_agent ?? undefined}
+                    >
+                      {browserName(u.user_agent) ?? (
+                        <span className="text-zinc-400">-</span>
                       )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
