@@ -17,36 +17,24 @@ still records the PRE-squash version numbers (001 through 037 plus three
 timestamped entries), so `db push` would treat a post-squash `016` as already
 applied and skip it, or try to replay files the squash renumbered. Nothing
 verifies the live project against this folder: the numbered files here are
-assumed applied, but see the section below for two that are known not to be
-tracked either way.
+assumed applied.
 
-## Unreconciled migrations in the extension repo
+## Former extension-repo migrations
 
-`salelinx-app/supabase/migrations/` still holds two dated SQL files, written
-there before this repo took over schema ownership. Neither has an equivalent in
-this numbered sequence:
+Until October 2026, `salelinx-app/supabase/migrations/` held two dated SQL
+files written before this repo took over the schema. Both were deleted from
+there (their content is in that repo's git history):
 
-| File (extension repo) | What it does | Status here |
+| File (extension repo) | What it did | What became of it |
 | --- | --- | --- |
-| `20260813_usage_period_key_server_side.sql` | Derives the usage `period_key` from `now()` at UTC instead of trusting the caller, and adds a `usage_feature_periods` table | No equivalent for the function change. `002_billing_tiers.sql` still writes the caller-supplied key (per the pre-squash 038/039, the server-side variant is NOT applied in production); the `usage_feature_periods` table itself IS in 002 |
-| `20260813_lock_internal_storage_functions.sql` | Revokes PUBLIC EXECUTE on `apply_storage_delta(uuid,bigint)` and `get_user_storage_cap(uuid)` | Mostly covered by `004_storage_quota.sql`, EXCEPT that this chain never revokes `anon` on `get_user_storage_cap` (see "Known grant warts" below) |
+| `20260813_usage_period_key_server_side.sql` | Replaced `increment_usage_counter` with a variant that derives the month/day `period_key` from `now()` at UTC instead of trusting the caller, reading daily vs monthly from `usage_feature_periods` | Dropped, not ported. It was never applied to live, and 016 and 017 have since replaced the function twice, so applying it now would silently remove the hour bucket and the event row (the live body was checked in October 2026 and writes `usage_events`, so 017 is what runs). `usage_feature_periods` is still created by 002 but nothing reads it. If server-derived keys are wanted, write a new migration on top of 017's body |
+| `20260813_lock_internal_storage_functions.sql` | Revoked direct EXECUTE on `apply_storage_delta(uuid,bigint)` and `get_user_storage_cap(uuid)` | Ported as `036_lock_storage_cap_from_anon.sql`. 004 already covered `apply_storage_delta`; the missing piece was `anon` on `get_user_storage_cap`. On 14 Oct 2026 `anon` held no EXECUTE on either function on live (the dated file had evidently been run there), so 036 brings the repo in line with live rather than changing it |
 
-**Whether these are already live is unknown.** Check before doing anything:
-
-```sql
-select prosrc from pg_proc where proname = 'increment_usage_counter';
-```
-
-If the live definition computes the key from `now()`, the fix is already
-applied and the correct cleanup is deleting the two dated files from the
-extension repo so the repos stop disagreeing. If it still writes
-`p_period_key` (what 002 assumes), decide then whether to port them into this
-sequence.
-
-Scope note if you do port them: the exposure is a signed-in user tampering with
-their own client to under-report their own usage (the RPC is already revoked
-from `anon`). Since the extension is the enforcement point and runs in the
-user's browser, this narrows one bypass route rather than closing the class.
+The exposure the dropped period-key change addressed is a signed-in user
+tampering with their own client to under-report their own usage (the RPC is
+already revoked from `anon`). Since the extension is the enforcement point and
+runs in the user's browser, server-derived keys would narrow one bypass route
+rather than close the class.
 
 ## Consolidated baseline (September 2026)
 
@@ -92,12 +80,14 @@ baseline, not part of the squash:
 | File | Contents | Note |
 | --- | --- | --- |
 | `015_device_session_version.sql` | device_sessions.extension_version column, claim_device_session 4-arg signature, admin roster/detail version reporting | Applied to live as pre-squash `041`; renumbered only, content unchanged (in-body comments still say 041 to keep function bodies byte-identical to live) |
-| `016_usage_hour_buckets.sql` | increment_usage_counter also upserts a server-derived UTC hour bucket (`YYYY-MM-DDTHH`); hour rows purged after 60 days and excluded from the 2000-row cap; partial index for the purge | Replaces `increment_usage_counter` outright, so after applying it the "unreconciled" question above is settled: the live body is 002's caller-supplied-key variant plus the hour bucket. Set `HOUR_EPOCH` in `lib/admin/period.ts` to the day it was applied |
+| `016_usage_hour_buckets.sql` | increment_usage_counter also upserts a server-derived UTC hour bucket (`YYYY-MM-DDTHH`); hour rows purged after 60 days and excluded from the 2000-row cap; partial index for the purge | Replaces `increment_usage_counter` outright, which is why the extension repo's dated period-key file could not be ported (see "Former extension-repo migrations" above): the live body is 002's caller-supplied-key variant plus the hour bucket. Set `HOUR_EPOCH` in `lib/admin/period.ts` to the day it was applied |
 | `017_usage_events.sql` | usage_events table (one row per increment_usage_counter call, 7-day retention, hourly purge), increment_usage_counter writes it, admin_list_usage_events(since, until) | Replaces `increment_usage_counter` again (016 body plus the event insert). Set `EVENTS_EPOCH` in `lib/admin/period.ts` to the moment it was applied |
 | `022_preset_sync_feature.sql` | Adds the `preset_sync` boolean to `tier_limits.features` (true on trial/starter/pro/business, false on the retired free row) via jsonb concatenation | Data only, no schema change. Applied to live on 20 Sep 2026 (verified: true on business/pro/starter/trial, false on free). Gates the extension's settings-preset cloud copy; apply before shipping an extension build that carries `src/utils/cloud/preset-sync.ts`'s gate, or presets stop syncing for everyone |
 | `032_roadmap_items.sql` | `roadmap_items` table (public read of published cards via RLS, admin read of drafts via `is_admin()`), `admin_save_roadmap_item` / `admin_delete_roadmap_item` / `admin_reorder_roadmap_items`, seed of the nine cards that were hardcoded in `lib/roadmap/data.ts` (with eBay moved to Building) | Applied to live on 13 Oct 2026 (verified: 9 cards, eBay in Building). **Apply before deploying the web build that reads it** on any rebuilt project: the homepage roadmap section renders nothing while the table is missing. Re-runnable: the seed is `ON CONFLICT DO NOTHING`, so it never overwrites console edits |
 | `033_roadmap_sync_main.sql` | Data only: replays the roadmap PR #200 rewrote in `lib/roadmap/data.ts` + `messages/*.json` (11 cards, eBay and eBay-only sellers in Building for Q4 2026, newer shipped items) into `roadmap_items`, and deletes the two cards it dropped | Touches only cards never saved in `/admin/roadmap` (`updated_at = created_at`), so console edits win and re-running is safe. **Apply before deploying the web build that reads `roadmap_items`**, or the site shows 032's older roadmap |
-| `034_marketing_explicit_yes.sql` | Replaces `trial_nudge_due()` and `winback_due()`: only accounts whose `marketing_opt_out` is false (an explicit yes) are picked; unanswered accounts are no longer emailed under the soft opt-in | Function bodies otherwise identical to 028. Apply with `supabase db push`; the next daily trial-nudge run uses it |
+| `034_marketing_explicit_yes.sql` | Replaces `trial_nudge_due()` and `winback_due()`: only accounts whose `marketing_opt_out` is false (an explicit yes) are picked; unanswered accounts are no longer emailed under the soft opt-in | Function bodies otherwise identical to 028. Apply with `supabase db query --linked -f` (not `db push`, see the top of this file); the next daily trial-nudge run uses it |
+| `036_lock_storage_cap_from_anon.sql` | Revokes `anon` EXECUTE on `get_user_storage_cap(uuid)` | Ported from the extension repo's `20260813_lock_internal_storage_functions.sql`; closes the first grant wart below. Idempotent, no client calls the function. Already in effect on live (checked 14 Oct 2026), so applying it there is a no-op |
+| `037_sync_live_functions.sql` | Re-creates `admin_set_tier_limit` and `admin_set_tier_feature` (009), `admin_set_user_subscription` (009) and `bump_user_storage_on_delete` (004) with their baseline bodies, verbatim; the two tier RPCs revoke `anon` | A 14 Oct 2026 comparison of live function bodies against this folder found the two tier RPCs missing on live (pre-squash `030_admin_tier_write_rpcs.sql` never ran there) and the other two on older bodies. Signatures match live, so it replaces in place. Closes the second grant wart below. Re-runnable |
 
 ## Known grant warts (preserved, not fixed)
 
@@ -109,15 +99,21 @@ baseline files:
 - `get_user_storage_cap(uuid)` still grants EXECUTE to `anon` (via Supabase's
   default privileges; 019 revoked only `authenticated`). An anonymous caller
   can probe another user's storage cap, which discloses their coarse tier.
+  Fixed by `036_lock_storage_cap_from_anon.sql`. Live no longer has the gap
+  (checked 14 Oct 2026); the extension repo's dated lock file had evidently
+  been run there.
 - `admin_set_tier_limit` / `admin_set_tier_feature` still grant EXECUTE to
   `anon` (024 missed them). Harmless - both gate on `is_admin()` internally -
-  but it is the advisor-warning class 024 exists to close.
+  but it is the advisor-warning class 024 exists to close. Fixed by
+  `037_sync_live_functions.sql`. Both functions were missing from live
+  entirely until 037, so live never had this wart.
 - `referral_display_name_problem(text)` has no pinned `search_path` (029 and
   040 both skipped it). IMMUTABLE plpgsql with no table references, so inert.
 
 ## Rebuilding from scratch
 
-Run the files in order, 001 -> 017, against a fresh Supabase project. Caveats:
+Run the files in numeric order, from 001 to the highest number, against a fresh
+Supabase project. Caveats:
 
 - `tier_limits` is runtime-editable via the admin console, so the seed in
   `002_billing_tiers.sql` reflects the values as of the squash, not

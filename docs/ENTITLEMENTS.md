@@ -126,9 +126,10 @@ Because the bucket is chosen client-side, anything calling the RPC directly can
 name a period nothing reads, and that usage never counts against the current
 cap. The extension is the enforcement point and runs in the user's browser, so
 this is one bypass route among several rather than a distinct hole. A migration
-that derives the key server-side exists in the extension repo but was never
-reconciled into this repo's sequence; see `supabase/migrations/README.md` for
-what to check before acting on it.
+that derived the key server-side used to sit in the extension repo, but it was
+never applied and 016/017 have since replaced the function, so it was dropped
+in October 2026. Server-derived keys would need a new migration on top of 017;
+see "Former extension-repo migrations" in `supabase/migrations/README.md`.
 
 ## Seed data (v1)
 
