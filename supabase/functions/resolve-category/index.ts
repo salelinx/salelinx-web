@@ -1,7 +1,8 @@
 // Supabase Edge Function: resolve-category
 // ------------------------------------------------------------------------
-// Resolves Depop <-> Vinted categories, and eBay categories from listing
-// wording, for the SaleLinx extension's crosslister.
+// Resolves Depop <-> Vinted categories, eBay categories from listing
+// wording, and eBay categories as Depop and Vinted ones, for the SaleLinx
+// extension's crosslister.
 //
 // Why this exists: the category mapping tables (~116KB) used to ship inside
 // the extension bundle, where anyone who installed it could unzip the .crx and
@@ -44,6 +45,7 @@ import {
 import { DEPOP_ID_TO_DRAFT_CATEGORY } from './_generated/category-maps-depop.ts';
 import { vintedCategoryIdToDepop } from './_generated/category-maps-vinted.ts';
 import { ebayCategoriesFor } from './ebay-category.ts';
+import { depopTypeForEbay } from './_generated/ebay-depop-types.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -271,6 +273,23 @@ Deno.serve(async (req: Request) => {
         case 'toEbay': {
           const req = (raw.toEbay ?? {}) as Record<string, unknown>;
           return { id, toEbay: await ebayCategoriesFor(clampText(req.query), req.marketplace) };
+        }
+
+        case 'fromEbay': {
+          const req = (raw.fromEbay ?? {}) as Record<string, unknown>;
+          const title = clampText(req.title);
+          const gender = typeof req.gender === 'string' ? req.gender : null;
+          const match = depopTypeForEbay(clampText(req.path), title, gender);
+          if (!match) return { id, fromEbay: null };
+          // The Depop → Vinted mapping keeps its refiners (dress length, jeans fit, coat kind).
+          const vinted =
+            mapDepopToVintedCategory(
+              match.depopCategoryId,
+              title,
+              clampText(req.description),
+              match.depopType.startsWith('kidswear/'),
+            ).mapping ?? { vintedCatalogId: match.vintedCatalogId, vintedLabel: '' };
+          return { id, fromEbay: { ...match, vinted } };
         }
 
         case 'depopProductType': {
