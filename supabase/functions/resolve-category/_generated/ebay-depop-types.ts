@@ -16,8 +16,8 @@ export interface EbayDepopType {
   depopType: string;
   /** Depop legacy category id, which the Depop → Vinted mapping and its refiners take. */
   depopCategoryId: number;
-  /** A Vinted leaf filed under the same Depop type, for when that mapping has none. */
-  vintedCatalogId: number;
+  /** Every Vinted leaf filed under the same Depop type, the first as the default. */
+  vintedCatalogIds: number[];
 }
 
 // eBay's words for what Depop names differently.
@@ -62,6 +62,11 @@ const SYNONYMS: Record<string, string> = {
   parka: 'coat',
   puffer: 'jacket',
   shoe: 'footwear',
+  ccg: 'trading',
+  mug: 'dinnerware',
+  cup: 'dinnerware',
+  plate: 'dinnerware',
+  bowl: 'dinnerware',
 };
 
 const STOP = new Set(['and', 'other', 'accessories', 'clothing']);
@@ -78,6 +83,7 @@ function words(text: string): Set<string> {
     text
       .toLowerCase()
       .replace(/t-?shirt/g, 'tshirt')
+      .replace(/football shirt/g, 'jersey')
       .split(/[^a-z]+/)
       .filter((w) => w.length > 1 && !STOP.has(w))
       .map(stem)
@@ -106,19 +112,23 @@ const TYPES: {
   row: EbayDepopType;
 }[] = [];
 for (const [vintedId, [depopType, depopCategoryId]] of Object.entries(VINTED_DEPOP_TYPES)) {
-  if (TYPES.some((t) => t.depopType === depopType)) continue;
+  const seen = TYPES.find((t) => t.depopType === depopType);
+  if (seen) {
+    seen.row.vintedCatalogIds.push(Number(vintedId));
+    continue;
+  }
   const [dept, group, productType] = depopType.split('/');
   TYPES.push({
     depopType,
     dept,
     pt: words(productType),
     grp: words(group),
-    row: { depopType, depopCategoryId, vintedCatalogId: Number(vintedId) },
+    row: { depopType, depopCategoryId, vintedCatalogIds: [Number(vintedId)] },
   });
 }
 
-/** The Depop type for an eBay listing: what its category's deepest level names, then the level
- *  above, with the title breaking ties. Kept to
+/** The Depop type for an eBay listing: what its category's deepest naming level says, then the
+ *  level above, with the title breaking ties. Kept to
  *  the department the path or the item's gender gives. Null when neither level names one. */
 export function depopTypeForEbay(
   path: string,
@@ -130,24 +140,31 @@ export function depopTypeForEbay(
     DEPARTMENTS.find(([re]) => levels.some((l) => re.test(l)))?.[1] ??
     GENDER_DEPARTMENT[gender ?? ''] ??
     null;
-  const last = words(levels.at(-1) ?? '');
-  const prev = words(levels.at(-2) ?? '');
   const titled = words(title);
-  // A product type word counts double, once: "other-coats-jackets" must not outscore "coats".
-  const hits = (t: (typeof TYPES)[number], ws: Set<string>) =>
-    ([...t.pt].some((w) => ws.has(w)) ? 2 : 0) + [...t.grp].filter((w) => ws.has(w)).length;
-  let best: { score: number; row: EbayDepopType } | null = null;
-  for (const t of TYPES) {
-    if (dept && t.dept !== dept && t.dept !== 'everything-else') continue;
-    if (!hits(t, last)) continue;
-    // With no department to go on, Depop's non-clothing and then womenswear win a tie; an
-    // "other-" catch-all loses one.
-    const lean =
-      (dept ? 0 : t.dept === 'everything-else' ? 0.2 : t.dept === 'womenswear' ? 0.1 : 0) -
-      (t.depopType.includes('/other-') ? 0.5 : 0);
-    const fromPath = 10 * hits(t, last) + 3 * hits(t, prev);
-    const score = fromPath + hits(t, titled) + lean;
-    if (!best || score > best.score) best = { score, row: t.row };
+  // A product type counts double plus one per extra word it shares ("trading cards" over "cards"),
+  // except an "other-" catch-all, which would otherwise outscore the type it gathers up.
+  const hits = (t: (typeof TYPES)[number], ws: Set<string>) => {
+    const pt = [...t.pt].filter((w) => ws.has(w)).length;
+    const ptScore = pt ? 1 + (t.depopType.includes('/other-') ? 1 : pt) : 0;
+    return ptScore + [...t.grp].filter((w) => ws.has(w)).length;
+  };
+  // Deepest level first; a level naming nothing ("Spanish Clubs") hands over to the one above.
+  for (let i = levels.length - 1; i >= 0; i--) {
+    const last = words(levels[i]);
+    const prev = words(levels[i - 1] ?? '');
+    let best: { score: number; row: EbayDepopType } | null = null;
+    for (const t of TYPES) {
+      if (dept && t.dept !== dept && t.dept !== 'everything-else') continue;
+      if (!hits(t, last)) continue;
+      // With no department to go on, Depop's non-clothing and then womenswear win a tie; an
+      // "other-" catch-all loses one.
+      const lean =
+        (dept ? 0 : t.dept === 'everything-else' ? 0.2 : t.dept === 'womenswear' ? 0.1 : 0) -
+        (t.depopType.includes('/other-') ? 0.5 : 0);
+      const score = 10 * hits(t, last) + 3 * hits(t, prev) + hits(t, titled) + lean;
+      if (!best || score > best.score) best = { score, row: t.row };
+    }
+    if (best) return best.row;
   }
-  return best?.row ?? null;
+  return null;
 }

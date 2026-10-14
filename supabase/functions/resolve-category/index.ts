@@ -281,14 +281,19 @@ Deno.serve(async (req: Request) => {
           const gender = typeof req.gender === 'string' ? req.gender : null;
           const match = depopTypeForEbay(clampText(req.path), title, gender);
           if (!match) return { id, fromEbay: null };
-          // The Depop → Vinted mapping keeps its refiners (dress length, jeans fit, coat kind).
-          const vinted =
-            mapDepopToVintedCategory(
-              match.depopCategoryId,
-              title,
-              clampText(req.description),
-              match.depopType.startsWith('kidswear/'),
-            ).mapping ?? { vintedCatalogId: match.vintedCatalogId, vintedLabel: '' };
+          // Clothing goes through the Depop → Vinted mapping for its refiners (dress length, jeans
+          // fit, coat kind). Elsewhere a legacy id is too coarse (toys, games and LEGO share one),
+          // so a Vinted leaf filed under the type is the default and the extension picks among them.
+          const clothing = !match.depopType.startsWith('everything-else/');
+          const mapped = clothing
+            ? mapDepopToVintedCategory(
+                match.depopCategoryId,
+                title,
+                clampText(req.description),
+                match.depopType.startsWith('kidswear/'),
+              ).mapping
+            : null;
+          const vinted = mapped ?? { vintedCatalogId: match.vintedCatalogIds[0], vintedLabel: '' };
           return { id, fromEbay: { ...match, vinted } };
         }
 
