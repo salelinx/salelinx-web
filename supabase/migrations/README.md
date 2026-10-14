@@ -87,6 +87,7 @@ baseline, not part of the squash:
 | `033_roadmap_sync_main.sql` | Data only: replays the roadmap PR #200 rewrote in `lib/roadmap/data.ts` + `messages/*.json` (11 cards, eBay and eBay-only sellers in Building for Q4 2026, newer shipped items) into `roadmap_items`, and deletes the two cards it dropped | Touches only cards never saved in `/admin/roadmap` (`updated_at = created_at`), so console edits win and re-running is safe. **Apply before deploying the web build that reads `roadmap_items`**, or the site shows 032's older roadmap |
 | `034_marketing_explicit_yes.sql` | Replaces `trial_nudge_due()` and `winback_due()`: only accounts whose `marketing_opt_out` is false (an explicit yes) are picked; unanswered accounts are no longer emailed under the soft opt-in | Function bodies otherwise identical to 028. Apply with `supabase db query --linked -f` (not `db push`, see the top of this file); the next daily trial-nudge run uses it |
 | `036_lock_storage_cap_from_anon.sql` | Revokes `anon` EXECUTE on `get_user_storage_cap(uuid)` | Ported from the extension repo's `20260813_lock_internal_storage_functions.sql`; closes the first grant wart below. Idempotent, no client calls the function. Already in effect on live (checked 14 Oct 2026), so applying it there is a no-op |
+| `037_sync_live_functions.sql` | Re-creates `admin_set_tier_limit` and `admin_set_tier_feature` (009), `admin_set_user_subscription` (009) and `bump_user_storage_on_delete` (004) with their baseline bodies, verbatim; the two tier RPCs revoke `anon` | A 14 Oct 2026 comparison of live function bodies against this folder found the two tier RPCs missing on live (pre-squash `030_admin_tier_write_rpcs.sql` never ran there) and the other two on older bodies. Signatures match live, so it replaces in place. Closes the second grant wart below. Re-runnable |
 
 ## Known grant warts (preserved, not fixed)
 
@@ -103,7 +104,9 @@ baseline files:
   been run there.
 - `admin_set_tier_limit` / `admin_set_tier_feature` still grant EXECUTE to
   `anon` (024 missed them). Harmless - both gate on `is_admin()` internally -
-  but it is the advisor-warning class 024 exists to close.
+  but it is the advisor-warning class 024 exists to close. Fixed by
+  `037_sync_live_functions.sql`. Both functions were missing from live
+  entirely until 037, so live never had this wart.
 - `referral_display_name_problem(text)` has no pinned `search_path` (029 and
   040 both skipped it). IMMUTABLE plpgsql with no table references, so inert.
 

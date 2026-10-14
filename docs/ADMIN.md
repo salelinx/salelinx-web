@@ -161,6 +161,8 @@ The Tier limits / Feature flags modules edit `tier_limits`, which is public-read
 - `admin_set_tier_limit(tier_id, version, key, value)` - `jsonb_set` one cap in `limits`. `value` is a JSON number or null (unlimited).
 - `admin_set_tier_feature(tier_id, version, key, enabled)` - `jsonb_set` one boolean in `features`.
 
+Neither function existed on the live project until `037_sync_live_functions.sql` (the pre-squash file that created them was never run there), so before 037 is applied both editors fail on save with a "function not found" error from PostgREST.
+
 Guardrails built into both functions (not the UI):
 
 - **Active rows only** (`effective_until IS NULL`). Historical versions are grandfathering records and must not be rewritten.
