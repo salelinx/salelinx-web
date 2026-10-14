@@ -51,6 +51,14 @@ const SYNONYMS: Record<string, string> = {
   novel: 'book',
   vinyl: 'cd',
   record: 'cd',
+  dvd: 'cd',
+  headphone: 'dj',
+  earphone: 'dj',
+  scarve: 'scarf',
+  shawl: 'scarf',
+  soft: 'stuffed',
+  plush: 'stuffed',
+  teddy: 'stuffed',
   lego: 'building',
   perfume: 'fragrance',
   aftershave: 'fragrance',
@@ -129,7 +137,7 @@ for (const [vintedId, [depopType, depopCategoryId]] of Object.entries(VINTED_DEP
 
 /** The Depop type for an eBay listing: what its category's deepest naming level says, then the
  *  level above, with the title breaking ties. Kept to
- *  the department the path or the item's gender gives. Null when neither level names one. */
+ *  the department the path, the item's gender or its title gives. Null when neither level names one. */
 export function depopTypeForEbay(
   path: string,
   title: string,
@@ -139,6 +147,7 @@ export function depopTypeForEbay(
   const dept =
     DEPARTMENTS.find(([re]) => levels.some((l) => re.test(l)))?.[1] ??
     GENDER_DEPARTMENT[gender ?? ''] ??
+    DEPARTMENTS.find(([re]) => re.test(title))?.[1] ??
     null;
   const titled = words(title);
   // A product type counts double plus one per extra word it shares ("trading cards" over "cards"),
