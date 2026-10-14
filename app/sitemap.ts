@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 import { SITE_URL, absoluteUrl } from '@/lib/site';
+import { CATEGORIES } from '@/lib/docs/categories';
 import { ARTICLE_MODULES_BY_LOCALE, TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { TRANSLATED_CHANGELOG_LOCALES } from '@/lib/docs/changelog';
 import { LANDING_PAGES } from '@/lib/landing/pages';
@@ -41,6 +42,8 @@ const STATIC_PATHS: {
   { path: '/blog', priority: 0.7, changeFrequency: 'weekly', locales: ['en'] },
   { path: '/legal/privacy', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
   { path: '/legal/terms', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
+  { path: '/legal/dpa', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
+  { path: '/legal/referral-terms', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
 ];
 
 function alternatesFor(
@@ -83,6 +86,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(metadata.updated),
       changeFrequency: 'monthly',
       priority: 0.7,
+    });
+  }
+
+  for (const { slug } of CATEGORIES) {
+    const path = `/docs/${slug}`;
+    entries.push({
+      url: absoluteUrl(routing.defaultLocale, path),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      alternates: alternatesFor(path, TRANSLATED_DOCS_LOCALES),
     });
   }
 
