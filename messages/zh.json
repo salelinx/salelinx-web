@@ -1,7 +1,7 @@
 {
   "Layout": {
-    "metaTitle": "SaleLinx - 在 Depop 和 Vinted 上同时销售",
-    "metaDescription": "在一个面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。"
+    "metaTitle": "SaleLinx - 在 Vinted、Depop 和 eBay 上同时销售",
+    "metaDescription": "在 Vinted、Depop 和 eBay 之间跨平台上架，并在一个地方完成重新上架、刷新和库存同步。"
   },
   "Header": {
     "navFeatures": "功能",
@@ -24,7 +24,7 @@
     "supportContact": "联系客服"
   },
   "Footer": {
-    "tagline": "在一个地方同时经营 Depop 和 Vinted。",
+    "tagline": "在一个地方同时经营 Vinted、Depop 和 eBay。",
     "sectionProduct": "产品",
     "sectionResources": "资源",
     "sectionLegal": "法律",
@@ -41,7 +41,7 @@
     "linkDpa": "数据处理附录",
     "linkReferralTerms": "推荐计划条款",
     "copyright": "© {year} SaleLinx Ltd. 保留所有权利。",
-    "builtFor": "为 Depop 和 Vinted 卖家打造。",
+    "builtFor": "为 Vinted、Depop 和 eBay 卖家打造。",
     "companyInfo": "SaleLinx Ltd 是在英格兰和威尔士注册的公司，公司编号 17351832。注册地址：34 Sussex Place, London, W2 2TH, United Kingdom。"
   },
   "CookieBanner": {
@@ -241,7 +241,7 @@
     },
     "signup": {
       "title": "创建账户",
-      "metaDescription": "创建免费的 SaleLinx 账户，开始在 Depop 和 Vinted 上跨平台上架、重新上架和刷新商品。",
+      "metaDescription": "创建免费的 SaleLinx 账户，开始在 Vinted、Depop 和 eBay 之间跨平台上架，并重新上架和刷新商品。",
       "emailInUse": "这个邮箱已经注册过账户。请在下方登录，如果忘记密码可以重置。",
       "disposableEmail": "请使用长期有效的邮箱地址。不支持临时邮箱服务。",
       "passwordPlaceholder": "密码（至少 8 个字符）",
@@ -540,23 +540,23 @@
     "metaDescription": "有朋友邀请你使用 SaleLinx，通过他的链接注册即可享受首月折扣。",
     "eyebrow": "你收到了邀请",
     "title": "你的朋友用 SaleLinx 经营店铺。",
-    "description": "SaleLinx 是给 Depop 和 Vinted 卖家用的工具箱，在一个面板里完成跨平台上架、重新上架、刷新和库存同步。因为有朋友邀请你，首月折扣会自动应用。",
+    "description": "SaleLinx 是给 Vinted、Depop 和 eBay 卖家用的工具箱：在三个平台之间跨平台上架，并在一个面板里完成重新上架、刷新和库存同步。因为有朋友邀请你，首月折扣会自动应用。",
     "claimCta": "注册并领取折扣",
     "exploreCta": "看看 SaleLinx 能做什么",
     "note": "你的邀请会在这个浏览器里保留 30 天，结账时不需要输入优惠码。",
     "step1": "创建你的免费账户，邀请已经自动关联好了。",
-    "step2": "安装扩展，并连接你的 Depop 或 Vinted 店铺。",
+    "step2": "安装扩展，并连接你的 Vinted、Depop 或 eBay 店铺。",
     "step3": "选择套餐，折扣会在结账时自动应用。",
     "termsNote": "折扣适用于新付费套餐的首次付款，不能与其他优惠码叠加。",
     "termsLink": "查看推荐计划条款"
   },
   "Features": {
     "metaTitle": "产品、价格、路线图",
-    "metaDescription": "SaleLinx Chrome 扩展的全部功能、价格，以及接下来的计划。在一个面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。",
+    "metaDescription": "SaleLinx Chrome 扩展的全部功能、价格，以及接下来的计划。在 Vinted、Depop 和 eBay 之间跨平台上架，并在一个面板里完成重新上架、刷新和库存同步。",
     "hero": {
       "eyebrow": "产品概览",
       "title": "SaleLinx 的全部功能、价格和下一步计划。",
-      "description": "在一个浏览器面板里完成 Depop 和 Vinted 的跨平台上架、重新上架、刷新和库存同步。",
+      "description": "在 Vinted、Depop 和 eBay 之间跨平台上架，并在一个浏览器面板里完成重新上架、刷新和库存同步。",
       "installExtension": "安装扩展",
       "seePricing": "查看价格"
     },
@@ -575,8 +575,8 @@
       "items": {
         "crosslist": {
           "short": "跨平台上架",
-          "title": "一键在 Depop 和 Vinted 之间跨平台上架",
-          "body": "选中一个商品，点击跨平台上架，另一个平台的表单就会自动填好。分类、尺码和成色都会替你转换，同一件商品几秒钟就能在两个店铺同时上架。",
+          "title": "一键在 Vinted、Depop 和 eBay 之间跨平台上架",
+          "body": "选中一个商品，点击跨平台上架，另一个平台的表单就会自动填好。分类、尺码和成色都会替你转换，同一件商品几秒钟就能在 Vinted、Depop 或 eBay 上架。",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -625,7 +625,7 @@
           "linkAccounts": {
             "name": "账号关联",
             "label": "店铺只需连接一次",
-            "detail": "像平时一样登录 Depop 和 Vinted。SaleLinx 会沿用当前的登录状态，不需要重新输入密码。"
+            "detail": "像平时一样登录 Depop 和 Vinted，并通过 eBay 自己的登录页连接 eBay。不需要重新输入密码。"
           },
           "backup": {
             "name": "云备份",
@@ -647,12 +647,12 @@
       "crosslisting": {
         "number": "02",
         "title": "跨平台上架",
-        "blurb": "商品信息只写一次，同时发布到两个平台。分类和尺码这些麻烦的部分会替你转换好。",
+        "blurb": "商品信息只写一次，发布到你的其他平台。分类、尺码和 eBay 商品属性这些麻烦的部分会替你转换好。",
         "items": {
           "bidirectional": {
             "name": "跨平台上架",
-            "label": "Depop 和 Vinted 双向跨平台上架",
-            "detail": "在任一平台选中任意商品，SaleLinx 都会替你填好另一边的表单。"
+            "label": "Vinted、Depop 和 eBay 任意方向跨平台上架",
+            "detail": "在 Vinted、Depop 或 eBay 选中任意商品，SaleLinx 都会替你填好另一个平台的表单。"
           },
           "autoMap": {
             "name": "类目映射",
@@ -963,7 +963,8 @@
     "meta": {
       "scoping": "评估中",
       "targetQ4_2026": "目标 2026 年第四季度",
-      "shippedApr_2026": "2026 年 4 月发布"
+      "shippedApr_2026": "2026 年 4 月发布",
+      "shippedOct_2026": "2026 年 10 月发布"
     },
     "items": {
       "ebay-integration": {
@@ -972,7 +973,7 @@
       },
       "poshmark-integration": {
         "title": "Poshmark 集成",
-        "description": "将 Poshmark 纳入与 Depop 和 Vinted 并行的跨平台发布流程。"
+        "description": "将 Poshmark 纳入与 Vinted、Depop 和 eBay 并行的跨平台发布流程。"
       },
       "scheduled-relisting": {
         "title": "定时重新上架",
@@ -1034,13 +1035,13 @@
   },
   "Welcome": {
     "metaTitle": "欢迎使用 SaleLinx",
-    "metaDescription": "三步让你的 Depop 和 Vinted 店铺在 SaleLinx 中运行起来。",
+    "metaDescription": "三步让你的 Vinted、Depop 或 eBay 店铺在 SaleLinx 中运行起来。",
     "eyebrow": "已安装",
     "title": "一切就绪",
-    "subtitle": "SaleLinx 运行在 Depop 和 Vinted 页面内，而不是独立应用。以下是找到它的方法。",
+    "subtitle": "SaleLinx 运行在 Vinted、Depop 和 eBay 页面内，而不是独立应用。以下是找到它的方法。",
     "step1Title": "固定扩展程序",
     "step1Text": "点击 Chrome 工具栏中的拼图图标，将 SaleLinx 固定，随时可用。",
-    "step2Title": "打开 Depop 或 Vinted",
+    "step2Title": "打开 Vinted、Depop 或 eBay",
     "step2Text": "前往你销售的平台，SaleLinx 启动器会自动出现在页面上。",
     "step3Title": "打开面板并关联店铺",
     "step3Text": "点击启动器，创建免费账户并关联店铺。之后一切都在这里操作。",

@@ -1,7 +1,7 @@
 {
   "Layout": {
-    "metaTitle": "SaleLinx - Vende en Depop y Vinted",
-    "metaDescription": "Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo lugar."
+    "metaTitle": "SaleLinx - Vende en Vinted, Depop y eBay",
+    "metaDescription": "Crosslista entre Vinted, Depop y eBay, y republica, actualiza y repone desde un solo lugar."
   },
   "Header": {
     "navFeatures": "Funciones",
@@ -24,7 +24,7 @@
     "supportContact": "Contactar con soporte"
   },
   "Footer": {
-    "tagline": "Vende en Depop y Vinted desde un solo lugar.",
+    "tagline": "Vende en Vinted, Depop y eBay desde un solo lugar.",
     "sectionProduct": "Producto",
     "sectionResources": "Recursos",
     "sectionLegal": "Legal",
@@ -41,7 +41,7 @@
     "linkDpa": "Anexo de tratamiento de datos",
     "linkReferralTerms": "Términos de recomendación",
     "copyright": "© {year} SaleLinx Ltd. Todos los derechos reservados.",
-    "builtFor": "Creado para vendedores de Depop y Vinted.",
+    "builtFor": "Creado para vendedores de Vinted, Depop y eBay.",
     "companyInfo": "SaleLinx Ltd es una sociedad registrada en Inglaterra y Gales con el número 17351832. Domicilio social: 34 Sussex Place, Londres, W2 2TH, Reino Unido."
   },
   "CookieBanner": {
@@ -241,7 +241,7 @@
     },
     "signup": {
       "title": "Crear cuenta",
-      "metaDescription": "Crea una cuenta gratuita de SaleLinx y empieza a crosslistar, republicar y actualizar tus artículos en Depop y Vinted.",
+      "metaDescription": "Crea una cuenta gratuita de SaleLinx y empieza a crosslistar entre Vinted, Depop y eBay, y a republicar y actualizar tus artículos.",
       "emailInUse": "Ya existe una cuenta con este email. Inicia sesión abajo o restablece tu contraseña si la has olvidado.",
       "disposableEmail": "Usa una dirección de correo permanente. Los servicios de correo temporal no son compatibles.",
       "passwordPlaceholder": "Contraseña (mín. 8 caracteres)",
@@ -540,23 +540,23 @@
     "metaDescription": "Un amigo te ha invitado a SaleLinx: regístrate con su enlace y obtén un descuento en tu primer mes.",
     "eyebrow": "Te han invitado",
     "title": "Tu amigo gestiona su tienda con SaleLinx.",
-    "description": "SaleLinx es un kit de herramientas para vendedores de Depop y Vinted: publica en ambas, republica, actualiza y gestiona stock desde un solo panel. Como te ha invitado un amigo, el descuento se aplica automáticamente a tu primer mes.",
+    "description": "SaleLinx es un kit de herramientas para vendedores de Vinted, Depop y eBay: publica entre las tres, republica, actualiza y gestiona stock desde un solo panel. Como te ha invitado un amigo, el descuento se aplica automáticamente a tu primer mes.",
     "claimCta": "Regístrate y consigue tu descuento",
     "exploreCta": "Descubre SaleLinx",
     "note": "Tu invitación se recuerda en este navegador durante 30 días; no necesitas ningún código al pagar.",
     "step1": "Crea tu cuenta gratuita: tu invitación ya está vinculada.",
-    "step2": "Instala la extensión y vincula tu tienda de Depop o Vinted.",
+    "step2": "Instala la extensión y vincula tu tienda de Vinted, Depop o eBay.",
     "step3": "Elige un plan: el descuento se aplica automáticamente al pagar.",
     "termsNote": "El descuento se aplica a tu primer pago de un nuevo plan de pago y no puede combinarse con otros códigos promocionales.",
     "termsLink": "Ver los términos del programa de recomendación"
   },
   "Features": {
     "metaTitle": "Producto, precios, hoja de ruta",
-    "metaDescription": "Todo lo que hace la extensión de Chrome SaleLinx, cuánto cuesta y qué viene después. Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo panel.",
+    "metaDescription": "Todo lo que hace la extensión de Chrome SaleLinx, cuánto cuesta y qué viene después. Crosslista entre Vinted, Depop y eBay, y republica, actualiza y repone desde un solo panel.",
     "hero": {
       "eyebrow": "Resumen del producto",
       "title": "Todo lo que hace SaleLinx, cuánto cuesta y qué viene después.",
-      "description": "Crosslista, republica, actualiza y repone en Depop y Vinted desde un solo panel del navegador.",
+      "description": "Crosslista entre Vinted, Depop y eBay, y republica, actualiza y repone desde un solo panel del navegador.",
       "installExtension": "Instalar extensión",
       "seePricing": "Ver precios"
     },
@@ -575,8 +575,8 @@
       "items": {
         "crosslist": {
           "short": "Crosslist",
-          "title": "Crosslista Depop y Vinted en un clic",
-          "body": "Elige un anuncio, pulsa crosslist y el formulario de la otra marketplace se rellena solo. Categorías, tallas y condiciones se traducen por ti, así el mismo artículo sale en ambas tiendas en segundos.",
+          "title": "Crosslista Vinted, Depop y eBay en un clic",
+          "body": "Elige un anuncio, pulsa crosslist y el formulario de la otra marketplace se rellena solo. Categorías, tallas y condiciones se traducen por ti, así el mismo artículo sale en Vinted, Depop o eBay en segundos.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -625,7 +625,7 @@
           "linkAccounts": {
             "name": "Vinculacion de cuentas",
             "label": "Vincula tus tiendas una sola vez",
-            "detail": "Inicia sesión en Depop y Vinted como siempre. SaleLinx detecta la sesión, sin contraseñas que volver a meter."
+            "detail": "Inicia sesión en Depop y Vinted como siempre, y conecta eBay desde su propia página de inicio de sesión. Sin contraseñas que volver a meter."
           },
           "backup": {
             "name": "Copia en la nube",
@@ -647,12 +647,12 @@
       "crosslisting": {
         "number": "02",
         "title": "Crosslisting",
-        "blurb": "Escribe un anuncio una vez y publícalo en las dos marketplaces a la vez. Lo complicado, como categorías y tallas, se traduce por ti.",
+        "blurb": "Escribe un anuncio una vez y publícalo en tus otras marketplaces. Lo complicado, como categorías, tallas y características de eBay, se traduce por ti.",
         "items": {
           "bidirectional": {
             "name": "Crosslist",
-            "label": "Crosslista Depop y Vinted, en ambos sentidos",
-            "detail": "Elige un anuncio en cualquiera de las dos marketplaces y SaleLinx rellena el formulario del otro lado por ti."
+            "label": "Crosslista Vinted, Depop y eBay, en cualquier dirección",
+            "detail": "Elige un anuncio en Vinted, Depop o eBay y SaleLinx rellena el formulario de la otra marketplace por ti."
           },
           "autoMap": {
             "name": "Mapeo de categorias",
@@ -963,7 +963,8 @@
     "meta": {
       "scoping": "En estudio",
       "targetQ4_2026": "Objetivo T4 2026",
-      "shippedApr_2026": "Enviado en abril de 2026"
+      "shippedApr_2026": "Enviado en abril de 2026",
+      "shippedOct_2026": "Enviado en octubre de 2026"
     },
     "items": {
       "ebay-integration": {
@@ -972,7 +973,7 @@
       },
       "poshmark-integration": {
         "title": "Integración con Poshmark",
-        "description": "Incorpora Poshmark al flujo de crosslisting junto a Depop y Vinted."
+        "description": "Incorpora Poshmark al flujo de crosslisting junto a Vinted, Depop y eBay."
       },
       "scheduled-relisting": {
         "title": "Republicación programada",
@@ -1034,13 +1035,13 @@
   },
   "Welcome": {
     "metaTitle": "Bienvenido a SaleLinx",
-    "metaDescription": "Tres pasos para conectar tu tienda de Depop y Vinted con SaleLinx.",
+    "metaDescription": "Tres pasos para conectar tu tienda de Vinted, Depop o eBay con SaleLinx.",
     "eyebrow": "Instalado",
     "title": "Todo listo",
-    "subtitle": "SaleLinx vive dentro de Depop y Vinted, no en una aplicación aparte. Así se encuentra.",
+    "subtitle": "SaleLinx vive dentro de Vinted, Depop y eBay, no en una aplicación aparte. Así se encuentra.",
     "step1Title": "Fija la extensión",
     "step1Text": "Haz clic en el icono del puzle de la barra de Chrome y fija SaleLinx para tenerlo siempre a mano.",
-    "step2Title": "Abre Depop o Vinted",
+    "step2Title": "Abre Vinted, Depop o eBay",
     "step2Text": "Ve al marketplace donde vendes. El lanzador de SaleLinx aparece en la página automáticamente.",
     "step3Title": "Abre el panel y vincula tu tienda",
     "step3Text": "Haz clic en el lanzador, crea tu cuenta gratuita y vincula tu tienda. Todo funciona desde ahí.",

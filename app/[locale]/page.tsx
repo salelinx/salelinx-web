@@ -106,10 +106,11 @@ export default async function Home({
         // website's six routing locales; ar/zh are website-only.
         inLanguage: ['en', 'fr', 'es', 'de'],
         featureList: [
-          'Crosslist between Depop and Vinted',
+          'Crosslist between Vinted, Depop and eBay',
+          'Manage and edit eBay listings',
           'Bulk relist and refresh listings',
           'Scheduled price drops',
-          'Restock tracking across both marketplaces',
+          'Restock tracking across Depop and Vinted',
           'Send and auto-accept offers',
           'Shipping labels merged into one PDF',
         ],
@@ -143,7 +144,7 @@ export default async function Home({
       />
       <Hero />
       <div className="mx-auto w-full max-w-6xl px-6 pb-14 sm:pt-8 sm:pb-20">
-        <HeroVideo label="SaleLinx: Depop and Vinted in one panel" />
+        <HeroVideo label="SaleLinx: Vinted, Depop and eBay in one panel" />
       </div>
       <ScrollWorldDemo />
       {/* The HeadlineFeatures block used to sit here. The scroll section above

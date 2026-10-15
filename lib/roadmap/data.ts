@@ -5,7 +5,8 @@ export type RoadmapStatus = 'exploring' | 'building' | 'shipped';
 export type RoadmapMetaKey =
   | 'scoping'
   | 'targetQ4_2026'
-  | 'shippedApr_2026';
+  | 'shippedApr_2026'
+  | 'shippedOct_2026';
 
 export type RoadmapTagKey =
   | 'inventory'
@@ -34,12 +35,6 @@ export const ROADMAP_COLUMNS: RoadmapColumn[] = [
 
 export const ROADMAP_ITEMS: RoadmapItem[] = [
   {
-    id: 'ebay-integration',
-    status: 'exploring',
-    tagKey: 'marketplaces',
-    metaKey: 'scoping',
-  },
-  {
     id: 'poshmark-integration',
     status: 'exploring',
     tagKey: 'marketplaces',
@@ -65,6 +60,12 @@ export const ROADMAP_ITEMS: RoadmapItem[] = [
     metaKey: 'targetQ4_2026',
   },
 
+  {
+    id: 'ebay-integration',
+    status: 'shipped',
+    tagKey: 'marketplaces',
+    metaKey: 'shippedOct_2026',
+  },
   {
     id: 'depop-vinted-crosslist',
     status: 'shipped',

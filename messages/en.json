@@ -1,7 +1,7 @@
 {
   "Layout": {
-    "metaTitle": "SaleLinx - Sell across Depop & Vinted",
-    "metaDescription": "Crosslist, relist, refresh, and restock across Depop and Vinted from one place."
+    "metaTitle": "SaleLinx - Sell across Vinted, Depop & eBay",
+    "metaDescription": "Crosslist between Vinted, Depop and eBay, then relist, refresh and restock from one place."
   },
   "Header": {
     "navFeatures": "Features",
@@ -24,7 +24,7 @@
     "supportContact": "Contact support"
   },
   "Footer": {
-    "tagline": "Sell across Depop and Vinted from one place.",
+    "tagline": "Sell across Vinted, Depop and eBay from one place.",
     "sectionProduct": "Product",
     "sectionResources": "Resources",
     "sectionLegal": "Legal",
@@ -41,7 +41,7 @@
     "linkDpa": "Data Processing Addendum",
     "linkReferralTerms": "Referral Program Terms",
     "copyright": "© {year} SaleLinx Ltd. All rights reserved.",
-    "builtFor": "Built for Depop and Vinted sellers.",
+    "builtFor": "Built for Vinted, Depop and eBay sellers.",
     "companyInfo": "SaleLinx Ltd is a company registered in England and Wales, company number 17351832. Registered office: 34 Sussex Place, London, W2 2TH, United Kingdom."
   },
   "CookieBanner": {
@@ -241,7 +241,7 @@
     },
     "signup": {
       "title": "Create account",
-      "metaDescription": "Create a free SaleLinx account and start crosslisting, relisting, and refreshing your listings across Depop and Vinted.",
+      "metaDescription": "Create a free SaleLinx account and start crosslisting between Vinted, Depop and eBay, and relisting and refreshing your listings.",
       "emailInUse": "An account with this email already exists. Sign in below, or reset your password if you have forgotten it.",
       "disposableEmail": "Please use a permanent email address. Temporary email services are not supported.",
       "passwordPlaceholder": "Password (min 8 characters)",
@@ -540,23 +540,23 @@
     "metaDescription": "A friend invited you to SaleLinx - sign up through their link and get a discount on your first month.",
     "eyebrow": "You've been invited",
     "title": "Your friend runs their shop with SaleLinx.",
-    "description": "SaleLinx is a seller toolkit for Depop and Vinted - crosslist, relist, refresh and restock from one panel. Because a friend invited you, a discount is applied to your first month automatically.",
+    "description": "SaleLinx is a seller toolkit for Vinted, Depop and eBay - crosslist between all three, then relist, refresh and restock from one panel. Because a friend invited you, a discount is applied to your first month automatically.",
     "claimCta": "Sign up & claim your discount",
     "exploreCta": "See what SaleLinx does",
     "note": "Your invite is remembered in this browser for 30 days - no code needed at checkout.",
     "step1": "Create your free account - your invite is already attached.",
-    "step2": "Install the extension and link your Depop or Vinted shop.",
+    "step2": "Install the extension and link your Vinted, Depop or eBay shop.",
     "step3": "Pick a plan - the discount is applied automatically at checkout.",
     "termsNote": "The discount applies to your first payment on a new paid plan and can't be combined with other promo codes.",
     "termsLink": "See the referral program terms"
   },
   "Features": {
     "metaTitle": "Product, pricing, roadmap",
-    "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist, relist, refresh, and restock across Depop and Vinted from one panel.",
+    "metaDescription": "Everything the SaleLinx Chrome extension does, what it costs, and what is coming next. Crosslist between Vinted, Depop and eBay, then relist, refresh and restock from one panel.",
     "hero": {
       "eyebrow": "Product overview",
       "title": "Everything SaleLinx does, what it costs, and what's next.",
-      "description": "Crosslist, relist, refresh, and restock across Depop and Vinted from a single browser panel.",
+      "description": "Crosslist between Vinted, Depop and eBay, then relist, refresh and restock from a single browser panel.",
       "installExtension": "Install extension",
       "seePricing": "See pricing"
     },
@@ -575,8 +575,8 @@
       "items": {
         "crosslist": {
           "short": "Crosslist",
-          "title": "Crosslist Depop and Vinted in one click",
-          "body": "Pick a listing, hit crosslist, and the other marketplace's form fills itself in. Categories, sizes and conditions are translated for you, so the same item goes live on both shops in seconds.",
+          "title": "Crosslist Vinted, Depop and eBay in one click",
+          "body": "Pick a listing, hit crosslist, and the other marketplace's form fills itself in. Categories, sizes and conditions are translated for you, so the same item goes live on Vinted, Depop or eBay in seconds.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -625,7 +625,7 @@
           "linkAccounts": {
             "name": "Account linking",
             "label": "Link your shops once",
-            "detail": "Sign in to Depop and Vinted as you normally would. SaleLinx picks up the session, no passwords to re-enter."
+            "detail": "Sign in to Depop and Vinted as you normally would, and connect eBay through eBay's own sign-in. No passwords to re-enter."
           },
           "backup": {
             "name": "Cloud backup",
@@ -647,12 +647,12 @@
       "crosslisting": {
         "number": "02",
         "title": "Crosslisting",
-        "blurb": "Write a listing once and post it to both marketplaces at the same time. The tricky stuff like categories and sizes is translated for you.",
+        "blurb": "Write a listing once and post it to your other marketplaces. The tricky stuff like categories, sizes and eBay item specifics is translated for you.",
         "items": {
           "bidirectional": {
             "name": "Crosslist",
-            "label": "Crosslist Depop and Vinted, both ways",
-            "detail": "Pick any listing on either marketplace and SaleLinx fills out the other side's form for you."
+            "label": "Crosslist Vinted, Depop and eBay, in any direction",
+            "detail": "Pick any listing on Vinted, Depop or eBay and SaleLinx fills out the other marketplace's form for you."
           },
           "autoMap": {
             "name": "Category mapping",
@@ -963,7 +963,8 @@
     "meta": {
       "scoping": "Scoping",
       "targetQ4_2026": "Target Q4 2026",
-      "shippedApr_2026": "Shipped Apr 2026"
+      "shippedApr_2026": "Shipped Apr 2026",
+      "shippedOct_2026": "Shipped Oct 2026"
     },
     "items": {
       "ebay-integration": {
@@ -972,7 +973,7 @@
       },
       "poshmark-integration": {
         "title": "Poshmark integration",
-        "description": "Bring Poshmark into the crosslisting flow alongside Depop and Vinted."
+        "description": "Bring Poshmark into the crosslisting flow alongside Vinted, Depop and eBay."
       },
       "scheduled-relisting": {
         "title": "Scheduled relisting",
@@ -1034,13 +1035,13 @@
   },
   "Welcome": {
     "metaTitle": "Welcome to SaleLinx",
-    "metaDescription": "Three steps to get your Depop and Vinted shop running in SaleLinx.",
+    "metaDescription": "Three steps to get your Vinted, Depop or eBay shop running in SaleLinx.",
     "eyebrow": "Installed",
     "title": "You are all set up",
-    "subtitle": "SaleLinx lives inside Depop and Vinted, not in a separate app. Here is how to find it.",
+    "subtitle": "SaleLinx lives inside Vinted, Depop and eBay, not in a separate app. Here is how to find it.",
     "step1Title": "Pin the extension",
     "step1Text": "Click the puzzle icon in the Chrome toolbar and pin SaleLinx so it is always in reach.",
-    "step2Title": "Open Depop or Vinted",
+    "step2Title": "Open Vinted, Depop or eBay",
     "step2Text": "Go to the marketplace you sell on. The SaleLinx launcher appears on the page automatically.",
     "step3Title": "Open the panel and link your shop",
     "step3Text": "Click the launcher, create your free account, and link your shop. Everything runs from there.",
