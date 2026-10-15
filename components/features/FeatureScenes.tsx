@@ -47,7 +47,7 @@ function a(name: string, seconds: number, delay = 0, extra?: CSSProperties): CSS
   };
 }
 
-const BRAND_COLOR: Record<Brand, string> = { depop: DEPOP, vinted: VINTED };
+const BRAND_COLOR: Record<Brand, string> = { depop: DEPOP, vinted: VINTED, ebay: '#0968f6' };
 
 function Mark({ x, y, brand, r = 9 }: { x: number; y: number; brand: Brand; r?: number }) {
   const g = GLYPH[brand].mark;

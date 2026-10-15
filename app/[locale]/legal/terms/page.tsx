@@ -27,7 +27,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "2 September 2026";
+const LAST_UPDATED = "15 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -40,8 +40,8 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "The service",
     paragraphs: [
-      "SaleLinx helps resellers manage, cross-list, and automate tasks for their own listings on Depop and Vinted. The extension works through the marketplace sessions already signed in on your device.",
-      "SaleLinx is an independent tool. We are not affiliated with, endorsed by, or sponsored by Depop, Vinted, or any marketplace. Their names are used only to describe compatibility.",
+      "SaleLinx helps resellers manage, cross-list, and automate tasks for their own listings on Depop, Vinted and eBay. On Depop and Vinted the extension works through the marketplace sessions already signed in on your device; on eBay it works through the eBay account you connect.",
+      "SaleLinx is an independent tool. We are not affiliated with, endorsed by, or sponsored by Depop, Vinted, eBay, or any marketplace. Their names are used only to describe compatibility.",
     ],
   },
   {

@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'My Listings',
   description:
-    'The My Listings tab puts your Depop and Vinted listings in one grid you can search, filter, sort and act on in bulk.',
+    'The My Listings tab puts your Depop, Vinted and eBay listings in one grid you can search, filter, sort and act on in bulk.',
   category: 'inventory',
   slug: 'listings',
   order: 1,
-  updated: '2026-10-13',
+  updated: '2026-10-15',
   tags: ['listings', 'inventory', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -13,8 +13,8 @@ export const metadata = {
 
 # My Listings
 
-**My Listings** is the first tab in the SaleLinx panel. It puts your Depop
-and Vinted listings in one grid, with a marketplace logo on every row so you
+**My Listings** is the first tab in the SaleLinx panel. It puts your Depop,
+Vinted and eBay listings in one grid, with a marketplace logo on every row so you
 always know where an item lives. From here you can search, filter and sort
 your whole catalogue, then select listings and act on them in bulk.
 
@@ -23,6 +23,8 @@ your whole catalogue, then select listings and act on them in bulk.
 SaleLinx reads your listings from Depop and Vinted through your open
 marketplace tabs. If the grid is empty the first time you open it, browse
 your shop or open one of your listings on Depop or Vinted and it fills in.
+eBay listings come straight from eBay once your account is linked (see
+*eBay listings* below).
 
 Above the grid there is a sync indicator for each marketplace. The dot tells
 you how fresh that marketplace&rsquo;s data is:
@@ -89,7 +91,7 @@ Vinted themselves.
 
 The toolbar above the grid has quick filters:
 
-- **Platform** - **All**, Depop only or Vinted only.
+- **Platform** - **All**, or Depop, Vinted or eBay on its own.
 - **Linked** - the chain-link button next to them shows only listings that
   are linked across both marketplaces.
 - **Status** - **All**, **Active**, **Sold**, **Draft**, **Hidden** or
@@ -161,6 +163,20 @@ already saved can be switched off to tidy up.
 Cloud-saved listings are what make linking, relisting sold items and the
 Restocker possible. See [Cloud sync](/docs/inventory/cloud-sync) for the
 full picture.
+
+## eBay listings
+
+Once eBay is connected (see
+[Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)),
+your active eBay listings and the last 60 days of sold ones appear in
+the grid. eBay syncs at most every 15 minutes; **Refresh All** or the
+eBay refresh button fetches them straight away.
+
+Open an eBay listing to edit its title, description, price, quantity,
+photos, condition, category and item specifics, and save straight to
+eBay. Choose **Unlist** to end the listing. eBay has no delete, so
+deleting an eBay row ends the listing and removes it from the grid.
+An ended listing opens with a **Relist** option.
 
 ## Restocker columns
 

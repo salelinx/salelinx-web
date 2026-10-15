@@ -548,6 +548,25 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'Connecting eBay, crosslisting to it, and what it costs.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: 'How do I connect my eBay account?',
+        a: <p>Open the SaleLinx panel, go to <em>Settings</em>, and click <em>Link</em> on the eBay row. Sign in on eBay&rsquo;s own page and agree to let SaleLinx manage your listings. SaleLinx never sees your eBay password, and you can unlink at any time.</p>,
+        keywords: ['ebay', 'connect', 'link', 'account'],
+      },
+      {
+        id: 'ebay-fees',
+        q: 'Does crosslisting to eBay cost anything?',
+        a: <p>eBay charges its normal listing fees, the same as listing by hand. SaleLinx shows eBay&rsquo;s fee for every item before anything is posted, so you can go back or remove items first. eBay listings go live straight away, because eBay has no drafts.</p>,
+        keywords: ['ebay', 'fees', 'cost', 'crosslist'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Privacy & data',
     blurb: 'What we store, where it lives, and how to delete it.',
@@ -560,7 +579,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             No. SaleLinx works through the Depop and Vinted sessions
             you&rsquo;re already signed in to in your own browser, so you never
             give us a marketplace password. To link a shop to your SaleLinx
-            account, we store only its username and account ID.
+            account, we store only its username and account ID. eBay connects through eBay&rsquo;s own sign-in page, and SaleLinx never sees your eBay password. For eBay we also keep the access token eBay gives us, so SaleLinx can act on your listings.
           </p>
         ),
         keywords: ['password', 'credentials', 'security'],

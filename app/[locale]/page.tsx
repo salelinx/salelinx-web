@@ -106,11 +106,12 @@ export default async function Home({
         // website's six routing locales; ar/zh are website-only.
         inLanguage: ['en', 'fr', 'es', 'de'],
         featureList: [
-          'Crosslist between Depop and Vinted',
+          'Crosslist between Vinted, Depop and eBay',
+          'Manage and edit eBay listings',
           'Bulk relist and refresh listings',
           'Scheduled price drops',
           'Dead stock detection',
-          'Restock tracking across both marketplaces',
+          'Restock tracking across Depop and Vinted',
           'Send offers to likers and auto-accept offers',
           'Bulk listing and photo editor',
           'Shipping labels merged into one PDF',

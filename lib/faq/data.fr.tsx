@@ -566,6 +566,25 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'Connecter eBay, y crosslister, et ce que ça coûte.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: 'Comment connecter mon compte eBay ?',
+        a: <p>Ouvrez le panneau SaleLinx, allez dans <em>Paramètres</em> et cliquez sur <em>Lier</em> sur la ligne eBay. Connectez-vous sur la page d'eBay et autorisez SaleLinx à gérer vos annonces. SaleLinx ne voit jamais votre mot de passe eBay, et vous pouvez délier le compte à tout moment.</p>,
+        keywords: ['ebay', 'connecter', 'lier', 'compte'],
+      },
+      {
+        id: 'ebay-fees',
+        q: 'Le crosslisting vers eBay est-il payant ?',
+        a: <p>eBay applique ses frais d'insertion habituels, comme pour une annonce créée à la main. SaleLinx affiche les frais eBay de chaque article avant toute publication, pour que vous puissiez revenir en arrière ou retirer des articles. Les annonces eBay sont publiées directement, car eBay n'a pas de brouillons.</p>,
+        keywords: ['ebay', 'frais', 'prix', 'crosslist'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Confidentialité et données',
     blurb: 'Ce que nous stockons, où cela vit et comment le supprimer.',
@@ -579,7 +598,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             connectées dans votre propre navigateur, vous ne nous donnez donc
             jamais de mot de passe de marketplace. Pour lier une boutique à
             votre compte SaleLinx, nous enregistrons seulement son nom
-            d'utilisateur et son identifiant de compte.
+            d'utilisateur et son identifiant de compte. eBay se connecte via la page de connexion d'eBay, et SaleLinx ne voit jamais votre mot de passe eBay. Pour eBay, nous conservons aussi le jeton d'accès fourni par eBay, pour que SaleLinx puisse agir sur vos annonces.
           </p>
         ),
         keywords: ['mot de passe', 'identifiants', 'sécurité'],

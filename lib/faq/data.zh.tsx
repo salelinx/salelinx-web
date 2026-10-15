@@ -505,6 +505,25 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: '连接 eBay、跨平台上架到 eBay，以及费用。',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: '怎么连接我的 eBay 账户？',
+        a: <p>打开 SaleLinx 面板，进入<em>Settings</em>，在 eBay 一行点击<em>Link</em>。在 eBay 自己的页面登录，并同意让 SaleLinx 管理你的商品。SaleLinx 不会看到你的 eBay 密码，你随时可以取消连接。</p>,
+        keywords: ['ebay', '连接', '账户'],
+      },
+      {
+        id: 'ebay-fees',
+        q: '跨平台上架到 eBay 要收费吗？',
+        a: <p>eBay 会收取正常的刊登费用，和手动上架一样。SaleLinx 会在发布前显示每件商品的 eBay 费用，你可以先返回或移除商品。eBay 没有草稿，所以商品会直接上线。</p>,
+        keywords: ['ebay', '费用', '跨平台上架'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: '隐私与数据',
     blurb: '我们存了什么、存在哪里，以及怎么删除。',
@@ -516,7 +535,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
           <p>
             不会。SaleLinx 通过你在自己浏览器里已经登录的 Depop 和 Vinted 会话
             工作，所以你从来不需要把平台密码交给我们。为了把店铺关联到你的
-            SaleLinx 账户，我们只保存它的用户名和账号 ID。
+            SaleLinx 账户，我们只保存它的用户名和账号 ID。eBay 通过 eBay 自己的登录页连接，SaleLinx 不会看到你的 eBay 密码。对于 eBay，我们还会保存 eBay 提供的访问令牌，以便 SaleLinx 管理你的商品。
           </p>
         ),
         keywords: ['密码', '登录凭据', '安全'],

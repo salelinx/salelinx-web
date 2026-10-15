@@ -563,6 +563,25 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'eBay verbinden, dorthin crosslisten und was es kostet.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: 'Wie verbinde ich mein eBay-Konto?',
+        a: <p>Öffne das SaleLinx-Panel, gehe zu <em>Einstellungen</em> und klicke in der eBay-Zeile auf <em>Verknüpfen</em>. Melde dich auf der Seite von eBay an und erlaube SaleLinx, deine Anzeigen zu verwalten. SaleLinx sieht dein eBay-Passwort nie, und du kannst die Verknüpfung jederzeit lösen.</p>,
+        keywords: ['ebay', 'verbinden', 'verknüpfen', 'konto'],
+      },
+      {
+        id: 'ebay-fees',
+        q: 'Kostet Crosslisting zu eBay etwas?',
+        a: <p>eBay berechnet seine normalen Angebotsgebühren, genau wie beim Einstellen per Hand. SaleLinx zeigt die eBay-Gebühr für jeden Artikel, bevor etwas veröffentlicht wird, damit du zurückgehen oder Artikel entfernen kannst. eBay-Anzeigen gehen sofort live, weil eBay keine Entwürfe kennt.</p>,
+        keywords: ['ebay', 'gebühren', 'kosten', 'crosslist'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Datenschutz und Daten',
     blurb: 'Was wir speichern, wo es liegt und wie du es löschst.',
@@ -576,7 +595,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
             denen du in deinem eigenen Browser bereits angemeldet bist. Du gibst
             uns also nie ein Marktplatz-Passwort. Um einen Shop mit deinem
             SaleLinx-Konto zu verknüpfen, speichern wir nur seinen
-            Benutzernamen und seine Konto-ID.
+            Benutzernamen und seine Konto-ID. eBay verbindest du über die eigene Anmeldeseite von eBay, und SaleLinx sieht dein eBay-Passwort nie. Für eBay speichern wir zusätzlich das Zugriffstoken, das eBay uns gibt, damit SaleLinx deine Anzeigen verwalten kann.
           </p>
         ),
         keywords: ['passwort', 'zugangsdaten', 'sicherheit'],

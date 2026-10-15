@@ -1,12 +1,12 @@
 export const metadata = {
   title: 'Crosslist',
   description:
-    'Copy listings from Depop to Vinted or back. Pick them from a grid or paste their links, check them in a review step, and SaleLinx creates the copies in the background.',
+    'Copy listings between Depop, Vinted and eBay in any direction. Pick them from a grid or paste their links, check them in a review step, and SaleLinx creates the copies in the background.',
   category: 'inventory',
   slug: 'crosslist',
   order: 5,
-  updated: '2026-10-13',
-  tags: ['crosslist', 'depop', 'vinted'],
+  updated: '2026-10-15',
+  tags: ['crosslist', 'depop', 'vinted', 'ebay'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
 };
@@ -14,17 +14,20 @@ export const metadata = {
 # Crosslist
 
 The **Crosslist** tab copies listings you&rsquo;ve already made on one
-marketplace to the other. You pick the items, check them in a review step,
+marketplace to another: Depop, Vinted or eBay, in any direction. You pick the items, check them in a review step,
 and SaleLinx creates each copy in the background. There&rsquo;s no sell form
 to fill in twice and no tab to babysit.
 
-From version 1.1.12, every copy is saved as a draft for you to check and
-publish. In version 1.1.11 an **Auto-post** switch on the tab could publish
+From version 1.1.12, every copy to Depop or Vinted is saved as a draft for
+you to check and publish. eBay has no drafts, so copies to eBay go live (see
+*Crosslisting to and from eBay* below). In version 1.1.11 an **Auto-post** switch on the tab could publish
 copies straight away instead.
 
 ## When to use it
 
 - You list something new on Depop and want it on Vinted too, or the other
+  way round.
+- You sell on Depop or Vinted and want the same items on eBay, or the other
   way round.
 - You&rsquo;re tidying an old shop and want everything that isn&rsquo;t on
   the other marketplace yet copied across.
@@ -39,6 +42,9 @@ copies straight away instead.
 - **A Depop tab and a Vinted tab open**, signed in to those same accounts.
   SaleLinx works through both sites at once. If one is missing, the tab says
   so and offers a button to open it.
+- **For eBay:** your eBay account linked in **Settings**. eBay never needs a
+  tab open, so crosslisting between eBay and one other marketplace only needs
+  that marketplace&rsquo;s tab.
 - **A plan with crosslists.** Every plan from the 14-day free trial up
   includes a monthly crosslist allowance.
 
@@ -171,8 +177,9 @@ finishes, failed items included.
 
 ## Copies are saved as drafts
 
-Every copy lands as a **draft** on the target marketplace, never as a live
-listing. Any mapping mistake (wrong category, missing brand, a size left
+Every copy to Depop or Vinted lands as a **draft**, never as a live
+listing. Copies to eBay are the exception: they go live, after the review
+step has shown you eBay&rsquo;s fees. Any mapping mistake (wrong category, missing brand, a size left
 blank) sits in a draft you can check rather than on a listing buyers can
 see.
 
@@ -190,6 +197,33 @@ them in the [Linking tab](/docs/automate/linking), or select both in My
 Listings and click **Link**. Linked pairs are what the
 [Restocker](/docs/automate/restocker) works from. Cloud saving and the
 Linking tab are part of the Pro and Business plans.
+
+## Crosslisting to and from eBay
+
+Once your eBay account is connected in **Settings &rarr; Marketplace
+accounts**, eBay appears in the crosslister&rsquo;s **From** and **To**
+pickers. You can crosslist from Depop or Vinted to eBay, and from eBay
+to Depop or Vinted.
+
+**To eBay.** SaleLinx picks the eBay category from the title and the
+source category, fills in the item specifics eBay asks for (brand,
+colour, size, department and more), and uploads the photos.
+
+- **eBay listings go live straight away.** eBay has no drafts.
+- **You see eBay&rsquo;s fees first.** The review step checks every item
+  with eBay before anything is posted, and shows the fee and anything
+  eBay would refuse. A row eBay would refuse has a **Fill in** button
+  so you can add what&rsquo;s missing.
+- **Postage comes from your eBay account.** SaleLinx uses your eBay
+  business policies, or copies postage and returns from one of your
+  existing eBay listings. If there&rsquo;s nothing to copy, the
+  Crosslist tab asks for your postage once. You can change it later in
+  **Settings &rarr; eBay &rarr; Postage**.
+
+**From eBay.** Pick eBay in **From** and Depop or Vinted in **To**.
+SaleLinx reads the eBay listing&rsquo;s category, condition, item
+specifics, description and photos and maps them across, just like a
+Depop or Vinted source.
 
 ## Plan and access
 
@@ -209,6 +243,13 @@ is signed in to the account you linked to SaleLinx.
 **&ldquo;Both Depop and Vinted accounts must be linked before
 crosslisting.&rdquo;** Link the missing account first. See
 [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).
+
+**eBay refuses an item.** The review step shows what eBay needs, usually a
+required item specific such as size or department. Click **Fill in**, add
+it, and the item can be posted.
+
+**&ldquo;eBay is busy right now.&rdquo;** eBay is temporarily turning
+requests away. Try again later; nothing has been posted or charged.
 
 **The brand is &ldquo;Other&rdquo; or missing.** The source brand
 isn&rsquo;t on the target marketplace&rsquo;s brand list. Pick a brand on the

@@ -552,6 +552,25 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'Conectar eBay, publicar en eBay y cuánto cuesta.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: '¿Cómo conecto mi cuenta de eBay?',
+        a: <p>Abre el panel de SaleLinx, ve a <em>Ajustes</em> y pulsa <em>Vincular</em> en la fila de eBay. Inicia sesión en la página de eBay y acepta que SaleLinx gestione tus anuncios. SaleLinx nunca ve tu contraseña de eBay y puedes desvincularla cuando quieras.</p>,
+        keywords: ['ebay', 'conectar', 'vincular', 'cuenta'],
+      },
+      {
+        id: 'ebay-fees',
+        q: '¿Publicar en eBay con crosslisting tiene coste?',
+        a: <p>eBay cobra sus comisiones habituales por anuncio, igual que si lo publicaras a mano. SaleLinx te muestra la comisión de eBay de cada artículo antes de publicar nada, para que puedas volver atrás o quitar artículos. Los anuncios de eBay se publican al momento, porque eBay no tiene borradores.</p>,
+        keywords: ['ebay', 'comisiones', 'coste', 'crosslist'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Privacidad y datos',
     blurb: 'Qué guardamos, dónde está y cómo eliminarlo.',
@@ -565,7 +584,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             que ya tienes iniciadas en tu propio navegador, así que nunca nos
             das una contraseña de marketplace. Para vincular una tienda a tu
             cuenta de SaleLinx, solo guardamos su nombre de usuario y su ID de
-            cuenta.
+            cuenta. eBay se conecta desde la página de inicio de sesión de eBay, y SaleLinx nunca ve tu contraseña de eBay. Para eBay también guardamos el token de acceso que nos da eBay, para que SaleLinx pueda gestionar tus anuncios.
           </p>
         ),
         keywords: ['contraseña', 'credenciales', 'seguridad'],

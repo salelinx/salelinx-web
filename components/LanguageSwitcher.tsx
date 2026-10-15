@@ -175,30 +175,11 @@ function Flag({ code, className }: { code: Locale; className?: string }) {
           </>
         ) : code === "en" ? (
           <>
-            <rect width="30" height="20" fill="#ffffff" />
-            <rect y="0.0" width="30" height="1.538" fill="#B22234" />
-            <rect y="3.077" width="30" height="1.538" fill="#B22234" />
-            <rect y="6.154" width="30" height="1.538" fill="#B22234" />
-            <rect y="9.231" width="30" height="1.538" fill="#B22234" />
-            <rect y="12.308" width="30" height="1.538" fill="#B22234" />
-            <rect y="15.385" width="30" height="1.538" fill="#B22234" />
-            <rect y="18.462" width="30" height="1.538" fill="#B22234" />
-            {/* Canton sits inside the circular crop (x 5 to 25). */}
-            <rect x="5" width="9.5" height="10.77" fill="#3C3B6E" />
-            <g fill="#ffffff">
-              <circle cx="6.4" cy="1.5" r="0.55" />
-              <circle cx="9.0" cy="1.5" r="0.55" />
-              <circle cx="11.6" cy="1.5" r="0.55" />
-              <circle cx="7.7" cy="4.0" r="0.55" />
-              <circle cx="10.3" cy="4.0" r="0.55" />
-              <circle cx="12.9" cy="4.0" r="0.55" />
-              <circle cx="6.4" cy="6.5" r="0.55" />
-              <circle cx="9.0" cy="6.5" r="0.55" />
-              <circle cx="11.6" cy="6.5" r="0.55" />
-              <circle cx="7.7" cy="9.0" r="0.55" />
-              <circle cx="10.3" cy="9.0" r="0.55" />
-              <circle cx="12.9" cy="9.0" r="0.55" />
-            </g>
+            <rect width="30" height="20" fill="#012169" />
+            <path d="M0 0 30 20M30 0 0 20" stroke="#ffffff" strokeWidth="4" />
+            <path d="M0 0 30 20M30 0 0 20" stroke="#C8102E" strokeWidth="2" />
+            <path d="M15 0v20M0 10h30" stroke="#ffffff" strokeWidth="6.5" />
+            <path d="M15 0v20M0 10h30" stroke="#C8102E" strokeWidth="4" />
           </>
         ) : code === "fr" ? (
           <>

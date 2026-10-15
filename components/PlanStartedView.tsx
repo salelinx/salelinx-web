@@ -66,6 +66,9 @@ export async function PlanStartedView({
           >
             <BrandWordmark brand="vinted" variant="wordmark" height="1.35rem" />
           </a>
+          <a href="https://www.ebay.co.uk" aria-label="eBay" className={PILL}>
+            <BrandWordmark brand="ebay" variant="wordmark" height="1.3rem" />
+          </a>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-black/10 pt-6 text-sm text-zinc-500 dark:border-white/10 dark:text-zinc-400">
           {t("noExtension")}

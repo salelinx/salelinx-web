@@ -3058,4 +3058,7 @@ export const VINTED_DEPOP_TYPES: Record<number, [string, number]> = {
   5590: ['everything-else/sports-equipment-accesories/ball-sports', 24],
   5591: ['everything-else/sports-equipment-accesories/ball-sports', 24],
   5592: ['everything-else/sports-equipment-accesories/ball-sports', 24],
+  // Added by hand, newer than this table: Vinted's one Skirts catalog, with
+  // mini/midi/maxi moved into a skirt_length attribute.
+  5523: ['womenswear/bottoms/skirts', 100],
 };

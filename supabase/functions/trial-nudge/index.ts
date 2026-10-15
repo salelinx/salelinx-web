@@ -44,20 +44,20 @@ type Step = {
 const STEPS: Step[] = [
   {
     subject: "Your 14-day SaleLinx trial is waiting",
-    preheader: "Run Depop and Vinted from one panel, free for 14 days.",
+    preheader: "Run Vinted, Depop and eBay from one panel, free for 14 days.",
     title: "Your free trial is waiting",
     body: [
       "You made a SaleLinx account but haven't started your free trial yet.",
-      "Crosslist between Depop and Vinted, bulk edit, refresh listings and print shipping labels, all from one panel.",
+      "Crosslist between Vinted, Depop and eBay, bulk edit, refresh listings and print shipping labels, all from one panel.",
       "It's free for 14 days. Cancel before it ends and you won't be charged.",
     ],
   },
   {
     subject: "Crosslist your shop in minutes",
-    preheader: "Copy your Depop listings to Vinted, or the other way round.",
-    title: "List once, sell on both",
+    preheader: "Copy your listings between Vinted, Depop and eBay, in any direction.",
+    title: "List once, sell everywhere",
     body: [
-      "Most sellers start by crosslisting: pick listings on Depop or Vinted and SaleLinx copies them to the other, photos, category, size and all.",
+      "Most sellers start by crosslisting: pick listings on Vinted, Depop or eBay and SaleLinx copies them to another marketplace, photos, category, size and all.",
       "Your 14-day trial is still there if you want to try it.",
     ],
   },
@@ -71,7 +71,7 @@ const WINBACK_PAID: Step = {
   cta: "See plans",
   body: [
     "Your SaleLinx plan has ended, but your listings, settings and cloud data are all still here.",
-    "Pick a plan and you're straight back to crosslisting, bulk editing and relisting across Depop and Vinted.",
+    "Pick a plan and you're straight back to crosslisting between Vinted, Depop and eBay, bulk editing and relisting.",
   ],
 };
 
@@ -81,7 +81,7 @@ const WINBACK_TRIAL: Step = {
   preheader: "Your listings and settings are still saved.",
   body: [
     "Your free trial has ended, but your listings and settings are still saved.",
-    "Pick a plan to get crosslisting, bulk editing and relisting back across Depop and Vinted.",
+    "Pick a plan to get crosslisting between Vinted, Depop and eBay, bulk editing and relisting back.",
   ],
 };
 

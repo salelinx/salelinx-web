@@ -8,7 +8,7 @@ const SEGMENT = 'M45.33 13A24 24 0 0 0 3.81 11.03L14.47 29.5L24 13Z';
 
 function ChromeLogo() {
   return (
-    <svg viewBox="0 0 48 48" className="h-4 w-4 shrink-0" aria-hidden="true">
+    <svg viewBox="0 0 48 48" className="h-[1.15em] w-[1.15em] shrink-0" aria-hidden="true">
       <path d={SEGMENT} fill="#EA4335" />
       <path d={SEGMENT} fill="#34A853" transform="rotate(-120 24 24)" />
       <path d={SEGMENT} fill="#FBBC04" transform="rotate(120 24 24)" />

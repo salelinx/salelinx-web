@@ -1,7 +1,8 @@
 // Supabase Edge Function: resolve-category
 // ------------------------------------------------------------------------
-// Resolves Depop <-> Vinted categories for the SaleLinx extension's
-// crosslister.
+// Resolves Depop <-> Vinted categories, eBay categories from listing
+// wording, and eBay categories as Depop and Vinted ones, for the SaleLinx
+// extension's crosslister.
 //
 // Why this exists: the category mapping tables (~116KB) used to ship inside
 // the extension bundle, where anyone who installed it could unzip the .crx and
@@ -43,6 +44,8 @@ import {
 } from './_generated/category-resolve.ts';
 import { DEPOP_ID_TO_DRAFT_CATEGORY } from './_generated/category-maps-depop.ts';
 import { vintedCategoryIdToDepop } from './_generated/category-maps-vinted.ts';
+import { ebayCategoriesFor } from './ebay-category.ts';
+import { depopTypeForEbay } from './_generated/ebay-depop-types.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -235,7 +238,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── Resolve ──────────────────────────────────────────────────────────────
-  const results = items.map((raw: Record<string, unknown>) => {
+  const results = await Promise.all(items.map(async (raw: Record<string, unknown>) => {
     const id = typeof raw?.id === 'string' ? raw.id : '';
     if (!id) return { id: '', error: 'Missing id' };
 
@@ -267,6 +270,33 @@ Deno.serve(async (req: Request) => {
           return { id, depopDraft: DEPOP_ID_TO_DRAFT_CATEGORY[raw.depopCategoryId] ?? null };
         }
 
+        case 'toEbay': {
+          const req = (raw.toEbay ?? {}) as Record<string, unknown>;
+          return { id, toEbay: await ebayCategoriesFor(clampText(req.query), req.marketplace) };
+        }
+
+        case 'fromEbay': {
+          const req = (raw.fromEbay ?? {}) as Record<string, unknown>;
+          const title = clampText(req.title);
+          const gender = typeof req.gender === 'string' ? req.gender : null;
+          const match = depopTypeForEbay(clampText(req.path), title, gender);
+          if (!match) return { id, fromEbay: null };
+          // Clothing goes through the Depop → Vinted mapping for its refiners (dress length, jeans
+          // fit, coat kind). Elsewhere a legacy id is too coarse (toys, games and LEGO share one),
+          // so a Vinted leaf filed under the type is the default and the extension picks among them.
+          const clothing = !match.depopType.startsWith('everything-else/');
+          const mapped = clothing
+            ? mapDepopToVintedCategory(
+                match.depopCategoryId,
+                title,
+                clampText(req.description),
+                match.depopType.startsWith('kidswear/'),
+              ).mapping
+            : null;
+          const vinted = mapped ?? { vintedCatalogId: match.vintedCatalogIds[0], vintedLabel: '' };
+          return { id, fromEbay: { ...match, vinted } };
+        }
+
         case 'depopProductType': {
           const text = (raw.text ?? {}) as Record<string, unknown>;
           return {
@@ -286,7 +316,7 @@ Deno.serve(async (req: Request) => {
       console.error('[resolve-category] item failed:', err instanceof Error ? err.message : err);
       return { id, error: 'Resolution failed' };
     }
-  });
+  }));
 
   console.log(`[resolve-category] user=${user.id} resolved=${results.length}`);
   return json(200, { results });
