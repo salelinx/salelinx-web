@@ -91,8 +91,10 @@ export function Logo3D() {
     // keys off onReady rather than mount, or it would pop in at full size.
     <div
       aria-hidden
-      className={`h-32 w-32 shrink-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] sm:h-48 sm:w-48 ${
-        ready || still ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+      // Fade only, never scale: the renderer measures this box once, and a
+      // scaled box locked the canvas at 75% size in its top-left corner.
+      className={`h-32 w-32 shrink-0 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] sm:h-48 sm:w-48 ${
+        ready || still ? 'opacity-100' : 'opacity-0'
       }`}
     >
       <SVG3D
