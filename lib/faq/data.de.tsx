@@ -253,6 +253,31 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'eBay verbinden, dorthin crosslisten und was es kostet.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: 'Wie verbinde ich mein eBay-Konto?',
+        a: <p>Öffne das SaleLinx-Panel, gehe zu <em>Einstellungen</em> und klicke in der eBay-Zeile auf <em>Verknüpfen</em>. Melde dich auf der Seite von eBay an und erlaube SaleLinx, deine Anzeigen zu verwalten. SaleLinx sieht dein eBay-Passwort nie, und du kannst die Verknüpfung jederzeit lösen.</p>,
+        keywords: ['ebay', 'verbinden', 'verknüpfen', 'konto'],
+      },
+      {
+        id: 'ebay-fees',
+        q: 'Kostet Crosslisting zu eBay etwas?',
+        a: <p>eBay berechnet seine normalen Angebotsgebühren, genau wie beim Einstellen per Hand. SaleLinx zeigt die eBay-Gebühr für jeden Artikel, bevor etwas veröffentlicht wird, damit du zurückgehen oder Artikel entfernen kannst. eBay-Anzeigen gehen sofort live, weil eBay keine Entwürfe kennt.</p>,
+        keywords: ['ebay', 'gebühren', 'kosten', 'crosslist'],
+      },
+      {
+        id: 'ebay-site-access',
+        q: 'Chrome fragt, ob SaleLinx auf eBay-Seiten laufen darf. Muss ich zustimmen?',
+        a: <p>Nein. Das zeigt nur das SaleLinx-Panel auf eBay-Seiten. eBay verknüpfen, Meine Anzeigen und Crosslist funktionieren auch ohne. Du kannst es später in den <em>Einstellungen</em> erlauben.</p>,
+        keywords: ['ebay', 'berechtigung', 'chrome', 'erlauben'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Datenschutz und Daten',
     blurb: 'Was wir speichern, wo es liegt und wie du es löschst.',
@@ -262,7 +287,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         q: 'Speichert SaleLinx mein Marktplatz-Passwort?',
         a: (
           <p>
-            Nein. SaleLinx nutzt deine bestehende Browser-Sitzung auf jedem Marktplatz, also gibt es kein Passwort einzugeben, zu speichern oder zu leaken.
+            Nein. Auf Depop und Vinted nutzt SaleLinx deine bestehende Browser-Sitzung, also gibt es kein Passwort einzugeben, zu speichern oder zu leaken. eBay verbindest du über die eigene Anmeldeseite von eBay, und SaleLinx sieht dein eBay-Passwort nie.
           </p>
         ),
         keywords: ['passwort', 'zugangsdaten', 'sicherheit'],

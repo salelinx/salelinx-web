@@ -253,6 +253,31 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'Conectar eBay, publicar en eBay y cuánto cuesta.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: '¿Cómo conecto mi cuenta de eBay?',
+        a: <p>Abre el panel de SaleLinx, ve a <em>Ajustes</em> y pulsa <em>Vincular</em> en la fila de eBay. Inicia sesión en la página de eBay y acepta que SaleLinx gestione tus anuncios. SaleLinx nunca ve tu contraseña de eBay y puedes desvincularla cuando quieras.</p>,
+        keywords: ['ebay', 'conectar', 'vincular', 'cuenta'],
+      },
+      {
+        id: 'ebay-fees',
+        q: '¿Publicar en eBay con crosslisting tiene coste?',
+        a: <p>eBay cobra sus comisiones habituales por anuncio, igual que si lo publicaras a mano. SaleLinx te muestra la comisión de eBay de cada artículo antes de publicar nada, para que puedas volver atrás o quitar artículos. Los anuncios de eBay se publican al momento, porque eBay no tiene borradores.</p>,
+        keywords: ['ebay', 'comisiones', 'coste', 'crosslist'],
+      },
+      {
+        id: 'ebay-site-access',
+        q: 'Chrome me pide permitir SaleLinx en los sitios de eBay. ¿Tengo que aceptarlo?',
+        a: <p>No. Solo sirve para mostrar el panel de SaleLinx en las páginas de eBay. Vincular eBay, Mis anuncios y Crosslist funcionan sin ello. Puedes permitirlo más tarde desde <em>Ajustes</em>.</p>,
+        keywords: ['ebay', 'permiso', 'chrome', 'permitir'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Privacidad y datos',
     blurb: 'Qué guardamos, dónde está y cómo eliminarlo.',
@@ -262,7 +287,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         q: '¿SaleLinx guarda mi contraseña de las marketplaces?',
         a: (
           <p>
-            No. SaleLinx usa tu sesión de navegador existente en cada marketplace, así que no hay contraseña que introducir, guardar ni filtrar.
+            No. En Depop y Vinted, SaleLinx usa tu sesión de navegador existente, así que no hay contraseña que introducir, guardar ni filtrar. eBay se conecta desde la página de inicio de sesión de eBay, y SaleLinx nunca ve tu contraseña de eBay.
           </p>
         ),
         keywords: ['contraseña', 'credenciales', 'seguridad'],

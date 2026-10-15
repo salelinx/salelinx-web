@@ -277,6 +277,31 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'Connecting eBay, crosslisting to it, and what it costs.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: 'How do I connect my eBay account?',
+        a: <p>Open the SaleLinx panel, go to <em>Settings</em>, and click <em>Link</em> on the eBay row. Sign in on eBay&rsquo;s own page and agree to let SaleLinx manage your listings. SaleLinx never sees your eBay password, and you can unlink at any time.</p>,
+        keywords: ['ebay', 'connect', 'link', 'account'],
+      },
+      {
+        id: 'ebay-fees',
+        q: 'Does crosslisting to eBay cost anything?',
+        a: <p>eBay charges its normal listing fees, the same as listing by hand. SaleLinx shows eBay&rsquo;s fee for every item before anything is posted, so you can go back or remove items first. eBay listings go live straight away, because eBay has no drafts.</p>,
+        keywords: ['ebay', 'fees', 'cost', 'crosslist'],
+      },
+      {
+        id: 'ebay-site-access',
+        q: 'Chrome asked to let SaleLinx run on eBay sites. Do I need to allow it?',
+        a: <p>No. It only shows the SaleLinx panel on eBay pages. Linking eBay, My Listings and Crosslist all work without it. You can allow it later from <em>Settings</em>.</p>,
+        keywords: ['ebay', 'permission', 'chrome', 'allow'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Privacy & data',
     blurb: 'What we store, where it lives, and how to delete it.',
@@ -286,8 +311,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Does SaleLinx store my marketplace password?',
         a: (
           <p>
-            No. SaleLinx uses your existing browser session on each marketplace
-            so there&rsquo;s no password to enter, store, or leak.
+            No. On Depop and Vinted, SaleLinx uses your existing browser session, so there&rsquo;s no password to enter, store, or leak. eBay connects through eBay&rsquo;s own sign-in page, and SaleLinx never sees your eBay password.
           </p>
         ),
         keywords: ['password', 'credentials', 'security'],

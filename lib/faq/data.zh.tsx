@@ -263,6 +263,31 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: '连接 eBay、跨平台上架到 eBay，以及费用。',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: '怎么连接我的 eBay 账户？',
+        a: <p>打开 SaleLinx 面板，进入<em>Settings</em>，在 eBay 一行点击<em>Link</em>。在 eBay 自己的页面登录，并同意让 SaleLinx 管理你的商品。SaleLinx 不会看到你的 eBay 密码，你随时可以取消连接。</p>,
+        keywords: ['ebay', '连接', '账户'],
+      },
+      {
+        id: 'ebay-fees',
+        q: '跨平台上架到 eBay 要收费吗？',
+        a: <p>eBay 会收取正常的刊登费用，和手动上架一样。SaleLinx 会在发布前显示每件商品的 eBay 费用，你可以先返回或移除商品。eBay 没有草稿，所以商品会直接上线。</p>,
+        keywords: ['ebay', '费用', '跨平台上架'],
+      },
+      {
+        id: 'ebay-site-access',
+        q: 'Chrome 询问是否允许 SaleLinx 在 eBay 网站上运行，我必须同意吗？',
+        a: <p>不需要。它只用于在 eBay 页面上显示 SaleLinx 面板。连接 eBay、我的商品和跨平台上架不需要它也能用。之后可以在<em>Settings</em>里再允许。</p>,
+        keywords: ['ebay', '权限', 'chrome'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: '隐私与数据',
     blurb: '我们存了什么、存在哪里，以及怎么删除。',
@@ -272,8 +297,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         q: 'SaleLinx 会保存我的平台密码吗？',
         a: (
           <p>
-            不会。SaleLinx 使用你在各个平台上已有的浏览器登录状态，所以没有
-            密码需要输入、保存，也就不会泄露。
+            不会。在 Depop 和 Vinted 上，SaleLinx 使用你已有的浏览器登录状态，所以没有密码需要输入、保存，也就不会泄露。eBay 通过 eBay 自己的登录页连接，SaleLinx 不会看到你的 eBay 密码。
           </p>
         ),
         keywords: ['密码', '登录凭据', '安全'],
