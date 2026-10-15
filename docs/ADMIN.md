@@ -6,7 +6,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 
 | Module | Route | Status | Notes |
 | --- | --- | --- | --- |
-| Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
+| Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts), the latest successful payments (read from Stripe via `admin-list-payments`, see "Latest payments" below) and recent audit activity. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
 | Users | `/admin/users` | Live, read/write | Roster + per-user detail (dropdown filters for status, tier, cancellation, last active, linked, version, country, browser and source; signup source column with brand icons and filter with per-source counts, from `signup_source` in user metadata, migration 030; share the short links in `next.config.ts` `SHORT_LINKS` (`/tt`, `/yt`, ...), which redirect with `utm_source` set, rather than raw utm URLs; country column from `country` in auth app metadata, migration 031, set by `proxy.ts` from `x-vercel-ip-country` on signed-in visits; browser column and filter with per-browser counts, parsed from the freshest install's `device_sessions.user_agent`, migration 035; subscription + tier, linked marketplace accounts, devices, listings + storage, usage vs caps for a selectable period (this period, the usage pages' trailing windows from last 5 minutes to last 72 hours, last 7 / 30 days, all time; caps and percent only on the current-period view), ticket count, admin badge). See "User observability" below. The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
@@ -196,6 +196,15 @@ Key properties:
 - **Errors:** `no_stripe_subscription` (comp row or lapsed - use the entitlement override instead), `already_on_plan`, `no_price_for_tier`, `subscription_canceled`.
 
 See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flow.
+
+### Latest payments (`admin-list-payments` Edge Function)
+
+The overview's "Latest payments" card lists the ten most recent successful payments: who (a link into the user drawer), the tier the price was for, first payment / renewal / plan change, the amount, any refund, and how long ago. The database cannot answer this: it keeps only each customer's first payment (`subscriptions.first_paid_at`), so the card reads Stripe through an Edge Function, the only place `STRIPE_SECRET_KEY` lives.
+
+- **Read-only.** It lists paid invoices and writes nothing to Stripe or the database, so no audit entry and no step-up reauth; the AAL2 + `admin_users` gate is the same as the other admin functions.
+- **Real money only.** Paid zero-value invoices are trial openings and are skipped. A refund leaves an invoice "paid", so the refunded amount comes from the expanded charge and shows next to the payment.
+- **Loaded after render** by `components/admin/LatestPayments.tsx`, so a slow or failing Stripe call shows one line in the card and never delays the rest of the overview.
+- **Emails are Stripe's snapshot** on the invoice. The drawer link needs our account, found through `subscriptions.stripe_customer_id`; a customer whose account was deleted shows the email without a link.
 
 ### Account deletion (`admin-delete-user` Edge Function)
 
@@ -703,7 +712,7 @@ Revoke by deleting the row. Keep the admin set small; every member has full read
 Implemented (was `TODO(admin-mfa)`). Every admin surface requires an AAL2 session: password login AND a verified TOTP code this session.
 
 - **Database (the boundary):** `is_admin()` itself requires `auth.jwt()->>'aal' = 'aal2'` (migration `003_support.sql`). Every admin RLS policy and every admin SECURITY DEFINER RPC calls `is_admin()`, so this single function covers all of it, including the RPCs that bypass RLS.
-- **Edge Functions:** `admin-change-plan` and `admin-delete-user` read the (already `getUser()`-validated) JWT's `aal` claim and return 403 `mfa_required` below AAL2. A stolen session token without the phone cannot change billing or delete accounts.
+- **Edge Functions:** `admin-change-plan`, `admin-delete-user` and `admin-list-payments` read the (already `getUser()`-validated) JWT's `aal` claim and return 403 `mfa_required` below AAL2. A stolen session token without the phone cannot change billing, delete accounts or read payment history.
 - **App gates:** `proxy.ts` and `app/admin/layout.tsx` redirect non-AAL2 admin sessions to `/auth/mfa?next=<path>`. The membership check they run first uses the `admin_users` self-read policy, which intentionally stays AAL1-readable so the gates can tell admins apart and route them to the challenge instead of `/account`.
 - **Enroll / challenge UI:** enroll lives in the Account > Security card (all users may enroll; see `docs/AUTH.md`); the challenge page is `/auth/mfa`.
 - **Step-up reauth is TOTP now:** once a factor is enrolled, `requireReauth()` verifies a fresh 6-digit code (which also keeps the session at AAL2) instead of the password. The password path survives only as a pre-enrollment fallback - it must never be used by an enrolled admin because `signInWithPassword` mints a fresh AAL1 session.

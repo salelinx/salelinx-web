@@ -61,6 +61,22 @@ export type AdminSubscriptionRow = {
   updated_at: string;
 };
 
+// One successful payment from the admin-list-payments Edge Function (read from
+// Stripe's paid invoices; the database keeps no payment history). Amounts are
+// minor units. user_id is null when the Stripe customer no longer maps to an
+// account; email is Stripe's snapshot on the invoice.
+export type AdminPayment = {
+  invoice_id: string;
+  user_id: string | null;
+  email: string | null;
+  tier: string | null;
+  reason: string | null;
+  amount: number;
+  currency: string;
+  refunded: number;
+  paid_at: string;
+};
+
 // Row from admin_list_usage(): one usage counter for one (user, feature, period).
 export type AdminUsageRow = {
   user_id: string;

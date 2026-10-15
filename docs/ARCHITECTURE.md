@@ -61,7 +61,7 @@ extension sees, and vice versa.
 - Server-rendered tier cards on `/pricing` (reads `tier_limits` from Supabase)
 - **Support** - user-facing: a login-gated contact form at `/help/support` (create a ticket, reached from the public `/help` hub) and the ticket history at `/account/tickets` (track + reply). The extension only files + reads.
 - **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
-- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `delete-account`, `process-referral-rewards`, `get-referral-discount`
+- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `admin-list-payments`, `delete-account`, `process-referral-rewards`, `get-referral-discount`
 - **Referral program** - share links (`/r/CODE`), the account Referrals card, and the reward pipeline (see `docs/REFERRALS.md`)
 
 ### Extension (`salelinx-app`) owns

@@ -168,6 +168,7 @@ supabase functions deploy <name>
 | `resolve-category`         | Depop/Vinted category lookups for the extension's crosslister       |
 | `admin-change-plan`        | Admin console: swap a customer's paid Stripe plan                   |
 | `admin-delete-user`        | Admin console: GDPR account deletion                                |
+| `admin-list-payments`      | Admin console: latest successful payments, read from Stripe         |
 | `delete-account`           | Self-serve GDPR deletion from the /account Danger zone              |
 
 Set function secrets (each function only reads the ones it needs):
