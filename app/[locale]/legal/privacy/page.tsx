@@ -28,13 +28,13 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "10 October 2026";
+const LAST_UPDATED = "15 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
     heading: "Who we are",
     paragraphs: [
-      "SaleLinx Ltd (\"SaleLinx\", \"we\", \"us\") is a company registered in England and Wales, company number 17351832, with registered office at 34 Sussex Place, London, W2 2TH. We provide a browser extension and the website salelinx.com that help resellers manage, cross-list, and automate tasks for their own listings on Depop and Vinted.",
+      "SaleLinx Ltd (\"SaleLinx\", \"we\", \"us\") is a company registered in England and Wales, company number 17351832, with registered office at 34 Sussex Place, London, W2 2TH. We provide a browser extension and the website salelinx.com that help resellers manage, cross-list, and automate tasks for their own listings on Depop, Vinted and eBay.",
       "For the personal data we hold about you as an account holder, SaleLinx Ltd is the data controller. For any privacy question or request, contact us at support@salelinx.com.",
     ],
   },
@@ -42,6 +42,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Summary",
     bullets: [
       "Your Depop and Vinted session credentials never leave your browser. The extension acts through the marketplace sessions already signed in on your device.",
+      "eBay works differently. If you connect eBay, you sign in on eBay's own page and eBay gives us a token to act on your listings. We store that token on our servers and your eBay requests pass through them. We never see your eBay password.",
       "We only store listing content on our servers when you turn on cloud sync or backup features.",
       "Payments are handled by Stripe. We never see or store your card details.",
       "We do not sell or share your data with advertisers or data brokers, and we do not collect your browsing history.",
@@ -54,6 +55,7 @@ const SECTIONS: LegalSection[] = [
       "Account information. When you create a SaleLinx account we collect your email address and a password, or, if you choose Sign in with Google, the email address and basic profile of your Google account instead of a password. Passwords are hashed by our authentication provider (Supabase); we cannot read them.",
       "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
+      "eBay connection (optional). If you connect an eBay account, eBay gives us your eBay user ID, username and registration site, and access and refresh tokens that let SaleLinx act on your eBay listings. The keys SaleLinx uses to talk to eBay are held on our servers, so the eBay actions you take in the extension (loading your listings and sales, editing, ending or creating listings, uploading photos, and reading view counts) pass through our servers to eBay. We do not keep the listing content of these requests unless you turn on cloud sync. If you save postage settings for crosslisting to eBay, including the postcode your items are sent from, we store them with your account. We keep the tokens until you unlink eBay, eBay tells us you have closed your eBay account, or you delete your SaleLinx account. eBay's own privacy notice covers what eBay does with your data.",
       "Usage counters. We record counts of feature actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan, understand which features are used, and investigate problems when you contact support. These are numbers only, not the content of the actions.",
       "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
       "Extension settings. Preferences you set in the extension, such as bot pacing, your marketplace choice and any settings presets you name and save, are stored with your account so they follow you to other devices. They contain no listing, buyer or message content and are deleted with your account.",
@@ -68,7 +70,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Information the extension handles but does not send to us",
     paragraphs: [
       "To do its job, the extension reads and uses data from Depop and Vinted inside your browser: your session cookies and tokens, your listings, offers, orders, and conversations. This data is processed locally on your device.",
-      "Except for the optional cloud features described above, none of it is transmitted to SaleLinx servers. In particular, we never receive your Depop or Vinted passwords, session cookies, or authentication tokens.",
+      "Except for the optional cloud features described above, none of it is transmitted to SaleLinx servers. In particular, we never receive your Depop or Vinted passwords, session cookies, or authentication tokens. eBay is the exception, described under eBay connection above.",
     ],
   },
   {
@@ -82,8 +84,8 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "What we do not collect",
     bullets: [
-      "Your browsing history or activity on any site other than Depop and Vinted pages where the extension runs.",
-      "Your marketplace passwords or session credentials.",
+      "Your browsing history or activity on any site other than Depop, Vinted and eBay pages where the extension runs.",
+      "Your marketplace passwords, or your Depop and Vinted session credentials.",
       "Advertising identifiers or analytics profiles for ad targeting.",
     ],
   },
