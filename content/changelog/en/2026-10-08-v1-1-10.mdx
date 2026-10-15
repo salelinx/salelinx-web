@@ -1,0 +1,89 @@
+export const metadata = {
+  title:
+    "Review before you crosslist, exact Depop categories, and a welcome screen",
+  date: "2026-10-08",
+  summary:
+    "Version 1.1.10 adds a review step before anything is crosslisted, with a full editor and multi-link Add from URL, matches every Vinted catalog to an exact Depop category, fixes titles, prices and brands from Depop to Vinted, and adds breaks to the queue popup, a seven-day rest in Dead Stock and a welcome screen for new accounts.",
+  tags: ["release"],
+};
+
+# Version 1.1.10
+
+Two weeks of work, most of it on crosslisting between Depop and Vinted.
+
+## New
+
+- **Review before you crosslist.** The Crosslist button now opens a review
+  list before anything is posted. Edit any item to change its title,
+  description and price, or its category, size, brand, condition and colours
+  in the target platform's own terms. Your edits are sent with the batch;
+  the old single-item preview threw them away.
+- **Add from URL takes many links.** Paste as many as you like. Each item
+  joins the list as soon as it is fetched, and links that fail stay in the
+  box. Vinted links are read straight from the page instead of loading a
+  background tab, which is faster and picks up the category, condition and
+  colours too.
+- **A floating Crosslist button** docks at the bottom right once the toolbar
+  scrolls out of view, with the same count and target.
+- **Breaks in the queue popup.** When a job pauses for a break or a rate
+  limit, its status says so with a countdown to when it resumes, and pauses
+  that cover a whole platform get a chip in the summary.
+- **Dead Stock rests a listing after a price drop.** After a -10% drop the
+  listing moves to a new Price dropped filter for seven days, out of the
+  tiers, Worst Performers, counts and capital banner, with a chip showing
+  the old and new price and the days left.
+- **Listing times.** The Listed column in My Listings shows the time under
+  the date.
+
+## Fixed
+
+- **Vinted to Depop categories.** Every Vinted catalog now maps to an exact
+  Depop category, instead of a guess from the wording. The title is read
+  before the description, so a blazer no longer lists as a jumper because
+  its description says "knitwear".
+- **Vinted to Depop sizes.** Combined labels like "M / UK 12-14" match the
+  right size, one-size items such as bags and books get One size, kids items
+  are sized by age, and men's chest sizes like 42R fall back to the matching
+  letter.
+- **Depop to Vinted titles, prices and brands.** Titles are cut to Vinted's
+  100 characters at a sentence or word break, and toned down when written
+  mostly in capitals. Prices are converted to your Vinted account's currency
+  (a $75 item used to list at £75). Brands are matched more loosely, so
+  "levi-s" finds Levi's, and Depop's Like new now maps to Very good rather
+  than New without tags.
+- **Depop drafts** post with their own photos instead of re-uploading them,
+  kids drafts post as kids listings, and a draft priced in another currency
+  is converted at the day's rate.
+- **My Listings keeps categories** through background syncs. A Vinted sync
+  used to wipe the category a crosslist had set.
+- **No more false "not linked" or "sold".** A failed check no longer tells
+  you your accounts are not linked, and after an update, listings from a
+  platform with no open tab show Not synced instead of being marked sold.
+- **Your Depop tab is left alone** when a background read fails. It used to
+  reload, wiping whatever you were doing in it.
+- The My Listings sort arrow sits beside its column label again.
+
+## Improved
+
+- **Drag-select scrolls.** Hold a selection near the top or bottom of a list
+  and it scrolls, faster the closer you get to the edge, selecting rows as
+  they pass. This works in My Listings, Relist, Refresh and Crosslist.
+- **A cleaner start.** The link-accounts screen and marketplace picker share
+  the welcome screen's style, and the tutorial popup at login is gone.
+- **A new toolbar icon**: the SaleLinx lynx on a transparent background.
+- **A choice about marketing email.** Signing up in the extension offers an
+  unticked box to opt out of tips and offers. On the website, signup asks
+  yes or no, and your account page has an Email preferences card where you
+  can change your answer.
+
+## Plans and billing
+
+- **A welcome screen instead of a padlock.** A new account without a plan
+  now sees Welcome to SaleLinx and a button to start the 14-day free trial,
+  rather than "This account has no active plan". The panel also waits for
+  your plan to load, so the wrong screen no longer flashes up first.
+- **Ended plans are worded correctly.** The screen after a plan ends told
+  paying customers their free trial had ended. It now says your plan has
+  ended, with a See plans button.
+- **Changing plan from the pricing page** takes subscribers straight to the
+  billing portal, rather than back to the account page with no explanation.

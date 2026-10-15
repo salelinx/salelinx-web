@@ -1,0 +1,63 @@
+export const metadata = {
+  title:
+    "Cambios en Vinted que se guardan, tamaños de paquete a medida y un icono para el modo oscuro",
+  date: "2026-10-10",
+  summary:
+    "La versión 1.1.11 hace que se guarden los cambios de talla, estado y marca en Vinted, da a cada categoría de Vinted sus propios tamaños de paquete, acelera los guardados en la nube, rediseña la ventana de la barra de herramientas con un icono que sigue el modo claro u oscuro de Chrome, y te deja empezar tu plan antes de que acabe la prueba.",
+  tags: ["release"],
+};
+
+# Versión 1.1.11
+
+Una versión corta: correcciones del editor de Vinted y una ronda de
+retoques visuales.
+
+## Correcciones
+
+- **Los cambios de talla y estado en Vinted se guardan.** Vinted aceptaba
+  un cambio de talla desde el editor rápido y luego lo ignoraba. La talla y
+  el estado se guardan ahora donde Vinted los lee.
+- **Las marcas de Vinted se mantienen.** Guardar una edición rápida sin
+  tocar la marca podía hacer que Vinted la quitara o eligiera otra. La marca
+  se envía ahora tal como estaba.
+- **Categorías sin talla.** Bolsos, hogar y otras categorías sin tallas
+  muestran No disponible en lugar de una lista de tallas.
+- **Tamaños de paquete a la medida de la categoría.** El editor lista los
+  tamaños de paquete propios de cada categoría, un Pequeño, Mediano o Grande
+  en bloque se ajusta a la escala de esa categoría, y al publicar se
+  mantiene el tamaño de tu borrador si la categoría lo permite, o si no el
+  más pequeño que ofrezca.
+- **Los artículos de Depop "everything else"** reciben su categoría al hacer
+  crosslisting.
+- **Las tareas en bloque liberan cada anuncio sobre la marcha**, en lugar de
+  retenerlos todos hasta que termina la tarea.
+
+## Mejoras
+
+- **Guardados en la nube más rápidos.** Las copias de las fotos ya no hacen
+  pausas entre una foto y otra.
+- **Un solo botón Cloud** en la barra de herramientas de anuncios abre
+  Guardar, Eliminar y Actualizar. Eliminar pide confirmación y luego borra
+  la copia en la nube y sus copias de fotos.
+- **Una ventana de la barra de herramientas más tranquila** en tonos
+  neutros, y un icono que sigue el modo claro u oscuro de Chrome. El icono
+  se actualiza cuando carga una pestaña de Depop o Vinted o cuando abres la
+  ventana.
+- **Una tarjeta de cómo funciona Crosslist**: tres puntos y una breve
+  animación (marca artículos, pulsa Crosslist, aparecen los borradores).
+- "Error al cargar anuncios" se muestra ahora en una tarjeta propia, y los
+  diálogos de cerrar sesión y desvincular cubren todo el panel, barra lateral
+  incluida.
+- El selector de marcas muestra primero Zara, Nike, H&M, Adidas y Shein, y
+  las flechas de los campos de precio avanzan de 1 en 1.
+
+## Planes y facturación
+
+- **Empieza tu plan antes de que acabe la prueba.** Durante una prueba, tu
+  página de cuenta te deja empezar a pagar tu plan al momento. Muestra el
+  precio antes de cobrar, y si tu tarjeta es rechazada puedes actualizarla y
+  volver a intentarlo.
+- **Una página de confirmación** tras el pago o un cambio de plan indica que
+  tu plan ha empezado y qué hacer a continuación.
+- **Cerrar sesión en la web** ya no cierra tu sesión en la extensión ni en
+  tus otros dispositivos.

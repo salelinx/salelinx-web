@@ -11,9 +11,9 @@ import {
 import { TIER_PRICES } from '@/lib/pricing';
 import { Hero } from '@/components/home/Hero';
 import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
-import { HeroVideo } from '@/components/home/HeroVideo';
 import { HomeFaq } from '@/components/home/HomeFaq';
 import { FinalCta } from '@/components/home/FinalCta';
+import { RoadmapSection } from '@/components/features/RoadmapSection';
 import { PricingSection } from '@/components/features/PricingSection';
 import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
 
@@ -110,8 +110,10 @@ export default async function Home({
           'Manage and edit eBay listings',
           'Bulk relist and refresh listings',
           'Scheduled price drops',
+          'Dead stock detection',
           'Restock tracking across Depop and Vinted',
-          'Send and auto-accept offers',
+          'Send offers to likers and auto-accept offers',
+          'Bulk listing and photo editor',
           'Shipping labels merged into one PDF',
         ],
         // Name the brand image explicitly. Without this the only images Google
@@ -143,22 +145,25 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
-      <div className="mx-auto w-full max-w-6xl px-6 pb-14 sm:pt-8 sm:pb-20">
-        <HeroVideo label="SaleLinx: Vinted, Depop and eBay in one panel" />
-      </div>
       <ScrollWorldDemo />
-      {/* The HeadlineFeatures block used to sit here. The scroll section above
-          now covers the same ground (and closes on a grid of every feature),
-          so this was saying it twice. The `#features` anchor the header and
-          mobile menu link to moved onto ScrollWorldDemo with it.
-          HeadlineFeatures itself is still used by the /features page. */}
+      {/* The HeadlineFeatures block used to sit here. The feature carousel
+          above covers the same ground, so this was saying it twice. */}
       <div className="section-band">
         <div className="mx-auto w-full max-w-7xl px-6">
           <PricingSection tiers={tiers} eyebrow={tHome('pricingEyebrow')} centered />
         </div>
       </div>
-      <HomeFaq />
+      {/* FAQ after the closing CTA rather than before it: the CTA lands
+          straight after pricing, and the questions are there for anyone
+          still deciding. */}
       <FinalCta />
+      <HomeFaq />
+      {/* Roadmap closes the page, under the FAQ, like pricing above it. Nav
+          links go to the /roadmap page instead (real URLs for sitelinks);
+          both render the same cards from roadmap_items. */}
+      <div className="mx-auto w-full max-w-7xl px-6">
+        <RoadmapSection />
+      </div>
     </main>
   );
 }

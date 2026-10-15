@@ -6,12 +6,13 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 
 | Module | Route | Status | Notes |
 | --- | --- | --- | --- |
-| Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts) and recent audit activity. |
+| Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts), the latest successful payments (read from Stripe via `admin-list-payments`, see "Latest payments" below) and recent audit activity. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
-| Users | `/admin/users` | Live, read/write | Roster + per-user detail (dropdown filters for status, tier, cancellation, last active, linked, version, country and source; signup source column with brand icons and filter with per-source counts, from `signup_source` in user metadata, migration 030; share the short links in `next.config.ts` `SHORT_LINKS` (`/tt`, `/yt`, ...), which redirect with `utm_source` set, rather than raw utm URLs; country column from `country` in auth app metadata, migration 031, set by `proxy.ts` from `x-vercel-ip-country` on signed-in visits; subscription + tier, linked marketplace accounts, devices, listings + storage, usage vs caps for a selectable period (this period / last 30 days / all time; caps and percent only on the current-period view), ticket count, admin badge). See "User observability" below. The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
+| Users | `/admin/users` | Live, read/write | Roster + per-user detail (dropdown filters for status, tier, cancellation, last active, linked, version, country, browser and source; signup source column with brand icons and filter with per-source counts, from `signup_source` in user metadata, migration 030; share the short links in `next.config.ts` `SHORT_LINKS` (`/tt`, `/yt`, ...), which redirect with `utm_source` set, rather than raw utm URLs; country column from `country` in auth app metadata, migration 031, set by `proxy.ts` from `x-vercel-ip-country` on signed-in visits; browser column and filter with per-browser counts, parsed from the freshest install's `device_sessions.user_agent`, migration 035; subscription + tier, linked marketplace accounts, devices, listings + storage, usage vs caps for a selectable period (this period, the usage pages' trailing windows from last 5 minutes to last 72 hours, last 7 / 30 days, all time; caps and percent only on the current-period view), ticket count, admin badge). See "User observability" below. The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
 | Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
+| Roadmap | `/admin/roadmap` | Live, read/write | Edit the public roadmap shown on `/roadmap` and at the bottom of the homepage (`roadmap_items`, migrations `032_roadmap_items.sql` + `033_roadmap_sync_main.sql`): create, edit, hide, delete, reorder within a column, move between Exploring / Building / Shipped. English copy required, other locales optional. See "Roadmap" below. |
 | Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for a selectable period (current period by default; last 5 / 15 / 30 minutes, last 1 / 2 / 12 / 24 / 48 / 72 hours, last 7 / 30 days, all time, or a custom from/to range of UTC hours via `?range=` / `?from=&to=` URL params; the resolver also still accepts day-shaped `?from=YYYY-MM-DD&to=YYYY-MM-DD` for old links, but the picker only offers hours), grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. On the current-period view the five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); range views drop caps/percent because caps are per-period. Day ranges sum day buckets plus every month bucket touched, and monthly counters only exist as month buckets, so a range partially covering a month includes that whole month's count for them. Trailing presets (`?range=` with one of `5m`, `15m`, `30m`, `1h`, `2h`, `12h`, `24h`, `48h`, `72h`) are exact windows ending now, answered from `usage_events` (migration 017; see "Usage events" below), so "last hour" at 15:42 is 14:42 to 15:42. Custom hour ranges (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, UTC) sum the server-derived hour buckets only, which are exact for every counter but exist only from `HOUR_EPOCH` and for `HOUR_RETENTION_DAYS` (60 days) in `lib/admin/period.ts`; a request outside that window is clamped and the header shows a "(clamped)" marker with the reason. See "Hour buckets" below. The rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
 | Analytics dashboard | `/admin/analytics` | Live, read-only | Landing page for the Analytics sidebar group: a grid of one-glance boxes fixed to the current month (last month as comparison), each linking to the module with the detail. Boxes: Top features (three most used by distinct users, with share of active users, actions, change vs last month), Top users (three most active accounts by total actions, with tier, features touched and top feature; emails resolved for just those ids), Active users (six-month column chart of distinct active users, `components/admin/analytics/ColumnChart.tsx`, with delta vs last month and the prior three-month average), Movers (largest gains and drops in users per feature vs last month, `featureMovers` in `lib/admin/adoption.ts`), Churn watch (paying users with `cancel_at_period_end` set, and paying users with no extension activity for 30+ days judged by `usage_counters.updated_at`; `lib/admin/retention.ts`, tested in `tests/retention.test.ts`), Signup funnel (accounts, linked a shop, ran an action, paying, each as a share of all accounts), Marketplace health (broken / degraded feature counts from the same `loadHealthRows(24)` the health module uses). The page reads usage rows once via `loadAnalyticsSource` and folds them for every usage-derived box; it is `force-dynamic`. Add a box by loading its data in the page's `Promise.all` and dropping a component into the grid (`components/admin/analytics/AdminAnalyticsDashboard.tsx`). |
 | Feature adoption | `/admin/usage/features` | Live, read-only | The per-feature cut of the same extension counters. Three kinds of window: a run of whole months (one / 3 / 6 / all time via `?months=`, anchored by `?to=YYYY-MM`), the same exact trailing presets as the usage pages (`?range=5m` to `72h`, read from `usage_events`), or a custom UTC hour range (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, read from the hour buckets). In every kind each of the 28 roster features shows distinct users, share of a selectable base (`?base=active` users with any extension activity, `paid`, or `all` accounts), change in users against the preceding window of equal length, actions, median actions per user, and a 6-month sparkline of users. A second table splits adoption by plan, greying out cells the plan cannot use (via the counter-to-gate map in `lib/admin/adoption.ts`). The sparkline is per month for month windows and per hour for hour ranges; trailing presets have no per-bucket breakdown, so it is hidden for them. Months before 26 Aug 2026 are flagged as unmeasured for the activity counters. Windows reaching before the hour or event epochs are clamped with a "(clamped)" marker. See "Feature adoption" below. |
@@ -21,7 +22,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
-Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, the Stripe plan change below, which bills the customer, and account deletion).
+Subscriptions / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), Roadmap, and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier, roadmap and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, the Stripe plan change below, which bills the customer, and account deletion).
 
 ## Routing & layout
 
@@ -45,6 +46,7 @@ Consequences:
 | Subscriptions module | `app/admin/subscriptions/page.tsx` + `components/admin/subscriptions/*` |
 | Tier limits module | `app/admin/tiers/page.tsx` + `components/admin/tiers/*` |
 | Feature flags module | `app/admin/flags/page.tsx` + `components/admin/flags/*` |
+| Roadmap module | `app/admin/roadmap/page.tsx` + `actions.ts` + `components/admin/roadmap/AdminRoadmap.tsx`; types and footer logic in `lib/roadmap/types.ts` (tested in `tests/roadmap.test.ts`), loaders in `lib/roadmap/data.ts` |
 | Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/AdminUserUsageGroups.tsx` |
 | Extension feature roster | `lib/admin/extension-features.ts` (keep in step with salelinx-app usage-tracking.ts) |
 | Analytics dashboard | `app/admin/analytics/page.tsx` + `components/admin/analytics/AdminAnalyticsDashboard.tsx` (boxes live in that file until one outgrows it) |
@@ -103,7 +105,7 @@ The Users / Subscriptions / Usage modules need data ACROSS users, but the billin
 - `admin_list_users()` - the roster: `auth.users` LEFT JOINed to `subscriptions` for current tier/status, plus `linked_platforms` and `last_device_seen_at` (migration `009_admin_console.sql`).
 - `admin_list_subscriptions()` - every `subscriptions` row (emails resolved separately via `admin_user_emails`).
 - `admin_list_usage(period_keys[])` - `usage_counters` rows for the passed period keys. The keys are always generated server-side from a bounded date range (default: the current period; widest: all time since `USAGE_EPOCH` in `lib/admin/period.ts` at day resolution, or the last `HOUR_RETENTION_DAYS` at hour resolution), so the read stays bounded (the table grows ~ users x features x periods; daily rows accumulate one per user per day, hour rows one per user per feature per active hour for 60 days). If the base grows, add pagination / a top-N cap, and consider a from/to variant of the RPC instead of enumerating day or hour keys.
-- `admin_list_usage_events(since, until)` - per (user, feature) totals from `usage_events` between two timestamps (window capped at 8 days), for the trailing-window presets. Same answer shape as `admin_list_usage` so `loadUsageRows` treats the two sources alike.
+- `admin_list_usage_events(since, until)` - per (user, feature) totals from `usage_events` between two timestamps (window capped at 8 days), for the trailing-window presets on the usage pages and in the users drawer (which keeps only its own user's rows). Same answer shape as `admin_list_usage` so `loadUsageRows` treats the two sources alike.
 - `admin_user_detail(user_id, period_keys[])` - a single JSONB bundle for the detail drawer: subscription + usage for the periods + ticket count + the **target** user's `is_admin` flag (display-only; the caller is still gated on being an admin) + the observability keys below.
 
 All are READ-only and `GRANT EXECUTE ... TO authenticated` (safe because of the in-function `is_admin()` check). The audit module needs no RPC: `admin_audit_log` already has an `is_admin()` SELECT policy, so it reads directly. Tier caps for the usage views come from the public-read `tier_limits` table via `getTierConfigs()`.
@@ -159,6 +161,8 @@ The Tier limits / Feature flags modules edit `tier_limits`, which is public-read
 - `admin_set_tier_limit(tier_id, version, key, value)` - `jsonb_set` one cap in `limits`. `value` is a JSON number or null (unlimited).
 - `admin_set_tier_feature(tier_id, version, key, enabled)` - `jsonb_set` one boolean in `features`.
 
+Neither function existed on the live project until `037_sync_live_functions.sql` (the pre-squash file that created them was never run there), so before 037 is applied both editors fail on save with a "function not found" error from PostgREST.
+
 Guardrails built into both functions (not the UI):
 
 - **Active rows only** (`effective_until IS NULL`). Historical versions are grandfathering records and must not be rewritten.
@@ -193,6 +197,15 @@ Key properties:
 
 See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flow.
 
+### Latest payments (`admin-list-payments` Edge Function)
+
+The overview's "Latest payments" card lists the ten most recent successful payments: who (a link into the user drawer), the tier the price was for, first payment / renewal / plan change, the amount, any refund, and how long ago. The database cannot answer this: it keeps only each customer's first payment (`subscriptions.first_paid_at`), so the card reads Stripe through an Edge Function, the only place `STRIPE_SECRET_KEY` lives.
+
+- **Read-only.** It lists paid invoices and writes nothing to Stripe or the database, so no audit entry and no step-up reauth; the AAL2 + `admin_users` gate is the same as the other admin functions.
+- **Real money only.** Paid zero-value invoices are trial openings and are skipped. A refund leaves an invoice "paid", so the refunded amount comes from the expanded charge and shows next to the payment.
+- **Loaded after render** by `components/admin/LatestPayments.tsx`, so a slow or failing Stripe call shows one line in the card and never delays the rest of the overview.
+- **Emails are Stripe's snapshot** on the invoice. The drawer link needs our account, found through `subscriptions.stripe_customer_id`; a customer whose account was deleted shows the email without a link.
+
 ### Account deletion (`admin-delete-user` Edge Function)
 
 The Users drawer's "Delete account" button (danger zone, hidden for admins) runs the GDPR erasure runbook from the console. It is an Edge Function for the same reason as the plan change: it needs the service role (`auth.admin.deleteUser`, Storage cleanup, audit write) and `STRIPE_SECRET_KEY`, which the web app never holds. Same gate: `getUser()` then an authoritative `admin_users` service-role read.
@@ -208,6 +221,40 @@ The Storage module's data source is the `user_storage` gauge from migration `004
 - `admin_list_storage()` - every `user_storage` row (`user_id`, `bytes_used`, `updated_at`), largest first. One row per user who has ever uploaded, so the read stays bounded without pagination.
 
 Emails come from `admin_user_emails`, tiers from `admin_list_users` / `admin_list_subscriptions`, and the `cloud_storage_bytes` cap from the public-read `tier_limits` table via `getTierConfigs()`. Cap semantics differ from the count caps: `null` means unlimited, while an **absent** `cloud_storage_bytes` key means the tier has no storage allowance at all (Free/Starter) - shown as `-` with no percent.
+
+## Roadmap
+
+`/admin/roadmap` edits the public roadmap: the `/roadmap` page and the last
+section of the homepage, both rendered by `RoadmapSection`. It replaced a code
+constant (`lib/roadmap/data.ts`) whose copy sat in `messages/*.json`, which
+meant every column move was a deploy.
+
+- **Storage.** One `roadmap_items` row per card (migration
+  `032_roadmap_items.sql`; `033_roadmap_sync_main.sql` replays the roadmap
+  PR #200 rewrote in code while 032 was in review, touching only unedited cards). `title` and `description` are JSONB keyed by locale;
+  English is required, the others optional, and the site falls back to English
+  for a missing one. Cards with gaps say which locales are missing.
+- **The footer is derived, not stored.** "Target Q4 2026" / "Shipped Oct
+  2026" / "In development" come from `status` plus `target_quarter`
+  (`YYYY-QN`) or `shipped_month` (`YYYY-MM`) through `roadmapMeta()` and the
+  `Roadmap.meta.*` messages, so they are translated without anyone typing them
+  six times.
+- **Hidden cards are drafts.** New cards start hidden so translations can be
+  filled in first. The anon RLS policy returns `visible` rows only; the admin
+  policy (through `is_admin()`, so AAL2) adds the rest.
+- **Writes.** `admin_save_roadmap_item` (create or edit; `p_is_new` stops a
+  create from overwriting and an edit from creating), `admin_delete_roadmap_item`
+  and `admin_reorder_roadmap_items` (takes a column's full id list; refuses with
+  `stale_order` if the column changed since the page loaded). All re-check
+  `is_admin()` and log the whole old row (`roadmap.item_create` /
+  `roadmap.item_update` / `roadmap.item_delete` / `roadmap.reorder`), so every
+  change, a delete included, is reversible from the audit log. That is why none
+  of them asks for step-up reauth.
+- **Propagation.** Both pages read through `unstable_cache` (60s) under the
+  `roadmap-items` tag; the server actions expire that tag and revalidate both
+  paths, so a change shows on the next page load.
+- **No personal data.** The table has no actor column; who changed what lives
+  in `admin_audit_log`. Nothing to add to the ROPA or the deletion runbook.
 
 ## Rendering performance
 
@@ -665,7 +712,7 @@ Revoke by deleting the row. Keep the admin set small; every member has full read
 Implemented (was `TODO(admin-mfa)`). Every admin surface requires an AAL2 session: password login AND a verified TOTP code this session.
 
 - **Database (the boundary):** `is_admin()` itself requires `auth.jwt()->>'aal' = 'aal2'` (migration `003_support.sql`). Every admin RLS policy and every admin SECURITY DEFINER RPC calls `is_admin()`, so this single function covers all of it, including the RPCs that bypass RLS.
-- **Edge Functions:** `admin-change-plan` and `admin-delete-user` read the (already `getUser()`-validated) JWT's `aal` claim and return 403 `mfa_required` below AAL2. A stolen session token without the phone cannot change billing or delete accounts.
+- **Edge Functions:** `admin-change-plan`, `admin-delete-user` and `admin-list-payments` read the (already `getUser()`-validated) JWT's `aal` claim and return 403 `mfa_required` below AAL2. A stolen session token without the phone cannot change billing, delete accounts or read payment history.
 - **App gates:** `proxy.ts` and `app/admin/layout.tsx` redirect non-AAL2 admin sessions to `/auth/mfa?next=<path>`. The membership check they run first uses the `admin_users` self-read policy, which intentionally stays AAL1-readable so the gates can tell admins apart and route them to the challenge instead of `/account`.
 - **Enroll / challenge UI:** enroll lives in the Account > Security card (all users may enroll; see `docs/AUTH.md`); the challenge page is `/auth/mfa`.
 - **Step-up reauth is TOTP now:** once a factor is enrolled, `requireReauth()` verifies a fresh 6-digit code (which also keeps the session at AAL2) instead of the password. The password path survives only as a pre-enrollment fallback - it must never be used by an enrolled admin because `signInWithPassword` mints a fresh AAL1 session.

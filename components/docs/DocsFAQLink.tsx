@@ -7,7 +7,7 @@ export async function DocsFAQLink() {
   return (
     <div className="flex justify-center text-center">
       <Link
-        href="/faq"
+        href="/help/faq"
         className="group inline-flex flex-wrap items-center justify-center gap-x-2 text-sm text-zinc-600 transition hover:text-black dark:text-zinc-400 dark:hover:text-white"
       >
         <span>{t('faqLinkPrompt')}</span>

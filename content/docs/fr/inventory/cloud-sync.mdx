@@ -1,29 +1,39 @@
 export const metadata = {
   title: 'Synchronisation cloud',
   description:
-    'Comment SaleLinx sauvegarde vos annonces dans le cloud, ce que fait l\'enrichisseur en arrière-plan et comment choisir ce qui est synchronisé.',
+    'Comment SaleLinx sauvegarde vos annonces et leurs photos dans le cloud, comment les enregistrer, les mettre à jour et les retirer, et à quoi sert cette sauvegarde.',
   category: 'inventory',
   slug: 'cloud-sync',
   order: 8,
-  updated: '2026-05-18',
-  tags: ['cloud', 'synchronisation', 'sauvegarde', 'enrichissement'],
+  updated: '2026-10-13',
+  tags: ['cloud', 'synchronisation', 'sauvegarde', 'stockage'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
 # Synchronisation cloud
 
-Par défaut, SaleLinx stocke vos annonces localement dans votre
-navigateur. La synchronisation cloud, optionnelle et activable par
-annonce, copie ces données (et les photos) sur votre compte
-SaleLinx (Supabase). L'**enrichisseur** est le processus en
-arrière-plan qui rend la synchro possible.
+SaleLinx conserve votre catalogue d'annonces dans votre navigateur. La
+synchronisation cloud copie une annonce, avec tous ses détails et ses
+photos, sur votre compte SaleLinx. Elle fonctionne annonce par
+annonce&nbsp;: vous choisissez lesquelles sauvegarder, et seules
+celles-ci sont copiées.
+
+Les annonces sauvegardées apparaissent sur chaque navigateur connecté à
+votre compte SaleLinx, et gardent leurs photos et leurs détails même si
+l'annonce est retirée de la marketplace. Elles rendent aussi possibles
+la republication des articles vendus, la
+[liaison](/docs/automate/linking) et le
+[Restockeur](/docs/automate/restocker). Tout se passe dans l'onglet
+**Mes annonces**, avec l'interrupteur de la colonne **Cloud** ou le
+bouton **Cloud** de la barre d'outils. La synchronisation cloud est
+incluse dans les forfaits **Pro** et **Business**.
 
 <Callout>
 Traduction française complète à venir. Voir la
-[version anglaise](/en/docs/inventory/cloud-sync) pour le détail
-des deux stores (IndexedDB local / Supabase cloud), le chiffrement
-client, les déclencheurs d'enrichissement, la cadence sous task
-queue, la sauvegarde d'images, le multi-onglet / multi-appareil et
-les annonces orphelines.
+[version anglaise](/en/docs/inventory/cloud-sync) pour
+l'enregistrement, la mise à jour et le retrait des annonces, ce qui
+est stocké où, la protection de vos sauvegardes, l'utilisation sur
+plusieurs appareils, les annonces présentes uniquement dans le cloud,
+l'indisponibilité temporaire de SaleLinx et les paliers d'abonnement.
 </Callout>

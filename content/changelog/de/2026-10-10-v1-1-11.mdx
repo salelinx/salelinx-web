@@ -1,0 +1,63 @@
+export const metadata = {
+  title:
+    "Vinted-Änderungen, die bleiben, passende Paketgrößen und ein Symbol für den Dunkelmodus",
+  date: "2026-10-10",
+  summary:
+    "Version 1.1.11 sorgt dafür, dass Größen-, Zustands- und Markenänderungen auf Vinted bleiben, gibt jeder Vinted-Kategorie ihre eigenen Paketgrößen, beschleunigt Cloud-Speicherungen, gestaltet das Symbolleisten-Popup mit einem Symbol neu, das Chromes hellem oder dunklem Modus folgt, und lässt dich deinen Tarif vor Ende der Testphase starten.",
+  tags: ["release"],
+};
+
+# Version 1.1.11
+
+Eine kurze Version: Korrekturen am Vinted-Editor und eine Runde optischer
+Feinschliff.
+
+## Behoben
+
+- **Größen- und Zustandsänderungen auf Vinted bleiben.** Vinted nahm eine
+  Größenänderung aus dem Schnell-Editor an und ignorierte sie dann. Größe und
+  Zustand werden jetzt dort gespeichert, wo Vinted sie liest.
+- **Vinted-Marken bleiben, wo sie sind.** Eine Schnellbearbeitung zu
+  speichern, ohne die Marke anzufassen, konnte Vinted dazu bringen, sie zu
+  entfernen oder eine andere zu wählen. Die Marke wird jetzt genau so
+  zurückgeschickt, wie sie war.
+- **Kategorien ohne Größen.** Taschen, Wohnen und andere Kategorien ohne
+  Größen zeigen Nicht verfügbar statt einer Größenliste.
+- **Paketgrößen passend zur Kategorie.** Der Editor listet die eigenen
+  Paketgrößen jeder Kategorie, ein Klein, Mittel oder Groß aus der
+  Sammelbearbeitung wird auf die Skala der Kategorie übertragen, und beim
+  Veröffentlichen bleibt die Größe deines Entwurfs, wenn die Kategorie sie
+  erlaubt, sonst die kleinste, die sie anbietet.
+- **Depop-Artikel aus „everything else“** bekommen beim Crosslisten ihre
+  Kategorie.
+- **Sammelaufträge geben jedes Angebot frei, sobald es fertig ist**, statt
+  alle bis zum Ende des Auftrags festzuhalten.
+
+## Verbessert
+
+- **Schnellere Cloud-Speicherungen.** Foto-Backups pausieren nicht mehr
+  zwischen den einzelnen Fotos.
+- **Ein einziger Cloud-Button** in der Angebots-Werkzeugleiste öffnet
+  Speichern, Entfernen und Aktualisieren. Entfernen fragt nach und löscht
+  dann die Cloud-Kopie und ihre Foto-Backups.
+- **Ein ruhigeres Symbolleisten-Popup** in neutralen Tönen und ein Symbol,
+  das Chromes hellem oder dunklem Modus folgt. Das Symbol aktualisiert sich,
+  sobald ein Depop- oder Vinted-Tab lädt oder du das Popup öffnest.
+- **Eine So-funktioniert's-Karte für Crosslist**: drei Punkte und eine kurze
+  Animation (Artikel anhaken, Crosslist drücken, Entwürfe erscheinen).
+- „Fehler beim Laden der Anzeigen“ erscheint jetzt als richtige Karte, und
+  die Dialoge zum Abmelden und Trennen decken das ganze Panel ab,
+  Seitenleiste eingeschlossen.
+- Die Markenauswahl zeigt Zara, Nike, H&M, Adidas und Shein zuerst, und die
+  Pfeile in Preisfeldern springen um 1.
+
+## Tarife und Abrechnung
+
+- **Starte deinen Tarif vor Ende der Testphase.** Während einer Testphase
+  kannst du auf deiner Kontoseite sofort mit dem Bezahlen deines Tarifs
+  beginnen. Der Preis wird vor der Abbuchung angezeigt, und wenn deine Karte
+  abgelehnt wird, kannst du sie aktualisieren und es erneut versuchen.
+- **Eine Bestätigungsseite** nach dem Bezahlen oder einem Tarifwechsel sagt
+  dir, dass dein Tarif begonnen hat und was als Nächstes zu tun ist.
+- **Das Abmelden auf der Website** meldet dich nicht mehr in der Erweiterung
+  oder auf deinen anderen Geräten ab.

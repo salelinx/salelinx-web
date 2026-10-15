@@ -1,0 +1,220 @@
+export const metadata = {
+  title: 'Settings',
+  description:
+    'A tour of the Settings tab: your SaleLinx account, linked Depop and Vinted accounts, plan and usage, the marketplaces you sell on, and display options.',
+  category: 'getting-started',
+  slug: 'settings',
+  order: 5,
+  updated: '2026-10-13',
+  tags: ['settings', 'account', 'membership', 'usage', 'language', 'shortcut'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# Settings
+
+**Settings** is pinned to the bottom of the panel&rsquo;s sidebar, below
+**Support** and **Refer &amp; Earn**, so you can always reach it. It holds
+your SaleLinx account, the Depop and Vinted accounts you&rsquo;ve linked,
+your plan and how much of it you&rsquo;ve used, which marketplaces you sell
+on, and a couple of display options.
+
+A few quick controls (language, theme, Pop out) live in the panel header
+instead. They&rsquo;re covered at the end of this page.
+
+## SaleLinx account
+
+The first section, **SaleLinx account**, shows the email you&rsquo;re signed
+in with and two buttons:
+
+- **Manage account on salelinx.com** opens your account page on the
+  website, where you change your password or email and manage billing.
+- **Log Out** signs you out of the extension after a confirmation.
+
+Logging out also cancels everything in the [queue](/docs/getting-started/queue)
+and clears its history, and removes the listings and saved presets SaleLinx
+kept in this browser, so the next person to sign in here can&rsquo;t see
+them. Your presets and cloud backups stay with your account and come back
+when you sign in again.
+
+## Marketplace accounts
+
+**Marketplace accounts** has one row for Depop and one for Vinted. Each row
+shows the linked shop&rsquo;s @username and a status:
+
+- **Connected** - the shop is linked, or you&rsquo;re signed in there.
+- **Disconnected** or **Session expired** - SaleLinx can&rsquo;t see you
+  signed in there. An **Open Depop** (or **Open Vinted**) button appears
+  next to the status; sign in on the site that opens and the row recovers.
+
+If you&rsquo;re signed in but haven&rsquo;t linked the shop yet, the row
+reads **Not linked** and offers to link it.
+
+If you&rsquo;ve set SaleLinx up for one marketplace only (see
+Marketplaces below), the other row is hidden.
+
+<Callout>
+In version 1.1.11 and earlier, this section and the one above it are headed
+**Accounts** and **Account**.
+</Callout>
+
+### Linking an account
+
+Linking tells SaleLinx which shop belongs to your SaleLinx account. To link
+one:
+
+1. Sign in on [depop.com](https://www.depop.com) or
+   [vinted.com](https://www.vinted.com) in a normal tab.
+2. Open the SaleLinx panel on that site and go to **Settings**.
+3. Under the marketplace&rsquo;s row you&rsquo;ll see &ldquo;Link
+   @yourname (Depop) to your cloud?&rdquo;. Click **Link**.
+
+**Not now** hides the prompt for now.
+
+You can only link the marketplace whose site the panel is open on. From a
+Depop tab, the Vinted row asks you to open Vinted and log in there, and the
+other way round. The full first-time walkthrough is in
+[Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).
+
+If linking fails, the row says why. The common reasons:
+
+- **No login found.** Sign in on the marketplace and try again.
+- **The shop is already linked to a different SaleLinx account.** Sign in
+  to that SaleLinx account, unlink it there, then come back.
+- **The shop has already used a free trial on another SaleLinx account.**
+  Start a paid plan to link it here.
+
+### Signed in as someone else
+
+If the marketplace tab is signed in to a different shop from the one you
+linked, a banner at the top of Settings says so. That marketplace&rsquo;s
+features stay unavailable until you switch accounts on the marketplace, or
+unlink and link the shop you&rsquo;re now using.
+
+### Unlinking
+
+Click **Unlink** on the row and confirm. Unlinking removes that
+marketplace&rsquo;s listings from SaleLinx in this browser. Nothing changes
+on Depop or Vinted itself.
+
+If you have listings from that shop saved in your cloud backup, the
+confirmation offers a choice:
+
+- **Keep cloud listings** - unlink, but leave the backups in your account.
+- **Delete everything** - unlink and also delete that shop&rsquo;s cloud
+  backups, photos included.
+
+## Account info
+
+**Account info** shows your **User ID** with a **Copy** button, in case
+support asks for it.
+
+## Membership
+
+The **Membership** card shows:
+
+- **Your plan**: **Free trial**, **Starter**, **Pro** or **Business**.
+- **Its status**: **Trial**, **Active**, **Past due** or **Canceled**.
+- **A date**: when the trial ends, when the plan renews, or, if
+  you&rsquo;ve cancelled, when it ends.
+- **Manage**, which opens your account page on salelinx.com to change plan,
+  update your card or cancel.
+
+While you&rsquo;re on the free trial, a countdown in the panel header also
+shows how long is left. Click it to open the pricing page.
+
+### Usage meters
+
+Under the plan, one row for each allowance on your plan shows how much
+you&rsquo;ve used, your limit and how many are left:
+
+- **Crosslists this month**
+- **Relists this month**
+- **Refreshes today**
+- **Follows today**
+- **Unfollows today**
+- **Cloud storage** (on plans that include cloud backups)
+
+A row reads **Unlimited** when your plan has no cap on it. The bar changes
+colour as you get close to the limit.
+
+The &ldquo;today&rdquo; allowances reset at midnight UTC. In the UK
+that&rsquo;s midnight in winter and 1am during British Summer Time. The
+&ldquo;this month&rdquo; allowances reset on the first of each calendar
+month (UTC), not on your billing date.
+
+When you run out, SaleLinx shows an upgrade prompt, and tasks already
+waiting in the [queue](/docs/getting-started/queue) are put on hold until
+the allowance resets. The limits for each plan are on the
+[pricing page](/pricing). Billing, upgrades and cancelling are covered in
+[Account and subscription](/docs/getting-started/account-and-subscription).
+
+## Marketplaces
+
+**Marketplaces** sets where you sell: &ldquo;Choose where you sell. We hide
+everything for the marketplaces you skip.&rdquo; There are three buttons
+showing the marketplace logos. Hover over one to see its name: **Depop
+only**, **Vinted only** or **Both**.
+
+Turning a marketplace off:
+
+- Hides its tabs, filters and account row. **Refresh** and **Shop
+  Designer** are Depop-only tabs, and **Auto-Offers** is Vinted-only.
+- Stops its background work, and switches off its schedules: Auto-refresh
+  when Depop is off, and automatic offer accepting for that marketplace.
+- Leaves **Crosslist** and **Linking** in the sidebar, but locked. Both need
+  Depop and Vinted, so they explain why and offer a **Change marketplaces**
+  button that brings you back here.
+
+Your choice is saved to your SaleLinx account. SaleLinx asks the same
+question (&ldquo;Where do you sell?&rdquo;) the first time you sign in.
+
+If you open the panel on a marketplace you&rsquo;ve turned off, a banner
+offers **Turn on Depop** (or **Turn on Vinted**) and **Dismiss**.
+
+## Display
+
+- **Page animations** switches the moving scenes at the top of each tab on
+  or off. Turn them off if the panel feels slow. This setting is saved in
+  this browser only.
+- **Panel shortcut** shows the keyboard shortcut that opens and closes the
+  panel (**Alt+S** unless you&rsquo;ve changed it, or **Not set**). Chrome
+  controls extension shortcuts, so **Change** opens Chrome&rsquo;s shortcuts
+  page, where you can pick a different key. The shortcut only works on a
+  Depop or Vinted tab.
+
+## Controls in the panel header
+
+These sit in the top-right corner of the panel on every tab:
+
+- Language (the flag): the panel is available in English, French,
+  Spanish and German. You can also switch language from the menu that
+  appears when you hover over the SaleLinx launcher while the panel is
+  closed.
+- Tutorial mode (the &ldquo;i&rdquo; icon): hides or shows the info
+  cards at the top of each tab. Turning it back on also brings back any
+  cards you closed one by one.
+- Theme (moon or sun): switches between light and dark. Light is the
+  default.
+- Log out: the same as **Log Out** in Settings.
+- **Pop out**: shrinks the panel into a window you can drag by its header
+  and resize from any edge or corner, so the page underneath stays usable.
+  Click **Fill screen** to go back to full size. SaleLinx remembers which
+  you used last, and the window&rsquo;s size and position.
+- Close (&times;): closes the panel. Anything in the queue keeps
+  running.
+
+## The other bottom tabs
+
+- **Refer &amp; Earn** gives you a link to share. Your friend gets a
+  discount, and you earn free time on your plan when they subscribe.
+- **Support** is where you report a bug or send feedback to the SaleLinx
+  team.
+
+## Next steps
+
+- [The queue](/docs/getting-started/queue): how SaleLinx paces its work
+  and what the status line means.
+- [Account and subscription](/docs/getting-started/account-and-subscription):
+  plans, billing and cancelling.
+- [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)

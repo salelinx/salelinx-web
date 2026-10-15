@@ -56,9 +56,9 @@ Step 3 is a fallback on purpose: browser language is what someone chose, country
 ```
 app/[locale]/                Every user-facing route is localized (next-intl).
 ├── page.tsx                 Landing
-├── features/                Single page hosting Features + Pricing + Roadmap (tabs scroll to #features, #pricing, #roadmap). Tiers rendered from tier_limits.
-├── pricing/                 Redirect stub -> /features#pricing (keeps Stripe cancelUrl compatibility)
-├── roadmap/                 Redirect stub -> /features#roadmap
+├── features/                Features overview, plus /features/[slug] landing pages
+├── pricing/                 Pricing page. Tiers rendered from tier_limits; Stripe cancelUrl lands here
+├── roadmap/                 Roadmap page. Cards from roadmap_items (see lib/roadmap/), edited in /admin/roadmap
 ├── auth/
 │   ├── login/               Password login
 │   ├── signup/              Password signup
@@ -80,6 +80,8 @@ app/[locale]/                Every user-facing route is localized (next-intl).
 │   ├── faq/                 FAQ under the help hub
 │   └── support/             Login-gated contact form (create a ticket)
 ├── faq/                     Frequently asked questions - accordion Q&A
+├── blog/                    SEO blog, English-only: index + [slug]/ posts (MDX from content/blog/en,
+│                            registered in lib/blog/posts.ts) with a generated per-post OG image
 ├── invited/                 Referral invite landing (/r/CODE redirects here)
 ├── legal/                   ToS + Privacy
 └── [...rest]/               Locale-scoped catch-all 404
@@ -96,10 +98,12 @@ app/admin/                   Internal staff console. Owns its own <html>/theme/s
 components/                  Shared React components (Header, VerifyEmailBanner, …)
 components/admin/            Admin console components (AdminSidebar, support/AdminTicketTable, …)
 components/docs/             Docs-only components (Sidebar, CategoryCard, DocsSearch, MDX widgets)
-components/features/         FeaturesSection / PricingSection / RoadmapSection (stacked on /features)
+components/blog/             Blog-only components (PostCard, PostCta, MDX CompareTable)
+components/features/         FeaturesSection (/features), PricingSection (/pricing + homepage), RoadmapSection (/roadmap + homepage, under the FAQ)
 
 content/docs/                MDX article source, filed by <category>/<slug>.mdx
 content/changelog/           MDX release notes, filed by <date>-<slug>.mdx
+content/blog/en/             MDX blog posts, filed by <slug>.mdx (English only)
 
 assets/fonts/                Geist TTF instances for the generated Open Graph images
                              (next/og needs raw font data; see the README there)
@@ -115,6 +119,8 @@ lib/
 │   ├── referrals.ts         Referral RPC wrappers
 │   └── tier-config.ts       Reads tier_limits rows (cached + uncached variants)
 ├── docs/                    Article manifest, helpers, marketplace status, changelog
+├── blog/                    Blog post manifest, categories, JSON-LD
+├── og/article-card.tsx      Open Graph card shared by docs articles and blog posts
 ├── faq/                     FAQ entries, one data file per locale (data.en.tsx, .fr, .es, .de)
 ├── admin/                   Admin-console helpers (reauth, period, usage caps, formatting)
 ├── i18n/locales.ts          Supported locales

@@ -38,7 +38,10 @@ export type IconName =
   | 'crosslist-arrows'
   | 'cube'
   | 'chat-bubble'
-  | 'truck';
+  | 'truck'
+  | 'cookie'
+  | 'pencil'
+  | 'send';
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
   grid: (
@@ -259,6 +262,27 @@ const ICON_PATHS: Record<IconName, ReactNode> = {
       <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
       <circle cx="5.5" cy="18.5" r="2.5" />
       <circle cx="18.5" cy="18.5" r="2.5" />
+    </>
+  ),
+  cookie: (
+    <>
+      <path d="M12 3a9 9 0 1 0 9 9 4.5 4.5 0 0 1-4.5-4.5A4.5 4.5 0 0 1 12 3Z" />
+      <path d="M8.5 9h.01" />
+      <path d="M12.5 13h.01" />
+      <path d="M15.5 16.5h.01" />
+      <path d="M8 15.5h.01" />
+    </>
+  ),
+  pencil: (
+    <>
+      <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+      <path d="m15 5 4 4" />
+    </>
+  ),
+  send: (
+    <>
+      <path d="m22 2-7 20-4-9-9-4Z" />
+      <path d="M22 2 11 13" />
     </>
   ),
 };

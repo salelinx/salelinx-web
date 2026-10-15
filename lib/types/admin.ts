@@ -42,6 +42,8 @@ export type AdminUserRow = {
   signup_campaign: string | null;
   // Last country Vercel geolocated a signed-in visit to (migration 031).
   country: string | null;
+  // From the same freshest install as extension_version (migration 035).
+  user_agent: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.
@@ -57,6 +59,22 @@ export type AdminSubscriptionRow = {
   cancel_at_period_end: boolean;
   created_at: string;
   updated_at: string;
+};
+
+// One successful payment from the admin-list-payments Edge Function (read from
+// Stripe's paid invoices; the database keeps no payment history). Amounts are
+// minor units. user_id is null when the Stripe customer no longer maps to an
+// account; email is Stripe's snapshot on the invoice.
+export type AdminPayment = {
+  invoice_id: string;
+  user_id: string | null;
+  email: string | null;
+  tier: string | null;
+  reason: string | null;
+  amount: number;
+  currency: string;
+  refunded: number;
+  paid_at: string;
 };
 
 // Row from admin_list_usage(): one usage counter for one (user, feature, period).

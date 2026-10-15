@@ -1,0 +1,67 @@
+export const metadata = {
+  title:
+    "Des modifications Vinted qui tiennent, des tailles de colis adaptées et une icône pour le mode sombre",
+  date: "2026-10-10",
+  summary:
+    "La version 1.1.11 fait tenir les modifications de taille, d'état et de marque sur Vinted, donne à chaque catégorie Vinted ses propres tailles de colis, accélère les sauvegardes cloud, redessine la fenêtre de la barre d'outils avec une icône qui suit le mode clair ou sombre de Chrome, et vous permet de démarrer votre abonnement avant la fin de l'essai.",
+  tags: ["release"],
+};
+
+# Version 1.1.11
+
+Une version courte : des corrections de l&rsquo;éditeur Vinted et une série
+de finitions visuelles.
+
+## Corrections
+
+- **Les modifications de taille et d&rsquo;état Vinted tiennent.** Vinted
+  acceptait un changement de taille depuis l&rsquo;éditeur rapide puis
+  l&rsquo;ignorait. La taille et l&rsquo;état sont désormais enregistrés là
+  où Vinted les lit.
+- **Les marques Vinted restent en place.** Enregistrer une modification
+  rapide sans toucher à la marque pouvait amener Vinted à la supprimer ou à
+  en choisir une autre. La marque est désormais renvoyée telle quelle.
+- **Catégories sans taille.** Les sacs, la maison et les autres catégories
+  sans tailles affichent Non disponible au lieu d&rsquo;une liste de
+  tailles.
+- **Des tailles de colis adaptées à la catégorie.** L&rsquo;éditeur liste
+  les tailles de colis propres à chaque catégorie, un Petit, Moyen ou Grand
+  en masse est ramené à l&rsquo;échelle de la catégorie, et la publication
+  garde la taille de votre brouillon si la catégorie l&rsquo;autorise,
+  sinon la plus petite qu&rsquo;elle propose.
+- **Les articles Depop « everything else »** reçoivent leur catégorie lors
+  du crosslist.
+- **Les tâches groupées libèrent chaque annonce au fur et à mesure**, au
+  lieu de toutes les garder jusqu&rsquo;à la fin de la tâche.
+
+## Améliorations
+
+- **Des sauvegardes cloud plus rapides.** Les sauvegardes de photos ne font
+  plus de pause entre chaque photo.
+- **Un seul bouton Cloud** dans la barre d&rsquo;outils des annonces ouvre
+  Enregistrer, Supprimer et Mettre à jour. Supprimer demande confirmation,
+  puis efface la copie cloud et ses sauvegardes de photos.
+- **Une fenêtre de barre d&rsquo;outils plus sobre** aux tons neutres, et
+  une icône qui suit le mode clair ou sombre de Chrome. L&rsquo;icône se met
+  à jour dès qu&rsquo;un onglet Depop ou Vinted se charge ou que vous ouvrez
+  la fenêtre.
+- **Une carte « comment ça marche » pour Crosslist** : trois points et une
+  courte animation (cochez des articles, appuyez sur Crosslist, les
+  brouillons apparaissent).
+- « Échec du chargement des annonces » s&rsquo;affiche désormais dans une
+  vraie carte, et les fenêtres de déconnexion et de dissociation couvrent
+  tout le panneau, barre latérale comprise.
+- Le sélecteur de marque propose d&rsquo;abord Zara, Nike, H&M, Adidas et
+  Shein, et les flèches des champs de prix avancent de 1.
+
+## Abonnement et facturation
+
+- **Démarrer votre abonnement avant la fin de l&rsquo;essai.** Pendant un
+  essai, votre page de compte vous permet de commencer à payer votre
+  abonnement tout de suite. Le prix s&rsquo;affiche avant tout débit, et si
+  votre carte est refusée, vous pouvez la mettre à jour et réessayer.
+- **Une page de confirmation** après le paiement ou un changement
+  d&rsquo;offre indique que votre abonnement a commencé et la marche à
+  suivre.
+- **Se déconnecter du site** ne vous déconnecte plus de l&rsquo;extension ni
+  de vos autres appareils.

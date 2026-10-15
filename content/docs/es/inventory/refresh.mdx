@@ -1,44 +1,55 @@
 export const metadata = {
-  title: 'Refresh',
+  title: 'Refrescar',
   description:
-    'Vuelve a guardar tus anuncios de Depop para subirlos en las búsquedas sin cambiar precio, fotos ni descripción. Manualmente o en segundo plano según un calendario.',
+    'Vuelve a guardar tus anuncios de Depop para subirlos en las búsquedas sin cambiar el precio, las fotos ni el texto. Manualmente o en segundo plano según un calendario.',
   category: 'inventory',
   slug: 'refresh',
   order: 4,
-  updated: '2026-09-18',
+  updated: '2026-10-13',
   tags: ['refrescar', 'depop', 'visibilidad', 'programador', 'ajustes guardados'],
   marketplaces: ['depop'],
   status: 'stub',
 };
 
-# Refresh
+# Refrescar
 
-La pestaña Refresh vuelve a guardar tus anuncios de Depop para que
-salten al principio de tu tienda y vuelvan a aparecer en el feed
-de &laquo;&nbsp;más recientes&nbsp;&raquo;. La pestaña tiene dos
-partes: refresco manual (disponible en todos los planes) y
-programador auto-refresh (Pro y Business, cada 4 a 24&nbsp;horas
-en segundo plano).
+La pestaña **Refrescar** vuelve a guardar tus anuncios de Depop sin
+cambiarlos. Cada anuncio guardado de nuevo vuelve al principio de tu
+tienda y recibe una nueva hora de &laquo;&nbsp;última
+edición&nbsp;&raquo;, lo que lo sube en las búsquedas de Depop. Los
+compradores ven el mismo precio, las mismas fotos y el mismo texto.
+
+La pestaña tiene dos partes:
+
+- **Auto-Refrescar** - refresca tu tienda según un calendario, cada 4
+  a 24&nbsp;horas, incluso con el panel cerrado. Solo Pro y Business.
+- **Refresco manual** - marca los anuncios que quieras y haz clic en
+  **Refrescar**, o usa **Refrescar todo**. En todos los planes, dentro
+  de una asignación diaria.
+
+Refrescar es solo para Depop. Funciona desde cualquier página, siempre
+que haya una pestaña de Depop abierta en algún lugar de Chrome.
 
 <Callout>
 Traducción completa al español próximamente. Consulta la
-[versión en inglés](/en/docs/inventory/refresh) para el
-funcionamiento detallado (GET+PUT, conservación del orden, penny
-toggle), la configuración del programador, la elección del
-intervalo, la cadencia y los planes que lo incluyen.
+[versión en inglés](/en/docs/inventory/refresh) para cuándo usarlo,
+cómo funciona un refresco (conservación del orden de tu tienda,
+cambio del precio en 0,01), la ejecución manual, los **Ajustes de
+refresco**, el calendario de Auto-Refrescar, la elección del
+intervalo, el ritmo y la seguridad, y la asignación diaria.
 </Callout>
 
 ## Ajustes guardados
 
-El selector de ajustes guardados en la parte superior del panel de
-ajustes almacena la configuración del refresco con un nombre: el
-tope por ejecución de Refresh all, los segundos entre anuncios, la
-opción de saltar los anuncios refrescados en los últimos N días y el
-penny toggle. Elegir uno rellena los cuatro de golpe. Hay dos
-incorporados:
+El selector de ajustes guardados en la parte superior de **Ajustes de
+refresco** almacena la configuración del refresco con un nombre: el
+máximo de anuncios por **Refrescar todo**, los segundos entre
+anuncios, la opción de omitir los anuncios refrescados en los últimos
+días y **Mover el precio 0,01 cada vez**. Elegir uno rellena los cuatro
+de golpe. Hay dos incorporados:
 
 - **Predeterminado** - 100 anuncios por ejecución, 7 segundos entre
-  anuncios, saltar desactivado, penny toggle desactivado.
+  anuncios, omitir desactivado, cambio de precio desactivado.
 - **Prudente** - 50 anuncios por ejecución, 15 segundos entre
   anuncios. Más lento, y hace menos por ejecución.
 

@@ -12,6 +12,9 @@ import { SITE_URL } from "@/lib/site";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { ReferralDiscountBanner } from "@/components/ReferralDiscountBanner";
 import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
+import { SubscribeButton } from "@/components/SubscribeButton";
+import { TIER_PRICES, resolveCurrency } from "@/lib/pricing";
+import { headers } from "next/headers";
 import { AccountSecurityCard } from "@/components/AccountSecurityCard";
 import { DeleteAccountCard } from "@/components/DeleteAccountCard";
 import { EmailPreferencesCard } from "@/components/EmailPreferencesCard";
@@ -21,7 +24,7 @@ import { isAuthUnreachable } from "@/lib/supabase/auth-errors";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ checkout?: string }>;
+  searchParams: Promise<{ checkout?: string; session_id?: string }>;
 };
 
 // Private, auth-gated page: keep it out of search results.
@@ -40,7 +43,13 @@ export async function generateMetadata({
 
 export default async function AccountPage({ params, searchParams }: Props) {
   const [{ locale }, qs] = await Promise.all([params, searchParams]);
-  const justCheckedOut = qs.checkout === "success";
+  // Stripe Checkout returns here; keep its params so ConversionTracker still fires.
+  if (qs.checkout === "success") {
+    redirect({
+      href: `/account/started?checkout=success&session_id=${encodeURIComponent(qs.session_id ?? "")}`,
+      locale,
+    });
+  }
   const t = await getTranslations({ locale, namespace: "Account" });
 
   const supabase = await createServerClient();
@@ -62,13 +71,28 @@ export default async function AccountPage({ params, searchParams }: Props) {
   // and delete cards adapt: no password prompt to a user who has none.
   const hasPassword =
     user.identities?.some((i) => i.provider === "email") ?? true;
-  const [{ subscription, tier }, referrals] = await Promise.all([
-    getCurrentSubscription(user.id),
-    getReferralSummary(),
-  ]);
+  const [{ subscription, tier }, referrals, { data: adminRow }] =
+    await Promise.all([
+      getCurrentSubscription(user.id),
+      getReferralSummary(),
+      // Decides only whether the security card offers 2FA, which nothing but
+      // the admin console enforces. Bare membership rather than is_admin() on
+      // purpose: an admin who has not enrolled yet is at AAL1, where
+      // is_admin() is false, and this card is where they enroll. It grants
+      // nothing, so the "always go through is_admin()" rule does not apply.
+      supabase
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    ]);
   const entitled = isEntitled(subscription);
   const emailChoice = marketingChoice(user.user_metadata);
   const trialDaysLeft = trialDaysRemaining(subscription);
+  const currency = resolveCurrency(
+    (await headers()).get("x-vercel-ip-country"),
+    locale,
+  );
 
   const tierLabel = (id: string) => {
     try {
@@ -119,12 +143,6 @@ export default async function AccountPage({ params, searchParams }: Props) {
           </button>
         </form>
       </div>
-
-      {justCheckedOut && (
-        <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-          {t("checkoutSuccess")}
-        </div>
-      )}
 
       {unverified && user.email && (
         <div className="mt-8">
@@ -226,7 +244,23 @@ export default async function AccountPage({ params, searchParams }: Props) {
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   {t("managePortalBody")}
                 </p>
-                <ManageSubscriptionButton />
+                <div className="flex flex-wrap gap-3">
+                  {/* The portal shows Starter as current mid-trial, so it cannot end the trial. */}
+                  {subscription.status === "trialing" && (
+                    <SubscribeButton
+                      priceId=""
+                      upgradeFromTrial
+                      tierId="starter"
+                      planName={tierLabel("starter")}
+                      price={TIER_PRICES.starter[currency]}
+                      label={t("startStarterNow")}
+                      className="mt-4 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-black"
+                    />
+                  )}
+                  <ManageSubscriptionButton
+                    secondary={subscription.status === "trialing"}
+                  />
+                </div>
               </div>
             )}
           </>
@@ -234,7 +268,11 @@ export default async function AccountPage({ params, searchParams }: Props) {
       </section>
 
       {user.email && (
-        <AccountSecurityCard email={user.email} hasPassword={hasPassword} />
+        <AccountSecurityCard
+          email={user.email}
+          hasPassword={hasPassword}
+          showTwoFactor={Boolean(adminRow)}
+        />
       )}
 
       {/* Keyed on the stored answer so the card picks up one given in

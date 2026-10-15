@@ -3,12 +3,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 // Whether a user wants marketing email (the trial reminders and win-back
 // offers sent by the trial-nudge Edge Function). The answer lives in auth
 // user metadata as `marketing_opt_out`, the key trial_nudge_due() and
-// winback_due() read (migration 028):
+// winback_due() read (migration 034):
 //
 //   true     said no    never emailed
-//   false    said yes
+//   false    said yes   the only value that is emailed
 //   absent   not asked yet. MarketingChoicePrompt asks on the next signed-in
-//            visit; until then the soft opt-in in docs/GDPR.md applies.
+//            visit; until then the account is not emailed.
 //
 // Every account is asked: the signup form will not submit without an answer,
 // and anyone who got an account another way (Google, unless they answered on

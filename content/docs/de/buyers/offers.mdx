@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Angebote',
   description:
-    'Offene Angebote von Depop und Vinted in einer Inbox. Annehmen, Ablehnen oder Gegenangebot direkt im Panel, ohne den Marktplatz zu öffnen.',
+    'Offene Angebote von Depop und Vinted in einem Postfach. Annehmen, Ablehnen oder Gegenangebot direkt im Panel, ohne den Marktplatz zu öffnen.',
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-09-18',
+  updated: '2026-10-13',
   tags: ['angebote', 'depop', 'vinted', 'voreinstellungen'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,45 +13,56 @@ export const metadata = {
 
 # Angebote
 
-Der **Angebote**-Tab sammelt deine offenen Angebote von Depop und
-Vinted an einem Ort. Jede Karte zeigt Käufername, Angebotsbetrag,
-ursprünglicher Preis und drei Aktionen: Annehmen, Ablehnen,
-Gegenangebot. Der Tab hostet oben auch die Auto-Offers-Steuerung.
+Der Tab **Angebote** sammelt deine offenen Angebote von Depop und
+Vinted an einem Ort, in zwei Spalten nebeneinander. Die Spalte des
+Marktplatzes, auf dem du gerade bist, steht links. Jede Karte zeigt
+den Artikel, den Benutzernamen des Käufers, wann das Angebot kam, den
+Angebotsbetrag, deinen Preis und den Rabatt, den der Käufer möchte,
+dazu drei Buttons: **Annehmen**, **Ablehnen** und **Gegenangebot**.
+
+Oben im Tab sitzt außerdem der Block
+[Angebote automatisch annehmen](/docs/automate/auto-offers), mit dem
+Angebote oberhalb einer Schwelle angenommen werden, ohne dass du
+klicken musst.
 
 <Callout>
-Vollständige deutsche Übersetzung folgt. Details dazu, was
-angezeigt wird, zum Altersfilter, zu den Aktionen, zum geteilten
-Vinted-Cache mit Messages und zu den Abostufen findest du in der
+Vollständige deutsche Übersetzung folgt. Details dazu, was angezeigt
+wird, zum Altersfilter (Vinted), zu den Aktionen (auch zu den
+Schnell-Gegenangeboten), zum Aktualisieren, zum geteilten
+Vinted-Zwischenspeicher mit Nachrichten, zum fehlenden
+Massen-Ablehnen und zu den Abostufen findest du in der
 [englischen Version](/en/docs/buyers/offers).
 </Callout>
 
 ## Voreinstellungen für das automatische Annehmen
 
-Die Steuerung für das automatische Annehmen hat oben in ihrem
-Einstellungsbereich eine Auswahl für Voreinstellungen. Eine
-Voreinstellung speichert den Mindestprozentsatz vom Angebotspreis,
-die absolute Preisuntergrenze, welche Plattformen (Depop, Vinted)
-geprüft werden und wie oft geprüft wird. Eine Voreinstellung
-auszuwählen füllt alle Einstellungen auf einmal aus, und beim
-automatischen Annehmen ist die gewählte Voreinstellung sofort die
-aktive Regel. Zwei sind eingebaut:
+Die Einstellungen von
+[Angebote automatisch annehmen](/docs/automate/auto-offers) haben oben
+eine Auswahl für Voreinstellungen. Eine Voreinstellung speichert den
+Mindestprozentsatz vom Listenpreis, die Preisuntergrenze, welche
+Plattformen (Depop, Vinted) geprüft werden und wie oft geprüft wird.
+Eine Voreinstellung auszuwählen füllt alle Einstellungen auf einmal
+aus, und beim automatischen Annehmen ist die gewählte Voreinstellung
+sofort die aktive Regel. Zwei sind eingebaut:
 
-- **Standard** - 90 % vom Angebotspreis, keine Untergrenze, beide
+- **Standard** - 90 % vom Listenpreis, keine Preisuntergrenze, beide
   Plattformen, Prüfung alle 15 Minuten.
-- **Vorsichtig** - 95 % vom Angebotspreis, Prüfung alle 30 Minuten.
-  Langsamer, und erledigt weniger pro Lauf.
+- **Vorsichtig** - 95 % vom Listenpreis, keine Preisuntergrenze, beide
+  Plattformen, Prüfung alle 30 Minuten.
 
 Eine Voreinstellung enthält bewusst nicht den Ein/Aus-Schalter des
-automatischen Annehmens. Es einzuschalten bleibt immer eine eigene,
-ausdrückliche Entscheidung, egal welche Voreinstellung gewählt ist.
+automatischen Annehmens. Es einzuschalten bleibt immer ein eigener,
+ausdrücklicher Schritt, egal welche Voreinstellung gewählt ist.
 
-Änderst du eine Einstellung von Hand, markiert die Auswahl die
-aktuellen Werte als nicht gespeichert; von dort kannst du sie als
-eigene Voreinstellung speichern. Speichern unter dem Namen einer
-deiner vorhandenen Voreinstellungen fragt nach, bevor sie
-überschrieben wird, und die eingebauten Namen lassen sich nicht
-wiederverwenden. Eigene Voreinstellungen kannst du nach einer
-Rückfrage löschen; die eingebauten nicht.
+Änderst du eine Einstellung von Hand, behält die Auswahl den Namen der
+Voreinstellung und zeigt einen Punkt daneben, als Zeichen, dass sich
+die Werte geändert haben. Ihr Menü bietet dann **Als neue
+Voreinstellung speichern&hellip;**, **Zurücksetzen** und, bei einer
+deiner eigenen Voreinstellungen, **Änderungen speichern**. Speichern
+unter dem Namen einer deiner vorhandenen Voreinstellungen fragt nach,
+bevor sie überschrieben wird, und die eingebauten Namen lassen sich
+nicht wiederverwenden. Eigene Voreinstellungen kannst du nach einer
+Rückfrage über das Menü löschen; die eingebauten nicht.
 
 Deine gespeicherten Voreinstellungen liegen bei deinem
 SaleLinx-Konto, überstehen also eine Neuinstallation und folgen dir

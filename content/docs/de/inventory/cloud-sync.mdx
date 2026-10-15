@@ -1,30 +1,39 @@
 export const metadata = {
   title: 'Cloud-Synchronisation',
   description:
-    'Wie SaleLinx deine Inserate in der Cloud sichert, was die Anreicherung im Hintergrund tut und wie du wählst, was synchronisiert wird.',
+    'Wie SaleLinx deine Anzeigen und Fotos in der Cloud sichert, wie du sie speicherst, aktualisierst und entfernst und wofür die Sicherung genutzt wird.',
   category: 'inventory',
   slug: 'cloud-sync',
   order: 8,
-  updated: '2026-05-18',
-  tags: ['cloud', 'synchronisation', 'backup', 'anreicherung'],
+  updated: '2026-10-13',
+  tags: ['cloud', 'synchronisation', 'backup', 'speicher'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
 # Cloud-Synchronisation
 
-Standardmäßig speichert SaleLinx deine Inserate lokal in deinem
-Browser. Die Cloud-Synchronisation ist optional und je Inserat
-aktivierbar; sie kopiert diese Daten (und die Fotos) auf dein
-SaleLinx-Konto bei Supabase. Die **Anreicherung** ist der
-Hintergrundprozess, der die Synchronisation möglich macht.
+SaleLinx hält deinen Anzeigenkatalog in deinem Browser. Die
+Cloud-Synchronisation kopiert eine Anzeige mit allen Details und Fotos
+in dein SaleLinx-Konto. Sie funktioniert je Anzeige: Du wählst, welche
+Anzeigen gespeichert werden, und nur diese werden kopiert.
+
+Beim Speichern liest SaleLinx die vollständigen Details der Anzeige
+vom Marktplatz (Zustand, Farbe, Größe, die ganze Beschreibung, die
+Kategorie und die Fotos in voller Größe), sichert die Fotos und legt
+die Kopie in deinem Konto ab. Deshalb dauert ein Speichervorgang einen
+Moment. Gespeicherte Anzeigen sind die Grundlage für die
+[Verknüpfung](/docs/automate/linking), den
+[Restocker](/docs/automate/restocker) und das Neu-Einstellen
+verkaufter Artikel.
 
 <Callout>
-Vollständige deutsche Übersetzung folgt. Details zu den zwei
-Stores (lokales IndexedDB / Supabase-Cloud), zur clientseitigen
-Verschlüsselung, zu den Anreicherungs-Triggern, zur Taktung über
-die Task Queue, zum Bilder-Backup, zum Mehr-Tab- /
-Mehr-Geräte-Verhalten und zu verwaisten Cloud-Einträgen findest du
-in der
+Vollständige deutsche Übersetzung folgt. Details dazu, wofür du
+Anzeigen in der Cloud speicherst, zum Speichern, Aktualisieren und
+Entfernen (Schalter **Cloud** und Toolbar), dazu, was wo gespeichert
+wird, wie deine Sicherung geschützt ist, zum Verhalten auf mehreren
+Geräten, zu Anzeigen, die nur noch in der Cloud existieren, zur
+Meldung **SaleLinx ist vorübergehend nicht verfügbar** und zu den
+Abostufen findest du in der
 [englischen Version](/en/docs/inventory/cloud-sync).
 </Callout>

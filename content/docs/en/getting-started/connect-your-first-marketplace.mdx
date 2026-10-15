@@ -6,77 +6,90 @@ export const metadata = {
   slug: 'connect-your-first-marketplace',
   order: 2,
   updated: '2026-10-15',
-  tags: ['setup', 'depop', 'vinted', 'ebay'],
+  tags: ['setup', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
 };
 
 # Connect your first marketplace
 
-For Depop and Vinted, SaleLinx reads your marketplace session straight from
-your browser. There&rsquo;s no password to enter, no API key to copy. You just
-need to be signed in to Depop or Vinted in the same browser profile where
-SaleLinx is installed. eBay connects differently, through eBay&rsquo;s own
-sign-in page (see *Connecting eBay* below).
+SaleLinx works through your marketplace session in the browser. There&rsquo;s
+no marketplace password to enter and no API key to copy. You just need to be
+signed in to Depop or Vinted in the same browser profile where SaleLinx is
+installed. eBay connects through eBay&rsquo;s own sign-in instead (see
+*Connecting eBay* below).
+
+Each SaleLinx account links one account per marketplace: one Depop, one
+Vinted and one eBay account. This
+is the same on every plan.
 
 ## 1. Sign in on the marketplace
 
-Open a regular tab and sign in at [depop.com](https://www.depop.com) or
-[vinted.com](https://www.vinted.com). If you sell on both, sign in to both.
-SaleLinx supports any country domain (`vinted.co.uk`, `vinted.fr`, `vinted.de`,
-`vinted.es`, etc.).
+Open a regular tab and sign in at [depop.com](https://www.depop.com) or on
+your Vinted site. If you sell on both, sign in to both.
+
+SaleLinx supports these Vinted country sites: vinted.com, .co.uk, .ie, .fr,
+.de, .at, .be, .nl, .es, .pt, .it, .pl, .cz, .sk, .hu, .ro, .lt, .se, .dk
+and .fi.
 
 <Callout variant="tip" title="Why no login?">
-Marketplace logins are tied to browser cookies that the marketplace itself
-sets. SaleLinx reads those cookies on its own behalf when it makes
-authenticated calls, the same way the marketplace&rsquo;s own pages do. We
-never see, store, or transmit your marketplace password.
+When you sign in to Depop or Vinted, the marketplace remembers you in your
+browser. SaleLinx uses that same session to talk to the marketplace, the way
+the marketplace&rsquo;s own pages do. It never asks for, sees or stores your
+marketplace password.
 </Callout>
 
 ## 2. Open the SaleLinx panel
 
-Navigate to a product page (any item in your shop), a profile page, or your
-inbox on Depop or Vinted. Click the SaleLinx icon in your toolbar to open the
-side panel.
+On any Depop or Vinted page, click the SaleLinx button in the bottom-right
+corner (or press **Alt+S**). The panel only opens on Depop and Vinted pages
+(and eBay pages, if you allowed it), not from the toolbar icon. If you haven&rsquo;t signed in to SaleLinx or
+started a plan yet, see [Installing the SaleLinx extension](/docs/getting-started/install-the-extension)
+first.
 
-The first time you open it on each marketplace, the panel runs a quick session
-check. When it succeeds, you&rsquo;ll see your shop name and avatar at the top
-of the panel.
+## 3. Link your shops
 
-## 3. Verify the connection
+Until at least one account is linked, the panel shows the **Link your
+shops** screen:
 
-In the panel, open the **Listings** tab. SaleLinx reads your active items from
-the marketplace and shows them in a unified grid. If both marketplaces are
-connected, you&rsquo;ll see Depop and Vinted items merged together with a small
-platform badge on each row.
+1. Under **I sell on**, pick any of Depop, Vinted and eBay.
+2. Each marketplace row shows the account SaleLinx can see in your browser,
+   with its photo and username. Click **Link** to connect it.
+3. If a row shows **Log in** instead of **Link**, you&rsquo;re not signed in
+   to that marketplace. Click **Log in**, sign in on the marketplace, then
+   come back to the panel and link.
 
-If the grid stays empty for more than a few seconds, scroll down to the
-Troubleshooting section below.
+Once an account is linked, the panel opens on **My Listings**, which shows
+your items from every linked marketplace in one list.
 
 ## Connecting eBay
 
-1. Open **Settings** in the panel and find eBay under **Marketplace
-   accounts**.
-2. Click **Link**. A small SaleLinx window opens.
-3. Leave **Show SaleLinx on eBay** ticked if you want the panel on eBay
+eBay connects differently from Depop and Vinted: through eBay&rsquo;s own
+sign-in page, not your browser session.
+
+1. On the **Link your shops** screen, or in **Settings > Marketplace
+   accounts**, click **Link** on the eBay row. A small SaleLinx window
+   opens.
+2. Leave **Show SaleLinx on eBay** ticked if you want the panel on eBay
    pages too. Chrome asks you to allow SaleLinx on eBay sites. This is
    optional: linking works either way.
-4. Sign in to eBay and agree to let SaleLinx manage your listings. The
+3. Sign in to eBay and agree to let SaleLinx manage your listings. The
    window closes and your eBay account shows as linked.
 
-SaleLinx never sees your eBay password. eBay gives SaleLinx permission to
-act on your listings, which you can remove at any time by clicking
-**Unlink** in Settings.
+SaleLinx never sees your eBay password. You can remove its access at any
+time by clicking **Unlink** in Settings.
 
-Once linked, your eBay listings appear in **My Listings** and eBay becomes
-a source and target in [Crosslist](/docs/inventory/crosslist).
+Once linked, your eBay listings appear in **My Listings** and eBay becomes a
+source and target in [Crosslist](/docs/inventory/crosslist). eBay never
+needs a tab open.
 
 ## If you don&rsquo;t sell on all of them
 
-You don&rsquo;t have to use every marketplace. The first time you sign in,
-SaleLinx asks which marketplaces you sell on: any mix of **Depop**,
-**Vinted** and **eBay**. You can change the answer any time in **Settings >
-Marketplaces**. New installs default to all three.
+You don&rsquo;t have to use every marketplace. Pick any mix of **Depop**,
+**Vinted** and **eBay** on the **Link your shops** screen (or in the **Where
+do you sell?** box that appears after your first sign-in). You can change the
+answer any time in **Settings > Marketplaces**. Until you choose, SaleLinx
+assumes all three.
 
 Switching one off is not a display preference. SaleLinx hides that
 marketplace&rsquo;s tabs, filters and account row, stops asking you to link
@@ -89,42 +102,57 @@ Depop and Vinted. Both stay visible rather than disappearing, and explain
 what&rsquo;s missing.
 
 If you open the panel on a marketplace you&rsquo;ve switched off, it shows a
-dismissible banner rather than blocking you.
+banner rather than blocking you, with a button to turn that marketplace back
+on (for example **Turn on Vinted**) and **Dismiss**.
 
 ## Where account linking lives
 
-Linking and unlinking marketplace accounts is in **Settings > Accounts**.
-Each marketplace has a row there showing the account it is linked to, with
-a **Link** button whenever SaleLinx can see a live session for that
-marketplace.
+After setup, linking and unlinking is in **Settings > Marketplace
+accounts** (called **Accounts** in versions before 1.1.12). Each
+marketplace has a row there showing the account it is
+linked to, with an **Unlink** button. When SaleLinx can see a marketplace
+account that isn&rsquo;t linked yet, the row asks whether to link it, with
+**Link** and **Not now** buttons. See [Settings](/docs/getting-started/settings)
+for the rest of that tab.
 
 Don&rsquo;t confuse it with the [Linking tab](/docs/automate/linking), which
 does something different: that one pairs an individual Depop listing with its
 Vinted counterpart.
 
-If you run more than one shop on the same marketplace, check the
-[pricing page](/features#pricing) for which plans cover multiple linked
-accounts.
-
 ## Troubleshooting
 
-**The panel shows &ldquo;Not signed in&rdquo;.**
-You&rsquo;re signed out on the marketplace itself. Open a normal tab, sign in,
-then re-open the panel.
+**The account is already linked to a different SaleLinx account.**
+A Depop or Vinted account can only be linked to one SaleLinx account at a
+time. Log in to the SaleLinx account it is linked to, unlink it in
+**Settings > Marketplace accounts**, then try again here.
 
-**Listings stay empty.**
-Sometimes the marketplace returns 0 items if your session is partially
-authenticated (e.g. signed in to the homepage but not to the API). Reload the
-marketplace tab once and re-open the panel.
+**The account has already used a free trial on another SaleLinx account.**
+Each marketplace account gets one free trial. To link it to this SaleLinx
+account, start a paid plan from the [pricing page](/pricing) first. If you
+are in a free trial, that ends the trial and starts billing straight away.
 
-**I&rsquo;m on the wrong domain.**
-SaleLinx auto-detects which Vinted regional domain you use. If you switch
-countries (.co.uk to .fr), sign in on the new domain first.
+**Could not link, no login found.**
+SaleLinx couldn&rsquo;t find your session on that marketplace. Sign in to
+the marketplace in a normal tab, then try again.
 
-For anything else, the [FAQ troubleshooting section](/faq#troubleshooting)
-covers panel visibility, signed-out states, and listing sync issues.
+**The panel says the marketplace is signed in as a different account.**
+The account you are signed in to on Depop or Vinted is not the one linked to
+SaleLinx. Features for that marketplace stay unavailable until you either
+sign in to the linked account on the marketplace, or unlink it in
+**Settings > Marketplace accounts** and link the account you&rsquo;re using
+now.
+
+**My Listings stays empty.**
+Reload your Depop or Vinted tab, then open the panel again. If the panel
+says your session has expired, sign in on the marketplace again.
+
+**I&rsquo;m on the wrong Vinted country.**
+SaleLinx follows the Vinted site you use in your browser. If you switch
+countries (for example from .co.uk to .fr), sign in on the new site first.
+
+For anything else, see the [FAQ troubleshooting section](/help/faq#troubleshooting).
 
 ## Next steps
 
 - [Crosslist](/docs/inventory/crosslist)
-- [Listings](/docs/inventory/listings)
+- [My Listings](/docs/inventory/listings)

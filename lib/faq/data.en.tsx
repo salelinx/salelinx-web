@@ -58,15 +58,16 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Do I need to pay to try it?',
         a: (
           <p>
-            You get a 14-day free trial of the Starter plan, one per account. A
-            card is required to start it, but nothing is charged during the
-            trial and you can cancel any time from your account page. If you
-            don&rsquo;t cancel, your Starter subscription starts automatically
-            when the trial ends. See{' '}
+            No. You get a 14-day free trial of the Starter plan, with the same
+            features as Starter and lower allowances (see{' '}
             <Link href="/pricing" className="underline underline-offset-4">
               pricing
-            </Link>{' '}
-            for what each plan includes.
+            </Link>
+            ). A card is required to start it, but nothing is charged during
+            the trial and you can cancel any time from your account page.
+            There is one trial per SaleLinx account and per Depop or Vinted
+            shop. If you don&rsquo;t cancel, your Starter subscription starts
+            automatically when the trial ends.
           </p>
         ),
         keywords: ['free', 'trial', 'pricing', 'tier', 'starter', 'card'],
@@ -76,19 +77,26 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
   {
     slug: 'billing',
     title: 'Account & billing',
-    blurb: 'Plans, invoices, payment methods, and cancellations.',
+    blurb: 'Plans, invoices, cancellations, and referral rewards.',
     items: [
       {
         id: 'how-to-upgrade',
         q: 'How do I upgrade my plan?',
         a: (
           <p>
-            Sign in at{' '}
+            On a paid plan, open your{' '}
             <Link href="/account" className="underline underline-offset-4">
-              salelinx.com/account
+              account page
+            </Link>
+            , click <strong>Manage subscription</strong> and choose the new
+            plan in Stripe&rsquo;s billing portal. During your free trial, pick
+            a plan on the{' '}
+            <Link href="/pricing" className="underline underline-offset-4">
+              pricing page
             </Link>{' '}
-            and choose a new plan. The change applies immediately and
-            you&rsquo;re prorated for the rest of the billing period.
+            or click <strong>Start Starter now</strong> on your account page
+            instead. That ends the trial and charges your card straight away,
+            and the new allowances apply immediately.
           </p>
         ),
         keywords: ['upgrade', 'plan', 'change', 'tier'],
@@ -102,9 +110,11 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             <Link href="/account" className="underline underline-offset-4">
               account page
             </Link>{' '}
-            and click <em>Manage billing</em>. You&rsquo;ll land in the Stripe
-            customer portal where you can cancel. You keep access until the end
-            of the current period.
+            and click <strong>Manage subscription</strong>. Stripe&rsquo;s
+            billing portal opens, where you can cancel. You keep access until
+            the end of the period you&rsquo;ve paid for, and you can resume
+            from the same place before then. If you cancel during the free
+            trial, you aren&rsquo;t charged.
           </p>
         ),
         keywords: ['cancel', 'unsubscribe', 'stop billing'],
@@ -114,20 +124,35 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Can I change plans in the middle of a billing period?',
         a: (
           <p>
-            Yes. Upgrades take effect immediately with prorated billing.
-            Downgrades take effect at the start of the next billing period so
-            you don&rsquo;t lose what you already paid for.
+            Yes. During the free trial, choosing a plan on the{' '}
+            <Link href="/pricing" className="underline underline-offset-4">
+              pricing page
+            </Link>{' '}
+            ends the trial early: your card is charged for that plan straight
+            away and its allowances apply immediately. On a paid plan, every
+            change happens in Stripe&rsquo;s billing portal: click{' '}
+            <strong>Manage subscription</strong> on your{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              account page
+            </Link>{' '}
+            and pick the plan. Moving to a lower plan always goes through{' '}
+            <strong>Manage subscription</strong>.
           </p>
         ),
-        keywords: ['prorate', 'switch', 'downgrade'],
+        keywords: ['prorate', 'switch', 'downgrade', 'trial'],
       },
       {
         id: 'where-are-invoices',
         q: 'Where do I get my invoices?',
         a: (
           <p>
-            In the Stripe customer portal. Open your account page, click{' '}
-            <em>Manage billing</em>, then <em>Invoice history</em>.
+            Open your{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              account page
+            </Link>{' '}
+            and click <strong>Manage subscription</strong>. Stripe&rsquo;s
+            billing portal opens with your invoice history, where you can
+            download each invoice.
           </p>
         ),
         keywords: ['invoice', 'receipt', 'tax', 'vat'],
@@ -138,18 +163,47 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <p>
             It&rsquo;s almost always a failed-then-retried charge rather than a
-            true duplicate. Check the invoice history in the customer portal
-            first. If you see two successful charges, email{' '}
+            true duplicate. Check your invoices first:{' '}
+            <strong>Manage subscription</strong> on your account page opens
+            them in Stripe&rsquo;s billing portal. If you see two successful
+            charges, email{' '}
             <a
               href="mailto:support@salelinx.com"
               className="underline underline-offset-4"
             >
               support@salelinx.com
             </a>{' '}
-            with the invoice IDs and we&rsquo;ll refund the duplicate.
+            with the invoice numbers and we&rsquo;ll refund the duplicate.
           </p>
         ),
         keywords: ['duplicate', 'refund', 'overcharge', 'charge'],
+      },
+      {
+        id: 'refer-and-earn',
+        q: 'How does Refer & Earn work?',
+        a: (
+          <p>
+            Copy your link from the <strong>Refer &amp; Earn</strong> tab in
+            the SaleLinx panel, or from <strong>Refer a friend</strong> on your{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              account page
+            </Link>
+            . Friends who sign up through it get a discount on their first
+            month. Once a friend has paid, you earn free time on your own
+            plan: 1 week if they choose Starter, 2 weeks for Pro, 1 month for
+            Business. It arrives as credit on your next SaleLinx bill about a
+            week after their first payment, as long as you have a plan of your
+            own. Full rules are in the{' '}
+            <Link
+              href="/legal/referral-terms"
+              className="underline underline-offset-4"
+            >
+              referral program terms
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['refer', 'referral', 'invite', 'friend', 'reward', 'credit', 'discount'],
       },
     ],
   },
@@ -163,62 +217,93 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'The SaleLinx panel doesn&rsquo;t appear on Depop or Vinted',
         a: (
           <div className="space-y-2">
-            <p>Try these in order:</p>
+            <p>
+              The panel opens from the SaleLinx launcher in the bottom-right
+              corner of every Depop and Vinted page: click it, or press Alt+S
+              (the default shortcut) on a Depop or Vinted tab. The SaleLinx
+              icon in Chrome&rsquo;s toolbar only opens a small window for
+              signing in. If you can&rsquo;t see the launcher:
+            </p>
             <ol className="list-decimal space-y-1 pl-5">
-              <li>Refresh the marketplace tab.</li>
               <li>
-                Make sure the extension is pinned and enabled (puzzle icon in
-                the Chrome toolbar).
+                Refresh the Depop or Vinted tab. Tabs that were already open
+                when you installed or updated SaleLinx need a refresh.
               </li>
               <li>
-                Confirm you&rsquo;re on a product or profile page. The panel
-                doesn&rsquo;t open on search or checkout pages.
+                Check that SaleLinx is switched on: open chrome://extensions
+                and look for its toggle.
               </li>
-              <li>Sign out and back in from the extension.</li>
+              <li>
+                Still missing?{' '}
+                <Link
+                  href="/help/support"
+                  className="underline underline-offset-4"
+                >
+                  Contact support
+                </Link>
+                .
+              </li>
             </ol>
           </div>
         ),
-        keywords: ['panel', 'missing', 'not showing', 'depop', 'vinted'],
+        keywords: ['panel', 'missing', 'not showing', 'launcher', 'depop', 'vinted'],
       },
       {
-        id: 'listing-failed-to-post',
-        q: 'A listing failed to post',
+        id: 'update-available',
+        q: 'SaleLinx says an update is available or that I&rsquo;m versions behind',
         a: (
           <p>
-            Most failures come from being signed out of the target marketplace
-            or a required field not mapping cleanly. Sign out and back in on
-            the target marketplace, then retry from the dashboard. If a whole
-            marketplace is down, check the{' '}
-            <Link
-              href="/docs/status"
-              className="underline underline-offset-4"
-            >
-              marketplace status page
+            Chrome updates SaleLinx by itself. When a new version has
+            downloaded, the panel shows a banner saying it is available: click{' '}
+            <strong>Reload to update</strong> and the page refreshes on the new
+            version. If the panel says you are one or more versions behind,
+            Chrome hasn&rsquo;t fetched the update yet. Click{' '}
+            <strong>Open extensions page</strong> (or go to
+            chrome://extensions), turn on <strong>Developer mode</strong> at
+            the top right, click <strong>Update</strong>, then refresh your
+            Depop and Vinted tabs.
+          </p>
+        ),
+        keywords: ['update', 'version', 'behind', 'outdated', 'reload'],
+      },
+      {
+        id: 'in-use-another-device',
+        q: 'SaleLinx says it&rsquo;s in use on another device',
+        a: (
+          <p>
+            You can be signed in on several devices, but only one can use
+            SaleLinx at a time. If the panel shows{' '}
+            <strong>In use on another device</strong>, click{' '}
+            <strong>Use here instead</strong> to carry on here; the other
+            device is signed out of SaleLinx. If you&rsquo;ve just closed your
+            Depop and Vinted tabs on the other device, it also frees up by
+            itself within about 10 minutes. If you don&rsquo;t recognise the
+            other device, take over and then change your password from your{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              account page
             </Link>
             .
           </p>
         ),
-        keywords: ['failed', 'error', 'post', 'crosslist', 'upload'],
+        keywords: ['device', 'another device', 'computer', 'laptop', 'use here', 'shared'],
       },
       {
-        id: 'crosslisting-stuck',
-        q: 'Crosslisting is stuck on &ldquo;Filling form...&rdquo;',
+        id: 'salelinx-temporarily-down',
+        q: 'SaleLinx says it&rsquo;s temporarily down',
         a: (
           <p>
-            Don&rsquo;t touch the target tab while the extension is filling it.
-            If it&rsquo;s been stuck for more than a minute, click <em>Cancel</em>
-            in the panel and retry. If it happens repeatedly on one marketplace,
-            it&rsquo;s likely a form-layout change on their side; see{' '}
-            <Link
-              href="/docs/status"
-              className="underline underline-offset-4"
-            >
-              marketplace status
-            </Link>
-            .
+            The panel can&rsquo;t reach our servers right now. Depop and Vinted
+            aren&rsquo;t affected, so you can keep using both sites as normal,
+            and your listings there are untouched. The message clears by
+            itself as soon as SaleLinx is reachable again, so there&rsquo;s no
+            need to reinstall, sign out or reset your password, even if the
+            sign-in screen shows the same message. From version 1.1.12 it
+            covers the whole panel and has a <strong>Close SaleLinx</strong>{' '}
+            button; earlier versions show it as a banner at the top of the
+            panel.
           </p>
         ),
-        keywords: ['stuck', 'hanging', 'frozen', 'slow', 'filling'],
+        keywords: ['down', 'outage', 'unavailable', 'not working', 'offline'],
       },
       {
         id: 'cant-sign-in',
@@ -233,24 +318,179 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
               salelinx.com/auth/forgot-password
             </Link>
             . If you signed up with Google, there is no password to reset: use
-            the Continue with Google button on the sign-in page instead. Your
-            website account and extension account are the same, so whichever
-            way you sign back in works in both.
+            the <strong>Continue with Google</strong> button on the sign-in
+            page instead. Your website account and extension account are the
+            same, so whichever way you sign back in works in both.
           </p>
         ),
         keywords: ['password', 'login', 'sign in', 'reset', 'locked out', 'google'],
       },
       {
-        id: 'listings-not-syncing',
-        q: 'My listings aren&rsquo;t syncing to the dashboard',
+        id: 'open-a-marketplace-tab',
+        q: 'SaleLinx asks me to open a Depop or Vinted tab',
         a: (
           <p>
-            Open the dashboard and click the <em>Resync</em> button in the top
-            right. If a specific listing is missing, open it on the marketplace
-            once with the SaleLinx panel open; the panel adds it on detection.
+            SaleLinx works through your own signed-in Depop and Vinted
+            sessions, so a feature needs a tab for its marketplace open
+            somewhere in Chrome. Any window will do, and it doesn&rsquo;t have
+            to be the tab you&rsquo;re looking at. Click{' '}
+            <strong>Open Depop</strong> or <strong>Open Vinted</strong> in the
+            message, or open the site yourself; crosslisting needs both. If a
+            tab is open but SaleLinx asks you to reload it (for example after
+            Chrome put the tab to sleep to save memory), click{' '}
+            <strong>Reload Depop tab</strong> or{' '}
+            <strong>Reload Vinted tab</strong>. From version 1.1.12,{' '}
+            <strong>My Listings</strong> also offers to open a missing tab when
+            you refresh; earlier versions asked you to reload a tab even when
+            none was open.
           </p>
         ),
-        keywords: ['sync', 'missing', 'dashboard', 'refresh'],
+        keywords: ['tab', 'open', 'reload', 'needs a tab', 'depop', 'vinted'],
+      },
+      {
+        id: 'wrong-marketplace-account',
+        q: 'SaleLinx says I&rsquo;m signed in to Depop or Vinted as a different account',
+        a: (
+          <p>
+            SaleLinx only works with the Depop and Vinted accounts linked to
+            it, and pauses that marketplace&rsquo;s features while the site is
+            signed in to a different one. To fix it, sign out on Depop or
+            Vinted, sign back in with the linked account and reload the tab. If
+            you want SaleLinx to use the other account instead, open{' '}
+            <strong>Settings</strong> in the panel, click{' '}
+            <strong>Unlink</strong> under <strong>Marketplace accounts</strong>,
+            then click <strong>Link</strong> for the account you&rsquo;re
+            signed in with. More in{' '}
+            <Link
+              href="/docs/getting-started/connect-your-first-marketplace"
+              className="underline underline-offset-4"
+            >
+              Connect your first marketplace
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['different account', 'wrong account', 'mismatch', 'relink', 'unlink'],
+      },
+      {
+        id: 'account-already-linked',
+        q: 'SaleLinx says my Depop or Vinted account is already linked or has used a free trial',
+        a: (
+          <p>
+            Each Depop or Vinted account can be linked to only one SaleLinx
+            account at a time. If it&rsquo;s linked to another SaleLinx account
+            of yours, sign in to that one, click <strong>Unlink</strong> in{' '}
+            <strong>Settings</strong>, then sign back in to this account and
+            link it. Each shop also gets one free trial: if it already had one
+            on another SaleLinx account, you can link it here once you start a
+            paid plan from the{' '}
+            <Link href="/pricing" className="underline underline-offset-4">
+              pricing page
+            </Link>
+            . If you can&rsquo;t get into the other account,{' '}
+            <Link href="/help/support" className="underline underline-offset-4">
+              contact support
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['already linked', 'link', 'trial', 'another account', 'could not link'],
+      },
+      {
+        id: 'listings-not-syncing',
+        q: 'My listings aren&rsquo;t showing up or are out of date',
+        a: (
+          <p>
+            SaleLinx reads your listings from Depop and Vinted while a tab for
+            that marketplace is open and signed in to your linked account. In{' '}
+            <strong>My Listings</strong>, the status next to Depop and Vinted
+            at the top shows when each last synced: click{' '}
+            <strong>Refresh All</strong>, or the refresh button beside one
+            marketplace, to sync now. If it asks you to open or reload a tab,
+            or says your session expired, do that on the marketplace site and
+            refresh again. More in the{' '}
+            <Link
+              href="/docs/inventory/listings"
+              className="underline underline-offset-4"
+            >
+              My Listings guide
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['sync', 'missing', 'my listings', 'refresh', 'out of date'],
+      },
+      {
+        id: 'crosslisting-stuck',
+        q: 'Crosslisting is stuck or won&rsquo;t start',
+        a: (
+          <div className="space-y-2">
+            <p>Check these in order:</p>
+            <ol className="list-decimal space-y-1 pl-5">
+              <li>
+                Both your Depop and Vinted accounts are linked, and a Depop tab
+                and a Vinted tab are open, signed in to those accounts. The
+                panel tells you which one is missing.
+              </li>
+              <li>
+                Look at the <Link href="/docs/getting-started/queue" className="underline underline-offset-4">queue</Link> at the bottom of the panel&rsquo;s sidebar.
+                SaleLinx runs one job at a time, so a crosslist shows{' '}
+                <strong>Queued</strong> until the job ahead of it finishes. If
+                it shows <strong>Paused</strong>, click{' '}
+                <strong>Resume</strong>.
+              </li>
+              <li>
+                <strong>Rate limited</strong> means Depop or Vinted is limiting
+                requests. SaleLinx waits and carries on by itself when the
+                countdown ends.
+              </li>
+              <li>
+                If you&rsquo;ve used your monthly crosslist allowance, SaleLinx
+                says the limit is reached. It resets at the start of each month
+                (UTC); see{' '}
+                <Link href="/pricing" className="underline underline-offset-4">
+                  pricing
+                </Link>{' '}
+                for bigger plans.
+              </li>
+            </ol>
+            <p>
+              If one marketplace keeps failing, check the{' '}
+              <Link
+                href="/docs/status"
+                className="underline underline-offset-4"
+              >
+                marketplace status page
+              </Link>
+              .
+            </p>
+          </div>
+        ),
+        keywords: ['stuck', 'hanging', 'frozen', 'slow', 'queued', 'crosslist'],
+      },
+      {
+        id: 'listing-failed-to-post',
+        q: 'A crosslisted item failed',
+        a: (
+          <p>
+            The queue at the bottom of the panel&rsquo;s sidebar shows how many
+            items failed. Most failures come from being signed out of the
+            marketplace you&rsquo;re copying to, or from details that
+            marketplace wouldn&rsquo;t accept. Sign in there with your linked
+            account, then select the item in <strong>My Listings</strong> and
+            click <strong>Crosslist</strong> again. From version 1.1.12, failed
+            items don&rsquo;t count towards your monthly crosslist allowance.
+            If a whole marketplace is having problems, check the{' '}
+            <Link
+              href="/docs/status"
+              className="underline underline-offset-4"
+            >
+              marketplace status page
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['failed', 'error', 'post', 'crosslist', 'upload'],
       },
       {
         id: 'presets-not-syncing',
@@ -273,6 +513,37 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
           </p>
         ),
         keywords: ['preset', 'presets', 'settings', 'sync', 'device'],
+      },
+      {
+        id: 'contact-support',
+        q: 'How do I contact support?',
+        a: (
+          <p>
+            Open the <strong>Support</strong> tab in the SaleLinx panel, choose
+            a <strong>Type</strong>, describe the problem and click{' '}
+            <strong>Submit</strong>. Tickets sent from the panel include your
+            extension version and plan, which helps us find the cause. You can
+            also write to us from the{' '}
+            <Link href="/help/support" className="underline underline-offset-4">
+              contact page
+            </Link>{' '}
+            or email{' '}
+            <a
+              href="mailto:support@salelinx.com"
+              className="underline underline-offset-4"
+            >
+              support@salelinx.com
+            </a>
+            . We email you when we reply, and you can follow and answer the
+            conversation in <strong>My tickets</strong> in the Support tab or
+            under <strong>Your tickets</strong> on your{' '}
+            <Link href="/account" className="underline underline-offset-4">
+              account page
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['support', 'contact', 'help', 'ticket', 'email', 'bug'],
       },
     ],
   },
@@ -311,7 +582,10 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Does SaleLinx store my marketplace password?',
         a: (
           <p>
-            No. On Depop and Vinted, SaleLinx uses your existing browser session, so there&rsquo;s no password to enter, store, or leak. eBay connects through eBay&rsquo;s own sign-in page, and SaleLinx never sees your eBay password.
+            No. SaleLinx works through the Depop and Vinted sessions
+            you&rsquo;re already signed in to in your own browser, so you never
+            give us a marketplace password. To link a shop to your SaleLinx
+            account, we store only its username and account ID. eBay connects through eBay&rsquo;s own sign-in page, and SaleLinx never sees your eBay password. For eBay we also keep the access token eBay gives us, so SaleLinx can act on your listings.
           </p>
         ),
         keywords: ['password', 'credentials', 'security'],
@@ -321,29 +595,38 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'Where is my data stored?',
         a: (
           <p>
-            Your SaleLinx account and listings index are stored in Supabase
-            (EU region). Some of our service providers (for example Stripe for
-            payments) may process data in the UK, EU, or US with appropriate
-            safeguards, as described in our{' '}
+            Your SaleLinx account, plan, settings and linked shop usernames are
+            stored with our database provider, Supabase, and payments are
+            handled by Stripe. Listing details and photos are only stored with
+            us for listings you save to the cloud; the rest of what SaleLinx
+            reads from Depop and Vinted isn&rsquo;t stored on our servers. Data
+            travels over HTTPS, Supabase encrypts it at rest, and access rules
+            tie every listing and photo to your account. Where our providers
+            process data is set out in our{' '}
             <Link href="/legal/privacy" className="underline underline-offset-4">
               privacy policy
             </Link>
-            . Marketplace data itself stays on the marketplace.
+            .
           </p>
         ),
-        keywords: ['data', 'storage', 'supabase', 'region', 'eu'],
+        keywords: ['data', 'storage', 'supabase', 'cloud', 'region', 'encryption'],
       },
       {
         id: 'delete-my-data',
         q: 'How do I delete my data?',
         a: (
           <p>
-            The fastest way is self-serve: open{' '}
+            Open your{' '}
             <Link href="/account" className="underline underline-offset-4">
-              your account
+              account page
             </Link>
-            , scroll to the Danger zone, and confirm via the emailed link.
-            Deletion takes effect immediately. You can also email{' '}
+            , scroll to the bottom and click <strong>Delete account</strong>.
+            Enter your password (not needed if you sign in with Google) and we
+            email you a confirmation link: open it within 60 minutes while
+            signed in and confirm once more. Your account, listings, images,
+            linked marketplace accounts, usage history and support tickets are
+            then deleted straight away, and any subscription is canceled with
+            no refund for the time left. You can also email{' '}
             <a
               href="mailto:support@salelinx.com"
               className="underline underline-offset-4"
@@ -351,7 +634,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
               support@salelinx.com
             </a>{' '}
             from the address on your account and we&rsquo;ll complete the
-            deletion within 30 days, usually much sooner.
+            deletion within 30 days.
           </p>
         ),
         keywords: ['delete', 'gdpr', 'remove', 'account', 'erase'],

@@ -7,9 +7,12 @@ import type { ArticleModule } from './types';
 import * as installExtEn from '@/content/docs/en/getting-started/install-the-extension.mdx';
 import * as connectMarketplaceEn from '@/content/docs/en/getting-started/connect-your-first-marketplace.mdx';
 import * as accountSubEn from '@/content/docs/en/getting-started/account-and-subscription.mdx';
+import * as queueEn from '@/content/docs/en/getting-started/queue.mdx';
+import * as settingsEn from '@/content/docs/en/getting-started/settings.mdx';
 
 // Inventory & posting (sidebar group 1)
 import * as listingsEn from '@/content/docs/en/inventory/listings.mdx';
+import * as bulkEditorEn from '@/content/docs/en/inventory/bulk-editor.mdx';
 import * as botsEn from '@/content/docs/en/inventory/bots.mdx';
 import * as relistEn from '@/content/docs/en/inventory/relist.mdx';
 import * as refreshEn from '@/content/docs/en/inventory/refresh.mdx';
@@ -24,6 +27,7 @@ import * as autoOffersEn from '@/content/docs/en/automate/auto-offers.mdx';
 import * as linkingEn from '@/content/docs/en/automate/linking.mdx';
 import * as restockerEn from '@/content/docs/en/automate/restocker.mdx';
 import * as priceDropsEn from '@/content/docs/en/automate/price-drops.mdx';
+import * as sendOffersEn from '@/content/docs/en/automate/send-offers.mdx';
 
 // Buyer messages (sidebar group 3)
 import * as offersEn from '@/content/docs/en/buyers/offers.mdx';
@@ -35,8 +39,11 @@ import * as labelsEn from '@/content/docs/en/buyers/labels.mdx';
 import * as installExtFr from '@/content/docs/fr/getting-started/install-the-extension.mdx';
 import * as connectMarketplaceFr from '@/content/docs/fr/getting-started/connect-your-first-marketplace.mdx';
 import * as accountSubFr from '@/content/docs/fr/getting-started/account-and-subscription.mdx';
+import * as queueFr from '@/content/docs/fr/getting-started/queue.mdx';
+import * as settingsFr from '@/content/docs/fr/getting-started/settings.mdx';
 
 import * as listingsFr from '@/content/docs/fr/inventory/listings.mdx';
+import * as bulkEditorFr from '@/content/docs/fr/inventory/bulk-editor.mdx';
 import * as botsFr from '@/content/docs/fr/inventory/bots.mdx';
 import * as relistFr from '@/content/docs/fr/inventory/relist.mdx';
 import * as refreshFr from '@/content/docs/fr/inventory/refresh.mdx';
@@ -50,6 +57,7 @@ import * as autoOffersFr from '@/content/docs/fr/automate/auto-offers.mdx';
 import * as linkingFr from '@/content/docs/fr/automate/linking.mdx';
 import * as restockerFr from '@/content/docs/fr/automate/restocker.mdx';
 import * as priceDropsFr from '@/content/docs/fr/automate/price-drops.mdx';
+import * as sendOffersFr from '@/content/docs/fr/automate/send-offers.mdx';
 
 import * as offersFr from '@/content/docs/fr/buyers/offers.mdx';
 import * as messagesFr from '@/content/docs/fr/buyers/messages.mdx';
@@ -60,8 +68,11 @@ import * as labelsFr from '@/content/docs/fr/buyers/labels.mdx';
 import * as installExtEs from '@/content/docs/es/getting-started/install-the-extension.mdx';
 import * as connectMarketplaceEs from '@/content/docs/es/getting-started/connect-your-first-marketplace.mdx';
 import * as accountSubEs from '@/content/docs/es/getting-started/account-and-subscription.mdx';
+import * as queueEs from '@/content/docs/es/getting-started/queue.mdx';
+import * as settingsEs from '@/content/docs/es/getting-started/settings.mdx';
 
 import * as listingsEs from '@/content/docs/es/inventory/listings.mdx';
+import * as bulkEditorEs from '@/content/docs/es/inventory/bulk-editor.mdx';
 import * as botsEs from '@/content/docs/es/inventory/bots.mdx';
 import * as relistEs from '@/content/docs/es/inventory/relist.mdx';
 import * as refreshEs from '@/content/docs/es/inventory/refresh.mdx';
@@ -75,6 +86,7 @@ import * as autoOffersEs from '@/content/docs/es/automate/auto-offers.mdx';
 import * as linkingEs from '@/content/docs/es/automate/linking.mdx';
 import * as restockerEs from '@/content/docs/es/automate/restocker.mdx';
 import * as priceDropsEs from '@/content/docs/es/automate/price-drops.mdx';
+import * as sendOffersEs from '@/content/docs/es/automate/send-offers.mdx';
 
 import * as offersEs from '@/content/docs/es/buyers/offers.mdx';
 import * as messagesEs from '@/content/docs/es/buyers/messages.mdx';
@@ -85,8 +97,11 @@ import * as labelsEs from '@/content/docs/es/buyers/labels.mdx';
 import * as installExtDe from '@/content/docs/de/getting-started/install-the-extension.mdx';
 import * as connectMarketplaceDe from '@/content/docs/de/getting-started/connect-your-first-marketplace.mdx';
 import * as accountSubDe from '@/content/docs/de/getting-started/account-and-subscription.mdx';
+import * as queueDe from '@/content/docs/de/getting-started/queue.mdx';
+import * as settingsDe from '@/content/docs/de/getting-started/settings.mdx';
 
 import * as listingsDe from '@/content/docs/de/inventory/listings.mdx';
+import * as bulkEditorDe from '@/content/docs/de/inventory/bulk-editor.mdx';
 import * as botsDe from '@/content/docs/de/inventory/bots.mdx';
 import * as relistDe from '@/content/docs/de/inventory/relist.mdx';
 import * as refreshDe from '@/content/docs/de/inventory/refresh.mdx';
@@ -100,6 +115,7 @@ import * as autoOffersDe from '@/content/docs/de/automate/auto-offers.mdx';
 import * as linkingDe from '@/content/docs/de/automate/linking.mdx';
 import * as restockerDe from '@/content/docs/de/automate/restocker.mdx';
 import * as priceDropsDe from '@/content/docs/de/automate/price-drops.mdx';
+import * as sendOffersDe from '@/content/docs/de/automate/send-offers.mdx';
 
 import * as offersDe from '@/content/docs/de/buyers/offers.mdx';
 import * as messagesDe from '@/content/docs/de/buyers/messages.mdx';
@@ -109,7 +125,10 @@ const ARTICLE_MODULES_EN: ArticleModule[] = [
   installExtEn as unknown as ArticleModule,
   connectMarketplaceEn as unknown as ArticleModule,
   accountSubEn as unknown as ArticleModule,
+  queueEn as unknown as ArticleModule,
+  settingsEn as unknown as ArticleModule,
   listingsEn as unknown as ArticleModule,
+  bulkEditorEn as unknown as ArticleModule,
   botsEn as unknown as ArticleModule,
   relistEn as unknown as ArticleModule,
   refreshEn as unknown as ArticleModule,
@@ -122,6 +141,7 @@ const ARTICLE_MODULES_EN: ArticleModule[] = [
   linkingEn as unknown as ArticleModule,
   restockerEn as unknown as ArticleModule,
   priceDropsEn as unknown as ArticleModule,
+  sendOffersEn as unknown as ArticleModule,
   offersEn as unknown as ArticleModule,
   messagesEn as unknown as ArticleModule,
   labelsEn as unknown as ArticleModule,
@@ -133,7 +153,10 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     installExtFr as unknown as ArticleModule,
     connectMarketplaceFr as unknown as ArticleModule,
     accountSubFr as unknown as ArticleModule,
+    queueFr as unknown as ArticleModule,
+    settingsFr as unknown as ArticleModule,
     listingsFr as unknown as ArticleModule,
+    bulkEditorFr as unknown as ArticleModule,
     botsFr as unknown as ArticleModule,
     relistFr as unknown as ArticleModule,
     refreshFr as unknown as ArticleModule,
@@ -146,6 +169,7 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     linkingFr as unknown as ArticleModule,
     restockerFr as unknown as ArticleModule,
     priceDropsFr as unknown as ArticleModule,
+    sendOffersFr as unknown as ArticleModule,
     offersFr as unknown as ArticleModule,
     messagesFr as unknown as ArticleModule,
     labelsFr as unknown as ArticleModule,
@@ -154,7 +178,10 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     installExtEs as unknown as ArticleModule,
     connectMarketplaceEs as unknown as ArticleModule,
     accountSubEs as unknown as ArticleModule,
+    queueEs as unknown as ArticleModule,
+    settingsEs as unknown as ArticleModule,
     listingsEs as unknown as ArticleModule,
+    bulkEditorEs as unknown as ArticleModule,
     botsEs as unknown as ArticleModule,
     relistEs as unknown as ArticleModule,
     refreshEs as unknown as ArticleModule,
@@ -167,6 +194,7 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     linkingEs as unknown as ArticleModule,
     restockerEs as unknown as ArticleModule,
     priceDropsEs as unknown as ArticleModule,
+    sendOffersEs as unknown as ArticleModule,
     offersEs as unknown as ArticleModule,
     messagesEs as unknown as ArticleModule,
     labelsEs as unknown as ArticleModule,
@@ -175,7 +203,10 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     installExtDe as unknown as ArticleModule,
     connectMarketplaceDe as unknown as ArticleModule,
     accountSubDe as unknown as ArticleModule,
+    queueDe as unknown as ArticleModule,
+    settingsDe as unknown as ArticleModule,
     listingsDe as unknown as ArticleModule,
+    bulkEditorDe as unknown as ArticleModule,
     botsDe as unknown as ArticleModule,
     relistDe as unknown as ArticleModule,
     refreshDe as unknown as ArticleModule,
@@ -188,6 +219,7 @@ export const ARTICLE_MODULES_BY_LOCALE: Record<Locale, ArticleModule[]> = {
     linkingDe as unknown as ArticleModule,
     restockerDe as unknown as ArticleModule,
     priceDropsDe as unknown as ArticleModule,
+    sendOffersDe as unknown as ArticleModule,
     offersDe as unknown as ArticleModule,
     messagesDe as unknown as ArticleModule,
     labelsDe as unknown as ArticleModule,

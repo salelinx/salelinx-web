@@ -150,7 +150,11 @@ Deno.serve(async (req) => {
     (item.price.metadata?.tier_id as string | undefined) ??
     (target.tier_id as string);
 
-  const update: Stripe.SubscriptionUpdateParams = {};
+  // Without this Stripe applies the change and leaves the sub past_due when
+  // the charge fails, handing out the new tier unpaid.
+  const update: Stripe.SubscriptionUpdateParams = {
+    payment_behavior: "error_if_incomplete",
+  };
 
   // Moving tier? Resolve the price the same way stripe-webhook maps it back:
   // by tier_id / billing_cycle metadata on the Stripe Price. No lookup table
@@ -186,7 +190,7 @@ Deno.serve(async (req) => {
 
   // Nothing to do: already on this tier and already paying. Report it rather
   // than making a no-op Stripe write.
-  if (Object.keys(update).length === 0) {
+  if (!update.items && !update.trial_end) {
     return json({ error: "already_on_plan" }, 409);
   }
 

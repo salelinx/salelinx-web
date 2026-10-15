@@ -230,12 +230,15 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
   // on - that is what earns it a grace period the next time a charge fails.
   // Stamped only when absent so it records the FIRST payment, and cleared of
   // any past_due clock since the failure run is over.
-  const { error: paidErr } = await supabase
-    .from("subscriptions")
-    .update({ first_paid_at: new Date().toISOString() })
-    .eq("stripe_subscription_id", subId)
-    .is("first_paid_at", null);
-  if (paidErr) throw new Error(`first_paid_at stamp failed: ${paidErr.message}`);
+  // A trial's £0 opening invoice also fires this; it is not money arriving.
+  if (invoice.amount_paid > 0) {
+    const { error: paidErr } = await supabase
+      .from("subscriptions")
+      .update({ first_paid_at: new Date().toISOString() })
+      .eq("stripe_subscription_id", subId)
+      .is("first_paid_at", null);
+    if (paidErr) throw new Error(`first_paid_at stamp failed: ${paidErr.message}`);
+  }
 
   const { error: clearErr } = await supabase
     .from("subscriptions")

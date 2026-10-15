@@ -79,8 +79,9 @@ All DB schema lives in this repo under `supabase/migrations/` - a consolidated b
 app/
 ├── [locale]/                All public pages, localized via next-intl
 │   ├── page.tsx             Landing
-│   ├── features/            Features + pricing + roadmap (one page with anchor sections)
-│   ├── pricing/, roadmap/, faq/   One-line redirect() stubs to /features anchors and /help/faq
+│   ├── features/            Features overview + /features/[slug] landing pages
+│   ├── pricing/, roadmap/   Pricing and roadmap pages (both also homepage sections)
+│   ├── faq/                 One-line redirect() stub to /help/faq
 │   ├── docs/                Product docs (MDX): [category]/[slug] articles, status/, changelog/
 │   ├── help/                Help hub: faq/ (accordion Q&A) + support/ (contact)
 │   ├── invited/             Referral landing page for invited users
@@ -93,7 +94,7 @@ app/
 │   ├── callback/            OAuth / code exchange route handler
 │   └── signout/             POST handler -> sign out + redirect
 ├── admin/                   Admin console (MFA-gated): users, subscriptions, tiers, usage,
-│                            storage, support, flags, audit
+│                            storage, support, flags, roadmap, audit
 └── r/                       /r/CODE referral share links (sets the slx_ref cookie)
 
 components/
@@ -167,6 +168,7 @@ supabase functions deploy <name>
 | `resolve-category`         | Depop/Vinted category lookups for the extension's crosslister       |
 | `admin-change-plan`        | Admin console: swap a customer's paid Stripe plan                   |
 | `admin-delete-user`        | Admin console: GDPR account deletion                                |
+| `admin-list-payments`      | Admin console: latest successful payments, read from Stripe         |
 | `delete-account`           | Self-serve GDPR deletion from the /account Danger zone              |
 
 Set function secrets (each function only reads the ones it needs):

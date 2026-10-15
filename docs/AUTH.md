@@ -19,20 +19,20 @@ Email + password auth via Supabase. No magic links, no social providers (for now
 ```
 User submits email + password
   â–¼
-supabase.auth.signUp({ email, password, emailRedirectTo: /auth/callback?next=/account })
+supabase.auth.signUp({ email, password, emailRedirectTo: /auth/callback?next=/get-started })
   â–¼
 Supabase sends verification email
   â–¼
-User clicks link â†’ /auth/callback?code=...&next=/account
+User clicks link â†’ /auth/callback?code=...&next=/get-started
   â–¼
 exchangeCodeForSession â†’ session cookie set
   â–¼
-redirect to /account
+redirect to /get-started (welcome + Add to Chrome, links on to /account)
   â–¼
 user.email_confirmed_at now set â†’ banner hidden
 ```
 
-**If Supabase "Confirm email" is OFF** - signup returns a session immediately and the user lands on `/account` without the email step. The signup page handles both.
+**If Supabase "Confirm email" is OFF** - signup returns a session immediately and the user lands on `/get-started` without the email step. The signup page handles both. Google signups from the signup page land there too; login keeps going to `/account`.
 
 ## Login flow
 
@@ -46,9 +46,13 @@ Session cookie set
 router.push('/account') + router.refresh() (triggers server component re-render so Header updates)
 ```
 
+## Extension login form (`/embed/login`)
+
+The extension's email login is this page, framed inside the extension's sign-in bubble, so Chrome saves SaleLinx passwords under salelinx.com on any marketplace. It never signs in itself: on submit it posts the email and password to its direct parent, which must be a SaleLinx extension origin (store ID plus `EMBED_EXTENSION_IDS`, a comma list for unpacked builds). The extension signs in and posts the result back; on success the page navigates to `?done=1`, which is what tells Chrome to offer saving the password. It sets its own headers (excluded from the site-wide `X-Frame-Options: DENY` in `next.config.ts`, and from locale routing in `proxy.ts`). `frame-ancestors` has to allow `https:` because every ancestor is checked, the marketplace page included; the parent-origin check in the script is what keeps the form hidden anywhere else.
+
 ## MFA (TOTP)
 
-Optional for regular users, required for admins (`is_admin()` in Postgres only returns true for AAL2 sessions - migration `003_support.sql`, see `docs/ADMIN.md`).
+Admins only. It is required for the admin console (`is_admin()` in Postgres only returns true for AAL2 sessions - migration `003_support.sql`, see `docs/ADMIN.md`) and enforced nowhere else: the login page, the Google callback, the extension and customer RLS all accept an AAL1 session. So the Security card on `/account` only shows the 2FA section to `admin_users` members (bare membership, so an admin at AAL1 can still enroll). Offering it to customers would mean adding a challenge step to the web login, the Google callback and the extension login first, and only then AAL2 checks in RLS and the Edge Functions; doing it the other way round locks enrolled users out of the extension.
 
 - **Enroll:** Account > Security card > "Enable 2FA". `mfa.enroll({ factorType: 'totp' })` -> QR + manual key -> user enters the first code -> `challenge()` + `verify()` activates the factor. Abandoned (unverified) factors are cleaned up before re-enrolling.
 - **Challenge:** a password login always starts at AAL1. `/auth/mfa` prompts for a code and upgrades the session to AAL2. The admin gates redirect there with `?next=<path>`.

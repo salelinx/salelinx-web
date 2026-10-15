@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Bajadas de precio',
   description:
-    'Programa bajadas de precio porcentuales sobre anuncios obsoletos para refrescar la visibilidad en búsquedas y mover stock lento.',
+    'Programa bajadas de precio porcentuales en anuncios estancados para mantener la visibilidad en las búsquedas y dar salida al stock lento.',
   category: 'automate',
   slug: 'price-drops',
   order: 5,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['markdown', 'precio', 'automatización'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,14 +13,22 @@ export const metadata = {
 
 # Bajadas de precio
 
-Las bajadas de precio (auto-markdown) reducen el precio de los
-anuncios que has activado, en la cadencia que fijes por artículo.
-Cada bajada refresca la marca de tiempo del anuncio y lo vuelve a
-posicionar en los feeds relevantes.
+**Bajadas de precio** reduce el precio de los anuncios que has
+incluido, según el calendario que fijas para cada artículo. Da salida
+al stock lento sin que tengas que acordarte de revisarlo, y nunca baja
+del precio mínimo que elijas.
+
+Las bajadas son acumulativas, no compuestas: cada bajada es un
+porcentaje del precio original, no del precio actual. Solo puedes
+incluir anuncios activos guardados en la
+[nube](/docs/inventory/cloud-sync), y la función está incluida
+únicamente en el plan **Business**.
 
 <Callout>
 Traducción completa al español próximamente. Consulta la
 [versión en inglés](/en/docs/automate/price-drops) para el cálculo
-acumulativo (no compuesto), la configuración, los disparadores, el
-suelo de precio mínimo, el historial y los planes que lo incluyen.
+acumulativo, qué anuncios puedes rastrear, la configuración de la
+regla de cada anuncio, el calendario de bajadas, cuándo se ejecutan
+las comprobaciones, el historial, cómo dejar de rebajar un artículo y
+los planes que lo incluyen.
 </Callout>

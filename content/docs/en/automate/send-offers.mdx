@@ -1,0 +1,100 @@
+export const metadata = {
+  title: 'Send Offers',
+  description:
+    'Send a discounted offer to everyone who liked your Vinted items, with a price floor you control.',
+  category: 'automate',
+  slug: 'send-offers',
+  order: 6,
+  updated: '2026-10-13',
+  tags: ['offers', 'auto-offers', 'likers', 'vinted', 'automation'],
+  marketplaces: ['vinted'],
+  status: 'published',
+};
+
+# Send Offers
+
+Someone who liked an item is the warmest buyer you have: they have
+seen it, they want it, and something is holding them back. Usually
+it is the price. The **Auto-Offers** tab in the panel finds the people
+who liked your Vinted items and sends each of them an offer, so you
+turn likes into sales without messaging anyone by hand.
+
+This is a different feature from
+[Auto-Accept Offers](/docs/automate/auto-offers), which accepts
+offers buyers send *you*. Auto-Offers is outgoing: you make the offer.
+
+## When to use it
+
+- An item has plenty of likes but no sales.
+- You want to clear stock before a restock or a season change.
+- You would rather offer a small discount to interested buyers than
+  drop the price for everyone with a
+  [Price Drop](/docs/automate/price-drops).
+
+## How it works
+
+1. **Scan Likers.** SaleLinx reads your recent Vinted notifications
+   and groups the likes by item, so you see each item with the number
+   of new likers. Items whose likers have all had an offer already are
+   left out, and the items with the most new likers come first.
+2. **Pick items.** Every item starts ticked. Untick the ones you want
+   to leave out, or use **Select all** to tick or untick them all.
+3. **Set the price.** Choose a **Discount %** (5 to 50%, default 10%)
+   and a **Min price floor** (default 1). When SaleLinx knows an
+   item&rsquo;s price, its **Offer** box is filled in from those two
+   settings and updates as you change them. Type your own price into
+   any item&rsquo;s **Offer** box to override it for that item.
+4. **Send Offers.** SaleLinx sends one offer to each new liker of each
+   ticked item, in the background.
+
+The offer is the item&rsquo;s price minus your discount, but never
+below your floor. If the discount would take an item under the floor,
+the offer goes out at the floor price instead, and the same goes for a
+price you typed yourself. If the offer would not
+be lower than the item&rsquo;s current price on Vinted (for example
+because the floor is at or above it), that liker is skipped.
+
+**Rescan** reads your notifications again and refreshes the list.
+While offers are going out, a progress bar shows how many have been
+sent and how many failed, and **Stop** ends the run.
+
+## Built-in safeguards
+
+- **One offer per liker per item.** Someone who already received an
+  offer on an item is not sent another for 30 days, however many
+  times you scan. A liker who was skipped because the offer would not
+  have been a discount is also left alone for 30 days. SaleLinx keeps
+  this record in your browser.
+- **Human pacing.** Offers go out one at a time with natural gaps,
+  through the same queue as every other SaleLinx job, with regular
+  breaks. If Vinted asks SaleLinx to slow down, the job pauses and
+  picks up again once the wait is over.
+- **Runs in the background.** The job keeps going if you close the
+  panel, and you can pause or cancel it from the queue. Keep a Vinted
+  tab open while it runs, because the offers are sent through it.
+
+## Stats
+
+The top of the tab shows how the offers are doing:
+
+- **Offers sent** in the last 30 days.
+- **Items sold** among the items you sent offers on.
+- **Sell rate**, items sold as a share of offers sent.
+
+Below the **Scan Likers** button, **Recently sent** lists your latest
+offers with the buyer, the item&rsquo;s price and your offer.
+
+## Plan and access
+
+Auto-Offers is Vinted only, and needs your Vinted account linked in
+SaleLinx. It is included on **Pro and Business**; on Starter and the
+free trial the tab is locked.
+
+## Next steps
+
+- [Auto-Accept Offers](/docs/automate/auto-offers) - accept incoming
+  offers above your threshold automatically.
+- [Offers](/docs/buyers/offers) - accept, counter or decline offers by
+  hand.
+- [Dead Stock](/docs/automate/dead-stock) - find the items most in
+  need of a nudge.

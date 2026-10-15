@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-09-18',
+  updated: '2026-10-13',
   tags: ['relist', 'depop', 'vinted', 'presets'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -13,93 +13,190 @@ export const metadata = {
 
 # Relist
 
-Relist is a refresh tool with teeth. It deletes a stale listing and
-posts a brand-new copy with the same content, optionally with subtly
-modified photos so the marketplace&rsquo;s duplicate-detection
-doesn&rsquo;t flag it.
+Relist is a refresh tool with teeth. It posts a brand-new copy of a
+stale listing, then deletes the original. The photos are saved again
+with small changes (and, if you like, the title, description and
+price) so the copy goes up as a new listing rather than a duplicate of
+the old one.
 
-The result: your item gets a fresh listed-date and re-enters the
-search feed as new content, instead of being buried by the algorithm
-as old stock.
+The result: your item gets a fresh listed date and goes back out to
+buyers as new stock, instead of sinking further down as old stock.
 
 ## When to use it
 
 - A listing has been live for weeks with no traction.
-- The Depop refresher and Vinted re-uploads aren&rsquo;t enough.
-- You want to swap the lead photo or update wording without losing
-  the price history showing in your shop activity.
+- A [refresh](/docs/inventory/refresh) hasn&rsquo;t moved it.
+- You want to change the price at the same time as reposting.
 
-If you just want to nudge a listing up without recreating it, use the
+The new copy is a separate listing with its own link, so likes and
+views on the old one don&rsquo;t carry over. If you just want to nudge
+a Depop listing up without recreating it, use the
 [Refresh tab](/docs/inventory/refresh) instead.
 
 ## How it works
 
-For each item you select:
+For each listing you relist, SaleLinx:
 
-1. SaleLinx reads the source listing&rsquo;s title, description,
-   price, category, condition, brand, size and photos from your cloud
-   backup.
-2. Optionally applies photo modifications (crop, brightness or hue
-   tweak, re-order) so the photos aren&rsquo;t byte-identical to the
-   originals.
-3. Posts a fresh listing on the same marketplace with all that
-   content.
-4. Once the new listing is live, deletes the original.
-5. Updates your unified [Listings](/docs/inventory/listings) view to
-   point at the new ID.
+1. Reads the listing live from Depop or Vinted (title, description,
+   price, category, size, brand, condition, shipping and photos) and
+   keeps a backup copy in your browser.
+2. Downloads each photo, applies the photo changes, and uploads the
+   new versions one at a time.
+3. Posts the new listing with the title, description and price
+   changes you chose, or saves it as a draft if you asked for that.
+4. If the listing is saved to the cloud, moves its cloud copy (and any
+   link to its match on the other marketplace) over to the new
+   listing.
+5. Deletes the original.
 
-This sequence is the safer order: post first, delete second. If
-posting fails partway, your original is still live and you
-haven&rsquo;t lost anything.
+Posting comes first and deleting second. If the new listing
+can&rsquo;t be created, the original is left alone and nothing is
+lost. If the new listing goes up but the original can&rsquo;t be
+deleted, you&rsquo;ll have both live, so check your shop and delete
+the old one by hand.
 
-## Photo modification
+## Running a relist
 
-Marketplaces aggressively de-duplicate listings by perceptual photo
-hash. SaleLinx&rsquo;s photo modifier tweaks each photo just enough
-to break the hash without changing how the photo looks to a buyer:
+Open the **Relist** tab. It shows your live Depop and Vinted listings
+in one list, oldest first, with how long each has been listed.
 
-- **Crop** - trims a small uneven border off each edge.
-- **Hue / brightness** - nudges colour balance by a couple of
-  percent.
-- **Order shuffle** - reorders photos beyond the first one (the lead
-  stays where you put it for buyer recognition).
+1. Narrow the list if you need to: **All**, Depop or Vinted, the
+   search box, and the age filter (**Any age**, older than, newer
+   than, or between two ages, in hours, days or weeks).
+2. Tick the listings you want to relist. The box at the left of the
+   search row ticks everything on the current page.
+3. Click **Relist**. The **Relist Confirmation** window opens.
+4. Check the photo, title, description and price options (below), and
+   whether to save as a draft.
+5. Click **Confirm Relist**.
 
-Modification is on by default. If you toggle it off, photos are
-re-uploaded verbatim and you may end up with a duplicate-flagged
-listing.
+A progress bar shows how far the run has got, and the listings being
+relisted are greyed out until they&rsquo;re done. Click **Stop** to
+end the run early.
 
-## Running it
+The list is read live from both marketplaces, so it only shows
+listings that are on your shop right now. The reload button next to
+the search box fetches it again.
 
-From the **Listings** tab:
+You can also start a relist from the
+[Dead Stock](/docs/automate/dead-stock) tab. It opens the same
+confirmation window.
 
-1. Select the rows you want to relist (single or multiple).
-2. Open the bulk-action toolbar and click **Relist**.
-3. Confirm the photo-modification settings (or accept defaults).
-4. Click **Start**.
+### Cloud items and sold items
 
-SaleLinx queues the relists and processes them with safe pacing
-between items so the marketplace doesn&rsquo;t flag the burst as
-automated activity. Progress shows in the panel; you can keep working
-in other tabs.
+**Show cloud items** swaps the list for listings you saved to the
+cloud that are no longer live on the marketplace (**In cloud (not
+live)**). That view is for reference only; you can&rsquo;t relist from
+it.
 
-If the list looks out of date, the **Reload listings** button forces a
-live re-poll of both marketplaces instead of waiting for the next
-background sync.
+Sold items aren&rsquo;t in the Relist tab. If you saved a sold item to
+the cloud, relist it from **My Listings** instead: select it and use
+**Relist** in the selection toolbar. See
+[Bulk editor](/docs/inventory/bulk-editor).
+
+## The Relist Confirmation window
+
+### Photo Modifications
+
+On by default, and recommended. Each photo is turned, scaled and
+brightened (or darkened) by a small random amount, up to the limits
+you set:
+
+- **Rotation** - up to &plusmn;2&deg; by default (you can set up to
+  10&deg;).
+- **Scale** - up to &plusmn;2% by default (up to 15%).
+- **Brightness** - up to &plusmn;1.8% by default (up to 25%).
+
+Every photo also gets a very slight colour shift and is saved again as
+a new JPEG file. A tiny zoom covers the corners a rotation would
+expose, so a sliver around the edges is trimmed. Photo order, and
+which photo leads, stay as they were. The **Before** and **After**
+preview shows a sample of the effect on your first photo; **Refresh
+preview** draws another random example.
+
+Turning **Photo Modifications** off removes the rotation, scale and
+brightness changes. Each photo still gets the slight colour shift, the
+tiny zoom and a fresh save, so the new files are never exact copies
+of the originals.
+
+### Title and Description Modifications
+
+Both on by default. Each one swaps the case of the first letter of one
+random word (for example, `vintage` becomes `Vintage`), so the text
+isn&rsquo;t identical to the original. The window shows an example.
+
+Depop has no separate title field. On Depop, **Title Modifications**
+changes the first line of the description and **Description
+Modifications** changes the rest.
+
+### Price Modifications
+
+Off by default. Turn it on to change prices as you relist. **Apply to
+all** sets one change for every selected listing:
+
+- **No bulk change**
+- **Reduce by %** or **Increase by %**
+- **Reduce by fixed** or **Increase by fixed** (an amount in your shop
+  currency)
+
+Below that, each selected listing has its own price box showing its
+new price. Pick the bulk change first, then type over any listing you
+want to price by hand; choosing a different bulk change afterwards
+overwrites the boxes. Depop doesn&rsquo;t accept prices under 1.00, so
+a change that lands lower is raised to 1.00 on Depop.
+
+### Save as draft
+
+**Save as draft instead of publishing (you publish it yourself
+later)** creates the new copy as a draft on Depop or Vinted instead of
+a live listing. The original is still deleted, so the item is off sale
+until you publish the draft.
+
+## Sale discounts on Depop
+
+If a Depop listing is on sale (the grid shows its original price
+struck through), SaleLinx re-applies the same discount percentage to
+the new listing once it&rsquo;s posted. The discount is worked out
+from the new listing&rsquo;s price, including any price change you
+made. It isn&rsquo;t re-applied when:
+
+- you save as a draft (set the discount again after you publish), or
+- the discounted price would fall below 1.00.
+
+If re-applying the discount fails, the relist still goes through and
+the new listing stays at full price.
+
+## Pacing
+
+**Relist settings**, the section at the top of the Relist tab, holds
+**Seconds between listings**: how long SaleLinx waits after each
+listing, on average. The default is 10 seconds and the minimum is 5.
+The first few listings and the later ones in a long run get a little
+extra, and long runs take the odd longer break (the job queue shows
+**On break**), so a big run can sit idle for several minutes partway
+through. That&rsquo;s expected.
+
+Each relist also takes a while on its own, longer for listings with
+lots of photos, because the photos upload one at a time with short
+pauses. You can close the panel while it runs, but keep a tab open on
+each marketplace you&rsquo;re relisting on. Other SaleLinx jobs wait in
+the queue until the run finishes.
 
 ## Presets
 
-The preset picker at the top of the Settings panel saves the relist
-settings as a named set: the delay between relists, plus every option
-in the relist window (photo modifications, title and description
+The preset picker at the top of **Relist settings** saves the relist
+settings as a named set: the seconds between listings, plus every
+option in the Relist Confirmation window (photo, title and description
 changes, the price change, and save as draft). Picking a preset fills
 in all of them at once. Two are built in:
 
-- **Default** - 10 seconds between relists; photo modifications on,
+- **Default** - 10 seconds between listings; photo modifications on,
   at &plusmn;2&deg; rotation, &plusmn;2% scale and &plusmn;1.8%
   brightness; title and description changes on; price change off;
   save as draft off.
-- **Careful** - 20 seconds between relists, and every relist lands as
-  a draft first. Slower, and does less per run.
+- **Careful** - 20 seconds between listings, and every relist lands as
+  a draft. Slower, and nothing goes live until you publish it (the
+  originals are still deleted).
 
 Change any setting by hand and the picker marks the current values as
 unsaved; from there you can save them as a preset of your own. Saving
@@ -113,21 +210,31 @@ survive a reinstall and follow you to another computer. See
 [Account and subscription](/docs/getting-started/account-and-subscription)
 for how syncing, sign-out and per-device selection work.
 
-## Plan and access
+## Plan and allowance
 
-Available on every paid plan, including the 14-day free trial.
+Relist is on every plan, including the 14-day free trial.
 There&rsquo;s no tab-level lock. What varies by plan is your monthly
-relist allowance - the higher tiers raise it considerably. See the
-pricing page for current numbers.
+relist allowance; higher plans raise it. See [pricing](/pricing) for
+current numbers.
 
-If you only need a lighter visibility bump (no delete + repost),
-the [Refresh tab](/docs/inventory/refresh) is the lower-touch
-alternative.
+- Each relist that goes through counts once, on either marketplace.
+  Relists that fail don&rsquo;t count.
+- The allowance resets at the start of each calendar month (UTC).
+- If you select more listings than you have left, the run is cut to
+  what&rsquo;s left and the panel tells you.
+- The **Membership** card in the Settings tab shows what you have
+  left. See [Settings](/docs/getting-started/settings).
+
+If you only need a lighter visibility bump (no delete and repost), the
+[Refresh tab](/docs/inventory/refresh) is the lower-touch alternative
+on Depop.
 
 ## Next steps
 
 - [Refresh](/docs/inventory/refresh) - the lighter-touch alternative.
-- [Restocker](/docs/automate/restocker) - auto-repost when a linked
-  item sells.
+- [Bulk editor](/docs/inventory/bulk-editor) - relist sold items you
+  saved to the cloud, and other actions on selected listings.
 - [Dead Stock](/docs/automate/dead-stock) - find which listings are
   candidates for relisting.
+- [Restocker](/docs/automate/restocker) - repost items you have more
+  of when one sells.

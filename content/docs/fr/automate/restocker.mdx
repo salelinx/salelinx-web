@@ -1,28 +1,41 @@
 export const metadata = {
-  title: 'Restocker',
+  title: 'Restockeur',
   description:
-    'Synchronisation de stock cross-platform. Quand un article lié se vend sur une marketplace, l\'autre côté republie (ou se désactive) automatiquement.',
+    'Synchronisation de stock entre plateformes. Republie les annonces Vinted vendues tant qu\'il vous reste du stock, garde les annonces Depop et Vinted liées sur un même compteur de stock et retire l\'autre côté quand l\'article est épuisé.',
   category: 'automate',
   slug: 'restocker',
   order: 4,
-  updated: '2026-05-18',
-  tags: ['restocker', 'stock', 'depop', 'vinted'],
+  updated: '2026-10-13',
+  tags: ['restockeur', 'stock', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
-# Restocker
+# Restockeur
 
-Le Restocker garde votre stock honnête entre marketplaces. Deux
-scénarios&nbsp;: vendeur Vinted multi-quantité (3 t-shirts en stock,
-republie à chaque vente jusqu'à épuisement), et articles liés
-cross-platform (vendu sur Depop &rarr; retiré de Vinted pour éviter
-la double vente).
+Le Restockeur garde votre stock cohérent entre les marketplaces. Il
+gère deux scénarios&nbsp;:
+
+1. **Vendeur Vinted multi-quantité.** Vous avez 3 exemplaires d'un
+   t-shirt. Réglez-le sur 2 remises en vente&nbsp;: à chacune des deux
+   premières ventes, le Restockeur republie une nouvelle annonce Vinted
+   pour l'exemplaire suivant. La troisième vente clôt l'article.
+2. **Articles liés.** Le même article est publié sur Depop et Vinted
+   et [lié](/docs/automate/linking). Les deux côtés partagent un seul
+   compteur de stock. Quand le dernier exemplaire se vend d'un côté, le
+   Restockeur retire l'autre côté pour éviter une double vente.
+
+Seules les annonces Vinted sont republiées. Sur Depop, SaleLinx
+inscrit votre stock dans le champ de quantité de Depop, qui garde
+l'annonce en ligne jusqu'à épuisement. Le Restockeur est réservé au
+forfait **Business** et ne fonctionne qu'avec des annonces
+sauvegardées dans le cloud.
 
 <Callout>
 Traduction française complète à venir. Voir la
-[version anglaise](/en/docs/automate/restocker) pour le détail des
-deux flux (Vinted multi-quantité, cross-platform), l'ajout d'un
-article, la planification, ce que le Restocker ne fait pas et les
-paliers d'abonnement.
+[version anglaise](/en/docs/automate/restocker) pour l'onglet
+Restockeur, l'ajout d'un article, l'export et l'import du stock, le
+lancement du Restockeur, le détail des deux flux (republications
+Vinted, paires liées), les réglages, ce que le Restockeur ne fait pas
+et les paliers d'abonnement.
 </Callout>

@@ -1,0 +1,108 @@
+export const metadata = {
+  title:
+    "Vérifier avant de crosslister, des catégories Depop exactes et un écran d'accueil",
+  date: "2026-10-08",
+  summary:
+    "La version 1.1.10 ajoute une étape de vérification avant tout crosslist, avec un éditeur complet et un Ajouter par URL à plusieurs liens, fait correspondre chaque catalogue Vinted à une catégorie Depop exacte, corrige les titres, prix et marques de Depop vers Vinted, et ajoute les pauses dans la fenêtre de la file, un repos de sept jours dans Dead Stock et un écran d'accueil pour les nouveaux comptes.",
+  tags: ["release"],
+};
+
+# Version 1.1.10
+
+Deux semaines de travail, en grande partie sur le crosslisting entre Depop
+et Vinted.
+
+## Nouveautés
+
+- **Vérifier avant de crosslister.** Le bouton Crosslist ouvre désormais une
+  liste de vérification avant toute publication. Modifiez un article pour
+  changer son titre, sa description et son prix, ou sa catégorie, sa taille,
+  sa marque, son état et ses couleurs dans les termes de la plateforme de
+  destination. Vos modifications partent avec le lot ; l&rsquo;ancien aperçu
+  article par article les perdait.
+- **Ajouter par URL accepte plusieurs liens.** Collez-en autant que vous
+  voulez. Chaque article rejoint la liste dès qu&rsquo;il est récupéré, et
+  les liens en échec restent dans le champ. Les liens Vinted sont lus
+  directement depuis la page au lieu d&rsquo;ouvrir un onglet en
+  arrière-plan, ce qui est plus rapide et récupère aussi la catégorie,
+  l&rsquo;état et les couleurs.
+- **Un bouton Crosslist flottant** se place en bas à droite dès que la barre
+  d&rsquo;outils sort de l&rsquo;écran, avec le même nombre et la même
+  destination.
+- **Les pauses dans la fenêtre de la file.** Quand une tâche fait une pause
+  ou atteint une limite de requêtes, son statut l&rsquo;indique avec un
+  compte à rebours jusqu&rsquo;à la reprise, et les pauses qui touchent toute
+  une plateforme ont leur pastille dans le résumé.
+- **Dead Stock met une annonce au repos après une baisse de prix.** Après
+  une baisse de 10 %, l&rsquo;annonce passe pendant sept jours dans un
+  nouveau filtre Prix baissé, hors des niveaux, de Worst Performers, des
+  compteurs et de la bannière de capital, avec une pastille indiquant
+  l&rsquo;ancien et le nouveau prix et les jours restants.
+- **L&rsquo;heure de mise en ligne.** La colonne Listed de My Listings
+  affiche l&rsquo;heure sous la date.
+
+## Corrections
+
+- **Catégories de Vinted vers Depop.** Chaque catalogue Vinted correspond
+  désormais à une catégorie Depop exacte, au lieu d&rsquo;une supposition
+  tirée du texte. Le titre est lu avant la description : un blazer ne part
+  plus en pull parce que sa description mentionne « maille ».
+- **Tailles de Vinted vers Depop.** Les libellés combinés comme « M / UK
+  12-14 » trouvent la bonne taille, les articles à taille unique comme les
+  sacs et les livres reçoivent Taille unique, les articles enfants sont
+  dimensionnés par âge, et les tailles de poitrine homme comme 42R se
+  rabattent sur la lettre correspondante.
+- **Titres, prix et marques de Depop vers Vinted.** Les titres sont coupés
+  aux 100 caractères de Vinted à la fin d&rsquo;une phrase ou d&rsquo;un
+  mot, et adoucis s&rsquo;ils sont écrits surtout en majuscules. Les prix
+  sont convertis dans la devise de votre compte Vinted (un article à 75 $
+  était publié à 75 £). Les marques sont recherchées avec plus de
+  souplesse, si bien que « levi-s » trouve Levi&rsquo;s, et l&rsquo;état
+  Like new de Depop devient Très bon état plutôt que Neuf sans étiquette.
+- **Les brouillons Depop** sont publiés avec leurs propres photos au lieu de
+  les renvoyer, les brouillons enfants sont publiés comme annonces enfants,
+  et un brouillon dans une autre devise est converti au cours du jour.
+- **My Listings garde les catégories** lors des synchronisations en
+  arrière-plan. Une synchronisation Vinted effaçait la catégorie posée par
+  un crosslist.
+- **Fini les faux « non lié » et « vendu ».** Une vérification en échec ne
+  vous dit plus que vos comptes ne sont pas liés, et après une mise à jour,
+  les annonces d&rsquo;une plateforme sans onglet ouvert affichent Non
+  synchronisé au lieu d&rsquo;être marquées vendues.
+- **Votre onglet Depop est laissé tranquille** quand une lecture en
+  arrière-plan échoue. Il se rechargeait, effaçant ce que vous étiez en
+  train de faire.
+- La flèche de tri de My Listings est de nouveau à côté du nom de colonne.
+
+## Améliorations
+
+- **La sélection par glisser fait défiler.** Maintenez une sélection près du
+  haut ou du bas d&rsquo;une liste et elle défile, d&rsquo;autant plus vite
+  que vous êtes près du bord, en sélectionnant les lignes au passage. Cela
+  fonctionne dans My Listings, Relist, Refresh et Crosslist.
+- **Un démarrage plus net.** L&rsquo;écran de liaison des comptes et le
+  choix des marketplaces reprennent le style de l&rsquo;écran
+  d&rsquo;accueil, et la fenêtre de tutoriel à la connexion disparaît.
+- **Une nouvelle icône de barre d&rsquo;outils** : le lynx SaleLinx sur
+  fond transparent.
+- **Un choix pour les e-mails marketing.** L&rsquo;inscription dans
+  l&rsquo;extension propose une case non cochée pour refuser les conseils et
+  offres. Sur le site, l&rsquo;inscription demande oui ou non, et votre page
+  de compte a une carte Préférences e-mail pour changer votre réponse.
+
+## Abonnement et facturation
+
+- **Un écran d&rsquo;accueil au lieu d&rsquo;un cadenas.** Un nouveau compte
+  sans abonnement voit désormais Bienvenue sur SaleLinx et un bouton pour
+  démarrer l&rsquo;essai gratuit de 14 jours, plutôt qu&rsquo;un message
+  disant que le compte n&rsquo;a pas d&rsquo;abonnement actif. Le panneau
+  attend aussi que votre
+  abonnement soit chargé, si bien que le mauvais écran ne s&rsquo;affiche
+  plus brièvement d&rsquo;abord.
+- **Les abonnements terminés sont bien nommés.** L&rsquo;écran de fin
+  d&rsquo;abonnement disait aux clients payants que leur essai gratuit était
+  terminé. Il indique désormais que votre abonnement est terminé, avec un
+  bouton Voir les offres.
+- **Changer d&rsquo;offre depuis la page des tarifs** mène les abonnés
+  directement au portail de facturation, plutôt que de les renvoyer sur la
+  page de compte sans explication.

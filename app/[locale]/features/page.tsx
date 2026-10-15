@@ -1,14 +1,10 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import { FeaturesSection } from '@/components/features/FeaturesSection';
-import { PricingSection } from '@/components/features/PricingSection';
-import { RoadmapSection } from '@/components/features/RoadmapSection';
 import { PanelCarousel } from '@/components/home/PanelCarousel';
-import { getCachedTierConfigs } from '@/lib/supabase/tier-config';
+import { FinalCta } from '@/components/home/FinalCta';
+import { Reveal } from '@/components/Reveal';
 import { pageMetadata } from '@/lib/site';
-
-export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -25,8 +21,6 @@ export async function generateMetadata({
   });
 }
 
-const MONO = 'font-mono text-[0.68rem] uppercase tracking-[0.12em]';
-
 export default async function FeaturesPage({
   params,
 }: {
@@ -34,72 +28,20 @@ export default async function FeaturesPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, tiers] = await Promise.all([
-    getTranslations('Features'),
-    getCachedTierConfigs(),
-  ]);
+  const t = await getTranslations('Features');
 
   return (
-    <main>
-      {/* Bottom padding is small on purpose: the section below opens with its
-          own pt-20, so a matching pb here stacked into a ~200px dead gap. */}
-      <section className="mx-auto w-full max-w-7xl px-6 pt-20 pb-6 text-center sm:pt-28 sm:pb-8">
-        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('hero.eyebrow')}</span>
-        <h1 className="mx-auto mt-6 max-w-5xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">
+    <main className="mx-auto w-full max-w-7xl px-6">
+      <Reveal>
+        <h1 className="mx-auto max-w-3xl pt-10 pb-8 text-center text-4xl font-semibold leading-[1.05] tracking-tight text-balance sm:pt-12 sm:text-5xl">
           {t('hero.title')}
         </h1>
-        <p className="mx-auto mt-8 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
-          {t('hero.description')}
-        </p>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/auth/signup"
-            className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-          >
-            {t('hero.installExtension')}
-          </Link>
-          <a
-            href="#pricing"
-            className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
-          >
-            {t('hero.seePricing')}
-          </a>
-        </div>
-      </section>
-
-      <div className="mx-auto w-full max-w-7xl px-6">
-        {/* Real panel shots ahead of the chapter list: the chapters describe
-            features in words and icons, and this is the only place on the page
-            that shows the thing itself. */}
-        <div className="mx-auto w-full max-w-5xl pb-4 pt-10">
-          <PanelCarousel />
-        </div>
-
-        <FeaturesSection />
-        <PricingSection tiers={tiers} />
-        <RoadmapSection />
-
-        <section className="border-t border-black/10 py-20 text-center dark:border-white/10">
-          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('ctaSection.eyebrow')}</span>
-          <h2 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-            {t('ctaSection.title')}
-          </h2>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/auth/signup"
-              className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-            >
-              {t('ctaSection.getStarted')}
-            </Link>
-            <a
-              href="#pricing"
-              className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
-            >
-              {t('ctaSection.seePricing')}
-            </a>
-          </div>
-        </section>
-      </div>
+      </Reveal>
+      <Reveal delay={150} className="mx-auto w-full max-w-4xl">
+        <PanelCarousel />
+      </Reveal>
+      <FeaturesSection />
+      <FinalCta title={t('finalCta.title')} body={t('finalCta.body')} />
     </main>
   );
 }

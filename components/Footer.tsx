@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CookieSettingsButton } from '@/components/CookieConsent';
+import { SOCIALS } from '@/components/home/SocialLinks';
+import { LANDING_PAGES } from '@/lib/landing/pages';
 
 const MONO =
   'font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400';
@@ -28,26 +30,52 @@ export async function Footer() {
             <p className="mt-3 max-w-xs text-sm text-zinc-600 dark:text-zinc-400">
               {t('tagline')}
             </p>
+            {/* Monochrome on purpose: three brand colours would be the
+                loudest thing in the footer. */}
+            <ul className="mt-5 flex items-center gap-2">
+              {SOCIALS.map((s) => (
+                <li key={s.name}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.name}
+                    className="grid h-9 w-9 place-items-center rounded-full border border-black/10 text-zinc-600 transition hover:border-black/20 hover:text-black dark:border-white/15 dark:text-zinc-400 dark:hover:border-white/25 dark:hover:text-white"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+                      <path d={s.path} />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div>
             <h3 className={MONO}>{t('sectionProduct')}</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link href="/features#features" className={linkClass}>
+                <Link href="/features" className={linkClass}>
                   {t('linkFeatures')}
                 </Link>
               </li>
               <li>
-                <Link href="/features#pricing" className={linkClass}>
+                <Link href="/pricing" className={linkClass}>
                   {t('linkPricing')}
                 </Link>
               </li>
               <li>
-                <Link href="/features#roadmap" className={linkClass}>
+                <Link href="/roadmap" className={linkClass}>
                   {t('linkRoadmap')}
                 </Link>
               </li>
+              {LANDING_PAGES.map(({ slug, navLabel }) => (
+                <li key={slug}>
+                  <Link href={`/features/${slug}`} className={linkClass}>
+                    {navLabel}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -67,6 +95,11 @@ export async function Footer() {
               <li>
                 <Link href="/help/faq" className={linkClass}>
                   {t('linkFaq')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className={linkClass}>
+                  {t('linkBlog')}
                 </Link>
               </li>
               <li>

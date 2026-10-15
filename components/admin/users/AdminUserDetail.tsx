@@ -42,17 +42,16 @@ import type { TierConfig } from "@/lib/types/tiers";
 import type {
   AdminLinkedAccount,
   AdminSubscriptionRow,
+  AdminUsageEventRow,
   AdminUserDevice,
   AdminUserListings,
   AdminUserRow,
+  AdminUserUsageEntry,
   AdminUserDetail as Detail,
 } from "@/lib/types/admin";
-import {
-  USAGE_EPOCH,
-  currentPeriodKeys,
-  isMonthlyFeature,
-  periodKeysForRange,
-} from "@/lib/admin/period";
+import { isMonthlyFeature } from "@/lib/admin/period";
+import { WINDOW_PRESETS, resolveUsageRange } from "@/lib/admin/usage-range";
+import type { UsageRangePreset } from "@/lib/admin/usage-range";
 import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
 import { platformLabel, platformProfileUrl } from "@/lib/admin/platform-links";
 import { formatBytes } from "@/lib/admin/format-bytes";
@@ -88,28 +87,21 @@ const STATUS_OPTIONS = [
   "incomplete",
 ] as const;
 
-// Periods the drawer's usage section can show. "current" keeps the original
-// count-vs-cap view (this month + today); the wider ranges answer "has this
-// user ever used the thing" and show plain totals, because caps are per-period
-// and a percent against a multi-period sum would mislead.
-const USAGE_RANGES = [
+// Periods the drawer's usage section can show, resolved by the usage pages'
+// resolveUsageRange so both agree on what each range means. "current" keeps
+// the original count-vs-cap view (this month + today); every other range shows
+// plain totals, because caps are per-period and a percent against a
+// multi-period sum would mislead. The trailing windows (last 5 minutes to last
+// 72 hours) are exact and come from usage_events, not the period buckets.
+const USAGE_RANGES: { value: UsageRangePreset; label: string }[] = [
   { value: "current", label: "This period" },
+  ...(Object.entries(WINDOW_PRESETS) as [UsageRangePreset, { label: string }][]).map(
+    ([value, { label }]) => ({ value, label }),
+  ),
+  { value: "7d", label: "Last 7 days" },
   { value: "30d", label: "Last 30 days" },
   { value: "all", label: "All time" },
-] as const;
-
-type UsageRange = (typeof USAGE_RANGES)[number]["value"];
-
-function usagePeriodKeysFor(range: UsageRange): string[] {
-  const now = new Date();
-  const { month, day } = currentPeriodKeys(now);
-  if (range === "current") return [month, day];
-  if (range === "all") return periodKeysForRange(USAGE_EPOCH, day);
-  const from = currentPeriodKeys(
-    new Date(now.getTime() - 29 * 86_400_000),
-  ).day;
-  return periodKeysForRange(from < USAGE_EPOCH ? USAGE_EPOCH : from, day);
-}
+];
 
 function formatWhen(iso: string | null): string {
   if (!iso) return "-";
@@ -191,7 +183,11 @@ export function AdminUserDetail({
   // Which period the usage section shows; changing it refetches the bundle
   // with the matching period keys. The stale numbers stay visible during the
   // round trip, like any refetch here.
-  const [usageRange, setUsageRange] = useState<UsageRange>("current");
+  const [usageRange, setUsageRange] = useState<UsageRangePreset>("current");
+  // The resolver's note when it cut a window short (events only go back so
+  // far), and a usage-only failure that should not blank the whole drawer.
+  const [usageNote, setUsageNote] = useState<string | null>(null);
+  const [usageError, setUsageError] = useState<string | null>(null);
 
   // Null on the server and through hydration, a ticking timestamp afterwards,
   // so relative ages cannot cause a mismatch. See lib/admin/use-client-now.ts.
@@ -202,24 +198,55 @@ export function AdminUserDetail({
   // synchronous setState in the effect body is needed (which would trigger a
   // cascading render). The effect only sets state asynchronously, when the RPC
   // resolves.
+  //
+  // A period range rides along in the bundle as period keys. A trailing window
+  // has no keys, so the bundle comes back with no usage and the window's totals
+  // come from admin_list_usage_events, which answers for every user in the
+  // window and is narrowed to this one here. The two sources are never mixed
+  // (docs/ADMIN.md "Usage events").
   useEffect(() => {
     let cancelled = false;
+    const { period } = resolveUsageRange({ range: usageRange }, new Date());
+    const trailing = period.window;
 
-    supabase
-      .rpc("admin_user_detail", {
+    Promise.all([
+      supabase.rpc("admin_user_detail", {
         p_user_id: user.user_id,
-        p_period_keys: usagePeriodKeysFor(usageRange),
-      })
-      .then(({ data, error: rpcErr }) => {
-        if (cancelled) return;
-        if (rpcErr) {
-          setError("Could not load this user's detail.");
-          setLoading(false);
-          return;
-        }
-        setDetail((data as Detail | null) ?? null);
+        p_period_keys: period.keys,
+      }),
+      trailing
+        ? supabase.rpc("admin_list_usage_events", {
+            p_since: trailing.since,
+            p_until: trailing.until,
+          })
+        : null,
+    ]).then(([bundle, events]) => {
+      if (cancelled) return;
+      if (bundle.error) {
+        setError("Could not load this user's detail.");
         setLoading(false);
-      });
+        return;
+      }
+      const data = (bundle.data as Detail | null) ?? null;
+      const windowUsage = events?.data
+        ? (events.data as AdminUsageEventRow[])
+            .filter((e) => e.user_id === user.user_id)
+            .map(
+              (e): AdminUserUsageEntry => ({
+                feature: e.feature,
+                period_key: "window",
+                count: Number(e.count),
+                updated_at: e.last_at,
+              }),
+            )
+        : [];
+      setDetail(data && trailing ? { ...data, usage: windowUsage } : data);
+      setUsageNote(period.note ?? null);
+      setUsageError(
+        events?.error ? "Could not load usage for this window." : null,
+      );
+      setLoading(false);
+    });
 
     return () => {
       cancelled = true;
@@ -711,7 +738,9 @@ export function AdminUserDetail({
               action={
                 <select
                   value={usageRange}
-                  onChange={(e) => setUsageRange(e.target.value as UsageRange)}
+                  onChange={(e) =>
+                    setUsageRange(e.target.value as UsageRangePreset)
+                  }
                   className="rounded border border-[var(--admin-border)] bg-white px-1.5 py-0.5 text-xs text-zinc-600 outline-none focus:border-zinc-400"
                   aria-label="Usage period"
                 >
@@ -723,7 +752,12 @@ export function AdminUserDetail({
                 </select>
               }
             >
-              {detail.usage.length === 0 ? (
+              {usageNote && (
+                <p className="mb-2 text-xs text-zinc-500">{usageNote}</p>
+              )}
+              {usageError ? (
+                <p className="text-sm text-red-600">{usageError}</p>
+              ) : detail.usage.length === 0 ? (
                 <p className="text-sm text-zinc-500">
                   No usage recorded in this range.
                 </p>

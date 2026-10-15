@@ -56,7 +56,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${location.origin}/auth/callback?next=/account`,
+        emailRedirectTo: `${location.origin}/auth/callback?next=/get-started`,
         data: {
           preferred_locale: locale,
           terms_version: TERMS_VERSION,
@@ -84,7 +84,7 @@ export default function SignupPage() {
 
     // If email confirmation is disabled in Supabase, we get a session immediately.
     if (data.session) {
-      window.location.href = "/account";
+      window.location.href = "/get-started";
       return;
     }
 
@@ -116,7 +116,7 @@ export default function SignupPage() {
           the marketing email question further down. If that is unanswered,
           MarketingChoicePrompt asks it straight after sign-in instead. */}
       <div className="mt-6">
-        <GoogleSignInButton marketing={marketing ?? undefined} />
+        <GoogleSignInButton next="/get-started" marketing={marketing ?? undefined} />
       </div>
 
       <div className="my-6 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400">

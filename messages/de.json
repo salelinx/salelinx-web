@@ -1,7 +1,7 @@
 {
   "Layout": {
     "metaTitle": "SaleLinx - Verkaufe auf Vinted, Depop und eBay",
-    "metaDescription": "Crossliste zwischen Vinted, Depop und eBay, dann poste erneut, aktualisiere und fülle deine Bestände von einem Ort aus auf."
+    "metaDescription": "Die Chrome-Erweiterung für Vinted-, Depop- und eBay-Verkäufer. Crosslisten zwischen allen dreien, neu listen, aktualisieren und auffüllen von einem Panel aus, mit Angeboten, Nachrichten und Etiketten an einem Ort."
   },
   "Header": {
     "navFeatures": "Funktionen",
@@ -9,6 +9,7 @@
     "navRoadmap": "Roadmap",
     "navFaq": "FAQ",
     "navDocs": "Docs",
+    "navBlog": "Blog",
     "account": "Konto",
     "support": "Support",
     "signOut": "Abmelden",
@@ -19,7 +20,6 @@
     "accountSecurity": "Sicherheit",
     "accountReferrals": "Empfehlungen",
     "accountSupport": "Support-Tickets",
-    "accountDanger": "Konto löschen",
     "navStatus": "Status",
     "supportContact": "Support kontaktieren"
   },
@@ -34,6 +34,7 @@
     "linkHelp": "Hilfe",
     "linkDocs": "Docs",
     "linkFaq": "FAQ",
+    "linkBlog": "Blog",
     "linkChangelog": "Changelog",
     "linkStatus": "Status",
     "linkPrivacy": "Datenschutz",
@@ -46,14 +47,14 @@
   },
   "CookieBanner": {
     "title": "Cookies auf salelinx.com",
-    "body": "Wir verwenden essenzielle Cookies, damit diese Website funktioniert. Zusätzlich würden wir gern Google-Analytics-Cookies setzen, um die Nutzung zu verstehen und die Website zu verbessern.",
-    "bodyWithAds": "Wir verwenden essenzielle Cookies, damit diese Website funktioniert. Mit deiner Einwilligung setzen wir auch Analyse-Cookies, um die Nutzung zu verstehen, und Cookies zur Anzeigenmessung, um zu erkennen, ob dich eine unserer Google-Anzeigen hierher gebracht hat. Wir zeigen auf salelinx.com nie Werbung an.",
+    "body": "Wir verwenden essenzielle Cookies, damit diese Website funktioniert. Die optionalen Cookies unten bleiben aus, bis du sie einschaltest.",
     "privacyLink": "Wie wir Cookies verwenden",
     "acceptAll": "Alle akzeptieren",
     "rejectAll": "Alle ablehnen",
     "save": "Auswahl speichern",
     "essentialLabel": "Notwendig",
-    "essentialDesc": "Anmeldung, Sprache und deine Cookie-Auswahl. Immer aktiv.",
+    "essentialDesc": "Anmeldung, Sprache und deine Cookie-Auswahl.",
+    "alwaysOn": "Immer aktiv",
     "analyticsLabel": "Analyse",
     "analyticsDesc": "Google Analytics, um zu verstehen, wie die Website genutzt wird.",
     "adsLabel": "Anzeigenmessung",
@@ -109,9 +110,9 @@
       "klüger verkaufen, nicht härter."
     ],
     "ctaSeePricing": "Preise ansehen",
-    "ctaAddToChrome": "Zu Chrome hinzufügen",
     "ctaSeeFeatures": "Funktionen ansehen",
     "ctaGetStarted": "Loslegen",
+    "ctaAddToChrome": "Zu Chrome hinzufügen",
     "ctaSignIn": "Anmelden",
     "previewEyebrow": "Live-Demo ausprobieren",
     "preview": {
@@ -176,7 +177,7 @@
       }
     },
     "finalCta": {
-      "title": "Beide Shops aus einem Panel führen.",
+      "title": "Alle deine Shops aus einem Panel führen.",
       "body": "Mit einem Klick installiert. 14 Tage Starter kostenlos testen, Karte erforderlich.",
       "primary": "Kostenlos starten",
       "secondary": "Preise ansehen",
@@ -192,11 +193,19 @@
       "title": "Jedes Tool, genau dort, wo du verkaufst.",
       "scenes": {
         "crosslist": "Wähle ein Angebot und SaleLinx füllt die andere Seite für dich aus.",
+        "bulkEdit": "Wähle beliebig viele Inserate und ändere Preise und Fotos, starte einen Depop-Sale oder kopiere sie als Entwürfe.",
         "restocker": "Auf einer App verkauft, auf der anderen automatisch entfernt.",
+        "deadStock": "Jedes Angebot nach Alter, Aufrufen und Likes bewertet, mit einer Lösung für alles, was sich nicht verkauft.",
+        "priceDrops": "Preise sinken nach deinem Zeitplan und nie unter deine Untergrenze.",
+        "refresher": "Dein Depop-Shop wird von unten nach oben neu gespeichert und steht wieder ganz oben, in derselben Reihenfolge.",
         "followBot": "Folge automatisch den Käufern, die am ehesten bei dir kaufen.",
         "inbox": "Alle Angebote und Nachrichten beider Shops in einer Liste.",
+        "sendOffers": "Alle, die einen Artikel geliked haben, bekommen ein Angebot mit deinem Rabatt, nie unter deiner Untergrenze.",
+        "autoOffers": "Angebote über deinem Limit werden für dich angenommen. Alles andere wartet auf deine Entscheidung.",
         "labels": "Alle Etiketten des Tages, zusammengeführt in einem PDF zum Drucken."
-      }
+      },
+      "prev": "Vorherige Funktion",
+      "next": "Nächste Funktion"
     },
     "pricingEyebrow": "Preise",
     "faqMore": "Alle Fragen ansehen"
@@ -298,12 +307,12 @@
   "Account": {
     "title": "Dein Konto",
     "signOut": "Abmelden",
-    "checkoutSuccess": "Abonnement aktiviert. Es kann einige Sekunden dauern, bis die Details unten aktualisiert sind.",
     "currentPlanTitle": "Aktuelles Paket",
     "noSubscriptionBody": "Du hast kein aktives Paket. Starte deine kostenlose 14-tägige Testphase, um SaleLinx zu nutzen.",
     "startTrial": "Kostenlose Testphase starten",
     "trialEndsInDays": "Deine kostenlose Testphase endet in {days} Tagen. Danach wird das Starter-Paket berechnet.",
     "trialEndsTomorrow": "Deine kostenlose Testphase endet morgen. Danach wird das Starter-Paket berechnet.",
+    "startStarterNow": "Starter jetzt starten",
     "lockedNote": "Dein Abonnement ist nicht aktiv. Abonniere erneut, um SaleLinx weiter zu nutzen.",
     "seePricing": "Preise ansehen",
     "tier": "Paket",
@@ -373,7 +382,7 @@
     "errorSameEmail": "Das ist bereits deine aktuelle E-Mail-Adresse.",
     "errorRateLimited": "Zu viele Anfragen zur E-Mail-Änderung. Bitte versuche es morgen erneut.",
     "mfaHeading": "Zwei-Faktor-Authentifizierung",
-    "mfaBody": "Schütze dein Konto mit einem 6-stelligen Code aus einer Authenticator-App als zweitem Anmeldeschritt.",
+    "mfaBody": "Erforderlich für die Admin-Konsole. Nach der Anmeldung fragen die Admin-Seiten nach einem 6-stelligen Code aus deiner Authenticator-App.",
     "mfaLoading": "Laden…",
     "mfaEnable": "2FA aktivieren",
     "mfaWorking": "Wird verarbeitet…",
@@ -508,7 +517,14 @@
     "loading": "Wird geladen...",
     "label": "Abonnieren",
     "errorAlert": "Der Bezahlvorgang konnte nicht gestartet werden. Bitte versuche es erneut.",
-    "endTrialConfirm": "Tarif jetzt starten? Damit endet deine Testphase: Du wirst heute abgerechnet und die verbleibenden Tage verfallen. Deine neuen Limits gelten sofort.",
+    "endTrialTitle": "{plan} heute starten",
+    "endTrialBody": "Damit endet deine Testphase. Dir werden jetzt und dann monatlich {price} berechnet, bis du kündigst. Deine neuen Limits gelten sofort.",
+    "declinedTitle": "Zahlung abgelehnt",
+    "declinedBody": "Deine Karte wurde abgelehnt, dein Tarif bleibt unverändert. Aktualisiere deine Karte und versuche es erneut.",
+    "updateCard": "Karte aktualisieren",
+    "tryAgain": "Erneut versuchen",
+    "endTrialCta": "{price} zahlen und starten",
+    "cancel": "Abbrechen",
     "downgradeViaPortal": "Fuer einen niedrigeren Tarif nutze Abo verwalten auf deiner Kontoseite."
   },
   "Legal": {
@@ -551,21 +567,16 @@
     "termsLink": "Bedingungen des Empfehlungsprogramms ansehen"
   },
   "Features": {
-    "metaTitle": "Produkt, Preise, Roadmap",
-    "metaDescription": "Alles, was die SaleLinx Chrome-Erweiterung kann, was sie kostet und was als Nächstes kommt. Crossliste zwischen Vinted, Depop und eBay, dann poste erneut, aktualisiere und fülle von einem Panel aus auf.",
+    "metaTitle": "Funktionen: Vinted, Depop und eBay crosslisten, neu listen und automatisieren",
+    "metaDescription": "Jede SaleLinx-Funktion für Vinted-, Depop- und eBay-Verkäufer: Crosslisting, Neu listen, Aktualisieren, Auffüllen, Angebote, Nachrichten, Versandetiketten und mehr, alles von einem Browser-Panel aus.",
     "hero": {
-      "eyebrow": "Produktübersicht",
-      "title": "Alles, was SaleLinx kann, was es kostet und was als Nächstes kommt.",
-      "description": "Crossliste zwischen Vinted, Depop und eBay, dann poste erneut, aktualisiere und fülle von einem einzigen Browser-Panel aus auf.",
-      "installExtension": "Erweiterung installieren",
-      "seePricing": "Preise ansehen"
+      "title": "Alles, was SaleLinx für deine Vinted-, Depop- und eBay-Shops tut."
     },
     "sectionHeader": {
       "eyebrow": "Abschnitt 01 / Funktionen",
       "title": "Alles Weitere, was SaleLinx kann.",
       "body": "Gruppiert nach dem, was du damit tust. Überfliege die Kategorien oder springe direkt zur Funktion, weshalb du gekommen bist."
     },
-    "marketplaceOnly": "Nur <marketplace></marketplace>",
     "sectionNavAria": "Seitenabschnitte",
     "headlines": {
       "eyebrow": "Hier anfangen",
@@ -576,7 +587,7 @@
         "crosslist": {
           "short": "Crosslisten",
           "title": "Vinted, Depop und eBay mit einem Klick crosslisten",
-          "body": "Wähle ein Inserat, klick auf Crosslist und das Formular des anderen Marktplatzes füllt sich von selbst aus. Kategorien, Größen und Zustand werden übersetzt, sodass derselbe Artikel in Sekunden auf Vinted, Depop oder eBay online ist.",
+          "body": "Wähle ein Inserat, klick auf Crosslist und das Formular des anderen Marktplatzes füllt sich von selbst aus. Kategorien, Größen und Zustand werden übersetzt, sodass die Kopie in Sekunden als Entwurf auf Depop oder Vinted bereitliegt, oder auf eBay live geht, sobald du die Gebühren gesehen hast.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -593,8 +604,8 @@
         },
         "oneInbox": {
           "short": "Posteingang",
-          "title": "Angebote und Nachrichten in einem Posteingang",
-          "body": "Jedes Angebot und jede Nachricht aus beiden Shops, zusammengeführt in einer Liste. Lege Regeln fest, die Angebote automatisch annehmen oder kontern, sodass du nur dort eingreifst, wo es wirklich zählt.",
+          "title": "Angebote und Nachrichten an einem Ort",
+          "body": "Jedes Angebot und jede Nachricht aus beiden Shops, zusammengeführt in einer Liste. Lege eine Regel fest, die gute Angebote automatisch annimmt, sodass du nur dort eingreifst, wo es wirklich zählt.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "labels": {
@@ -622,6 +633,11 @@
             "label": "Dein gesamter Bestand in einem Raster",
             "detail": "Beide Shops nebeneinander. Sortiere nach Datum, Preis oder Status und filtere genau das raus, was du brauchst."
           },
+          "bulkEdit": {
+            "name": "Massenbearbeitung",
+            "label": "In großen Mengen bearbeiten, rabattieren und duplizieren",
+            "detail": "Ändere Preise, Titel, Größen und Fotos für eine ganze Auswahl, starte einen Depop-Sale oder kopiere Inserate und teile ihre Fotos in neue Entwürfe auf."
+          },
           "linkAccounts": {
             "name": "Konten verknuepfen",
             "label": "Verknüpfe deine Shops einmal",
@@ -630,7 +646,7 @@
           "backup": {
             "name": "Cloud-Backup",
             "label": "Dein Shop, sicher gesichert",
-            "detail": "Jedes Inserat wird verschlüsselt in der Cloud gespeichert, damit ein zugeklappter Laptop oder ein Marktplatzfehler dich nie einen Verkauf kostet."
+            "detail": "Sichere die Inserate deiner Wahl samt Fotos in der Cloud. So kostet dich ein Marktplatzfehler nie einen Verkauf, und ein verkaufter Artikel lässt sich direkt aus dem Backup neu einstellen."
           },
           "sync": {
             "name": "Geraetesync",
@@ -657,7 +673,7 @@
           "autoMap": {
             "name": "Kategorie-Zuordnung",
             "label": "Kategorien und Größen automatisch übersetzt",
-            "detail": "Depop-Tags werden zu Vinted-Tags und umgekehrt. Keine manuellen Zuordnungstabellen."
+            "detail": "Depop-Tags werden zu Vinted-Tags und umgekehrt. Preise werden umgerechnet, wenn deine Shops verschiedene Währungen nutzen, ganz ohne Zuordnungstabellen."
           },
           "csvImport": {
             "name": "CSV-Import",
@@ -724,9 +740,14 @@
             "detail": "Jedes Angebot aus beiden Shops landet in einem Posteingang, damit du nicht zwischen Tabs hin und her springst."
           },
           "autoOffers": {
-            "name": "Auto-Angebote",
-            "label": "Automatische Antworten auf Angebote",
-            "detail": "Lege Regeln fest wie 'alles über 80 Prozent annehmen' oder 'immer mit 90 Prozent kontern' und SaleLinx übernimmt den Rest."
+            "name": "Auto-Annahme",
+            "label": "Gute Angebote automatisch annehmen",
+            "detail": "Lege einen Mindestanteil am Preis und eine Preisuntergrenze fest. Angebote, die beides erfüllen, werden für dich angenommen, der Rest wartet auf deine Entscheidung."
+          },
+          "sendOffers": {
+            "name": "Angebote senden",
+            "label": "Allen ein Angebot schicken, die es geliked haben",
+            "detail": "SaleLinx findet, wer deine Vinted-Artikel geliked hat, und schickt jedem ein Angebot, mit dem Rabatt deiner Wahl und nie unter deiner Untergrenze."
           },
           "messages": {
             "name": "Unterhaltungen",
@@ -751,6 +772,73 @@
           }
         }
       }
+    },
+    "list": {
+      "listings": {
+        "name": "Meine Inserate",
+        "detail": "Alle Vinted-, Depop- und eBay-Inserate nebeneinander. Sortiere und filtere nach Preis, Datum oder Status, bearbeite jeden Artikel schnell oder ändere einen ganzen Stapel auf einmal, bring Fotos mit dem integrierten Editor in Form, plane Entwürfe für später und exportiere alles als CSV."
+      },
+      "grow": {
+        "name": "Wachstum",
+        "detail": "Ein Follow-Bot, der den Followern oder Abonnements eines beliebigen Kontos auf Depop und Vinted folgt. Auf Depop kann er außerdem die Käufer eines Kontos, seine Bewerter oder alle, die ein Inserat geliked haben, ins Visier nehmen, und der Entfolgen-Bot räumt alte Follows auf."
+      },
+      "relist": {
+        "name": "Neu listen",
+        "detail": "Erstellt müde Inserate mit leicht angepassten Fotos, Titel und Preis neu und löscht dann die Originale, damit sie in der Suche wieder als neu erscheinen. Wähle einen ganzen Stapel aus und lass ihn abarbeiten."
+      },
+      "refresh": {
+        "name": "Aktualisieren",
+        "detail": "Speichert deine Inserate mit einem Klick von unten nach oben neu, damit sie in der Depop-Suche wieder nach oben klettern und dein Shop die von dir festgelegte Reihenfolge behält. Lass es automatisch alle 4, 6, 8, 12 oder 24 Stunden laufen."
+      },
+      "crosslist": {
+        "name": "Crosslisten",
+        "detail": "Stelle jedes Inserat zwischen Vinted, Depop und eBay ein, in jede Richtung, ohne es neu abzutippen. Kategorien, Größen, Zustände, Farben, Marken und eBay-Artikelmerkmale werden für dich übertragen, und in einem Prüfschritt kannst du jeden Artikel kontrollieren und bearbeiten, bevor er live geht, mit den eBay-Gebühren vorab. Füge mehrere Inserat-Links ein, um sie auf einmal hinzuzufügen. Bestand von woanders? Importiere eine dotb- oder Shopify-CSV."
+      },
+      "shopDesigner": {
+        "name": "Shop-Designer",
+        "detail": "Zieh deine Inserate in die Reihenfolge, in der Käufer sie sehen sollen, und SaleLinx speichert sie neu, damit dein Depop-Shop dazu passt."
+      },
+      "deadStock": {
+        "name": "Ladenhüter",
+        "detail": "Markiert Inserate, die alt sind und wenig Aufmerksamkeit bekommen, zeigt, wie viel Geld darin gebunden ist, und lässt dich mit einem Klick den Preis um 10% senken, neu listen oder löschen."
+      },
+      "autoOffers": {
+        "name": "Auto-Angebote",
+        "detail": "Käufer, die eines deiner Vinted-Inserate geliked haben, bekommen automatisch ein Angebot von dir. So werden aus Likes Verkäufe."
+      },
+      "linking": {
+        "name": "Verknüpfen",
+        "detail": "Schlägt vor, welche Depop- und Vinted-Inserate derselbe Artikel sind, und verknüpft sie mit einem Klick. Verknüpfte Artikel erscheinen als eine Zeile und aktivieren den Restocker."
+      },
+      "restocker": {
+        "name": "Restocker",
+        "detail": "Wird ein Artikel in einem Shop verkauft, entfernt SaleLinx das passende Inserat im anderen sofort oder füllt es auf. So kannst du denselben Bestand in beiden anbieten, ohne doppelt zu verkaufen. Funktioniert bei Artikeln, die du verknüpft hast."
+      },
+      "priceDrops": {
+        "name": "Preisabschläge",
+        "detail": "Wähle die Inserate, einen Prozentsatz und wie oft, und SaleLinx senkt den Preis nach Plan, bis er das von dir festgelegte Minimum erreicht."
+      },
+      "offers": {
+        "name": "Angebote",
+        "detail": "Alle Angebote aus beiden Shops nebeneinander, zum Annehmen, Gegenbieten oder Ablehnen, ohne den Tab zu wechseln. Lege eine Regel für die automatische Annahme fest, einen Prozentsatz des Verkaufspreises plus ein Minimum, und gute Angebote werden für dich angenommen."
+      },
+      "messages": {
+        "name": "Nachrichten",
+        "detail": "Käufernachrichten von Depop und Vinted in einem einzigen Posteingang, damit dir nichts entgeht."
+      },
+      "labels": {
+        "name": "Etiketten",
+        "detail": "Wähle die Depop- und Vinted-Bestellungen eines Tages aus, und SaleLinx führt ihre Etiketten in einem PDF zusammen, bereit zum Drucken in einem Rutsch oder zum Mailen an dich selbst. Außerdem kann es für dich Bewertungen zu deinen abgeschlossenen Vinted-Bestellungen abgeben."
+      }
+    },
+    "only": {
+      "depop": "Nur Depop",
+      "vinted": "Nur Vinted"
+    },
+    "learnMore": "Mehr erfahren",
+    "finalCta": {
+      "title": "Das sind alle 14. Ein Panel, alle deine Shops.",
+      "body": "Teste jede Funktion 14 Tage kostenlos und wähle dann den Plan, der zu deinem Shop passt."
     }
   },
   "Pricing": {
@@ -763,6 +851,7 @@
     "whatsIncluded": "Was enthalten ist",
     "installExtension": "Erweiterung installieren",
     "comingSoon": "Bald verfügbar",
+    "startStarterNow": "Starter jetzt starten",
     "perMonth": "/Mon.",
     "vatNote": "Die angezeigten Preise sind der Endpreis, den du zahlst. Es wird keine Mehrwertsteuer hinzugefuegt. Jederzeit kuendbar, mit einer 14-taegigen Geld-zurueck-Garantie auf deine erste Zahlung.",
     "unlimited": "Unbegrenzt",
@@ -773,9 +862,9 @@
     "supportDays": "{value} Tage",
     "trial": {
       "name": "Kostenlose 14-Tage-Testphase",
-      "tagline": "Voller Starter-Zugriff, Karte nötig.",
+      "tagline": "Starter-Funktionen, geringere Limits.",
       "priceSuffix": "für {days} Tage",
-      "thenPrice": "Danach {price} / Monat, sofern nicht vor Ende der Testphase gekündigt",
+      "thenPrice": "Karte nötig. Danach {price} / Monat, sofern nicht vor Ende der Testphase gekündigt",
       "cta": "Kostenlose Testphase starten"
     },
     "tier": {
@@ -930,7 +1019,7 @@
   },
   "Roadmap": {
     "sectionHeader": {
-      "eyebrow": "Abschnitt 03 / Roadmap",
+      "eyebrow": "Roadmap",
       "title": "Wohin SaleLinx sich entwickelt.",
       "body": "Eine öffentliche Ansicht dessen, was in Planung ist, gebaut wird und bereits ausgeliefert wurde. Daten sind Ziele, keine Zusagen."
     },
@@ -962,47 +1051,10 @@
     },
     "meta": {
       "scoping": "In Prüfung",
-      "targetQ4_2026": "Ziel Q4 2026",
-      "shippedApr_2026": "Ausgeliefert April 2026",
-      "shippedOct_2026": "Ausgeliefert Oktober 2026"
-    },
-    "items": {
-      "ebay-integration": {
-        "title": "eBay-Integration",
-        "description": "Crossliste auf eBay mit automatisch zugeordneten Kategorien, Artikelmerkmalen und Zuständen."
-      },
-      "poshmark-integration": {
-        "title": "Poshmark-Integration",
-        "description": "Hole Poshmark neben Vinted, Depop und eBay in den Crosslisting-Ablauf."
-      },
-      "scheduled-relisting": {
-        "title": "Geplantes Reposten",
-        "description": "Reposts nach einem Zeitplan in die Warteschlange stellen, nicht manuell."
-      },
-      "ai-description-polish": {
-        "title": "KI-Feinschliff für Beschreibungen",
-        "description": "Ein-Klick-Neufassung für Titel und Beschreibungen, die handgeschrieben wirken, nicht aus Vorlagen."
-      },
-      "analytics-dashboard": {
-        "title": "Analytics-Dashboard",
-        "description": "Verkaufsrate, Ansichten pro Inserat und marktplatzübergreifende Verkaufstrends."
-      },
-      "depop-vinted-crosslist": {
-        "title": "Depop- und Vinted-Crosslisting",
-        "description": "Bidirektionales Crosslisting mit automatisch zugeordneten Kategorien, Größen und Zuständen."
-      },
-      "shop-designer": {
-        "title": "Depop Shop Designer",
-        "description": "Drag-and-Drop-Layout-Tool für das Depop-Shop-Profil."
-      },
-      "auto-offers": {
-        "title": "Automatische Angebotsantworten",
-        "description": "Regelbasierte Annahme, Kontern oder Ablehnung eingehender Angebote auf beiden Marktplätzen."
-      },
-      "follow-bot": {
-        "title": "Folgen- und Entfolgen-Bot",
-        "description": "Ziele auf Follower, Abonnements, Käufer, Bewerter oder Likende mit menschlich wirkendem Tempo."
-      }
+      "inDevelopment": "In Entwicklung",
+      "target": "Ziel Q{quarter} {year}",
+      "shipped": "Ausgeliefert {date}",
+      "shippedUndated": "Ausgeliefert"
     },
     "request": {
       "eyebrow": "Ein Wunsch?",
@@ -1048,5 +1100,27 @@
     "openDepop": "Depop öffnen",
     "openVinted": "Vinted öffnen",
     "docsLink": "Oder lies die Anleitungen"
+  },
+  "PlanStarted": {
+    "metaTitle": "Alles bereit",
+    "titleTrial": "Deine kostenlose Testphase hat begonnen",
+    "bodyTrial": "Teste alles bis zum {date}. Bis dahin wird nichts berechnet, und du kannst jederzeit in deinem Konto kündigen.",
+    "bodyTrialNoDate": "Bis zum Ende der Testphase wird nichts berechnet, und du kannst jederzeit in deinem Konto kündigen.",
+    "titlePaid": "Danke für dein Abo",
+    "bodyPaid": "Du nutzt jetzt {plan}, deine neuen Limits sind sofort verfügbar.",
+    "nextTitle": "Wie geht es weiter",
+    "nextBody": "Öffne Depop oder Vinted und klicke auf der Seite auf den SaleLinx-Launcher.",
+    "noExtension": "Noch keine Erweiterung?",
+    "addToChrome": "Zu Chrome hinzufügen",
+    "toAccount": "Zu deinem Konto",
+    "pendingTitle": "Einrichtung wird abgeschlossen",
+    "pendingBody": "Wir bestätigen deinen Tarif bei Stripe. Das dauert nur ein paar Sekunden."
+  },
+  "GetStarted": {
+    "metaTitle": "Willkommen bei SaleLinx",
+    "title": "Willkommen bei SaleLinx",
+    "subtitle": "Füge SaleLinx zu Chrome hinzu, um loszulegen.",
+    "addToChrome": "Zu Chrome hinzufügen",
+    "toAccount": "Zu meinem Konto"
   }
 }

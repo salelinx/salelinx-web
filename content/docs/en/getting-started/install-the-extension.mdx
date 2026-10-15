@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Installing the SaleLinx extension',
   description:
-    'How to install SaleLinx in Chrome, pin it to your toolbar, and sign in.',
+    'How to install SaleLinx in Chrome, pin it to your toolbar, sign in, and open the panel for the first time.',
   category: 'getting-started',
   slug: 'install-the-extension',
   order: 1,
-  updated: '2026-09-15',
+  updated: '2026-10-13',
   tags: ['install', 'setup', 'chrome'],
   marketplaces: [],
   status: 'published',
@@ -13,11 +13,12 @@ export const metadata = {
 
 # Installing the SaleLinx extension
 
-SaleLinx runs entirely inside your browser. Install it once, pin it to your
-toolbar, and sign in with the same account you use for billing.
+SaleLinx is a Chrome extension that works inside your Depop and Vinted tabs.
+Install it once, pin it to your toolbar, and sign in with your SaleLinx
+account.
 
-You&rsquo;ll need Google Chrome or any Chromium browser (Edge, Brave, Arc) and
-a SaleLinx account.
+You&rsquo;ll need Google Chrome or another Chromium browser (Microsoft Edge,
+Brave, Arc or Opera). Safari and Firefox are not supported.
 
 ## 1. Install from the Chrome Web Store
 
@@ -28,8 +29,13 @@ Chrome will ask you to confirm the permissions the extension needs. Click
 **Add extension** to continue.
 
 <Callout variant="tip" title="What the permissions mean">
-SaleLinx asks for access to depop.com and vinted.com so it can read your own
-listings and fill in forms on your behalf. It does not run on any other site.
+SaleLinx asks for access to Depop and to the Vinted country sites it
+supports. It uses that access to read your own listings, orders and
+messages, and to list, edit and relist items for you through the same
+connections the marketplace&rsquo;s own website uses. It also talks to a few
+supporting services: the SaleLinx cloud (your account and backups), the
+marketplaces&rsquo; photo servers, and the shipping label provider. The
+SaleLinx panel only appears on Depop and Vinted pages.
 </Callout>
 
 ## 2. Pin the extension
@@ -39,37 +45,67 @@ toolbar. Pin SaleLinx so you can reach it with one click.
 
 <InstallPinCallout />
 
-There&rsquo;s also a keyboard shortcut: **Alt+S** opens and closes the panel.
-Chrome treats it as a suggestion, so if another extension already claims it
-you can set your own under `chrome://extensions/shortcuts`.
-
 ## 3. Sign in
 
-Click the pinned SaleLinx icon (or press Alt+S) to open the side panel. Sign
-in with **Google**, or with the email and password you used when you signed up
-on salelinx.com. If you haven&rsquo;t signed up yet, use the **Create
-account** link at the bottom of the panel.
+Click the pinned SaleLinx icon. A small window opens where you can sign in
+with **Continue with Google**, or with your email and password and **Log
+in**. If you don&rsquo;t have an account yet, click **Sign up** to create
+one right there. If you sign up with an email address, confirm it from the
+email we send, then come back and log in.
+
+You can also sign in from the panel itself: if you open it on Depop or
+Vinted while signed out, it shows the same sign-in options.
+
+Once you are signed in, the window shows which account you are using, with
+buttons to open Depop or Vinted, an **Account &amp; billing** link to your
+account page on salelinx.com, and **Log out**.
 
 <Callout>
-Billing and extension use the same account. If you reset your password on
-the website, use the new password here too.
+The website and the extension use the same account, but you sign in to each
+separately. If you reset your password on the website, use the new password
+in the extension too.
 </Callout>
 
-## 4. Your first run
+## 4. Open the panel
 
-Navigate to [depop.com](https://www.depop.com) or [vinted.com](https://www.vinted.com).
-The SaleLinx panel opens automatically on product and profile pages. You&rsquo;ll
-see a short checklist for linking your marketplace accounts, importing your
-listings, and running your first crosslist.
+Go to [depop.com](https://www.depop.com) or your Vinted site. A small
+SaleLinx button sits in the bottom-right corner of the page. Click it to
+open the panel. The panel lives on Depop and Vinted pages only; it does not
+open from the toolbar icon.
+
+If you already had Depop or Vinted tabs open before installing, reload them
+once so the button appears.
+
+There&rsquo;s also a keyboard shortcut: **Alt+S** opens and closes the panel
+while you are on a Depop or Vinted tab. It does nothing on other sites. If
+another extension already uses Alt+S, set your own shortcut under
+`chrome://extensions/shortcuts`, or open **Settings** in the panel and click
+**Change** next to **Panel shortcut**.
+
+## 5. Your first run
+
+The first time you open the panel, it walks you through two screens:
+
+1. **Welcome to SaleLinx.** If your account doesn&rsquo;t have a plan yet,
+   click **Start free trial**. This opens the pricing page on salelinx.com,
+   where you start your 14-day trial (sign in there with the same account
+   if asked; a card is required, but nothing is charged during the trial).
+   When you&rsquo;re done, come back to the panel and click **Already have a
+   plan? Refresh**.
+2. **Link your shops.** Under **I sell on**, pick Depop, Vinted or both,
+   then click **Link** next to each account. If a row shows **Log in**
+   instead, you are not signed in to that marketplace in this browser yet.
+
+After that the panel opens on **My Listings**. The full linking walkthrough
+is in [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).
 
 ## Troubleshooting
 
-If something goes wrong, the [FAQ](/faq#troubleshooting) has quick fixes for
-the most common install-time issues (panel not appearing, Chrome blocking the
-install, signed in on the wrong account).
+If something goes wrong, the [FAQ](/help/faq#troubleshooting) has quick fixes
+for the most common issues, such as the panel not appearing or trouble
+signing in.
 
 ## Next steps
 
-Once the extension is installed and signed in, connect your first marketplace:
-
 - [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)
+- [Account and subscription](/docs/getting-started/account-and-subscription)

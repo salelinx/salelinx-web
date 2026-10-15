@@ -1,0 +1,71 @@
+export const metadata = {
+  title:
+    "Inicio de sesión arreglado, precios en tu moneda y una fila de Price Drops más clara",
+  date: "2026-09-29",
+  summary:
+    "La versión 1.1.9 arregla el inicio de sesión para quien instaló la 1.1.8 desde la Chrome Web Store, muestra los precios en la moneda de tu tienda en todas las pestañas, rediseña la fila de Price Drops como una frase y una escalera de precios, y hace la pestaña Etiquetas más rápida y fiable.",
+  tags: ["release"],
+};
+
+# Versión 1.1.9
+
+Un arreglo rápido de la 1.1.8 que recupera el inicio de sesión, junto con
+una semana de trabajo en monedas, Price Drops y etiquetas de envío.
+
+## Novedades
+
+- **Tu moneda en todas partes.** SaleLinx deduce ahora la moneda de tu
+  tienda a partir de tus anuncios y la usa en todas las pestañas, incluidas
+  las animaciones, los campos de umbral y los estados vacíos que mostraban
+  un £ o un $ fijo. Conoce 16 monedas, que cubren todos los mercados de
+  Vinted, y pone el símbolo detrás del importe cuando tu moneda lo hace
+  (12,00 zł).
+- **Un periodo de consulta para los pedidos completados** en la pestaña
+  Etiquetas: 7, 14, 30, 60 o 90 días, guardado en cuanto lo eliges. Acortarlo
+  es instantáneo, y ampliarlo solo descarga los pedidos que aún no se han
+  cargado.
+
+## Correcciones
+
+- **Iniciar sesión vuelve a funcionar.** La versión 1.1.8 de la Chrome Web
+  Store no conseguía conectar con nuestros servidores, así que el panel decía
+  que no estaba configurado y no te dejaba iniciar sesión. La 1.1.9 lo
+  arregla.
+- **Etiquetas de Vinted sin dirección predeterminada.** Si ninguna de tus
+  direcciones guardadas en Vinted estaba marcada como predeterminada, se
+  rechazaba cada pedido de etiqueta. SaleLinx elige ahora de tu lista de
+  direcciones, dando preferencia a la que tiene número de teléfono.
+- **Fechas de Price Drops.** Un anuncio más antiguo que su propio intervalo
+  de bajada mostraba cada paso de su calendario como pendiente ya. La
+  primera bajada se cuenta ahora desde hoy, como funcionan de verdad las
+  bajadas: una por anuncio y pasada, y luego un intervalo completo antes de
+  la siguiente.
+- **Precios en la moneda equivocada.** La ventana de relist mostraba dólares
+  para cualquier moneda fuera de las cinco principales, así que los
+  vendedores polacos y suecos veían sus precios reales con un $, y unas
+  pestañas decían £ mientras otras decían $.
+- **Totales de Dead Stock.** El banner de capital sumaba solo tu moneda más
+  habitual mientras contaba todos los artículos, así que 300 £ y 500 € en
+  18 artículos se leían como "300 £ atascados en 18 artículos". Ahora
+  muestra un total por moneda.
+- **Auto-Offers sin cuenta de Vinted vinculada** difumina ahora toda la
+  pestaña, estadísticas incluidas. Las estadísticas seguían legibles y
+  podían mostrar cifras realistas de antes de desvincularla.
+- La lista de pedidos completados ya no se queda en blanco cuando no puede
+  cargar. Conserva los pedidos que tiene y explica por qué está vacía cuando
+  lo está.
+
+## Mejoras
+
+- **Una fila de Price Drops rediseñada.** Cada anuncio seguido se lee como
+  una sola frase, "Bajar un 15 % cada 3 días hasta 11 £", con su calendario
+  dibujado debajo como una escalera: el precio actual, la próxima bajada
+  resaltada y el suelo donde termina el calendario. El interruptor principal
+  se llama ahora Activar las bajadas de precio, igual que la pestaña.
+- **La pestaña Etiquetas deja de recargarse sola.** Los pedidos se guardan
+  en caché 20 minutos, la caché sobrevive a que la extensión se reinicie en
+  segundo plano, y los pedidos que no han cambiado no se vuelven a
+  descargar, así que volver a la pestaña es rápido. La barra de progreso
+  solo cuenta el trabajo que de verdad hace.
+- La descripción de la pestaña Etiquetas dice ahora que cubre Depop además
+  de Vinted.

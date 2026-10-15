@@ -51,17 +51,17 @@ extension sees, and vice versa.
 
 ### Website (`salelinx-web`) owns
 
-- Public marketing page (`/features` - one page that hosts features, pricing, and roadmap as scroll-linked sections)
+- Public marketing pages: the homepage (feature carousel, pricing, FAQ, then the public roadmap, whose cards live in `roadmap_items` and are edited in `/admin/roadmap`)
 - Legal pages (`/legal/*`)
-- Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`)
-- Redirect stubs (`/pricing` -> `/features#pricing`, `/roadmap` -> `/features#roadmap`) so old links and Stripe `cancelUrl` keep working
+- Product content surfaces (`/docs`, `/docs/status`, `/docs/changelog`, `/faq`) and the English-only SEO blog (`/blog`)
+- Standalone `/features`, `/pricing` and `/roadmap` pages (Stripe `cancelUrl` points at `/pricing`)
 - Email/password auth UI (`/auth/*`) - Supabase Auth does the work
 - Account dashboard (`/account`) - current tier, manage subscription
 - **Stripe integration** - Checkout session, Customer Portal, webhook (all in `supabase/functions/`)
-- Server-rendered tier cards in the `/features#pricing` section (reads `tier_limits` from Supabase)
+- Server-rendered tier cards on `/pricing` (reads `tier_limits` from Supabase)
 - **Support** - user-facing: a login-gated contact form at `/help/support` (create a ticket, reached from the public `/help` hub) and the ticket history at `/account/tickets` (track + reply). The extension only files + reads.
 - **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
-- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `delete-account`, `process-referral-rewards`, `get-referral-discount`
+- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `admin-list-payments`, `delete-account`, `process-referral-rewards`, `get-referral-discount`
 - **Referral program** - share links (`/r/CODE`), the account Referrals card, and the reward pipeline (see `docs/REFERRALS.md`)
 
 ### Extension (`salelinx-app`) owns
@@ -119,7 +119,7 @@ quotas, grandfathering via `tier_version`).
    create-checkout-session Edge Function → redirect to Stripe Checkout
 4. User pays (test card 4242...) → Stripe fires checkout.session.completed
 5. stripe-webhook Edge Function inserts subscriptions row with tier_id=pro
-6. User redirected to /account?checkout=success&session_id=... - sees Pro tier active (the session id dedupes the ad-conversion event)
+6. User redirected to /account?checkout=success&session_id=..., which forwards to /account/started (trial or thank-you page; the session id dedupes the ad-conversion event)
 7. User installs Chrome extension from Web Store
 8. Extension boots, asks user to sign in → reuses existing Supabase session
 9. Extension links Depop/Vinted shop (writes to linked_accounts)
@@ -189,7 +189,7 @@ See `docs/STRIPE.md` + `docs/EDGE-FUNCTIONS.md`.
 
 - **Website** - Vercel. Push to `main` → auto-deploy. Env vars set in Vercel dashboard.
 - **Edge Functions** - deployed to Supabase via Dashboard (paste) or CLI (`supabase functions deploy <name>`). Secrets set via `supabase secrets set`.
-- **Migrations** - applied to Supabase via Dashboard SQL Editor or CLI (`supabase db push`). Source of truth: `salelinx-web/supabase/migrations/` (this repo).
+- **Migrations** - applied by hand, in numeric order, via Dashboard SQL Editor or CLI (`supabase db query --linked -f <file>`). Never `supabase db push`: the live history table still holds pre-squash numbers (see `supabase/migrations/README.md`). Source of truth: `salelinx-web/supabase/migrations/` (this repo).
 - **Extension** - `npm run build` in the extension repo → zip `dist/` → upload to Chrome Web Store developer dashboard. Users get the new version via Chrome's auto-update.
 
 ## Environments

@@ -24,7 +24,7 @@ export async function Header() {
               src="/salelinx-logo.png"
               alt=""
               aria-hidden="true"
-              width={20}
+              width={21}
               height={28}
               className="relative -top-0.5 h-7 w-auto object-contain dark:invert"
             />
@@ -36,19 +36,19 @@ export async function Header() {
 
         <nav className="hidden flex-1 items-center justify-center gap-6 text-[0.9375rem] font-medium tracking-tight md:flex md:gap-8">
           <Link
-            href="/#features"
+            href="/features"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navFeatures")}
           </Link>
           <Link
-            href="/#pricing"
+            href="/pricing"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navPricing")}
           </Link>
           <Link
-            href="/features#roadmap"
+            href="/roadmap"
             className="text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
           >
             {t("navRoadmap")}
@@ -56,6 +56,15 @@ export async function Header() {
         </nav>
 
         <nav className="hidden flex-1 items-center justify-end gap-4 text-sm text-zinc-600 sm:flex dark:text-zinc-400">
+          {/* Blog sits with the quieter links on this side rather than in the
+              centre nav, which is kept for the product pages. Same md
+              breakpoint as Support so the two appear together. */}
+          <Link
+            href="/blog"
+            className="hidden transition-colors duration-200 hover:text-black md:block dark:hover:text-white"
+          >
+            {t("navBlog")}
+          </Link>
           {isAuthed ? (
             <>
               <div className="group relative hidden md:block">
@@ -90,7 +99,6 @@ export async function Header() {
                         ["#security", t("accountSecurity")],
                         ["#referrals", t("accountReferrals")],
                         ["#support", t("accountSupport")],
-                        ["#danger", t("accountDanger")],
                       ] as const
                     ).map(([hash, label]) => (
                       <Link
@@ -164,6 +172,7 @@ export async function Header() {
               navRoadmap: t("navRoadmap"),
               navFaq: t("navFaq"),
               navDocs: t("navDocs"),
+              navBlog: t("navBlog"),
               account: t("account"),
               support: t("support"),
               signOut: t("signOut"),

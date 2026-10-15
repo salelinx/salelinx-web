@@ -1,0 +1,104 @@
+export const metadata = {
+  title:
+    "Prüfen vor dem Crosslisten, exakte Depop-Kategorien und ein Willkommensbildschirm",
+  date: "2026-10-08",
+  summary:
+    "Version 1.1.10 fügt vor jedem Crosslisting einen Prüfschritt mit vollem Editor und Per URL hinzufügen für mehrere Links ein, ordnet jedem Vinted-Katalog eine exakte Depop-Kategorie zu, repariert Titel, Preise und Marken von Depop zu Vinted und bringt Pausen ins Warteschlangen-Popup, eine siebentägige Ruhezeit in Dead Stock und einen Willkommensbildschirm für neue Konten.",
+  tags: ["release"],
+};
+
+# Version 1.1.10
+
+Zwei Wochen Arbeit, das meiste davon am Crosslisting zwischen Depop und
+Vinted.
+
+## Neu
+
+- **Prüfen vor dem Crosslisten.** Der Crosslist-Button öffnet jetzt eine
+  Prüfliste, bevor irgendetwas veröffentlicht wird. Bearbeite einen Artikel,
+  um Titel, Beschreibung und Preis zu ändern, oder Kategorie, Größe, Marke,
+  Zustand und Farben in den Begriffen der Zielplattform. Deine Änderungen
+  werden mit dem Stapel gesendet; die alte Einzelvorschau hat sie verworfen.
+- **Per URL hinzufügen nimmt mehrere Links.** Füge so viele ein, wie du
+  willst. Jeder Artikel kommt in die Liste, sobald er geladen ist, und
+  fehlgeschlagene Links bleiben im Feld. Vinted-Links werden direkt aus der
+  Seite gelesen, statt einen Hintergrund-Tab zu laden. Das ist schneller und
+  übernimmt auch Kategorie, Zustand und Farben.
+- **Ein schwebender Crosslist-Button** dockt unten rechts an, sobald die
+  Werkzeugleiste aus dem Blick scrollt, mit derselben Anzahl und demselben
+  Ziel.
+- **Pausen im Warteschlangen-Popup.** Wenn ein Auftrag für eine Pause oder
+  ein Anfragelimit anhält, zeigt sein Status das mit einem Countdown bis zur
+  Fortsetzung, und Pausen für eine ganze Plattform bekommen eine eigene
+  Markierung in der Übersicht.
+- **Dead Stock lässt ein Angebot nach einer Preissenkung ruhen.** Nach einer
+  Senkung um 10 % wandert das Angebot für sieben Tage in einen neuen Filter
+  Preis gesenkt, heraus aus den Stufen, Worst Performers, den Zählern und dem
+  Kapital-Banner, mit einer Markierung für alten und neuen Preis und die
+  verbleibenden Tage.
+- **Einstellzeiten.** Die Spalte Listed in My Listings zeigt die Uhrzeit
+  unter dem Datum.
+
+## Behoben
+
+- **Kategorien von Vinted zu Depop.** Jeder Vinted-Katalog entspricht jetzt
+  einer exakten Depop-Kategorie, statt einer Vermutung aus dem Text. Der
+  Titel wird vor der Beschreibung gelesen, sodass ein Blazer nicht mehr als
+  Pullover eingestellt wird, nur weil die Beschreibung „Strick“ sagt.
+- **Größen von Vinted zu Depop.** Kombinierte Angaben wie „M / UK 12-14“
+  finden die richtige Größe, Einheitsgrößen-Artikel wie Taschen und Bücher
+  bekommen Einheitsgröße, Kinderartikel werden nach Alter eingeordnet, und
+  Herren-Brustgrößen wie 42R fallen auf den passenden Buchstaben zurück.
+- **Titel, Preise und Marken von Depop zu Vinted.** Titel werden an Vinteds
+  100 Zeichen am Satz- oder Wortende gekürzt und entschärft, wenn sie
+  überwiegend in Großbuchstaben stehen. Preise werden in die Währung deines
+  Vinted-Kontos umgerechnet (ein Artikel für 75 $ wurde für 75 £
+  eingestellt). Marken werden großzügiger abgeglichen, sodass „levi-s“
+  Levi's findet, und Depops Like new wird zu Sehr gut statt Neu ohne
+  Etikett.
+- **Depop-Entwürfe** werden mit ihren eigenen Fotos veröffentlicht, statt sie
+  neu hochzuladen, Kinder-Entwürfe werden als Kinderangebote veröffentlicht,
+  und ein Entwurf mit Preis in einer anderen Währung wird zum Tageskurs
+  umgerechnet.
+- **My Listings behält Kategorien** bei Synchronisierungen im Hintergrund.
+  Eine Vinted-Synchronisierung löschte bisher die Kategorie, die ein
+  Crosslist gesetzt hatte.
+- **Kein falsches „nicht verknüpft“ oder „verkauft“ mehr.** Eine
+  fehlgeschlagene Prüfung sagt dir nicht mehr, deine Konten seien nicht
+  verknüpft, und nach einem Update zeigen Angebote einer Plattform ohne
+  offenen Tab Nicht synchronisiert, statt als verkauft markiert zu werden.
+- **Dein Depop-Tab bleibt in Ruhe**, wenn ein Lesevorgang im Hintergrund
+  fehlschlägt. Bisher lud er neu und löschte, woran du gerade gearbeitet
+  hast.
+- Der Sortierpfeil in My Listings steht wieder neben der Spaltenüberschrift.
+
+## Verbessert
+
+- **Ziehen zum Auswählen scrollt.** Halte eine Auswahl nahe am oberen oder
+  unteren Rand einer Liste, und sie scrollt, umso schneller, je näher du am
+  Rand bist, und wählt dabei die vorbeiziehenden Zeilen aus. Das klappt in
+  My Listings, Relist, Refresh und Crosslist.
+- **Ein aufgeräumter Start.** Der Bildschirm zum Verknüpfen der Konten und
+  die Marktplatzauswahl übernehmen den Stil des Willkommensbildschirms, und
+  das Tutorial-Popup beim Anmelden ist weg.
+- **Ein neues Symbol in der Symbolleiste**: der SaleLinx-Luchs auf
+  transparentem Hintergrund.
+- **Eine Wahl bei Marketing-E-Mails.** Bei der Registrierung in der
+  Erweiterung gibt es ein nicht angehaktes Kästchen, um Tipps und Angebote
+  abzulehnen. Auf der Website fragt die Registrierung Ja oder Nein, und
+  deine Kontoseite hat eine Karte E-Mail-Einstellungen, auf der du deine
+  Antwort ändern kannst.
+
+## Tarife und Abrechnung
+
+- **Ein Willkommensbildschirm statt eines Schlosses.** Ein neues Konto ohne
+  Tarif sieht jetzt Willkommen bei SaleLinx und einen Button, um die
+  14-tägige kostenlose Testphase zu starten, statt eines Hinweises, dass das
+  Konto keinen aktiven Tarif hat. Das Panel wartet außerdem, bis dein Tarif
+  geladen ist, sodass nicht mehr kurz der falsche Bildschirm aufblitzt.
+- **Beendete Tarife heißen richtig.** Der Bildschirm nach dem Ende eines
+  Tarifs sagte auch zahlenden Kunden, ihre kostenlose Testphase sei beendet.
+  Jetzt sagt er, dass dein Abo beendet ist, mit einem Button Tarife ansehen.
+- **Ein Tarifwechsel über die Preisseite** führt Abonnenten direkt zum
+  Abrechnungsportal, statt sie ohne Erklärung zurück auf die Kontoseite zu
+  schicken.

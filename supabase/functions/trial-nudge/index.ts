@@ -29,7 +29,7 @@ const SECRET = Deno.env.get("TRIAL_NUDGE_SECRET") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://www.salelinx.com";
-const PRICING_URL = `${SITE_URL}/features#pricing`;
+const PRICING_URL = `${SITE_URL}/pricing`;
 const FUNCTION_URL = `${Deno.env.get("SUPABASE_URL")}/functions/v1/trial-nudge`;
 
 type Step = {

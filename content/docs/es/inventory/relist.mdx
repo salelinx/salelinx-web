@@ -1,48 +1,57 @@
 export const metadata = {
-  title: 'Relist',
+  title: 'Republicar',
   description:
     'Recrea un anuncio desde cero con modificaciones de fotos opcionales y luego borra el original para que vuelva a aparecer como contenido nuevo en la búsqueda.',
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-09-18',
-  tags: ['relist', 'depop', 'vinted', 'ajustes guardados'],
+  updated: '2026-10-13',
+  tags: ['republicar', 'depop', 'vinted', 'ajustes guardados'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
-# Relist
+# Republicar
 
-Relist es un refresco con dientes. Borra un anuncio estancado y
-publica una copia totalmente nueva del mismo contenido, con
-modificaciones sutiles de las fotos para que la detección de
-duplicados del marketplace no lo marque.
+**Republicar** es un refresco con más fuerza. Publica una copia nueva
+de un anuncio estancado y después elimina el original. Las fotos se
+guardan de nuevo con pequeños cambios (y, si quieres, también el
+título, la descripción y el precio), para que la copia salga como un
+anuncio nuevo y no como un duplicado del antiguo.
+
+El resultado: tu artículo recibe una nueva fecha de publicación y
+vuelve a llegar a los compradores como stock nuevo, en lugar de seguir
+hundiéndose como stock antiguo. La copia es un anuncio distinto con su
+propio enlace, así que los me gusta y las vistas del anterior no se
+conservan.
 
 <Callout>
 Traducción completa al español próximamente. Consulta la
-[versión en inglés](/en/docs/inventory/relist) para el
-funcionamiento detallado (orden publicar-primero-borrar-después),
-las modificaciones de fotos (recorte, hue/brillo, orden), la
-cadencia y los planes que lo incluyen.
+[versión en inglés](/en/docs/inventory/relist) para cuándo usarlo,
+el funcionamiento detallado (primero publicar, después eliminar),
+cómo lanzar una republicación, los artículos en la nube y los
+vendidos, la ventana de confirmación (modificaciones de fotos, título,
+descripción y precio, guardar como borrador), los descuentos de
+Depop, el ritmo y la asignación mensual de cada plan.
 </Callout>
 
 ## Ajustes guardados
 
-El selector de ajustes guardados en la parte superior del panel de
-ajustes almacena la configuración de republicar con un nombre: la
-espera entre republicaciones, más cada opción de la ventana de
-republicar (modificaciones de fotos, cambios de título y
-descripción, cambio de precio y guardar como borrador). Elegir uno
-rellena todo de golpe. Hay dos incorporados:
+El selector de ajustes guardados en la parte superior de **Ajustes de
+republicación** almacena la configuración con un nombre: los segundos
+entre anuncios, más cada opción de la ventana **Confirmar
+republicación** (cambios de fotos, de título y de descripción, el
+cambio de precio y guardar como borrador). Elegir uno rellena todo de
+golpe. Hay dos incorporados:
 
-- **Predeterminado** - 10 segundos entre republicaciones;
-  modificaciones de fotos activadas, con &plusmn;2&deg; de rotación,
-  &plusmn;2 % de escala y &plusmn;1,8 % de brillo; cambios de título
-  y descripción activados; cambio de precio desactivado; borrador
+- **Predeterminado** - 10 segundos entre anuncios; modificaciones de
+  fotos activadas, con &plusmn;2&deg; de rotación, &plusmn;2 % de
+  escala y &plusmn;1,8 % de brillo; cambios de título y descripción
+  activados; cambio de precio desactivado; guardar como borrador
   desactivado.
-- **Prudente** - 20 segundos entre republicaciones, y cada
-  republicación se guarda primero como borrador. Más lento, y hace
-  menos por ejecución.
+- **Prudente** - 20 segundos entre anuncios, y cada republicación se
+  guarda como borrador. Más lento, y nada se publica hasta que lo
+  publiques tú (los originales se eliminan igualmente).
 
 Cambia cualquier ajuste a mano y el selector marca los valores como
 sin guardar; desde ahí puedes guardarlos como un ajuste propio.

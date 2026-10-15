@@ -1,38 +1,46 @@
 export const metadata = {
-  title: 'Auto-Offers',
+  title: 'Angebote automatisch annehmen',
   description:
-    'Akzeptiere eingehende Angebote oberhalb einer Prozent-Schwelle automatisch, nach einem Zeitplan, den du kontrollierst.',
+    'Nimm eingehende Käuferangebote oberhalb einer Prozent-Schwelle automatisch an, nach einem Zeitplan, den du festlegst.',
   category: 'automate',
   slug: 'auto-offers',
   order: 2,
-  updated: '2026-09-20',
-  tags: ['angebote', 'automatisierung', 'depop', 'vinted', 'voreinstellungen'],
+  updated: '2026-10-13',
+  tags: ['angebote', 'automatisch annehmen', 'automatisierung', 'depop', 'vinted', 'voreinstellungen'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
-# Auto-Offers
+# Angebote automatisch annehmen
 
-Auto-Offers scannt regelmäßig deine offenen Depop- und
-Vinted-Angebote und akzeptiert die, die eine von dir festgelegte
-Schwelle überschreiten. Das beseitigt den manuellen Schritt für
-kleine Artikel, bei denen jedes Angebot über N&#37; in Ordnung ist,
-während du größere Angebote selbst bearbeitest.
+**Angebote automatisch annehmen** prüft deine offenen Depop- und
+Vinted-Angebote nach Zeitplan und nimmt alle an, die eine von dir
+festgelegte Schwelle erreichen. Das spart dir den manuellen Schritt
+bei Angeboten, zu denen du ohnehin Ja sagen würdest, während du
+größere oder interessantere Angebote weiter selbst bearbeitest.
+
+Du findest es als Block **Angebote automatisch annehmen** oben im Tab
+**Angebote**, über der Liste der offenen Angebote. Es ist nicht der
+Tab **Auto-Angebote**: Der schickt Angebote *an* Leute, die deine
+Vinted-Artikel geliked haben, siehe
+[Angebote senden](/docs/automate/send-offers).
 
 <Callout>
 Vollständige deutsche Übersetzung folgt. Details zur
-Entscheidungslogik, zur Konfiguration (Schwelle &#37;, Mindestpreis,
-Plattformen, Intervall), zum Status, zu den Kompromissen und zu
-den Abostufen findest du in der
+Entscheidungslogik (Prozentsatz vom Listenpreis und
+Preisuntergrenze), zur Einrichtung, dazu, warum die Marktplatz-Tabs
+offen bleiben müssen, zum Status und zu den zuletzt angenommenen
+Angeboten, zu den Kompromissen, zu dem, was die Funktion nicht tut,
+und zu den Abostufen findest du in der
 [englischen Version](/en/docs/automate/auto-offers).
 </Callout>
 
 ## Voreinstellungen
 
-Schwelle, Mindestpreis, Plattformen und Intervall lassen sich auf
-einmal aus einer Voreinstellung übernehmen (**Standard**: 90 %, keine
-Untergrenze, beide Plattformen, alle 15 Minuten; **Vorsichtig**:
-95 %, alle 30 Minuten), und du kannst eigene speichern. Der
-Ein/Aus-Schalter ist nie Teil einer Voreinstellung. Wie
-Voreinstellungen funktionieren und synchronisiert werden, steht unter
-[Angebote](/docs/buyers/offers).
+Schwelle, Preisuntergrenze, Plattformen und Prüfintervall lassen sich
+auf einmal aus einer Voreinstellung übernehmen (**Standard**: 90 %,
+keine Untergrenze, beide Plattformen, alle 15 Minuten;
+**Vorsichtig**: 95 %, alle 30 Minuten), und du kannst eigene
+speichern. Der Ein/Aus-Schalter ist nie Teil einer Voreinstellung.
+Wie Voreinstellungen funktionieren und synchronisiert werden, steht
+unter [Angebote](/docs/buyers/offers).

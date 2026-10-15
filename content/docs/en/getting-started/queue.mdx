@@ -1,0 +1,254 @@
+export const metadata = {
+  title: 'The queue',
+  description:
+    'How SaleLinx lines up and paces its work on Depop and Vinted to keep your accounts safe, and how to pause, reorder, cancel and review it.',
+  category: 'getting-started',
+  slug: 'queue',
+  order: 4,
+  updated: '2026-10-13',
+  tags: ['queue', 'pacing', 'rate-limits', 'breaks', 'pause'],
+  marketplaces: ['depop', 'vinted'],
+  status: 'published',
+};
+
+# The queue
+
+Most of the work SaleLinx does for you on Depop and Vinted goes through the
+queue: Grow runs, Refresh, Relist, Crosslist, Shop Designer, Price Drops
+(listed in the queue as **Auto Markdown**), Auto-Offers, CSV import, and
+bulk actions from **My Listings** such as editing, deleting or posting
+drafts.
+
+Each run waits its turn, and the requests it sends are spaced out like a
+person using the site. Marketplaces limit how fast an account can act, and
+an account that goes faster than that can get slowed down or blocked. The
+queue is how SaleLinx stays under those limits.
+
+## How it works
+
+- **One run at a time.** Start three things and the second and third wait
+  until the first one finishes.
+- **Spaced-out actions.** There are a few seconds between actions, a little
+  slower at the start of a run and as a long run goes on, with the odd
+  short pause at random.
+- **Planned breaks.** After a stretch of work, SaleLinx stops for a while.
+  See Breaks below.
+- **Depop and Vinted are paced separately.** A break or slowdown on one
+  doesn&rsquo;t stop syncing, offer replies or messages on the other. Queued
+  runs still take turns, whichever marketplace they&rsquo;re for.
+- **No duplicates.** Starting exactly the same run twice doesn&rsquo;t add a
+  second copy.
+
+## Where to find it
+
+The queue sits at the bottom of the panel&rsquo;s left sidebar, under
+**Settings**. The **Queue** heading shows how many tasks are in it, and each
+row shows the task&rsquo;s name and progress (for example `12/50`). It reads
+**No tasks** when there&rsquo;s nothing to do.
+
+Below the list are two buttons: **Pause** (or **Resume**) and
+**See more...**, which opens the full Queue window. If you&rsquo;ve
+collapsed the sidebar, the same controls appear as play, pause and
+&ldquo;more&rdquo; icons.
+
+At the very bottom, the status line tells you what&rsquo;s happening right
+now:
+
+- **Idle** - nothing is running.
+- The running task and its progress, for example **Refresh 12/50**.
+- **Paused** - you paused the queue.
+- **Break 12m** - a planned break, with the minutes left.
+- **Limited 2m** - a marketplace is limiting requests, with the time left.
+
+Listings that are waiting in a queued task get a badge such as
+**Queued &middot; Delete** in the grids, and are locked so you can&rsquo;t
+queue a second action on the same item.
+
+## The Queue window
+
+**See more...** opens a larger view of the queue. At the top:
+
+- **Pause** or **Resume** for the whole queue.
+- **Clear all**, which asks whether to clear just the history (**Clear
+  history**) or also cancel everything running and waiting (**Clear all**).
+- A summary of how many tasks are **Running**, **Queued** and **On hold**,
+  how many have **Completed**, **Failed** or been **Cancelled**, and any
+  break or rate limit with its time left.
+
+Below that, tasks are grouped into **Current**, **Cancelled**, **Failed** and
+**Completed**. Each task shows its marketplace, a status, a progress bar and
+a line of detail, for example:
+
+- **Running** - &ldquo;Running for 3m &middot; ~2m left&rdquo;.
+- **Queued** - &ldquo;Next up #2 &middot; Added 5m ago&rdquo;.
+- **Paused** - &ldquo;Waiting to resume&rdquo;.
+- **On hold** - why the task is waiting and when it will try again.
+- **On break** or **Rate limited** - when the run will continue.
+- **Scheduled** - the next scheduled Auto-refresh, with a countdown.
+
+Finished tasks show when they ended and how long they took, plus how many
+items were skipped or failed. A failed task shows the reason.
+
+Each group shows five tasks at first, with a button to show the rest, and
+has its own **Clear** button. The &times; on a finished task clears just that
+one. Clearing **Current** cancels everything running and waiting, so it
+asks first. SaleLinx keeps the most recent 100 finished tasks.
+
+## Pause, resume and cancel
+
+**Pause** stops the queue once the item in progress finishes. The button
+reads **Pausing...** until then. Nothing is lost: **Resume** carries on
+from where the run stopped.
+
+To take a single task out, click the &times; on its row:
+
+- **On a waiting task**, SaleLinx asks to remove it from the queue.
+- **On the running task**, it asks you to confirm the cancel. Anything
+  already done stays done. The rest is dropped, and the next task starts.
+
+Pausing can also hold back SaleLinx&rsquo;s other activity on that
+marketplace, such as syncing and replying to offers, until you press
+**Resume**. Don&rsquo;t leave the queue paused longer than you need to.
+
+## Changing the order
+
+Tasks run in the order you started them. To change that:
+
+- **In the sidebar**, pause the queue first. Up and down arrows then appear
+  on the waiting tasks.
+- **In the Queue window**, the arrows are always there.
+
+If you move a waiting task above the one that&rsquo;s running, the running
+task pauses after its current item, the task you moved runs, and the paused
+one then carries on by itself.
+
+Quick one-off actions don&rsquo;t join the task list at all. Answering an
+offer, sending a message or loading your shipping labels goes out next,
+between the steps of whatever is running and ahead of background syncing.
+These one-off actions never count toward a break.
+
+## Breaks
+
+After a few dozen actions on a marketplace, SaleLinx takes a planned break.
+Most last a few minutes, and the occasional one lasts up to half an hour.
+The status line shows **Break** with the minutes left, and the running task
+shows **On break** with &ldquo;Taking a planned break&rdquo; and when it
+resumes.
+
+You don&rsquo;t need to do anything. The run continues on its own when the
+break ends, and the next stretch starts slowly again. Breaks are part of
+what keeps your account safe, so there&rsquo;s no button to skip one.
+
+While a marketplace is on a break, nothing else is sent to it either,
+including one-off actions such as an offer reply. They go out as soon as
+the break ends. The other marketplace isn&rsquo;t affected, apart from runs
+waiting their turn behind this one.
+
+## When a marketplace pushes back
+
+Sometimes Depop or Vinted answers &ldquo;too many requests&rdquo;. SaleLinx
+handles it in steps:
+
+1. **It retries.** The request is tried again a few times, with a longer
+   gap each time.
+2. **It waits.** If the marketplace still refuses, SaleLinx stops sending
+   to it for a while. The status line shows **Limited** with a countdown,
+   and the running task shows **Rate limited** with &ldquo;Depop is
+   limiting requests&rdquo; and when it resumes. Work picks up by itself
+   afterwards.
+3. **It stops the run.** If the marketplace refuses three times in a row,
+   SaleLinx ends the current run early to protect your account. What it
+   finished stays done, and history shows how far it got (for example
+   `12/50`).
+
+If a run stopped early, wait a while before starting it again, and consider
+a smaller run or the **Careful** preset that Grow, Refresh and Relist offer.
+Restarting straight away is likely to hit the limit again.
+
+**Auto-Offers** works slightly differently. When Vinted limits how fast
+offers can be sent, the Auto-Offers task goes **On hold** and carries on by
+itself once the marketplace lets offers through again.
+
+If a marketplace refuses access outright, rather than asking SaleLinx to slow
+down, the run stops at once. Open the marketplace in a normal tab, check
+you&rsquo;re still signed in and can browse your shop, and complete any
+check the site shows you. Then start the run again.
+
+## Plan limits and tasks on hold
+
+Some actions count toward a daily or monthly allowance (see the usage
+meters in [Settings](/docs/getting-started/settings)):
+
+- **If you ask for more than you have left**, SaleLinx queues only what
+  fits and tells you, for example &ldquo;Queued 20 of 50&rdquo;.
+- **If the allowance runs out before a queued task starts**, the task goes
+  **On hold** with a note such as &ldquo;Crosslist limit reached&rdquo;.
+  The rest of the queue keeps moving. The held task tries again about once
+  an hour, so it runs by itself once your allowance resets. Daily
+  allowances reset at midnight UTC and monthly ones on the first of the
+  month. Remove it with &times; if you don&rsquo;t want to wait.
+- **If the feature isn&rsquo;t in your plan** any more when the task&rsquo;s
+  turn comes, the task fails and says so.
+
+The limits for each plan are on the [pricing page](/pricing).
+
+## Keep a marketplace tab open
+
+SaleLinx does its work through your open Depop and Vinted tabs, using the
+session you&rsquo;re signed in with. While there&rsquo;s work queued for a
+marketplace, keep at least one tab for it open. It can be in any window and
+doesn&rsquo;t need to be the tab you&rsquo;re looking at, and the panel
+itself can be closed.
+
+Panel tabs that work with one marketplace only (**Refresh** and **Shop
+Designer** for Depop, **Auto-Offers** for Vinted) say so when no browser tab
+for it is open: &ldquo;This feature needs a Vinted tab. Open one in any
+window and it will unlock here.&rdquo; Click **Open Vinted** (or **Open
+Depop**) and the panel tab unlocks as soon as the page loads. Crosslist needs both: &ldquo;Both Depop
+and Vinted tabs must be open to crosslist.&rdquo;
+
+## Closing the panel, the tab or the browser
+
+- **Closing the panel** changes nothing. The queue runs in the background.
+- **Closing your last Depop or Vinted tab** cuts SaleLinx off from that
+  marketplace, so tasks for it can&rsquo;t make progress. Keep one open.
+- **Closing Chrome** stops everything. Next time you open it, the queue
+  comes back **Paused** with your tasks still listed. A task that was
+  running continues from where it stopped when you press **Resume**.
+  Nothing restarts without you, and any rate-limit wait is forgotten.
+- **Updating SaleLinx** can clear tasks that were waiting rather than carry
+  them over to the new version, so check the queue after an update.
+- **Logging out** cancels everything in the queue and clears its history.
+
+## Other entries in the queue
+
+Two kinds of entry aren&rsquo;t runs you started yourself:
+
+- **Saving to Cloud** appears while SaleLinx copies listing details into
+  your [cloud backup](/docs/inventory/cloud-sync). It steps aside while a
+  queued task runs, and has its own pause, resume and cancel buttons.
+- **Auto Refresh**, shown as **Scheduled** with a countdown, is your next
+  scheduled [Auto-refresh](/docs/inventory/refresh). Its &times; turns the
+  schedule off.
+
+Background syncing of your listings, offers and messages doesn&rsquo;t show
+in the list, but it goes through the same line to each marketplace as your
+runs.
+
+### Depop follows and unfollows
+
+Grow runs on Depop (following and unfollowing) appear in the queue and wait
+their turn like everything else, but they pace themselves instead of using
+the queue&rsquo;s spacing. They wait a random 5 to 8 seconds between people,
+or your own range if you turn on **Choose my own wait time**, and they
+don&rsquo;t take planned breaks. Use **Stop after this many actions** and
+**Stop after this many minutes** to keep these runs short. Grow runs on
+Vinted use the normal queue pacing. See [Grow](/docs/inventory/bots).
+
+## Next steps
+
+- [Settings](/docs/getting-started/settings): your plan and usage meters.
+- [Grow](/docs/inventory/bots), [Refresh](/docs/inventory/refresh) and
+  [Relist](/docs/inventory/relist): the runs you&rsquo;ll see most often in
+  the queue.
+- [Troubleshooting FAQ](/help/faq#troubleshooting)

@@ -29,6 +29,18 @@ import * as v118En from "@/content/changelog/en/2026-09-21-v1-1-8.mdx";
 import * as v118Fr from "@/content/changelog/fr/2026-09-21-v1-1-8.mdx";
 import * as v118Es from "@/content/changelog/es/2026-09-21-v1-1-8.mdx";
 import * as v118De from "@/content/changelog/de/2026-09-21-v1-1-8.mdx";
+import * as v119En from "@/content/changelog/en/2026-09-29-v1-1-9.mdx";
+import * as v119Fr from "@/content/changelog/fr/2026-09-29-v1-1-9.mdx";
+import * as v119Es from "@/content/changelog/es/2026-09-29-v1-1-9.mdx";
+import * as v119De from "@/content/changelog/de/2026-09-29-v1-1-9.mdx";
+import * as v1110En from "@/content/changelog/en/2026-10-08-v1-1-10.mdx";
+import * as v1110Fr from "@/content/changelog/fr/2026-10-08-v1-1-10.mdx";
+import * as v1110Es from "@/content/changelog/es/2026-10-08-v1-1-10.mdx";
+import * as v1110De from "@/content/changelog/de/2026-10-08-v1-1-10.mdx";
+import * as v1111En from "@/content/changelog/en/2026-10-10-v1-1-11.mdx";
+import * as v1111Fr from "@/content/changelog/fr/2026-10-10-v1-1-11.mdx";
+import * as v1111Es from "@/content/changelog/es/2026-10-10-v1-1-11.mdx";
+import * as v1111De from "@/content/changelog/de/2026-10-10-v1-1-11.mdx";
 // 1.1.4 was a Chrome Web Store listing update only; the 1.1.5 entry covers it.
 import * as v115En from "@/content/changelog/en/2026-08-29-v1-1-5.mdx";
 import * as v115Fr from "@/content/changelog/fr/2026-08-29-v1-1-5.mdx";
@@ -39,6 +51,9 @@ import * as v115De from "@/content/changelog/de/2026-08-29-v1-1-5.mdx";
 // metadata.date descending, so the order here does not matter.
 const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   en: [
+    v1111En as unknown as ChangelogModule,
+    v1110En as unknown as ChangelogModule,
+    v119En as unknown as ChangelogModule,
     v118En as unknown as ChangelogModule,
     v117En as unknown as ChangelogModule,
     v116En as unknown as ChangelogModule,
@@ -49,6 +64,9 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEn as unknown as ChangelogModule,
   ],
   fr: [
+    v1111Fr as unknown as ChangelogModule,
+    v1110Fr as unknown as ChangelogModule,
+    v119Fr as unknown as ChangelogModule,
     v118Fr as unknown as ChangelogModule,
     v117Fr as unknown as ChangelogModule,
     v116Fr as unknown as ChangelogModule,
@@ -59,6 +77,9 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseFr as unknown as ChangelogModule,
   ],
   es: [
+    v1111Es as unknown as ChangelogModule,
+    v1110Es as unknown as ChangelogModule,
+    v119Es as unknown as ChangelogModule,
     v118Es as unknown as ChangelogModule,
     v117Es as unknown as ChangelogModule,
     v116Es as unknown as ChangelogModule,
@@ -69,6 +90,9 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEs as unknown as ChangelogModule,
   ],
   de: [
+    v1111De as unknown as ChangelogModule,
+    v1110De as unknown as ChangelogModule,
+    v119De as unknown as ChangelogModule,
     v118De as unknown as ChangelogModule,
     v117De as unknown as ChangelogModule,
     v116De as unknown as ChangelogModule,
@@ -82,6 +106,9 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   // read the English ones. Add locale dirs under content/changelog to change
   // that, and add the locale to TRANSLATED_CHANGELOG_LOCALES below.
   ar: [
+    v1111En as unknown as ChangelogModule,
+    v1110En as unknown as ChangelogModule,
+    v119En as unknown as ChangelogModule,
     v118En as unknown as ChangelogModule,
     v117En as unknown as ChangelogModule,
     v116En as unknown as ChangelogModule,
@@ -92,6 +119,9 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEn as unknown as ChangelogModule,
   ],
   zh: [
+    v1111En as unknown as ChangelogModule,
+    v1110En as unknown as ChangelogModule,
+    v119En as unknown as ChangelogModule,
     v118En as unknown as ChangelogModule,
     v117En as unknown as ChangelogModule,
     v116En as unknown as ChangelogModule,

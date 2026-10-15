@@ -356,8 +356,7 @@ export async function PricingSection({
                 between price and button it knocked this card's CTA out of line,
                 and between button and features it knocked the feature rows out
                 of line. It stays on the card because "then you are billed" is a
-                material payment term, and the tagline above already leads with
-                "card required". */}
+                material payment term, and it carries "card required" too. */}
             <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
               {t("trial.thenPrice", { price: TIER_PRICES.starter[currency] })}
             </p>
@@ -399,6 +398,17 @@ export async function PricingSection({
                   highlight={meta.highlight}
                   upgradeFromTrial={isTrialing}
                   tierId={tier.tier_id}
+                  planName={meta.name}
+                  price={
+                    TIER_PRICES[tier.tier_id as keyof typeof TIER_PRICES][
+                      currency
+                    ]
+                  }
+                  label={
+                    isTrialing && tier.tier_id === "starter"
+                      ? t("startStarterNow")
+                      : undefined
+                  }
                 />
               ) : (
                 <button

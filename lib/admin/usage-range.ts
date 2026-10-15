@@ -41,6 +41,7 @@ export type UsageRangePreset =
   | "30m"
   | "1h"
   | "2h"
+  | "6h"
   | "12h"
   | "24h"
   | "48h"
@@ -59,6 +60,7 @@ export const WINDOW_PRESETS: Record<string, { minutes: number; label: string }> 
     "30m": { minutes: 30, label: "Last 30 minutes" },
     "1h": { minutes: 60, label: "Last hour" },
     "2h": { minutes: 120, label: "Last 2 hours" },
+    "6h": { minutes: 360, label: "Last 6 hours" },
     "12h": { minutes: 720, label: "Last 12 hours" },
     "24h": { minutes: 1_440, label: "Last 24 hours" },
     "48h": { minutes: 2_880, label: "Last 48 hours" },

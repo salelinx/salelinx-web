@@ -1,0 +1,71 @@
+export const metadata = {
+  title:
+    "Anmeldung repariert, Preise in deiner Währung und eine klarere Price-Drops-Zeile",
+  date: "2026-09-29",
+  summary:
+    "Version 1.1.9 repariert die Anmeldung für alle, die 1.1.8 aus dem Chrome Web Store installiert haben, zeigt Preise auf jedem Tab in der Währung deines Shops, gestaltet die Price-Drops-Zeile als Satz mit Preisleiter neu und macht den Tab Etiketten schneller und zuverlässiger.",
+  tags: ["release"],
+};
+
+# Version 1.1.9
+
+Ein schneller Nachtrag zu 1.1.8, der die Anmeldung wieder in Ordnung bringt,
+dazu eine Woche Arbeit an Währungen, Price Drops und Versandetiketten.
+
+## Neu
+
+- **Deine Währung überall.** SaleLinx ermittelt die Währung deines Shops
+  jetzt aus deinen Angeboten und nutzt sie auf jedem Tab, auch in den
+  Animationen, Schwellenwert-Feldern und Leerzuständen, die bisher fest £
+  oder $ zeigten. Es kennt 16 Währungen, die alle Vinted-Märkte abdecken,
+  und setzt das Symbol hinter den Betrag, wo deine Währung das tut
+  (12,00 zł).
+- **Ein Rückblick-Zeitraum für abgeschlossene Bestellungen** im Tab
+  Etiketten: 7, 14, 30, 60 oder 90 Tage, gespeichert, sobald du ihn wählst.
+  Verkürzen geht sofort, und Verlängern lädt nur die Bestellungen, die noch
+  nicht geladen sind.
+
+## Behoben
+
+- **Anmelden funktioniert wieder.** Version 1.1.8 aus dem Chrome Web Store
+  erreichte unsere Server nicht, also meldete das Panel, es sei nicht
+  eingerichtet, und ließ dich nicht anmelden. 1.1.9 behebt das.
+- **Vinted-Etiketten ohne Standardadresse.** Wenn keine deiner gespeicherten
+  Vinted-Adressen als Standard markiert war, wurde jede Etikettenbestellung
+  abgelehnt. SaleLinx wählt jetzt aus deiner Adressliste und bevorzugt eine
+  mit Telefonnummer.
+- **Price-Drops-Termine.** Ein Angebot, das älter war als sein eigenes
+  Senkungsintervall, zeigte jeden Schritt seines Plans als sofort fällig.
+  Die erste Senkung wird jetzt ab heute gezählt, so wie die Senkungen
+  wirklich laufen: eine pro Angebot und Durchlauf, dann ein volles Intervall
+  bis zur nächsten.
+- **Preise in der falschen Währung.** Das Relist-Overlay zeigte Dollar für
+  jede Währung außerhalb der fünf großen, sodass polnische und schwedische
+  Verkäufer ihre echten Preise mit $ sahen, und manche Tabs sagten £,
+  während andere $ sagten.
+- **Dead-Stock-Summen.** Das Kapital-Banner addierte nur deine häufigste
+  Währung, zählte aber jeden Artikel, sodass 300 £ und 500 € über 18 Artikel
+  als „300 £ stecken in 18 Artikeln“ erschienen. Jetzt zeigt es eine Summe
+  pro Währung.
+- **Auto-Offers ohne verknüpftes Vinted-Konto** zeichnet jetzt den ganzen Tab
+  unscharf, Statistiken eingeschlossen. Die Statistiken blieben bisher
+  lesbar und konnten echt wirkende Zahlen aus der Zeit vor dem Trennen
+  zeigen.
+- Die Liste der abgeschlossenen Bestellungen wird nicht mehr leer, wenn sie
+  nicht laden kann. Sie behält die Bestellungen, die sie hat, und sagt, warum
+  sie leer ist, wenn sie es ist.
+
+## Verbessert
+
+- **Eine neu gestaltete Price-Drops-Zeile.** Jedes verfolgte Angebot liest
+  sich als ein Satz, „Um 15 % alle 3 Tage senken bis 11 £“, mit seinem Plan
+  darunter als Leiter: der aktuelle Preis, die nächste Senkung hervorgehoben
+  und der Mindestpreis, an dem der Plan endet. Der Hauptschalter heißt jetzt
+  Preissenkungen ausführen, passend zum Tab.
+- **Der Tab Etiketten lädt sich nicht mehr selbst neu.** Bestellungen werden
+  20 Minuten zwischengespeichert, der Cache übersteht einen Neustart der
+  Erweiterung im Hintergrund, und unveränderte Bestellungen werden nicht neu
+  geladen, sodass die Rückkehr zum Tab schnell geht. Der Fortschrittsbalken
+  zählt nur die Arbeit, die wirklich anfällt.
+- Die Beschreibung des Tabs Etiketten sagt jetzt, dass er Depop ebenso wie
+  Vinted abdeckt.

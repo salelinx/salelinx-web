@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Messages',
   description:
-    'Lisez et répondez aux messages des acheteurs de Depop et Vinted depuis un seul panneau, sans quitter la page.',
+    'Lisez et répondez aux messages des acheteurs de Depop et Vinted depuis un seul panneau, sans quitter la page où vous êtes.',
   category: 'buyers',
   slug: 'messages',
   order: 2,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['messages', 'conversations', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,16 +13,23 @@ export const metadata = {
 
 # Messages
 
-L'onglet **Messages** fusionne les messages non lus de Depop et
-Vinted dans une vue à deux colonnes. Chaque carte montre l'avatar de
-l'acheteur, le pseudo, le temps écoulé depuis son dernier message,
-un aperçu sur deux lignes, le badge non-lu et une vignette de
-l'article concerné.
+L'onglet **Messages** affiche vos conversations Depop et Vinted côte à
+côte, en deux colonnes, pour lire et répondre sans ouvrir la
+messagerie de chaque marketplace. La colonne du site sur lequel vous
+êtes se trouve à gauche.
+
+Chaque carte montre l'avatar et le pseudo de l'autre personne, le
+temps écoulé depuis le dernier message, un aperçu de ce message et
+l'article concerné. Les conversations avec des messages non lus
+portent un badge. Les colonnes listent toutes les conversations qui
+ont un message dans la période choisie (de 1 à 30&nbsp;jours,
+3&nbsp;jours par défaut), lues ou non, que vous ayez déjà répondu ou
+non.
 
 <Callout>
 Traduction française complète à venir. Voir la
-[version anglaise](/en/docs/buyers/messages) pour la définition de
-&laquo;&nbsp;non lu&nbsp;&raquo; (différente sur Depop et Vinted),
-l'ouverture des fils, l'envoi via la task queue (haute priorité),
-le cache d'inbox partagé avec Offres et les paliers d'abonnement.
+[version anglaise](/en/docs/buyers/messages) pour ce qu'affichent les
+colonnes (période, limites Depop et Vinted, conversations où vous êtes
+l'acheteur), l'ouverture d'un fil, la réponse, l'actualisation, les
+colonnes vides et les paliers d'abonnement.
 </Callout>

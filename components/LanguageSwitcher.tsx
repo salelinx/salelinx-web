@@ -164,21 +164,41 @@ function Flag({ code, className }: { code: Locale; className?: string }) {
         {code === "zh" ? (
           <>
             <rect width="30" height="20" fill="#DE2910" />
+            {/* Shifted right of the true layout so the large star sits inside the circular crop. */}
             <g fill="#FFDE00">
-              <path d="M5 3.2 5.94 6.1 3.48 4.31h3.04L4.06 6.1z" />
-              <path d="m10.2 1.6.35 1.08-.92-.67h1.14l-.92.67z" />
-              <path d="m11.9 3.9.35 1.08-.92-.67h1.14l-.92.67z" />
-              <path d="m11.9 6.7.35 1.08-.92-.67h1.14l-.92.67z" />
-              <path d="m10.2 8.9.35 1.08-.92-.67h1.14l-.92.67z" />
+              <path d="M9.00 2.00L9.67 4.07L11.85 4.07L10.09 5.35L10.76 7.43L9.00 6.15L7.24 7.43L7.91 5.35L6.15 4.07L8.33 4.07z" />
+              <path d="M13.14 2.51L13.62 1.97L13.25 1.34L13.91 1.63L14.39 1.08L14.33 1.80L15.00 2.09L14.29 2.25L14.22 2.97L13.85 2.35z" />
+              <path d="M15.01 4.14L15.66 3.82L15.56 3.10L16.07 3.62L16.72 3.30L16.38 3.95L16.88 4.47L16.17 4.34L15.83 4.99L15.73 4.27z" />
+              <path d="M15.04 6.73L15.76 6.70L15.96 6.00L16.21 6.68L16.94 6.66L16.37 7.10L16.62 7.79L16.01 7.38L15.44 7.83L15.64 7.13z" />
+              <path d="M13.22 8.38L13.90 8.63L14.35 8.06L14.32 8.79L15.00 9.05L14.30 9.24L14.26 9.96L13.87 9.36L13.16 9.55L13.62 8.98z" />
             </g>
           </>
         ) : code === "en" ? (
           <>
-            <rect width="30" height="20" fill="#012169" />
-            <path d="M0 0 30 20M30 0 0 20" stroke="#ffffff" strokeWidth="4" />
-            <path d="M0 0 30 20M30 0 0 20" stroke="#C8102E" strokeWidth="2" />
-            <path d="M15 0v20M0 10h30" stroke="#ffffff" strokeWidth="6.5" />
-            <path d="M15 0v20M0 10h30" stroke="#C8102E" strokeWidth="4" />
+            <rect width="30" height="20" fill="#ffffff" />
+            <rect y="0.0" width="30" height="1.538" fill="#B22234" />
+            <rect y="3.077" width="30" height="1.538" fill="#B22234" />
+            <rect y="6.154" width="30" height="1.538" fill="#B22234" />
+            <rect y="9.231" width="30" height="1.538" fill="#B22234" />
+            <rect y="12.308" width="30" height="1.538" fill="#B22234" />
+            <rect y="15.385" width="30" height="1.538" fill="#B22234" />
+            <rect y="18.462" width="30" height="1.538" fill="#B22234" />
+            {/* Canton sits inside the circular crop (x 5 to 25). */}
+            <rect x="5" width="9.5" height="10.77" fill="#3C3B6E" />
+            <g fill="#ffffff">
+              <circle cx="6.4" cy="1.5" r="0.55" />
+              <circle cx="9.0" cy="1.5" r="0.55" />
+              <circle cx="11.6" cy="1.5" r="0.55" />
+              <circle cx="7.7" cy="4.0" r="0.55" />
+              <circle cx="10.3" cy="4.0" r="0.55" />
+              <circle cx="12.9" cy="4.0" r="0.55" />
+              <circle cx="6.4" cy="6.5" r="0.55" />
+              <circle cx="9.0" cy="6.5" r="0.55" />
+              <circle cx="11.6" cy="6.5" r="0.55" />
+              <circle cx="7.7" cy="9.0" r="0.55" />
+              <circle cx="10.3" cy="9.0" r="0.55" />
+              <circle cx="12.9" cy="9.0" r="0.55" />
+            </g>
           </>
         ) : code === "fr" ? (
           <>

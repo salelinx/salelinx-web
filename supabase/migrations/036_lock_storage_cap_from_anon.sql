@@ -1,0 +1,23 @@
+-- Stops anonymous callers reading another user's storage cap.
+--
+-- Ported from the extension repo's 20260813_lock_internal_storage_functions.sql,
+-- written there before this repo owned the schema and deleted from there in the
+-- same change. That file revoked direct EXECUTE on two internal storage
+-- helpers:
+--
+--   * apply_storage_delta(uuid, bigint) - already revoked from PUBLIC, anon and
+--     authenticated by 004_storage_quota.sql, so nothing to port.
+--   * get_user_storage_cap(uuid) - 004 revokes PUBLIC and authenticated but not
+--     anon, which still holds EXECUTE through Supabase's default privileges. It
+--     is SECURITY DEFINER and takes any user id, so an anonymous caller can read
+--     back that user's cap and with it their coarse tier. This is the first of
+--     the "Known grant warts" in README.md.
+--
+-- Its only callers are enforce_cloud_storage_quota() and apply_storage_delta()
+-- in 004, both SECURITY DEFINER and run as the owner, so no client loses
+-- anything it uses.
+--
+-- Safe to apply whether or not the extension-repo file ever ran on live:
+-- revoking a privilege that is not held is a no-op.
+
+REVOKE ALL ON FUNCTION public.get_user_storage_cap(UUID) FROM PUBLIC, anon, authenticated;

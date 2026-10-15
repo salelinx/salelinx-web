@@ -1,8 +1,11 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 import { SITE_URL, absoluteUrl } from '@/lib/site';
+import { CATEGORIES } from '@/lib/docs/categories';
 import { ARTICLE_MODULES_BY_LOCALE, TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
 import { TRANSLATED_CHANGELOG_LOCALES } from '@/lib/docs/changelog';
+import { LANDING_PAGES } from '@/lib/landing/pages';
+import { listPosts } from '@/lib/blog/posts';
 
 // `locales` limits which language alternates an entry claims; it must match
 // the contentLocales the page itself passes to pageMetadata. Untranslated
@@ -22,6 +25,7 @@ const STATIC_PATHS: {
   { path: '/', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/features', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/pricing', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/roadmap', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/help', priority: 0.6, changeFrequency: 'monthly' },
   // The old /faq is a redirect stub; the FAQ itself lives at /help/faq.
   // /help/support is deliberately absent: it redirects logged-out visitors
@@ -35,8 +39,11 @@ const STATIC_PATHS: {
     locales: TRANSLATED_CHANGELOG_LOCALES,
   },
   { path: '/docs/status', priority: 0.5, changeFrequency: 'daily' },
+  { path: '/blog', priority: 0.7, changeFrequency: 'weekly', locales: ['en'] },
   { path: '/legal/privacy', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
   { path: '/legal/terms', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
+  { path: '/legal/dpa', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
+  { path: '/legal/referral-terms', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
 ];
 
 function alternatesFor(
@@ -61,6 +68,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency,
       priority,
       alternates: alternatesFor(path, locales ?? routing.locales),
+    });
+  }
+
+  for (const { slug } of LANDING_PAGES) {
+    entries.push({
+      url: absoluteUrl(routing.defaultLocale, `/features/${slug}`),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    });
+  }
+
+  // English-only, like the landing pages: no alternates.
+  for (const { metadata } of listPosts()) {
+    entries.push({
+      url: absoluteUrl(routing.defaultLocale, `/blog/${metadata.slug}`),
+      lastModified: new Date(metadata.updated),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    });
+  }
+
+  for (const { slug } of CATEGORIES) {
+    const path = `/docs/${slug}`;
+    entries.push({
+      url: absoluteUrl(routing.defaultLocale, path),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      alternates: alternatesFor(path, TRANSLATED_DOCS_LOCALES),
     });
   }
 

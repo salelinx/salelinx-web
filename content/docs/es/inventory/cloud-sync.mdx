@@ -1,29 +1,36 @@
 export const metadata = {
   title: 'Sincronización en la nube',
   description:
-    'Cómo SaleLinx hace copia de seguridad de tus anuncios en la nube, qué hace el enriquecedor en segundo plano y cómo eliges qué se sincroniza.',
+    'Cómo SaleLinx hace una copia de seguridad de tus anuncios y fotos en la nube, cómo guardarlos, actualizarlos y quitarlos, y para qué sirve esa copia.',
   category: 'inventory',
   slug: 'cloud-sync',
   order: 8,
-  updated: '2026-05-18',
-  tags: ['nube', 'sincronización', 'backup', 'enriquecimiento'],
+  updated: '2026-10-13',
+  tags: ['nube', 'sincronización', 'copia de seguridad', 'almacenamiento'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
 };
 
 # Sincronización en la nube
 
-Por defecto SaleLinx guarda tus anuncios localmente en el
-navegador. La sincronización en la nube, opcional y activable por
-anuncio, copia esos datos (y las fotos) a tu cuenta de SaleLinx en
-Supabase. El **enriquecedor** es el proceso en segundo plano que
-hace posible la sincronización.
+SaleLinx guarda tu catálogo de anuncios en tu navegador. La
+sincronización en la nube copia un anuncio, con todos sus detalles y
+fotos, en tu cuenta de SaleLinx. Funciona anuncio por anuncio: tú
+eliges qué anuncios guardar y solo se copian esos.
+
+Al guardar un anuncio, SaleLinx lee sus detalles completos en la
+marketplace, hace una copia de las fotos y guarda la copia en tu
+cuenta. Los anuncios guardados son los que hacen posibles la
+vinculación, la republicación de artículos vendidos y el Restocker. Se
+guardan y se quitan desde la pestaña **Mis anuncios**, y la función
+está incluida en los planes **Pro y Business**.
 
 <Callout>
 Traducción completa al español próximamente. Consulta la
-[versión en inglés](/en/docs/inventory/cloud-sync) para el detalle
-de los dos stores (IndexedDB local / Supabase nube), el cifrado en
-cliente, los disparadores de enriquecimiento, la cadencia mediante
-task queue, el backup de imágenes, el comportamiento
-multi-pestaña / multi-dispositivo y los anuncios huérfanos.
+[versión en inglés](/en/docs/inventory/cloud-sync) para por qué
+guardar anuncios en la nube, cómo guardarlos, actualizarlos y
+quitarlos, qué se guarda y dónde, cómo se protege la copia, el uso en
+varios dispositivos, los anuncios que solo existen en la nube, qué
+pasa si SaleLinx no está disponible temporalmente, los planes y el
+límite de almacenamiento.
 </Callout>

@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Restocker',
   description:
-    'Sincronización de stock cross-platform. Cuando un artículo enlazado se vende en un marketplace, el otro lado republica (o se desactiva) automáticamente.',
+    'Sincronización de stock entre plataformas. Vuelve a publicar los anuncios de Vinted vendidos mientras te quede stock, mantiene los anuncios vinculados de Depop y Vinted con un solo recuento de stock y retira el otro lado cuando el artículo se agota.',
   category: 'automate',
   slug: 'restocker',
   order: 4,
-  updated: '2026-05-18',
+  updated: '2026-10-13',
   tags: ['restocker', 'stock', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'stub',
@@ -13,16 +13,30 @@ export const metadata = {
 
 # Restocker
 
-El Restocker mantiene tu stock honesto entre marketplaces. Dos
-escenarios: vendedor Vinted multi-cantidad (3 camisetas en stock,
-republica en cada venta hasta agotar) y artículos enlazados
-cross-platform (vendido en Depop &rarr; retirado de Vinted para
-evitar la doble venta).
+El Restocker mantiene tu stock al día entre marketplaces. Cubre dos
+escenarios:
+
+1. **Vendedor de Vinted con varias unidades.** Tienes 3 camisetas
+   iguales. Pon **2 reposiciones**: cuando se vende cada una de las
+   dos primeras, el Restocker vuelve a publicar un anuncio nuevo de
+   Vinted para la siguiente unidad. La tercera venta cierra el
+   artículo.
+2. **Artículos vinculados.** El mismo artículo está publicado en Depop
+   y en Vinted y [vinculado](/docs/automate/linking). Los dos lados
+   comparten un solo recuento de stock y, cuando se vende la última
+   unidad en cualquiera de ellos, el Restocker retira el otro lado
+   para que no vendas dos veces el mismo artículo.
+
+Solo se vuelven a publicar anuncios de Vinted. En Depop, SaleLinx
+escribe tu stock en el propio campo de cantidad de Depop. El Restocker
+está incluido únicamente en el plan **Business**.
 
 <Callout>
 Traducción completa al español próximamente. Consulta la
-[versión en inglés](/en/docs/automate/restocker) para el detalle
-de los dos flujos (Vinted multi-cantidad, cross-platform), añadir
-un artículo, la planificación, lo que el Restocker no hace y los
-planes que lo incluyen.
+[versión en inglés](/en/docs/automate/restocker) para dónde está,
+cómo añadir un artículo (desde Mis anuncios o desde la pestaña
+Restocker), los borradores, la exportación e importación de stock,
+cómo poner en marcha el Restocker, el funcionamiento detallado
+(republicaciones en Vinted y parejas vinculadas), los ajustes, lo que
+no hace y los planes que lo incluyen.
 </Callout>
