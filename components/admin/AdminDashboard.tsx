@@ -5,10 +5,13 @@ import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
 import { AdminSection } from "@/components/admin/AdminSection";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 import { UserEmailLink } from "@/components/admin/UserEmailLink";
+import { LatestPayments } from "@/components/admin/LatestPayments";
 
 // The /admin home dashboard. Pure presentation (server component): summary
 // cards that link into each live module, plus a recent-activity list from the
-// audit log. No interactivity beyond links.
+// audit log. No interactivity beyond links. The one exception is
+// LatestPayments, a client component that loads its own rows from Stripe after
+// render so the rest of the page never waits on it.
 
 type Props = {
   openTickets: number;
@@ -152,6 +155,8 @@ export function AdminDashboard({
               )}
             </Card>
           </div>
+
+          <LatestPayments />
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <NavCard
