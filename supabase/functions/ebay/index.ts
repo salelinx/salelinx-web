@@ -28,7 +28,8 @@
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect eBay again, 'ebay' for an eBay-side refusal.
 //
-// Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME,
+// Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
+// EBAY_RUNAME_STORE (Chrome Web Store extension),
 // EBAY_ENV ('sandbox' for the sandbox hosts, anything else is production).
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
@@ -84,6 +85,12 @@ function json(status: number, body: unknown): Response {
     headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
   });
 }
+
+const STORE_EXTENSION_ID = 'oichfmfogobecihmhlgkfcfbdceomenj';
+
+// eBay only redirects to a RuName's accept URL, which names one extension id.
+const runame = (extensionId: unknown) =>
+  env(extensionId === STORE_EXTENSION_ID ? 'EBAY_RUNAME_STORE' : 'EBAY_RUNAME');
 
 function env(name: string): string {
   const v = Deno.env.get(name);
@@ -246,11 +253,11 @@ async function uploadPhoto(auth, dataUrl: string): Promise<string> {
 
 // ── Linking ────────────────────────────────────────────────────────────────
 
-async function link(admin, userScoped, userId: string, code: string) {
+async function link(admin, userScoped, userId: string, code: string, extensionId: unknown) {
   const tokens = await tokenRequest({
     grant_type: 'authorization_code',
     code,
-    redirect_uri: env('EBAY_RUNAME'),
+    redirect_uri: runame(extensionId),
   });
   const res = await fetch(`${APIZ_HOST}/commerce/identity/v1/user/`, {
     headers: { Authorization: `Bearer ${tokens.access_token}` },
@@ -336,7 +343,7 @@ Deno.serve(async (req: Request) => {
         const url = new URL(`${AUTH_HOST}/oauth2/authorize`);
         url.search = new URLSearchParams({
           client_id: env('EBAY_CLIENT_ID'),
-          redirect_uri: env('EBAY_RUNAME'),
+          redirect_uri: runame(body.extensionId),
           response_type: 'code',
           scope: SCOPES,
           state: body.state,
@@ -349,7 +356,7 @@ Deno.serve(async (req: Request) => {
         const userScoped = createClient(supabaseUrl, anonKey, {
           global: { headers: { Authorization: `Bearer ${jwt}` } },
         });
-        return json(200, await link(admin, userScoped, user.id, body.code));
+        return json(200, await link(admin, userScoped, user.id, body.code, body.extensionId));
       }
 
       case 'account': {

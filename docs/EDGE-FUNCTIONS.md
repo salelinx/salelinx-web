@@ -118,10 +118,11 @@ supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # (unchanged behavior); set to the site origin to stop other sites' frontends
 # reading responses. The extension is unaffected (host permissions bypass CORS).
 supabase secrets set ALLOWED_ORIGIN='https://www.salelinx.com'
-# eBay (developer.ebay.com keyset). EBAY_RUNAME is the RuName whose accept URL
-# is the extension's https://<extension-id>.chromiumapp.org/ebay. EBAY_ENV=sandbox
-# switches both eBay functions to the sandbox hosts.
-supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=...
+# eBay (developer.ebay.com keyset). Each RuName's accept URL is one extension's
+# https://<extension-id>.chromiumapp.org/ebay: EBAY_RUNAME_STORE for the Chrome Web
+# Store id (oichfmfogobecihmhlgkfcfbdceomenj), EBAY_RUNAME for any other (the
+# unpacked dev build). EBAY_ENV=sandbox switches both eBay functions to the sandbox hosts.
+supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... EBAY_RUNAME_STORE=...
 # Entered in the portal's Marketplace Account Deletion settings as well.
 supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=<32-80 chars>
 supabase secrets set EBAY_DELETION_ENDPOINT='https://<project>.supabase.co/functions/v1/ebay-account-deletion'
