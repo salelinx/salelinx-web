@@ -1,23 +1,23 @@
 export const metadata = {
   title: 'Listings',
   description:
-    'The unified Listings tab merges your Depop and Vinted catalogue into one sortable, filterable grid with bulk actions.',
+    'The unified Listings tab merges your Depop, Vinted and eBay catalogue into one sortable, filterable grid with bulk actions.',
   category: 'inventory',
   slug: 'listings',
   order: 1,
-  updated: '2026-09-15',
-  tags: ['listings', 'inventory', 'depop', 'vinted'],
+  updated: '2026-10-15',
+  tags: ['listings', 'inventory', 'depop', 'vinted', 'ebay'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
 };
 
 # Listings
 
-The **Listings** tab merges your Depop and Vinted catalogue into one
-sortable grid. Each row is one listing with a platform badge so you
+The **Listings** tab merges your Depop, Vinted and eBay catalogue into
+one sortable grid. Each row is one listing with a platform badge so you
 always know where it lives. Filters, bulk edits, refresh, relist,
-price changes and delete all work across both marketplaces from the
-same screen.
+price changes and delete work across Depop and Vinted from the same
+screen, and eBay listings can be edited and ended there too.
 
 ## What the grid shows
 
@@ -37,7 +37,7 @@ drawer with the full description, all photos, tags and the edit form.
 
 The toolbar above the grid has filters for:
 
-- **Platform** - Depop only, Vinted only, or both.
+- **Platform** - all, or Depop, Vinted or eBay on its own.
 - **Status** - active, sold, draft, hidden.
 - **Marketplace search** - types into the source marketplace&rsquo;s
   search index. Useful when you remember a phrase from the title.
@@ -73,6 +73,20 @@ Useful for one-off typo fixes without leaving the dashboard.
 The bulk editor goes further: on Depop it also writes brand, category,
 size, department, colour and condition.
 
+## eBay listings
+
+Once eBay is connected (see
+[Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)),
+your active eBay listings and the last 60 days of sold ones appear in
+the grid. eBay syncs at most every 15 minutes; **Refresh All** or the
+eBay refresh button fetches them straight away.
+
+Open an eBay listing to edit its title, description, price, quantity,
+photos, condition, category and item specifics, and save straight to
+eBay. Choose **Unlist** to end the listing. eBay has no delete, so
+deleting an eBay row ends the listing and removes it from the grid.
+An ended listing opens with a **Relist** option.
+
 ## Restocker columns
 
 If a row supports restocking (active Vinted item, or a Depop item
@@ -95,8 +109,8 @@ you wrote it in - SaleLinx never re-translates user content.
 
 ## Next steps
 
-- [Crosslist](/docs/inventory/crosslist) - post any listing to the
-  other marketplace.
+- [Crosslist](/docs/inventory/crosslist) - post any listing to
+  another marketplace.
 - [Refresh](/docs/inventory/refresh) - bump listings to the top of
   your shop.
 - [Cloud sync](/docs/inventory/cloud-sync) - opt in to encrypted

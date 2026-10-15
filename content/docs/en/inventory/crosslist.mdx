@@ -1,12 +1,12 @@
 export const metadata = {
   title: 'Crosslist',
   description:
-    'Post any listing from one marketplace to the other in a single click. API-based, no limit on batch size, fully automated.',
+    'Post any listing from Vinted, Depop or eBay to another marketplace in a single click. API-based, no limit on batch size, fully automated.',
   category: 'inventory',
   slug: 'crosslist',
   order: 5,
-  updated: '2026-09-15',
-  tags: ['crosslist', 'depop', 'vinted'],
+  updated: '2026-10-15',
+  tags: ['crosslist', 'depop', 'vinted', 'ebay'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
 };
@@ -14,7 +14,8 @@ export const metadata = {
 # Crosslist
 
 The Crosslist tab takes any listing you&rsquo;ve already created on one
-marketplace and posts it to the other. It does the entire transfer over
+marketplace and posts it to another: Depop, Vinted or eBay, in any
+direction. It does the entire transfer over
 the marketplace APIs in the background. There&rsquo;s no form to fill,
 no new tab to babysit, and no waiting for an editor to load. You pick
 the items, click the button, and watch the queue run.
@@ -22,6 +23,8 @@ the items, click the button, and watch the queue run.
 ## When to use it
 
 - You list something new on Depop and want it live on Vinted too.
+- You sell on Vinted or Depop and want the same items on eBay, or the
+  other way round.
 - You&rsquo;re cleaning up an old shop and want every unlinked listing
   mirrored to the other side.
 - You&rsquo;re moving to SaleLinx and need to bulk-mirror your existing
@@ -35,6 +38,8 @@ the items, click the button, and watch the queue run.
   uses both sites&rsquo; in-page API access at the same time. If
   either tab is missing, a dialog offers to open it.
 - An active subscription or the 14-day free trial.
+- For eBay: your eBay account connected in **Settings**. No eBay tab is
+  needed. See *Crosslisting to and from eBay* below.
 
 ## The listing picker
 
@@ -136,6 +141,34 @@ listing. Drafts let you eyeball the result first.
 You can flip the toggle at any time. The setting persists across
 sessions.
 
+## Crosslisting to and from eBay
+
+Once your eBay account is connected in **Settings &rarr; Marketplace
+accounts**, eBay appears in the crosslister&rsquo;s **From** and **To**
+pickers. You can crosslist from Depop or Vinted to eBay, and from eBay
+to Depop or Vinted.
+
+**To eBay.** SaleLinx picks the eBay category from the title and the
+source category, fills in the item specifics eBay asks for (brand,
+colour, size, department and more), and uploads the photos.
+
+- **eBay listings go live straight away.** eBay has no drafts, so
+  Auto-post doesn&rsquo;t apply.
+- **You see eBay&rsquo;s fees first.** The review step checks every item
+  with eBay before anything is posted, and shows the fee and anything
+  eBay would refuse. A row eBay would refuse has a **Fill in** button
+  so you can add what&rsquo;s missing.
+- **Postage comes from your eBay account.** SaleLinx uses your eBay
+  business policies, or copies postage and returns from one of your
+  existing eBay listings. If there&rsquo;s nothing to copy, the
+  Crosslist tab asks for your postage once. You can change it later in
+  **Settings &rarr; eBay &rarr; Postage**.
+
+**From eBay.** Pick eBay in **From** and Depop or Vinted in **To**.
+SaleLinx reads the eBay listing&rsquo;s category, condition, item
+specifics, description and photos and maps them across, just like a
+Depop or Vinted source.
+
 ## Plan and access
 
 Crosslisting is included on every plan from the 14-day free trial
@@ -151,7 +184,14 @@ For bulk migrations larger than your monthly allowance, see
 **&ldquo;Both Depop and Vinted tabs must be open.&rdquo;** Click the
 dialog&rsquo;s &ldquo;Open&rdquo; button or do it yourself. The
 crosslister needs both sites&rsquo; in-page API access at the same
-time.
+time. eBay never needs a tab open.
+
+**eBay refuses an item.** The review step shows what eBay needs,
+usually a required item specific such as size or department. Click
+**Fill in**, add it, and the item can be posted.
+
+**&ldquo;eBay is busy right now.&rdquo;** eBay is temporarily turning
+requests away. Try again later; nothing has been posted or charged.
 
 **Brand comes through as &ldquo;Other&rdquo; or &ldquo;Unbranded.&rdquo;**
 The source brand wasn&rsquo;t found in the target marketplace&rsquo;s
