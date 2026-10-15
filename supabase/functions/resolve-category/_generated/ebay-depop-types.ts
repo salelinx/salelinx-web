@@ -92,6 +92,7 @@ function words(text: string): Set<string> {
       .toLowerCase()
       .replace(/t-?shirt/g, 'tshirt')
       .replace(/football shirt/g, 'jersey')
+      .replace(/make-?up/g, 'makeup')
       .split(/[^a-z]+/)
       .filter((w) => w.length > 1 && !STOP.has(w))
       .map(stem)
