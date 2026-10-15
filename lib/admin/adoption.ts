@@ -118,6 +118,7 @@ export type AdoptionPreset =
   | "30m"
   | "1h"
   | "2h"
+  | "6h"
   | "12h"
   | "24h"
   | "48h"
