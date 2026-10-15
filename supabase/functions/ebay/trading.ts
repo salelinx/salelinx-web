@@ -39,8 +39,7 @@ export function esc(value: unknown): string {
     .replace(/"/g, '&quot;');
 }
 
-export const QUOTA_MESSAGE =
-  "eBay's daily limit for SaleLinx has been reached, so eBay sync and editing are paused until it resets. Your eBay listings are not affected.";
+export const QUOTA_MESSAGE = 'eBay is busy right now. Please try again later.';
 
 export function parseTrading(call: string, text: string) {
   const body = xml.parse(text)?.[`${call}Response`];
