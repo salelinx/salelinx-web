@@ -39,6 +39,9 @@ export function esc(value: unknown): string {
     .replace(/"/g, '&quot;');
 }
 
+export const QUOTA_MESSAGE =
+  "eBay's daily limit for SaleLinx has been reached, so eBay sync and editing are paused until it resets. Your eBay listings are not affected.";
+
 export function parseTrading(call: string, text: string) {
   const body = xml.parse(text)?.[`${call}Response`];
   if (!body) throw new EbayError(`Unexpected eBay response to ${call}`, 'ebay', 502);
@@ -46,6 +49,8 @@ export function parseTrading(call: string, text: string) {
     const errors = (body.Errors ?? []).filter((e) => e.SeverityCode === 'Error');
     // 931/932/21916013: the token eBay was given is no longer valid.
     const reauth = errors.some((e) => ['931', '932', '21916013'].includes(String(e.ErrorCode)));
+    // 518: the app's daily call limit, shared by every SaleLinx user.
+    if (errors.some((e) => String(e.ErrorCode) === '518')) throw new EbayError(QUOTA_MESSAGE, 'quota', 429);
     const message = errors.map((e) => e.LongMessage ?? e.ShortMessage).join(' ') || `${call} failed`;
     throw new EbayError(message, reauth ? 'reauth' : 'ebay');
   }

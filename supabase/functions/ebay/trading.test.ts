@@ -146,6 +146,13 @@ Deno.test('an expired token is reauth, not a generic failure', () => {
   assertEquals(err.message, 'Validation of the authentication token in API request failed.');
 });
 
+Deno.test('the daily call limit is quota, with a message the seller can act on', () => {
+  const limited = EXPIRED.replace('<ErrorCode>931</ErrorCode>', '<ErrorCode>518</ErrorCode>');
+  const err = assertThrows(() => parseTrading('GetItem', limited), EbayError);
+  assertEquals(err.code, 'quota');
+  assertEquals(err.status, 429);
+});
+
 Deno.test('revise escapes text and sends only what changed', () => {
   assertEquals(reviseFields({}), '');
   assertEquals(

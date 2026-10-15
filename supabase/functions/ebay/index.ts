@@ -26,7 +26,8 @@
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
-// must connect eBay again, 'ebay' for an eBay-side refusal.
+// must connect eBay again, 'quota' when the app's daily eBay call limit is used
+// up, 'ebay' for an eBay-side refusal.
 //
 // Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
 // EBAY_RUNAME_STORE (Chrome Web Store extension),
@@ -53,6 +54,7 @@ import {
   shippingFromItemXml,
   shippingServicesFromDetails,
   verifyFromResponse,
+  QUOTA_MESSAGE,
 } from './trading.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
@@ -217,6 +219,7 @@ const MARKETPLACE_BY_SITE = Object.fromEntries(Object.entries(SITE_IDS).map(([m,
 async function rest(auth, path: string) {
   const res = await fetch(`${API_HOST}${path}`, { headers: { Authorization: `Bearer ${auth.token}` } });
   const body = await res.json().catch(() => ({}));
+  if (res.status === 429) throw new EbayError(QUOTA_MESSAGE, 'quota', 429);
   if (!res.ok) {
     throw new EbayError(body?.errors?.[0]?.message ?? `eBay request failed (${res.status})`, 'ebay', 502);
   }
