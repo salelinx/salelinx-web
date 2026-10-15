@@ -91,7 +91,7 @@
   "Home": {
     "introducing": "隆重推出 SaleLinx",
     "heroEyebrow": "已支持 <depop></depop> + <vinted></vinted>",
-    "heroTitle": "为每一位 <depop></depop> 和 <vinted></vinted> 卖家准备的工具。",
+    "heroTitle": "一个工具，搞定 <logos></logos>",
     "heroSubtitle": "让你可以<word></word>",
     "heroWords": [
       "几秒内跨平台上架商品。",
@@ -192,7 +192,7 @@
       "eyebrow": "功能",
       "title": "所有工具，就在你销售的地方。",
       "scenes": {
-        "crosslist": "选择任意商品，SaleLinx 帮你填好另一边。",
+        "crosslist": "选择任意商品，SaleLinx 帮你在 Depop、Vinted 或 eBay 上填好。",
         "bulkEdit": "选中任意数量的商品，批量修改价格和照片、开启 Depop 折扣，或复制为草稿。",
         "restocker": "在一个平台售出，另一个平台自动下架。",
         "deadStock": "按上架时长、浏览量和点赞数为每件商品打分，并为滞销商品给出处理建议。",
@@ -208,7 +208,8 @@
       "next": "下一个功能"
     },
     "pricingEyebrow": "价格",
-    "faqMore": "查看全部问题"
+    "faqMore": "查看全部问题",
+    "ctaNote": "14 天免费试用 · 随时取消"
   },
   "LanguageSwitcher": {
     "label": "语言",
@@ -570,7 +571,7 @@
     "metaTitle": "功能：Vinted、Depop 和 eBay 的跨平台上架、重新上架与自动化",
     "metaDescription": "SaleLinx 为 Vinted、Depop 和 eBay 卖家提供的全部功能：跨平台上架、重新上架、刷新、库存同步、报价、消息、快递面单等，都在一个浏览器面板里完成。",
     "hero": {
-      "title": "SaleLinx 能为你的 Vinted、Depop 和 eBay 店铺做的一切。"
+      "title": "SaleLinx 能为你做的一切。"
     },
     "sectionHeader": {
       "eyebrow": "第 01 部分 / 功能",
@@ -673,7 +674,7 @@
           "autoMap": {
             "name": "类目映射",
             "label": "分类和尺码替你转换",
-            "detail": "Depop 的标签会变成 Vinted 的，反过来也一样。两个店铺币种不同时还会自动换算价格，不用设置任何对应表。"
+            "detail": "类目、尺码和标签在 Depop、Vinted 和 eBay 之间自动转换，eBay 商品属性也会替你填好。店铺币种不同时还会自动换算价格，不用设置任何对应表。"
           },
           "csvImport": {
             "name": "CSV 导入",
@@ -1099,7 +1100,8 @@
     "step3Text": "点击启动器，创建免费账户并关联店铺。之后一切都在这里操作。",
     "openDepop": "打开 Depop",
     "openVinted": "打开 Vinted",
-    "docsLink": "或阅读使用指南"
+    "docsLink": "或阅读使用指南",
+    "openEbay": "打开 eBay"
   },
   "PlanStarted": {
     "metaTitle": "一切就绪",
@@ -1109,7 +1111,7 @@
     "titlePaid": "感谢你的订阅",
     "bodyPaid": "你现在使用的是 {plan}，新额度已可使用。",
     "nextTitle": "下一步",
-    "nextBody": "打开 Depop 或 Vinted，点击页面上的 SaleLinx 启动按钮。",
+    "nextBody": "打开 Depop、Vinted 或 eBay，然后点击页面上的 SaleLinx 启动按钮。",
     "noExtension": "还没有安装扩展？",
     "addToChrome": "添加到 Chrome",
     "toAccount": "前往你的账户",

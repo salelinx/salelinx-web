@@ -579,12 +579,6 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         a: <p>eBay berechnet seine normalen Angebotsgebühren, genau wie beim Einstellen per Hand. SaleLinx zeigt die eBay-Gebühr für jeden Artikel, bevor etwas veröffentlicht wird, damit du zurückgehen oder Artikel entfernen kannst. eBay-Anzeigen gehen sofort live, weil eBay keine Entwürfe kennt.</p>,
         keywords: ['ebay', 'gebühren', 'kosten', 'crosslist'],
       },
-      {
-        id: 'ebay-site-access',
-        q: 'Chrome fragt, ob SaleLinx auf eBay-Seiten laufen darf. Muss ich zustimmen?',
-        a: <p>Nein. Das zeigt nur das SaleLinx-Panel auf eBay-Seiten. eBay verknüpfen, Meine Anzeigen und Crosslist funktionieren auch ohne. Du kannst es später in den <em>Einstellungen</em> erlauben.</p>,
-        keywords: ['ebay', 'berechtigung', 'chrome', 'erlauben'],
-      },
     ],
   },
   {

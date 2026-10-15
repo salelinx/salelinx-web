@@ -521,12 +521,6 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: <p>eBay 会收取正常的刊登费用，和手动上架一样。SaleLinx 会在发布前显示每件商品的 eBay 费用，你可以先返回或移除商品。eBay 没有草稿，所以商品会直接上线。</p>,
         keywords: ['ebay', '费用', '跨平台上架'],
       },
-      {
-        id: 'ebay-site-access',
-        q: 'Chrome 询问是否允许 SaleLinx 在 eBay 网站上运行，我必须同意吗？',
-        a: <p>不需要。它只用于在 eBay 页面上显示 SaleLinx 面板。连接 eBay、我的商品和跨平台上架不需要它也能用。之后可以在<em>Settings</em>里再允许。</p>,
-        keywords: ['ebay', '权限', 'chrome'],
-      },
     ],
   },
   {

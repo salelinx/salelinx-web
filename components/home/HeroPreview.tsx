@@ -118,6 +118,9 @@ export function CrosslistPanel() {
   const CYCLE = 110; // 11s
   const STEP_TICKS = [10, 24, 38, 52, 66];
   const phase = tick % CYCLE;
+  // Every other loop the copy goes to eBay instead of Depop. eBay has no
+  // drafts, so that copy is listed live.
+  const toEbay = !reduced && Math.floor(tick / CYCLE) % 2 === 1;
   const step = reduced
     ? STEP_TICKS.length
     : STEP_TICKS.filter((s) => phase >= s).length;
@@ -133,7 +136,9 @@ export function CrosslistPanel() {
   // from a moving line.
   const FIELDS = ["brand", "category", "size", "condition"] as const;
   const label = done
-    ? "Draft saved on Depop"
+    ? toEbay
+      ? "Listed on eBay"
+      : "Draft saved on Depop"
     : `Mapping ${FIELDS[Math.min(step, FIELDS.length - 1)]}`;
   const progress = (step / STEP_TICKS.length) * 100;
 
@@ -195,7 +200,11 @@ export function CrosslistPanel() {
           className="cascade-item m-0 flex flex-col items-center gap-3"
           style={{ "--stagger-delay": "200ms" } as CSSProperties}
         >
-          <BrandWordmark brand="depop" variant="wordmark" height="0.8em" />
+          {toEbay ? (
+            <BrandWordmark brand="ebay" variant="wordmark" height="1em" />
+          ) : (
+            <BrandWordmark brand="depop" variant="wordmark" height="0.8em" />
+          )}
           {/* The listing SHARPENS rather than being uncovered.
               Two stacked copies of the same photo: a blurred one that is fully
               visible the whole time, and a sharp one on top that wipes down

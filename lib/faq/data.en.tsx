@@ -564,12 +564,6 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: <p>eBay charges its normal listing fees, the same as listing by hand. SaleLinx shows eBay&rsquo;s fee for every item before anything is posted, so you can go back or remove items first. eBay listings go live straight away, because eBay has no drafts.</p>,
         keywords: ['ebay', 'fees', 'cost', 'crosslist'],
       },
-      {
-        id: 'ebay-site-access',
-        q: 'Chrome asked to let SaleLinx run on eBay sites. Do I need to allow it?',
-        a: <p>No. It only shows the SaleLinx panel on eBay pages. Linking eBay, My Listings and Crosslist all work without it. You can allow it later from <em>Settings</em>.</p>,
-        keywords: ['ebay', 'permission', 'chrome', 'allow'],
-      },
     ],
   },
   {

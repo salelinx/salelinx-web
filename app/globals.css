@@ -85,10 +85,11 @@ body {
    vertical and horizontal lines fade together. */
 :root {
   --guide-fade: radial-gradient(
-    ellipse 62% 58% at 50% 45%,
+    ellipse 60% 64% at 50% 52%,
     transparent 0%,
-    transparent 38%,
-    black 100%
+    transparent 52%,
+    black 88%,
+    transparent 130%
   );
 }
 
@@ -1325,4 +1326,35 @@ span.restock-at-risk {
   0%, 70% { opacity: 0; transform: scale(0.6); }
   76%, 86% { opacity: 1; transform: none; }
   94%, 100% { opacity: 0; transform: none; }
+}
+
+/* The homepage hero's own grid (components/home/Hero.tsx), drawn over an
+   opaque layer that hides the page guides. It redraws them with rows sized by HeroGrid
+   to fit the hero exactly, so lines land on both the header edge and the
+   bottom of the screen. Columns match body::before (80px, centred). */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to top, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 100%, 100% 80px;
+  background-position: center top, left bottom;
+  -webkit-mask-image: radial-gradient(ellipse 50% 55% at 50% 50%, rgba(0, 0, 0, 0) 45%, black 100%);
+  mask-image: radial-gradient(ellipse 50% 55% at 50% 50%, rgba(0, 0, 0, 0) 45%, black 100%);
+}
+.dark .hero-grid {
+  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 100%;
+}
+
+/* The hero's three marketplace logos drift a couple of pixels up and down,
+   out of step with each other. */
+.logo-bob {
+  animation: logo-bob 4.5s ease-in-out infinite;
+}
+@keyframes logo-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.05em); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-bob { animation: none; }
 }

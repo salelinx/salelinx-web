@@ -81,10 +81,15 @@ interface Scene {
  * long as the page is open. The outer box keeps the measured height so
  * nothing collapses or shifts when a panel drops out and comes back.
  */
+/** Below lg every card shows its scene at this height, scaled down to fit, so
+ *  the phone carousel's cards all come out the same size. */
+const PHONE_SCENE_HEIGHT = 220;
+
 function SceneFrame({ children }: { children: ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number | null>(null);
+  const [scale, setScale] = useState(1);
   const [active, setActive] = useState(true);
   const heightRef = useRef<number | null>(null);
   // Tallest this scene has ever needed. The box takes this rather than the
@@ -125,8 +130,11 @@ function SceneFrame({ children }: { children: ReactNode }) {
       }
       const h = Math.max(tallestRef.current, inner.offsetHeight);
       tallestRef.current = h;
-      heightRef.current = h;
-      setHeight(h);
+      const phone = window.innerWidth < 1024;
+      const box = phone ? PHONE_SCENE_HEIGHT : h;
+      heightRef.current = box;
+      setHeight(box);
+      setScale(phone ? Math.min(1, PHONE_SCENE_HEIGHT / h) : 1);
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -147,7 +155,12 @@ function SceneFrame({ children }: { children: ReactNode }) {
       style={height !== null ? { height } : undefined}
     >
       {active ? (
-        <div ref={innerRef} dir="ltr" className="w-full">
+        <div
+          ref={innerRef}
+          dir="ltr"
+          className="w-full origin-top"
+          style={scale < 1 ? { transform: `scale(${scale})` } : undefined}
+        >
           {children}
         </div>
       ) : null}
@@ -322,7 +335,7 @@ function SceneCarousel() {
                 <h3 className="mt-2 text-balance text-xl font-semibold leading-snug tracking-tight text-zinc-900 lg:mt-4 lg:text-[2rem] lg:leading-[1.15] lg:tracking-[-0.02em] dark:text-zinc-50">
                   {tf(s.titleKey)}
                 </h3>
-                <p className="mt-2 text-pretty text-[0.95rem] leading-relaxed text-zinc-600 lg:mt-4 lg:max-w-[38ch] lg:text-base dark:text-zinc-400">
+                <p className="mt-1.5 line-clamp-2 text-pretty text-sm leading-snug text-zinc-600 lg:mt-4 lg:line-clamp-none lg:max-w-[38ch] lg:text-base lg:leading-relaxed dark:text-zinc-400">
                   {th(`featuresSection.scenes.${s.id}`)}
                 </p>
                 {/* Desktop only: the phone card is already as tall as the
@@ -338,7 +351,7 @@ function SceneCarousel() {
                   </span>
                 </Link>
               </div>
-              <div className="mt-5 min-w-0 flex-1 lg:mt-0">
+              <div className="mt-4 min-w-0 flex-1 lg:mt-0">
                 <SceneFrame>
                   {(isWide ? s.render : (s.compactRender ?? s.render))()}
                 </SceneFrame>

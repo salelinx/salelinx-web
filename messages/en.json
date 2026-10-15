@@ -91,7 +91,7 @@
   "Home": {
     "introducing": "Introducing SaleLinx",
     "heroEyebrow": "Live for <depop></depop> + <vinted></vinted>",
-    "heroTitle": "One tool for every <depop></depop> & <vinted></vinted> seller.",
+    "heroTitle": "One tool for <logos></logos>",
     "heroSubtitle": "So you can <word></word>",
     "heroWords": [
       "crosslist items in seconds.",
@@ -192,7 +192,7 @@
       "eyebrow": "Features",
       "title": "Every tool, right where you sell.",
       "scenes": {
-        "crosslist": "Pick any listing and SaleLinx fills in the other side for you.",
+        "crosslist": "Pick any listing and SaleLinx fills it in on Depop, Vinted or eBay for you.",
         "bulkEdit": "Select any number of listings, then change prices and photos, start a Depop sale or copy them as drafts.",
         "restocker": "Sell it on one app and it comes down from the other, automatically.",
         "deadStock": "Every listing scored on age, views and likes, with a fix for each one that isn't selling.",
@@ -208,7 +208,8 @@
       "next": "Next feature"
     },
     "pricingEyebrow": "Pricing",
-    "faqMore": "See all questions"
+    "faqMore": "See all questions",
+    "ctaNote": "14-day free trial · Cancel anytime"
   },
   "LanguageSwitcher": {
     "label": "Language",
@@ -570,7 +571,7 @@
     "metaTitle": "Features: crosslist, relist and automate Vinted, Depop and eBay",
     "metaDescription": "Every SaleLinx feature for Vinted, Depop and eBay sellers: crosslisting, relisting, refreshing, restocking, offers, messages, shipping labels and more, from one browser panel.",
     "hero": {
-      "title": "Everything SaleLinx does for your Vinted, Depop and eBay shops."
+      "title": "Everything SaleLinx does for you."
     },
     "sectionHeader": {
       "eyebrow": "Section 01 / Features",
@@ -673,7 +674,7 @@
           "autoMap": {
             "name": "Category mapping",
             "label": "Categories and sizes translated for you",
-            "detail": "Depop's tags become Vinted's, and the other way round. Prices are converted when your shops use different currencies, with no mapping tables to set up."
+            "detail": "Categories, sizes and tags carry across between Depop, Vinted and eBay, with eBay's item specifics filled in for you. Prices are converted when your shops use different currencies, with no mapping tables to set up."
           },
           "csvImport": {
             "name": "CSV import",
@@ -1099,7 +1100,8 @@
     "step3Text": "Click the launcher, create your free account, and link your shop. Everything runs from there.",
     "openDepop": "Open Depop",
     "openVinted": "Open Vinted",
-    "docsLink": "Or read the guides"
+    "docsLink": "Or read the guides",
+    "openEbay": "Open eBay"
   },
   "PlanStarted": {
     "metaTitle": "You're all set",
@@ -1109,7 +1111,7 @@
     "titlePaid": "Thank you for subscribing",
     "bodyPaid": "You're on {plan} now, with your new limits ready to use.",
     "nextTitle": "What's next",
-    "nextBody": "Open Depop or Vinted and click the SaleLinx launcher on the page.",
+    "nextBody": "Open Depop, Vinted or eBay and click the SaleLinx launcher on the page.",
     "noExtension": "No extension yet?",
     "addToChrome": "Add to Chrome",
     "toAccount": "Go to your account",

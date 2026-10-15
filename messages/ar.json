@@ -91,7 +91,7 @@
   "Home": {
     "introducing": "نقدم لكم SaleLinx",
     "heroEyebrow": "متاح لـ <depop></depop> + <vinted></vinted>",
-    "heroTitle": "أداة واحدة لكل بائع على <depop></depop> و <vinted></vinted>.",
+    "heroTitle": "أداة واحدة لـ <logos></logos>",
     "heroSubtitle": "حتى تتمكن من <word></word>",
     "heroWords": [
       "النشر المتقاطع للعناصر خلال ثوانٍ.",
@@ -192,7 +192,7 @@
       "eyebrow": "الميزات",
       "title": "كل الأدوات، حيث تبيع.",
       "scenes": {
-        "crosslist": "اختر أي إعلان وسيملأ SaleLinx الجهة الأخرى نيابةً عنك.",
+        "crosslist": "اختر أي إعلان وسيملؤه SaleLinx على Depop أو Vinted أو eBay نيابةً عنك.",
         "bulkEdit": "اختر أي عدد من الإعلانات، ثم غيّر الأسعار والصور أو ابدأ تخفيضاً على Depop أو انسخها كمسودات.",
         "restocker": "بِعه على تطبيق ويُحذف من الآخر تلقائيًا.",
         "deadStock": "كل إعلان يُقيَّم حسب عمره ومشاهداته وإعجاباته، مع حل لكل ما لا يُباع.",
@@ -208,7 +208,8 @@
       "next": "الميزة التالية"
     },
     "pricingEyebrow": "الأسعار",
-    "faqMore": "عرض كل الأسئلة"
+    "faqMore": "عرض كل الأسئلة",
+    "ctaNote": "تجربة مجانية لمدة 14 يوماً · ألغِ في أي وقت"
   },
   "LanguageSwitcher": {
     "label": "اللغة",
@@ -570,7 +571,7 @@
     "metaTitle": "الميزات: النشر المتقاطع وإعادة النشر والأتمتة على Vinted و Depop و eBay",
     "metaDescription": "كل ميزات SaleLinx لبائعي Vinted و Depop و eBay: النشر المتقاطع وإعادة النشر والتحديث وإعادة التخزين والعروض والرسائل وملصقات الشحن والمزيد، من لوحة واحدة في المتصفح.",
     "hero": {
-      "title": "كل ما يقدمه SaleLinx لمتاجرك على Vinted و Depop و eBay."
+      "title": "كل ما يقدمه SaleLinx لك."
     },
     "sectionHeader": {
       "eyebrow": "القسم 01 / المزايا",
@@ -673,7 +674,7 @@
           "autoMap": {
             "name": "مطابقة الفئات",
             "label": "الفئات والمقاسات مترجمة نيابة عنك",
-            "detail": "تتحول وسوم Depop إلى وسوم Vinted، والعكس بالعكس. وتُحوَّل الأسعار عندما يستخدم متجراك عملتين مختلفتين، دون جداول مطابقة تعدّها بنفسك."
+            "detail": "تنتقل الفئات والمقاسات والوسوم بين Depop و Vinted و eBay، مع ملء مواصفات eBay نيابةً عنك. وتُحوَّل الأسعار عندما تستخدم متاجرك عملات مختلفة، دون جداول مطابقة تعدّها بنفسك."
           },
           "csvImport": {
             "name": "استيراد CSV",
@@ -1099,7 +1100,8 @@
     "step3Text": "انقر على المشغّل، وأنشئ حسابك المجاني، ثم اربط متجرك. كل شيء يعمل من هناك.",
     "openDepop": "فتح Depop",
     "openVinted": "فتح Vinted",
-    "docsLink": "أو اقرأ الأدلة"
+    "docsLink": "أو اقرأ الأدلة",
+    "openEbay": "افتح eBay"
   },
   "PlanStarted": {
     "metaTitle": "كل شيء جاهز",
@@ -1109,7 +1111,7 @@
     "titlePaid": "شكراً لاشتراكك",
     "bodyPaid": "أنت الآن على خطة {plan}، وحدودك الجديدة جاهزة للاستخدام.",
     "nextTitle": "الخطوة التالية",
-    "nextBody": "افتح Depop أو Vinted وانقر على زر SaleLinx في الصفحة.",
+    "nextBody": "افتح Depop أو Vinted أو eBay واضغط على مشغّل SaleLinx في الصفحة.",
     "noExtension": "لم تثبّت الإضافة بعد؟",
     "addToChrome": "أضف إلى Chrome",
     "toAccount": "انتقل إلى حسابك",

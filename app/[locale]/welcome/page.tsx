@@ -5,7 +5,7 @@ import { pageMetadata } from '@/lib/site';
 import { BrandWordmark } from '@/components/BrandWordmark';
 
 // Getting-started page the extension opens on first install (onInstalled,
-// reason === 'install'). The panel only exists inside Depop/Vinted tabs, so
+// reason === 'install'). The panel only exists inside Depop/Vinted/eBay tabs, so
 // without this a fresh install is silence: nothing on screen changes and the
 // user has no idea where the product lives. Same treatment as /uninstall:
 // noindexed and out of the sitemap, reachable only through the install.
@@ -96,6 +96,14 @@ export default async function WelcomePage({
           className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:bg-zinc-900 dark:[&_svg]:fill-[#09b1ba]"
         >
           <BrandWordmark brand="vinted" variant="wordmark" height="1.35rem" />
+        </a>
+        <a
+          href="https://www.ebay.co.uk"
+          aria-label={t('openEbay')}
+          title={t('openEbay')}
+          className="inline-flex items-center rounded-full border border-zinc-300 px-6 py-2.5 transition-colors hover:border-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:bg-zinc-900"
+        >
+          <BrandWordmark brand="ebay" variant="wordmark" height="1.3rem" />
         </a>
         <Link
           href="/docs"

@@ -568,12 +568,6 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         a: <p>eBay cobra sus comisiones habituales por anuncio, igual que si lo publicaras a mano. SaleLinx te muestra la comisión de eBay de cada artículo antes de publicar nada, para que puedas volver atrás o quitar artículos. Los anuncios de eBay se publican al momento, porque eBay no tiene borradores.</p>,
         keywords: ['ebay', 'comisiones', 'coste', 'crosslist'],
       },
-      {
-        id: 'ebay-site-access',
-        q: 'Chrome me pide permitir SaleLinx en los sitios de eBay. ¿Tengo que aceptarlo?',
-        a: <p>No. Solo sirve para mostrar el panel de SaleLinx en las páginas de eBay. Vincular eBay, Mis anuncios y Crosslist funcionan sin ello. Puedes permitirlo más tarde desde <em>Ajustes</em>.</p>,
-        keywords: ['ebay', 'permiso', 'chrome', 'permitir'],
-      },
     ],
   },
   {

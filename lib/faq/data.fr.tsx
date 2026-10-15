@@ -582,12 +582,6 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: <p>eBay applique ses frais d'insertion habituels, comme pour une annonce créée à la main. SaleLinx affiche les frais eBay de chaque article avant toute publication, pour que vous puissiez revenir en arrière ou retirer des articles. Les annonces eBay sont publiées directement, car eBay n'a pas de brouillons.</p>,
         keywords: ['ebay', 'frais', 'prix', 'crosslist'],
       },
-      {
-        id: 'ebay-site-access',
-        q: "Chrome demande d'autoriser SaleLinx sur les sites eBay. Dois-je accepter ?",
-        a: <p>Non. Cela sert uniquement à afficher le panneau SaleLinx sur les pages eBay. La liaison eBay, Mes annonces et le Crosslist fonctionnent sans. Vous pouvez l'autoriser plus tard depuis les <em>Paramètres</em>.</p>,
-        keywords: ['ebay', 'autorisation', 'chrome', 'autoriser'],
-      },
     ],
   },
   {
