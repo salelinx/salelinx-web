@@ -27,7 +27,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Trial reminder and win-back email | Which reminders were sent and when, win-back send time, unsubscribe timestamp (025_trial_nudges.sql, 026_winback_email.sql), the user's yes/no answer and when they gave it (`marketing_opt_out`, `marketing_choice_at` in auth user metadata; 028_marketing_opt_out.sql, 034_marketing_explicit_yes.sql, `lib/marketing-choice.ts`); address read from auth at send time | Users who signed up but never started a trial, and users whose plan or trial ended, in both cases only if they answered yes | Consent (PECR reg 22). Every account is asked yes or no with neither preselected: on the signup form, or by `MarketingChoicePrompt` on the first signed-in visit for accounts that never saw the form. Only a yes is emailed. A no is never emailed, and an account that has not answered yet is not emailed either until it answers (034; before that, unanswered accounts were emailed under the soft opt-in). Changeable on `/account` (Email preferences); unsubscribe link and List-Unsubscribe header on every message | Supabase `trial_nudges` (no client policies), Resend | Life of account (FK cascades) |
 | Uninstall feedback | Reason chip, optional free-text comment, extension version, panel locale. Anonymous by design: no user id, email, or IP (013_uninstall_feedback.sql; /uninstall page, which tells the user it is anonymous and asks them not to include personal details) | Former users, unidentifiable | Legitimate interest | Supabase `uninstall_feedback` (anon insert-only) | Indefinite. Because rows carry no identifier, a specific person's row cannot be located, so erasure-on-request is not possible; instead, review free-text comments periodically and redact any volunteered personal details |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
-| Category resolution | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Transits the `resolve-category` Edge Function on every crosslist (the extension has no local fallback); matched in memory, never logged or stored. Disclosed in the privacy policy under "Category matching for crosslisting" | Not stored |
+| Category resolution | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Transits the `resolve-category` Edge Function on every crosslist (the extension has no local fallback); matched in memory, never logged or stored. For a crosslist into eBay, up to 100 characters of the wording go on to eBay's Taxonomy API under SaleLinx's application token (`ebay-category.ts`), for a listing the user is creating on eBay anyway. Disclosed in the privacy policy under "Category matching for crosslisting" | Not stored |
 | Device sessions | Random per-install device ID, user agent, extension version (015_device_session_version.sql), last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap; knowing which build a support report came from) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
 | Terms acceptance | Terms version and acceptance timestamp | Users | Legal obligation / legitimate interest (record of consent to contract) | Supabase `auth.users` user metadata | Life of account |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
@@ -73,8 +73,12 @@ it, including the 30-day lifetime.
 Buyer data stance: for buyer personal data handled via order features, the
 seller is the controller and SaleLinx is a processor. It is processed in the
 extension locally; the only server-side touchpoint is the `send-shipping-labels`
-Edge Function passing a label PDF to Resend. Never add code that persists buyer
-data server-side without revisiting the policy and terms first.
+Edge Function passing a label PDF to Resend. One transit to know about: the `ebay`
+function's My Listings poll receives eBay's sold transactions, which eBay returns
+with the buyer attached. `listingsFromResponse` (`ebay/trading.ts`) keeps only item
+fields (id, title, price, photo, URL) and drops the rest in memory, so nothing about
+the buyer is returned, logged or stored. Keep it that way. Never add code that
+persists buyer data server-side without revisiting the policy and terms first.
 
 ## Processors and DPAs
 
@@ -201,7 +205,9 @@ Trigger: user emails a deletion request from their account email address
 2. Delete via either path (both run the same steps: storage objects, the
    Stripe customer - cancels any subscription; Stripe keeps invoices for tax
    law, which the policy discloses - then the auth user, which cascades all
-   user-owned rows including tickets):
+   user-owned rows including tickets and `ebay_tokens`; the grant on eBay's
+   side is useless without the tokens, and the user can revoke it in their eBay
+   account):
    - **Admin console:** `/admin/users` > open the user > Danger zone >
      Delete account (step-up reauth; backed by the `admin-delete-user` Edge
      Function, see `docs/ADMIN.md`). No dry run; the drawer shows what the
@@ -235,7 +241,10 @@ On request from the account email:
    keyed by `set_by`.
 3. Storage: download `listing-images/{userId}/` if they want the images.
 4. Do not export `platform_credentials` content (it is encrypted client-side
-   and useless outside their device); note its existence instead.
+   and useless outside their device); note its existence instead. The same
+   goes for the access and refresh tokens in `ebay_tokens`, which are live
+   credentials for their eBay account: export its `ebay_user_id`, `site_id`
+   and timestamps, never the tokens.
 5. Send within a month, in a machine-readable format (JSON or CSV).
 
 ## Breach response

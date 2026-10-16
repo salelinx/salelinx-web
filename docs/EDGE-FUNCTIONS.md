@@ -13,9 +13,11 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`admin-delete-user`** - the admin console's account deletion (the GDPR erasure runbook: storage, Stripe customer, auth user). Needs the service role and `STRIPE_SECRET_KEY`; same home as the script it mirrors (`scripts/delete-user-account.mjs`).
 - **`admin-list-payments`** - the "Latest payments" card on the admin overview. Read-only: lists Stripe's paid invoices (skipping zero-value trial openings, re-sorted by when they were paid, refunds read from the expanded charge) and maps each Stripe customer to our account through `subscriptions.stripe_customer_id`. It reads Stripe because the database keeps only each customer's first payment (`first_paid_at`). Needs `STRIPE_SECRET_KEY` and the service role (admin gate + customer lookup).
 - **`delete-account`** - self-serve account deletion from `/account` (Danger zone). Two stages: `request` emails the account address a confirmation link (Resend, HMAC-signed token, 60-minute expiry, signed with `DELETE_ACCOUNT_TOKEN_SECRET`); `confirm` (from `/account/delete-confirm`) verifies the token was minted for the caller and then runs the same erasure steps as `admin-delete-user`. Refuses admins (their audit-log FKs would break) and writes no audit entry (the actor would not survive their own deletion).
-- **`resolve-category`** - resolves Depop <-> Vinted categories for the extension's crosslister. **Wired up and live**: the extension calls it from `src/features/crosslist/category-resolve-client.ts` with no local fallback, so the entitlement half of the intent is realized: this is now the crosslist check a user cannot patch around. The anti-scraping half is not: the extension still *ships* its copies in `src/data/category-maps-*.ts`, they just have no runtime caller. See "Wiring up resolve-category" below for what's left.
+- **`resolve-category`** - resolves categories between Depop, Vinted and eBay for the extension's crosslister (`toEbay` asks eBay's Taxonomy API for suggestions for the listing wording; `fromEbay` reads an eBay category path as a Depop type and Vinted catalog). **Wired up and live**: the extension calls it from `src/features/crosslist/category-resolve-client.ts` with no local fallback, so the entitlement half of the intent is realized: this is now the crosslist check a user cannot patch around. The anti-scraping half is not: the extension still *ships* its copies in `src/data/category-maps-*.ts`, they just have no runtime caller. See "Wiring up resolve-category" below for what's left.
 - **`change-plan`** - the self-serve counterpart to `admin-change-plan`. A trialing user is already a live Stripe subscription, so `create-checkout-session` refuses them with 409 and the trial cap had no release valve: someone who burned their 50 crosslists on day 3 sat at 50 until day 14 or churned. This ends the trial (`trial_end: "now"`) and optionally swaps the price, in one Stripe call. **It charges the card immediately** - the caller must confirm with the user first. Deliberately up-only: downgrades and cancellations stay in the Customer Portal, where Stripe owns the proration and refund wording. Sends `payment_behavior: "error_if_incomplete"`, so a declined card returns 402 `stripe_update_failed` and Stripe applies nothing; without it Stripe would apply the change and leave the subscription `past_due`, handing out the tier unpaid. Never writes `tier_id`/`status`; `stripe-webhook` syncs the row. Rate limited to 10/day per caller.
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
+- **`ebay`** - the extension's only route to eBay. It has to be server-side: every token exchange and refresh needs the app's client secret, which cannot ship in a .crx, and each user's refresh token is a long-lived credential for their eBay account. Holds both. See "eBay" below.
+- **`ebay-account-deletion`** - eBay will not let a production keyset make calls until it has a public Marketplace Account Deletion endpoint to notify. See "eBay" below.
 
 ## The nineteen functions
 
@@ -32,18 +34,18 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `admin-list-payments`     | false*       | Admin overview reads the latest successful payments from Stripe; auth by `getUser()` + AAL2 + `admin_users` membership |
 | `delete-account`          | false*       | User deletes their own account: emails a signed confirm link and erases on confirm; auth by `getUser()`  |
 | `change-plan`             | false*       | Trialing user ends their trial early and/or moves up a tier; auth by `getUser()`, own subscription only |
-| `resolve-category`        | false*       | Intended: extension POSTs category lookups; auth by `getUser(jwt)` + crosslist tier gate + monthly cap. **No caller yet** |
+| `resolve-category`        | false*       | Extension POSTs category lookups on every crosslist, eBay directions included; auth by `getUser(jwt)` + crosslist tier gate + monthly cap |
 | `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
 | `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial (day 1 and day 4) and send one win-back email after a plan or trial ends, with a per-customer one-use 50% first-month promo code; also serves the HMAC-signed unsubscribe link, which sets `trial_nudges.unsubscribed_at` and `marketing_opt_out` in the user's metadata so `/account` shows the emails as off |
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
-| `ebay`                    | false*       | Extension's only route to eBay: OAuth link, listings, item detail, revise, photo upload, end. Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
+| `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check), postage and policies, categories, conditions, item specifics, view counts. Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
-`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels` and `resolve-category` import `@supabase/supabase-js` from `jsr:`. Deno needs explicit `.ts` extensions on relative imports, which is why `resolve-category/_generated/` is written with them. Deno uses URL imports, not `node_modules`.
+`stripe-webhook`, `create-checkout-session`, and `create-portal-session` import Stripe + Supabase clients from `esm.sh`. `send-auth-email` imports `standardwebhooks` from `esm.sh` and uses plain `fetch` for the Resend API. `send-support-email` imports `@supabase/supabase-js` from `esm.sh` and uses plain `fetch` for Resend. `send-shipping-labels`, `resolve-category`, `ebay` and `ebay-account-deletion` import `@supabase/supabase-js` from `jsr:` (`ebay-account-deletion` also uses `node:crypto` for eBay's signature check). Deno needs explicit `.ts` extensions on relative imports, which is why `resolve-category/_generated/` is written with them. Deno uses URL imports, not `node_modules`.
 
 ## Deno specifics (don't copy Node patterns)
 
@@ -115,8 +117,9 @@ supabase secrets set SUPPORT_NOTIFY_TO='support@salelinx.com'
 supabase secrets set SUPPORT_NOTIFY_NOREPLY='SaleLinx (no reply) <no-reply@salelinx.com>'
 supabase secrets set SUPPORT_NOTIFY_HOOK_SECRET='<random-string>'
 # send-shipping-labels reuses RESEND_API_KEY and RESEND_FROM - no extra secrets.
-# resolve-category needs no secrets: it reads SUPABASE_URL / SUPABASE_ANON_KEY,
-# which the runtime injects.
+# resolve-category reads SUPABASE_URL / SUPABASE_ANON_KEY, which the runtime
+# injects, plus the EBAY_CLIENT_ID / EBAY_CLIENT_SECRET / EBAY_ENV set below for
+# its toEbay Taxonomy lookups (an app token, not the seller's).
 # Optional CORS pinning for all browser-called functions: unset = wildcard
 # (unchanged behavior); set to the site origin to stop other sites' frontends
 # reading responses. The extension is unaffected (host permissions bypass CORS).
@@ -391,9 +394,17 @@ Read side: `/admin/health` (see `docs/ADMIN.md`). Privacy rationale and the
 ## Wiring up resolve-category
 
 Step 3 is **done**. The extension calls this function from
-`src/features/crosslist/category-resolve-client.ts` at three sites (`fetch-depop.ts`,
-`fetch-vinted.ts`, `create-depop.ts`), and nothing under `src/features/` reads the bundled
-tables any more.
+`src/features/crosslist/category-resolve-client.ts`, used by every fetch and create step of a
+crosslist (`fetch-depop.ts`, `fetch-vinted.ts`, `create-depop.ts`, and for eBay
+`fetch-ebay.ts` with `fromEbay` and `create-ebay.ts` with `toEbay`), and nothing under
+`src/features/` reads the bundled tables any more.
+
+The eBay directions add two things the Depop/Vinted ones do not have. `toEbay` makes a
+live call to eBay's Taxonomy API (`ebay-category.ts`) with SaleLinx's application token
+(client credentials, cached until it expires), not the seller's: suggestions are public
+data, and keeping the lookup here keeps it behind the crosslist gate. It sends at most 100
+characters of the wording. `fromEbay` reads `_generated/ebay-depop-types.ts`, which is
+copied by hand from the extension's `src/data/ebay-depop-types.ts` like the other tables.
 
 It was wired **without** the fallback the original plan called for, on purpose. A fallback
 to the local tables on "function unreachable" would have handed the gate straight back to
@@ -420,6 +431,56 @@ Still outstanding (the anti-scraping half of the migration):
    catalog 1809" happened in the first place.
 
 Until step 4 lands, the tables still ship in the .crx; they just aren't read at runtime.
+
+## eBay (`ebay`, `ebay-account-deletion`)
+
+The extension never calls eBay itself. Every eBay request goes through `ebay`, which holds
+the keyset (`EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET`) and each user's tokens, and speaks
+eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
+`trading.test.ts` under Deno). The extension side is in
+`../salelinx-app/docs/technical/EBAY.md`.
+
+- **Linking.** `consentUrl` returns eBay's consent page; the extension opens it in a popup
+  and catches the redirect to `https://<extension-id>.chromiumapp.org/ebay`; `link` swaps the
+  code for tokens. eBay only redirects to a RuName's accept URL, and each accept URL names
+  one extension id, so `link` uses `EBAY_RUNAME_STORE` when the caller sends the Chrome Web
+  Store id and `EBAY_RUNAME` for anything else. It writes `linked_accounts` **through the
+  user's own client first**, so RLS, the one-shop-per-account unique index and the trial
+  triggers (006) decide before any token is kept (their refusals come back as
+  `ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`). Only then does the service role upsert
+  `ebay_tokens`. The Trading site id comes from the account's registration marketplace,
+  UK when eBay does not say.
+- **Tokens.** The access token is refreshed inside the call when it has under a minute
+  left. A refresh eBay refuses (`invalid_grant`: revoked, or the refresh token expired)
+  returns code `reauth`, which the extension shows as "reconnect in Settings". `unlink`
+  deletes the `ebay_tokens` row.
+- **Errors** are `{ error, code }`: `not_linked` and `reauth` (connect eBay again), `quota`
+  (see below), `ebay` (eBay refused; its own message is passed through). Each one is logged
+  as `user=<uuid> action=<action> code=<code>` and nothing else from the request.
+- **Quota.** The Trading API limit is per app per day, shared by every user (5,000 calls by
+  default). Trading error 518 (and a plain HTTP 429) becomes code `quota` with
+  `QUOTA_MESSAGE` from `trading.ts` ("eBay is busy right now. Please try again later."),
+  which the extension shows as it is, untranslated. The extension
+  keeps its own call rate down (no 5-minute poll for eBay, at most one poll every 15
+  minutes), so a burst of `code=quota` warnings in the logs is the sign the limit needs
+  raising with eBay.
+- **Account deletion.** `ebay-account-deletion` is registered in the eBay developer portal.
+  GET answers eBay's challenge with sha256(challenge + `EBAY_DELETION_VERIFICATION_TOKEN` +
+  `EBAY_DELETION_ENDPOINT`), so the endpoint secret must match the registered URL exactly.
+  A POST is verified against `x-ebay-signature` with eBay's public key (fetched with an app
+  token and cached for an hour; a bad signature gets 412), then deletes that eBay user's
+  `ebay_tokens`, `linked_accounts` and `listings` rows. It works by eBay user id, so it
+  needs no SaleLinx session.
+
+Gotchas:
+
+- **Don't add to `SCOPES` casually.** The refresh request sends the whole list, and eBay
+  refuses a refresh asking for a scope the user never consented to, so every existing link
+  would fail until the user reconnects. The list already asks for more than is used today,
+  for that reason.
+- **`EBAY_ENV=sandbox` switches every host at once** (auth, api, apiz) in both functions and
+  in `resolve-category`. Sandbox tokens and production tokens are not interchangeable, so a
+  project switched between them needs every user to reconnect.
 
 ## Excluded from TypeScript checks
 

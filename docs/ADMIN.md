@@ -504,9 +504,9 @@ reads as a deliberate action instead of a flicker.
 
 ### Manual status overrides
 
-`/admin/health` carries a **Manual status** section: every feature and both
-marketplaces, each with Auto / Operational / Degraded / Down and an optional
-public note.
+`/admin/health` carries a **Manual status** section: every feature and all
+three marketplaces (Vinted, Depop, eBay), each with Auto / Operational /
+Degraded / Down and an optional public note.
 
 Everything is **automatic by default**. A row in `status_overrides` (migration
 `011_status_overrides.sql`) switches one target to manual, and manual **wins
@@ -531,6 +531,14 @@ Platform-level overrides also replaced the hardcoded table in
 `lib/docs/status.ts`, taking the Supabase migration path that file had been
 flagged for. Marketplaces have no automatic signal of their own, so they default
 to operational and a real outage is declared here.
+
+eBay is the extreme case: its calls go through the `ebay` Edge Function, not the
+extension's Depop/Vinted fetch wrappers, so no eBay traffic ever reaches
+`endpoint_health` and there are no eBay feature cards. The `platform:ebay`
+override is the only way the status page can say eBay is degraded or down. A
+spike of `quota` errors from the `ebay` function (eBay's per-app daily call
+limit, shared by every user) is the most likely eBay incident, and shows up only
+as `code=quota` warnings in that function's logs.
 
 ### Feature status rollup
 
