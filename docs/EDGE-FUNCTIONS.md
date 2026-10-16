@@ -442,7 +442,9 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
 `trading.test.ts` under Deno). The extension side is in
 `../salelinx-app/docs/technical/EBAY.md`.
 
-- **Linking.** `consentUrl` returns eBay's consent page; the extension opens it in a popup
+- **Linking.** `consentUrl` returns eBay's consent page (with `prompt=login`, so eBay always asks
+  which account: its sign-in runs on ebay.com, whose session is separate from ebay.co.uk's, and
+  without it the old account linked again); the extension opens it in a popup
   and catches the redirect to `https://<extension-id>.chromiumapp.org/ebay`; `link` swaps the
   code for tokens. eBay only redirects to a RuName's accept URL, and each accept URL names
   one extension id, so `link` uses `EBAY_RUNAME_STORE` when the caller sends the Chrome Web
@@ -450,8 +452,16 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   user's own client first**, so RLS, the one-shop-per-account unique index and the trial
   triggers (006) decide before any token is kept (their refusals come back as
   `ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`). Only then does the service role upsert
-  `ebay_tokens`. The Trading site id comes from the account's registration marketplace,
-  UK when eBay does not say.
+  `ebay_tokens`.
+- **Site.** `ebay_tokens.site_id` is the eBay site every listing call goes to, and with it the
+  listing's country, currency and categories. A new link starts it on the account's
+  registration marketplace, UK when eBay does not say or names a site the function doesn't
+  know. That is only where the account began: a seller who registered on ebay.com and sells on
+  ebay.co.uk would list in dollars on eBay US, where their UK postcode is refused. So
+  `setMarketplace { marketplace }` lets the seller pick the site (Settings in the extension),
+  and reconnecting the same eBay account keeps that pick (`linkSiteId` in `trading.ts`). `link`
+  answers with the site in use and `siteKept`, so the extension can tell a fresh start from a
+  kept pick.
 - **Tokens.** The access token is refreshed inside the call when it has under a minute
   left. A refresh eBay refuses (`invalid_grant`: revoked, or the refresh token expired)
   returns code `reauth`, which the extension shows as "reconnect in Settings". `unlink`

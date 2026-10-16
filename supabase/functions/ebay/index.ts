@@ -7,10 +7,12 @@
 // Auth: the signed-in user's Supabase JWT in Authorization.
 //
 // Request body: { action, ...params }
-//   consentUrl { state }                     -> { url }
-//   link       { code }                      -> { userId, username, marketplace }
+//   consentUrl { state }                     -> { url } (eBay's sign-in always asks for the account: prompt=login)
+//   link       { code }                      -> { userId, username, marketplace, siteKept }
+//                (marketplace is the site listings go to; siteKept when a reconnect kept the seller's pick)
 //   unlink     {}                            -> { ok }
 //   account    {}                            -> { accountType, marketplace } (accountType 'INDIVIDUAL' or 'BUSINESS')
+//   setMarketplace { marketplace }           -> { marketplace } (the eBay site listings go to, e.g. 'EBAY_GB')
 //   listings   { page }                      -> { listings, hasMore }
 //   item       { itemId }                    -> { item }
 //   revise     { itemId, changes }           -> { ok }
@@ -55,6 +57,7 @@ import {
   shippingFromItemXml,
   shippingServicesFromDetails,
   verifyFromResponse,
+  linkSiteId,
   QUOTA_MESSAGE,
 } from './trading.ts';
 
@@ -294,11 +297,20 @@ async function link(admin, userScoped, userId: string, code: string, extensionId
     throw new EbayError(linkErr.message ?? 'Link failed', code, 409);
   }
 
+  // Reconnecting the same eBay account keeps the site the seller picked; the registration site
+  // is only the start (linkSiteId).
+  const { data: prior } = await admin
+    .from('ebay_tokens')
+    .select('ebay_user_id, site_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const { siteId, kept } = linkSiteId(SITE_IDS, me.registrationMarketplaceId, prior, me.userId);
+
   const { error: tokErr } = await admin.from('ebay_tokens').upsert(
     {
       user_id: userId,
       ebay_user_id: me.userId,
-      site_id: SITE_IDS[me.registrationMarketplaceId] ?? 3,
+      site_id: siteId,
       access_token: tokens.access_token,
       access_expires_at: inSeconds(tokens.expires_in),
       refresh_token: tokens.refresh_token,
@@ -311,7 +323,12 @@ async function link(admin, userScoped, userId: string, code: string, extensionId
     console.error('[ebay] token store failed:', tokErr.message);
     throw new EbayError('Could not save the eBay connection', 'unavailable', 500);
   }
-  return { userId: me.userId, username: me.username ?? null, marketplace: me.registrationMarketplaceId ?? null };
+  return {
+    userId: me.userId,
+    username: me.username ?? null,
+    marketplace: MARKETPLACE_BY_SITE[siteId] ?? 'EBAY_GB',
+    siteKept: kept,
+  };
 }
 
 // ── Handler ────────────────────────────────────────────────────────────────
@@ -354,6 +371,10 @@ Deno.serve(async (req: Request) => {
           response_type: 'code',
           scope: SCOPES,
           state: body.state,
+          // Always ask which eBay account. Without it eBay approves whoever is signed in to
+          // ebay.com, and that session is separate from ebay.co.uk's, so a seller signed in to
+          // another account on their own site still got the old one linked.
+          prompt: 'login',
         }).toString();
         return json(200, { url: url.toString() });
       }
@@ -377,6 +398,21 @@ Deno.serve(async (req: Request) => {
           accountType: me.accountType === 'BUSINESS' ? 'BUSINESS' : 'INDIVIDUAL',
           marketplace: MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB',
         });
+      }
+
+      case 'setMarketplace': {
+        const marketplace = body.marketplace;
+        if (typeof marketplace !== 'string' || !Object.hasOwn(SITE_IDS, marketplace)) {
+          return json(400, { error: 'Unknown eBay site' });
+        }
+        const { data, error } = await admin
+          .from('ebay_tokens')
+          .update({ site_id: SITE_IDS[marketplace], updated_at: new Date().toISOString() })
+          .eq('user_id', user.id)
+          .select('user_id');
+        if (error) throw new EbayError('Could not save the eBay site', 'unavailable', 500);
+        if (!data?.length) throw new EbayError('eBay is not connected', 'not_linked', 409);
+        return json(200, { marketplace });
       }
 
       case 'unlink': {
