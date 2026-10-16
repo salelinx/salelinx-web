@@ -10,7 +10,7 @@
 //   consentUrl { state }                     -> { url }
 //   link       { code }                      -> { userId, username, marketplace }
 //   unlink     {}                            -> { ok }
-//   account    {}                            -> { accountType } ('INDIVIDUAL' or 'BUSINESS')
+//   account    {}                            -> { accountType, marketplace } (accountType 'INDIVIDUAL' or 'BUSINESS')
 //   listings   { page }                      -> { listings, hasMore }
 //   item       { itemId }                    -> { item }
 //   revise     { itemId, changes }           -> { ok }
@@ -32,7 +32,8 @@
 // paywall in _shared/crosslist-gate.ts, before anything reaches eBay.
 //
 // Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
-// EBAY_RUNAME_STORE (Chrome Web Store extension),
+// EBAY_RUNAME_STORE (Chrome Web Store extension), EBAY_RUNAMES (optional JSON
+// of extension id -> RuName for other dev copies, checked first),
 // EBAY_ENV ('sandbox' for the sandbox hosts, anything else is production).
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
@@ -94,8 +95,11 @@ function json(status: number, body: unknown): Response {
 const STORE_EXTENSION_ID = 'oichfmfogobecihmhlgkfcfbdceomenj';
 
 // eBay only redirects to a RuName's accept URL, which names one extension id.
-const runame = (extensionId: unknown) =>
-  env(extensionId === STORE_EXTENSION_ID ? 'EBAY_RUNAME_STORE' : 'EBAY_RUNAME');
+function runame(extensionId: unknown): string {
+  const mapped = JSON.parse(Deno.env.get('EBAY_RUNAMES') || '{}')[String(extensionId)];
+  if (typeof mapped === 'string') return mapped;
+  return env(extensionId === STORE_EXTENSION_ID ? 'EBAY_RUNAME_STORE' : 'EBAY_RUNAME');
+}
 
 function env(name: string): string {
   const v = Deno.env.get(name);
@@ -372,7 +376,10 @@ Deno.serve(async (req: Request) => {
         });
         if (!res.ok) throw new EbayError(`eBay identity lookup failed (${res.status})`, 'ebay', 502);
         const me = await res.json();
-        return json(200, { accountType: me.accountType === 'BUSINESS' ? 'BUSINESS' : 'INDIVIDUAL' });
+        return json(200, {
+          accountType: me.accountType === 'BUSINESS' ? 'BUSINESS' : 'INDIVIDUAL',
+          marketplace: MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB',
+        });
       }
 
       case 'unlink': {
