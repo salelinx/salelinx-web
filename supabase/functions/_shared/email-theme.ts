@@ -29,6 +29,7 @@ export const theme = {
   accent: "#059669", // emerald, the site's "live" signal
   depop: "#ff2300",
   vinted: "#007782",
+  ebay: "#0968f6", // the eBay blue the site's feature scenes use
 } as const;
 
 export const FONT_STACK =
@@ -160,7 +161,7 @@ type LayoutInput = {
  *
  *   - the dot-grid cream ground from the site background
  *   - a left-aligned masthead and headline, not centred
- *   - the Depop/Vinted split rule, which no other product can use
+ *   - the Depop/Vinted/eBay split rule, which no other product can use
  *   - the mono uppercase eyebrow in an outlined pill, as on the homepage
  *   - the zinc-900 pill CTA, matching the site's primary button
  *
@@ -213,7 +214,7 @@ export function emailLayout(input: LayoutInput): string {
                       </a>
                     </td>
                     <td align="right" style="vertical-align:middle;font-family:${MONO_STACK};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${theme.faint};">
-                      Depop &nbsp;+&nbsp; Vinted
+                      Depop &nbsp;+&nbsp; Vinted &nbsp;+&nbsp; eBay
                     </td>
                   </tr>
                 </table>
@@ -225,7 +226,8 @@ export function emailLayout(input: LayoutInput): string {
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr>
                     <td height="3" style="font-size:0;line-height:0;height:3px;background:${theme.depop};border-top-left-radius:18px;">&nbsp;</td>
-                    <td height="3" style="font-size:0;line-height:0;height:3px;background:${theme.vinted};border-top-right-radius:18px;">&nbsp;</td>
+                    <td height="3" style="font-size:0;line-height:0;height:3px;background:${theme.vinted};">&nbsp;</td>
+                    <td height="3" style="font-size:0;line-height:0;height:3px;background:${theme.ebay};border-top-right-radius:18px;">&nbsp;</td>
                   </tr>
                 </table>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -245,11 +247,13 @@ export function emailLayout(input: LayoutInput): string {
                     <td style="padding:0 7px 0 0;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${theme.depop};"></span></td>
                     <td style="padding:0 14px 0 0;font-family:${FONT_STACK};font-size:12px;color:${theme.muted};">Depop</td>
                     <td style="padding:0 7px 0 0;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${theme.vinted};"></span></td>
-                    <td style="font-family:${FONT_STACK};font-size:12px;color:${theme.muted};">Vinted</td>
+                    <td style="padding:0 14px 0 0;font-family:${FONT_STACK};font-size:12px;color:${theme.muted};">Vinted</td>
+                    <td style="padding:0 7px 0 0;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${theme.ebay};"></span></td>
+                    <td style="font-family:${FONT_STACK};font-size:12px;color:${theme.muted};">eBay</td>
                   </tr>
                 </table>
                 <p style="margin:0;font-family:${FONT_STACK};font-size:12px;line-height:1.65;color:${theme.faint};">
-                  Run both shops from one panel.<br />
+                  Run all your shops from one panel.<br />
                   <a href="${siteUrl}" style="color:${theme.muted};text-decoration:none;">salelinx.com</a>
                 </p>
               </td>
