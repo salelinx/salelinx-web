@@ -64,7 +64,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             ). Se requiere una tarjeta para empezarla, pero no se cobra nada
             durante la prueba y puedes cancelar en cualquier momento desde tu
             página de cuenta. Hay una prueba por cuenta de SaleLinx y por
-            tienda de Depop o Vinted. Si no cancelas, tu suscripción Starter
+            tienda de Depop, Vinted o eBay. Si no cancelas, tu suscripción Starter
             empieza automáticamente al terminar la prueba.
           </p>
         ),
@@ -213,20 +213,20 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
     items: [
       {
         id: 'panel-not-appearing',
-        q: 'El panel de SaleLinx no aparece en Depop o Vinted',
+        q: 'El panel de SaleLinx no aparece en Depop, Vinted o eBay',
         a: (
           <div className="space-y-2">
             <p>
               El panel se abre desde el lanzador de SaleLinx, en la esquina
-              inferior derecha de cada página de Depop y Vinted: haz clic en
-              él o pulsa Alt+S (el atajo predeterminado) en una pestaña de
-              Depop o Vinted. El icono de SaleLinx en la barra de Chrome solo
+              inferior derecha de cada página de Depop, Vinted y eBay: haz
+              clic en él o pulsa Alt+S (el atajo predeterminado) en una de
+              esas pestañas. El icono de SaleLinx en la barra de Chrome solo
               abre una ventana pequeña para iniciar sesión. Si no ves el
               lanzador:
             </p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Refresca la pestaña de Depop o Vinted. Las pestañas que ya
+                Refresca la pestaña de la marketplace. Las pestañas que ya
                 estaban abiertas cuando instalaste o actualizaste SaleLinx
                 necesitan refrescarse.
               </li>
@@ -247,7 +247,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             </ol>
           </div>
         ),
-        keywords: ['panel', 'falta', 'no se ve', 'lanzador', 'depop', 'vinted'],
+        keywords: ['panel', 'falta', 'no se ve', 'lanzador', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'update-available',
@@ -264,7 +264,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             chrome://extensions), activa el{' '}
             <strong>Modo de desarrollador</strong> arriba a la derecha, haz
             clic en <strong>Actualizar</strong> y luego refresca tus pestañas
-            de Depop y Vinted.
+            de Depop, Vinted y eBay.
           </p>
         ),
         keywords: ['actualización', 'versión', 'por detrás', 'desactualizado', 'recargar'],
@@ -279,7 +279,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             <strong>En uso en otro dispositivo</strong>, haz clic en{' '}
             <strong>Usar aquí</strong> para seguir en este; el otro dispositivo
             cierra la sesión de SaleLinx. Si acabas de cerrar tus pestañas de
-            Depop y Vinted en el otro dispositivo, también se libera solo en
+            marketplace en el otro dispositivo, también se libera solo en
             unos 10 minutos. Si no reconoces el otro dispositivo, toma el
             control y después cambia tu contraseña desde tu{' '}
             <Link href="/account" className="underline underline-offset-4">
@@ -296,8 +296,9 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         a: (
           <p>
             El panel no puede conectar con nuestros servidores en este momento.
-            Depop y Vinted no se ven afectados, así que puedes seguir usando
-            ambos sitios con normalidad y tus anuncios allí siguen intactos. El
+            Depop, Vinted y eBay no se ven afectados, así que puedes seguir
+            usando los tres sitios con normalidad y tus anuncios allí siguen
+            intactos. El
             mensaje desaparece solo en cuanto SaleLinx vuelve a estar
             disponible, así que no hace falta reinstalar, cerrar sesión ni
             restablecer la contraseña, aunque la pantalla de inicio de sesión
@@ -336,12 +337,16 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         a: (
           <p>
             SaleLinx funciona a través de tus propias sesiones iniciadas en
-            Depop y Vinted, así que cada función necesita una pestaña de su
-            marketplace abierta en algún lugar de Chrome. Vale cualquier
-            ventana y no tiene que ser la pestaña que estás mirando. Haz clic
-            en <strong>Abrir Depop</strong> o <strong>Abrir Vinted</strong> en
-            el mensaje, o abre el sitio tú mismo; el crosslisting necesita las
-            dos. Si hay una pestaña abierta pero SaleLinx te pide recargarla
+            Depop y Vinted, así que cada función de Depop o Vinted necesita
+            una pestaña de su marketplace abierta en algún lugar de Chrome.
+            Vale cualquier ventana y no tiene que ser la pestaña que estás
+            mirando. Haz clic en <strong>Abrir Depop</strong> o{' '}
+            <strong>Abrir Vinted</strong> en el mensaje, o abre el sitio tú
+            mismo; el crosslisting entre Depop y Vinted necesita las dos. eBay
+            nunca necesita una pestaña, porque se conecta mediante el propio
+            inicio de sesión de eBay, así que el crosslisting hacia o desde
+            eBay solo necesita la pestaña de Depop o Vinted. Si hay una
+            pestaña abierta pero SaleLinx te pide recargarla
             (por ejemplo, después de que Chrome la suspendiera para ahorrar
             memoria), haz clic en <strong>Recargar pestaña de Depop</strong> o{' '}
             <strong>Recargar pestaña de Vinted</strong>. Desde la versión
@@ -350,7 +355,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             recargar una pestaña aunque no hubiera ninguna abierta.
           </p>
         ),
-        keywords: ['pestaña', 'abrir', 'recargar', 'depop', 'vinted'],
+        keywords: ['pestaña', 'abrir', 'recargar', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'wrong-marketplace-account',
@@ -366,7 +371,10 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             <strong>Desvincular</strong> en{' '}
             <strong>Cuentas de plataformas</strong> y luego en{' '}
             <strong>Vincular</strong> para la cuenta con la que has iniciado
-            sesión. Más detalles en{' '}
+            sesión. eBay funciona de otra manera: SaleLinx siempre usa la
+            cuenta de eBay vinculada en <strong>Ajustes</strong>, sea cual sea
+            la cuenta con la que el sitio de eBay tenga la sesión iniciada.
+            Más detalles en{' '}
             <Link
               href="/docs/getting-started/connect-your-first-marketplace"
               className="underline underline-offset-4"
@@ -380,11 +388,11 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
       },
       {
         id: 'account-already-linked',
-        q: 'SaleLinx dice que mi cuenta de Depop o Vinted ya está vinculada o ya usó una prueba gratuita',
+        q: 'SaleLinx dice que mi cuenta de Depop, Vinted o eBay ya está vinculada o ya usó una prueba gratuita',
         a: (
           <p>
-            Cada cuenta de Depop o Vinted solo puede estar vinculada a una
-            cuenta de SaleLinx a la vez. Si está vinculada a otra cuenta tuya
+            Cada cuenta de Depop, Vinted o eBay solo puede estar vinculada a
+            una cuenta de SaleLinx a la vez. Si está vinculada a otra cuenta tuya
             de SaleLinx, entra en esa, haz clic en{' '}
             <strong>Desvincular</strong> en <strong>Ajustes</strong>, luego
             vuelve a entrar en esta cuenta y vincúlala. Además, cada tienda
@@ -411,12 +419,18 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             SaleLinx lee tus anuncios de Depop y Vinted mientras haya una
             pestaña de esa marketplace abierta y con sesión iniciada en tu
             cuenta vinculada. En <strong>Mis anuncios</strong>, el estado junto
-            a Depop y Vinted, arriba, indica cuándo se sincronizó cada una por
-            última vez: haz clic en <strong>Refrescar todo</strong>, o en el
-            botón de refrescar de una marketplace, para sincronizar ahora. Si
-            te pide abrir o recargar una pestaña, o dice que tu sesión ha
-            caducado, hazlo en el sitio de la marketplace y vuelve a refrescar.
-            Más detalles en la{' '}
+            a cada marketplace, arriba, indica cuándo se sincronizó por última
+            vez: haz clic en <strong>Actualizar todo</strong>, o en el botón de
+            refrescar de una marketplace, para sincronizar ahora. Si te pide
+            abrir o recargar una pestaña, o dice que tu sesión ha caducado,
+            hazlo en el sitio de la marketplace y vuelve a refrescar. Los
+            anuncios de eBay llegan directamente de eBay sin necesidad de
+            pestaña: se actualizan, como mucho, una vez cada 15 minutos, y ves
+            tus anuncios activos de eBay más los vendidos en los últimos 60
+            días. Si el estado de eBay dice{' '}
+            <strong>vuelve a conectar en Ajustes</strong>, abre{' '}
+            <strong>Ajustes</strong> y haz clic en <strong>Vincular</strong> en
+            la fila de eBay. Más detalles en la{' '}
             <Link
               href="/docs/inventory/listings"
               className="underline underline-offset-4"
@@ -426,7 +440,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             .
           </p>
         ),
-        keywords: ['sincronizar', 'falta', 'mis anuncios', 'refrescar', 'desactualizado'],
+        keywords: ['sincronizar', 'falta', 'mis anuncios', 'refrescar', 'desactualizado', 'ebay'],
       },
       {
         id: 'crosslisting-stuck',
@@ -436,9 +450,10 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             <p>Revisa esto en orden:</p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Tus cuentas de Depop y Vinted están vinculadas, y hay una
-                pestaña de Depop y otra de Vinted abiertas con sesión iniciada
-                en esas cuentas. El panel te dice cuál falta.
+                Las dos marketplaces entre las que copias están vinculadas.
+                Para Depop y Vinted, también hay una pestaña de cada una
+                abierta con sesión iniciada en la cuenta vinculada; eBay no
+                necesita pestaña. El panel te dice cuál falta.
               </li>
               <li>
                 Mira la <Link href="/docs/getting-started/queue" className="underline underline-offset-4">cola</Link> en la parte inferior de la barra lateral del
@@ -451,6 +466,11 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
                 <strong>Limitado</strong> significa que Depop o Vinted está
                 limitando las solicitudes. SaleLinx espera y sigue solo cuando
                 termina la cuenta atrás.
+              </li>
+              <li>
+                <strong>eBay is busy right now</strong> significa que
+                eBay está rechazando solicitudes temporalmente. Vuelve a
+                intentarlo más tarde; no se ha publicado ni cobrado nada.
               </li>
               <li>
                 Si has agotado tu cupo mensual de crosslistings, SaleLinx te
@@ -474,7 +494,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             </p>
           </div>
         ),
-        keywords: ['atascado', 'colgado', 'lento', 'en cola', 'crosslist'],
+        keywords: ['atascado', 'colgado', 'lento', 'en cola', 'crosslist', 'ebay', 'ocupado'],
       },
       {
         id: 'listing-failed-to-post',
@@ -487,7 +507,11 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             datos que esa marketplace no aceptó. Inicia sesión allí con tu
             cuenta vinculada, selecciona el anuncio en{' '}
             <strong>Mis anuncios</strong> y vuelve a hacer clic en{' '}
-            <strong>Publicar cruzado</strong>. Desde la versión 1.1.12, los
+            <strong>Publicar cruzado</strong>. Cuando eBay rechaza un
+            artículo, el paso de revisión indica qué necesita eBay,
+            normalmente una característica del artículo como la talla o el
+            departamento: haz clic en <strong>Completar</strong>, añádela y el
+            artículo se podrá publicar. Desde la versión 1.1.12, los
             anuncios que fallan no cuentan para tu cupo mensual de
             crosslistings. Si una marketplace entera tiene problemas, mira la{' '}
             <Link
@@ -554,7 +578,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
   {
     slug: 'ebay',
     title: 'eBay',
-    blurb: 'Conectar eBay, publicar en eBay y cuánto cuesta.',
+    blurb: 'Conectar eBay, gestionar tus anuncios de eBay y hacer crosslisting con ellos, y cuánto cuesta.',
     items: [
       {
         id: 'ebay-connect',
@@ -567,6 +591,95 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         q: '¿Publicar en eBay con crosslisting tiene coste?',
         a: <p>eBay cobra sus comisiones habituales por anuncio, igual que si lo publicaras a mano. SaleLinx te muestra la comisión de eBay de cada artículo antes de publicar nada, para que puedas volver atrás o quitar artículos. Los anuncios de eBay se publican al momento, porque eBay no tiene borradores.</p>,
         keywords: ['ebay', 'comisiones', 'coste', 'crosslist'],
+      },
+      {
+        id: 'ebay-tab',
+        q: '¿Necesito tener abierta una pestaña de eBay?',
+        a: (
+          <p>
+            No. eBay se conecta mediante el propio inicio de sesión de eBay,
+            así que SaleLinx accede a tus anuncios de eBay sin ninguna pestaña
+            de eBay abierta. Eso sí, el panel se sigue abriendo desde una
+            página de Depop, Vinted o eBay.
+          </p>
+        ),
+        keywords: ['ebay', 'pestaña', 'abrir'],
+      },
+      {
+        id: 'ebay-manage-listings',
+        q: '¿Puedo editar, retirar o volver a publicar anuncios de eBay desde SaleLinx?',
+        a: (
+          <p>
+            Sí. Tus anuncios de eBay aparecen en <strong>Mis anuncios</strong>.
+            Abre uno para editar el título, la descripción, el precio, la
+            cantidad, las fotos, el estado, la categoría y las características
+            del artículo, y guardar los cambios directamente en eBay.{' '}
+            <strong>Retirar</strong> finaliza el anuncio; eBay no permite
+            eliminar anuncios, así que eliminar una fila de eBay también lo
+            finaliza. Un anuncio retirado se abre con la opción{' '}
+            <strong>Volver a publicar</strong>. Más detalles en la{' '}
+            <Link
+              href="/docs/inventory/listings"
+              className="underline underline-offset-4"
+            >
+              guía de Mis anuncios
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['ebay', 'editar', 'finalizar', 'retirar', 'volver a publicar', 'eliminar', 'mis anuncios'],
+      },
+      {
+        id: 'ebay-postage',
+        q: '¿De dónde sale el envío cuando publico en eBay con crosslisting?',
+        a: (
+          <p>
+            De tu cuenta de eBay. SaleLinx usa tus políticas comerciales de
+            eBay, o copia el envío y las devoluciones de uno de tus anuncios de
+            eBay. Si no hay nada que copiar, la pestaña Crosslist te pide el
+            envío una vez, y puedes cambiarlo después en{' '}
+            <strong>Ajustes &rarr; eBay &rarr; Envío</strong>.
+          </p>
+        ),
+        keywords: ['ebay', 'envío', 'gastos de envío', 'devoluciones', 'políticas'],
+      },
+      {
+        id: 'ebay-busy',
+        q: '¿Qué significa «eBay is busy right now»?',
+        a: (
+          <p>
+            eBay está rechazando solicitudes temporalmente. Vuelve a
+            intentarlo más tarde; no se ha publicado ni cobrado nada.
+          </p>
+        ),
+        keywords: ['ebay', 'ocupado', 'error', 'volver a intentar'],
+      },
+      {
+        id: 'ebay-reconnect',
+        q: 'SaleLinx me pide que vuelva a conectar eBay',
+        a: (
+          <p>
+            El permiso que eBay da a SaleLinx caduca pasado un tiempo, y
+            también se pierde si retiras el acceso de SaleLinx en tu cuenta de
+            eBay. Abre <strong>Ajustes</strong> en el panel y haz clic en{' '}
+            <strong>Vincular</strong> en la fila de eBay para volver a
+            autorizarlo. Tus anuncios de eBay no se ven afectados.
+          </p>
+        ),
+        keywords: ['ebay', 'volver a conectar', 'reconectar', 'vincular', 'caducado', 'acceso'],
+      },
+      {
+        id: 'ebay-disconnect',
+        q: '¿Cómo desconecto eBay?',
+        a: (
+          <p>
+            Abre <strong>Ajustes</strong> en el panel y haz clic en{' '}
+            <strong>Desvincular</strong> en la fila de eBay. SaleLinx elimina
+            su acceso a eBay en el momento, y tus anuncios en eBay se quedan
+            como están.
+          </p>
+        ),
+        keywords: ['ebay', 'desconectar', 'desvincular', 'quitar'],
       },
     ],
   },
@@ -599,7 +712,11 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             de base de datos, Supabase, y los pagos los gestiona Stripe. Los
             datos y fotos de los anuncios solo se guardan con nosotros en los
             anuncios que guardas en la nube; el resto de lo que SaleLinx lee de
-            Depop y Vinted no se guarda en nuestros servidores. Los datos viajan
+            Depop y Vinted no se guarda en nuestros servidores. Las solicitudes
+            a eBay pasan por nuestros servidores, que guardan el acceso que
+            eBay concede para tu cuenta y los datos de envío que configuras
+            para los crosslistings a eBay, incluido el código postal desde el
+            que envías. Los datos viajan
             por HTTPS, Supabase los cifra en reposo y las reglas de acceso
             vinculan cada anuncio y cada foto a tu cuenta. Dónde tratan los
             datos nuestros proveedores se explica en nuestra{' '}
@@ -625,8 +742,8 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             falta si entras con Google) y te enviamos un enlace de confirmación
             por correo: ábrelo en los 60 minutos siguientes con la sesión
             iniciada y confirma una vez más. Tu cuenta, anuncios, imágenes,
-            cuentas de marketplace vinculadas, historial de uso y tickets de
-            soporte se eliminan en ese momento, y cualquier suscripción se
+            cuentas de marketplace vinculadas (incluida tu conexión con eBay),
+            historial de uso y tickets de soporte se eliminan en ese momento, y cualquier suscripción se
             cancela sin reembolso por el tiempo restante. También puedes
             escribir a{' '}
             <a
