@@ -14,8 +14,12 @@ import { usePrefersReducedMotion, useTick } from "./scene-hooks";
  * The price follows the extension's rule (src/features/auto-offer-bot.ts in
  * the extension repo): listed price minus the discount, raised to the floor if
  * the discount would go under it. 10% off £20 is £18, above the £17 floor.
- * Vinted only, like the feature, hence the single wordmark.
+ * Alternates between Vinted, where the people are likers, and eBay, where
+ * they are watchers, one shop per loop.
  */
+
+type Shop = "vinted" | "ebay";
+const SHOPS: Shop[] = ["vinted", "ebay"];
 
 const LISTED = 20;
 const DISCOUNT = 10;
@@ -50,10 +54,22 @@ function Heart({ className = "" }: { className?: string }) {
   );
 }
 
+function Eye({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth={2.2}>
+      <path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="2.8" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function SendOffersScene() {
   const reduced = usePrefersReducedMotion();
   const tick = useTick(TICK_MS);
   const phase = reduced ? CYCLE - 1 : tick % CYCLE;
+  const shop = reduced ? SHOPS[0] : SHOPS[Math.floor(tick / CYCLE) % SHOPS.length];
+  const ebay = shop === "ebay";
+  const Mark = ebay ? Eye : Heart;
 
   const sent = Math.min(
     LIKERS.length,
@@ -83,15 +99,22 @@ export function SendOffersScene() {
           className="size-14 shrink-0 rounded-lg"
         />
         <div className="min-w-0 flex-1">
-          <BrandWordmark brand="vinted" variant="wordmark" height="0.95em" />
+          {/* Fixed-height slot, keyed so each loop's shop slides in. */}
+          <span className="flex h-4 items-center">
+            <span key={shop} className="scene-swap-in inline-flex">
+              <BrandWordmark brand={shop} variant="wordmark" height={ebay ? "1.2em" : "0.95em"} />
+            </span>
+          </span>
           <div className="mt-1 truncate text-[12px] font-medium text-zinc-900 dark:text-zinc-100">
             Grey star beanie
           </div>
           <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
             <span className="tabular-nums">£{LISTED}</span>
             <span aria-hidden>·</span>
-            <Heart className="h-2.5 w-2.5 text-rose-500" />
-            <span className="tabular-nums">{LIKERS.length} likes</span>
+            <Mark className={`h-2.5 w-2.5 ${ebay ? "text-zinc-500" : "text-rose-500"}`} />
+            <span className="tabular-nums">
+              {LIKERS.length} {ebay ? "watchers" : "likes"}
+            </span>
           </div>
         </div>
         <span className="shrink-0 rounded-full bg-black/[0.05] px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.12em] text-zinc-600 dark:bg-white/[0.07] dark:text-zinc-300">
@@ -133,8 +156,8 @@ export function SendOffersScene() {
                     isSent ? "opacity-0" : "opacity-100"
                   }`}
                 >
-                  <Heart className="h-2.5 w-2.5 text-rose-400" />
-                  liked {l.liked} ago
+                  <Mark className={`h-2.5 w-2.5 ${ebay ? "text-zinc-400" : "text-rose-400"}`} />
+                  {ebay ? "watched" : "liked"} {l.liked} ago
                 </span>
                 <span
                   className={`[grid-area:1/1] text-emerald-600 transition-opacity duration-300 dark:text-emerald-400 ${

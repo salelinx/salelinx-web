@@ -44,11 +44,11 @@ function usePrefersReducedMotion(): boolean {
   );
 }
 import { Icon } from "@/components/Icon";
-import { BrandWordmark } from "@/components/BrandWordmark";
+import { BrandWordmark, GLYPH, type Brand } from "@/components/BrandWordmark";
 import { ProductImage, type ProductType } from "./ProductImage";
 
 // Product photos. Local studio shots of the accessory items the demo shop
-// sells across both marketplaces.
+// sells across all three marketplaces.
 const PHOTO = {
   crossNecklace: "/products/cross-necklace.jpg",
   crystalCross: "/products/crystal-cross.jpg",
@@ -68,19 +68,43 @@ function avatarStyle(hue: number): CSSProperties {
   return { background: `hsl(${hue} 55% 42%)` };
 }
 
-export function platformBorder(platform: "depop" | "vinted"): string {
-  return platform === "depop"
-    ? "border-l-[2px] border-l-[rgba(255,35,0,0.55)]"
-    : "border-l-[2px] border-l-[rgba(9,177,136,0.55)]";
+export type Platform = "depop" | "vinted" | "ebay";
+
+const PLATFORM_BORDER: Record<Platform, string> = {
+  depop: "border-l-[2px] border-l-[rgba(255,35,0,0.55)]",
+  vinted: "border-l-[2px] border-l-[rgba(9,177,136,0.55)]",
+  ebay: "border-l-[2px] border-l-[rgba(9,104,246,0.55)]",
+};
+
+export function platformBorder(platform: Platform): string {
+  return PLATFORM_BORDER[platform];
 }
 
 export function PlatformBadge({
   platform,
   size = 14,
 }: {
-  platform: "depop" | "vinted";
+  platform: Platform;
   size?: number;
 }) {
+  if (platform === "ebay") {
+    // eBay has no square monogram to match the other two, and its four-colour
+    // wordmark squeezed into a square this small was an unreadable smudge. So
+    // the wordmark at the badge's height instead, wider than the others.
+    const g = GLYPH.ebay.wordmark;
+    return (
+      <svg
+        role="img"
+        aria-label="eBay"
+        viewBox={g.viewBox}
+        fill={g.fill}
+        className="flex-shrink-0"
+        style={{ height: size, width: "auto" }}
+      >
+        {g.d}
+      </svg>
+    );
+  }
   const src = platform === "depop" ? "/depop-logo.png" : "/vinted-logo.png";
   return (
     // eslint-disable-next-line @next/next/no-img-element -- tiny fixed-size platform logo; next/image adds no value here
@@ -95,171 +119,231 @@ export function PlatformBadge({
   );
 }
 
+const BRAND_NAME: Record<Brand, string> = {
+  depop: "Depop",
+  vinted: "Vinted",
+  ebay: "eBay",
+};
+
+// The three shops, always in this order, with an arrow between each pair.
+const CROSSLIST_COLUMNS: Brand[] = ["vinted", "depop", "ebay"];
+
+// One loop per shop holding the original, so each marketplace is the source
+// once and a target twice, and a different item each time so the loops do not
+// read as a replay.
+const CROSSLIST_LOOPS: { source: number; photo: string }[] = [
+  { source: 0, photo: PHOTO.starBeanie },
+  { source: 1, photo: PHOTO.unionJackBeanie },
+  { source: 2, photo: PHOTO.westernBelt },
+];
+
+// Heights tuned so the three wordmarks look the same optical size.
+const CROSSLIST_WORDMARK_H: Record<Brand, string> = {
+  depop: "0.8em",
+  vinted: "1em",
+  ebay: "1.1em",
+};
+
+const CROSSLIST_CYCLE = 110; // 11s
+// When each copy starts, nearest shop first, and how long it takes to fill.
+// COPY_TICKS must match the transition on .crosslist-fill-on in globals.css.
+const CROSSLIST_COPY_AT = [12, 44];
+const CROSSLIST_COPY_TICKS = 22;
+
+/** The other two columns, nearest first (left first when both are one away). */
+function crosslistTargets(source: number): number[] {
+  return [0, 1, 2]
+    .filter((i) => i !== source)
+    .sort((a, b) => Math.abs(a - source) - Math.abs(b - source) || a - b);
+}
+
+function CrosslistArrow({ dir }: { dir: "left" | "right" | null }) {
+  // Two-headed while idle, because crosslisting runs either way. While a copy
+  // travels across it, it points the way the copy is going.
+  const d =
+    dir === "right"
+      ? "M4 12h20M20 8l4 4-4 4"
+      : dir === "left"
+        ? "M24 12H4M8 8l-4 4 4 4"
+        : "M4 12h20M20 8l4 4-4 4M8 8l-4 4 4 4";
+  return (
+    <svg
+      className={`size-5 transition-colors duration-300 sm:size-6 ${
+        dir ? "text-emerald-500 dark:text-emerald-400" : "text-zinc-300 dark:text-zinc-600"
+      }`}
+      viewBox="0 0 28 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
+}
+
 // ── Tab panels ──────────────────────────────────────────────────────
 
 export function CrosslistPanel() {
-  // Deliberately close to nothing: two photos, the marketplace each belongs
-  // to, an arrow, and one line of text.
+  // Three shops side by side, Vinted, Depop and eBay, with an arrow between
+  // each. One holds the original listing and the copies fill in on the other
+  // two, one after the other; next loop the original is on the next shop.
   //
-  // This used to be a pair of mocked marketplace cards — brand-tinted borders,
-  // header bars, a fake @handle with a star avatar, price, fee, likes, size,
-  // hashtags, a chip row and a progress bar. All of it was invented UI that the
-  // crosslister does not have, and at phone width it collapsed into clutter.
-  // The story is "the same item, now on both marketplaces", and two photos with
-  // an arrow between them tell that on their own. Everything removed was
-  // decoration around that sentence.
+  // Deliberately close to nothing: photos, the marketplace each belongs to,
+  // arrows, and one line of text. An earlier version mocked full marketplace
+  // cards (handles, fees, likes, hashtags, a chip row) that the crosslister
+  // does not have, and at phone width it collapsed into clutter. The story is
+  // "the same item, now on every marketplace", and the photos tell that.
   const tick = useAnimationTick(100);
   const reduced = usePrefersReducedMotion();
 
-  // Paced to be watched, not raced through. Fields used to land every second
-  // with a 2.8s hold; now it is 1.4s between each and a 4.4s settle at the end,
-  // so the eye can finish one row before the next moves and the scene has a
-  // moment of stillness before it loops.
-  const CYCLE = 110; // 11s
-  const STEP_TICKS = [10, 24, 38, 52, 66];
-  const phase = tick % CYCLE;
-  // Every other loop the copy goes to eBay instead of Depop. eBay has no
-  // drafts, so that copy is listed live.
-  const toEbay = !reduced && Math.floor(tick / CYCLE) % 2 === 1;
-  const step = reduced
-    ? STEP_TICKS.length
-    : STEP_TICKS.filter((s) => phase >= s).length;
-  const done = step >= STEP_TICKS.length;
-  // The arrow warms for ~600ms as each field lands, so the pair reads as
-  // actively syncing rather than as a static before/after. Longer than the old
-  // 400ms: at the slower cadence a short flash read as a twitch.
-  const landing =
-    !reduced && STEP_TICKS.some((s) => phase >= s && phase < s + 6);
+  const loopIndex = reduced ? 0 : Math.floor(tick / CROSSLIST_CYCLE) % CROSSLIST_LOOPS.length;
+  const loop = CROSSLIST_LOOPS[loopIndex];
+  // Reduced motion holds the finished frame: the original and both copies.
+  const phase = reduced ? CROSSLIST_CYCLE - 1 : tick % CROSSLIST_CYCLE;
+  const targets = crosslistTargets(loop.source);
 
-  // Fields are shown, not narrated: the progress line below fills as each one
-  // maps across. The names still exist for screen readers, which get nothing
-  // from a moving line.
-  const FIELDS = ["brand", "category", "size", "condition"] as const;
-  const label = done
-    ? toEbay
-      ? "Listed on eBay"
-      : "Draft saved on Depop"
-    : `Mapping ${FIELDS[Math.min(step, FIELDS.length - 1)]}`;
-  const progress = (step / STEP_TICKS.length) * 100;
+  type ColumnState = "original" | "waiting" | "copying" | "done";
+  const stateOf = (col: number): ColumnState => {
+    const k = targets.indexOf(col);
+    if (k < 0) return "original";
+    if (phase < CROSSLIST_COPY_AT[k]) return "waiting";
+    if (phase < CROSSLIST_COPY_AT[k] + CROSSLIST_COPY_TICKS) return "copying";
+    return "done";
+  };
+  const copying = targets.find((t) => stateOf(t) === "copying");
+  const doneCount = targets.filter((t) => stateOf(t) === "done").length;
 
-  // The photo's wipe is a CSS animation, not a per-tick style.
-  //
-  // It used to recompute a mask gradient on every 100ms tick, which meant the
-  // edge advanced ten times a second and each step went through a full React
-  // re-render of the panel. That is what looked laggy: it was not a wipe at
-  // 60fps, it was twelve visible jumps. As a CSS animation the browser
-  // interpolates it on the compositor and React is not involved at all.
-  //
-  // The keyframes live in globals.css and are timed against this cycle, so the
-  // two must move together: the wipe runs between the first and last field
-  // landing, expressed there as percentages of CYCLE.
+  // Arrow i sits between column i and i + 1. A copy lights the arrow on its
+  // side facing the original, pointing away from it.
+  const arrowDir = (i: number): "left" | "right" | null => {
+    if (copying === undefined) return null;
+    const arrow = copying < loop.source ? copying : copying - 1;
+    if (arrow !== i) return null;
+    return copying > loop.source ? "right" : "left";
+  };
+
+  const sourceName = BRAND_NAME[CROSSLIST_COLUMNS[loop.source]];
+  const label =
+    copying !== undefined
+      ? `Copying to ${BRAND_NAME[CROSSLIST_COLUMNS[copying]]}`
+      : doneCount === targets.length
+        ? "On Vinted, Depop and eBay"
+        : `Original on ${sourceName}`;
+  // The bar fills alongside each copy: it heads for the next half over the
+  // same time the photo takes to sharpen, then snaps back between loops.
+  const progress = ((doneCount + (copying !== undefined ? 1 : 0)) / targets.length) * 100;
 
   return (
     <div className="cascade-list panel-fluid flex flex-col items-center gap-6">
-      <div className="cascade-list grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-6">
-        {/* Source */}
-        <figure
-          className="cascade-item m-0 flex flex-col items-center gap-3"
-          style={{ "--stagger-delay": "0ms" } as CSSProperties}
-        >
-          <BrandWordmark brand="vinted" variant="wordmark" height="1em" />
-          <ProductImage
-            type="tee"
-            hue={220}
-            src={PHOTO.starBeanie}
-            className="aspect-square w-full rounded-xl"
-          />
-        </figure>
-
-        {/* Arrow — bidirectional, because crosslisting runs either way. */}
-        <div
-          className="cascade-item flex items-center justify-center"
-          style={{ "--stagger-delay": "100ms" } as CSSProperties}
-        >
-          <svg
-            className={`size-5 transition-colors duration-300 sm:size-6 ${
-              landing
-                ? "text-emerald-500 dark:text-emerald-400"
-                : "text-zinc-300 dark:text-zinc-600"
-            }`}
-            viewBox="0 0 28 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M4 12h20M20 8l4 4-4 4M8 8l-4 4 4 4" />
-          </svg>
-        </div>
-
-        {/* Target — fades up as the listing is created, so the pair is not
-            simply two identical photos sitting side by side. */}
-        <figure
-          className="cascade-item m-0 flex flex-col items-center gap-3"
-          style={{ "--stagger-delay": "200ms" } as CSSProperties}
-        >
-          {toEbay ? (
-            <BrandWordmark brand="ebay" variant="wordmark" height="1em" />
-          ) : (
-            <BrandWordmark brand="depop" variant="wordmark" height="0.8em" />
-          )}
-          {/* The listing SHARPENS rather than being uncovered.
-              Two stacked copies of the same photo: a blurred one that is fully
-              visible the whole time, and a sharp one on top that wipes down
-              over it as the fields map across.
-
-              The previous version clipped the sharp photo from the bottom, so
-              the lower half of the frame was simply empty until progress
-              reached it — the item looked half-missing rather than half-done.
-              Keeping the blurred copy underneath means the whole item is there
-              from the first frame and what changes is its resolution, which is
-              much closer to what crosslisting actually does: the listing exists,
-              the details are still filling in.
-
-              Neither copy carries a backdrop — animating the frame brought its
-              grey placeholder along, so a dark square appeared and resolved
-              into a hat, which read as a glitch. */}
-          {/* Each copy sits in its OWN absolutely-positioned wrapper.
-              ProductImage hardcodes `relative` on its root before spreading
-              `className`, and `absolute` passed in there does not reliably win:
-              Tailwind resolves same-property utilities by stylesheet order, not
-              by the order they appear in the attribute. The two layers fell
-              back into normal flow and stacked vertically, which is why the
-              sharp photo rendered a full frame BELOW the blurred one instead of
-              on top of it. Positioning the wrappers takes the fight away. */}
-          <div className="relative aspect-square w-full">
-            <div className="absolute inset-0">
-              <ProductImage
-                type="tee"
-                hue={220}
-                src={PHOTO.starBeanie}
-                noBackdrop
-                className="h-full w-full rounded-xl"
-                imgClassName="crosslist-blurred"
-              />
-            </div>
-            <div className="absolute inset-0">
-              <ProductImage
-                type="tee"
-                hue={220}
-                src={PHOTO.starBeanie}
-                noBackdrop
-                className="h-full w-full rounded-xl"
-                imgClassName={reduced ? "" : "crosslist-wipe"}
-              />
-            </div>
-          </div>
-        </figure>
+      <div className="cascade-list grid w-full grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 sm:gap-4">
+        {CROSSLIST_COLUMNS.flatMap((brand, col) => {
+          const state = stateOf(col);
+          const chip =
+            state === "original"
+              ? "Original"
+              : state === "copying"
+                ? "Copying"
+                : state === "done"
+                  ? brand === "ebay"
+                    ? "Live"
+                    : "Draft"
+                  : "";
+          const figure = (
+            <figure
+              key={brand}
+              className="cascade-item m-0 flex flex-col items-center gap-2.5 sm:gap-3"
+              style={{ "--stagger-delay": `${col * 100}ms` } as CSSProperties}
+            >
+              <span className="flex h-5 items-center justify-center">
+                <BrandWordmark brand={brand} variant="wordmark" height={CROSSLIST_WORDMARK_H[brand]} />
+              </span>
+              {/* Keyed by loop, so a column that changes role between loops
+                  starts clean instead of transitioning out of its old one. */}
+              <div key={loopIndex} className="relative aspect-square w-full">
+                {state === "original" ? (
+                  <ProductImage
+                    type="tee"
+                    hue={220}
+                    src={loop.photo}
+                    className="h-full w-full rounded-xl"
+                  />
+                ) : (
+                  <>
+                    {/* The empty slot the copy lands in, until it starts. */}
+                    <div
+                      className={`absolute inset-0 rounded-xl border border-dashed border-black/15 transition-opacity duration-300 dark:border-white/20 ${
+                        state === "waiting" ? "opacity-100" : "opacity-0"
+                      }`}
+                    />
+                    {/* The copy SHARPENS rather than being uncovered: a blurred
+                        layer appears as the copy starts and a sharp one wipes
+                        down over it as the fields map across. Each layer sits
+                        in its own absolutely positioned wrapper because
+                        ProductImage hardcodes `relative` on its root, and an
+                        `absolute` passed in does not reliably win. */}
+                    {/* Only while copying: once the sharp layer is down, the
+                        mask's last 2% would otherwise show this layer as a
+                        grey band along the bottom. */}
+                    <div
+                      className={`absolute inset-0 transition-opacity duration-300 ${
+                        state === "copying" ? "opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      <ProductImage
+                        type="tee"
+                        hue={220}
+                        src={loop.photo}
+                        noBackdrop
+                        className="h-full w-full rounded-xl"
+                        imgClassName="crosslist-blurred"
+                      />
+                    </div>
+                    <div className="absolute inset-0">
+                      <ProductImage
+                        type="tee"
+                        hue={220}
+                        src={loop.photo}
+                        noBackdrop
+                        className="h-full w-full rounded-xl"
+                        imgClassName={`crosslist-fill ${state === "waiting" ? "" : "crosslist-fill-on"}`}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+              {/* Fixed height and always rendered, so the photos never move as
+                  the chip comes and goes. */}
+              <span
+                aria-hidden
+                className={`flex h-5 items-center font-mono text-[9px] uppercase tracking-[0.16em] transition-colors duration-300 ${
+                  state === "done"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : state === "original"
+                      ? "text-zinc-600 dark:text-zinc-300"
+                      : "text-zinc-400 dark:text-zinc-500"
+                }`}
+              >
+                {chip || " "}
+              </span>
+            </figure>
+          );
+          return col === 0
+            ? [figure]
+            : [
+                <div key={`arrow-${col}`} className="cascade-item flex items-center justify-center">
+                  <CrosslistArrow dir={arrowDir(col - 1)} />
+                </div>,
+                figure,
+              ];
+        })}
       </div>
 
-      {/* A line that fills as the fields map across, rather than a sentence
-          describing it. Words made the panel read as a caption with a picture
-          above; the transfer is the subject, so it should be something you
-          watch rather than something you read. Fixed width so it cannot shift
-          as it fills, and the accessible name carries what the text used to
-          say. */}
+      {/* A line that fills as the copies land, rather than a sentence
+          describing it. Fixed width so it cannot shift as it fills, and the
+          accessible name carries what the line shows. */}
       <div
         className="cascade-item flex w-full max-w-[180px] flex-col items-center gap-2"
         style={{ "--stagger-delay": "300ms" } as CSSProperties}
@@ -268,25 +352,25 @@ export function CrosslistPanel() {
           className="h-[3px] w-full overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/10"
           role="progressbar"
           aria-valuemin={0}
-          aria-valuemax={STEP_TICKS.length}
-          aria-valuenow={step}
+          aria-valuemax={targets.length}
+          aria-valuenow={doneCount}
           aria-label={label}
         >
           <div
-            className={`h-full rounded-full transition-[width,background-color] duration-[900ms] ease-out ${
-              done
+            className={`h-full rounded-full transition-[width,background-color] ease-linear ${
+              copying !== undefined ? "duration-[2200ms]" : "duration-300"
+            } ${
+              doneCount === targets.length
                 ? "bg-emerald-500 dark:bg-emerald-400"
                 : "bg-zinc-400 dark:bg-zinc-500"
             }`}
             style={{ width: `${progress}%` }}
           />
         </div>
-        {/* Names what the bar is doing. Small and tracked so it stays a status
-            line rather than becoming a caption competing with the photos. */}
         <span
           aria-hidden
           className={`font-mono text-[9px] uppercase tracking-[0.16em] transition-colors duration-300 ${
-            done
+            doneCount === targets.length
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-zinc-400 dark:text-zinc-500"
           }`}
@@ -462,8 +546,17 @@ export function ConversationsPanel() {
   ];
   // Derived from tick, not stored in state, so the server and the first client
   // render both land on script 0 and nothing flickers on hydration.
-  const messages: Msg[] =
-    SCRIPTS[Math.floor(tick / (TICKS_PER_PHASE * PHASES)) % SCRIPTS.length];
+  const scriptIndex = Math.floor(tick / (TICKS_PER_PHASE * PHASES)) % SCRIPTS.length;
+  const messages: Msg[] = SCRIPTS[scriptIndex];
+  // Each thread comes from a different shop, so the inbox reads as all three
+  // in one place. The handle and the typing avatar follow the script's buyer.
+  const THREADS: { platform: Platform; handle: string }[] = [
+    { platform: "vinted", handle: "lila_resale" },
+    { platform: "depop", handle: "maya.vtg" },
+    { platform: "ebay", handle: "jordan_finds" },
+  ];
+  const thread = THREADS[scriptIndex];
+  const buyer = messages.find((m) => !m.mine)!;
 
   // Phases (in order). Pattern: typing -> message appears -> next side typing.
   //   0: buyer typing, no messages yet
@@ -492,9 +585,9 @@ export function ConversationsPanel() {
           />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <PlatformBadge platform="vinted" size={12} />
+              <PlatformBadge platform={thread.platform} size={12} />
               <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">
-                @lila_resale
+                @{thread.handle}
               </span>
             </div>
             <div className="truncate text-[10px] text-zinc-500">
@@ -551,9 +644,9 @@ export function ConversationsPanel() {
                 >
                   <span
                     className="flex size-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-                    style={avatarStyle(typingMine ? 0 : 178)}
+                    style={avatarStyle(typingMine ? 0 : buyer.hue)}
                   >
-                    {typingMine ? "Y" : "L"}
+                    {typingMine ? "Y" : buyer.initial}
                   </span>
                   <span
                     className={
@@ -594,6 +687,9 @@ export function ConversationsPanel() {
           <span className="inline-flex items-center gap-1">
             <PlatformBadge platform="depop" size={11} /> 1
           </span>
+          <span className="inline-flex items-center gap-1">
+            <PlatformBadge platform="ebay" size={11} /> 2
+          </span>
         </span>
       </div>
     </div>
@@ -620,7 +716,7 @@ export function LabelsPanel() {
   // wherever the seller is, so a UK-only list undersold it badly.
   //
   //   UK      Royal Mail      Vinted UK's default
-  //   US      USPS            both marketplaces' US carrier
+  //   US      USPS            the US carrier on all three marketplaces
   //   France  Mondial Relay   Vinted FR is overwhelmingly point relais
   //   Spain   Correos         the national carrier Vinted ES leans on
   //   Germany DHL             the default almost everywhere in DE
@@ -630,7 +726,7 @@ export function LabelsPanel() {
     item: string;
     type: ProductType;
     photo: string;
-    platform: "depop" | "vinted";
+    platform: Platform;
     country: string;
     carrier: Carrier;
     hue: number;
@@ -650,7 +746,7 @@ export function LabelsPanel() {
       item: "Sport shades",
       type: "tee",
       photo: PHOTO.sportSunglasses,
-      platform: "depop",
+      platform: "ebay",
       country: "US",
       carrier: "usps",
       hue: 210,
@@ -905,6 +1001,8 @@ export function FollowBotPanel() {
   // visible rows 8 degrees apart, which is the same colour to the eye. Even
   // spacing round the wheel means any two rows on screen are at least 360/POOL
   // apart by construction, and it stays deterministic across SSR and hydration.
+  // The bot runs on every shop, so consecutive follows rotate through them.
+  const FOLLOW_PLATFORMS: Platform[] = ["depop", "vinted", "ebay"];
   const recent = Array.from({ length: ROWS }, (_, i) => {
     const n = follows - i;
     const idx = mod(n, POOL.length);
@@ -913,6 +1011,7 @@ export function FollowBotPanel() {
       handle: POOL[idx],
       back: followsBack(n),
       hue: Math.round((idx * 360) / POOL.length),
+      platform: FOLLOW_PLATFORMS[mod(n, FOLLOW_PLATFORMS.length)],
     };
   });
 
@@ -960,6 +1059,7 @@ export function FollowBotPanel() {
               >
                 {row.handle[0]}
               </span>
+              <PlatformBadge platform={row.platform} size={12} />
               <span className="truncate font-mono text-[11px] text-zinc-600 lg:text-[13px] dark:text-zinc-300">
                 @{row.handle}
               </span>
@@ -1036,7 +1136,7 @@ export function FollowBotPanel() {
 export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
   type Offer = {
     id: string;
-    platform: "depop" | "vinted";
+    platform: Platform;
     username: string;
     item: string;
     type: ProductType;
@@ -1078,7 +1178,7 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
     },
     {
       id: "c",
-      platform: "vinted",
+      platform: "ebay",
       username: "sam_thrifts",
       item: "Crystal cross",
       type: "tee",
@@ -1111,7 +1211,7 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
     },
     {
       id: "f",
-      platform: "depop",
+      platform: "ebay",
       username: "seconds.london",
       item: "Knit vest",
       type: "tee",
@@ -1222,7 +1322,7 @@ export function OffersPanel({ onInteract }: { onInteract?: () => void }) {
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <div className="flex items-center gap-1.5">
                     {/* The coloured left border alone was too quiet to tell
-                        visitors these offers arrive from two different
+                        visitors these offers arrive from three different
                         marketplaces, which is the whole point of the inbox. */}
                     <PlatformBadge platform={o.platform} size={13} />
                     <span className="truncate text-[11.5px] font-medium text-zinc-900 dark:text-zinc-100">

@@ -193,14 +193,15 @@
       "title": "Tous les outils, là où vous vendez.",
       "scenes": {
         "crosslist": "Choisissez une annonce, SaleLinx la remplit sur Depop, Vinted ou eBay pour vous.",
+        "listings": "Vos annonces Depop, Vinted et eBay dans une seule liste. Modifications et remises en vente sont enregistrées directement sur eBay.",
         "bulkEdit": "Sélectionnez autant d'annonces que vous voulez, puis changez prix et photos, lancez des soldes Depop ou copiez-les en brouillons.",
-        "restocker": "Vendu sur une appli, retiré de l'autre, automatiquement.",
+        "restocker": "Vendu sur une appli, retiré des autres, automatiquement.",
         "deadStock": "Chaque annonce notée selon son âge, ses vues et ses likes, avec une solution pour celles qui ne se vendent pas.",
         "priceDrops": "Les prix baissent au rythme que vous choisissez, jamais sous votre prix plancher.",
-        "refresher": "Votre boutique Depop réenregistrée de bas en haut, pour remonter en tête dans le même ordre.",
+        "refresher": "Votre boutique réenregistrée de bas en haut, pour remonter en tête dans le même ordre.",
         "followBot": "Suivez automatiquement les acheteurs les plus susceptibles d'acheter chez vous.",
-        "inbox": "Toutes les offres et tous les messages des deux boutiques, dans une seule liste.",
-        "sendOffers": "Chaque personne qui a liké un article reçoit une offre à la remise choisie, jamais sous votre prix plancher.",
+        "inbox": "Toutes les offres et tous les messages de toutes vos boutiques, dans une seule liste.",
+        "sendOffers": "Chaque personne qui a liké ou suivi un article reçoit une offre à la remise choisie, jamais sous votre prix plancher.",
         "autoOffers": "Les offres au-dessus de votre seuil sont acceptées pour vous. Les autres attendent votre décision.",
         "labels": "Toutes les étiquettes du jour, fusionnées en un seul PDF à imprimer."
       },
@@ -781,7 +782,7 @@
       },
       "grow": {
         "name": "Croissance",
-        "detail": "Un bot qui suit les abonnés ou les abonnements de n'importe quel compte sur Depop et Vinted. Sur Depop, il peut aussi cibler les acheteurs d'un compte, ses évaluateurs ou tous ceux qui ont aimé une annonce, et le bot de désabonnement fait le ménage dans vos anciens abonnements."
+        "detail": "Un bot qui suit les abonnés ou les abonnements de n'importe quel compte sur Depop, Vinted et eBay. Sur Depop, il peut aussi cibler les acheteurs d'un compte, ses évaluateurs ou tous ceux qui ont aimé une annonce, et le bot de désabonnement fait le ménage dans vos anciens abonnements."
       },
       "relist": {
         "name": "Republier",
@@ -789,7 +790,7 @@
       },
       "refresh": {
         "name": "Actualiser",
-        "detail": "Réenregistre vos annonces de bas en haut en un clic, pour qu'elles remontent dans la recherche Depop tout en gardant l'ordre que vous avez choisi. Programmez-le pour qu'il tourne seul toutes les 4, 6, 8, 12 ou 24 heures."
+        "detail": "Réenregistre vos annonces de bas en haut en un clic, pour qu'elles remontent dans la recherche tout en gardant l'ordre que vous avez choisi. Programmez-le pour qu'il tourne seul toutes les 4, 6, 8, 12 ou 24 heures."
       },
       "crosslist": {
         "name": "Crosslist",
@@ -805,15 +806,15 @@
       },
       "autoOffers": {
         "name": "Auto-offres",
-        "detail": "Les acheteurs qui ont aimé une de vos annonces Vinted reçoivent automatiquement une offre de votre part, pour transformer les likes en ventes."
+        "detail": "Les acheteurs qui ont aimé ou suivi une de vos annonces Vinted ou eBay reçoivent automatiquement une offre de votre part, pour transformer leur intérêt en ventes."
       },
       "linking": {
         "name": "Liaison",
-        "detail": "Suggère quelles annonces Depop et Vinted correspondent au même article et les relie en un clic. Les articles liés s'affichent sur une seule ligne et activent le Restocker."
+        "detail": "Suggère quelles annonces Depop, Vinted et eBay correspondent au même article et les relie en un clic. Les articles liés s'affichent sur une seule ligne et activent le Restocker."
       },
       "restocker": {
         "name": "Restocker",
-        "detail": "Quand un article se vend sur une boutique, SaleLinx retire ou réapprovisionne aussitôt l'annonce correspondante sur l'autre, pour vendre le même stock sur les deux sans double vente. Fonctionne sur les articles que vous avez liés."
+        "detail": "Quand un article se vend sur une boutique, SaleLinx retire ou réapprovisionne aussitôt les annonces correspondantes sur les autres, pour vendre le même stock partout sans double vente. Fonctionne sur les articles que vous avez liés."
       },
       "priceDrops": {
         "name": "Baisses de prix",
@@ -821,15 +822,15 @@
       },
       "offers": {
         "name": "Offres",
-        "detail": "Toutes les offres de vos deux boutiques côte à côte, à accepter, contrer ou refuser sans changer d'onglet. Définissez une règle d'acceptation automatique, un pourcentage du prix demandé plus un minimum, et les bonnes offres sont acceptées pour vous."
+        "detail": "Toutes les offres de toutes vos boutiques côte à côte, à accepter, contrer ou refuser sans changer d'onglet. Définissez une règle d'acceptation automatique, un pourcentage du prix demandé plus un minimum, et les bonnes offres sont acceptées pour vous."
       },
       "messages": {
         "name": "Messages",
-        "detail": "Les messages des acheteurs Depop et Vinted dans une seule boîte de réception, pour ne rien manquer."
+        "detail": "Les messages des acheteurs Depop, Vinted et eBay dans une seule boîte de réception, pour ne rien manquer."
       },
       "labels": {
         "name": "Étiquettes",
-        "detail": "Sélectionnez les commandes Depop et Vinted d'une journée et SaleLinx fusionne leurs étiquettes en un seul PDF, prêt à imprimer d'un coup ou à vous envoyer par e-mail. Il peut aussi laisser un avis sur vos commandes Vinted terminées à votre place."
+        "detail": "Sélectionnez les commandes Depop, Vinted et eBay d'une journée et SaleLinx fusionne leurs étiquettes en un seul PDF, prêt à imprimer d'un coup ou à vous envoyer par e-mail. Il peut aussi laisser un avis sur vos commandes Vinted terminées à votre place."
       }
     },
     "only": {

@@ -1,28 +1,34 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { PlatformBadge, platformBorder } from "./HeroPreview";
+import { PlatformBadge, platformBorder, type Platform } from "./HeroPreview";
 import { ProductImage } from "./ProductImage";
 import { usePrefersReducedMotion, useTick } from "./scene-hooks";
 
 /**
  * Bulk edit scene: the My Listings selection toolbar.
  *
- * Three selected listings and four toolbar actions applied in turn, each to
+ * Four selected listings and four toolbar actions applied in turn, each to
  * the whole selection at once, which is the point. The photos start sideways
  * (the classic phone upload) and are rotated upright, prices come down 20%,
- * the two Depop items go on a native Depop sale (Vinted has no equivalent, so
- * the Vinted row is left alone), and every row gets a draft copy.
+ * the two Depop items go on a native Depop sale (Vinted and eBay have no
+ * equivalent, so those rows are left alone), and the rows get draft copies.
  *
- * Prices are picked so every step lands on whole pounds: 20% off 40/25/30 is
- * 32/20/24, and a 25% Depop sale on 32 and 24 is 24 and 18.
+ * The eBay row is held to what the extension does with eBay in bulk: price,
+ * title, description and quantity. Its photo is already upright because the
+ * bulk photo transform skips eBay, and it is unticked before Duplicate because
+ * the toolbar hides Duplicate while an eBay row is selected
+ * (selection-toolbar.ts and bulk-apply.ts in the extension repo).
+ *
+ * Prices are picked so every step lands on whole pounds: 20% off 40/25/35/30
+ * is 32/20/28/24, and a 25% Depop sale on 32 and 24 is 24 and 18.
  */
 
 type Step = "photos" | "edit" | "discount" | "duplicate";
 
 const STEPS: { id: Step; label: string; status: string }[] = [
   { id: "photos", label: "Photos", status: "Photos rotated upright" },
-  { id: "edit", label: "Edit", status: "Price -20% on 3 listings" },
+  { id: "edit", label: "Edit", status: "Price -20% on 4 listings" },
   { id: "discount", label: "Discount", status: "25% sale on 2 Depop listings" },
   { id: "duplicate", label: "Duplicate", status: "3 copies saved as drafts" },
 ];
@@ -30,14 +36,15 @@ const STEPS: { id: Step; label: string; status: string }[] = [
 const ROWS: {
   item: string;
   photo: string;
-  platform: "depop" | "vinted";
+  platform: Platform;
   price: number;
   edited: number;
-  /** Depop sale price; null on Vinted, which has no native discount. */
+  /** Depop sale price; null on Vinted and eBay, which have no native discount here. */
   sale: number | null;
 }[] = [
   { item: "Western belt", photo: "/products/western-belt.jpg", platform: "depop", price: 40, edited: 32, sale: 24 },
   { item: "Cat ring", photo: "/products/cat-ring.jpg", platform: "vinted", price: 25, edited: 20, sale: null },
+  { item: "Union Jack beanie", photo: "/products/union-jack-beanie.jpg", platform: "ebay", price: 35, edited: 28, sale: null },
   { item: "Star beanie", photo: "/products/star-beanie.jpg", platform: "depop", price: 30, edited: 24, sale: 18 },
 ];
 
@@ -48,6 +55,7 @@ const TICKS_PER_STEP = 24;
 // The toolbar button lights up first and the change lands a beat later, so
 // it reads as "pressed Photos, photos changed" rather than both at once.
 const APPLY_AFTER = 7;
+const UNTICK_BEFORE = 6;
 
 export function BulkEditScene() {
   const reduced = usePrefersReducedMotion();
@@ -62,8 +70,11 @@ export function BulkEditScene() {
   const has = (s: Step) => STEPS.findIndex((x) => x.id === s) < applied;
   // No button stays lit through the hold at the end of the cycle.
   const lit = active >= 0 && phase < START + STEPS.length * TICKS_PER_STEP;
+  // The eBay row comes out of the selection a beat before Duplicate lights.
+  const ebayOut = phase >= START + 3 * TICKS_PER_STEP - UNTICK_BEFORE;
+  const selected = ROWS.filter((r) => r.platform !== "ebay" || !ebayOut).length;
 
-  const status = applied > 0 ? STEPS[applied - 1].status : "3 selected";
+  const status = applied > 0 ? STEPS[applied - 1].status : `${selected} selected`;
 
   return (
     <div className="cascade-list flex flex-col items-center gap-5 lg:gap-7">
@@ -74,7 +85,7 @@ export function BulkEditScene() {
         style={{ "--stagger-delay": "0ms" } as CSSProperties}
       >
         <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-500 lg:text-[10px]">
-          3 selected
+          {selected} selected
         </span>
         <div className="flex gap-1">
           {STEPS.map((s, i) => (
@@ -97,14 +108,26 @@ export function BulkEditScene() {
         style={{ "--stagger-delay": "100ms" } as CSSProperties}
       >
         {ROWS.map((r) => {
+          const isEbay = r.platform === "ebay";
+          const ticked = !isEbay || !ebayOut;
           const price = has("edit") ? r.edited : r.price;
           const onSale = has("discount") && r.sale !== null;
+          const upright = isEbay || has("photos");
+          const duplicated = has("duplicate") && !isEbay;
           return (
             <li
               key={r.item}
-              className={`flex h-14 items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(r.platform)}`}
+              className={`flex h-14 items-center gap-2.5 rounded-md border border-black/[0.06] bg-white px-2.5 transition-opacity duration-300 dark:border-white/10 dark:bg-white/[0.02] ${platformBorder(r.platform)} ${
+                ticked ? "" : "opacity-50"
+              }`}
             >
-              <span className="flex size-3.5 shrink-0 items-center justify-center rounded-sm border border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+              <span
+                className={`flex size-3.5 shrink-0 items-center justify-center rounded-sm border transition-colors duration-300 ${
+                  ticked
+                    ? "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                    : "border-zinc-300 bg-transparent text-transparent dark:border-zinc-600"
+                }`}
+              >
                 <svg viewBox="0 0 10 10" className="size-2.5" aria-hidden="true">
                   <path
                     d="M2 5.2l2 2 4-4"
@@ -122,8 +145,8 @@ export function BulkEditScene() {
                 src={r.photo}
                 className="size-10 shrink-0 rounded"
                 imgStyle={{
-                  transform: has("photos") ? "none" : "rotate(-90deg)",
-                  filter: has("photos") ? "none" : "brightness(0.85)",
+                  transform: upright ? "none" : "rotate(-90deg)",
+                  filter: upright ? "none" : "brightness(0.85)",
                   transition: "transform 650ms cubic-bezier(0.2,0.8,0.2,1), filter 650ms ease-out",
                 }}
               />
@@ -165,7 +188,7 @@ export function BulkEditScene() {
                 </span>
                 <span
                   className={`whitespace-nowrap rounded-sm bg-black/[0.05] px-1.5 py-[2px] font-mono text-[8.5px] font-semibold uppercase tracking-[0.1em] text-zinc-600 transition-opacity duration-300 dark:bg-white/[0.08] dark:text-zinc-300 ${
-                    has("duplicate") ? "opacity-100" : "opacity-0"
+                    duplicated ? "opacity-100" : "opacity-0"
                   }`}
                 >
                   + draft

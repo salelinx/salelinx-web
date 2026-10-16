@@ -193,14 +193,15 @@
       "title": "Every tool, right where you sell.",
       "scenes": {
         "crosslist": "Pick any listing and SaleLinx fills it in on Depop, Vinted or eBay for you.",
+        "listings": "Depop, Vinted and eBay listings in one list. Edits and relists save straight to eBay.",
         "bulkEdit": "Select any number of listings, then change prices and photos, start a Depop sale or copy them as drafts.",
-        "restocker": "Sell it on one app and it comes down from the other, automatically.",
+        "restocker": "Sell it on one app and it comes down from the others, automatically.",
         "deadStock": "Every listing scored on age, views and likes, with a fix for each one that isn't selling.",
         "priceDrops": "Prices step down on a schedule you set, and never below your floor.",
-        "refresher": "Your Depop shop re-saved from the bottom up, so it jumps back to the top in the same order.",
+        "refresher": "Your shop re-saved from the bottom up, so it jumps back to the top in the same order.",
         "followBot": "Automatically follow the buyers most likely to shop with you.",
-        "inbox": "Every offer and message from both shops, in one list.",
-        "sendOffers": "Everyone who liked an item gets an offer at the discount you pick, never below your floor.",
+        "inbox": "Every offer and message from all your shops, in one list.",
+        "sendOffers": "Everyone who liked or watched an item gets an offer at the discount you pick, never below your floor.",
         "autoOffers": "Offers above your limit are accepted for you. Everything else waits for you to decide.",
         "labels": "Every label for the day, merged into one PDF to print."
       },
@@ -781,7 +782,7 @@
       },
       "grow": {
         "name": "Grow",
-        "detail": "A follow bot that follows the followers or following of any account on Depop and Vinted. On Depop it can also target an account's buyers, its reviewers, or everyone who liked a listing, and the unfollow bot clears out old follows."
+        "detail": "A follow bot that follows the followers or following of any account on Depop, Vinted and eBay. On Depop it can also target an account's buyers, its reviewers, or everyone who liked a listing, and the unfollow bot clears out old follows."
       },
       "relist": {
         "name": "Relist",
@@ -789,7 +790,7 @@
       },
       "refresh": {
         "name": "Refresh",
-        "detail": "Re-saves your listings from the bottom up in one click, so they climb back up Depop search and your shop keeps the order you set. Set it to run on its own every 4, 6, 8, 12 or 24 hours."
+        "detail": "Re-saves your listings from the bottom up in one click, so they climb back up search and your shop keeps the order you set. Set it to run on its own every 4, 6, 8, 12 or 24 hours."
       },
       "crosslist": {
         "name": "Crosslist",
@@ -805,15 +806,15 @@
       },
       "autoOffers": {
         "name": "Auto-Offers",
-        "detail": "Buyers who liked one of your Vinted listings get an offer from you automatically, turning likes into sales."
+        "detail": "Buyers who liked or watched one of your Vinted or eBay listings get an offer from you automatically, turning interest into sales."
       },
       "linking": {
         "name": "Linking",
-        "detail": "Suggests which Depop and Vinted listings are the same item and links them in one click. Linked items show as one row and switch on the Restocker."
+        "detail": "Suggests which Depop, Vinted and eBay listings are the same item and links them in one click. Linked items show as one row and switch on the Restocker."
       },
       "restocker": {
         "name": "Restocker",
-        "detail": "When an item sells on one shop, SaleLinx removes or restocks the matching listing on the other straight away, so you can list the same stock on both without double sales. Works on items you have linked."
+        "detail": "When an item sells on one shop, SaleLinx removes or restocks the matching listings on the others straight away, so you can list the same stock everywhere without double sales. Works on items you have linked."
       },
       "priceDrops": {
         "name": "Price Drops",
@@ -821,15 +822,15 @@
       },
       "offers": {
         "name": "Offers",
-        "detail": "Every offer from both shops side by side, to accept, counter or decline without switching tabs. Set an auto-accept rule, a percentage of the asking price plus a minimum, and the good offers are taken for you."
+        "detail": "Every offer from all your shops side by side, to accept, counter or decline without switching tabs. Set an auto-accept rule, a percentage of the asking price plus a minimum, and the good offers are taken for you."
       },
       "messages": {
         "name": "Messages",
-        "detail": "Buyer messages from Depop and Vinted in a single inbox, so nothing gets missed."
+        "detail": "Buyer messages from Depop, Vinted and eBay in a single inbox, so nothing gets missed."
       },
       "labels": {
         "name": "Labels",
-        "detail": "Select a day's Depop and Vinted orders and SaleLinx merges their labels into one PDF, ready to print in one go or email to yourself. It can also leave feedback on your completed Vinted orders for you."
+        "detail": "Select a day's Depop, Vinted and eBay orders and SaleLinx merges their labels into one PDF, ready to print in one go or email to yourself. It can also leave feedback on your completed Vinted orders for you."
       }
     },
     "only": {

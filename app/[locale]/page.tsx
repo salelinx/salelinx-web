@@ -111,7 +111,7 @@ export default async function Home({
           'Bulk relist and refresh listings',
           'Scheduled price drops',
           'Dead stock detection',
-          'Restock tracking across Depop and Vinted',
+          'Restock tracking across Depop, Vinted and eBay',
           'Send offers to likers and auto-accept offers',
           'Bulk listing and photo editor',
           'Shipping labels merged into one PDF',
