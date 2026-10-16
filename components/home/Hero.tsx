@@ -34,8 +34,8 @@ const HERO_BRAND_TAGS = {
   // supports the headline rather than outweighing it.
   logos: () => (
     <span className="mt-[0.5em] block text-[0.8em] sm:mt-[0.4em]">
-      <BrandWordmark brand="vinted" variant="wordmark" height="1em" className="logo-bob mx-[0.15em]" />
-      <BrandWordmark brand="depop" variant="wordmark" height="0.8em" className="logo-bob mx-[0.15em] [animation-delay:-1.5s]" />
+      <BrandWordmark brand="depop" variant="wordmark" height="0.8em" className="logo-bob mx-[0.15em]" />
+      <BrandWordmark brand="vinted" variant="wordmark" height="1em" className="logo-bob mx-[0.15em] [animation-delay:-1.5s]" />
       <BrandWordmark brand="ebay" variant="wordmark" height="1em" className="logo-bob mx-[0.15em] [animation-delay:-3s]" />
     </span>
   ),

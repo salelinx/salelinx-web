@@ -126,7 +126,7 @@ const BRAND_NAME: Record<Brand, string> = {
 };
 
 // The three shops, always in this order, with an arrow between each pair.
-const CROSSLIST_COLUMNS: Brand[] = ["vinted", "depop", "ebay"];
+const CROSSLIST_COLUMNS: Brand[] = ["depop", "vinted", "ebay"];
 
 // One loop per shop holding the original, so each marketplace is the source
 // once and a target twice, and a different item each time so the loops do not
@@ -187,7 +187,7 @@ function CrosslistArrow({ dir }: { dir: "left" | "right" | null }) {
 // ── Tab panels ──────────────────────────────────────────────────────
 
 export function CrosslistPanel() {
-  // Three shops side by side, Vinted, Depop and eBay, with an arrow between
+  // Three shops side by side, Depop, Vinted and eBay, with an arrow between
   // each. One holds the original listing and the copies fill in on the other
   // two, one after the other; next loop the original is on the next shop.
   //
@@ -230,7 +230,7 @@ export function CrosslistPanel() {
     copying !== undefined
       ? `Copying to ${BRAND_NAME[CROSSLIST_COLUMNS[copying]]}`
       : doneCount === targets.length
-        ? "On Vinted, Depop and eBay"
+        ? "On Depop, Vinted and eBay"
         : `Original on ${sourceName}`;
   // The bar fills alongside each copy: it heads for the next half over the
   // same time the photo takes to sharpen, then snaps back between loops.
