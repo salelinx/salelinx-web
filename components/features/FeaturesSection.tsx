@@ -11,7 +11,7 @@ type Feature = {
 
 // The 14 panel tabs, most wanted first: in-app usage, then reseller search interest.
 const FEATURES: Feature[] = [
-  { id: "crosslist", href: "/features/crosslist-depop-vinted" },
+  { id: "crosslist", href: "/features/crosslist" },
   { id: "relist", href: "/features/relist-depop-vinted" },
   { id: "refresh", href: "/features/depop-auto-refresh" },
   { id: "grow", href: "/features/depop-vinted-follow-bot" },

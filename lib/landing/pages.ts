@@ -13,28 +13,28 @@ export type LandingPage = {
 
 export const LANDING_PAGES: LandingPage[] = [
   {
-    slug: 'crosslist-depop-vinted',
-    navLabel: 'Depop to Vinted crosslister',
-    metaTitle: 'Crosslist Depop to Vinted (and back) in one click',
+    slug: 'crosslist',
+    navLabel: 'Depop, Vinted and eBay crosslister',
+    metaTitle: 'Crosslist between Depop, Vinted and eBay in one click',
     metaDescription:
-      'Copy your Depop listings to Vinted, or Vinted to Depop, in bulk. Photos, title, price, size, brand and category carried over. Free 14-day trial.',
-    title: 'Crosslist from Depop to Vinted, and Vinted to Depop',
+      'Copy listings between Depop, Vinted and eBay in any direction, in bulk. Photos, title, price, size, brand and category carried over. Free 14-day trial.',
+    title: 'Crosslist between Depop, Vinted and eBay, in any direction',
     intro:
-      'SaleLinx copies any listing you already have on one marketplace to the other. Pick the items, click once, and the queue creates them as drafts in the background over the marketplace APIs. There is no form to fill in and no editor to babysit, and there is no cap on how many you send in one batch.',
+      'SaleLinx copies any listing you already have on Depop, Vinted or eBay to either of the others. Pick the items, click once, and SaleLinx creates them in the background over the marketplace APIs, as drafts on Depop and Vinted or as live eBay listings once you have seen eBay\'s fee. There is no form to fill in and no editor to babysit, and there is no cap on how many you send in one batch.',
     steps: [
-      'Install the SaleLinx Chrome extension and sign in to Depop and Vinted.',
-      'Open the Crosslist tab and choose the direction: Depop to Vinted or Vinted to Depop.',
-      'Tick the listings you want. The grid shows only unlinked items by default, so nothing is copied twice.',
-      'Click Crosslist. Each item is saved as a draft on the other marketplace, so you can check it and post it when you are ready.',
+      'Install the SaleLinx Chrome extension and sign in to Depop and Vinted. For eBay, connect your account once in Settings, with no tab needed.',
+      'Open the Crosslist tab and pick where to copy From and To: Depop, Vinted or eBay, in any direction.',
+      'Tick the listings you want. Switch the filter to Unlinked to hide anything you have already crosslisted, so nothing is copied twice.',
+      'Click Crosslist. Copies to Depop and Vinted are saved as drafts for you to check and post. Copies to eBay are posted as live fixed-price listings, after SaleLinx shows you eBay\'s fee for every item.',
     ],
     points: [
       {
-        title: 'Categories and sizes mapped for you',
-        body: 'Depop and Vinted use different category trees, size systems and condition labels. SaleLinx translates each one, and converts the price if your shops use different currencies, so a listing lands in the right place on the other side.',
+        title: 'Categories, sizes and item specifics mapped for you',
+        body: 'Depop, Vinted and eBay use different category trees, size systems and condition labels, and eBay also asks for item specifics. SaleLinx translates each one, fills in the specifics, and converts the price if your shops use different currencies. If eBay would still refuse an item, its row shows a Fill in button for what is missing.',
       },
       {
         title: 'Linked listings stay in sync',
-        body: 'Every crosslisted item is linked to its partner. When one sells, SaleLinx can take the other down so you never sell the same item twice.',
+        body: 'Every crosslisted item is linked to its original. For Depop and Vinted pairs, when one sells the Restocker takes the other down, so you never sell the same item twice. eBay pairs are linked but not restocked yet.',
       },
       {
         title: 'Bulk-move a whole shop',
@@ -43,8 +43,12 @@ export const LANDING_PAGES: LandingPage[] = [
     ],
     faq: [
       {
-        q: 'Can I crosslist from Vinted to Depop as well?',
-        a: 'Yes. The direction toggle flips the transfer, so both directions use the same tool.',
+        q: 'Can I crosslist from Vinted to Depop, or from eBay to Vinted?',
+        a: 'Yes. Pick any marketplace as From and any other as To, and the Swap button flips them, so every direction between Depop, Vinted and eBay uses the same tool.',
+      },
+      {
+        q: 'How does crosslisting to eBay work?',
+        a: 'Connect your eBay account once in Settings, and eBay never needs a tab open. eBay has no drafts, so copies go live as fixed-price listings, and SaleLinx shows eBay\'s fee for every item before anything is posted. If eBay needs a detail the original does not have, the row shows a Fill in button.',
       },
       {
         q: 'Will my photos lose quality?',
@@ -52,7 +56,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
       {
         q: 'Is there a limit on how many items I can crosslist?',
-        a: 'Each plan includes a monthly crosslist allowance, shown on the pricing page. Within that, there is no limit on batch size.',
+        a: 'Each plan includes a monthly crosslist allowance, shown on the pricing page. Crosslists into or out of eBay count the same as any other. Within that, there is no limit on batch size.',
       },
     ],
     doc: { label: 'Crosslist guide', path: '/docs/inventory/crosslist' },
@@ -121,8 +125,8 @@ export const LANDING_PAGES: LandingPage[] = [
         body: 'Post first, delete second. If anything fails part way, your original listing is still live.',
       },
       {
-        title: 'Works on both marketplaces',
-        body: 'The same tool relists on Depop and on Vinted, from one panel.',
+        title: 'Works on Depop and Vinted',
+        body: 'One tool relists on either marketplace, from the same panel.',
       },
     ],
     faq: [
@@ -142,7 +146,7 @@ export const LANDING_PAGES: LandingPage[] = [
     navLabel: 'Follow bot',
     metaTitle: 'Depop and Vinted follow bot',
     metaDescription:
-      'Grow your Depop and Vinted audience: follow the followers of shops in your niche, your buyers and reviewers, and bulk unfollow. One tab for both marketplaces.',
+      'Grow your Depop and Vinted audience: follow the followers of shops in your niche, your buyers and reviewers, and bulk unfollow, all from one tab.',
     title: 'A follow bot for Depop and Vinted',
     intro:
       'Every follow sends a notification, and notifications bring people to your shop. SaleLinx follows the right accounts for you, such as the followers of a shop in your niche, and lets you bulk unfollow later. It works on Depop and Vinted from the same tab.',
@@ -264,7 +268,7 @@ export const LANDING_PAGES: LandingPage[] = [
       'Saving labels one order at a time is slow. SaleLinx gathers your sold orders from Depop and Vinted in one list, then downloads and merges the labels you pick into a single PDF ready to print or email.',
     steps: [
       'Install the SaleLinx Chrome extension and sign in to Depop and Vinted.',
-      'Open the Labels tab. Your orders to ship from both marketplaces appear together.',
+      'Open the Labels tab. Your Depop and Vinted orders to ship appear together.',
       'Select the orders, or tick the header box for all of them, and click Print labels.',
     ],
     points: [
