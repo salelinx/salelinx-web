@@ -187,6 +187,15 @@ const STATUS_TONE: Record<string, string> = {
   incomplete: "bg-zinc-100 text-zinc-600",
 };
 
+// Pro and Business match the extension's tier lock colours.
+const TIER_TONE: Record<string, string> = {
+  none: "bg-zinc-100 text-zinc-500",
+  trial: "bg-sky-50 text-sky-700",
+  starter: "bg-orange-50 text-orange-700",
+  pro: "bg-blue-50 text-blue-700",
+  business: "bg-violet-50 text-violet-700",
+};
+
 const PLATFORM_TONE: Record<LinkedPlatform, string> = {
   depop: "bg-rose-50 text-rose-700 border-rose-200",
   vinted: "bg-teal-50 text-teal-700 border-teal-200",
@@ -633,8 +642,15 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                     <td className="whitespace-nowrap px-3 py-2">
                       <PlatformTags platforms={u.linked_platforms ?? []} />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 capitalize text-zinc-700">
-                      {u.tier_id ?? "none"}
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <span
+                        className={
+                          "rounded-full px-2 py-0.5 text-xs font-medium capitalize " +
+                          (TIER_TONE[u.tier_id ?? "none"] ?? "bg-zinc-100 text-zinc-700")
+                        }
+                      >
+                        {u.tier_id ?? "none"}
+                      </span>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
                       {u.status ? (
