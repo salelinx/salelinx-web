@@ -40,7 +40,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial (day 1 and day 4) and send one win-back email after a plan or trial ends, with a per-customer one-use 50% first-month promo code; also serves the HMAC-signed unsubscribe link, which sets `trial_nudges.unsubscribed_at` and `marketing_opt_out` in the user's metadata so `/account` shows the emails as off |
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
-| `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check), postage and policies, categories, conditions, item specifics, view counts. Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
+| `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, categories, conditions, item specifics, view counts. Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
@@ -466,6 +466,12 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   left. A refresh eBay refuses (`invalid_grant`: revoked, or the refresh token expired)
   returns code `reauth`, which the extension shows as "reconnect in Settings". `unlink`
   deletes the `ebay_tokens` row.
+- **Paywall.** A real `add` posts the crosslisted copy on eBay, so it runs the same check as
+  `resolve-category` before any eBay call: `checkCrosslistAllowed` in `_shared/crosslist-gate.ts`
+  (plan allows crosslisting, monthly allowance not used up, admins unlimited), answering 403
+  `upgrade_required` or `limit_reached`. Without it, anyone signed in could post to eBay past their
+  plan by calling `add` directly. A `verifyOnly` fee check creates nothing and is not gated. Both
+  functions read the rule from that one module, so change it there.
 - **Errors** are `{ error, code }`: `not_linked` and `reauth` (connect eBay again), `quota`
   (see below), `ebay` (eBay refused; its own message is passed through). Each one is logged
   as `user=<uuid> action=<action> code=<code>` and nothing else from the request.

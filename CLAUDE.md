@@ -2,6 +2,22 @@
 
 Marketing + billing website for the SaleLinx Chrome extension (sibling repo `../salelinx-app`). Both share a single Supabase project.
 
+## Pending: eBay launch (tell the user at the start of any session, then delete this section once done)
+
+When `feat/ebay-crosslist` merges to `main`, Vercel ships the site but nothing on the Supabase side moves. Remind the user of these steps whenever a session starts, and especially when they mention eBay, merging or deploying. Run them from the merged `main`, after checking `npx supabase functions list` (Lewis also deploys `ebay`; deploying from a branch behind his rolls his code back). Never `db push`.
+
+```bash
+npx supabase db query --linked -f supabase/migrations/041_roadmap_ebay_marketplace.sql
+npx supabase functions deploy ebay --no-verify-jwt
+npx supabase functions deploy resolve-category --no-verify-jwt
+```
+
+- `ebay` carries the crosslist allowance check on posting; `resolve-category` the same check moved into `_shared/crosslist-gate.ts`. Then run one crosslist: if `resolve-category` breaks, crosslisting is down for everyone.
+- In `/admin/roadmap`: move the two eBay cards to Shipped, tag them eBay, and change the Poshmark card's "alongside Depop and Vinted" to name eBay too.
+- Add a changelog entry for the eBay release (`content/changelog/`, `lib/docs/changelog.ts`) and say Chrome will ask users to approve the new eBay site access.
+- A `deno check` error in `resolve-category` (duplicate key in `_generated/vinted-depop-types.ts`) predates this and does not block the deploy.
+- Delete this section in the same PR as the changelog entry.
+
 ## Before making changes
 
 Before any significant work or at the start of a new conversation, you MUST:
@@ -70,7 +86,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `get-referral-discount` - `verify_jwt = false` (public on purpose: returns only the referee coupon's terms (percent/amount, duration), never the coupon id)
 - `report-telemetry` - `verify_jwt = false` (extension POSTs anonymous endpoint-health counters once a day; handler validates via `getUser(jwt)` as a spam gate only and discards the identity, then forwards to `record_endpoint_health`; read side is `/admin/health`)
 - `report-selftest` - `verify_jwt = false` (admin console self-test; extension POSTs one endpoint self-test run with the user's JWT. Handler validates via `getUser(jwt)`, KEEPS the identity, and re-checks `admin_users` with the service role before writing. Cannot gate on `is_admin()` because that needs AAL2 and the extension has no MFA flow - it is write-only and exposes no read path, so reads still require AAL2 via `admin_selftest_runs()`)
-- `ebay` - `verify_jwt = false` (handler validates via `getUser(jwt)`; the extension's only route to eBay. Holds the app secret and per-user OAuth tokens in `ebay_tokens`, which has RLS on and no policies, and speaks the Trading API. `EBAY_ENV=sandbox` switches hosts)
+- `ebay` - `verify_jwt = false` (handler validates via `getUser(jwt)`; the extension's only route to eBay. Holds the app secret and per-user OAuth tokens in `ebay_tokens`, which has RLS on and no policies, and speaks the Trading API. A real `add` (not `verifyOnly`) posts the eBay copy itself, so it runs the same crosslist paywall as `resolve-category` (`_shared/crosslist-gate.ts`); keep the two on that one module. `EBAY_ENV=sandbox` switches hosts)
 - `ebay-account-deletion` - `verify_jwt = false` (eBay's required Marketplace Account Deletion endpoint; GET answers the challenge, POSTs are verified against `x-ebay-signature` and delete that eBay account's tokens, link and listings)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.

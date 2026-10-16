@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "17 August 2026";
+const LAST_UPDATED = "16 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -49,11 +49,11 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Subject matter and details of the processing",
     bullets: [
-      "Subject matter: processing buyer personal data as needed to provide the SaleLinx order features you use, principally the email shipping labels feature.",
+      "Subject matter: processing buyer personal data as needed to provide the SaleLinx order features you use, principally the email shipping labels feature, and, if you connect eBay, loading your eBay listings and sales, which eBay returns with buyer details attached.",
       "Duration: for each instruction, only for as long as it takes to carry it out (for example, to deliver a label email). SaleLinx does not retain buyer personal data after the instruction is completed.",
-      "Nature and purpose: transient handling and onward delivery of buyer data (for example, passing a label PDF to our email provider so it reaches the address you chose). SaleLinx does not store buyer data on its servers and does not include it in cloud sync.",
-      "Types of personal data: buyer name and username, and the delivery details printed on a shipping label (such as postal address), as read from the marketplace at your instruction.",
-      "Categories of data subjects: your buyers on the marketplaces you use with SaleLinx (currently Depop and Vinted).",
+      "Nature and purpose: transient handling and onward delivery of buyer data (for example, passing a label PDF to our email provider so it reaches the address you chose). When SaleLinx loads your eBay sales, the buyer details eBay includes are discarded in memory as soon as eBay's response arrives, without being passed on, logged or stored. SaleLinx does not store buyer data on its servers and does not include it in cloud sync.",
+      "Types of personal data: buyer name and username, and the delivery details printed on a shipping label (such as postal address), as read from the marketplace at your instruction; and, for eBay sales, the buyer details eBay includes with them (such as the buyer's eBay username and delivery details).",
+      "Categories of data subjects: your buyers on the marketplaces you use with SaleLinx (currently Depop, Vinted and eBay).",
     ],
   },
   {

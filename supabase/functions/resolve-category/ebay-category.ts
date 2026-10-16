@@ -2,7 +2,8 @@
 
 // eBay's category for a listing, from its Taxonomy suggestions. Uses SaleLinx's
 // application token, not the seller's: suggestions are public data, and this
-// keeps the lookup behind resolve-category's crosslist gate.
+// keeps the crosslist path's lookup behind resolve-category's crosslist gate.
+// The paywall for eBay itself is the same gate on the ebay function's add.
 
 import { categorySuggestionsFromResponse } from '../ebay/trading.ts';
 

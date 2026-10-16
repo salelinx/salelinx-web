@@ -15,7 +15,7 @@ import { ProductImage } from "./ProductImage";
  * The panel this replaces buried the idea in a list of rows: a banner said
  * "Relisting on Vinted", which reads as the opposite of what the feature does
  * (the copy promises it *removes* the item so you can't oversell). This shows
- * the actual mechanic instead: one item, listed on Vinted, Depop and eBay, and
+ * the actual mechanic instead: one item, listed on Depop, Vinted and eBay, and
  * the three stock counts staying equal as sales land on each in turn. When the
  * count reaches zero it comes off sale everywhere, which is the oversell that
  * didn't happen.
@@ -50,7 +50,7 @@ const START_STOCK = 3;
 
 type Shop = "vinted" | "depop" | "ebay";
 // Column order, left to right.
-const SHOPS: Shop[] = ["vinted", "depop", "ebay"];
+const SHOPS: Shop[] = ["depop", "vinted", "ebay"];
 const SHOP_NAME: Record<Shop, string> = { vinted: "Vinted", depop: "Depop", ebay: "eBay" };
 // Heights tuned so the three wordmarks look the same optical size.
 const WORDMARK_H: Record<Shop, string> = { vinted: "1.25em", depop: "1em", ebay: "1.4em" };

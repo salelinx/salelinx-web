@@ -29,7 +29,9 @@
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect eBay again, 'quota' when the app's daily eBay call limit is used
-// up, 'ebay' for an eBay-side refusal.
+// up, 'ebay' for an eBay-side refusal. A real add (not verifyOnly) can also be
+// refused with 403 'upgrade_required' or 'limit_reached' by the crosslist
+// paywall in _shared/crosslist-gate.ts, before anything reaches eBay.
 //
 // Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
 // EBAY_RUNAME_STORE (Chrome Web Store extension), EBAY_RUNAMES (optional JSON
@@ -40,6 +42,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
+import { checkCrosslistAllowed } from '../_shared/crosslist-gate.ts';
 import {
   EbayError,
   esc,
@@ -500,6 +503,18 @@ Deno.serve(async (req: Request) => {
       }
 
       case 'add': {
+        // A real add posts the crosslist itself, so it is held to the same
+        // paywall as resolve-category: without this, anyone could post to eBay
+        // past their plan by calling this action directly. A verify-only fee
+        // check creates nothing and stays open. Checked before any eBay call,
+        // so a refused request spends none of the shared daily quota.
+        if (body.verifyOnly !== true) {
+          const userScoped = createClient(supabaseUrl, anonKey, {
+            global: { headers: { Authorization: `Bearer ${jwt}` } },
+          });
+          const gate = await checkCrosslistAllowed(userScoped, user.id, 'ebay');
+          if (!gate.ok) return json(gate.status, gate.body);
+        }
         const auth = await accessTokenFor(admin, user.id);
         const item = { ...(body.item ?? {}) };
         // No business policies: copy postage, returns and location from one of the seller's listings.
