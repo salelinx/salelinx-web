@@ -7,7 +7,7 @@
 // Auth: the signed-in user's Supabase JWT in Authorization.
 //
 // Request body: { action, ...params }
-//   consentUrl { state }                     -> { url }
+//   consentUrl { state }                     -> { url } (eBay's sign-in always asks for the account: prompt=login)
 //   link       { code }                      -> { userId, username, marketplace, siteKept }
 //                (marketplace is the site listings go to; siteKept when a reconnect kept the seller's pick)
 //   unlink     {}                            -> { ok }
@@ -371,6 +371,10 @@ Deno.serve(async (req: Request) => {
           response_type: 'code',
           scope: SCOPES,
           state: body.state,
+          // Always ask which eBay account. Without it eBay approves whoever is signed in to
+          // ebay.com, and that session is separate from ebay.co.uk's, so a seller signed in to
+          // another account on their own site still got the old one linked.
+          prompt: 'login',
         }).toString();
         return json(200, { url: url.toString() });
       }

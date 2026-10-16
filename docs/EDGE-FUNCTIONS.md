@@ -442,7 +442,9 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
 `trading.test.ts` under Deno). The extension side is in
 `../salelinx-app/docs/technical/EBAY.md`.
 
-- **Linking.** `consentUrl` returns eBay's consent page; the extension opens it in a popup
+- **Linking.** `consentUrl` returns eBay's consent page (with `prompt=login`, so eBay always asks
+  which account: its sign-in runs on ebay.com, whose session is separate from ebay.co.uk's, and
+  without it the old account linked again); the extension opens it in a popup
   and catches the redirect to `https://<extension-id>.chromiumapp.org/ebay`; `link` swaps the
   code for tokens. eBay only redirects to a RuName's accept URL, and each accept URL names
   one extension id, so `link` uses `EBAY_RUNAME_STORE` when the caller sends the Chrome Web
