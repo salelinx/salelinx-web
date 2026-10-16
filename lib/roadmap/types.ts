@@ -21,7 +21,10 @@ export const ROADMAP_TAGS = [
 ] as const;
 export type RoadmapTagKey = (typeof ROADMAP_TAGS)[number];
 
-export const ROADMAP_MARKETPLACES: Marketplace[] = ['depop', 'vinted'];
+// Must match the CHECK on roadmap_items.marketplaces and admin_save_roadmap_item's
+// allowed list (041_roadmap_ebay_marketplace.sql); a value missing there is
+// refused with invalid_marketplaces.
+export const ROADMAP_MARKETPLACES: Marketplace[] = ['depop', 'vinted', 'ebay'];
 
 // Copy per locale. English is always present (the table CHECK requires it);
 // any other locale may be missing and falls back to English.
