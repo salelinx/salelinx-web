@@ -10,17 +10,12 @@ When `feat/ebay-crosslist` merges to `main`, Vercel ships the site but nothing o
 npx supabase db query --linked -f supabase/migrations/041_roadmap_ebay_marketplace.sql
 npx supabase functions deploy ebay --no-verify-jwt
 npx supabase functions deploy resolve-category --no-verify-jwt
-npx supabase functions deploy send-auth-email --no-verify-jwt
-npx supabase functions deploy send-support-email --no-verify-jwt
-npx supabase functions deploy send-shipping-labels --no-verify-jwt
-npx supabase functions deploy delete-account --no-verify-jwt
-npx supabase functions deploy trial-nudge --no-verify-jwt
 ```
 
-- Then run one crosslist (if `resolve-category` breaks, crosslisting is down for everyone) and send yourself a password-reset email to check the new email frame (Depop + Vinted + eBay).
+- `ebay` carries the crosslist allowance check on posting; `resolve-category` the same check moved into `_shared/crosslist-gate.ts`. Then run one crosslist: if `resolve-category` breaks, crosslisting is down for everyone.
 - In `/admin/roadmap`: move the two eBay cards to Shipped, tag them eBay, and change the Poshmark card's "alongside Depop and Vinted" to name eBay too.
 - Add a changelog entry for the eBay release (`content/changelog/`, `lib/docs/changelog.ts`) and say Chrome will ask users to approve the new eBay site access.
-- `deno check` errors in `resolve-category` (duplicate key in `_generated/vinted-depop-types.ts`) and `send-support-email` (pinned esm.sh types) predate this and do not block deploys.
+- A `deno check` error in `resolve-category` (duplicate key in `_generated/vinted-depop-types.ts`) predates this and does not block the deploy.
 - Delete this section in the same PR as the changelog entry.
 
 ## Before making changes
