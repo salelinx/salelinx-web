@@ -1,13 +1,13 @@
 export const metadata = {
   title: 'Settings',
   description:
-    'A tour of the Settings tab: your SaleLinx account, linked Depop and Vinted accounts, plan and usage, the marketplaces you sell on, and display options.',
+    'A tour of the Settings tab: your SaleLinx account, linked Depop, Vinted and eBay accounts, plan and usage, the marketplaces you sell on, and display options.',
   category: 'getting-started',
   slug: 'settings',
   order: 5,
-  updated: '2026-10-13',
-  tags: ['settings', 'account', 'membership', 'usage', 'language', 'shortcut'],
-  marketplaces: ['depop', 'vinted'],
+  updated: '2026-10-16',
+  tags: ['settings', 'account', 'membership', 'usage', 'language', 'shortcut', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
@@ -15,9 +15,9 @@ export const metadata = {
 
 **Settings** is pinned to the bottom of the panel&rsquo;s sidebar, below
 **Support** and **Refer &amp; Earn**, so you can always reach it. It holds
-your SaleLinx account, the Depop and Vinted accounts you&rsquo;ve linked,
-your plan and how much of it you&rsquo;ve used, which marketplaces you sell
-on, and a couple of display options.
+your SaleLinx account, the Depop, Vinted and eBay accounts you&rsquo;ve
+linked, your plan and how much of it you&rsquo;ve used, which marketplaces
+you sell on, and a couple of display options.
 
 A few quick controls (language, theme, Pop out) live in the panel header
 instead. They&rsquo;re covered at the end of this page.
@@ -39,8 +39,8 @@ when you sign in again.
 
 ## Marketplace accounts
 
-**Marketplace accounts** has one row for Depop and one for Vinted. Each row
-shows the linked shop&rsquo;s @username and a status:
+**Marketplace accounts** has a row each for Depop, Vinted and eBay. The
+Depop and Vinted rows show the linked shop&rsquo;s @username and a status:
 
 - **Connected** - the shop is linked, or you&rsquo;re signed in there.
 - **Disconnected** or **Session expired** - SaleLinx can&rsquo;t see you
@@ -50,8 +50,8 @@ shows the linked shop&rsquo;s @username and a status:
 If you&rsquo;re signed in but haven&rsquo;t linked the shop yet, the row
 reads **Not linked** and offers to link it.
 
-If you&rsquo;ve set SaleLinx up for one marketplace only (see
-Marketplaces below), the other row is hidden.
+The eBay row works differently (see The eBay row below). Rows for
+marketplaces you&rsquo;ve switched off (see Marketplaces below) are hidden.
 
 <Callout>
 In version 1.1.11 and earlier, this section and the one above it are headed
@@ -71,7 +71,7 @@ one:
 
 **Not now** hides the prompt for now.
 
-You can only link the marketplace whose site the panel is open on. From a
+You can only link Depop or Vinted from a page on that marketplace. From a
 Depop tab, the Vinted row asks you to open Vinted and log in there, and the
 other way round. The full first-time walkthrough is in
 [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).
@@ -95,14 +95,37 @@ unlink and link the shop you&rsquo;re now using.
 
 Click **Unlink** on the row and confirm. Unlinking removes that
 marketplace&rsquo;s listings from SaleLinx in this browser. Nothing changes
-on Depop or Vinted itself.
+on the marketplace itself.
 
 If you have listings from that shop saved in your cloud backup, the
 confirmation offers a choice:
 
-- **Keep cloud listings** - unlink, but leave the backups in your account.
-- **Delete everything** - unlink and also delete that shop&rsquo;s cloud
-  backups, photos included.
+- **Unlink, keep cloud backup** - unlink, but leave the backups in your
+  account, ready if you link again.
+- **Unlink and delete backup** - unlink and also delete that shop&rsquo;s
+  cloud backups, photos included.
+
+### The eBay row
+
+eBay has no browser session for SaleLinx to check, so its row shows your
+eBay username with **Linked**, or a **Link** button. Linking opens a small
+window where you sign in on eBay&rsquo;s own page, and works from any page
+the panel is open on. See
+[Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).
+
+Once eBay is linked, the row also has:
+
+- **Seller type** - **Private** or **Business**. SaleLinx reads it from
+  eBay; pick the other one if it&rsquo;s wrong. It decides what the eBay
+  listing editor in [My Listings](/docs/inventory/listings) offers:
+  business sellers can set an auto-accept price for offers, and private
+  sellers on eBay UK see what the buyer will pay with eBay&rsquo;s Buyer
+  Protection fee.
+- **Postage** - the postage, returns and item postcode SaleLinx adds to
+  every listing it [crosslists](/docs/inventory/crosslist) to eBay. The row
+  shows what&rsquo;s saved, **From your eBay business policies**, or **Asked
+  for on your first crosslist**. **Edit** opens the form. What you save is
+  stored with your SaleLinx account.
 
 ## Account info
 
@@ -152,9 +175,10 @@ the allowance resets. The limits for each plan are on the
 ## Marketplaces
 
 **Marketplaces** sets where you sell: &ldquo;Choose where you sell. We hide
-everything for the marketplaces you skip.&rdquo; There are three buttons
-showing the marketplace logos. Hover over one to see its name: **Depop
-only**, **Vinted only** or **Both**.
+everything for the marketplaces you skip.&rdquo; There is one button for
+each of Depop, Vinted and eBay, showing its logo (hover over one to see its
+name). Click a button to switch that marketplace on or off, then click
+**Apply**. Any mix works, as long as at least one stays on.
 
 Turning a marketplace off:
 
@@ -162,15 +186,24 @@ Turning a marketplace off:
   Designer** are Depop-only tabs, and **Auto-Offers** is Vinted-only.
 - Stops its background work, and switches off its schedules: Auto-refresh
   when Depop is off, and automatic offer accepting for that marketplace.
-- Leaves **Crosslist** and **Linking** in the sidebar, but locked. Both need
-  Depop and Vinted, so they explain why and offer a **Change marketplaces**
-  button that brings you back here.
+- Can leave **Crosslist** and **Linking** in the sidebar, but locked.
+  Crosslist needs two marketplaces (any two of the three), and Linking
+  needs Depop and Vinted. Each explains why and offers a **Change
+  marketplaces** button that brings you back here.
+
+With only eBay switched on, the sidebar shows **My Listings**,
+**Crosslist** (locked until you switch on a second marketplace),
+**Settings**, **Support** and **Refer &amp; Earn**, with a **Coming soon**
+list of the Depop and Vinted features that don&rsquo;t work with eBay yet.
 
 Your choice is saved to your SaleLinx account. SaleLinx asks the same
-question (&ldquo;Where do you sell?&rdquo;) the first time you sign in.
+question (&ldquo;Where do you sell?&rdquo;) the first time you sign in. If
+you chose your marketplaces before SaleLinx supported eBay, eBay starts
+switched off, and a one-time pop-up says eBay is here. Its **Go to
+Settings** button opens this tab.
 
-If you open the panel on a marketplace you&rsquo;ve turned off, a banner
-offers **Turn on Depop** (or **Turn on Vinted**) and **Dismiss**.
+If you open the panel on a Depop or Vinted page you&rsquo;ve turned off, a
+banner offers **Turn on Depop** (or **Turn on Vinted**) and **Dismiss**.
 
 ## Display
 

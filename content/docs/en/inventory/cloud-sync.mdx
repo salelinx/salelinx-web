@@ -5,9 +5,9 @@ export const metadata = {
   category: 'inventory',
   slug: 'cloud-sync',
   order: 8,
-  updated: '2026-10-13',
+  updated: '2026-10-16',
   tags: ['cloud', 'sync', 'backup', 'storage'],
-  marketplaces: ['depop', 'vinted'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
@@ -40,6 +40,10 @@ settle.
   copies, and the [Restocker](/docs/automate/restocker) reposts from
   the cloud copy. Both only work on saved listings.
 
+eBay listings can be saved too, for the backup and to see them on every
+device. Relisting sold items, linking and the Restocker work on Depop and
+Vinted listings only.
+
 ## Saving, updating and removing
 
 Everything happens in the **My Listings** tab.
@@ -69,7 +73,8 @@ saved.
 
 SaleLinx needs the listing&rsquo;s marketplace open in a tab to read
 its details. If the tab isn&rsquo;t open, that listing waits and the
-save carries on with the others.
+save carries on with the others. eBay listings are the exception:
+SaleLinx reads them straight from eBay, so they need no tab.
 
 Saves run one listing at a time in the background, with
 **Saving to cloud** and a count showing progress. They give way to
@@ -86,8 +91,8 @@ When a saved listing sells or otherwise changes status, the cloud copy
 is updated automatically. Edits you make through SaleLinx are saved
 to the cloud copy as well.
 
-Edits you make directly on Depop or Vinted aren&rsquo;t copied over
-by themselves. Select the listing and choose **Cloud** then
+Edits you make directly on Depop, Vinted or eBay aren&rsquo;t copied
+over by themselves. Select the listing and choose **Cloud** then
 **Update Cloud** to read its latest details and photos again. If that
 fails, the existing cloud copy is kept.
 
@@ -135,8 +140,9 @@ platform and status filters like any other row.
 
 If SaleLinx can&rsquo;t reach its servers several times in a row, the
 panel shows **SaleLinx is temporarily down** with **We should be back
-up in a moment.** Your listings on Depop and Vinted aren&rsquo;t
-affected, and there is nothing you need to do: the message clears by
+up in a moment.** Your listings on Depop, Vinted and eBay
+aren&rsquo;t affected, and there is nothing you need to do: the message
+clears by
 itself as soon as SaleLinx can reach its servers again.
 
 From version 1.1.12 this screen covers the whole panel until the
