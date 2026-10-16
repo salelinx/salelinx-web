@@ -1310,9 +1310,13 @@ span.restock-at-risk {
 }
 
 /* The hero's three marketplace logos drift a couple of pixels up and down,
-   out of step with each other. */
+   out of step with each other. Longhands, because the shorthand would reset
+   the per-logo animation-delay utilities and put them back in step. */
 .logo-bob {
-  animation: logo-bob 4.5s ease-in-out infinite;
+  animation-name: logo-bob;
+  animation-duration: 4.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 @keyframes logo-bob {
   0%, 100% { transform: translateY(0); }
