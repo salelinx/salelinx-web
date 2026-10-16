@@ -3,7 +3,7 @@
 // unsubscribe link (GET from the email, POST from one-click List-Unsubscribe).
 
 import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 import { timingSafeEqual } from "../_shared/security.ts";
 import {
   button,
