@@ -70,7 +70,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             ). Une carte bancaire est requise pour le démarrer, mais rien
             n'est débité pendant l'essai et vous pouvez annuler à tout moment
             depuis votre page de compte. Il y a un essai par compte SaleLinx
-            et par boutique Depop ou Vinted. Sans annulation, votre abonnement
+            et par boutique Depop, Vinted ou eBay. Sans annulation, votre abonnement
             Starter démarre automatiquement à la fin de l'essai.
           </p>
         ),
@@ -221,20 +221,20 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
     items: [
       {
         id: 'panel-not-appearing',
-        q: "Le panneau SaleLinx n'apparaît pas sur Depop ou Vinted",
+        q: "Le panneau SaleLinx n'apparaît pas sur Depop, Vinted ou eBay",
         a: (
           <div className="space-y-2">
             <p>
               Le panneau s'ouvre depuis le lanceur SaleLinx, en bas à droite de
-              chaque page Depop et Vinted : cliquez dessus, ou appuyez sur
-              Alt+S (le raccourci par défaut) dans un onglet Depop ou Vinted.
+              chaque page Depop, Vinted et eBay : cliquez dessus, ou appuyez sur
+              Alt+S (le raccourci par défaut) dans l'un de ces onglets.
               L'icône SaleLinx de la barre d'outils Chrome ouvre seulement une
               petite fenêtre pour se connecter. Si vous ne voyez pas le
               lanceur :
             </p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Rafraîchissez l'onglet Depop ou Vinted. Les onglets déjà ouverts
+                Rafraîchissez l'onglet de la marketplace. Les onglets déjà ouverts
                 quand vous avez installé ou mis à jour SaleLinx doivent être
                 rafraîchis.
               </li>
@@ -255,7 +255,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             </ol>
           </div>
         ),
-        keywords: ['panneau', 'manquant', 'pas visible', 'lanceur', 'depop', 'vinted'],
+        keywords: ['panneau', 'manquant', 'pas visible', 'lanceur', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'update-available',
@@ -271,7 +271,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             <strong>Ouvrir la page des extensions</strong> (ou allez sur
             chrome://extensions), activez le <strong>Mode développeur</strong>{' '}
             en haut à droite, cliquez sur <strong>Mettre à jour</strong>, puis
-            rafraîchissez vos onglets Depop et Vinted.
+            rafraîchissez vos onglets Depop, Vinted et eBay.
           </p>
         ),
         keywords: ['mise à jour', 'version', 'retard', 'obsolète', 'recharger'],
@@ -286,7 +286,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             <strong>Utilisé sur un autre appareil</strong>, cliquez sur{' '}
             <strong>Utiliser ici</strong> pour continuer ici : l'autre appareil
             est déconnecté de SaleLinx. Si vous venez de fermer vos onglets
-            Depop et Vinted sur l'autre appareil, la place se libère aussi
+            de marketplace sur l'autre appareil, la place se libère aussi
             d'elle-même en 10 minutes environ. Si vous ne reconnaissez pas
             l'autre appareil, reprenez la main puis changez votre mot de passe
             depuis votre{' '}
@@ -304,8 +304,8 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: (
           <p>
             Le panneau n'arrive pas à joindre nos serveurs pour le moment.
-            Depop et Vinted ne sont pas touchés : vous pouvez continuer à
-            utiliser les deux sites normalement, et vos annonces y restent
+            Depop, Vinted et eBay ne sont pas touchés : vous pouvez continuer à
+            utiliser les trois sites normalement, et vos annonces y restent
             intactes. Le message disparaît tout seul dès que SaleLinx est de
             nouveau joignable, inutile donc de réinstaller, de vous déconnecter
             ou de réinitialiser votre mot de passe, même si l'écran de
@@ -344,12 +344,15 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: (
           <p>
             SaleLinx passe par vos propres sessions Depop et Vinted connectées,
-            donc une fonctionnalité a besoin qu'un onglet de sa marketplace
-            soit ouvert quelque part dans Chrome. N'importe quelle fenêtre
-            convient, et ce n'est pas forcément l'onglet que vous regardez.
-            Cliquez sur <strong>Ouvrir Depop</strong> ou{' '}
+            donc une fonctionnalité Depop ou Vinted a besoin qu'un onglet de sa
+            marketplace soit ouvert quelque part dans Chrome. N'importe quelle
+            fenêtre convient, et ce n'est pas forcément l'onglet que vous
+            regardez. Cliquez sur <strong>Ouvrir Depop</strong> ou{' '}
             <strong>Ouvrir Vinted</strong> dans le message, ou ouvrez le site
-            vous-même ; le crosslisting a besoin des deux. Si un onglet est
+            vous-même ; le crosslisting entre Depop et Vinted a besoin des
+            deux. eBay n'a jamais besoin d'onglet, car il se connecte via la
+            page de connexion d'eBay : le crosslisting vers ou depuis eBay n'a
+            donc besoin que de l'onglet Depop ou Vinted. Si un onglet est
             ouvert mais que SaleLinx vous demande de le recharger (par exemple
             après que Chrome l'a mis en veille pour économiser la mémoire),
             cliquez sur <strong>Recharger l'onglet Depop</strong> ou{' '}
@@ -360,7 +363,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             n'était ouvert.
           </p>
         ),
-        keywords: ['onglet', 'ouvrir', 'recharger', 'depop', 'vinted'],
+        keywords: ['onglet', 'ouvrir', 'recharger', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'wrong-marketplace-account',
@@ -377,7 +380,9 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             <strong>Délier</strong> sous{' '}
             <strong>Comptes de plateformes</strong>, puis sur{' '}
             <strong>Lier</strong> pour le compte avec lequel vous êtes
-            connecté. Plus de détails dans{' '}
+            connecté. eBay fonctionne différemment : SaleLinx utilise toujours
+            le compte eBay lié dans <strong>Paramètres</strong>, quel que soit
+            le compte connecté sur le site eBay. Plus de détails dans{' '}
             <Link
               href="/docs/getting-started/connect-your-first-marketplace"
               className="underline underline-offset-4"
@@ -391,11 +396,11 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
       },
       {
         id: 'account-already-linked',
-        q: 'SaleLinx indique que mon compte Depop ou Vinted est déjà lié ou a déjà utilisé un essai gratuit',
+        q: 'SaleLinx indique que mon compte Depop, Vinted ou eBay est déjà lié ou a déjà utilisé un essai gratuit',
         a: (
           <p>
-            Chaque compte Depop ou Vinted ne peut être lié qu'à un seul compte
-            SaleLinx à la fois. S'il est lié à un autre de vos comptes
+            Chaque compte Depop, Vinted ou eBay ne peut être lié qu'à un seul
+            compte SaleLinx à la fois. S'il est lié à un autre de vos comptes
             SaleLinx, connectez-vous à celui-ci, cliquez sur{' '}
             <strong>Délier</strong> dans <strong>Paramètres</strong>, puis
             reconnectez-vous à ce compte-ci et liez-le. Chaque boutique n'a
@@ -421,13 +426,20 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
           <p>
             SaleLinx lit vos annonces sur Depop et Vinted tant qu'un onglet de
             cette marketplace est ouvert et connecté à votre compte lié. Dans{' '}
-            <strong>Mes annonces</strong>, le statut à côté de Depop et Vinted,
-            en haut, indique la dernière synchronisation de chacun : cliquez
-            sur <strong>Tout rafraîchir</strong>, ou sur le bouton de
+            <strong>Mes annonces</strong>, le statut à côté de chaque
+            marketplace, en haut, indique sa dernière synchronisation : cliquez
+            sur <strong>Tout mettre à jour</strong>, ou sur le bouton de
             rafraîchissement d'une marketplace, pour synchroniser tout de
             suite. S'il vous demande d'ouvrir ou de recharger un onglet, ou
             indique que votre session a expiré, faites-le sur le site de la
-            marketplace puis rafraîchissez à nouveau. Plus de détails dans le{' '}
+            marketplace puis rafraîchissez à nouveau. Les annonces eBay
+            viennent directement d'eBay, sans onglet : elles se mettent à jour
+            au plus une fois toutes les 15 minutes, et vous voyez vos annonces
+            eBay actives ainsi que celles vendues au cours des 60 derniers
+            jours. Si le statut eBay indique{' '}
+            <strong>reconnecter dans les paramètres</strong>, ouvrez{' '}
+            <strong>Paramètres</strong> et cliquez sur <strong>Lier</strong>{' '}
+            sur la ligne eBay. Plus de détails dans le{' '}
             <Link
               href="/docs/inventory/listings"
               className="underline underline-offset-4"
@@ -437,7 +449,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             .
           </p>
         ),
-        keywords: ['synchro', 'manquant', 'mes annonces', 'rafraîchir', 'pas à jour'],
+        keywords: ['synchro', 'manquant', 'mes annonces', 'rafraîchir', 'pas à jour', 'ebay'],
       },
       {
         id: 'crosslisting-stuck',
@@ -447,9 +459,10 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             <p>Vérifiez ces points dans l'ordre :</p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Vos comptes Depop et Vinted sont tous les deux liés, et un
-                onglet Depop et un onglet Vinted sont ouverts et connectés à
-                ces comptes. Le panneau vous indique ce qui manque.
+                Les deux marketplaces entre lesquelles vous copiez sont liées.
+                Pour Depop et Vinted, un onglet de chacune est aussi ouvert et
+                connecté au compte lié ; eBay n'a pas besoin d'onglet. Le
+                panneau vous indique ce qui manque.
               </li>
               <li>
                 Regardez la <Link href="/docs/getting-started/queue" className="underline underline-offset-4">file d'attente</Link> en bas de la barre latérale du
@@ -462,6 +475,11 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
                 <strong>Limité</strong> signifie que Depop ou Vinted limite les
                 requêtes. SaleLinx attend et reprend tout seul à la fin du
                 compte à rebours.
+              </li>
+              <li>
+                <strong>eBay is busy right now</strong> signifie
+                qu'eBay refuse temporairement les requêtes. Réessayez plus
+                tard ; rien n'a été publié ni facturé.
               </li>
               <li>
                 Si vous avez épuisé votre quota mensuel de crosslistings,
@@ -485,7 +503,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             </p>
           </div>
         ),
-        keywords: ['bloqué', 'figé', 'lent', 'en attente', 'crosslist'],
+        keywords: ['bloqué', 'figé', 'lent', 'en attente', 'crosslist', 'ebay', 'occupé'],
       },
       {
         id: 'listing-failed-to-post',
@@ -498,7 +516,11 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             d'informations que cette marketplace n'a pas acceptées.
             Connectez-vous-y avec votre compte lié, puis sélectionnez l'annonce
             dans <strong>Mes annonces</strong> et cliquez à nouveau sur{' '}
-            <strong>Publier ailleurs</strong>. À partir de la version 1.1.12,
+            <strong>Publier ailleurs</strong>. Quand eBay refuse un article,
+            l'étape de vérification indique ce qu'eBay demande, généralement
+            une caractéristique comme la taille ou le département : cliquez sur{' '}
+            <strong>Compléter</strong>, ajoutez-la, et l'article pourra être
+            publié. À partir de la version 1.1.12,
             les annonces en échec ne comptent pas dans votre quota mensuel de
             crosslistings. Si toute une marketplace a des problèmes, consultez
             la{' '}
@@ -568,7 +590,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
   {
     slug: 'ebay',
     title: 'eBay',
-    blurb: 'Connecter eBay, y crosslister, et ce que ça coûte.',
+    blurb: 'Connecter eBay, gérer et crosslister les annonces eBay, et ce que ça coûte.',
     items: [
       {
         id: 'ebay-connect',
@@ -581,6 +603,97 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         q: 'Le crosslisting vers eBay est-il payant ?',
         a: <p>eBay applique ses frais d'insertion habituels, comme pour une annonce créée à la main. SaleLinx affiche les frais eBay de chaque article avant toute publication, pour que vous puissiez revenir en arrière ou retirer des articles. Les annonces eBay sont publiées directement, car eBay n'a pas de brouillons.</p>,
         keywords: ['ebay', 'frais', 'prix', 'crosslist'],
+      },
+      {
+        id: 'ebay-tab',
+        q: 'Faut-il garder un onglet eBay ouvert ?',
+        a: (
+          <p>
+            Non. eBay se connecte via la page de connexion d'eBay, donc
+            SaleLinx accède à vos annonces eBay sans qu'un onglet eBay soit
+            ouvert. Vous ouvrez quand même le panneau lui-même depuis une page
+            Depop, Vinted ou eBay.
+          </p>
+        ),
+        keywords: ['ebay', 'onglet', 'ouvrir'],
+      },
+      {
+        id: 'ebay-manage-listings',
+        q: 'Puis-je modifier, retirer ou remettre en vente des annonces eBay depuis SaleLinx ?',
+        a: (
+          <p>
+            Oui. Vos annonces eBay apparaissent dans <strong>Mes annonces</strong>.
+            Ouvrez-en une pour modifier son titre, sa description, son prix, sa
+            quantité, ses photos, son état, sa catégorie et ses
+            caractéristiques, et enregistrez directement sur eBay.{' '}
+            <strong>Retirer</strong> met fin à l'annonce ; eBay ne permet pas
+            de supprimer, donc supprimer une ligne eBay met aussi fin à
+            l'annonce. Une annonce terminée s'ouvre avec une option{' '}
+            <strong>Remettre en vente</strong>. Plus de détails dans le{' '}
+            <Link
+              href="/docs/inventory/listings"
+              className="underline underline-offset-4"
+            >
+              guide Mes annonces
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['ebay', 'modifier', 'retirer', 'terminer', 'remettre en vente', 'supprimer', 'mes annonces'],
+      },
+      {
+        id: 'ebay-postage',
+        q: "D'où vient la livraison quand je crossliste vers eBay ?",
+        a: (
+          <p>
+            De votre compte eBay. SaleLinx utilise vos règles de vente eBay, ou
+            reprend la livraison et les retours d'une de vos annonces eBay
+            existantes. S'il n'y a rien à reprendre, l'onglet Crosslist vous
+            demande votre livraison une seule fois, et vous pouvez la modifier
+            plus tard dans{' '}
+            <strong>Paramètres &rarr; eBay &rarr; Livraison</strong>.
+          </p>
+        ),
+        keywords: ['ebay', 'livraison', 'expédition', 'frais de port', 'retours', 'règles'],
+      },
+      {
+        id: 'ebay-busy',
+        q: 'Que signifie « eBay is busy right now » ?',
+        a: (
+          <p>
+            eBay refuse temporairement les requêtes. Réessayez plus tard ; rien
+            n'a été publié ni facturé.
+          </p>
+        ),
+        keywords: ['ebay', 'occupé', 'erreur', 'réessayer', 'busy'],
+      },
+      {
+        id: 'ebay-reconnect',
+        q: 'SaleLinx me demande de reconnecter eBay',
+        a: (
+          <p>
+            L'autorisation qu'eBay accorde à SaleLinx expire au bout d'un
+            certain temps, et elle prend aussi fin si vous retirez l'accès de
+            SaleLinx dans votre compte eBay. Ouvrez <strong>Paramètres</strong>{' '}
+            dans le panneau et cliquez sur <strong>Lier</strong> sur la ligne
+            eBay pour l'autoriser à nouveau. Vos annonces eBay ne sont pas
+            touchées.
+          </p>
+        ),
+        keywords: ['ebay', 'reconnecter', 'lier', 'expiré', 'accès'],
+      },
+      {
+        id: 'ebay-disconnect',
+        q: 'Comment déconnecter eBay ?',
+        a: (
+          <p>
+            Ouvrez <strong>Paramètres</strong> dans le panneau et cliquez sur{' '}
+            <strong>Délier</strong> sur la ligne eBay. SaleLinx supprime
+            immédiatement son accès eBay, et vos annonces sur eBay restent
+            telles quelles.
+          </p>
+        ),
+        keywords: ['ebay', 'déconnecter', 'délier', 'retirer'],
       },
     ],
   },
@@ -614,7 +727,11 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             gérés par Stripe. Le contenu et les photos des annonces ne sont
             stockés chez nous que pour les annonces que vous enregistrez dans
             le cloud ; le reste de ce que SaleLinx lit sur Depop et Vinted
-            n'est pas stocké sur nos serveurs. Les données transitent en HTTPS,
+            n'est pas stocké sur nos serveurs. Les requêtes eBay passent par
+            nos serveurs, qui conservent l'accès accordé par eBay pour votre
+            compte et les informations de livraison que vous définissez pour
+            les crosslistings eBay, y compris le code postal depuis lequel vous
+            expédiez. Les données transitent en HTTPS,
             Supabase les chiffre au repos, et des règles d'accès rattachent
             chaque annonce et chaque photo à votre compte. Les lieux où nos
             prestataires traitent les données sont indiqués dans notre{' '}
@@ -640,7 +757,8 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             (inutile si vous vous connectez avec Google) et nous vous envoyons
             un lien de confirmation par e-mail : ouvrez-le dans les 60 minutes
             en étant connecté et confirmez une dernière fois. Votre compte, vos
-            annonces, images, comptes de marketplace liés, historique
+            annonces, images, comptes de marketplace liés (y compris votre
+            connexion eBay), historique
             d'utilisation et tickets d'assistance sont alors supprimés
             immédiatement, et tout abonnement est annulé sans remboursement du
             temps restant. Vous pouvez aussi écrire à{' '}

@@ -41,11 +41,11 @@ export default async function BlogIndexPage({
       <section className="pt-20 pb-12 sm:pt-24">
         <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>Blog</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight text-balance sm:text-6xl">
-          Selling tips for Depop and Vinted
+          Selling tips for resellers
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
-          Practical answers for UK resellers: when to list, how to get seen, what the fees
-          really are and when the taxman needs to know.
+          Practical answers: when to list, how to get seen, what the fees really are and
+          when the taxman needs to know.
         </p>
       </section>
 

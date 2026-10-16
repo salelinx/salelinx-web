@@ -48,6 +48,7 @@ import type {
   AdminUserRow,
   AdminUserUsageEntry,
   AdminUserDetail as Detail,
+  LinkedPlatform,
 } from "@/lib/types/admin";
 import { isMonthlyFeature } from "@/lib/admin/period";
 import { WINDOW_PRESETS, resolveUsageRange } from "@/lib/admin/usage-range";
@@ -953,17 +954,18 @@ function When({
   );
 }
 
-// The seller's Depop / Vinted accounts, each linking out to the public shop so
-// an admin can see the storefront behind a ticket in one click. A Depop row
-// with no captured username is not linkable (Depop profile URLs are keyed by
-// username, never the numeric id), so it degrades to plain text rather than a
-// dead link. See lib/admin/platform-links.ts.
+// The seller's Depop / Vinted / eBay accounts, each linking out to the public
+// shop so an admin can see the storefront behind a ticket in one click. A Depop
+// or eBay row with no captured username is not linkable (both key profile URLs
+// by username, never the id we store), so it degrades to plain text rather than
+// a dead link. See lib/admin/platform-links.ts.
 function LinkedAccounts({ accounts }: { accounts: AdminLinkedAccount[] }) {
   if (accounts.length === 0) {
     return (
       <p className="text-sm text-zinc-500">
         No marketplace accounts linked. The extension links one the first time
-        it detects a signed-in Depop or Vinted session.
+        it detects a signed-in Depop or Vinted session; eBay is connected from
+        the extension&apos;s Settings.
       </p>
     );
   }
@@ -1111,7 +1113,7 @@ function ListingsSummary({
   const breakdown = listings?.by_platform_status ?? [];
 
   // Group by platform so the statuses read as one line per marketplace.
-  const byPlatform = new Map<string, { status: string; count: number }[]>();
+  const byPlatform = new Map<LinkedPlatform, { status: string; count: number }[]>();
   for (const row of breakdown) {
     const existing = byPlatform.get(row.platform) ?? [];
     existing.push({ status: row.status, count: row.count });
@@ -1154,8 +1156,8 @@ function ListingsSummary({
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([platform, rows]) => (
               <li key={platform} className="flex flex-wrap items-baseline gap-2 text-xs">
-                <span className="w-14 shrink-0 capitalize text-zinc-500">
-                  {platform}
+                <span className="w-14 shrink-0 text-zinc-500">
+                  {platformLabel(platform)}
                 </span>
                 {rows
                   .sort((a, b) => b.count - a.count)

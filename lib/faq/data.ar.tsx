@@ -64,7 +64,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             </Link>
             ). البطاقة مطلوبة لبدئها، لكن لا يُخصم أي مبلغ خلال فترة التجربة
             ويمكنك الإلغاء في أي وقت من صفحة حسابك. هناك تجربة واحدة لكل حساب
-            SaleLinx ولكل متجر على Depop أو Vinted. إن لم تُلغِ، يبدأ اشتراك
+            SaleLinx ولكل متجر على Depop أو Vinted أو eBay. إن لم تُلغِ، يبدأ اشتراك
             Starter تلقائياً عند انتهاء التجربة.
           </p>
         ),
@@ -205,18 +205,18 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
     items: [
       {
         id: 'panel-not-appearing',
-        q: 'لوحة SaleLinx لا تظهر على Depop أو Vinted',
+        q: 'لوحة SaleLinx لا تظهر على Depop أو Vinted أو eBay',
         a: (
           <div className="space-y-2">
             <p>
               تُفتح اللوحة من زر SaleLinx في الزاوية السفلية اليمنى من كل صفحة
-              على Depop و Vinted: اضغط عليه، أو اضغط Alt+S (الاختصار
-              الافتراضي) في تبويب Depop أو Vinted. أما أيقونة SaleLinx في شريط
+              على Depop و Vinted و eBay: اضغط عليه، أو اضغط Alt+S (الاختصار
+              الافتراضي) في أحد هذه التبويبات. أما أيقونة SaleLinx في شريط
               أدوات Chrome فتفتح نافذة صغيرة لتسجيل الدخول فقط. إن لم ترَ الزر:
             </p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                حدّث تبويب Depop أو Vinted. التبويبات التي كانت مفتوحة عند
+                حدّث تبويب المنصة. التبويبات التي كانت مفتوحة عند
                 تثبيت SaleLinx أو تحديثه تحتاج إلى تحديث.
               </li>
               <li>
@@ -236,7 +236,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             </ol>
           </div>
         ),
-        keywords: ['لوحة', 'مفقودة', 'لا تظهر', 'زر', 'depop', 'vinted'],
+        keywords: ['لوحة', 'مفقودة', 'لا تظهر', 'زر', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'update-available',
@@ -251,7 +251,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             <strong>Open extensions page</strong> (أو افتح
             chrome://extensions)، وفعّل <strong>وضع المطوّر</strong> (Developer
             mode) في أعلى الصفحة، ثم اضغط <strong>تحديث</strong> (Update)،
-            وبعدها حدّث تبويبات Depop و Vinted.
+            وبعدها حدّث تبويبات Depop و Vinted و eBay.
           </p>
         ),
         keywords: ['تحديث', 'إصدار', 'متأخر', 'قديم', 'إعادة تحميل'],
@@ -265,8 +265,8 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             استخدام SaleLinx في الوقت نفسه. إذا عرضت اللوحة{' '}
             <strong>In use on another device</strong>، فاضغط{' '}
             <strong>Use here instead</strong> لتتابع على هذا الجهاز، وسيُسجَّل
-            خروج الجهاز الآخر من SaleLinx. وإذا كنت قد أغلقت للتو تبويبات Depop
-            و Vinted على الجهاز الآخر، فسيتحرر المكان تلقائياً خلال نحو 10
+            خروج الجهاز الآخر من SaleLinx. وإذا كنت قد أغلقت للتو تبويبات المنصات
+            على الجهاز الآخر، فسيتحرر المكان تلقائياً خلال نحو 10
             دقائق. وإن لم تتعرّف على الجهاز الآخر، فاستعد الاستخدام ثم غيّر
             كلمة المرور من{' '}
             <Link href="/account" className="underline underline-offset-4">
@@ -283,8 +283,8 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
         a: (
           <p>
             لا تستطيع اللوحة الوصول إلى خوادمنا في الوقت الحالي. لا يتأثر Depop
-            ولا Vinted، فيمكنك مواصلة استخدام الموقعين كالمعتاد، وتبقى إعلاناتك
-            عليهما كما هي. تختفي الرسالة من تلقاء نفسها فور عودة SaleLinx،
+            ولا Vinted ولا eBay، فيمكنك مواصلة استخدام المواقع الثلاثة كالمعتاد،
+            وتبقى إعلاناتك عليها كما هي. تختفي الرسالة من تلقاء نفسها فور عودة SaleLinx،
             فلا حاجة إلى إعادة التثبيت أو تسجيل الخروج أو إعادة تعيين كلمة
             المرور، حتى لو ظهرت الرسالة نفسها في شاشة تسجيل الدخول. ابتداءً من
             الإصدار 1.1.12 تغطي الرسالة اللوحة كلها ومعها زر{' '}
@@ -327,11 +327,14 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
         a: (
           <p>
             يعمل SaleLinx عبر جلساتك المسجّلة على Depop و Vinted، لذا تحتاج كل
-            ميزة إلى تبويب مفتوح للمنصة الخاصة بها في أي مكان داخل Chrome. أي
-            نافذة تفي بالغرض، ولا يلزم أن يكون التبويب الذي تنظر إليه. اضغط{' '}
+            ميزة من ميزات Depop أو Vinted إلى تبويب مفتوح للمنصة الخاصة بها في
+            أي مكان داخل Chrome. أي نافذة تفي بالغرض، ولا يلزم أن يكون التبويب
+            الذي تنظر إليه. اضغط{' '}
             <strong>Open Depop</strong> أو <strong>Open Vinted</strong> في
-            الرسالة، أو افتح الموقع بنفسك، علماً بأن النشر المتقاطع يحتاج إلى
-            الاثنين. وإذا كان التبويب مفتوحاً لكن SaleLinx يطلب إعادة تحميله
+            الرسالة، أو افتح الموقع بنفسك، علماً بأن النشر المتقاطع بين Depop
+            و Vinted يحتاج إلى الاثنين. أما eBay فلا يحتاج إلى تبويب أبداً، لأنه
+            يتصل عبر صفحة تسجيل الدخول الخاصة بـ eBay، لذا لا يحتاج النشر المتقاطع
+            إلى eBay أو منه إلا إلى تبويب Depop أو Vinted. وإذا كان التبويب مفتوحاً لكن SaleLinx يطلب إعادة تحميله
             (مثلاً بعد أن أوقفه Chrome مؤقتاً لتوفير الذاكرة)، فاضغط{' '}
             <strong>Reload Depop tab</strong> أو{' '}
             <strong>Reload Vinted tab</strong>. ابتداءً من الإصدار 1.1.12،
@@ -340,7 +343,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             لو لم يكن أي تبويب مفتوحاً.
           </p>
         ),
-        keywords: ['تبويب', 'فتح', 'إعادة تحميل', 'depop', 'vinted'],
+        keywords: ['تبويب', 'فتح', 'إعادة تحميل', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'wrong-marketplace-account',
@@ -353,8 +356,10 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             تحميل التبويب. وإن أردت أن يستخدم SaleLinx الحساب الآخر بدلاً من
             ذلك، فافتح <strong>Settings</strong> في اللوحة، واضغط{' '}
             <strong>Unlink</strong> ضمن <strong>Marketplace accounts</strong>،
-            ثم اضغط <strong>Link</strong> للحساب الذي سجّلت الدخول به. التفاصيل
-            في{' '}
+            ثم اضغط <strong>Link</strong> للحساب الذي سجّلت الدخول به. أما eBay
+            فيعمل بطريقة مختلفة: يستخدم SaleLinx دائماً حساب eBay المرتبط في{' '}
+            <strong>Settings</strong>، أياً كان الحساب المسجّل الدخول على موقع
+            eBay. التفاصيل في{' '}
             <Link
               href="/docs/getting-started/connect-your-first-marketplace"
               className="underline underline-offset-4"
@@ -368,10 +373,11 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
       },
       {
         id: 'account-already-linked',
-        q: 'يقول SaleLinx إن حسابي على Depop أو Vinted مرتبط بالفعل أو استخدم تجربة مجانية',
+        q: 'يقول SaleLinx إن حسابي على Depop أو Vinted أو eBay مرتبط بالفعل أو استخدم تجربة مجانية',
         a: (
           <p>
-            لا يمكن ربط حساب Depop أو Vinted إلا بحساب SaleLinx واحد في كل مرة.
+            لا يمكن ربط حساب Depop أو Vinted أو eBay إلا بحساب SaleLinx واحد في
+            كل مرة.
             إن كان مرتبطاً بحساب SaleLinx آخر لك، فسجّل الدخول إليه واضغط{' '}
             <strong>Unlink</strong> في <strong>Settings</strong>، ثم عُد إلى
             هذا الحساب واربطه. ولكل متجر أيضاً تجربة مجانية واحدة فقط: إن كان
@@ -396,12 +402,17 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
           <p>
             يقرأ SaleLinx إعلاناتك من Depop و Vinted ما دام هناك تبويب مفتوح
             لتلك المنصة ومسجّل الدخول بحسابك المرتبط. في{' '}
-            <strong>My Listings</strong> تُظهر الحالة بجانب Depop و Vinted في
-            الأعلى متى تمت آخر مزامنة لكل منهما: اضغط{' '}
-            <strong>Refresh All</strong>، أو زر التحديث بجانب إحدى المنصتين،
+            <strong>My Listings</strong> تُظهر الحالة بجانب كل منصة في الأعلى
+            متى تمت آخر مزامنة لها: اضغط{' '}
+            <strong>Update All</strong>، أو زر التحديث بجانب إحدى المنصات،
             للمزامنة الآن. وإن طُلب منك فتح تبويب أو إعادة تحميله، أو ظهر أن
-            جلستك انتهت، فافعل ذلك على موقع المنصة ثم حدّث مرة أخرى. التفاصيل
-            في{' '}
+            جلستك انتهت، فافعل ذلك على موقع المنصة ثم حدّث مرة أخرى. أما
+            إعلانات eBay فتأتي من eBay مباشرة دون حاجة إلى تبويب: لا تُحدَّث
+            أكثر من مرة كل 15 دقيقة، وترى فيها إعلاناتك النشطة على eBay وتلك
+            التي بِيعت خلال آخر 60 يوماً. وإذا ظهرت حالة eBay بعبارة{' '}
+            <strong>reconnect in Settings</strong>، فافتح{' '}
+            <strong>Settings</strong> واضغط <strong>Link</strong> في صف eBay.
+            التفاصيل في{' '}
             <Link
               href="/docs/inventory/listings"
               className="underline underline-offset-4"
@@ -411,7 +422,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             .
           </p>
         ),
-        keywords: ['مزامنة', 'مفقود', 'my listings', 'تحديث', 'قديمة'],
+        keywords: ['مزامنة', 'مفقود', 'my listings', 'تحديث', 'قديمة', 'ebay'],
       },
       {
         id: 'crosslisting-stuck',
@@ -421,9 +432,10 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             <p>تحقق من هذه النقاط بالترتيب:</p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                حساباك على Depop و Vinted مرتبطان كلاهما، وهناك تبويب Depop
-                وتبويب Vinted مفتوحان ومسجّلا الدخول بهذين الحسابين. ستخبرك
-                اللوحة بما ينقص.
+                المنصتان اللتان تنسخ بينهما مرتبطتان كلتاهما. وبالنسبة إلى Depop
+                و Vinted، يجب أيضاً أن يكون تبويب لكل منهما مفتوحاً ومسجّل الدخول
+                بالحساب المرتبط، أما eBay فلا يحتاج إلى تبويب. ستخبرك اللوحة
+                بما ينقص.
               </li>
               <li>
                 انظر إلى <Link href="/docs/getting-started/queue" className="underline underline-offset-4">قائمة الانتظار</Link> أسفل الشريط الجانبي للوحة. ينفّذ
@@ -435,6 +447,11 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
                 <strong>Rate limited</strong> تعني أن Depop أو Vinted يحدّ من
                 الطلبات. ينتظر SaleLinx ويتابع من تلقاء نفسه عند انتهاء العد
                 التنازلي.
+              </li>
+              <li>
+                <strong>eBay is busy right now</strong> تعني أن eBay يرفض
+                الطلبات مؤقتاً. حاول مرة أخرى لاحقاً، فلم يُنشر أي شيء ولم يُخصم
+                أي مبلغ.
               </li>
               <li>
                 إذا استنفدت حصتك الشهرية من النشر المتقاطع، يخبرك SaleLinx أنك
@@ -457,7 +474,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             </p>
           </div>
         ),
-        keywords: ['عالق', 'متوقف', 'معلّق', 'بطيء', 'قائمة الانتظار', 'نشر متقاطع'],
+        keywords: ['عالق', 'متوقف', 'معلّق', 'بطيء', 'قائمة الانتظار', 'نشر متقاطع', 'ebay', 'مشغول'],
       },
       {
         id: 'listing-failed-to-post',
@@ -468,7 +485,10 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             فشلت. معظم حالات الفشل سببها تسجيل الخروج من المنصة التي تنسخ
             إليها، أو بيانات لم تقبلها تلك المنصة. سجّل الدخول إليها بحسابك
             المرتبط، ثم حدّد الإعلان في <strong>My Listings</strong> واضغط{' '}
-            <strong>Crosslist</strong> مرة أخرى. ابتداءً من الإصدار 1.1.12، لا
+            <strong>Crosslist</strong> مرة أخرى. وعندما يرفض eBay إعلاناً، تخبرك
+            خطوة المراجعة بما يحتاجه eBay، وهو عادةً إحدى مواصفات السلعة مثل
+            المقاس أو القسم: اضغط <strong>Fill in</strong> وأضِفها، وبعدها يمكن
+            نشر الإعلان. ابتداءً من الإصدار 1.1.12، لا
             تُحتسب الإعلانات التي فشلت من حصتك الشهرية للنشر المتقاطع. وإذا
             كانت منصة كاملة تواجه مشكلات، فتحقق من{' '}
             <Link
@@ -539,7 +559,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
   {
     slug: 'ebay',
     title: 'eBay',
-    blurb: 'ربط eBay، والنشر المتقاطع إليه، وتكلفته.',
+    blurb: 'ربط eBay، وإدارة إعلاناته والنشر المتقاطع إليه ومنه، وتكلفته.',
     items: [
       {
         id: 'ebay-connect',
@@ -552,6 +572,90 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
         q: 'هل للنشر المتقاطع إلى eBay تكلفة؟',
         a: <p>يفرض eBay رسوم الإعلان المعتادة، كما لو نشرت الإعلان يدوياً. يعرض SaleLinx رسوم eBay لكل عنصر قبل نشر أي شيء، لتتمكن من التراجع أو إزالة عناصر. تُنشر إعلانات eBay مباشرة، لأن eBay لا يدعم المسودات.</p>,
         keywords: ['ebay', 'رسوم', 'تكلفة'],
+      },
+      {
+        id: 'ebay-tab',
+        q: 'هل أحتاج إلى فتح تبويب eBay؟',
+        a: (
+          <p>
+            لا. يتصل eBay عبر صفحة تسجيل الدخول الخاصة بـ eBay، لذا يصل SaleLinx
+            إلى إعلاناتك على eBay دون أن يكون تبويب eBay مفتوحاً. لكنك ما زلت
+            تفتح اللوحة نفسها من صفحة على Depop أو Vinted أو eBay.
+          </p>
+        ),
+        keywords: ['ebay', 'تبويب', 'فتح'],
+      },
+      {
+        id: 'ebay-manage-listings',
+        q: 'هل يمكنني تعديل إعلانات eBay أو إنهاؤها أو إعادة نشرها من SaleLinx؟',
+        a: (
+          <p>
+            نعم. تظهر إعلاناتك على eBay في <strong>My Listings</strong>. افتح
+            أياً منها لتعديل العنوان والوصف والسعر والكمية والصور وحالة السلعة
+            والفئة ومواصفات السلعة، واحفظ التغييرات على eBay مباشرة. يُنهي{' '}
+            <strong>Unlist</strong> الإعلان، ولأن eBay لا يتيح الحذف، فإن حذف صف
+            من صفوف eBay يُنهي الإعلان أيضاً. وعند فتح إعلان منتهٍ يظهر خيار{' '}
+            <strong>Relist</strong>. التفاصيل في{' '}
+            <Link
+              href="/docs/inventory/listings"
+              className="underline underline-offset-4"
+            >
+              دليل My Listings
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['ebay', 'تعديل', 'إنهاء', 'unlist', 'relist', 'إعادة النشر', 'حذف', 'my listings'],
+      },
+      {
+        id: 'ebay-postage',
+        q: 'من أين تأتي إعدادات الشحن عند النشر المتقاطع إلى eBay؟',
+        a: (
+          <p>
+            من حسابك على eBay. يستخدم SaleLinx سياسات الأعمال (business
+            policies) في حسابك على eBay، أو ينسخ إعدادات الشحن والإرجاع من أحد
+            إعلاناتك الحالية على eBay. وإن لم يكن هناك ما يُنسخ، فسيطلب منك
+            تبويب Crosslist إعدادات الشحن مرة واحدة، ويمكنك تغييرها لاحقاً من{' '}
+            <strong>Settings &rarr; eBay &rarr; Postage</strong>.
+          </p>
+        ),
+        keywords: ['ebay', 'شحن', 'إرجاع', 'سياسات', 'postage'],
+      },
+      {
+        id: 'ebay-busy',
+        q: 'ما معنى &laquo;eBay is busy right now&raquo;؟',
+        a: (
+          <p>
+            يعني أن eBay يرفض الطلبات مؤقتاً. حاول مرة أخرى لاحقاً، فلم يُنشر
+            أي شيء ولم يُخصم أي مبلغ.
+          </p>
+        ),
+        keywords: ['ebay', 'مشغول', 'خطأ', 'حاول مرة أخرى'],
+      },
+      {
+        id: 'ebay-reconnect',
+        q: 'يطلب مني SaleLinx إعادة ربط eBay',
+        a: (
+          <p>
+            ينتهي الإذن الذي يمنحه eBay لـ SaleLinx بعد فترة، وينتهي أيضاً إذا
+            ألغيت وصول SaleLinx من حسابك على eBay. افتح{' '}
+            <strong>Settings</strong> في اللوحة واضغط <strong>Link</strong> في
+            صف eBay لتوافق عليه من جديد. لا تتأثر إعلاناتك على eBay.
+          </p>
+        ),
+        keywords: ['ebay', 'إعادة الربط', 'ربط', 'منتهي', 'وصول'],
+      },
+      {
+        id: 'ebay-disconnect',
+        q: 'كيف أفصل eBay؟',
+        a: (
+          <p>
+            افتح <strong>Settings</strong> في اللوحة واضغط{' '}
+            <strong>Unlink</strong> في صف eBay. يحذف SaleLinx وصوله إلى eBay
+            فوراً، وتبقى إعلاناتك على eBay كما هي.
+          </p>
+        ),
+        keywords: ['ebay', 'فصل', 'فك الربط', 'إزالة'],
       },
     ],
   },
@@ -581,7 +685,9 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             المرتبطة لدى مزوّد قاعدة البيانات لدينا Supabase، وتتولى Stripe
             المدفوعات. لا نخزّن تفاصيل الإعلانات وصورها إلا للإعلانات التي
             تحفظها في السحابة، أما بقية ما يقرأه SaleLinx من Depop و Vinted فلا
-            يُخزَّن على خوادمنا. تنتقل البيانات عبر HTTPS، وتشفّرها Supabase
+            يُخزَّن على خوادمنا. وتمر طلبات eBay عبر خوادمنا، التي تحتفظ بالوصول
+            الذي يمنحه eBay لحسابك وبتفاصيل الشحن التي تحددها للنشر المتقاطع
+            إلى eBay، ومنها الرمز البريدي الذي ترسل منه. تنتقل البيانات عبر HTTPS، وتشفّرها Supabase
             أثناء التخزين، وتربط قواعد الوصول كل إعلان وكل صورة بحسابك. أما
             أماكن معالجة مزودينا للبيانات فموضحة في{' '}
             <Link href="/legal/privacy" className="underline underline-offset-4">
@@ -605,7 +711,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             المرور (لا حاجة إليها إن كنت تسجّل الدخول عبر Google) وسنرسل إليك
             رابط تأكيد بالبريد: افتحه خلال 60 دقيقة وأنت مسجّل الدخول، ثم أكّد
             مرة أخيرة. عندها يُحذف حسابك وإعلاناتك وصورك وحسابات المنصات
-            المرتبطة وسجل الاستخدام وتذاكر الدعم فوراً، ويُلغى أي اشتراك دون
+            المرتبطة (ومنها ربطك بـ eBay) وسجل الاستخدام وتذاكر الدعم فوراً، ويُلغى أي اشتراك دون
             استرداد للمدة المتبقية. ويمكنك أيضاً مراسلتنا على{' '}
             <a
               href="mailto:support@salelinx.com"

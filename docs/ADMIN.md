@@ -136,7 +136,7 @@ The Users module answers "what is this account actually doing", not just "what d
 
 | Surface | Shows | Source table |
 | --- | --- | --- |
-| Roster: `Linked` column | Which marketplaces are connected (D / V badges), filterable, including "Nothing linked" | `linked_accounts` (001) |
+| Roster: `Linked` column | Which marketplaces are connected (D / V / E badges), filterable per marketplace, "Two or more" (the accounts crosslisting applies to) and "Nothing linked" | `linked_accounts` (001) |
 | Roster: `Last active` column | The more recent of last sign-in and freshest device heartbeat, sortable, with an activity filter (7 days / 30 days / dormant / never) | `auth.users` + `device_sessions` (015) |
 | Drawer: header | Joined, Last sign-in, Last seen, each with a relative age | same |
 | Drawer: Linked accounts | Per platform: username, marketplace account ID, linked date, and an "Open shop" link to the live profile | `linked_accounts` |
@@ -147,7 +147,7 @@ Things that are easy to get wrong here:
 
 - **Last sign-in is not liveness.** A refresh token keeps a session alive for weeks, so a daily user can have a months-old `last_sign_in_at`. The device heartbeat (written by `claim_device_session` whenever the extension panel is in use) is the truer signal, which is why the roster column is the max of the two and the drawer shows both separately.
 - **A missing device row is ambiguous.** `claim_device_session` prunes rows idle for 30+ days, so "no devices" means either never installed or long dormant. The drawer says so rather than implying the former.
-- **Depop profiles are keyed by username, Vinted by numeric ID.** `linked_accounts` stores both, but `platform_username` is null on older rows (the extension backfills it opportunistically), and a Depop row without one is genuinely not linkable. `lib/admin/platform-links.ts` returns null in that case and the UI degrades to plain text instead of a dead link. Vinted runs a domain per market and we do not record which; the UK domain is used and Vinted redirects a member ID to the right market itself.
+- **Depop and eBay profiles are keyed by username, Vinted by numeric ID.** `linked_accounts` stores both, but `platform_username` is null on older rows (the extension backfills it opportunistically), and a Depop row without one is genuinely not linkable. The eBay id is eBay's Identity API user id, which no eBay page is keyed by, so an eBay row needs its username too. `lib/admin/platform-links.ts` returns null in that case and the UI degrades to plain text instead of a dead link. Vinted runs a domain per market and we do not record which; the UK domain is used and Vinted redirects a member ID to the right market itself. eBay links go to the UK site too (the seller's own site is in `ebay_tokens`, which the console cannot read), which shows any seller's profile.
 - **Two clocks on listings.** `listings.last_synced_at` is epoch **milliseconds** written by the extension (`0` is the column default, meaning never synced, not a 1970 date); `cloud_updated_at` is a server-side timestamp. The drawer leads with the server one and shows the extension's beside it, because a large gap between them is itself the diagnosis.
 - **`platform_credentials` is deliberately not exposed.** It is encrypted client-side and the console holds no key, so it would be unreadable noise. Whether a platform is connected is already answered by `linked_accounts`.
 - **Relative timestamps need a hydration-safe clock.** The tables are Client Components that Next also renders on the server; reading `Date.now()` independently on each side is a hydration mismatch, and reading it in an effect trips the repo's `react-hooks/set-state-in-effect` lint rule. `lib/admin/use-client-now.ts` uses `useSyncExternalStore` (null through hydration, ticking afterwards). Use it for any new relative timestamp rather than reinventing the pattern.
@@ -504,9 +504,9 @@ reads as a deliberate action instead of a flicker.
 
 ### Manual status overrides
 
-`/admin/health` carries a **Manual status** section: every feature and both
-marketplaces, each with Auto / Operational / Degraded / Down and an optional
-public note.
+`/admin/health` carries a **Manual status** section: every feature and all
+three marketplaces (Vinted, Depop, eBay), each with Auto / Operational /
+Degraded / Down and an optional public note.
 
 Everything is **automatic by default**. A row in `status_overrides` (migration
 `011_status_overrides.sql`) switches one target to manual, and manual **wins
@@ -531,6 +531,14 @@ Platform-level overrides also replaced the hardcoded table in
 `lib/docs/status.ts`, taking the Supabase migration path that file had been
 flagged for. Marketplaces have no automatic signal of their own, so they default
 to operational and a real outage is declared here.
+
+eBay is the extreme case: its calls go through the `ebay` Edge Function, not the
+extension's Depop/Vinted fetch wrappers, so no eBay traffic ever reaches
+`endpoint_health` and there are no eBay feature cards. The `platform:ebay`
+override is the only way the status page can say eBay is degraded or down. A
+spike of `quota` errors from the `ebay` function (eBay's per-app daily call
+limit, shared by every user) is the most likely eBay incident, and shows up only
+as `code=quota` warnings in that function's logs.
 
 ### Feature status rollup
 

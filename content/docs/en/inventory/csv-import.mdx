@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'csv-import',
   order: 7,
-  updated: '2026-10-13',
+  updated: '2026-10-16',
   tags: ['import', 'bulk', 'csv'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -69,7 +69,8 @@ import stops if you aren&rsquo;t logged into Depop.
    file. Any of the three formats above works here, up to 20 MB.
 5. Check the preview: the detected format, how many items were found,
    and the first five rows with their title, price and image count.
-6. Under **Target Platform**, pick **Vinted** or **Depop**.
+6. Under **Target Platform**, pick **Vinted** or **Depop**. CSV import
+   doesn&rsquo;t post to eBay.
 7. Leave **Save as Draft** ticked (it is on by default) to create
    drafts you review on the marketplace before they go live. Untick
    it to publish straight away.
@@ -113,8 +114,8 @@ on to the next row. One bad row never stops the rest.
 ## Exporting
 
 The same **CSV** menu has an **Export All** button. It downloads
-every listing in **My Listings**, from both marketplaces and in every
-status, as a SaleLinx-format CSV. Use it as a backup, or to move an
+every listing in **My Listings**, from every marketplace (eBay included)
+and in every status, as a SaleLinx-format CSV. Use it as a backup, or to move an
 inventory to a different SaleLinx account. To export only some
 listings, select them and use **Export** in the toolbar (see
 [Bulk editor](/docs/inventory/bulk-editor)).

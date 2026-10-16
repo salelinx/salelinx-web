@@ -5,7 +5,7 @@ export const metadata = {
   category: 'getting-started',
   slug: 'install-the-extension',
   order: 1,
-  updated: '2026-10-13',
+  updated: '2026-10-16',
   tags: ['installer', 'configuration', 'chrome'],
   marketplaces: [],
   status: 'published',
@@ -13,8 +13,8 @@ export const metadata = {
 
 # Installer l'extension SaleLinx
 
-SaleLinx est une extension Chrome qui fonctionne dans vos onglets Depop et
-Vinted. Installez-la une fois, épinglez-la à votre barre d'outils et
+SaleLinx est une extension Chrome qui fonctionne dans vos onglets Depop,
+Vinted et eBay. Installez-la une fois, épinglez-la à votre barre d'outils et
 connectez-vous avec votre compte SaleLinx.
 
 Vous aurez besoin de Google Chrome ou d'un autre navigateur Chromium
@@ -30,14 +30,16 @@ Chrome**. Chrome vous demandera de confirmer les permissions dont l'extension
 a besoin. Cliquez sur **Ajouter l'extension** pour continuer.
 
 <Callout variant="tip" title="Ce que signifient les permissions">
-SaleLinx demande l'accès à Depop et aux sites Vinted des pays qu'il prend en
-charge. Il utilise cet accès pour lire vos propres annonces, commandes et
-messages, et pour publier, modifier et republier des articles pour vous, via
-les mêmes connexions que le site de la marketplace. Il communique aussi avec
-quelques services complémentaires&nbsp;: le cloud SaleLinx (votre compte et
-vos sauvegardes), les serveurs photo des marketplaces et le fournisseur des
-étiquettes d'expédition. Le panneau SaleLinx n'apparaît que sur les pages
-Depop et Vinted.
+SaleLinx demande l'accès à Depop, aux sites Vinted des pays qu'il prend en
+charge et aux sites eBay. Sur Depop et Vinted, il utilise cet accès pour lire
+vos propres annonces, commandes et messages, et pour publier, modifier et
+republier des articles pour vous, via les mêmes connexions que le site de la
+marketplace. Sur eBay, il affiche le panneau, et vos annonces eBay passent par
+la connexion officielle d'eBay, que vous autorisez en liant votre compte eBay.
+Il communique aussi avec quelques services complémentaires&nbsp;: le cloud
+SaleLinx (votre compte et vos sauvegardes), les serveurs photo des
+marketplaces et le fournisseur des étiquettes d'expédition. Le panneau
+SaleLinx n'apparaît que sur les pages Depop, Vinted et eBay.
 </Callout>
 
 ## 2. Épingler l'extension
@@ -57,11 +59,11 @@ inscrivez avec une adresse e-mail, confirmez-la depuis l'e-mail que nous vous
 envoyons, puis revenez vous connecter.
 
 Vous pouvez aussi vous connecter depuis le panneau lui-même&nbsp;: si vous
-l'ouvrez sur Depop ou Vinted sans être connecté, il propose les mêmes options
-de connexion.
+l'ouvrez sur Depop, Vinted ou eBay sans être connecté, il propose les mêmes
+options de connexion.
 
 Une fois connecté, la fenêtre indique le compte que vous utilisez, avec des
-boutons pour ouvrir Depop ou Vinted, un lien **Account &amp; billing** vers
+boutons pour ouvrir Depop, Vinted ou eBay, un lien **Account &amp; billing** vers
 votre page de compte sur salelinx.com, et **Log out**.
 
 <Callout>
@@ -72,13 +74,17 @@ utilisez aussi le nouveau mot de passe dans l'extension.
 
 ## 4. Ouvrir le panneau
 
-Rendez-vous sur [depop.com](https://www.depop.com) ou sur votre site Vinted.
-Un petit bouton SaleLinx se trouve en bas à droite de la page. Cliquez dessus
-pour ouvrir le panneau. Le panneau n'existe que sur les pages Depop et
-Vinted&nbsp;; il ne s'ouvre pas depuis l'icône de la barre d'outils.
+Rendez-vous sur [depop.com](https://www.depop.com), sur votre site Vinted ou
+sur votre site eBay. Un petit bouton SaleLinx se trouve en bas à gauche de la
+page. Cliquez dessus pour ouvrir le panneau. Le panneau n'existe que sur les
+pages Depop, Vinted et eBay&nbsp;; il ne s'ouvre pas depuis l'icône de la
+barre d'outils.
 
-Si des onglets Depop ou Vinted étaient déjà ouverts avant l'installation,
-rechargez-les une fois pour que le bouton apparaisse.
+Sur eBay, le panneau apparaît sur ebay.co.uk, ebay.com, .de, .fr, .it, .es,
+.ie, .nl, .at, .com.au et .ca.
+
+Si des onglets Depop, Vinted ou eBay étaient déjà ouverts avant
+l'installation, rechargez-les une fois pour que le bouton apparaisse.
 
 Il existe aussi un raccourci clavier&nbsp;: **Alt+S** ouvre et ferme le
 panneau quand vous êtes sur un onglet Depop ou Vinted. Il ne fait rien sur
@@ -98,10 +104,11 @@ La première fois que vous ouvrez le panneau, il vous guide à travers deux
    avec le même compte si on vous le demande&nbsp;; une carte est requise,
    mais rien n'est débité pendant l'essai). Une fois que c'est fait, revenez
    au panneau et cliquez sur **Déjà une offre&nbsp;? Actualiser**.
-2. **Associez vos boutiques.** Sous **Je vends sur**, choisissez Depop,
-   Vinted ou les deux, puis cliquez sur **Lier** à côté de chaque compte. Si
-   une ligne affiche **Se connecter** à la place, c'est que vous n'êtes pas
-   encore connecté à cette marketplace dans ce navigateur.
+2. **Associez vos boutiques.** Sous **Je vends sur**, choisissez parmi
+   Depop, Vinted et eBay, puis cliquez sur **Lier** à côté de chaque compte.
+   Si une ligne affiche **Se connecter** à la place, c'est que vous n'êtes
+   pas encore connecté à cette marketplace dans ce navigateur. eBay se lie
+   plutôt via la page de connexion d'eBay.
 
 Ensuite, le panneau s'ouvre sur **Mes annonces**. Le guide complet de
 liaison se trouve dans

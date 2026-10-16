@@ -12,6 +12,7 @@ import { loadStatusOverrides } from './feature-status';
 const DEFAULT_STATUS: MarketplaceStatus[] = [
   { marketplace: 'depop', state: 'ok', updatedAt: '2026-04-21' },
   { marketplace: 'vinted', state: 'ok', updatedAt: '2026-04-21' },
+  { marketplace: 'ebay', state: 'ok', updatedAt: '2026-10-16' },
 ];
 
 export async function getMarketplaceStatus(): Promise<MarketplaceStatus[]> {
@@ -61,4 +62,5 @@ export const STATE_META: Record<
 export const MARKETPLACE_LABELS: Record<Marketplace, string> = {
   depop: 'Depop',
   vinted: 'Vinted',
+  ebay: 'eBay',
 };
