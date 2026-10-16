@@ -47,9 +47,30 @@ function a(name: string, seconds: number, delay = 0, extra?: CSSProperties): CSS
   };
 }
 
-const BRAND_COLOR: Record<Brand, string> = { depop: DEPOP, vinted: VINTED, ebay: '#0968f6' };
+const BRAND_COLOR: Record<Brand, string> = { depop: DEPOP, vinted: VINTED, ebay: "#0968f6" };
+// Light fills for chat bubbles, one per shop.
+const BRAND_TINT: Record<Brand, string> = { depop: "#fff1ee", vinted: "#e6f4f5", ebay: "#e8f0fe" };
+
+// Scenes that show several items spread them across the three shops in turn.
+const BRANDS: Brand[] = ["depop", "vinted", "ebay"];
+const brandAt = (i: number): Brand => BRANDS[i % BRANDS.length];
 
 function Mark({ x, y, brand, r = 9 }: { x: number; y: number; brand: Brand; r?: number }) {
+  if (brand === "ebay") {
+    // eBay has no one-letter monogram, so its four-colour wordmark sits on a
+    // white disc instead of a white letter on a brand-coloured one.
+    const g = GLYPH.ebay.wordmark;
+    const w = r * 1.6;
+    const h = w * (400.75 / 1000);
+    return (
+      <g>
+        <circle cx={x} cy={y} r={r} fill={PAPER} stroke="#d4d4d8" strokeWidth={1.2} />
+        <svg x={x - w / 2} y={y - h / 2} width={w} height={h} viewBox={g.viewBox} fill={g.fill}>
+          {g.d}
+        </svg>
+      </g>
+    );
+  }
   const g = GLYPH[brand].mark;
   const s = r * 1.05;
   return (
@@ -59,6 +80,17 @@ function Mark({ x, y, brand, r = 9 }: { x: number; y: number; brand: Brand; r?: 
         {g.d}
       </svg>
     </g>
+  );
+}
+
+/** All three shop marks in a row, the last one centred on (x, y). */
+function Marks({ x, y, r = 8 }: { x: number; y: number; r?: number }) {
+  return (
+    <>
+      {BRANDS.map((b, i) => (
+        <Mark key={b} x={x - (BRANDS.length - 1 - i) * r * 1.7} y={y} brand={b} r={r} />
+      ))}
+    </>
   );
 }
 
@@ -191,7 +223,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
             x={40 + (i % 3) * 84}
             y={14 + Math.floor(i / 3) * 92}
             src={src}
-            brand={i % 2 ? "vinted" : "depop"}
+            brand={brandAt(i)}
             price={["£18", "£12", "£9", "£25", "£14", "£20"][i]}
             style={a("fa-pop", 5, i * 0.18)}
           />
@@ -215,7 +247,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
             y1={100}
             x2={p.x}
             y2={p.y}
-            stroke={i % 2 ? VINTED : DEPOP}
+            stroke={BRAND_COLOR[brandAt(i)]}
             strokeWidth={1.5}
             strokeDasharray="80"
             style={a("fa-draw", 5, i * 0.35, { "--len": "80" } as CSSProperties)}
@@ -228,7 +260,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
           <g key={`c${i}`} style={a("fa-pop", 5, 0.4 + i * 0.35)}>
             <circle cx={p.x} cy={p.y} r={17} fill={PAPER} stroke={INK} strokeWidth={1.5} />
             <Photo id={`gr${i}`} x={p.x - 15} y={p.y - 15} w={30} h={30} src={avatars[i]} rx={15} />
-            <Mark x={p.x + 13} y={p.y + 12} brand={i % 2 ? "vinted" : "depop"} r={7} />
+            <Mark x={p.x + 13} y={p.y + 12} brand={brandAt(i)} r={7} />
           </g>
         ))}
       </>
@@ -237,9 +269,14 @@ const SCENES: Record<SceneId, () => ReactNode> = {
 
   relist: () => (
     <>
-      <Card id="rl0" x={115} y={30} w={90} h={130} src={P.ukBeanie} brand="depop" price="£20" style={a("fa-relist-old", 5)} />
+      {/* All three marks on the card: relisting works on every shop. */}
+      <g style={a("fa-relist-old", 5)}>
+        <Card id="rl0" x={115} y={30} w={90} h={130} src={P.ukBeanie} price="£20" />
+        <Marks x={202} y={33} />
+      </g>
       <g style={a("fa-relist-new", 5)}>
-        <Card id="rl1" x={115} y={30} w={90} h={130} src={P.ukBeanie} brand="depop" price="£20" />
+        <Card id="rl1" x={115} y={30} w={90} h={130} src={P.ukBeanie} price="£20" />
+        <Marks x={202} y={33} />
         <Pill x={138} y={20} text="NEW" fill={GREEN} />
       </g>
       <path d="M268 95a22 22 0 1 1-6.4-15.6" fill="none" stroke={INK} strokeWidth={1.8} strokeLinecap="round" />
@@ -251,34 +288,47 @@ const SCENES: Record<SceneId, () => ReactNode> = {
     const items = [P.beanie, P.rings, P.shades, P.belt];
     return (
       <>
-        <Wordmark x={150} y={4} brand="depop" h={14} />
         {items.map((src, i) => (
           <Row key={i} id={`rf${i}`} x={50} y={30} src={src} style={a("fa-refresh-row", 6, -i * 1.5)} bar={0.4 + i * 0.12} />
         ))}
-        <path d="M280 160V50m-10 10l10-10 10 10" fill="none" stroke={DEPOP} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={a("fa-pulse", 1.5)} />
+        <path d="M280 160V50m-10 10l10-10 10 10" fill="none" stroke={INK} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" style={a("fa-pulse", 1.5)} />
       </>
     );
   },
 
-  crosslist: () => (
-    <>
-      <Wordmark x={70} y={24} brand="depop" h={13} />
-      <Wordmark x={250} y={24} brand="vinted" h={13} />
-      <Card id="cl0" x={30} y={46} w={80} h={110} src={P.shades} price="£12" />
-      <g>
-        <rect x={210} y={46} width={80} height={110} rx={8} fill={PAPER} stroke={VINTED} strokeWidth={1.5} strokeDasharray="4 4" />
-        <g style={a("fa-appear", 4)}>
-          <Photo id="cl1" x={215} y={51} w={70} h={68} src={P.shades} />
-          <text x={218} y={138} fontSize={11} fontWeight={700} fill={INK} fontFamily="ui-sans-serif, system-ui">£12</text>
-        </g>
-        <rect x={218} y={145} width={30} height={3.5} rx={1.75} fill={MID} style={a("fa-fill", 4, 0.1, { transformOrigin: "left center" })} />
-      </g>
-      <g style={a("fa-travel", 4)}>
-        <rect x={42} y={70} width={56} height={56} rx={8} fill={PAPER} stroke={INK} strokeWidth={1.5} />
-        <Photo id="cl2" x={46} y={74} w={48} h={48} src={P.shades} rx={5} />
-      </g>
-    </>
-  ),
+  crosslist: () => {
+    // Depop, Vinted and eBay side by side. The Depop listing is copied to the
+    // other two, the eBay copy half a second behind the Vinted one.
+    const SRC_X = 20;
+    const targets: { brand: Brand; x: number }[] = [
+      { brand: "vinted", x: 125 },
+      { brand: "ebay", x: 230 },
+    ];
+    return (
+      <>
+        <Wordmark x={55} y={24} brand="depop" h={13} />
+        <Wordmark x={160} y={24} brand="vinted" h={13} />
+        <Wordmark x={265} y={22} brand="ebay" h={16} />
+        <Card id="cl0" x={SRC_X} y={46} w={70} h={110} src={P.shades} price="£12" />
+        {targets.map((t, i) => (
+          <g key={t.brand}>
+            <rect x={t.x} y={46} width={70} height={110} rx={8} fill={PAPER} stroke={BRAND_COLOR[t.brand]} strokeWidth={1.5} strokeDasharray="4 4" />
+            <g style={a("fa-appear", 4, i * 0.5)}>
+              <Photo id={`cl${i + 1}`} x={t.x + 5} y={51} w={60} h={68} src={P.shades} />
+              <text x={t.x + 8} y={138} fontSize={11} fontWeight={700} fill={INK} fontFamily="ui-sans-serif, system-ui">£12</text>
+            </g>
+            <rect x={t.x + 8} y={145} width={26} height={3.5} rx={1.75} fill={MID} style={a("fa-fill", 4, 0.1 + i * 0.5, { transformOrigin: "left center" })} />
+          </g>
+        ))}
+        {targets.map((t, i) => (
+          <g key={`travel-${t.brand}`} style={a("fa-travel", 4, i * 0.5, { "--tx": `${t.x - SRC_X}px` } as CSSProperties)}>
+            <rect x={SRC_X + 10} y={70} width={50} height={50} rx={8} fill={PAPER} stroke={INK} strokeWidth={1.5} />
+            <Photo id={`cl${i + 3}`} x={SRC_X + 14} y={74} w={42} h={42} src={P.shades} rx={5} />
+          </g>
+        ))}
+      </>
+    );
+  },
 
   shopDesigner: () => {
     const tiles = [P.ukBeanie, P.beanie, P.greyBeanie, P.whiteBeanie, P.belt, P.rings];
@@ -321,7 +371,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
       <Row id="ds0" x={40} y={20} src={P.beanie} brand="depop" bar={0.9} />
       <Row id="ds1" x={40} y={60} src={P.rings} brand="vinted" bar={0.7} />
       <Row id="ds2" x={40} y={100} src={P.cross} brand="depop" bar={0.15} style={a("fa-dim", 5)} />
-      <Row id="ds3" x={40} y={140} src={P.shades} brand="vinted" bar={0.8} />
+      <Row id="ds3" x={40} y={140} src={P.shades} brand="ebay" bar={0.8} />
       <Pill x={250} y={107} text="-10%" fill={DEPOP} style={a("fa-pop", 5, 1.2)} />
       <text x={272} y={98} textAnchor="middle" fontSize={9} fill={MID} fontFamily="ui-monospace, monospace" style={a("fa-pop", 5, 0.9)}>
         90 DAYS
@@ -331,15 +381,17 @@ const SCENES: Record<SceneId, () => ReactNode> = {
 
   autoOffers: () => (
     <>
-      <Wordmark x={80} y={168} brand="vinted" h={13} />
-      <Card id="ao0" x={40} y={44} w={80} h={110} src={P.catRing} brand="vinted" price="£20" />
+      <Wordmark x={62} y={168} brand="vinted" h={12} />
+      <Wordmark x={101} y={166} brand="ebay" h={15} />
+      {/* Neutral ink rather than Vinted teal: the same flow runs on eBay. */}
+      <Card id="ao0" x={40} y={44} w={80} h={110} src={P.catRing} price="£20" />
       {[0, 1, 2].map((i) => (
         <Heart key={i} x={66 + i * 14} y={36} style={a("fa-rise", 3, i * 0.6)} />
       ))}
-      <line x1={130} y1={100} x2={196} y2={100} stroke={VINTED} strokeWidth={1.8} strokeDasharray="4 5" style={a("fa-dash", 1.2)} />
-      <path d="M190 94l8 6-8 6" fill="none" stroke={VINTED} strokeWidth={1.8} strokeLinecap="round" />
+      <line x1={130} y1={100} x2={196} y2={100} stroke={INK} strokeWidth={1.8} strokeDasharray="4 5" style={a("fa-dash", 1.2)} />
+      <path d="M190 94l8 6-8 6" fill="none" stroke={INK} strokeWidth={1.8} strokeLinecap="round" />
       <g style={a("fa-pop", 3, 0.8)}>
-        <rect x={208} y={76} width={88} height={48} rx={12} fill={VINTED} />
+        <rect x={208} y={76} width={88} height={48} rx={12} fill={INK} />
         <text x={252} y={96} textAnchor="middle" fontSize={9} fill={PAPER} opacity={0.8} fontFamily="ui-monospace, monospace">OFFER SENT</text>
         <text x={252} y={113} textAnchor="middle" fontSize={13} fontWeight={700} fill={PAPER} fontFamily="ui-sans-serif, system-ui">£17</text>
       </g>
@@ -347,42 +399,78 @@ const SCENES: Record<SceneId, () => ReactNode> = {
   ),
 
   linking: () => {
-    const left = [P.beanie, P.rings, P.belt];
-    const right = [P.belt, P.beanie, P.rings];
+    // Three shops, the same three items in a different order in each, and a
+    // line drawn between every match: Depop to Vinted, then Vinted to eBay.
+    const T = 40;
+    const rowY = (i: number) => 34 + i * 54;
+    const cols: { brand: Brand; x: number; items: string[] }[] = [
+      { brand: "depop", x: 40, items: [P.beanie, P.rings, P.belt] },
+      { brand: "vinted", x: 140, items: [P.belt, P.beanie, P.rings] },
+      { brand: "ebay", x: 240, items: [P.rings, P.belt, P.beanie] },
+    ];
+    const links = cols.slice(0, 2).flatMap((c, ci) =>
+      c.items.map((src, i) => {
+        const j = cols[ci + 1].items.indexOf(src);
+        const x1 = c.x + T;
+        const x2 = cols[ci + 1].x;
+        const y1 = rowY(i) + T / 2;
+        const y2 = rowY(j) + T / 2;
+        const mid = (x1 + x2) / 2;
+        // Generous upper bound on the curve's length, for the draw-in dash.
+        const len = Math.round(x2 - x1 + Math.abs(y2 - y1));
+        return { key: `${ci}-${i}`, d: `M${x1} ${y1}C${mid} ${y1} ${mid} ${y2} ${x2} ${y2}`, len, delay: ci * 1.2 + i * 0.4 };
+      }),
+    );
     return (
       <>
-        <Wordmark x={80} y={6} brand="depop" h={13} />
-        <Wordmark x={240} y={6} brand="vinted" h={13} />
-        {left.map((src, i) => (
-          <Row key={`l${i}`} id={`lk${i}`} x={30} y={30 + i * 50} w={100} src={src} bar={0.9} />
+        {cols.map((c) => (
+          <Wordmark key={c.brand} x={c.x + T / 2} y={c.brand === "ebay" ? 5 : 6} brand={c.brand} h={c.brand === "ebay" ? 16 : 13} />
         ))}
-        {right.map((src, i) => (
-          <Row key={`r${i}`} id={`lr${i}`} x={190} y={30 + i * 50} w={100} src={src} bar={0.9} />
+        {cols.map((c, ci) =>
+          c.items.map((src, i) => (
+            <g key={`${ci}-${i}`}>
+              <rect x={c.x} y={rowY(i)} width={T} height={T} rx={8} fill={PAPER} stroke={INK} strokeWidth={1.5} />
+              <Photo id={`lk${ci}${i}`} x={c.x + 3} y={rowY(i) + 3} w={T - 6} h={T - 6} src={src} rx={6} />
+            </g>
+          )),
+        )}
+        {links.map((l) => (
+          <path
+            key={l.key}
+            d={l.d}
+            fill="none"
+            stroke={INK}
+            strokeWidth={2}
+            strokeDasharray={l.len}
+            style={a("fa-draw", 5, l.delay, { "--len": `${l.len}` } as CSSProperties)}
+          />
         ))}
-        <path d="M130 46C160 46 160 96 190 96" fill="none" stroke={INK} strokeWidth={2} strokeDasharray="70" style={a("fa-draw", 5, 0, { "--len": "70" } as CSSProperties)} />
-        <path d="M130 96C160 96 160 146 190 146" fill="none" stroke={INK} strokeWidth={2} strokeDasharray="70" style={a("fa-draw", 5, 0.8, { "--len": "70" } as CSSProperties)} />
-        <path d="M130 146C160 146 160 46 190 46" fill="none" stroke={INK} strokeWidth={2} strokeDasharray="120" style={a("fa-draw", 5, 1.6, { "--len": "120" } as CSSProperties)} />
       </>
     );
   },
 
   restocker: () => (
     <>
-      <Wordmark x={93} y={14} brand="depop" h={13} />
-      <Wordmark x={227} y={14} brand="vinted" h={13} />
-      <Card id="rs0" x={50} y={38} w={86} h={120} src={P.rose} price="£14" />
-      <Card id="rs1" x={184} y={38} w={86} h={120} src={P.rose} price="£14" style={a("fa-vanish", 5)} />
+      {/* Sold on Depop, so the same item comes down on Vinted and eBay. */}
+      <Wordmark x={60} y={14} brand="depop" h={13} />
+      <Wordmark x={160} y={14} brand="vinted" h={13} />
+      <Wordmark x={260} y={12} brand="ebay" h={16} />
+      <Card id="rs0" x={25} y={38} w={70} h={120} src={P.rose} price="£14" />
+      <Card id="rs1" x={125} y={38} w={70} h={120} src={P.rose} price="£14" style={a("fa-vanish", 5)} />
+      <Card id="rs2" x={225} y={38} w={70} h={120} src={P.rose} price="£14" style={a("fa-vanish", 5, 0.15)} />
       <g style={a("fa-stamp", 5)}>
-        <rect x={60} y={60} width={66} height={26} rx={4} fill={PAPER} stroke={DEPOP} strokeWidth={2.5} transform="rotate(-12 93 73)" />
-        <text x={93} y={78} textAnchor="middle" fontSize={13} fontWeight={800} fill={DEPOP} transform="rotate(-12 93 73)" fontFamily="ui-sans-serif, system-ui" letterSpacing={1}>SOLD</text>
+        <rect x={27} y={60} width={66} height={26} rx={4} fill={PAPER} stroke={DEPOP} strokeWidth={2.5} transform="rotate(-12 60 73)" />
+        <text x={60} y={78} textAnchor="middle" fontSize={13} fontWeight={800} fill={DEPOP} transform="rotate(-12 60 73)" fontFamily="ui-sans-serif, system-ui" letterSpacing={1}>SOLD</text>
       </g>
-      <path d="M144 98h32" stroke={INK} strokeWidth={1.5} strokeDasharray="4.5 4.5" style={a("fa-dash", 1.2)} />
+      <path d="M99 98h22M199 98h22" stroke={INK} strokeWidth={1.5} strokeDasharray="4.5 4.5" style={a("fa-dash", 1.2)} />
     </>
   ),
 
   priceDrops: () => (
     <>
-      <Card id="pd0" x={232} y={14} w={66} h={80} src={P.whiteBeanie} brand="vinted" />
+      {/* No shop mark, like the homepage scene: price drops are not tied to
+          one marketplace. */}
+      <Card id="pd0" x={232} y={14} w={66} h={80} src={P.whiteBeanie} />
       <line x1={30} y1={170} x2={290} y2={170} stroke={GREEN} strokeWidth={1.5} strokeDasharray="4 4" />
       <text x={290} y={186} textAnchor="end" fontSize={9} fill={GREEN} fontFamily="ui-monospace, monospace">MIN £30</text>
       <path d="M30 60H90V100H150V135H210V160" fill="none" stroke={SOFT} strokeWidth={2.5} strokeLinejoin="round" />
@@ -401,7 +489,7 @@ const SCENES: Record<SceneId, () => ReactNode> = {
     const rows = [
       { src: P.beanie, brand: "depop" as const, price: "£22" },
       { src: P.sportShades, brand: "vinted" as const, price: "£15" },
-      { src: P.necklace, brand: "depop" as const, price: "£30" },
+      { src: P.necklace, brand: "ebay" as const, price: "£30" },
     ];
     return (
       <>
@@ -441,11 +529,11 @@ const SCENES: Record<SceneId, () => ReactNode> = {
     <>
       <rect x={96} y={10} width={150} height={180} rx={14} fill={PAPER} stroke={INK} strokeWidth={1.5} />
       {[0, 1, 2, 3].map((i) => {
-        const brand: Brand = i % 2 ? "vinted" : "depop";
+        const brand = brandAt(i);
         const y = 24 + i * 40;
         return (
           <g key={i} style={a("fa-pop", 6, i * 0.5)}>
-            <rect x={108} y={y} width={126} height={30} rx={10} fill={brand === "depop" ? "#fff1ee" : "#e6f4f5"} />
+            <rect x={108} y={y} width={126} height={30} rx={10} fill={BRAND_TINT[brand]} />
             <Photo id={`ms${i}`} x={113} y={y + 5} w={20} h={20} src={[P.shades, P.rings, P.beanie, P.belt][i]} rx={10} />
             <rect x={140} y={y + 9} width={60} height={4} rx={2} fill={INK} />
             <rect x={140} y={y + 17} width={36} height={4} rx={2} fill={MID} />
@@ -453,9 +541,10 @@ const SCENES: Record<SceneId, () => ReactNode> = {
           </g>
         );
       })}
-      <Mark x={58} y={62} brand="depop" r={14} />
-      <Mark x={58} y={138} brand="vinted" r={14} />
-      <path d="M74 62h18M74 138h18" stroke={INK} strokeWidth={1.5} strokeDasharray="3 3" style={a("fa-dash", 1.2)} />
+      <Mark x={58} y={50} brand="depop" r={14} />
+      <Mark x={58} y={100} brand="vinted" r={14} />
+      <Mark x={58} y={150} brand="ebay" r={14} />
+      <path d="M74 50h18M74 100h18M74 150h18" stroke={INK} strokeWidth={1.5} strokeDasharray="3 3" style={a("fa-dash", 1.2)} />
     </>
   ),
 

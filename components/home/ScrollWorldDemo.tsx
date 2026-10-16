@@ -26,6 +26,7 @@ import { RefresherScene } from "./RefresherScene";
 import { AutoOffersScene } from "./AutoOffersScene";
 import { SendOffersScene } from "./SendOffersScene";
 import { BulkEditScene } from "./BulkEditScene";
+import { ListingsScene } from "./ListingsScene";
 import { Reveal } from "@/components/Reveal";
 
 /**
@@ -413,6 +414,16 @@ export const SCENES: Scene[] = [
     render: () => <CrosslistPanel />,
   },
   {
+    // My Listings with all three shops in it, and eBay edits saved straight
+    // to eBay.
+    id: "listings",
+    icon: "grid",
+    titleKey: "chapter.listings.items.dashboard.label",
+    shortKey: "chapter.listings.items.dashboard.name",
+    href: "/docs/inventory/listings",
+    render: () => <ListingsScene />,
+  },
+  {
     // The My Listings selection toolbar: bulk editor, photo editor, Depop
     // discounts and duplicate, as one scene.
     id: "bulkEdit",
@@ -490,8 +501,8 @@ export const SCENES: Scene[] = [
     ),
   },
   {
-    // Outgoing offers to likers: what the extension's own "Auto-Offers" tab
-    // does. Vinted only.
+    // Outgoing offers to likers (Vinted) and watchers (eBay): what the
+    // extension's own "Auto-Offers" tab does.
     id: "sendOffers",
     icon: "send",
     titleKey: "chapter.sales.items.sendOffers.label",

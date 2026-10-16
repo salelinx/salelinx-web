@@ -15,10 +15,10 @@ import { ProductImage } from "./ProductImage";
  * The panel this replaces buried the idea in a list of rows: a banner said
  * "Relisting on Vinted", which reads as the opposite of what the feature does
  * (the copy promises it *removes* the item so you can't oversell). This shows
- * the actual mechanic instead: one item, listed on both shops, and the two
- * stock counts staying equal as sales land on either side. When the count
- * reaches zero it comes off sale on both, which is the oversell that didn't
- * happen.
+ * the actual mechanic instead: one item, listed on Vinted, Depop and eBay, and
+ * the three stock counts staying equal as sales land on each in turn. When the
+ * count reaches zero it comes off sale everywhere, which is the oversell that
+ * didn't happen.
  */
 
 const TICK_MS = 100;
@@ -47,6 +47,15 @@ function usePrefersReducedMotion(): boolean {
 }
 
 const START_STOCK = 3;
+
+type Shop = "vinted" | "depop" | "ebay";
+// Column order, left to right.
+const SHOPS: Shop[] = ["vinted", "depop", "ebay"];
+const SHOP_NAME: Record<Shop, string> = { vinted: "Vinted", depop: "Depop", ebay: "eBay" };
+// Heights tuned so the three wordmarks look the same optical size.
+const WORDMARK_H: Record<Shop, string> = { vinted: "1.25em", depop: "1em", ebay: "1.4em" };
+// Horizontal centre of each column, for the sync dot's start and end.
+const COLUMN_CENTRE = ["16.67%", "50%", "83.33%"];
 
 /**
  * The stock count as a rolling column rather than a swapped digit.
@@ -90,14 +99,17 @@ export function RestockerScene() {
   // Three sales drain the stock, then it restocks and the loop repeats.
   const step = cycle % (START_STOCK + 1);
   const stockBefore = START_STOCK - step;
-  // Sales alternate between the two shops so neither reads as "the main one".
-  const soldOn: "depop" | "vinted" = step % 2 === 0 ? "depop" : "vinted";
+  // One sale on each shop per loop, so none reads as "the main one".
+  const soldOn: Shop = SHOPS[step % SHOPS.length];
+  const others = SHOPS.filter((s) => s !== soldOn);
+  // The beat after the last sale, before the restock: nothing left to sell.
+  const soldOut = stockBefore === 0;
 
-  // Phases within a cycle: rest, the sale landing, then the other shop
+  // Phases within a cycle: rest, the sale landing, then the other shops
   // catching up. Reduced motion holds the settled state, which is the frame
   // that carries the story anyway.
   type Phase = "rest" | "sold" | "synced";
-  const phase: Phase = reduced
+  const phase: Phase = reduced || soldOut
     ? "synced"
     : step === 0 && cycle > 0 && inCycle < 14
       ? "rest" // the restock beat, before the next sale
@@ -108,29 +120,29 @@ export function RestockerScene() {
           : "synced";
 
   const soldStock = Math.max(0, stockBefore - 1);
-  const sourceStock = phase === "rest" ? stockBefore : soldStock;
-  // The whole point: the other shop lags by a beat, then matches.
-  const otherStock = phase === "synced" ? soldStock : stockBefore;
+  const sourceStock = soldOut ? 0 : phase === "rest" ? stockBefore : soldStock;
+  // The whole point: the other shops lag by a beat, then match.
+  const otherStock = soldOut ? 0 : phase === "synced" ? soldStock : stockBefore;
+  const stockOf = (shop: Shop) => (shop === soldOn ? sourceStock : otherStock);
 
-  const depopStock = soldOn === "depop" ? sourceStock : otherStock;
-  const vintedStock = soldOn === "vinted" ? sourceStock : otherStock;
-
-  const status =
-    phase === "rest"
-      ? "Watching both shops"
+  const othersNames = `${SHOP_NAME[others[0]]} and ${SHOP_NAME[others[1]]}`;
+  const status = soldOut
+    ? "Sold out on all 3 shops"
+    : phase === "rest"
+      ? "Watching all 3 shops"
       : phase === "sold"
-        ? `Sold on ${soldOn === "depop" ? "Depop" : "Vinted"}`
+        ? `Sold on ${SHOP_NAME[soldOn]}`
         : soldStock === 0
-          ? `Out of stock, removed from ${soldOn === "depop" ? "Vinted" : "Depop"}`
-          : `${soldOn === "depop" ? "Vinted" : "Depop"} stock updated to ${soldStock}`;
+          ? `Removed from ${othersNames}`
+          : `Matched on ${othersNames}`;
 
-  // One item, two shops, one stock count. The old panel told this with a sale
-  // "event" card, two mocked shop cards, an @handle, a price, a status banner
-  // and a Sale pill — invented app chrome around a very simple idea. What
-  // actually matters is that both numbers end up the same, so the numbers are
-  // the panel.
+  // One item, three shops, one stock count. An older panel told this with a
+  // sale "event" card, mocked shop cards, an @handle, a price, a status banner
+  // and a Sale pill: invented app chrome around a very simple idea. What
+  // actually matters is that every number ends up the same, so the numbers
+  // are the panel.
   const total = START_STOCK;
-  const sold = total - Math.min(depopStock, vintedStock);
+  const sold = total - Math.min(...SHOPS.map(stockOf));
   const progress = (sold / total) * 100;
 
   return (
@@ -162,29 +174,31 @@ export function RestockerScene() {
           and the other follows a beat later — that lag IS the feature, so it
           is the only thing animating. */}
       <div
-        className="cascade-item relative grid w-full max-w-[300px] grid-cols-2 gap-4 lg:max-w-[420px]"
+        className="cascade-item relative grid w-full max-w-[340px] grid-cols-3 gap-4 lg:max-w-[480px]"
         style={{ "--stagger-delay": "120ms" } as CSSProperties}
       >
-        {/* The sync itself, crossing from the column that sold to the one that
-            has to catch up. It runs only through `sold`, which is exactly the
-            window the second shop is still showing the stale count, so it
-            lands as that number rolls. Keyed by cycle so the animation
+        {/* The sync itself, one dot from the column that sold to each column
+            that has to catch up. It runs only through `sold`, which is exactly
+            the window the other shops are still showing the stale count, so it
+            lands as those numbers roll. Keyed by cycle so the animation
             restarts on every sale rather than playing once. */}
-        {phase === "sold" && !reduced ? (
-          <span
-            key={`${cycle}-${soldOn}`}
-            aria-hidden
-            className={`restock-pulse pointer-events-none absolute top-[52%] z-10 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.18),0_0_12px_2px_rgba(16,185,129,0.5)] dark:bg-emerald-400 ${
-              soldOn === "vinted" ? "restock-pulse-ltr" : "restock-pulse-rtl"
-            }`}
-          />
-        ) : null}
-        {(
-          [
-            ["vinted", vintedStock],
-            ["depop", depopStock],
-          ] as const
-        ).map(([brand, stock]) => {
+        {phase === "sold" && !reduced
+          ? others.map((to) => (
+              <span
+                key={`${cycle}-${soldOn}-${to}`}
+                aria-hidden
+                className="restock-pulse pointer-events-none absolute top-[52%] z-10 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.18),0_0_12px_2px_rgba(16,185,129,0.5)] dark:bg-emerald-400"
+                style={
+                  {
+                    "--pulse-from": COLUMN_CENTRE[SHOPS.indexOf(soldOn)],
+                    "--pulse-to": COLUMN_CENTRE[SHOPS.indexOf(to)],
+                  } as CSSProperties
+                }
+              />
+            ))
+          : null}
+        {SHOPS.map((brand) => {
+          const stock = stockOf(brand);
           // Which side of the story this column is playing right now.
           //
           // The numbers alone never said which shop sold and which one
@@ -206,7 +220,7 @@ export function RestockerScene() {
           // was the longest label in the row, so it set the width of a slot
           // every other caption then sat inside.
           const caption =
-            phase === "rest"
+            phase === "rest" || soldOut
               ? ""
               : isSource
                 ? "sold here"
@@ -220,16 +234,12 @@ export function RestockerScene() {
             : "text-emerald-600 dark:text-emerald-400";
           return (
             <div key={brand} className="flex flex-col items-center gap-2">
-              {/* Fixed-height slot, centred. The two wordmarks are set at
-                  different heights (1em vs 1.25em) to look the same optical
-                  size, which left the two columns' logo rows a few pixels
-                  apart - so the numbers under them did not sit on one line. */}
+              {/* Fixed-height slot, centred. The wordmarks are set at
+                  different heights to look the same optical size, which left
+                  the columns' logo rows a few pixels apart - so the numbers
+                  under them did not sit on one line. */}
               <span className="flex h-5 items-center justify-center lg:h-6">
-                <BrandWordmark
-                  brand={brand}
-                  variant="wordmark"
-                  height={brand === "depop" ? "1em" : "1.25em"}
-                />
+                <BrandWordmark brand={brand} variant="wordmark" height={WORDMARK_H[brand]} />
               </span>
               <span
                 className={`text-[34px] font-medium tabular-nums leading-none tracking-tight transition-colors duration-300 lg:text-[52px] ${
