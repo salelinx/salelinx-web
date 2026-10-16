@@ -127,7 +127,9 @@ supabase secrets set ALLOWED_ORIGIN='https://www.salelinx.com'
 # eBay (developer.ebay.com keyset). Each RuName's accept URL is one extension's
 # https://<extension-id>.chromiumapp.org/ebay: EBAY_RUNAME_STORE for the Chrome Web
 # Store id (oichfmfogobecihmhlgkfcfbdceomenj), EBAY_RUNAME for any other (the
-# unpacked dev build). EBAY_ENV=sandbox switches both eBay functions to the sandbox hosts.
+# unpacked dev build). Further dev copies (each unpacked folder has its own id) go in
+# EBAY_RUNAMES as JSON, checked first: '{"<extension-id>":"<RuName>"}'.
+# EBAY_ENV=sandbox switches both eBay functions to the sandbox hosts.
 supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... EBAY_RUNAME_STORE=...
 # Entered in the portal's Marketplace Account Deletion settings as well.
 supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=<32-80 chars>

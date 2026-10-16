@@ -30,7 +30,8 @@
 // up, 'ebay' for an eBay-side refusal.
 //
 // Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
-// EBAY_RUNAME_STORE (Chrome Web Store extension),
+// EBAY_RUNAME_STORE (Chrome Web Store extension), EBAY_RUNAMES (optional JSON
+// of extension id -> RuName for other dev copies, checked first),
 // EBAY_ENV ('sandbox' for the sandbox hosts, anything else is production).
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
@@ -91,8 +92,11 @@ function json(status: number, body: unknown): Response {
 const STORE_EXTENSION_ID = 'oichfmfogobecihmhlgkfcfbdceomenj';
 
 // eBay only redirects to a RuName's accept URL, which names one extension id.
-const runame = (extensionId: unknown) =>
-  env(extensionId === STORE_EXTENSION_ID ? 'EBAY_RUNAME_STORE' : 'EBAY_RUNAME');
+function runame(extensionId: unknown): string {
+  const mapped = JSON.parse(Deno.env.get('EBAY_RUNAMES') || '{}')[String(extensionId)];
+  if (typeof mapped === 'string') return mapped;
+  return env(extensionId === STORE_EXTENSION_ID ? 'EBAY_RUNAME_STORE' : 'EBAY_RUNAME');
+}
 
 function env(name: string): string {
   const v = Deno.env.get(name);
