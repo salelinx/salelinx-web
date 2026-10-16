@@ -10,7 +10,7 @@
 //   consentUrl { state }                     -> { url }
 //   link       { code }                      -> { userId, username, marketplace }
 //   unlink     {}                            -> { ok }
-//   account    {}                            -> { accountType } ('INDIVIDUAL' or 'BUSINESS')
+//   account    {}                            -> { accountType, marketplace } (accountType 'INDIVIDUAL' or 'BUSINESS')
 //   listings   { page }                      -> { listings, hasMore }
 //   item       { itemId }                    -> { item }
 //   revise     { itemId, changes }           -> { ok }
@@ -369,7 +369,10 @@ Deno.serve(async (req: Request) => {
         });
         if (!res.ok) throw new EbayError(`eBay identity lookup failed (${res.status})`, 'ebay', 502);
         const me = await res.json();
-        return json(200, { accountType: me.accountType === 'BUSINESS' ? 'BUSINESS' : 'INDIVIDUAL' });
+        return json(200, {
+          accountType: me.accountType === 'BUSINESS' ? 'BUSINESS' : 'INDIVIDUAL',
+          marketplace: MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB',
+        });
       }
 
       case 'unlink': {
