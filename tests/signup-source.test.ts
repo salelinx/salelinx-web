@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classifySource } from '@/lib/signup-source';
+import { classifySource, deviceType } from '@/lib/signup-source';
 
 const site = 'https://salelinx.com';
 const src = (path: string, referrer = '') => classifySource(`${site}${path}`, referrer).source;
@@ -31,5 +31,21 @@ describe('classifySource', () => {
   it('keeps campaign and landing path', () => {
     const s = classifySource(`${site}/features?utm_source=ig&utm_campaign=bio`, '');
     expect(s).toMatchObject({ source: 'ig', campaign: 'bio', landing: '/features' });
+  });
+});
+
+describe('deviceType', () => {
+  it('tells phones, tablets and computers apart', () => {
+    expect(deviceType('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile/15E148')).toBe('phone');
+    expect(deviceType('Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/120 Mobile Safari/537.36')).toBe('phone');
+    expect(deviceType('Mozilla/5.0 (Linux; Android 13; SM-X700) Chrome/120 Safari/537.36')).toBe('tablet');
+    expect(deviceType('Mozilla/5.0 (iPad; CPU OS 16_0 like Mac OS X)')).toBe('tablet');
+    expect(deviceType('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120 Safari/537.36')).toBe('computer');
+  });
+
+  it('counts an iPad reporting a Mac user agent as a tablet', () => {
+    const mac = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15';
+    expect(deviceType(mac, 5)).toBe('tablet');
+    expect(deviceType(mac, 0)).toBe('computer');
   });
 });

@@ -7,7 +7,19 @@ export type SignupSource = {
   referrer?: string;
   landing: string;
   at: string;
+  device?: DeviceType;
 };
+
+export type DeviceType = 'phone' | 'tablet' | 'computer';
+
+/** Coarse device class of the first visit. iPadOS reports a Mac user agent, so
+ *  a "Mac" with a touch screen is counted as a tablet. */
+export function deviceType(userAgent: string, maxTouchPoints = 0): DeviceType {
+  if (/iPad|Tablet|PlayBook|Silk|Kindle|Android(?!.*Mobile)/i.test(userAgent)) return 'tablet';
+  if (/Mobi|iPhone|iPod|Android|Windows Phone/i.test(userAgent)) return 'phone';
+  if (/Macintosh/.test(userAgent) && maxTouchPoints > 1) return 'tablet';
+  return 'computer';
+}
 
 const KEY = 'slx_src';
 
@@ -58,7 +70,13 @@ export function classifySource(href: string, referrer: string, now = new Date())
 export function captureSignupSource() {
   try {
     if (localStorage.getItem(KEY)) return;
-    localStorage.setItem(KEY, JSON.stringify(classifySource(location.href, document.referrer)));
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        ...classifySource(location.href, document.referrer),
+        device: deviceType(navigator.userAgent, navigator.maxTouchPoints),
+      }),
+    );
   } catch {}
 }
 
