@@ -27,7 +27,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "15 October 2026";
+const LAST_UPDATED = "16 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -42,6 +42,7 @@ const SECTIONS: LegalSection[] = [
     paragraphs: [
       "SaleLinx helps resellers manage, cross-list, and automate tasks for their own listings on Depop, Vinted and eBay. On Depop and Vinted the extension works through the marketplace sessions already signed in on your device; on eBay it works through the eBay account you connect.",
       "SaleLinx is an independent tool. We are not affiliated with, endorsed by, or sponsored by Depop, Vinted, eBay, or any marketplace. Their names are used only to describe compatibility.",
+      "Crosslisting to eBay publishes a live listing on your eBay account straight away, not a draft, and eBay may charge you fees for it under your agreement with eBay. SaleLinx shows the fees eBay quotes before anything is posted, but those fees are between you and eBay, and we do not pay or refund them.",
     ],
   },
   {
@@ -91,20 +92,20 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Your content",
     paragraphs: [
-      "You keep all rights to your listing content (titles, descriptions, photos, prices). If you enable cloud sync or backup, you grant us permission to store and process that content solely to provide those features to you. We claim no other rights to it.",
+      "You keep all rights to your listing content (titles, descriptions, photos, prices). If you enable cloud sync or backup, you grant us permission to store and process that content solely to provide those features to you. If you connect eBay, you also let us send your listing content to eBay whenever you ask SaleLinx to create, change, end or relist an eBay listing. We claim no other rights to it.",
     ],
   },
   {
     heading: "Buyer data",
     paragraphs: [
-      "Order features such as shipping labels involve personal data about your buyers (for example names and delivery details printed on labels). For that data, you are the data controller and SaleLinx acts as your processor: we process buyer data only on your instructions, only to provide the feature you invoked (for example delivering a label email to the address you chose), and we do not store it after delivery.",
+      "Order features such as shipping labels involve personal data about your buyers (for example names and delivery details printed on labels). For that data, you are the data controller and SaleLinx acts as your processor: we process buyer data only on your instructions, only to provide the feature you invoked (for example delivering a label email to the address you chose), and we do not store it after delivery. If you connect eBay, eBay also includes buyer details with the sales SaleLinx loads from your eBay account; we discard them in memory without passing them on, logging or storing them.",
       "You are responsible for having a lawful basis to use your buyers' data and for sending labels only to recipients who legitimately need them. Details are in our privacy policy, and the terms on which we process buyer data as your processor are set out in our Data Processing Addendum.",
     ],
   },
   {
     heading: "Availability and changes to the service",
     paragraphs: [
-      "We work to keep the service reliable, but it is provided \"as is\" and \"as available\". Because the extension depends on third-party marketplaces we do not control, features can break when marketplaces change their sites, and we may modify or discontinue features to keep the service working. If we discontinue a material paid feature, we will give you reasonable notice.",
+      "We work to keep the service reliable, but it is provided \"as is\" and \"as available\". Because the extension depends on third-party marketplaces we do not control, features can break when marketplaces change their sites, and we may modify or discontinue features to keep the service working. eBay also limits how many requests SaleLinx can make each day across all users, so eBay features can occasionally be unavailable until that limit resets. If we discontinue a material paid feature, we will give you reasonable notice.",
     ],
   },
   {

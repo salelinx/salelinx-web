@@ -77,7 +77,10 @@ Edge Function passing a label PDF to Resend. One transit to know about: the `eba
 function's My Listings poll receives eBay's sold transactions, which eBay returns
 with the buyer attached. `listingsFromResponse` (`ebay/trading.ts`) keeps only item
 fields (id, title, price, photo, URL) and drops the rest in memory, so nothing about
-the buyer is returned, logged or stored. Keep it that way. Never add code that
+the buyer is returned, logged or stored. Keep it that way. This transit is disclosed
+in the privacy policy (Summary, and Order and buyer information), the terms (Buyer
+data) and the DPA (subject matter, nature, types of data, data subjects); change all
+four if it changes. Never add code that
 persists buyer data server-side without revisiting the policy and terms first.
 
 ## Processors and DPAs

@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "15 October 2026";
+const LAST_UPDATED = "16 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -46,7 +46,7 @@ const SECTIONS: LegalSection[] = [
       "We only store listing content on our servers when you turn on cloud sync or backup features.",
       "Payments are handled by Stripe. We never see or store your card details.",
       "We do not sell or share your data with advertisers or data brokers, and we do not collect your browsing history.",
-      "Details about your buyers (names, delivery details on shipping labels) are processed on your device. They reach our systems only if you use the email shipping labels feature, and even then they are only passed through to deliver your email, never stored.",
+      "Details about your buyers (names, delivery details on shipping labels) are processed on your device. They reach our systems in only two cases: if you use the email shipping labels feature, they are passed through to deliver your email; and if you connect eBay, eBay includes buyer details with the sales it sends when SaleLinx loads your eBay listings, and our servers discard them straight away. They are never stored.",
     ],
   },
   {
@@ -55,7 +55,7 @@ const SECTIONS: LegalSection[] = [
       "Account information. When you create a SaleLinx account we collect your email address and a password, or, if you choose Sign in with Google, the email address and basic profile of your Google account instead of a password. Passwords are hashed by our authentication provider (Supabase); we cannot read them.",
       "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
-      "eBay connection (optional). If you connect an eBay account, eBay gives us your eBay user ID, username and registration site, and access and refresh tokens that let SaleLinx act on your eBay listings. The keys SaleLinx uses to talk to eBay are held on our servers, so the eBay actions you take in the extension (loading your listings and sales, editing, ending or creating listings, uploading photos, and reading view counts) pass through our servers to eBay. We do not keep the listing content of these requests unless you turn on cloud sync. If you save postage settings for crosslisting to eBay, including the postcode your items are sent from, we store them with your account. We keep the tokens until you unlink eBay, eBay tells us you have closed your eBay account, or you delete your SaleLinx account. eBay's own privacy notice covers what eBay does with your data.",
+      "eBay connection (optional). If you connect an eBay account, eBay gives us your eBay user ID, username and registration site, and access and refresh tokens that let SaleLinx act on your eBay listings. The keys SaleLinx uses to talk to eBay are held on our servers, so the eBay actions you take in the extension (loading your listings and sales, editing, ending, relisting or creating listings, uploading photos, reading view counts, and reading your eBay business policies and whether you sell as a business or private seller) pass through our servers to eBay. We do not keep the listing content of these requests unless you turn on cloud sync. If you save postage settings for crosslisting to eBay, including the postcode your items are sent from, we store them with your account. We keep the tokens until you unlink eBay, eBay tells us you have closed your eBay account, or you delete your SaleLinx account. eBay's own privacy notice covers what eBay does with your data.",
       "Usage counters. We record counts of feature actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan, understand which features are used, and investigate problems when you contact support. These are numbers only, not the content of the actions.",
       "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
       "Extension settings. Preferences you set in the extension, such as bot pacing, your marketplace choice and any settings presets you name and save, are stored with your account so they follow you to other devices. They contain no listing, buyer or message content and are deleted with your account.",
@@ -71,15 +71,16 @@ const SECTIONS: LegalSection[] = [
     paragraphs: [
       "To do its job, the extension reads and uses data from Depop and Vinted inside your browser: your session cookies and tokens, your listings, offers, orders, and conversations. This data is processed locally on your device.",
       "Except for the optional cloud features described above, the category matching described next, and the label emails described under Order and buyer information, none of it is transmitted to SaleLinx servers. In particular, we never receive your Depop or Vinted passwords, session cookies, or authentication tokens. eBay is the exception, described under eBay connection above.",
-      "Category matching for crosslisting. When you crosslist a listing, the extension sends its title, description (each cut to 2,000 characters) and marketplace category to our servers, which work out the matching category on the other marketplace and send it back. The text is processed in memory to make that match and is never stored or logged; the only lasting record is a count of the crosslist against your plan's allowance.",
+      "Category matching for crosslisting. When you crosslist a listing, the extension sends its title, description (each cut to 2,000 characters) and marketplace category to our servers, which work out the matching category on the other marketplace and send it back. When you crosslist to eBay, our servers also send up to the first 100 characters of the listing's title and category name to eBay's category suggestion service, so eBay can say which of its categories fits. That request uses SaleLinx's own eBay app credentials, not your eBay account, and carries no account identifier; eBay's privacy notice covers what eBay does with it. We process the text in memory to make the match and never store or log it; the only lasting record is a count of the crosslist against your plan's allowance.",
     ],
   },
   {
     heading: "Order and buyer information",
     paragraphs: [
       "When you use order features such as shipping labels, the extension reads details about your sales from the marketplace, including your buyer's name, username, and the delivery details printed on the shipping label. This information belongs to your buyers, and it is processed on your device: it is held in memory while you use the feature, is not saved to our servers, and is not included in cloud sync.",
+      "If you connect eBay, eBay includes buyer details with each sale it returns when SaleLinx loads your eBay listings and sales, which can include the buyer's username and delivery details. Our servers discard those details in memory as soon as eBay's response arrives: they are not passed to the extension, logged or stored. SaleLinx uses only the item details of each sale, such as its title, price and photo.",
       "If you use the email shipping labels feature, the label PDF (which contains the buyer details the carrier prints on the label) is sent through our servers and our email provider (Resend) solely to deliver it to the email address you choose. We do not store the PDF or the buyer details it contains after the email is sent.",
-      "For your buyers' personal data, you are the data controller: you decide to fetch it from the marketplace and where to send it. SaleLinx acts only on your instructions to deliver the email. You are responsible for handling your buyers' details lawfully, for example not forwarding labels to people who have no business receiving them. The terms on which we process buyer data as your processor, including the subprocessors involved, are set out in our Data Processing Addendum at /legal/dpa.",
+      "For your buyers' personal data, you are the data controller: you decide to fetch it from the marketplace and where to send it. SaleLinx acts only on your instructions, to deliver the email or to load your eBay sales. You are responsible for handling your buyers' details lawfully, for example not forwarding labels to people who have no business receiving them. The terms on which we process buyer data as your processor, including the subprocessors involved, are set out in our Data Processing Addendum at /legal/dpa.",
     ],
   },
   {
