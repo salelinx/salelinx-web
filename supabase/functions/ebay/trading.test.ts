@@ -19,6 +19,7 @@ import {
   shippingServicesFromDetails,
   postageFromItem,
   verifyFromResponse,
+  linkSiteId,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -344,4 +345,33 @@ Deno.test('verifyFromResponse: errors, warnings and fees without throwing', () =
     fees: [{ name: 'InsertionFee', amount: 0.35 }],
     categoryId: '36027',
   });
+});
+
+const SITES = { EBAY_US: 0, EBAY_GB: 3, EBAY_DE: 77 };
+
+Deno.test('link site: a new account starts on its registration site', () => {
+  assertEquals(linkSiteId(SITES, 'EBAY_US', null, 'seller1'), { siteId: 0, kept: false });
+  assertEquals(linkSiteId(SITES, 'EBAY_DE', null, 'seller1'), { siteId: 77, kept: false });
+});
+
+Deno.test('link site: an unknown or odd registration falls back to eBay UK', () => {
+  assertEquals(linkSiteId(SITES, 'EBAY_PL', null, 'seller1'), { siteId: 3, kept: false });
+  assertEquals(linkSiteId(SITES, 'toString', null, 'seller1'), { siteId: 3, kept: false });
+  assertEquals(linkSiteId(SITES, undefined, null, 'seller1'), { siteId: 3, kept: false });
+});
+
+Deno.test('link site: reconnecting the same account keeps the site the seller picked', () => {
+  // Registered on ebay.com, picked ebay.co.uk in SaleLinx
+  const prior = { ebay_user_id: 'seller1', site_id: 3 };
+  assertEquals(linkSiteId(SITES, 'EBAY_US', prior, 'seller1'), { siteId: 3, kept: true });
+});
+
+Deno.test('link site: a different eBay account does not inherit the old pick', () => {
+  const prior = { ebay_user_id: 'seller1', site_id: 3 };
+  assertEquals(linkSiteId(SITES, 'EBAY_US', prior, 'seller2'), { siteId: 0, kept: false });
+});
+
+Deno.test('link site: a stored site this function no longer knows is not kept', () => {
+  const prior = { ebay_user_id: 'seller1', site_id: 999 };
+  assertEquals(linkSiteId(SITES, 'EBAY_US', prior, 'seller1'), { siteId: 0, kept: false });
 });

@@ -424,3 +424,28 @@ export function shippingServicesFromDetails(body) {
     .filter((s) => String(s.ValidForSellingFlow) === 'true' && String(s.InternationalService) !== 'true')
     .map((s) => ({ id: String(s.ShippingService), name: String(s.Description ?? s.ShippingService) }));
 }
+
+/**
+ * The Trading site a link stores, and whether it is one the user already had.
+ *
+ * eBay's registration site is only where an account began: a seller can register on ebay.com
+ * and sell on ebay.co.uk, and listing on the registration site then sends a UK postcode to eBay
+ * US in dollars. So the site is the seller's to pick (setMarketplace), and reconnecting the same
+ * eBay account keeps that pick. A new account starts on its registration site, else eBay UK.
+ */
+export function linkSiteId(
+  siteIds: Record<string, number>,
+  registration: unknown,
+  prior: { ebay_user_id?: unknown; site_id?: unknown } | null | undefined,
+  ebayUserId: string,
+): { siteId: number; kept: boolean } {
+  const known = new Set(Object.values(siteIds));
+  if (prior && prior.ebay_user_id === ebayUserId && known.has(prior.site_id as number)) {
+    return { siteId: prior.site_id as number, kept: true };
+  }
+  const fromRegistration =
+    typeof registration === 'string' && Object.hasOwn(siteIds, registration)
+      ? siteIds[registration]
+      : siteIds.EBAY_GB;
+  return { siteId: fromRegistration, kept: false };
+}

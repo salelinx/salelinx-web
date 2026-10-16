@@ -450,8 +450,16 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   user's own client first**, so RLS, the one-shop-per-account unique index and the trial
   triggers (006) decide before any token is kept (their refusals come back as
   `ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`). Only then does the service role upsert
-  `ebay_tokens`. The Trading site id comes from the account's registration marketplace,
-  UK when eBay does not say.
+  `ebay_tokens`.
+- **Site.** `ebay_tokens.site_id` is the eBay site every listing call goes to, and with it the
+  listing's country, currency and categories. A new link starts it on the account's
+  registration marketplace, UK when eBay does not say or names a site the function doesn't
+  know. That is only where the account began: a seller who registered on ebay.com and sells on
+  ebay.co.uk would list in dollars on eBay US, where their UK postcode is refused. So
+  `setMarketplace { marketplace }` lets the seller pick the site (Settings in the extension),
+  and reconnecting the same eBay account keeps that pick (`linkSiteId` in `trading.ts`). `link`
+  answers with the site in use and `siteKept`, so the extension can tell a fresh start from a
+  kept pick.
 - **Tokens.** The access token is refreshed inside the call when it has under a minute
   left. A refresh eBay refuses (`invalid_grant`: revoked, or the refresh token expired)
   returns code `reauth`, which the extension shows as "reconnect in Settings". `unlink`
