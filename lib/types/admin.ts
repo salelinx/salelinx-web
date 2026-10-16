@@ -5,7 +5,7 @@
 
 // The platforms a linked account can belong to, matching the CHECK constraint
 // on linked_accounts.platform (migration 001_core_schema.sql, widened to eBay
-// by 032_ebay.sql).
+// by 040_ebay.sql).
 export type LinkedPlatform = "depop" | "vinted" | "ebay";
 
 // Row from admin_list_users(): one auth.users user joined to their current
