@@ -151,6 +151,32 @@ const BROWSER_ICONS: Record<string, { path: string; color: string }> = {
   },
 };
 
+const DEVICE_ICONS: Record<string, { label: string; path: string }> = {
+  phone: { label: "Phone", path: "M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2" },
+  tablet: { label: "Tablet", path: "M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2" },
+  computer: { label: "Computer", path: "M3 4h18v12H3zM8 20h8M12 16v4" },
+};
+
+function DeviceCell({ device }: { device: string | null }) {
+  const icon = device ? DEVICE_ICONS[device] : undefined;
+  if (!icon) return <span className="text-zinc-400">-</span>;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4 text-zinc-600"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label={icon.label}
+    >
+      <title>{icon.label}</title>
+      <path d={icon.path} />
+    </svg>
+  );
+}
+
 function BrowserCell({ userAgent }: { userAgent: string | null }) {
   const name = browserName(userAgent);
   if (!name) return <span className="text-zinc-400">-</span>;
@@ -204,6 +230,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [source, setSource] = useState<string>("all");
   const [country, setCountry] = useState<string>("all");
   const [browser, setBrowser] = useState<string>("all");
+  const [device, setDevice] = useState<string>("all");
   const [version, setVersion] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
 
@@ -219,6 +246,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     (source !== "all" ? 1 : 0) +
     (country !== "all" ? 1 : 0) +
     (browser !== "all" ? 1 : 0) +
+    (device !== "all" ? 1 : 0) +
     (version !== "all" ? 1 : 0) +
     (search.trim() ? 1 : 0);
 
@@ -231,6 +259,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     setSource("all");
     setCountry("all");
     setBrowser("all");
+    setDevice("all");
     setVersion("all");
     setSearch("");
   }
@@ -303,6 +332,20 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       ...[...counts]
         .sort((a, b) => b[1] - a[1])
         .map(([c, n]) => [c, `${c === "unknown" ? "Unknown" : `${flag(c)} ${c}`} (${n})`] as [string, string]),
+    ] as [string, string][];
+  }, [users]);
+
+  const deviceOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const u of users) {
+      const d = u.signup_device ?? "unknown";
+      counts.set(d, (counts.get(d) ?? 0) + 1);
+    }
+    return [
+      ["all", "All"],
+      ...[...counts]
+        .sort((a, b) => b[1] - a[1])
+        .map(([d, n]) => [d, `${DEVICE_ICONS[d]?.label ?? "Unknown"} (${n})`] as [string, string]),
     ] as [string, string][];
   }, [users]);
 
@@ -383,6 +426,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       if (source !== "all" && (u.signup_source ?? "unknown") !== source) return false;
       if (country !== "all" && (u.country ?? "unknown") !== country) return false;
       if (browser !== "all" && (browserName(u.user_agent) ?? "Unknown") !== browser) return false;
+      if (device !== "all" && (u.signup_device ?? "unknown") !== device) return false;
       if (version !== "all") {
         const v = u.extension_version;
         if (version === "none" ? v !== null : v === null) return false;
@@ -433,7 +477,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
     });
     return sorted;
-  }, [users, search, tier, status, cancelling, platform, activity, source, country, browser, version, newestVersion, sortKey, now]);
+  }, [users, search, tier, status, cancelling, platform, activity, source, country, browser, device, version, newestVersion, sortKey, now]);
 
   // Cap how many rows reach the DOM. Filtering/sorting above still runs over
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
@@ -533,6 +577,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         <FilterSelect label="Country" value={country} options={countryOptions} onChange={setCountry} />
         <FilterSelect label="Browser" value={browser} options={browserOptions} onChange={setBrowser} />
         <FilterSelect label="Source" value={source} options={sourceOptions} onChange={setSource} />
+        <FilterSelect label="Device" value={device} options={deviceOptions} onChange={setDevice} />
         {activeFilters > 0 && (
           <button
             type="button"
@@ -581,6 +626,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                 <th className="px-3 py-2 font-medium">Billing</th>
                 <th className="px-3 py-2 font-medium">Version</th>
                 <th className="px-3 py-2 font-medium">Source</th>
+                <th className="px-3 py-2 font-medium">Device</th>
                 <th className="px-3 py-2 font-medium">Country</th>
                 <th className="px-3 py-2 font-medium">Browser</th>
                 <SortableTh
@@ -673,6 +719,9 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       ) : (
                         <span className="text-zinc-400">-</span>
                       )}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <DeviceCell device={u.signup_device} />
                     </td>
                     <td
                       className="whitespace-nowrap px-3 py-2 text-base"
