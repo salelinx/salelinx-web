@@ -12,6 +12,7 @@ npx supabase functions deploy ebay --no-verify-jwt
 npx supabase functions deploy resolve-category --no-verify-jwt
 ```
 
+- Done on 16 October 2026 from `feat/ebay-crosslist` (all three PRs merged in): 041 applied, `ebay` and `resolve-category` deployed. Redeploy both from `main` only if it has moved past that branch.
 - `ebay` carries the crosslist allowance check on posting; `resolve-category` the same check moved into `_shared/crosslist-gate.ts`. Then run one crosslist: if `resolve-category` breaks, crosslisting is down for everyone.
 - In `/admin/roadmap`: move the two eBay cards to Shipped, tag them eBay, and change the Poshmark card's "alongside Depop and Vinted" to name eBay too.
 - Add a changelog entry for the eBay release (`content/changelog/`, `lib/docs/changelog.ts`) and say Chrome will ask users to approve the new eBay site access.
