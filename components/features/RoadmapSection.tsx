@@ -68,7 +68,7 @@ export async function RoadmapSection({ standalone = false }: { standalone?: bool
 
       {/* Fixed height in 80px steps: the grid rows count up from the footer, so this rule lands on one. */}
       <div className="mt-16 h-80 border-t border-black/10 pt-10 sm:h-60 dark:border-white/10">
-        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-center sm:gap-12">
           <div>
             <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('request.eyebrow')}</span>
             <p className="mt-2 max-w-xl text-zinc-600 dark:text-zinc-400">
