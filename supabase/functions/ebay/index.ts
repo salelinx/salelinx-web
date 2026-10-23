@@ -403,6 +403,14 @@ Deno.serve(async (req: Request) => {
         });
       }
 
+      // Whether eBay has finished registering the account as a seller. Until it has, eBay refuses
+      // every listing with a message that doesn't say what is missing (640 on eBay UK).
+      case 'privileges': {
+        const res = await rest(await accessTokenFor(admin, user.id), '/sell/account/v1/privilege');
+        const done = res.sellerRegistrationCompleted;
+        return json(200, { registered: typeof done === 'boolean' ? done : null });
+      }
+
       case 'setMarketplace': {
         const marketplace = body.marketplace;
         if (typeof marketplace !== 'string' || !Object.hasOwn(SITE_IDS, marketplace)) {
