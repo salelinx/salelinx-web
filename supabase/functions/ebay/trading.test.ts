@@ -342,9 +342,20 @@ Deno.test('verifyFromResponse: errors, warnings and fees without throwing', () =
     ok: false,
     errors: ['21919303: Material is required.'],
     warnings: ['21920214: Return policy adjusted.'],
-    fees: [{ name: 'InsertionFee', amount: 0.35 }],
+    fees: [{ name: 'InsertionFee', amount: 0.35, discount: 0 }],
     categoryId: '36027',
   });
+});
+
+Deno.test('verifyFromResponse: a fee eBay discounts away (a free listing) costs nothing', () => {
+  const text = `<?xml version="1.0"?><VerifyAddFixedPriceItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+    <Ack>Success</Ack>
+    <Fees><Fee><Name>InsertionFee</Name><Fee currencyID="GBP">0.35</Fee><PromotionalDiscount currencyID="GBP">0.35</PromotionalDiscount></Fee><Fee><Name>SubtitleFee</Name><Fee currencyID="GBP">1.00</Fee><PromotionalDiscount currencyID="GBP">0.40</PromotionalDiscount></Fee><Fee><Name>ListingFee</Name><Fee currencyID="GBP">1.35</Fee></Fee></Fees>
+  </VerifyAddFixedPriceItemResponse>`;
+  assertEquals(verifyFromResponse(text).fees, [
+    { name: 'InsertionFee', amount: 0, discount: 0.35 },
+    { name: 'SubtitleFee', amount: 0.6, discount: 0.4 },
+  ]);
 });
 
 const SITES = { EBAY_US: 0, EBAY_GB: 3, EBAY_DE: 77 };

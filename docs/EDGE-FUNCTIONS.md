@@ -472,6 +472,10 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   `upgrade_required` or `limit_reached`. Without it, anyone signed in could post to eBay past their
   plan by calling `add` directly. A `verifyOnly` fee check creates nothing and is not gated. Both
   functions read the rule from that one module, so change it there.
+- **Fee check.** A `verifyOnly` add answers each fee as `{ name, amount, discount }`: `amount` is
+  eBay's fee less its `PromotionalDiscount`, which is how a free listing from the seller's monthly
+  allowance comes back (the whole fee discounted). eBay notes Verify may leave the discount out, so
+  `discount` is passed on for the extension to log. `ListingFee`, eBay's total, is dropped.
 - **Seller registration.** `privileges` reads eBay's Account API (`GET /sell/account/v1/privilege`,
   the `sell.account` scope every link already grants) and answers `{ registered }`
   (`sellerRegistrationCompleted`, null when eBay leaves it out). An account that has never
