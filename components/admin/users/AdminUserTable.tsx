@@ -103,6 +103,11 @@ const SOURCE_ICONS: Record<string, { path: string; color: string; name: string }
   instagram: { name: "Instagram", color: "text-[#FF0069]", path: socialPath("Instagram") },
 };
 SOURCE_ICONS.meta = { ...SOURCE_ICONS.facebook, name: "Meta" };
+SOURCE_ICONS["chatgpt.com"] = {
+  name: "ChatGPT",
+  color: "text-zinc-950",
+  path: "M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z",
+};
 
 // "google_ads" -> the Google mark plus "Ads"; utm values are free text, so
 // unknown ones are just tidied up.
@@ -151,6 +156,32 @@ const BROWSER_ICONS: Record<string, { path: string; color: string }> = {
     path: "M8.824 7.287c.008 0 .004 0 0 0zm-2.8-1.4c.006 0 .003 0 0 0zm16.754 2.161c-.505-1.215-1.53-2.528-2.333-2.943.654 1.283 1.033 2.57 1.177 3.53l.002.02c-1.314-3.278-3.544-4.6-5.366-7.477-.091-.147-.184-.292-.273-.446a3.545 3.545 0 01-.13-.24 2.118 2.118 0 01-.172-.46.03.03 0 00-.027-.03.038.038 0 00-.021 0l-.006.001a.037.037 0 00-.01.005L15.624 0c-2.585 1.515-3.657 4.168-3.932 5.856a6.197 6.197 0 00-2.305.587.297.297 0 00-.147.37c.057.162.24.24.396.17a5.622 5.622 0 012.008-.523l.067-.005a5.847 5.847 0 011.957.222l.095.03a5.816 5.816 0 01.616.228c.08.036.16.073.238.112l.107.055a5.835 5.835 0 01.368.211 5.953 5.953 0 012.034 2.104c-.62-.437-1.733-.868-2.803-.681 4.183 2.09 3.06 9.292-2.737 9.02a5.164 5.164 0 01-1.513-.292 4.42 4.42 0 01-.538-.232c-1.42-.735-2.593-2.121-2.74-3.806 0 0 .537-2 3.845-2 .357 0 1.38-.998 1.398-1.287-.005-.095-2.029-.9-2.817-1.677-.422-.416-.622-.616-.8-.767a3.47 3.47 0 00-.301-.227 5.388 5.388 0 01-.032-2.842c-1.195.544-2.124 1.403-2.8 2.163h-.006c-.46-.584-.428-2.51-.402-2.913-.006-.025-.343.176-.389.206-.406.29-.787.616-1.136.974-.397.403-.76.839-1.085 1.303a9.816 9.816 0 00-1.562 3.52c-.003.013-.11.487-.19 1.073-.013.09-.026.181-.037.272a7.8 7.8 0 00-.069.667l-.002.034-.023.387-.001.06C.386 18.795 5.593 24 12.016 24c5.752 0 10.527-4.176 11.463-9.661.02-.149.035-.298.052-.448.232-1.994-.025-4.09-.753-5.844z",
   },
 };
+
+const DEVICE_ICONS: Record<string, { label: string; path: string }> = {
+  phone: { label: "Phone", path: "M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2" },
+  tablet: { label: "Tablet", path: "M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2" },
+  computer: { label: "Computer", path: "M3 4h18v12H3zM8 20h8M12 16v4" },
+};
+
+function DeviceCell({ device }: { device: string | null }) {
+  const icon = device ? DEVICE_ICONS[device] : undefined;
+  if (!icon) return <span className="text-zinc-400">-</span>;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4 text-zinc-600"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label={icon.label}
+    >
+      <title>{icon.label}</title>
+      <path d={icon.path} />
+    </svg>
+  );
+}
 
 function BrowserCell({ userAgent }: { userAgent: string | null }) {
   const name = browserName(userAgent);
@@ -215,6 +246,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   const [source, setSource] = useState<string>("all");
   const [country, setCountry] = useState<string>("all");
   const [browser, setBrowser] = useState<string>("all");
+  const [device, setDevice] = useState<string>("all");
   const [version, setVersion] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
 
@@ -230,6 +262,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     (source !== "all" ? 1 : 0) +
     (country !== "all" ? 1 : 0) +
     (browser !== "all" ? 1 : 0) +
+    (device !== "all" ? 1 : 0) +
     (version !== "all" ? 1 : 0) +
     (search.trim() ? 1 : 0);
 
@@ -242,6 +275,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     setSource("all");
     setCountry("all");
     setBrowser("all");
+    setDevice("all");
     setVersion("all");
     setSearch("");
   }
@@ -314,6 +348,20 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       ...[...counts]
         .sort((a, b) => b[1] - a[1])
         .map(([c, n]) => [c, `${c === "unknown" ? "Unknown" : `${flag(c)} ${c}`} (${n})`] as [string, string]),
+    ] as [string, string][];
+  }, [users]);
+
+  const deviceOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const u of users) {
+      const d = u.signup_device ?? "unknown";
+      counts.set(d, (counts.get(d) ?? 0) + 1);
+    }
+    return [
+      ["all", "All"],
+      ...[...counts]
+        .sort((a, b) => b[1] - a[1])
+        .map(([d, n]) => [d, `${DEVICE_ICONS[d]?.label ?? "Unknown"} (${n})`] as [string, string]),
     ] as [string, string][];
   }, [users]);
 
@@ -394,6 +442,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       if (source !== "all" && (u.signup_source ?? "unknown") !== source) return false;
       if (country !== "all" && (u.country ?? "unknown") !== country) return false;
       if (browser !== "all" && (browserName(u.user_agent) ?? "Unknown") !== browser) return false;
+      if (device !== "all" && (u.signup_device ?? "unknown") !== device) return false;
       if (version !== "all") {
         const v = u.extension_version;
         if (version === "none" ? v !== null : v === null) return false;
@@ -444,7 +493,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       }
     });
     return sorted;
-  }, [users, search, tier, status, cancelling, platform, activity, source, country, browser, version, newestVersion, sortKey, now]);
+  }, [users, search, tier, status, cancelling, platform, activity, source, country, browser, device, version, newestVersion, sortKey, now]);
 
   // Cap how many rows reach the DOM. Filtering/sorting above still runs over
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
@@ -543,6 +592,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         <FilterSelect label="Country" value={country} options={countryOptions} onChange={setCountry} />
         <FilterSelect label="Browser" value={browser} options={browserOptions} onChange={setBrowser} />
         <FilterSelect label="Source" value={source} options={sourceOptions} onChange={setSource} />
+        <FilterSelect label="Device" value={device} options={deviceOptions} onChange={setDevice} />
         {activeFilters > 0 && (
           <button
             type="button"
@@ -591,6 +641,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                 <th className="px-3 py-2 font-medium">Billing</th>
                 <th className="px-3 py-2 font-medium">Version</th>
                 <th className="px-3 py-2 font-medium">Source</th>
+                <th className="px-3 py-2 font-medium">Device</th>
                 <th className="px-3 py-2 font-medium">Country</th>
                 <th className="px-3 py-2 font-medium">Browser</th>
                 <SortableTh
@@ -625,8 +676,8 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       (selectedId === u.user_id ? "bg-zinc-100" : "")
                     }
                   >
-                    <td className="max-w-[18rem] px-3 py-2">
-                      <div className="flex items-center gap-1.5">
+                    <td className="px-3 py-2">
+                      <div className="flex max-w-[14rem] items-center gap-1.5">
                         {u.email ? (
                           <span className="truncate text-zinc-800">
                             {u.email}
@@ -690,6 +741,9 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       ) : (
                         <span className="text-zinc-400">-</span>
                       )}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <DeviceCell device={u.signup_device} />
                     </td>
                     <td
                       className="whitespace-nowrap px-3 py-2 text-base"
