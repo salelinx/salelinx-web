@@ -64,10 +64,18 @@ export function verifyFromResponse(text: string) {
     (body.Errors ?? [])
       .filter((e) => e.SeverityCode === severity)
       .map((e) => `${e.ErrorCode}: ${e.LongMessage ?? e.ShortMessage}`);
+  const amount = (a) => Number((typeof a === 'object' ? a?.['#text'] : a) ?? 0) || 0;
   const fees = [].concat(body.Fees?.Fee ?? [])
-    .map((f) => ({ name: String(f.Name), amount: Number(f.Fee?.['#text'] ?? 0) }))
+    .map((f) => ({ name: String(f.Name), fee: amount(f.Fee), discount: amount(f.PromotionalDiscount) }))
     // ListingFee is eBay's total of the lines above it, not a charge of its own.
-    .filter((f) => f.amount > 0 && f.name !== 'ListingFee');
+    .filter((f) => f.fee > 0 && f.name !== 'ListingFee')
+    // A free listing can come back as the fee with an equal PromotionalDiscount, so the charge is
+    // what is left. eBay notes Verify may leave the discount out, so it is passed on to be logged.
+    .map((f) => ({
+      name: f.name,
+      amount: Math.max(0, Math.round((f.fee - f.discount) * 100) / 100),
+      discount: f.discount,
+    }));
   return {
     ok: body.Ack !== 'Failure' && body.Ack !== 'PartialFailure',
     errors: messages('Error'),
