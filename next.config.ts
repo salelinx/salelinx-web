@@ -69,14 +69,39 @@ const SHORT_LINKS: Record<string, string> = {
   reddit: 'reddit',
 };
 
+// /features/[slug] landing pages whose slug changed, old slug to new. Each old
+// URL answers 308 so search engines move its ranking to the new one. English
+// has no prefix (localePrefix 'as-needed'); the prefixed rule takes any first
+// segment rather than a copy of routing.locales, so a new locale needs no edit
+// here, and a segment that is not a locale 404s at the new URL as it did at
+// the old one.
+const MOVED_LANDING_PAGES: Record<string, string> = {
+  'crosslist-depop-vinted': 'crosslist',
+};
+
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
   async redirects() {
-    return Object.entries(SHORT_LINKS).map(([path, source]) => ({
+    const shortLinks = Object.entries(SHORT_LINKS).map(([path, source]) => ({
       source: `/${path}`,
       destination: `/?utm_source=${source}&utm_medium=social`,
       permanent: false,
     }));
+    const movedLandingPages = Object.entries(MOVED_LANDING_PAGES).flatMap(
+      ([from, to]) => [
+        {
+          source: `/features/${from}`,
+          destination: `/features/${to}`,
+          permanent: true,
+        },
+        {
+          source: `/:locale/features/${from}`,
+          destination: `/:locale/features/${to}`,
+          permanent: true,
+        },
+      ],
+    );
+    return [...shortLinks, ...movedLandingPages];
   },
   poweredByHeader: false,
   images: {

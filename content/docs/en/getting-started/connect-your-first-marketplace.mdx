@@ -1,13 +1,13 @@
 export const metadata = {
   title: 'Connect your first marketplace',
   description:
-    'Link SaleLinx to your Depop or Vinted account in under a minute, and pick which marketplaces you sell on.',
+    'Link SaleLinx to your Depop, Vinted or eBay account in under a minute, and pick which marketplaces you sell on.',
   category: 'getting-started',
   slug: 'connect-your-first-marketplace',
   order: 2,
-  updated: '2026-10-13',
-  tags: ['setup', 'depop', 'vinted'],
-  marketplaces: ['depop', 'vinted'],
+  updated: '2026-10-16',
+  tags: ['setup', 'depop', 'vinted', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
@@ -16,10 +16,11 @@ export const metadata = {
 SaleLinx works through your marketplace session in the browser. There&rsquo;s
 no marketplace password to enter and no API key to copy. You just need to be
 signed in to Depop or Vinted in the same browser profile where SaleLinx is
-installed.
+installed. eBay connects through eBay&rsquo;s own sign-in instead (see
+*Connecting eBay* below).
 
-Each SaleLinx account links one Depop account and one Vinted account. This
-is the same on every plan.
+Each SaleLinx account links one account per marketplace: one Depop, one
+Vinted and one eBay account. This is the same on every plan.
 
 ## 1. Sign in on the marketplace
 
@@ -39,10 +40,10 @@ marketplace password.
 
 ## 2. Open the SaleLinx panel
 
-On any Depop or Vinted page, click the SaleLinx button in the bottom-right
-corner (or press **Alt+S**). The panel only opens on Depop and Vinted pages,
-not from the toolbar icon. If you haven&rsquo;t signed in to SaleLinx or
-started a plan yet, see [Installing the SaleLinx extension](/docs/getting-started/install-the-extension)
+On any Depop, Vinted or eBay page, click the SaleLinx button in the
+bottom-left corner (on Depop and Vinted you can also press **Alt+S**). The
+panel only opens on Depop, Vinted and eBay pages, not from the toolbar
+icon. If you haven&rsquo;t signed in to SaleLinx or started a plan yet, see [Installing the SaleLinx extension](/docs/getting-started/install-the-extension)
 first.
 
 ## 3. Link your shops
@@ -50,7 +51,7 @@ first.
 Until at least one account is linked, the panel shows the **Link your
 shops** screen:
 
-1. Under **I sell on**, pick Depop, Vinted or both.
+1. Under **I sell on**, pick any of Depop, Vinted and eBay.
 2. Each marketplace row shows the account SaleLinx can see in your browser,
    with its photo and username. Click **Link** to connect it.
 3. If a row shows **Log in** instead of **Link**, you&rsquo;re not signed in
@@ -60,22 +61,42 @@ shops** screen:
 Once an account is linked, the panel opens on **My Listings**, which shows
 your items from every linked marketplace in one list.
 
-## If you only sell on one of them
+## Connecting eBay
 
-You don&rsquo;t have to use both. Pick **Depop only**, **Vinted only** or
-**Both** on the **Link your shops** screen (or in the **Where do you sell?**
-box that appears after your first sign-in). You can change the answer any
-time in **Settings > Marketplaces**. Until you choose, SaleLinx assumes both.
+eBay connects differently from Depop and Vinted: through eBay&rsquo;s own
+sign-in page, not your browser session.
+
+1. On the **Link your shops** screen, or in **Settings > Marketplace
+   accounts**, click **Link** on the eBay row. A small SaleLinx window
+   opens.
+2. Click **Continue to eBay**, sign in on eBay&rsquo;s own page and agree to
+   let SaleLinx manage your listings. The window closes by itself and your
+   eBay account shows as linked.
+
+SaleLinx never sees your eBay password. You can remove its access at any
+time by clicking **Unlink** in Settings.
+
+Once linked, your eBay listings appear in **My Listings** and eBay becomes a
+source and target in [Crosslist](/docs/inventory/crosslist). eBay never
+needs a tab open.
+
+## If you don&rsquo;t sell on all of them
+
+You don&rsquo;t have to use every marketplace. Pick any mix of **Depop**,
+**Vinted** and **eBay** on the **Link your shops** screen (or in the **Where
+do you sell?** box that appears after your first sign-in). You can change the
+answer any time in **Settings > Marketplaces**. Until you choose, SaleLinx
+assumes all three.
 
 Switching one off is not a display preference. SaleLinx hides that
 marketplace&rsquo;s tabs, filters and account row, stops asking you to link
 it, and skips its background work entirely, so there&rsquo;s nothing running
 for a marketplace you don&rsquo;t sell on.
 
-Two features need both marketplaces switched on and both accounts linked:
-[Crosslist](/docs/inventory/crosslist) and [Linking](/docs/automate/linking).
-They stay visible rather than disappearing, and explain which of the two
-things is missing.
+[Crosslist](/docs/inventory/crosslist) needs at least two marketplaces
+switched on and linked, and [Linking](/docs/automate/linking) needs both
+Depop and Vinted. Both stay visible rather than disappearing, and explain
+what&rsquo;s missing.
 
 If you open the panel on a marketplace you&rsquo;ve switched off, it shows a
 banner rather than blocking you, with a button to turn that marketplace back
@@ -98,8 +119,8 @@ Vinted counterpart.
 ## Troubleshooting
 
 **The account is already linked to a different SaleLinx account.**
-A Depop or Vinted account can only be linked to one SaleLinx account at a
-time. Log in to the SaleLinx account it is linked to, unlink it in
+A Depop, Vinted or eBay account can only be linked to one SaleLinx account
+at a time. Log in to the SaleLinx account it is linked to, unlink it in
 **Settings > Marketplace accounts**, then try again here.
 
 **The account has already used a free trial on another SaleLinx account.**

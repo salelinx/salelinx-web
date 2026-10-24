@@ -63,8 +63,8 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
               价格页面
             </Link>
             ）。开始试用需要绑定支付卡，但试用期内不会扣款，你也可以随时在
-            账户页面取消。每个 SaleLinx 账户、每个 Depop 或 Vinted 店铺都只能
-            试用一次。如果你没有取消，试用结束后会自动开始 Starter 订阅。
+            账户页面取消。每个 SaleLinx 账户、每个 Depop、Vinted 或 eBay 店铺
+            都只能试用一次。如果你没有取消，试用结束后会自动开始 Starter 订阅。
           </p>
         ),
         keywords: ['免费', '试用', '价格', '套餐', 'starter', '支付卡'],
@@ -201,19 +201,19 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
     items: [
       {
         id: 'panel-not-appearing',
-        q: 'SaleLinx 面板没有出现在 Depop 或 Vinted 上',
+        q: 'SaleLinx 面板没有出现在 Depop、Vinted 或 eBay 上',
         a: (
           <div className="space-y-2">
             <p>
-              面板从每个 Depop 和 Vinted 页面右下角的 SaleLinx 启动按钮打开：
-              点击它，或者在 Depop 或 Vinted 标签页里按 Alt+S（默认快捷键）。
+              面板从每个 Depop、Vinted 和 eBay 页面右下角的 SaleLinx 启动按钮
+              打开：点击它，或者在这些标签页里按 Alt+S（默认快捷键）。
               Chrome 工具栏上的 SaleLinx 图标只会打开一个用于登录的小窗口。
               如果你看不到启动按钮：
             </p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                刷新 Depop 或 Vinted 标签页。安装或更新 SaleLinx 时已经打开的
-                标签页需要刷新一次。
+                刷新平台标签页。安装或更新 SaleLinx 时已经打开的标签页需要
+                刷新一次。
               </li>
               <li>
                 确认 SaleLinx 已启用：打开 chrome://extensions，查看它的开关。
@@ -231,7 +231,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             </ol>
           </div>
         ),
-        keywords: ['面板', '不见了', '没显示', '启动按钮', 'depop', 'vinted'],
+        keywords: ['面板', '不见了', '没显示', '启动按钮', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'update-available',
@@ -243,7 +243,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             面板说你落后了一个或多个版本，说明 Chrome 还没有获取更新。点击{' '}
             <strong>Open extensions page</strong>（或打开 chrome://extensions），
             打开右上角的 <strong>开发者模式</strong>，点击{' '}
-            <strong>更新</strong>，然后刷新你的 Depop 和 Vinted 标签页。
+            <strong>更新</strong>，然后刷新你的 Depop、Vinted 和 eBay 标签页。
           </p>
         ),
         keywords: ['更新', '版本', '落后', '过时', '重新加载'],
@@ -256,8 +256,8 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             你可以在多台设备上保持登录，但同一时间只有一台设备能使用
             SaleLinx。如果面板显示 <strong>In use on another device</strong>，
             点击 <strong>Use here instead</strong> 就能在这台设备上继续使用，
-            另一台设备会退出 SaleLinx。如果你刚在另一台设备上关掉了 Depop 和
-            Vinted 标签页，大约 10 分钟内也会自动释放。如果你不认识那台设备，
+            另一台设备会退出 SaleLinx。如果你刚在另一台设备上关掉了平台
+            标签页，大约 10 分钟内也会自动释放。如果你不认识那台设备，
             先接管使用，然后在{' '}
             <Link href="/account" className="underline underline-offset-4">
               账户页面
@@ -272,8 +272,8 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         q: 'SaleLinx 提示暂时无法使用',
         a: (
           <p>
-            这表示面板现在连不上我们的服务器。Depop 和 Vinted 不受影响，你可以
-            照常使用这两个网站，上面的商品也不会有任何变化。SaleLinx 恢复连接
+            这表示面板现在连不上我们的服务器。Depop、Vinted 和 eBay 不受影响，
+            你可以照常使用这三个网站，上面的商品也不会有任何变化。SaleLinx 恢复连接
             后，这条提示会自动消失，所以不需要重新安装、退出登录或重置密码，
             即使登录界面显示同样的提示也一样。从 1.1.12 版本起，这条提示会
             覆盖整个面板，并带有 <strong>Close SaleLinx</strong> 按钮；更早的
@@ -307,10 +307,13 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: (
           <p>
             SaleLinx 是通过你自己已登录的 Depop 和 Vinted 会话工作的，所以每个
-            功能都需要在 Chrome 里的某个地方打开对应平台的标签页。任何窗口都
-            可以，也不必是你正在看的那个标签页。点击提示里的{' '}
+            Depop 或 Vinted 功能都需要在 Chrome 里的某个地方打开对应平台的
+            标签页。任何窗口都可以，也不必是你正在看的那个标签页。点击提示里的{' '}
             <strong>Open Depop</strong> 或 <strong>Open Vinted</strong>，或者
-            自己打开网站；跨平台上架需要两个都打开。如果标签页已经打开，但
+            自己打开网站；在 Depop 和 Vinted 之间跨平台上架需要两个都打开。
+            eBay 从来不需要标签页，因为它通过 eBay 自己的登录连接，所以无论是
+            上架到 eBay 还是从 eBay 复制出来，都只需要打开 Depop 或 Vinted
+            标签页。如果标签页已经打开，但
             SaleLinx 仍要求重新加载（例如 Chrome 为了节省内存让它休眠了），
             请点击 <strong>Reload Depop tab</strong> 或{' '}
             <strong>Reload Vinted tab</strong>。从 1.1.12 版本起，
@@ -318,7 +321,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             更早的版本即使没有打开任何标签页，也会要求你重新加载。
           </p>
         ),
-        keywords: ['标签页', '打开', '重新加载', 'depop', 'vinted'],
+        keywords: ['标签页', '打开', '重新加载', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'wrong-marketplace-account',
@@ -331,7 +334,9 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             SaleLinx 改用另一个账号，请在面板里打开 <strong>Settings</strong>，
             在 <strong>Marketplace accounts</strong> 下点击{' '}
             <strong>Unlink</strong>，然后为你当前登录的账号点击{' '}
-            <strong>Link</strong>。详见{' '}
+            <strong>Link</strong>。eBay 的情况不同：无论 eBay 网站登录的是哪个
+            账号，SaleLinx 始终使用在 <strong>Settings</strong> 里关联的 eBay
+            账号。详见{' '}
             <Link
               href="/docs/getting-started/connect-your-first-marketplace"
               className="underline underline-offset-4"
@@ -345,11 +350,11 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
       },
       {
         id: 'account-already-linked',
-        q: 'SaleLinx 说我的 Depop 或 Vinted 账号已被关联，或已用过免费试用',
+        q: 'SaleLinx 说我的 Depop、Vinted 或 eBay 账号已被关联，或已用过免费试用',
         a: (
           <p>
-            每个 Depop 或 Vinted 账号同一时间只能关联一个 SaleLinx 账户。如果它
-            关联在你的另一个 SaleLinx 账户上，请先登录那个账户，在{' '}
+            每个 Depop、Vinted 或 eBay 账号同一时间只能关联一个 SaleLinx 账户。
+            如果它关联在你的另一个 SaleLinx 账户上，请先登录那个账户，在{' '}
             <strong>Settings</strong> 里点击 <strong>Unlink</strong>，再回到
             当前账户进行关联。另外，每个店铺只能免费试用一次：如果它已经在
             另一个 SaleLinx 账户上用过试用，你需要先在{' '}
@@ -372,10 +377,15 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
           <p>
             只要打开了对应平台的标签页，并且登录的是你已关联的账号，SaleLinx
             就会从 Depop 和 Vinted 读取你的商品。在 <strong>My Listings</strong>{' '}
-            顶部，Depop 和 Vinted 旁边的状态会显示各自上次同步的时间：点击{' '}
-            <strong>Refresh All</strong>，或某个平台旁边的刷新按钮，即可立即
+            顶部，每个平台旁边的状态会显示它上次同步的时间：点击{' '}
+            <strong>Update All</strong>，或某个平台旁边的刷新按钮，即可立即
             同步。如果它提示你打开或重新加载标签页，或者说会话已过期，请在
-            平台网站上照做，然后再刷新一次。详见{' '}
+            平台网站上照做，然后再刷新一次。eBay 商品直接来自 eBay，不需要
+            标签页：最多每 15 分钟更新一次，你会看到在售的 eBay 商品，以及过去
+            60 天内售出的商品。如果 eBay 的状态显示{' '}
+            <strong>reconnect in Settings</strong>，请打开{' '}
+            <strong>Settings</strong>，在 eBay 一行点击 <strong>Link</strong>。
+            详见{' '}
             <Link
               href="/docs/inventory/listings"
               className="underline underline-offset-4"
@@ -385,7 +395,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             。
           </p>
         ),
-        keywords: ['同步', '不见了', 'my listings', '刷新', '过时'],
+        keywords: ['同步', '不见了', 'my listings', '刷新', '过时', 'ebay'],
       },
       {
         id: 'crosslisting-stuck',
@@ -395,8 +405,9 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             <p>按顺序检查这几点：</p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                你的 Depop 和 Vinted 账号都已关联，并且 Depop 和 Vinted 标签页
-                都已打开、登录的是这两个账号。面板会告诉你缺了哪一个。
+                你要复制的来源平台和目标平台都已关联。对于 Depop 和 Vinted，
+                还需要各打开一个标签页，并登录已关联的账号；eBay 不需要标签页。
+                面板会告诉你缺了哪一个。
               </li>
               <li>
                 查看面板侧边栏底部的<Link href="/docs/getting-started/queue" className="underline underline-offset-4">队列</Link>。SaleLinx 一次只运行一个任务，所以在
@@ -407,6 +418,10 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
               <li>
                 <strong>Rate limited</strong> 表示 Depop 或 Vinted 正在限制请求。
                 SaleLinx 会等待，倒计时结束后自动继续。
+              </li>
+              <li>
+                <strong>eBay is busy right now</strong> 表示 eBay 暂时拒绝请求。
+                请稍后再试；没有任何商品被发布，也没有产生任何费用。
               </li>
               <li>
                 如果你已经用完本月的跨平台上架额度，SaleLinx 会提示已达到上限。
@@ -429,7 +444,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             </p>
           </div>
         ),
-        keywords: ['卡住', '卡死', '没反应', '很慢', '排队', '跨平台上架'],
+        keywords: ['卡住', '卡死', '没反应', '很慢', '排队', '跨平台上架', 'ebay', '繁忙'],
       },
       {
         id: 'listing-failed-to-post',
@@ -439,7 +454,10 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             面板侧边栏底部的队列会显示有多少件商品失败。大多数失败是因为你在
             要复制到的平台上处于退出登录状态，或者该平台不接受某些信息。请用
             已关联的账号登录那个平台，然后在 <strong>My Listings</strong> 里
-            选中该商品，再点一次 <strong>Crosslist</strong>。从 1.1.12 版本起，
+            选中该商品，再点一次 <strong>Crosslist</strong>。如果 eBay 拒绝了
+            某件商品，检查步骤会说明 eBay 需要什么，通常是尺码或适用人群这类
+            物品属性：点击 <strong>Fill in</strong> 补上，这件商品就能发布了。
+            从 1.1.12 版本起，
             失败的商品不再计入你每月的跨平台上架额度。如果是整个平台出了问题，
             请查看{' '}
             <Link
@@ -505,6 +523,107 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: '连接 eBay、管理和跨平台上架 eBay 商品，以及费用。',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: '怎么连接我的 eBay 账户？',
+        a: <p>打开 SaleLinx 面板，进入<em>Settings</em>，在 eBay 一行点击<em>Link</em>。在 eBay 自己的页面登录，并同意让 SaleLinx 管理你的商品。SaleLinx 不会看到你的 eBay 密码，你随时可以取消连接。</p>,
+        keywords: ['ebay', '连接', '账户'],
+      },
+      {
+        id: 'ebay-fees',
+        q: '跨平台上架到 eBay 要收费吗？',
+        a: <p>eBay 会收取正常的刊登费用，和手动上架一样。SaleLinx 会在发布前显示每件商品的 eBay 费用，你可以先返回或移除商品。eBay 没有草稿，所以商品会直接上线。</p>,
+        keywords: ['ebay', '费用', '跨平台上架'],
+      },
+      {
+        id: 'ebay-tab',
+        q: '需要打开 eBay 标签页吗？',
+        a: (
+          <p>
+            不需要。eBay 通过 eBay 自己的登录连接，所以不用打开 eBay 标签页，
+            SaleLinx 也能访问你的 eBay 商品。不过面板本身仍然要从 Depop、Vinted
+            或 eBay 页面打开。
+          </p>
+        ),
+        keywords: ['ebay', '标签页', '打开'],
+      },
+      {
+        id: 'ebay-manage-listings',
+        q: '我可以在 SaleLinx 里编辑、结束或重新上架 eBay 商品吗？',
+        a: (
+          <p>
+            可以。你的 eBay 商品会出现在 <strong>My Listings</strong> 里。打开
+            一件商品，就可以编辑标题、描述、价格、数量、照片、成色、类目和物品
+            属性，并直接保存到 eBay。<strong>Unlist</strong> 会结束这条刊登；
+            eBay 没有删除功能，所以删除一行 eBay 商品也会结束刊登。已结束的
+            商品打开后会有 <strong>Relist</strong> 选项。详见{' '}
+            <Link
+              href="/docs/inventory/listings"
+              className="underline underline-offset-4"
+            >
+              My Listings 指南
+            </Link>
+            。
+          </p>
+        ),
+        keywords: ['ebay', '编辑', '结束', '下架', '重新上架', '删除', 'my listings'],
+      },
+      {
+        id: 'ebay-postage',
+        q: '跨平台上架到 eBay 时，运费信息从哪里来？',
+        a: (
+          <p>
+            来自你的 eBay 账户。SaleLinx 会使用你的 eBay 业务政策，或者从你
+            现有的某条 eBay 刊登中复制运费和退货设置。如果没有可以复制的内容，
+            Crosslist 标签页会请你填写一次运费，之后你可以在{' '}
+            <strong>Settings &rarr; eBay &rarr; Postage</strong> 里修改。
+          </p>
+        ),
+        keywords: ['ebay', '运费', '邮寄', '退货', '政策'],
+      },
+      {
+        id: 'ebay-busy',
+        q: '“eBay is busy right now” 是什么意思？',
+        a: (
+          <p>
+            这表示 eBay 暂时拒绝请求。请稍后再试；没有任何商品被发布，也没有
+            产生任何费用。
+          </p>
+        ),
+        keywords: ['ebay', '繁忙', '错误', '重试'],
+      },
+      {
+        id: 'ebay-reconnect',
+        q: 'SaleLinx 让我重新连接 eBay',
+        a: (
+          <p>
+            eBay 授予 SaleLinx 的权限过一段时间就会失效；如果你在 eBay 账户里
+            移除了 SaleLinx 的访问权限，它也会失效。请在面板里打开{' '}
+            <strong>Settings</strong>，在 eBay 一行点击 <strong>Link</strong>，
+            重新授权即可。你的 eBay 商品不受影响。
+          </p>
+        ),
+        keywords: ['ebay', '重新连接', '关联', '过期', '访问权限'],
+      },
+      {
+        id: 'ebay-disconnect',
+        q: '怎么断开 eBay 连接？',
+        a: (
+          <p>
+            在面板里打开 <strong>Settings</strong>，在 eBay 一行点击{' '}
+            <strong>Unlink</strong>。SaleLinx 会立即删除它的 eBay 访问权限，
+            你在 eBay 上的商品保持不变。
+          </p>
+        ),
+        keywords: ['ebay', '断开', '取消关联', 'unlink', '移除'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: '隐私与数据',
     blurb: '我们存了什么、存在哪里，以及怎么删除。',
@@ -516,7 +635,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
           <p>
             不会。SaleLinx 通过你在自己浏览器里已经登录的 Depop 和 Vinted 会话
             工作，所以你从来不需要把平台密码交给我们。为了把店铺关联到你的
-            SaleLinx 账户，我们只保存它的用户名和账号 ID。
+            SaleLinx 账户，我们只保存它的用户名和账号 ID。eBay 通过 eBay 自己的登录页连接，SaleLinx 不会看到你的 eBay 密码。对于 eBay，我们还会保存 eBay 提供的访问令牌，以便 SaleLinx 管理你的商品。
           </p>
         ),
         keywords: ['密码', '登录凭据', '安全'],
@@ -529,7 +648,9 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             你的 SaleLinx 账户、套餐、设置和已关联店铺的用户名，存放在我们的
             数据库服务商 Supabase，付款由 Stripe 处理。商品详情和照片只有在你
             把商品保存到云端时才会存放在我们这里；SaleLinx 从 Depop 和 Vinted
-            读取的其他内容不会保存在我们的服务器上。数据通过 HTTPS 传输，
+            读取的其他内容不会保存在我们的服务器上。eBay 请求会经过我们的
+            服务器，服务器会保存 eBay 为你的账户授予的访问权限，以及你为 eBay
+            跨平台上架设置的运费信息，包括你的发货邮编。数据通过 HTTPS 传输，
             Supabase 对存储的数据进行静态加密，访问规则会把每件商品和每张照片
             都绑定到你的账户。我们的服务商在哪里处理数据，详见我们的{' '}
             <Link href="/legal/privacy" className="underline underline-offset-4">
@@ -552,7 +673,8 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             ，滚动到最底部，点击 <strong>删除账户</strong>。输入密码（如果你用
             Google 登录则不需要），我们会给你发送一封带确认链接的邮件：请在
             60 分钟内、保持登录状态打开它，并再确认一次。之后你的账户、商品、
-            图片、已关联的平台账号、使用记录和支持工单会立即删除，任何订阅都会
+            图片、已关联的平台账号（包括你的 eBay 连接）、使用记录和支持工单
+            会立即删除，任何订阅都会
             取消，剩余时间不予退款。你也可以用账户上的邮箱地址发邮件到{' '}
             <a
               href="mailto:support@salelinx.com"

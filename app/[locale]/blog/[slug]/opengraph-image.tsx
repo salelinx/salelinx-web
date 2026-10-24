@@ -21,5 +21,6 @@ export default async function Image({
     eyebrow: post ? categoryTitle(post.metadata.category) : undefined,
     title: post?.metadata.title ?? 'SaleLinx Blog',
     description: post?.metadata.description,
+    marketplaces: post?.metadata.marketplaces,
   });
 }

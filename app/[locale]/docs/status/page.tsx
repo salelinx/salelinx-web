@@ -152,7 +152,7 @@ export default async function StatusPage() {
                 >
                   {t("status.featureColumn")}
                 </th>
-                {(["vinted", "depop"] as const).map((marketplace) => (
+                {(["depop", "vinted"] as const).map((marketplace) => (
                   <th
                     key={marketplace}
                     className={`${MONO} py-2 text-start font-normal text-zinc-600 dark:text-zinc-400`}
@@ -187,7 +187,7 @@ export default async function StatusPage() {
                       </span>
                     ))}
                   </th>
-                  {(["vinted", "depop"] as const).map((marketplace) => {
+                  {(["depop", "vinted"] as const).map((marketplace) => {
                     const cell = row.byMarketplace[marketplace];
                     if (!cell) {
                       // The feature does not exist on this marketplace at all.

@@ -1,7 +1,8 @@
 // Supabase Edge Function: resolve-category
 // ------------------------------------------------------------------------
-// Resolves Depop <-> Vinted categories for the SaleLinx extension's
-// crosslister.
+// Resolves Depop <-> Vinted categories, eBay categories from listing
+// wording, and eBay categories as Depop and Vinted ones, for the SaleLinx
+// extension's crosslister.
 //
 // Why this exists: the category mapping tables (~116KB) used to ship inside
 // the extension bundle, where anyone who installed it could unzip the .crx and
@@ -36,13 +37,15 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
-import { isSubscriptionEntitled } from '../_shared/entitlement.ts';
+import { checkCrosslistAllowed } from '../_shared/crosslist-gate.ts';
 import {
   mapDepopToVintedCategory,
   depopProductTypeFromText,
 } from './_generated/category-resolve.ts';
 import { DEPOP_ID_TO_DRAFT_CATEGORY } from './_generated/category-maps-depop.ts';
 import { vintedCategoryIdToDepop } from './_generated/category-maps-vinted.ts';
+import { ebayCategoriesFor } from './ebay-category.ts';
+import { depopTypeForEbay } from './_generated/ebay-depop-types.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -55,27 +58,11 @@ const MAX_ITEMS = 100;
 // is keyword noise for our purposes and only inflates the request.
 const MAX_TEXT = 2000;
 
-// Statuses that still grant the subscription's tier. Mirrors
-// ENTITLED_STATUSES in the extension's utils/cloud/subscription.ts and
-// CURRENT_STATUSES in lib/supabase/subscription.ts: 'past_due' keeps its tier
-// as a payment-retry grace period, so a card that fails mid-month does not
-// break crosslisting.
-// Statuses worth fetching. Entitlement is then decided by
-// isSubscriptionEntitled, which additionally refuses a past_due row that has
-// never paid or has run past its grace window.
-const ENTITLED_STATUSES = ['active', 'trialing', 'past_due'];
-
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
   });
-}
-
-/** UTC month key, matching what increment_usage_counter writes. */
-function monthKey(): string {
-  const now = new Date();
-  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
 function clampText(value: unknown): string {
@@ -122,120 +109,16 @@ Deno.serve(async (req: Request) => {
 
   // ── Entitlement: crosslisting must be on the tier and not exhausted ───────
   // Read through a user-scoped client so the "own read" RLS policies apply and
-  // this can only ever see the caller's own rows.
+  // this can only ever see the caller's own rows. The rule lives in
+  // _shared/crosslist-gate.ts, shared with the ebay function's add.
   const userScoped = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: `Bearer ${jwt}` } },
   });
-
-  const { data: sub, error: subErr } = await userScoped
-    .from('subscriptions')
-    // stripe_subscription_id and current_period_end are what let
-    // isSubscriptionEntitled expire a comp row. Without both, a comped month
-    // would keep crosslisting working after the website said it had ended.
-    .select(
-      'tier_id, tier_version, status, first_paid_at, past_due_since, stripe_subscription_id, current_period_end',
-    )
-    .in('status', ENTITLED_STATUSES)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (subErr) {
-    console.error('[resolve-category] subscription lookup failed:', subErr.message);
-    return json(500, { error: 'Entitlement check failed' });
-  }
-
-  // No entitled subscription at all means no plan: cap stays 0 and the
-  // request is refused below. There is no free tier to fall back to.
-  //
-  // A past_due row reaching here is not automatically entitled: a first-ever
-  // charge that failed (a trial that never converted) is refused outright,
-  // and an established customer gets a bounded grace window. See
-  // _shared/entitlement.ts.
-  let monthlyCap: number | null = 0;
-  if (sub && isSubscriptionEntitled(sub)) {
-    // A trialing row resolves to the 'trial' tier, not the Starter tier Stripe
-    // billed it against: the trial is capped tighter than Starter on purpose.
-    // Mirrors the extension's utils/cloud/subscription.ts and the website's
-    // lib/supabase/subscription.ts - all three must agree or the server would
-    // grant a trialing user Starter's allowance.
-    const isTrialing = sub.status === 'trialing';
-    const tierId = isTrialing ? 'trial' : sub.tier_id;
-    const tierVersion = isTrialing ? 1 : sub.tier_version;
-
-    const { data: tier, error: tierErr } = await userScoped
-      .from('tier_limits')
-      .select('limits')
-      .eq('tier_id', tierId)
-      .eq('version', tierVersion)
-      .maybeSingle();
-    if (tierErr) {
-      console.error('[resolve-category] tier lookup failed:', tierErr.message);
-      return json(500, { error: 'Entitlement check failed' });
-    }
-    // null = unlimited; a missing key is treated as unlimited to match the
-    // extension's gate, which reads an absent key as "not applicable".
-    const limits = tier?.limits ?? {};
-    monthlyCap = 'crosslists_per_month' in limits ? limits.crosslists_per_month : null;
-  }
-
-  // Admins crosslist without a plan, at the Business allowance, which is
-  // unlimited. The extension already grants them full access locally
-  // (utils/cloud/subscription.ts, ADMIN_DEFAULT_TIER_ID = 'business'), so
-  // without this the panel shows crosslisting unlocked and every call fails
-  // here with upgrade_required. That is what it did: an admin with no
-  // subscription row saw the button, pressed it, and got a 403 the UI had
-  // given no warning of.
-  //
-  // Read through the user-scoped client on purpose. The "admin_users self
-  // read" policy is auth.uid() = user_id, so this can only ever return the
-  // caller's own row and a non-admin gets nothing back - the same trust model
-  // the subscription read above already relies on, and the reason it needs no
-  // service-role key.
-  //
-  // Not is_admin(): that requires AAL2 (003_support.sql) and the extension has
-  // no MFA flow, so gating on it would refuse every admin forever.
-  const { data: adminRow, error: adminErr } = await userScoped
-    .from('admin_users')
-    .select('user_id')
-    .eq('user_id', user.id)
-    .maybeSingle();
-  if (adminErr) {
-    console.error('[resolve-category] admin lookup failed:', adminErr.message);
-    return json(500, { error: 'Entitlement check failed' });
-  }
-  // null is "unlimited" to the cap check below, so this both clears the
-  // refusal and skips the monthly counter, matching Business exactly.
-  if (adminRow) monthlyCap = null;
-
-  if (monthlyCap === 0) {
-    return json(403, {
-      error: 'Your plan does not include crosslisting',
-      code: 'upgrade_required',
-    });
-  }
-
-  if (typeof monthlyCap === 'number') {
-    const { data: usage, error: usageErr } = await userScoped
-      .from('usage_counters')
-      .select('count')
-      .eq('user_id', user.id)
-      .eq('feature', 'crosslist')
-      .eq('period_key', monthKey())
-      .maybeSingle();
-    if (usageErr) {
-      console.error('[resolve-category] usage lookup failed:', usageErr.message);
-      return json(500, { error: 'Entitlement check failed' });
-    }
-    if ((usage?.count ?? 0) >= monthlyCap) {
-      return json(403, {
-        error: 'Monthly crosslist limit reached',
-        code: 'limit_reached',
-      });
-    }
-  }
+  const gate = await checkCrosslistAllowed(userScoped, user.id, 'resolve-category');
+  if (!gate.ok) return json(gate.status, gate.body);
 
   // ── Resolve ──────────────────────────────────────────────────────────────
-  const results = items.map((raw: Record<string, unknown>) => {
+  const results = await Promise.all(items.map(async (raw: Record<string, unknown>) => {
     const id = typeof raw?.id === 'string' ? raw.id : '';
     if (!id) return { id: '', error: 'Missing id' };
 
@@ -267,6 +150,33 @@ Deno.serve(async (req: Request) => {
           return { id, depopDraft: DEPOP_ID_TO_DRAFT_CATEGORY[raw.depopCategoryId] ?? null };
         }
 
+        case 'toEbay': {
+          const req = (raw.toEbay ?? {}) as Record<string, unknown>;
+          return { id, toEbay: await ebayCategoriesFor(clampText(req.query), req.marketplace) };
+        }
+
+        case 'fromEbay': {
+          const req = (raw.fromEbay ?? {}) as Record<string, unknown>;
+          const title = clampText(req.title);
+          const gender = typeof req.gender === 'string' ? req.gender : null;
+          const match = depopTypeForEbay(clampText(req.path), title, gender);
+          if (!match) return { id, fromEbay: null };
+          // Clothing goes through the Depop → Vinted mapping for its refiners (dress length, jeans
+          // fit, coat kind). Elsewhere a legacy id is too coarse (toys, games and LEGO share one),
+          // so a Vinted leaf filed under the type is the default and the extension picks among them.
+          const clothing = !match.depopType.startsWith('everything-else/');
+          const mapped = clothing
+            ? mapDepopToVintedCategory(
+                match.depopCategoryId,
+                title,
+                clampText(req.description),
+                match.depopType.startsWith('kidswear/'),
+              ).mapping
+            : null;
+          const vinted = mapped ?? { vintedCatalogId: match.vintedCatalogIds[0], vintedLabel: '' };
+          return { id, fromEbay: { ...match, vinted } };
+        }
+
         case 'depopProductType': {
           const text = (raw.text ?? {}) as Record<string, unknown>;
           return {
@@ -286,7 +196,7 @@ Deno.serve(async (req: Request) => {
       console.error('[resolve-category] item failed:', err instanceof Error ? err.message : err);
       return { id, error: 'Resolution failed' };
     }
-  });
+  }));
 
   console.log(`[resolve-category] user=${user.id} resolved=${results.length}`);
   return json(200, { results });

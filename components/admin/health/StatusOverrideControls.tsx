@@ -55,6 +55,7 @@ export function StatusOverrideControls({ features, overrides }: Props) {
   const targets: Array<{ target: string; label: string; sub: string }> = [
     { target: "platform:vinted", label: "Vinted", sub: "Whole marketplace" },
     { target: "platform:depop", label: "Depop", sub: "Whole marketplace" },
+    { target: "platform:ebay", label: "eBay", sub: "Whole marketplace" },
     ...features.map((f) => ({
       target: `feature:${f.key}`,
       label: f.label,

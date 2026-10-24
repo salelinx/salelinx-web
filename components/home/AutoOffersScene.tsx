@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { PlatformBadge } from "./HeroPreview";
+import { PlatformBadge, type Platform } from "./HeroPreview";
 import { ProductImage } from "./ProductImage";
 import { usePrefersReducedMotion, useTick } from "./scene-hooks";
 
@@ -20,7 +20,7 @@ const THRESHOLD = 90;
 
 const OFFERS: {
   handle: string;
-  platform: "depop" | "vinted";
+  platform: Platform;
   item: string;
   photo: string;
   listed: number;
@@ -44,7 +44,7 @@ const OFFERS: {
   },
   {
     handle: "lila_resale",
-    platform: "vinted",
+    platform: "ebay",
     item: "Grey star beanie",
     photo: "/products/grey-star-beanie.jpg",
     listed: 20,

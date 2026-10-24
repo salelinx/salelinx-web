@@ -1,18 +1,17 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { BrandWordmark } from "@/components/BrandWordmark";
 import { ProductImage } from "./ProductImage";
 import { usePrefersReducedMotion, useTick } from "./scene-hooks";
 
 /**
  * Refresher scene.
  *
- * A Depop shop grid being re-saved from the bottom up, each tile's age
- * resetting to "now" as it goes. Bottom up is the detail worth showing: the
- * newest re-save lands on top, so working from the last tile to the first
- * leaves the shop in exactly the order the seller arranged. Depop only, like
- * the feature, which is why only the one wordmark appears.
+ * A shop grid being re-saved from the bottom up, each tile's age resetting to
+ * "now" as it goes. Bottom up is the detail worth showing: the newest re-save
+ * lands on top, so working from the last tile to the first leaves the shop in
+ * exactly the order the seller arranged. No marketplace logo on purpose: the
+ * grid stands for whichever shop is being refreshed.
  *
  * The cadence row is the scheduler (docs/inventory/refresh): every 4 to 24
  * hours, here sitting on 6.
@@ -62,7 +61,6 @@ export function RefresherScene() {
         className="cascade-item flex w-full max-w-[260px] flex-col items-center gap-3 lg:max-w-[340px]"
         style={{ "--stagger-delay": "0ms" } as CSSProperties}
       >
-        <BrandWordmark brand="depop" variant="wordmark" height="0.9em" />
         <ul className="grid w-full grid-cols-3 gap-2">
           {TILES.map((t, i) => {
             const isDone = TILES.length - 1 - i < refreshed;

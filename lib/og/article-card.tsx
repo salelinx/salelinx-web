@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
+import { MARKETPLACE_LABELS } from '@/lib/docs/status';
+import type { Marketplace } from '@/lib/docs/types';
 
 // Shared Open Graph card for docs articles and blog posts. Each route
 // segment's opengraph-image.tsx exports its own alt/size/contentType and
@@ -11,17 +13,31 @@ export const OG_SIZE = { width: 1200, height: 630 };
 
 const MONO_TRACKING = '0.14em';
 
+// Footer label order, and the set shown when a page names no marketplaces.
+const MARKETPLACE_ORDER: Marketplace[] = ['depop', 'vinted', 'ebay'];
+
+/** "Depop + Vinted" from a page's marketplaces, in the site's fixed order. */
+export function marketplaceLine(marketplaces?: readonly Marketplace[]): string {
+  const shown = marketplaces?.length
+    ? MARKETPLACE_ORDER.filter((m) => marketplaces.includes(m))
+    : MARKETPLACE_ORDER;
+  return shown.map((m) => MARKETPLACE_LABELS[m]).join(' + ');
+}
+
 export async function articleOgImage({
   section,
   eyebrow,
   title,
   description,
+  marketplaces,
 }: {
   // Greyed word after the wordmark: "Docs", "Blog".
   section: string;
   eyebrow?: string;
   title: string;
   description?: string;
+  // The page's own marketplaces, for the footer. All three when absent.
+  marketplaces?: readonly Marketplace[];
 }): Promise<ImageResponse> {
   const [regular, semibold, iconData] = await Promise.all([
     readFile(join(process.cwd(), 'assets/fonts/Geist-Regular.ttf')),
@@ -112,7 +128,7 @@ export async function articleOgImage({
               color: '#a1a1aa',
             }}
           >
-            Depop + Vinted
+            {marketplaceLine(marketplaces)}
           </span>
         </div>
       </div>

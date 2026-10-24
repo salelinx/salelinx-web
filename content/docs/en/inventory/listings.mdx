@@ -1,21 +1,21 @@
 export const metadata = {
   title: 'My Listings',
   description:
-    'The My Listings tab puts your Depop and Vinted listings in one grid you can search, filter, sort and act on in bulk.',
+    'The My Listings tab puts your Depop, Vinted and eBay listings in one grid you can search, filter, sort and act on in bulk.',
   category: 'inventory',
   slug: 'listings',
   order: 1,
-  updated: '2026-10-13',
-  tags: ['listings', 'inventory', 'depop', 'vinted'],
-  marketplaces: ['depop', 'vinted'],
+  updated: '2026-10-16',
+  tags: ['listings', 'inventory', 'depop', 'vinted', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
 # My Listings
 
-**My Listings** is the first tab in the SaleLinx panel. It puts your Depop
-and Vinted listings in one grid, with a marketplace logo on every row so you
-always know where an item lives. From here you can search, filter and sort
+**My Listings** is the first tab in the SaleLinx panel. It puts your Depop,
+Vinted and eBay listings in one grid, with a marketplace logo on every row
+so you always know where an item lives. From here you can search, filter and sort
 your whole catalogue, then select listings and act on them in bulk.
 
 ## Where the listings come from
@@ -23,6 +23,8 @@ your whole catalogue, then select listings and act on them in bulk.
 SaleLinx reads your listings from Depop and Vinted through your open
 marketplace tabs. If the grid is empty the first time you open it, browse
 your shop or open one of your listings on Depop or Vinted and it fills in.
+eBay listings come straight from eBay once your account is linked (see
+*eBay listings* below).
 
 Above the grid there is a sync indicator for each marketplace. The dot tells
 you how fresh that marketplace&rsquo;s data is:
@@ -43,8 +45,8 @@ one-click fix such as **open site**, **reload tab** or **link account**.
 From version 1.1.12 the dot stays green for the whole five minutes. In
 version 1.1.11 it turns grey after the first minute.
 
-Each indicator has its own refresh button, and **Refresh All** re-reads
-both marketplaces. These only update what SaleLinx knows about your
+Each indicator has its own refresh button, and **Update All** re-reads
+every marketplace you sell on. These only update what SaleLinx knows about your
 listings. They don&rsquo;t bump anything up the marketplace&rsquo;s search
 feed; for that, use the [Refresh tab](/docs/inventory/refresh).
 
@@ -55,11 +57,13 @@ Each row is one listing, with these columns:
 - **Item** - the title, with the brand and size underneath. A chain-link
   icon marks a linked pair, and a **Queued** badge appears while the listing
   is waiting on another job.
-- **Site** - the Depop or Vinted logo. A linked Depop and Vinted pair shares
-  one row with both logos, and the other columns show a value for each side.
+- **Site** - the Depop, Vinted or eBay logo. A linked Depop and Vinted pair
+  shares one row with both logos, and the other columns show a value for
+  each side.
 - **Status** - active, sold, draft, hidden or delayed (Vinted is still
-  reviewing it). **Not synced** means SaleLinx couldn&rsquo;t read it; open
-  a tab for that marketplace.
+  reviewing it). An eBay listing that has ended shows as **Unlisted**.
+  **Not synced** means SaleLinx couldn&rsquo;t read it; open a tab for that
+  marketplace.
 - **Price** - a Depop listing on sale shows its original price struck
   through above the sale price.
 - **Discount** - the Depop sale percentage, if there is one.
@@ -76,20 +80,21 @@ Click a column header to sort by it. Use the page controls above the grid to
 move between pages and to show between 10 and 200 rows at a time.
 
 Double-click a row to open the listing on the marketplace in a new tab. A
-Vinted draft opens in Vinted&rsquo;s edit form, and a linked pair asks which
-marketplace to open.
+Vinted draft opens in Vinted&rsquo;s edit form, an active eBay listing opens
+in eBay&rsquo;s own edit form, and a linked pair asks which marketplace to
+open.
 
 ## Searching
 
 The search box narrows the grid as you type. It matches the title and the
-brand of the listings already in SaleLinx. It doesn&rsquo;t search Depop or
-Vinted themselves.
+brand of the listings already in SaleLinx. It doesn&rsquo;t search the
+marketplaces themselves.
 
 ## Filtering
 
 The toolbar above the grid has quick filters:
 
-- **Platform** - **All**, Depop only or Vinted only.
+- **Platform** - **All**, or Depop, Vinted or eBay on its own.
 - **Linked** - the chain-link button next to them shows only listings that
   are linked across both marketplaces.
 - **Status** - **All**, **Active**, **Sold**, **Draft**, **Hidden** or
@@ -162,12 +167,39 @@ Cloud-saved listings are what make linking, relisting sold items and the
 Restocker possible. See [Cloud sync](/docs/inventory/cloud-sync) for the
 full picture.
 
+## eBay listings
+
+Once eBay is connected (see
+[Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)),
+your active eBay listings appear in the grid, along with the ones that sold
+or ended in the last 60 days. The eBay sync indicator and the eBay filter
+button only appear once eBay is linked. SaleLinx checks eBay at most every
+15 minutes, so its dot is often yellow between checks; **Update All** or the
+eBay refresh button fetches your listings straight away. If the indicator
+says **reconnect in Settings**, link eBay again in Settings.
+
+To edit eBay listings, select them and click **Edit** (see
+[Bulk editor](/docs/inventory/bulk-editor)). An eBay card has the title,
+description, price, quantity, photos, category, condition and item
+specifics, and **Save Changes** sends them straight to eBay. Each card also
+has **Allow offers** with a **Minimum offer**; business sellers can add an
+auto-accept price, and private sellers on eBay UK see a **Buyer will pay**
+box with eBay&rsquo;s Buyer Protection fee added.
+
+- **Unlist**, in the card&rsquo;s status, ends the listing.
+- An **Unlisted** listing can only be relisted: pick **Relist** in its
+  status and save, then edit it once it&rsquo;s back on sale.
+- eBay has no delete, so **Delete** ends the listing and removes it from
+  the grid.
+- If eBay took a listing down, its card says so and why. It can&rsquo;t be
+  edited or relisted; delete it to clear it from the grid.
+
 ## Restocker columns
 
 The **Restock** switch and **Qty** stepper start and manage restocking for a
 row. They need the Business plan and a listing that is saved to the cloud
-and still active (or already being restocked). See
-[Restocker](/docs/automate/restocker) for the full flow.
+and still active (or already being restocked). They don&rsquo;t work on
+eBay rows. See [Restocker](/docs/automate/restocker) for the full flow.
 
 ## Language and theme
 
@@ -179,8 +211,8 @@ SaleLinx never translates your listing text.
 
 - [Bulk editor](/docs/inventory/bulk-editor) - everything you can do to
   selected listings.
-- [Crosslist](/docs/inventory/crosslist) - copy listings to the other
-  marketplace.
+- [Crosslist](/docs/inventory/crosslist) - copy listings between
+  marketplaces.
 - [Refresh](/docs/inventory/refresh) - bump listings to the top of your
   shop.
 - [Cloud sync](/docs/inventory/cloud-sync) - back up your listings to your

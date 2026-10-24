@@ -295,7 +295,7 @@ async function handleRequest(req: Request): Promise<Response> {
       `  File:   ${body.filename}`,
       `  Date:   ${dateStr}`,
       '',
-      'For best results, print at 4 Ã— 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
+      'For best results, print at 4 x 6 inches on thermal labels, or use scale-to-fit on A4. QR-only carriers (e.g. DPD, Vinted Go) are rendered as full-page packing slips alongside the recipient details.',
       '',
       supportTo
         ? 'Reply to this email if anything looks off.'

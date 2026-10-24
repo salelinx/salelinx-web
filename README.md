@@ -165,11 +165,17 @@ supabase functions deploy <name>
 | `send-shipping-labels`     | Emails a merged label PDF to the user (called by the extension)     |
 | `get-referral-discount`    | Resolves a referral discount for pricing display                    |
 | `process-referral-rewards` | Daily cron: grants referral rewards as Stripe balance credits       |
-| `resolve-category`         | Depop/Vinted category lookups for the extension's crosslister       |
+| `resolve-category`         | Category lookups between Depop, Vinted and eBay for the crosslister |
 | `admin-change-plan`        | Admin console: swap a customer's paid Stripe plan                   |
 | `admin-delete-user`        | Admin console: GDPR account deletion                                |
 | `admin-list-payments`      | Admin console: latest successful payments, read from Stripe         |
 | `delete-account`           | Self-serve GDPR deletion from the /account Danger zone              |
+| `change-plan`              | Trialing user ends their trial early or moves up a tier             |
+| `trial-nudge`              | Daily cron: trial reminder and win-back emails, unsubscribe links   |
+| `report-telemetry`         | Extension's anonymous daily endpoint-health counters                |
+| `report-selftest`          | Admin endpoint self-test runs from the extension                    |
+| `ebay`                     | The extension's only route to eBay (OAuth tokens, Trading API)      |
+| `ebay-account-deletion`    | eBay Marketplace Account Deletion notices                           |
 
 Set function secrets (each function only reads the ones it needs):
 
@@ -182,6 +188,8 @@ supabase secrets set SEND_EMAIL_HOOK_SECRET='v1,whsec_...'
 supabase secrets set SUPPORT_NOTIFY_TO=... SUPPORT_NOTIFY_FROM=... SUPPORT_NOTIFY_HOOK_SECRET=...
 supabase secrets set REFERRAL_CRON_SECRET=... REFERRAL_COUPON_ID=...
 supabase secrets set DELETE_ACCOUNT_TOKEN_SECRET=... SITE_URL=... ALLOWED_ORIGIN=...
+supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... EBAY_RUNAME_STORE=...
+supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=... EBAY_DELETION_ENDPOINT=...
 ```
 
 See `docs/EDGE-FUNCTIONS.md` for the full deploy + secrets reference.

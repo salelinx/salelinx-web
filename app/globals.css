@@ -85,10 +85,11 @@ body {
    vertical and horizontal lines fade together. */
 :root {
   --guide-fade: radial-gradient(
-    ellipse 62% 58% at 50% 45%,
+    ellipse 60% 64% at 50% 52%,
     transparent 0%,
-    transparent 38%,
-    black 100%
+    transparent 52%,
+    black 88%,
+    transparent 130%
   );
 }
 
@@ -697,22 +698,22 @@ html:has([data-blocking-wall]) * {
   }
 }
 
-/* ── Crosslist photo: blurred underneath, sharp wiping down over it ────────
-   Runs entirely in CSS. The React version recomputed a mask gradient on every
-   100ms tick, so the edge advanced ten times a second through a full re-render
-   — twelve visible jumps rather than a wipe. Here the browser interpolates it
-   on the compositor and React never re-renders for it.
+/* ── Crosslist copies: blurred underneath, sharp wiping down over it ────────
+   Runs in CSS. An earlier React version recomputed a mask gradient on every
+   100ms tick, so the edge advanced ten times a second through a full
+   re-render: visible jumps rather than a wipe. Here the browser interpolates
+   it on the compositor and React only flips a class.
 
    The technique is a mask twice the element's height, slid upward. The top
    half of the gradient is opaque and the bottom half transparent, so moving
-   the mask from 100% (element sees the transparent half) to 0% (element sees
+   the mask from 100% (element sees the transparent half) to 1% (element sees
    the opaque half) sweeps the boundary downward. mask-position animates
    cheaply; mask-image between two gradients does not reliably animate at all.
 
-   Timings are percentages of CrosslistPanel's CYCLE (11s). The fields land
-   between tick 10 and tick 66 of 110, so the wipe runs 9% to 60% and then
-   holds sharp for the settle. Change CYCLE or STEP_TICKS there and these move
-   with it. */
+   Each copy is its own transition, triggered when CrosslistPanel adds
+   .crosslist-fill-on, so the two copies in a loop can run one after the
+   other. The 2.2s must match CROSSLIST_COPY_TICKS there. Removing the class
+   snaps back with no transition, which is what resets a column between loops. */
 
 .crosslist-blurred {
   filter: blur(5px);
@@ -721,7 +722,7 @@ html:has([data-blocking-wall]) * {
   transform: scale(1.06);
 }
 
-.crosslist-wipe {
+.crosslist-fill {
   -webkit-mask-image: linear-gradient(
     to bottom,
     #000 0%,
@@ -740,47 +741,27 @@ html:has([data-blocking-wall]) * {
   mask-size: 100% 200%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  animation: crosslist-wipe 11s linear infinite;
+  -webkit-mask-position: 0% 100%;
+  mask-position: 0% 100%;
 }
 
 /* Both Y stops are percentages and NEITHER is zero, which is load-bearing.
    `mask-position: 0% 0%` computes to `0px 0px`, and a browser will not
-   interpolate `100%` against `0px` — it snapped straight from one keyframe to
-   the other, which is exactly the jump this was meant to remove. Ending at 1%
-   keeps both ends in the same unit; the residual 1% of a mask twice the
-   element's height is 2% of the photo, below the feather width, so the image
-   still finishes completely sharp. */
-@keyframes crosslist-wipe {
-  0%,
-  9% {
-    -webkit-mask-position: 0% 100%;
-    mask-position: 0% 100%;
-    filter: blur(0);
-    transform: scale(1);
-  }
-  60%,
-  96% {
-    -webkit-mask-position: 0% 1%;
-    mask-position: 0% 1%;
-    filter: blur(0);
-    transform: scale(1);
-  }
-  /* The last 4% (0.44s) blurs the sharp layer back out instead of the loop
-     cutting to it. The end values are exactly .crosslist-blurred's, so by 100%
-     this layer has converged onto the copy underneath - which is what makes
-     the mask snapping back to hidden at the loop boundary invisible. Without
-     it the photo went sharp, then hard-cut to blurred on the seam. */
-  100% {
-    -webkit-mask-position: 0% 1%;
-    mask-position: 0% 1%;
-    filter: blur(5px);
-    transform: scale(1.06);
-  }
+   interpolate `100%` against `0px`: it snaps straight from one to the other.
+   Ending at 1% keeps both ends in the same unit; the residual 1% of a mask
+   twice the element's height is 2% of the photo, below the feather width, so
+   the image still finishes completely sharp. */
+.crosslist-fill-on {
+  -webkit-mask-position: 0% 1%;
+  mask-position: 0% 1%;
+  transition:
+    -webkit-mask-position 2.2s linear,
+    mask-position 2.2s linear;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .crosslist-wipe {
-    animation: none;
+  .crosslist-fill-on {
+    transition: none;
     -webkit-mask-image: none;
     mask-image: none;
   }
@@ -917,14 +898,15 @@ html:has([data-blocking-wall]) * {
   }
 }
 
-/* Restocker scene: the sync travelling from the shop that sold to the one that
-   has to catch up. The lag between the two counts is the whole feature, and
-   two numbers changing a beat apart never showed it - nothing connected them.
+/* Restocker scene: the sync travelling from the shop that sold to each one
+   that has to catch up. The lag between the counts is the whole feature, and
+   numbers changing a beat apart never showed it - nothing connected them.
    `left` is animated rather than a transform because a percentage translateX
-   resolves against the dot's own width, not the gap it has to cross. */
-@keyframes restock-pulse-rtl {
+   resolves against the dot's own width, not the gap it has to cross. The
+   scene sets --pulse-from and --pulse-to to the two columns' centres. */
+@keyframes restock-pulse {
   from {
-    left: 75%;
+    left: var(--pulse-from);
     opacity: 0;
   }
   18%,
@@ -932,38 +914,16 @@ html:has([data-blocking-wall]) * {
     opacity: 1;
   }
   to {
-    left: 25%;
-    opacity: 0;
-  }
-}
-
-@keyframes restock-pulse-ltr {
-  from {
-    left: 25%;
-    opacity: 0;
-  }
-  18%,
-  82% {
-    opacity: 1;
-  }
-  to {
-    left: 75%;
+    left: var(--pulse-to);
     opacity: 0;
   }
 }
 
 .restock-pulse {
+  animation-name: restock-pulse;
   animation-duration: 1.4s;
   animation-timing-function: cubic-bezier(0.45, 0, 0.3, 1);
   animation-fill-mode: both;
-}
-
-.restock-pulse-ltr {
-  animation-name: restock-pulse-ltr;
-}
-
-.restock-pulse-rtl {
-  animation-name: restock-pulse-rtl;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1192,12 +1152,16 @@ span.restock-at-risk {
   81% { opacity: 0; transform: translateY(-12px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+/* --tx is how far the copy travels; the crosslist scene sends one copy to
+   each of its two target columns. No fallback value on purpose: the CSS build
+   inlines `var(--tx, 180px)` to its fallback, which sent both copies 180px.
+   Anything using fa-travel must set --tx. */
 @keyframes fa-travel {
   0%, 12% { opacity: 0; transform: translate(0, 0); }
   20% { opacity: 1; }
-  45% { transform: translate(90px, -34px); }
-  70% { opacity: 1; transform: translate(180px, 0); }
-  78%, 100% { opacity: 0; transform: translate(180px, 0); }
+  45% { transform: translate(calc(var(--tx) / 2), -34px); }
+  70% { opacity: 1; transform: translate(var(--tx), 0); }
+  78%, 100% { opacity: 0; transform: translate(var(--tx), 0); }
 }
 @keyframes fa-fill {
   0%, 70% { transform: scaleX(0); }
@@ -1325,4 +1289,39 @@ span.restock-at-risk {
   0%, 70% { opacity: 0; transform: scale(0.6); }
   76%, 86% { opacity: 1; transform: none; }
   94%, 100% { opacity: 0; transform: none; }
+}
+
+/* The homepage hero's own grid (components/home/Hero.tsx), drawn over an
+   opaque layer that hides the page guides. It redraws them with rows sized by HeroGrid
+   to fit the hero exactly, so lines land on both the header edge and the
+   bottom of the screen. Columns match body::before (80px, centred). */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to top, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 100%, 100% 80px;
+  background-position: center top, left bottom;
+  -webkit-mask-image: radial-gradient(ellipse 50% 55% at 50% 50%, rgba(0, 0, 0, 0) 45%, black 100%);
+  mask-image: radial-gradient(ellipse 50% 55% at 50% 50%, rgba(0, 0, 0, 0) 45%, black 100%);
+}
+.dark .hero-grid {
+  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 100%;
+}
+
+/* The hero's three marketplace logos drift a couple of pixels up and down,
+   out of step with each other. Longhands, because the shorthand would reset
+   the per-logo animation-delay utilities and put them back in step. */
+.logo-bob {
+  animation-name: logo-bob;
+  animation-duration: 4.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes logo-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.05em); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-bob { animation: none; }
 }

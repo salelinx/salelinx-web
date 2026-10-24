@@ -1,7 +1,7 @@
 {
   "Layout": {
-    "metaTitle": "SaleLinx - Vendez sur Depop et Vinted",
-    "metaDescription": "L'extension Chrome pour les vendeurs Depop et Vinted. Crosslistez, republiez, actualisez et réapprovisionnez depuis un seul panneau, avec offres, messages et étiquettes au même endroit."
+    "metaTitle": "SaleLinx - Vendez sur Depop, Vinted et eBay",
+    "metaDescription": "L'extension Chrome pour les vendeurs Depop, Vinted et eBay. Crosslistez entre les trois, republiez, actualisez et réapprovisionnez depuis un seul panneau, avec offres, messages et étiquettes au même endroit."
   },
   "Header": {
     "navFeatures": "Fonctionnalités",
@@ -24,7 +24,7 @@
     "supportContact": "Contacter le support"
   },
   "Footer": {
-    "tagline": "Vendez sur Depop et Vinted depuis un seul endroit.",
+    "tagline": "Vendez sur Depop, Vinted et eBay depuis un seul endroit.",
     "sectionProduct": "Produit",
     "sectionResources": "Ressources",
     "sectionLegal": "Légal",
@@ -42,7 +42,7 @@
     "linkDpa": "Avenant de traitement des données",
     "linkReferralTerms": "Conditions de parrainage",
     "copyright": "© {year} SaleLinx Ltd. Tous droits réservés.",
-    "builtFor": "Conçu pour les vendeurs Depop et Vinted.",
+    "builtFor": "Conçu pour les vendeurs Depop, Vinted et eBay.",
     "companyInfo": "SaleLinx Ltd est une société immatriculée en Angleterre et au Pays de Galles sous le numéro 17351832. Siège social : 34 Sussex Place, Londres, W2 2TH, Royaume-Uni."
   },
   "CookieBanner": {
@@ -91,7 +91,7 @@
   "Home": {
     "introducing": "Découvrez SaleLinx",
     "heroEyebrow": "Disponible pour <depop></depop> + <vinted></vinted>",
-    "heroTitle": "Un outil pour chaque vendeur <depop></depop> & <vinted></vinted>.",
+    "heroTitle": "Un seul outil pour <logos></logos>",
     "heroSubtitle": "Pour que vous puissiez <word></word>",
     "heroWords": [
       "crosslister en quelques secondes.",
@@ -177,7 +177,7 @@
       }
     },
     "finalCta": {
-      "title": "Pilotez vos deux boutiques depuis un seul panneau.",
+      "title": "Pilotez toutes vos boutiques depuis un seul panneau.",
       "body": "Installation en un clic. Essai gratuit de 14 jours de Starter, carte requise.",
       "primary": "Commencer gratuitement",
       "secondary": "Voir les tarifs",
@@ -192,15 +192,16 @@
       "eyebrow": "Fonctionnalités",
       "title": "Tous les outils, là où vous vendez.",
       "scenes": {
-        "crosslist": "Choisissez une annonce, SaleLinx remplit l'autre plateforme pour vous.",
+        "crosslist": "Choisissez une annonce, SaleLinx la remplit sur Depop, Vinted ou eBay pour vous.",
+        "listings": "Vos annonces Depop, Vinted et eBay dans une seule liste. Modifications et remises en vente sont enregistrées directement sur eBay.",
         "bulkEdit": "Sélectionnez autant d'annonces que vous voulez, puis changez prix et photos, lancez des soldes Depop ou copiez-les en brouillons.",
-        "restocker": "Vendu sur une appli, retiré de l'autre, automatiquement.",
+        "restocker": "Vendu sur une appli, retiré des autres, automatiquement.",
         "deadStock": "Chaque annonce notée selon son âge, ses vues et ses likes, avec une solution pour celles qui ne se vendent pas.",
         "priceDrops": "Les prix baissent au rythme que vous choisissez, jamais sous votre prix plancher.",
-        "refresher": "Votre boutique Depop réenregistrée de bas en haut, pour remonter en tête dans le même ordre.",
+        "refresher": "Votre boutique réenregistrée de bas en haut, pour remonter en tête dans le même ordre.",
         "followBot": "Suivez automatiquement les acheteurs les plus susceptibles d'acheter chez vous.",
-        "inbox": "Toutes les offres et tous les messages des deux boutiques, dans une seule liste.",
-        "sendOffers": "Chaque personne qui a liké un article reçoit une offre à la remise choisie, jamais sous votre prix plancher.",
+        "inbox": "Toutes les offres et tous les messages de toutes vos boutiques, dans une seule liste.",
+        "sendOffers": "Chaque personne qui a liké ou suivi un article reçoit une offre à la remise choisie, jamais sous votre prix plancher.",
         "autoOffers": "Les offres au-dessus de votre seuil sont acceptées pour vous. Les autres attendent votre décision.",
         "labels": "Toutes les étiquettes du jour, fusionnées en un seul PDF à imprimer."
       },
@@ -208,7 +209,8 @@
       "next": "Fonctionnalité suivante"
     },
     "pricingEyebrow": "Tarifs",
-    "faqMore": "Voir toutes les questions"
+    "faqMore": "Voir toutes les questions",
+    "ctaNote": "Essai gratuit de 14 jours · Annulable à tout moment"
   },
   "LanguageSwitcher": {
     "label": "Langue",
@@ -250,7 +252,7 @@
     },
     "signup": {
       "title": "Créer un compte",
-      "metaDescription": "Créez un compte SaleLinx gratuit et commencez à crosslister, republier et actualiser vos annonces sur Depop et Vinted.",
+      "metaDescription": "Créez un compte SaleLinx gratuit et commencez à crosslister entre Depop, Vinted et eBay, et à republier et actualiser vos annonces.",
       "emailInUse": "Un compte existe déjà avec cet email. Connectez-vous ci-dessous, ou réinitialisez votre mot de passe si vous l'avez oublié.",
       "disposableEmail": "Veuillez utiliser une adresse e-mail permanente. Les services d'e-mail temporaires ne sont pas pris en charge.",
       "passwordPlaceholder": "Mot de passe (8 caractères minimum)",
@@ -497,7 +499,7 @@
     "docsCardTitle": "Documentation",
     "docsCardBody": "Guides etape par etape pour chaque fonctionnalite de SaleLinx.",
     "statusCardTitle": "Statut",
-    "statusCardBody": "Statut en direct des marketplaces et des fonctionnalites de l'extension qui s'y connectent.",
+    "statusCardBody": "Statut en direct des marketplaces et des fonctionnalités de l'extension qui s'y connectent.",
     "supportMetaTitle": "Contacter l'assistance",
     "supportMetaDescription": "Envoyez un message a l'equipe SaleLinx.",
     "supportTitle": "Contacter l'assistance",
@@ -556,21 +558,21 @@
     "metaDescription": "Un ami vous a invité sur SaleLinx - inscrivez-vous via son lien et obtenez une réduction sur votre premier mois.",
     "eyebrow": "Vous avez été invité",
     "title": "Votre ami gère sa boutique avec SaleLinx.",
-    "description": "SaleLinx est une boîte à outils pour vendeurs Depop et Vinted - crosslistez, republiez, actualisez et gérez vos stocks depuis un seul panneau. Comme un ami vous a invité, une réduction est appliquée automatiquement à votre premier mois.",
+    "description": "SaleLinx est une boîte à outils pour vendeurs Depop, Vinted et eBay - crosslistez entre les trois, puis republiez, actualisez et gérez vos stocks depuis un seul panneau. Comme un ami vous a invité, une réduction est appliquée automatiquement à votre premier mois.",
     "claimCta": "S'inscrire et profiter de la réduction",
     "exploreCta": "Découvrir SaleLinx",
     "note": "Votre invitation est mémorisée dans ce navigateur pendant 30 jours - aucun code nécessaire au paiement.",
     "step1": "Créez votre compte gratuit - votre invitation est déjà associée.",
-    "step2": "Installez l'extension et liez votre boutique Depop ou Vinted.",
+    "step2": "Installez l'extension et liez votre boutique Depop, Vinted ou eBay.",
     "step3": "Choisissez une offre - la réduction s'applique automatiquement au paiement.",
     "termsNote": "La réduction s'applique à votre premier paiement sur une nouvelle offre payante et ne peut pas être cumulée avec d'autres codes promo.",
     "termsLink": "Voir les conditions du programme de parrainage"
   },
   "Features": {
-    "metaTitle": "Fonctionnalités : crosslistez, republiez et automatisez Depop et Vinted",
-    "metaDescription": "Toutes les fonctionnalités SaleLinx pour les vendeurs Depop et Vinted : crosslisting, republication, actualisation, réapprovisionnement, offres, messages, étiquettes d'expédition et plus encore, depuis un seul panneau de navigateur.",
+    "metaTitle": "Fonctionnalités : crosslistez, republiez et automatisez Depop, Vinted et eBay",
+    "metaDescription": "Toutes les fonctionnalités SaleLinx pour les vendeurs Depop, Vinted et eBay : crosslisting, republication, actualisation, réapprovisionnement, offres, messages, étiquettes d'expédition et plus encore, depuis un seul panneau de navigateur.",
     "hero": {
-      "title": "Tout ce que SaleLinx fait pour vos boutiques Depop et Vinted."
+      "title": "Tout ce que SaleLinx fait pour vous."
     },
     "sectionHeader": {
       "eyebrow": "Section 01 / Fonctionnalités",
@@ -586,8 +588,8 @@
       "items": {
         "crosslist": {
           "short": "Crosslist",
-          "title": "Crosslistez Depop et Vinted en un clic",
-          "body": "Choisissez une annonce, cliquez sur crosslist et le formulaire de l'autre marketplace se remplit tout seul. Catégories, tailles et états sont traduits pour vous, et la copie vous attend en brouillon sur l'autre boutique en quelques secondes, prête à vérifier et publier.",
+          "title": "Crosslistez Depop, Vinted et eBay en un clic",
+          "body": "Choisissez une annonce, cliquez sur crosslist et le formulaire de l'autre marketplace se remplit tout seul. Catégories, tailles et états sont traduits pour vous, et la copie vous attend en brouillon sur Depop ou Vinted en quelques secondes, ou part en ligne sur eBay une fois les frais affichés.",
           "works": "<depop></depop> + <vinted></vinted>"
         },
         "relist": {
@@ -641,7 +643,7 @@
           "linkAccounts": {
             "name": "Liaison des comptes",
             "label": "Liez vos boutiques une seule fois",
-            "detail": "Connectez-vous à Depop et Vinted comme d'habitude. SaleLinx récupère la session, aucun mot de passe à ressaisir."
+            "detail": "Connectez-vous à Depop et Vinted comme d'habitude, et reliez eBay via la page de connexion d'eBay. Aucun mot de passe à ressaisir."
           },
           "backup": {
             "name": "Sauvegarde cloud",
@@ -663,17 +665,17 @@
       "crosslisting": {
         "number": "02",
         "title": "Crosslisting",
-        "blurb": "Rédigez une annonce une fois et publiez-la sur les deux marketplaces en même temps. Le casse-tête des catégories et des tailles est traduit pour vous.",
+        "blurb": "Rédigez une annonce une fois et publiez-la sur vos autres marketplaces. Le casse-tête des catégories, des tailles et des caractéristiques eBay est traduit pour vous.",
         "items": {
           "bidirectional": {
             "name": "Crosslist",
-            "label": "Crosslistez Depop et Vinted, dans les deux sens",
-            "detail": "Choisissez une annonce sur l'une ou l'autre marketplace et SaleLinx remplit le formulaire de l'autre côté pour vous."
+            "label": "Crosslistez Depop, Vinted et eBay, dans tous les sens",
+            "detail": "Choisissez une annonce sur Depop, Vinted ou eBay et SaleLinx remplit le formulaire de l'autre marketplace pour vous."
           },
           "autoMap": {
             "name": "Correspondance des categories",
             "label": "Catégories et tailles traduites pour vous",
-            "detail": "Les tags Depop deviennent ceux de Vinted, et inversement. Les prix sont convertis si vos boutiques utilisent des devises différentes, sans table de mapping à configurer."
+            "detail": "Catégories, tailles et tags passent d'une plateforme à l'autre entre Depop, Vinted et eBay, avec les caractéristiques eBay remplies pour vous. Les prix sont convertis si vos boutiques utilisent des devises différentes, sans table de mapping à configurer."
           },
           "csvImport": {
             "name": "Import CSV",
@@ -776,11 +778,11 @@
     "list": {
       "listings": {
         "name": "Mes annonces",
-        "detail": "Toutes vos annonces Depop et Vinted côte à côte. Triez et filtrez par prix, date ou statut, modifiez rapidement un article ou tout un lot d'un coup, retouchez vos photos avec l'éditeur intégré, programmez des brouillons à publier plus tard et exportez le tout en CSV."
+        "detail": "Toutes vos annonces Depop, Vinted et eBay côte à côte. Triez et filtrez par prix, date ou statut, modifiez rapidement un article ou tout un lot d'un coup, retouchez vos photos avec l'éditeur intégré, programmez des brouillons à publier plus tard et exportez le tout en CSV."
       },
       "grow": {
         "name": "Croissance",
-        "detail": "Un bot qui suit les abonnés ou les abonnements de n'importe quel compte sur Depop et Vinted. Sur Depop, il peut aussi cibler les acheteurs d'un compte, ses évaluateurs ou tous ceux qui ont aimé une annonce, et le bot de désabonnement fait le ménage dans vos anciens abonnements."
+        "detail": "Un bot qui suit les abonnés ou les abonnements de n'importe quel compte sur Depop, Vinted et eBay. Sur Depop, il peut aussi cibler les acheteurs d'un compte, ses évaluateurs ou tous ceux qui ont aimé une annonce, et le bot de désabonnement fait le ménage dans vos anciens abonnements."
       },
       "relist": {
         "name": "Republier",
@@ -788,11 +790,11 @@
       },
       "refresh": {
         "name": "Actualiser",
-        "detail": "Réenregistre vos annonces de bas en haut en un clic, pour qu'elles remontent dans la recherche Depop tout en gardant l'ordre que vous avez choisi. Programmez-le pour qu'il tourne seul toutes les 4, 6, 8, 12 ou 24 heures."
+        "detail": "Réenregistre vos annonces de bas en haut en un clic, pour qu'elles remontent dans la recherche tout en gardant l'ordre que vous avez choisi. Programmez-le pour qu'il tourne seul toutes les 4, 6, 8, 12 ou 24 heures."
       },
       "crosslist": {
         "name": "Crosslist",
-        "detail": "Publiez n'importe quelle annonce Depop sur Vinted, ou Vinted sur Depop, sans rien retaper. Catégories, tailles, états, couleurs et marques sont convertis pour vous, et une étape de vérification vous permet de contrôler et modifier chaque article avant sa mise en ligne. Collez plusieurs liens d'annonces pour les ajouter d'un coup. Du stock venu d'ailleurs ? Importez un CSV dotb ou Shopify."
+        "detail": "Publiez n'importe quelle annonce entre Depop, Vinted et eBay, dans tous les sens, sans rien retaper. Catégories, tailles, états, couleurs, marques et caractéristiques eBay sont convertis pour vous, et une étape de vérification vous permet de contrôler et modifier chaque article avant sa mise en ligne, avec les frais eBay affichés d'abord. Collez plusieurs liens d'annonces pour les ajouter d'un coup. Du stock venu d'ailleurs ? Importez un CSV dotb ou Shopify."
       },
       "shopDesigner": {
         "name": "Designer boutique",
@@ -804,15 +806,15 @@
       },
       "autoOffers": {
         "name": "Auto-offres",
-        "detail": "Les acheteurs qui ont aimé une de vos annonces Vinted reçoivent automatiquement une offre de votre part, pour transformer les likes en ventes."
+        "detail": "Les acheteurs qui ont aimé ou suivi une de vos annonces Vinted ou eBay reçoivent automatiquement une offre de votre part, pour transformer leur intérêt en ventes."
       },
       "linking": {
         "name": "Liaison",
-        "detail": "Suggère quelles annonces Depop et Vinted correspondent au même article et les relie en un clic. Les articles liés s'affichent sur une seule ligne et activent le Restocker."
+        "detail": "Suggère quelles annonces Depop, Vinted et eBay correspondent au même article et les relie en un clic. Les articles liés s'affichent sur une seule ligne et activent le Restocker."
       },
       "restocker": {
         "name": "Restocker",
-        "detail": "Quand un article se vend sur une boutique, SaleLinx retire ou réapprovisionne aussitôt l'annonce correspondante sur l'autre, pour vendre le même stock sur les deux sans double vente. Fonctionne sur les articles que vous avez liés."
+        "detail": "Quand un article se vend sur une boutique, SaleLinx retire ou réapprovisionne aussitôt les annonces correspondantes sur les autres, pour vendre le même stock partout sans double vente. Fonctionne sur les articles que vous avez liés."
       },
       "priceDrops": {
         "name": "Baisses de prix",
@@ -820,15 +822,15 @@
       },
       "offers": {
         "name": "Offres",
-        "detail": "Toutes les offres de vos deux boutiques côte à côte, à accepter, contrer ou refuser sans changer d'onglet. Définissez une règle d'acceptation automatique, un pourcentage du prix demandé plus un minimum, et les bonnes offres sont acceptées pour vous."
+        "detail": "Toutes les offres de toutes vos boutiques côte à côte, à accepter, contrer ou refuser sans changer d'onglet. Définissez une règle d'acceptation automatique, un pourcentage du prix demandé plus un minimum, et les bonnes offres sont acceptées pour vous."
       },
       "messages": {
         "name": "Messages",
-        "detail": "Les messages des acheteurs Depop et Vinted dans une seule boîte de réception, pour ne rien manquer."
+        "detail": "Les messages des acheteurs Depop, Vinted et eBay dans une seule boîte de réception, pour ne rien manquer."
       },
       "labels": {
         "name": "Étiquettes",
-        "detail": "Sélectionnez les commandes Depop et Vinted d'une journée et SaleLinx fusionne leurs étiquettes en un seul PDF, prêt à imprimer d'un coup ou à vous envoyer par e-mail. Il peut aussi laisser un avis sur vos commandes Vinted terminées à votre place."
+        "detail": "Sélectionnez les commandes Depop, Vinted et eBay d'une journée et SaleLinx fusionne leurs étiquettes en un seul PDF, prêt à imprimer d'un coup ou à vous envoyer par e-mail. Il peut aussi laisser un avis sur vos commandes Vinted terminées à votre place."
       }
     },
     "only": {
@@ -837,7 +839,7 @@
     },
     "learnMore": "En savoir plus",
     "finalCta": {
-      "title": "Et voilà les 14. Un panneau, deux boutiques.",
+      "title": "Et voilà les 14. Un panneau, toutes vos boutiques.",
       "body": "Essayez toutes les fonctionnalités gratuitement pendant 14 jours, puis choisissez le forfait adapté à votre boutique."
     }
   },
@@ -854,6 +856,7 @@
     "startStarterNow": "Passer à Starter maintenant",
     "perMonth": "/mois",
     "vatNote": "Les prix affiches sont le prix final que vous payez. Aucune TVA n'est ajoutee. Annulez a tout moment, avec une garantie de remboursement de 14 jours sur votre premier paiement.",
+    "ebayNote": "Sur eBay, SaleLinx couvre aujourd'hui le Crosslist et Mes annonces. Les autres fonctionnalités marchent sur Depop et Vinted, et la prise en charge d'eBay arrive.",
     "unlimited": "Illimité",
     "cloudStorage": "Stockage cloud",
     "storageGb": "{value} Go",
@@ -899,7 +902,7 @@
       "messages": "Messages",
       "offers": "Offres",
       "auto_markdown": "Baisses de prix",
-      "account_linking": "Liaison de compte",
+      "account_linking": "Liaison des annonces",
       "preset_sync": "Synchronisation des préréglages"
     }
   },
@@ -963,7 +966,7 @@
       "title": "Statut SaleLinx",
       "body": "Les marketplaces sur lesquelles SaleLinx peut actuellement crosslister. Si vous voyez des erreurs et qu'une marketplace est signalée ici, l'équipe est déjà dessus.",
       "updatedPrefix": "Mis à jour le {date}",
-      "footnote": "Le statut des marketplaces est defini par l'equipe SaleLinx. Le statut des fonctionnalites se met a jour automatiquement, sauf si l'equipe l'a defini manuellement lors d'un incident.",
+      "footnote": "Le statut des marketplaces est défini par l'équipe SaleLinx. Le statut des fonctionnalités se met à jour automatiquement à partir de l'usage réel, sauf si l'équipe l'a défini manuellement lors d'un incident.",
       "breadcrumb": "Statut",
       "state": {
         "ok": "Opérationnel",
@@ -971,14 +974,14 @@
         "down": "Panne"
       },
       "featuresHeading": "Fonctionnalites de l'extension",
-      "featuresBody": "Vue en direct des fonctionnalites de l'extension SaleLinx, par marketplace. Mise a jour automatiquement.",
+      "featuresBody": "Vue en direct des fonctionnalités de l'extension SaleLinx sur Depop et Vinted, mise à jour automatiquement à partir de l'usage réel. Les fonctionnalités eBay ne sont pas encore suivies ici : consultez la ligne eBay ci-dessus.",
       "selfHelpHeading": "Tout semble operationnel, mais cela ne fonctionne pas pour moi",
       "selfHelpBody": "Ce statut reflete les problemes touchant de nombreux vendeurs a la fois. Un probleme limite a votre compte vient souvent de l'une de ces causes :",
-      "selfHelpCaptcha": "La marketplace affiche un CAPTCHA ou a temporairement restreint votre session. Ouvrez la marketplace dans un onglet, resolvez le defi, puis reessayez.",
-      "selfHelpLogin": "Votre session marketplace a expire. Reconnectez-vous a Depop ou Vinted dans un onglet normal.",
-      "selfHelpTab": "Aucun onglet marketplace n'est ouvert. SaleLinx agit via un onglet connecte, gardez-en un ouvert.",
+      "selfHelpCaptcha": "Depop ou Vinted affiche un CAPTCHA ou a temporairement restreint votre session. Ouvrez ce site dans un onglet, résolvez le défi, puis réessayez.",
+      "selfHelpLogin": "Votre session marketplace a expiré. Reconnectez-vous à Depop ou Vinted dans un onglet normal. Pour eBay, reconnectez votre compte dans les Paramètres de l'extension, sous Comptes de plateformes.",
+      "selfHelpTab": "Aucun onglet Depop ou Vinted n'est ouvert. SaleLinx agit sur Depop et Vinted via un onglet connecté, alors gardez-en un ouvert pendant qu'il travaille. eBay n'a jamais besoin d'onglet.",
       "selfHelpContact": "Toujours bloque ? Contactez le support et nous regarderons.",
-      "inferredNote": "Le statut est deduit de donnees d'usage anonymes et agregees. Ce n'est pas un flux officiel de Depop ou Vinted, et une fonctionnalite peu utilisee recemment peut apparaitre comme operationnelle.",
+      "inferredNote": "Le statut des fonctionnalités est déduit de données d'usage anonymes et agrégées sur toutes les installations de SaleLinx. Ce n'est pas un flux officiel de Depop, Vinted ou eBay, et une fonctionnalité peu utilisée récemment peut apparaître comme opérationnelle.",
       "featureColumn": "Fonctionnalite",
       "notAvailable": "Non disponible",
       "intro": "Statut en direct des marketplaces auxquelles SaleLinx se connecte et des fonctionnalites de l'extension.",
@@ -1087,19 +1090,20 @@
   },
   "Welcome": {
     "metaTitle": "Bienvenue sur SaleLinx",
-    "metaDescription": "Trois étapes pour connecter votre boutique Depop et Vinted à SaleLinx.",
+    "metaDescription": "Trois étapes pour connecter votre boutique Depop, Vinted ou eBay à SaleLinx.",
     "eyebrow": "Installé",
     "title": "Tout est prêt",
-    "subtitle": "SaleLinx vit dans Depop et Vinted, pas dans une application à part. Voici comment le trouver.",
+    "subtitle": "SaleLinx vit dans Depop, Vinted et eBay, pas dans une application à part. Voici comment le trouver.",
     "step1Title": "Épinglez l’extension",
     "step1Text": "Cliquez sur l’icône puzzle de la barre Chrome et épinglez SaleLinx pour l’avoir toujours à portée.",
-    "step2Title": "Ouvrez Depop ou Vinted",
+    "step2Title": "Ouvrez Depop, Vinted ou eBay",
     "step2Text": "Rendez-vous sur la marketplace où vous vendez. Le lanceur SaleLinx apparaît automatiquement sur la page.",
     "step3Title": "Ouvrez le panneau et liez votre boutique",
     "step3Text": "Cliquez sur le lanceur, créez votre compte gratuit et liez votre boutique. Tout se passe là.",
     "openDepop": "Ouvrir Depop",
     "openVinted": "Ouvrir Vinted",
-    "docsLink": "Ou lisez les guides"
+    "docsLink": "Ou lisez les guides",
+    "openEbay": "Ouvrir eBay"
   },
   "PlanStarted": {
     "metaTitle": "Tout est prêt",
@@ -1109,7 +1113,7 @@
     "titlePaid": "Merci pour votre abonnement",
     "bodyPaid": "Vous êtes maintenant sur {plan}, avec vos nouvelles limites prêtes à l'emploi.",
     "nextTitle": "Et maintenant",
-    "nextBody": "Ouvrez Depop ou Vinted et cliquez sur le lanceur SaleLinx sur la page.",
+    "nextBody": "Ouvrez Depop, Vinted ou eBay et cliquez sur le lanceur SaleLinx sur la page.",
     "noExtension": "Pas encore l'extension ?",
     "addToChrome": "Ajouter à Chrome",
     "toAccount": "Aller à votre compte",

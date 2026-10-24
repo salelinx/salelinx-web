@@ -12,8 +12,8 @@ export async function PostCta() {
         Spend less time listing and more time sourcing
       </h2>
       <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-        SaleLinx is a Chrome extension for Depop and Vinted sellers. Crosslist between the two,
-        keep your Depop shop fresh, handle offers and spot dead stock, all from one panel.
+        SaleLinx is a Chrome extension for Depop, Vinted and eBay sellers. Crosslist between all
+        three, keep your Depop shop fresh, handle offers and spot dead stock, all from one panel.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
         {signedIn ? (
