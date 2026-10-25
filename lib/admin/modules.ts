@@ -43,6 +43,8 @@ export const ADMIN_MODULES: AdminModule[] = [
   },
   // Revenue, MRR and customer counts, read from Stripe (admin-finance-stats).
   { key: "finance", label: "Finance", href: "/admin/finance", enabled: true },
+  // Views and followers on our YouTube, Instagram and TikTok (marketing-sync).
+  { key: "marketing", label: "Marketing", href: "/admin/marketing", enabled: true },
   { key: "tiers", label: "Tier limits", href: "/admin/tiers", enabled: true },
   {
     key: "flags",
