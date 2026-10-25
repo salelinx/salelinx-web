@@ -27,7 +27,7 @@ const loadPublished = unstable_cache(
     return data as RoadmapItem[];
   },
   ['roadmap-items'],
-  // Admin edits also revalidate this tag directly (app/admin/roadmap/actions.ts),
+  // Admin edits also revalidate this tag directly (app/admin/(configuration)/roadmap/actions.ts),
   // so the TTL is only the backstop for edits made in the SQL editor.
   { revalidate: 60, tags: [ROADMAP_CACHE_TAG] },
 );
