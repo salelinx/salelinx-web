@@ -23,32 +23,48 @@ function money(minor: number, currency: string): string {
   }
 }
 
-function monthLabel(key: string, style: "short" | "long" = "short"): string {
+function monthLabel(
+  key: string,
+  style: "short" | "full" | "year" = "short",
+): string {
   const [y, m] = key.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-GB", {
-    month: style,
+    month: style === "short" ? "short" : "long",
     timeZone: "UTC",
-    ...(style === "long" ? { year: "numeric" } : {}),
+    ...(style === "year" ? { year: "numeric" } : {}),
   });
 }
 
-function change(now: number, before: number): string | undefined {
-  if (before <= 0) return undefined;
-  const pct = Math.round(((now - before) / before) * 100);
-  return `${pct >= 0 ? "+" : ""}${pct}% on last month`;
+/** "+£48 on September", "-£12 on September", or "Same as September". */
+function versus(
+  now: number,
+  before: number,
+  currency: string,
+  lastMonth: string,
+): string {
+  const diff = now - before;
+  const name = monthLabel(lastMonth, "full");
+  if (diff === 0) return `Same as ${name}`;
+  return `${diff > 0 ? "+" : "-"}${money(Math.abs(diff), currency)} on ${name}`;
 }
 
 function Stat({
   label,
   value,
   hint,
+  note,
 }: {
   label: string;
   value: string;
   hint?: string;
+  // How the figure is worked out, on hover.
+  note: string;
 }) {
   return (
-    <div className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3">
+    <div
+      title={note}
+      className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3"
+    >
       <p className="text-xs text-zinc-500">{label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
       {hint && <p className="mt-0.5 text-xs text-zinc-400">{hint}</p>}
@@ -73,6 +89,14 @@ function Box({
       </div>
       <div className="px-4 py-3">{children}</div>
     </section>
+  );
+}
+
+function RowTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="pt-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+      {children}
+    </h2>
   );
 }
 
@@ -123,6 +147,9 @@ export function FinanceDashboard() {
 
   const stats = state && "stats" in state ? state.stats : null;
   const cur = stats?.currency ?? "gbp";
+  const symbol = money(0, cur).replace(/[\d.,\s]/g, "");
+  const lastMonthKey =
+    stats?.by_month[stats.by_month.length - 2]?.month ?? stats?.month ?? "";
 
   return (
     <div className="flex h-screen flex-col">
@@ -131,7 +158,7 @@ export function FinanceDashboard() {
           Finance
           {stats && (
             <span className="ml-2 font-normal text-zinc-400">
-              {monthLabel(stats.month, "long")}
+              {monthLabel(stats.month, "year")}
             </span>
           )}
         </h1>
@@ -157,64 +184,99 @@ export function FinanceDashboard() {
           )}
           {stats && (
             <>
+              <RowTitle>Money</RowTitle>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat
                   label="MRR"
                   value={money(stats.mrr, cur)}
-                  hint={`${money(stats.arr, cur)} a year`}
+                  hint={`${money(stats.arr, cur)} a year, ${money(stats.arpu, cur)} per customer`}
+                  note="Each active subscription's last real payment, after discounts and in the currency Stripe settled it, counted per month. Yearly plans count a twelfth."
                 />
                 <Stat
                   label="Revenue this month"
-                  value={money(stats.revenue_this_month, cur)}
-                  hint={
-                    change(
-                      stats.revenue_this_month,
-                      stats.revenue_last_month,
-                    ) ?? `Last month ${money(stats.revenue_last_month, cur)}`
-                  }
+                  value={money(stats.this_month.gross, cur)}
+                  hint={versus(
+                    stats.this_month.gross,
+                    stats.last_month.gross,
+                    cur,
+                    lastMonthKey,
+                  )}
+                  note="Everything customers were charged this month, as Stripe settled it into the account, before fees and refunds."
                 />
                 <Stat
-                  label="Paying customers"
-                  value={String(stats.paying_customers)}
-                  hint={`${stats.trialing} on a trial`}
-                />
-                <Stat
-                  label="Revenue per customer"
-                  value={money(stats.arpu, cur)}
-                  hint="a month"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                <Stat
-                  label="New paying this month"
-                  value={
-                    stats.new_paying_this_month === null
-                      ? "-"
-                      : String(stats.new_paying_this_month)
-                  }
-                />
-                <Stat
-                  label="Cancelled this month"
-                  value={String(stats.cancelled_this_month)}
+                  label="Kept this month"
+                  value={money(stats.this_month.net, cur)}
+                  hint={`After ${money(stats.this_month.fees, cur)} Stripe fees`}
+                  note="Revenue minus Stripe's fees and any refunds paid back this month."
                 />
                 <Stat
                   label="Refunded this month"
-                  value={money(stats.refunds_this_month, cur)}
+                  value={money(stats.this_month.refunds, cur)}
+                  note="Money paid back to customers this month."
+                />
+              </div>
+
+              <RowTitle>Customers</RowTitle>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <Stat
+                  label="Paying"
+                  value={String(stats.paying)}
+                  hint={[
+                    `${stats.trialing} on a trial`,
+                    stats.paid_nothing
+                      ? `${stats.paid_nothing} on a free or comped plan`
+                      : "",
+                    stats.past_due ? `${stats.past_due} payment failing` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                  note="Active subscriptions whose last bill was paid with real money. Free plans, 100% coupons and comps are counted separately."
+                />
+                <Stat
+                  label="New this month"
+                  value={
+                    stats.new_paying === null ? "-" : String(stats.new_paying)
+                  }
+                  note="Customers whose first ever payment was this month."
+                />
+                <Stat
+                  label="Cancelled this month"
+                  value={String(stats.cancelled)}
+                  hint={[
+                    stats.cancel_rate === null
+                      ? ""
+                      : `${stats.cancel_rate}% of those paying at the start of the month`,
+                    stats.trials_ended
+                      ? `${stats.trials_ended} trials ended unpaid`
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                  note="Paying subscriptions that ended this month. Trials that ended before their first payment are counted separately."
+                />
+                <Stat
+                  label="Net change"
+                  value={
+                    stats.net_change === null
+                      ? "-"
+                      : `${stats.net_change > 0 ? "+" : ""}${stats.net_change}`
+                  }
+                  note="New this month minus cancelled this month."
                 />
               </div>
 
               <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
                 <div className="lg:col-span-2">
-                  <Box title="Revenue by month" hint="Paid minus refunded">
+                  <Box
+                    title={`Revenue by month (${symbol})`}
+                    hint="Charged, before fees and refunds"
+                  >
                     <ColumnChart
                       name="Revenue by month"
-                      values={stats.revenue_by_month.map((m) =>
-                        Math.round(m.amount / 100),
+                      values={stats.by_month.map((m) =>
+                        Math.round(m.gross / 100),
                       )}
-                      labels={stats.revenue_by_month.map((m) =>
-                        monthLabel(m.month),
-                      )}
+                      labels={stats.by_month.map((m) => monthLabel(m.month))}
                       height={180}
                     />
                   </Box>
@@ -247,11 +309,9 @@ export function FinanceDashboard() {
               </div>
 
               <p className="text-xs text-zinc-400">
-                MRR is at list price, before coupons and referral credits.
-                Amounts are in {cur.toUpperCase()}
-                {stats.other_currencies.length > 0 &&
-                  `; payments in ${stats.other_currencies.map((c) => c.toUpperCase()).join(", ")} are left out`}
-                .
+                All money is in {cur.toUpperCase()}, as Stripe settled it:
+                payments in other currencies are converted at the rate Stripe
+                used. Hover a figure to see how it is worked out.
               </p>
             </>
           )}

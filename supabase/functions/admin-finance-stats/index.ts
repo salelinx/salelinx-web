@@ -1,12 +1,14 @@
 // deno-lint-ignore-file
-// admin-finance-stats: the numbers on /admin/finance. Read-only: it lists
-// Stripe's paid invoices, subscriptions and refunds and never writes anywhere.
+// admin-finance-stats: the numbers on /admin/finance. Read-only: it reads
+// Stripe's balance transactions and subscriptions and never writes anywhere.
 //
 // Stripe is the source because the database keeps only each customer's first
-// payment (subscriptions.first_paid_at). Money is reported in one currency, the
-// one most revenue came in; anything in another currency is named in
-// `other_currencies` rather than summed in. MRR is at list price: coupons and
-// referral balance credits are not taken off.
+// payment (subscriptions.first_paid_at). Money is what Stripe settled into the
+// account (balance transactions), so customers paying in EUR or USD arrive
+// already converted at the rate Stripe used, and fees are known. MRR is each
+// active subscription's last real payment in that same currency, so discounts
+// count; a plan change's proration is not a monthly price, so for those the
+// list price is converted at the rate that payment settled at.
 //
 // Auth: the same gate as admin-list-payments (getUser, AAL2, admin_users).
 
@@ -14,13 +16,12 @@ import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
 import {
+  moneyByMonth,
   monthKey,
   monthsBack,
-  mrrByTier,
-  primaryCurrency,
-  revenueByMonth,
-  type PaidInvoice,
-  type RecurringItem,
+  percent,
+  perMonth,
+  type BalanceTxn,
 } from "./stats.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -33,7 +34,7 @@ const corsHeaders = sharedCorsHeaders();
 const MONTHS = 12;
 // Ceilings on how many Stripe objects one load walks, so a large account can't
 // run the function past its time limit. Far above today's volume.
-const MAX_INVOICES = 5000;
+const MAX_TXNS = 10000;
 const MAX_SUBSCRIPTIONS = 5000;
 
 function json(body: unknown, status = 200): Response {
@@ -54,9 +55,6 @@ function jwtAal(authHeader: string): string {
     return "";
   }
 }
-
-const idOf = (v: string | { id: string } | null | undefined): string | null =>
-  typeof v === "string" ? v : (v?.id ?? null);
 
 async function take<T>(list: AsyncIterable<T>, max: number): Promise<T[]> {
   const out: T[] = [];
@@ -108,31 +106,40 @@ Deno.serve(async (req) => {
   const monthStart =
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1) / 1000;
 
-  let invoices: PaidInvoice[];
-  let items: RecurringItem[];
-  let payingCustomers: Set<string>;
+  let currency = "gbp";
+  let money: ReturnType<typeof moneyByMonth>;
+  let mrr = 0;
+  const mrrByTier = new Map<string, number>();
+  let paying = 0;
+  let paidNothing = 0;
   let trialing: number;
-  let cancelledThisMonth: number;
-  let refunds: { amount: number; currency: string }[];
+  let pastDue: number;
+  let cancelled: number;
+  let trialsEnded: number;
   try {
-    const [paidRaw, activeRaw, trialingRaw, cancelledRaw, refundsRaw] =
+    const [balance, activeRaw, trialingRaw, pastDueRaw, cancelledRaw] =
       await Promise.all([
-        // A month's grace before the window: a retried invoice is paid after it was created.
         take(
-          stripe.invoices.list({
-            status: "paid",
-            created: { gte: windowStart - 31 * 86400 },
+          stripe.balanceTransactions.list({
+            created: { gte: windowStart },
             limit: 100,
-            expand: ["data.charge"],
           }),
-          MAX_INVOICES,
+          MAX_TXNS,
         ),
         take(
-          stripe.subscriptions.list({ status: "active", limit: 100 }),
+          stripe.subscriptions.list({
+            status: "active",
+            limit: 100,
+            expand: ["data.latest_invoice.charge.balance_transaction"],
+          }),
           MAX_SUBSCRIPTIONS,
         ),
         take(
           stripe.subscriptions.list({ status: "trialing", limit: 100 }),
+          MAX_SUBSCRIPTIONS,
+        ),
+        take(
+          stripe.subscriptions.list({ status: "past_due", limit: 100 }),
           MAX_SUBSCRIPTIONS,
         ),
         // Listed by creation, not cancellation, so every cancelled one is walked and filtered.
@@ -140,49 +147,69 @@ Deno.serve(async (req) => {
           stripe.subscriptions.list({ status: "canceled", limit: 100 }),
           MAX_SUBSCRIPTIONS,
         ),
-        take(
-          stripe.refunds.list({ created: { gte: monthStart }, limit: 100 }),
-          MAX_INVOICES,
-        ),
       ]);
 
-    // A paid zero-value invoice is a trial opening, not a payment.
-    invoices = paidRaw
-      .filter((inv) => (inv.amount_paid ?? 0) > 0)
-      .map((inv) => {
-        const charge =
-          inv.charge && typeof inv.charge === "object" ? inv.charge : null;
-        return {
-          customer: idOf(inv.customer as string | { id: string } | null),
-          amount: inv.amount_paid,
-          refunded: charge?.amount_refunded ?? 0,
-          currency: inv.currency,
-          paidAt: inv.status_transitions?.paid_at ?? inv.created,
-        };
-      });
+    currency = balance[0]?.currency ?? currency;
+    const txns: BalanceTxn[] = balance.map((t) => ({
+      type: t.type,
+      amount: t.amount,
+      fee: t.fee,
+      net: t.net,
+      created: t.created,
+    }));
+    money = moneyByMonth(txns, months);
 
-    items = activeRaw.flatMap((sub) =>
-      sub.items.data
-        .filter((it) => it.price?.recurring && it.price.unit_amount != null)
-        .map((it) => ({
-          tier: it.price.metadata?.tier_id ?? null,
-          unitAmount: it.price.unit_amount!,
-          quantity: it.quantity ?? 1,
-          currency: it.price.currency,
-          interval: it.price.recurring!.interval,
-          intervalCount: it.price.recurring!.interval_count ?? 1,
-        })),
-    );
-    payingCustomers = new Set(
-      activeRaw
-        .map((s) => idOf(s.customer as string | { id: string }))
-        .filter((c): c is string => !!c),
-    );
+    for (const sub of activeRaw) {
+      const item = sub.items.data[0];
+      const recurring = item?.price?.recurring;
+      const inv =
+        typeof sub.latest_invoice === "object" ? sub.latest_invoice : null;
+      const charge = inv && typeof inv.charge === "object" ? inv.charge : null;
+      const bt =
+        charge && typeof charge.balance_transaction === "object"
+          ? charge.balance_transaction
+          : null;
+      // Nothing settled: a 100% coupon, a comp, or account credit that covered the bill.
+      if (
+        !recurring ||
+        !inv ||
+        inv.amount_paid <= 0 ||
+        !charge ||
+        !bt ||
+        charge.amount <= 0
+      ) {
+        paidNothing++;
+        continue;
+      }
+      paying++;
+      const periodic =
+        inv.billing_reason === "subscription_cycle" ||
+        inv.billing_reason === "subscription_create"
+          ? bt.amount
+          : Math.round(
+              (item.price.unit_amount ?? 0) *
+                (item.quantity ?? 1) *
+                (bt.amount / charge.amount),
+            );
+      const monthly = perMonth(
+        periodic,
+        recurring.interval,
+        recurring.interval_count ?? 1,
+      );
+      mrr += monthly;
+      const tier = item.price.metadata?.tier_id ?? "unknown";
+      mrrByTier.set(tier, (mrrByTier.get(tier) ?? 0) + monthly);
+    }
     trialing = trialingRaw.length;
-    cancelledThisMonth = cancelledRaw.filter(
+    pastDue = pastDueRaw.length;
+    // Ended inside its trial: a trial that never paid, not a paying customer lost.
+    const endedThisMonth = cancelledRaw.filter(
       (s) => (s.canceled_at ?? 0) >= monthStart,
-    ).length;
-    refunds = refundsRaw.filter((r) => r.status === "succeeded");
+    );
+    const inTrial = (s: Stripe.Subscription) =>
+      !!s.trial_end && (s.canceled_at ?? 0) <= s.trial_end;
+    trialsEnded = endedThisMonth.filter(inTrial).length;
+    cancelled = endedThisMonth.length - trialsEnded;
   } catch (err) {
     console.error(
       "[admin-finance-stats] stripe read failed:",
@@ -191,49 +218,55 @@ Deno.serve(async (req) => {
     return json({ error: "stripe_failed" }, 502);
   }
 
-  const currency = primaryCurrency(invoices);
-  const revenue = revenueByMonth(invoices, months, currency);
-  const mrr = mrrByTier(items, currency);
-  const refundsThisMonth = refunds
-    .filter((r) => r.currency === currency)
-    .reduce((sum, r) => sum + r.amount, 0);
-
-  // First payments this month come from the database, which records exactly that.
-  const { count: newPaying, error: newErr } = await admin
-    .from("subscriptions")
-    .select("user_id", { count: "exact", head: true })
-    .gte("first_paid_at", new Date(monthStart * 1000).toISOString());
-  if (newErr)
+  // First payments and comps come from the database: it records the first
+  // payment exactly, and a comp row (no Stripe subscription) is invisible to Stripe.
+  const [newRes, compRes] = await Promise.all([
+    admin
+      .from("subscriptions")
+      .select("user_id", { count: "exact", head: true })
+      .gte("first_paid_at", new Date(monthStart * 1000).toISOString()),
+    admin
+      .from("subscriptions")
+      .select("user_id", { count: "exact", head: true })
+      .eq("status", "active")
+      .is("stripe_subscription_id", null),
+  ]);
+  if (newRes.error)
     console.error(
       "[admin-finance-stats] first_paid_at read failed:",
-      newErr.message,
+      newRes.error.message,
     );
+  if (compRes.error)
+    console.error(
+      "[admin-finance-stats] comp read failed:",
+      compRes.error.message,
+    );
+  const newPaying = newRes.error ? null : (newRes.count ?? 0);
 
-  const otherCurrencies = [
-    ...new Set([
-      ...invoices.map((i) => i.currency),
-      ...items.map((i) => i.currency),
-    ]),
-  ].filter((c) => c !== currency);
+  const thisMonth = money[money.length - 1];
+  const lastMonth = money[money.length - 2];
+  // Paying at the start of the month: today's, less those who joined, plus those who left.
+  const payingAtStart = paying - (newPaying ?? 0) + cancelled;
 
   return json({
     currency,
-    mrr: mrr.total,
-    arr: mrr.total * 12,
-    paying_customers: payingCustomers.size,
-    arpu: payingCustomers.size
-      ? Math.round(mrr.total / payingCustomers.size)
-      : 0,
-    trialing,
-    mrr_by_tier: [...mrr.byTier].map(([tier, amount]) => ({ tier, amount })),
-    revenue_this_month: revenue[revenue.length - 1],
-    revenue_last_month: revenue[revenue.length - 2] ?? 0,
-    revenue_by_month: months.map((month, i) => ({ month, amount: revenue[i] })),
-    new_paying_this_month: newErr ? null : (newPaying ?? 0),
-    cancelled_this_month: cancelledThisMonth,
-    refunds_this_month: refundsThisMonth,
-    other_currencies: otherCurrencies,
-    generated_at: now.toISOString(),
     month: monthKey(monthStart),
+    mrr,
+    arr: mrr * 12,
+    arpu: paying ? Math.round(mrr / paying) : 0,
+    mrr_by_tier: [...mrrByTier].map(([tier, amount]) => ({ tier, amount })),
+    this_month: thisMonth,
+    last_month: lastMonth,
+    by_month: months.map((month, i) => ({ month, ...money[i] })),
+    paying,
+    paid_nothing: paidNothing + (compRes.count ?? 0),
+    trialing,
+    past_due: pastDue,
+    new_paying: newPaying,
+    cancelled,
+    trials_ended: trialsEnded,
+    net_change: newPaying === null ? null : newPaying - cancelled,
+    cancel_rate: percent(cancelled, payingAtStart),
+    generated_at: now.toISOString(),
   });
 });

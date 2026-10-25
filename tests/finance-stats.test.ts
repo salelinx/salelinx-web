@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
-  monthlyAmount,
+  moneyByMonth,
   monthsBack,
-  mrrByTier,
-  primaryCurrency,
-  revenueByMonth,
-  type PaidInvoice,
+  percent,
+  perMonth,
+  type BalanceTxn,
 } from "../supabase/functions/admin-finance-stats/stats";
 
 const at = (iso: string) => Date.parse(iso) / 1000;
@@ -19,127 +18,51 @@ describe("finance stats", () => {
     ]);
   });
 
-  it("buckets net revenue by the month it was paid, in one currency", () => {
-    const invoices: PaidInvoice[] = [
+  it("adds up settled money by month: gross, refunds, fees and net", () => {
+    const txns: BalanceTxn[] = [
       {
-        customer: "a",
+        type: "charge",
         amount: 999,
-        refunded: 0,
-        currency: "gbp",
-        paidAt: at("2026-09-30T23:59:00Z"),
+        fee: 35,
+        net: 964,
+        created: at("2026-09-30T23:59:00Z"),
       },
       {
-        customer: "b",
+        type: "charge",
         amount: 1999,
-        refunded: 1999,
-        currency: "gbp",
-        paidAt: at("2026-10-01T00:01:00Z"),
+        fee: 50,
+        net: 1949,
+        created: at("2026-10-01T00:01:00Z"),
       },
       {
-        customer: "c",
-        amount: 2999,
-        refunded: 0,
-        currency: "gbp",
-        paidAt: at("2026-10-12T10:00:00Z"),
+        type: "refund",
+        amount: -1999,
+        fee: 0,
+        net: -1999,
+        created: at("2026-10-03T09:00:00Z"),
       },
       {
-        customer: "d",
-        amount: 5000,
-        refunded: 0,
-        currency: "usd",
-        paidAt: at("2026-10-12T10:00:00Z"),
+        type: "payout",
+        amount: -5000,
+        fee: 0,
+        net: -5000,
+        created: at("2026-10-05T09:00:00Z"),
       },
     ];
-    expect(revenueByMonth(invoices, ["2026-09", "2026-10"], "gbp")).toEqual([
-      999, 2999,
+    expect(moneyByMonth(txns, ["2026-09", "2026-10"])).toEqual([
+      { gross: 999, refunds: 0, fees: 35, net: 964 },
+      { gross: 1999, refunds: 1999, fees: 50, net: -50 },
     ]);
   });
 
-  it("picks the currency most money came in", () => {
-    expect(
-      primaryCurrency([
-        {
-          customer: null,
-          amount: 100,
-          refunded: 0,
-          currency: "usd",
-          paidAt: 0,
-        },
-        {
-          customer: null,
-          amount: 900,
-          refunded: 0,
-          currency: "gbp",
-          paidAt: 0,
-        },
-      ]),
-    ).toBe("gbp");
-    expect(primaryCurrency([])).toBe("gbp");
+  it("turns a billing period into a monthly figure", () => {
+    expect(perMonth(12000, "year")).toBe(1000);
+    expect(perMonth(3000, "month", 3)).toBe(1000);
+    expect(perMonth(999, "month")).toBe(999);
   });
 
-  it("counts a yearly plan as a twelfth per month", () => {
-    expect(
-      monthlyAmount({
-        tier: "pro",
-        unitAmount: 12000,
-        quantity: 1,
-        currency: "gbp",
-        interval: "year",
-        intervalCount: 1,
-      }),
-    ).toBe(1000);
-    expect(
-      monthlyAmount({
-        tier: "pro",
-        unitAmount: 3000,
-        quantity: 1,
-        currency: "gbp",
-        interval: "month",
-        intervalCount: 3,
-      }),
-    ).toBe(1000);
-  });
-
-  it("splits MRR by tier and skips other currencies", () => {
-    const { total, byTier } = mrrByTier(
-      [
-        {
-          tier: "pro",
-          unitAmount: 1999,
-          quantity: 1,
-          currency: "gbp",
-          interval: "month",
-          intervalCount: 1,
-        },
-        {
-          tier: "pro",
-          unitAmount: 1999,
-          quantity: 1,
-          currency: "gbp",
-          interval: "month",
-          intervalCount: 1,
-        },
-        {
-          tier: "business",
-          unitAmount: 4999,
-          quantity: 1,
-          currency: "gbp",
-          interval: "month",
-          intervalCount: 1,
-        },
-        {
-          tier: "pro",
-          unitAmount: 1999,
-          quantity: 1,
-          currency: "usd",
-          interval: "month",
-          intervalCount: 1,
-        },
-      ],
-      "gbp",
-    );
-    expect(total).toBe(8997);
-    expect(byTier.get("pro")).toBe(3998);
-    expect(byTier.get("business")).toBe(4999);
+  it("gives no percentage when there is nothing to divide by", () => {
+    expect(percent(7, 10)).toBe(70);
+    expect(percent(1, 0)).toBeNull();
   });
 });
