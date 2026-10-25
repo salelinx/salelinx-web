@@ -237,7 +237,7 @@ export function CookieConsent() {
     <div
       role="region"
       aria-label={t('title')}
-      className="fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3.5 shadow-lg shadow-black/[0.08] backdrop-blur-md motion-safe:animate-[popIn_0.45s_ease-out] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]"
+      className="fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3.5 shadow-lg shadow-black/[0.08] backdrop-blur-md motion-safe:animate-[popIn_0.6s_ease-out_1s_backwards] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]"
     >
       <p className="text-[13px] leading-snug text-zinc-600">
         {t('body')}
