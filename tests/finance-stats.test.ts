@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   moneyByMonth,
+  moneySince,
   monthsBack,
+  mrrMovement,
   percent,
   perMonth,
+  trialFunnel,
   type BalanceTxn,
 } from "../supabase/functions/admin-finance-stats/stats";
 
@@ -64,5 +67,133 @@ describe("finance stats", () => {
   it("gives no percentage when there is nothing to divide by", () => {
     expect(percent(7, 10)).toBe(70);
     expect(percent(1, 0)).toBeNull();
+  });
+});
+
+describe("finance history", () => {
+  it("totals takings from a date on", () => {
+    const txns: BalanceTxn[] = [
+      {
+        type: "charge",
+        amount: 1000,
+        fee: 50,
+        net: 950,
+        created: at("2025-12-01T00:00:00Z"),
+      },
+      {
+        type: "charge",
+        amount: 2000,
+        fee: 80,
+        net: 1920,
+        created: at("2026-02-01T00:00:00Z"),
+      },
+      {
+        type: "refund",
+        amount: -500,
+        fee: 0,
+        net: -500,
+        created: at("2026-03-01T00:00:00Z"),
+      },
+      {
+        type: "payout",
+        amount: -3000,
+        fee: 0,
+        net: -3000,
+        created: at("2026-03-02T00:00:00Z"),
+      },
+    ];
+    expect(moneySince(txns)).toEqual({
+      gross: 3000,
+      refunds: 500,
+      fees: 130,
+      net: 2370,
+    });
+    expect(moneySince(txns, at("2026-01-01T00:00:00Z")).gross).toBe(2000);
+  });
+
+  it("splits MRR movement into new, upgrades, downgrades and cancelled", () => {
+    const moves = mrrMovement(
+      [
+        // New in Feb, upgraded at its March renewal.
+        {
+          ended: null,
+          payments: [
+            { at: at("2026-02-10T00:00:00Z"), monthly: 1000 },
+            { at: at("2026-03-10T00:00:00Z"), monthly: 2500 },
+          ],
+        },
+        // Paying since January, cancelled in March.
+        {
+          ended: at("2026-03-05T00:00:00Z"),
+          payments: [{ at: at("2026-01-05T00:00:00Z"), monthly: 1000 }],
+        },
+        // Downgraded at its March renewal.
+        {
+          ended: null,
+          payments: [
+            { at: at("2026-01-20T00:00:00Z"), monthly: 2500 },
+            { at: at("2026-03-20T00:00:00Z"), monthly: 1000 },
+          ],
+        },
+      ],
+      ["2026-02", "2026-03"],
+    );
+    expect(moves[0]).toEqual({
+      month: "2026-02",
+      mrr: 4500,
+      new: 1000,
+      expansion: 0,
+      contraction: 0,
+      churned: 0,
+    });
+    expect(moves[1]).toEqual({
+      month: "2026-03",
+      mrr: 3500,
+      new: 0,
+      expansion: 1500,
+      contraction: 1500,
+      churned: 1000,
+    });
+  });
+
+  it("counts a trial as converted only once it has paid", () => {
+    const start = at("2026-03-01T00:00:00Z");
+    const end = at("2026-03-08T00:00:00Z");
+    const funnel = trialFunnel(
+      [
+        {
+          trialStart: start,
+          trialEnd: end,
+          status: "active",
+          canceledAt: null,
+        },
+        {
+          trialStart: start,
+          trialEnd: end,
+          status: "canceled",
+          canceledAt: at("2026-03-04T00:00:00Z"),
+        },
+        {
+          trialStart: start,
+          trialEnd: end,
+          status: "past_due",
+          canceledAt: null,
+        },
+        {
+          trialStart: start,
+          trialEnd: at("2026-04-08T00:00:00Z"),
+          status: "trialing",
+          canceledAt: null,
+        },
+      ],
+      ["2026-03"],
+      at("2026-03-20T00:00:00Z"),
+    );
+    expect(funnel[0]).toEqual({
+      month: "2026-03",
+      started: 4,
+      converted: 1,
+      running: 1,
+    });
   });
 });
