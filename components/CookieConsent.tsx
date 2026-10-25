@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useHydrated } from '@/lib/use-hydrated';
-import { Icon } from '@/components/Icon';
 import {
   type Consent,
   type ConsentState,
@@ -231,30 +230,31 @@ export function CookieConsent() {
   // buttons deliberately share the same style.
   const buttonClass =
     'rounded-full border border-black/15 bg-white px-3 py-1.5 text-[13px] font-medium text-zinc-900 transition hover:border-black/30 hover:bg-zinc-50';
+  const linkClass =
+    'font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900';
 
   return (
     <div
       role="region"
       aria-label={t('title')}
-      className="fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3 shadow-xl shadow-black/10 backdrop-blur-md motion-safe:animate-[popIn_0.45s_ease-out] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px] sm:p-4"
+      className="fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3.5 shadow-lg shadow-black/[0.08] backdrop-blur-md motion-safe:animate-[popIn_0.45s_ease-out] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]"
     >
-      <div className="flex gap-3">
-        <span className="hidden h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-50 sm:grid text-amber-700 ring-1 ring-amber-200/70">
-          <Icon name="cookie" className="h-4 w-4" />
-        </span>
-        <div className="min-w-0">
-          <h2 className="text-[13px] font-semibold sm:text-sm tracking-tight text-zinc-900">{t('title')}</h2>
-          <p className="mt-0.5 text-xs leading-snug text-zinc-600 sm:mt-1 sm:text-sm sm:leading-relaxed">
-            {t('body')}{' '}
-            <Link
-              href="/legal/privacy#cookies"
-              className="font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900"
-            >
-              {t('privacyLink')}
-            </Link>
-          </p>
-        </div>
-      </div>
+      <p className="text-[13px] leading-snug text-zinc-600">
+        {t('body')}
+      </p>
+      <p className="mt-1.5 text-[13px] leading-snug text-zinc-400">
+        <Link href="/legal/privacy#cookies" className={linkClass}>
+          {t('privacyLink')}
+        </Link>
+        {choosing ? null : (
+          <>
+            {' · '}
+            <button type="button" onClick={() => setChoosing(true)} className={linkClass}>
+              {t('choose')}
+            </button>
+          </>
+        )}
+      </p>
 
       {choosing ? (
         <div className="mt-3 divide-y divide-black/[0.06] overflow-hidden rounded-xl border border-black/[0.08] bg-zinc-50/80">
@@ -282,23 +282,23 @@ export function CookieConsent() {
         </div>
       ) : null}
 
-      <div className="mt-3 grid grid-cols-[1fr_1fr_auto] gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2">
         <button type="button" onClick={() => decide(true, true)} className={buttonClass}>
           {t('acceptAll')}
         </button>
         <button type="button" onClick={() => decide(false, false)} className={buttonClass}>
           {t('rejectAll')}
         </button>
+      </div>
+      {choosing ? (
         <button
           type="button"
-          onClick={() =>
-            choosing ? decide(toggles.analytics, toggles.ads) : setChoosing(true)
-          }
-          className="rounded-full px-2 py-1.5 text-[13px] font-medium text-zinc-600 transition hover:bg-black/[0.04] hover:text-zinc-900"
+          onClick={() => decide(toggles.analytics, toggles.ads)}
+          className="mt-2 w-full rounded-full px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition hover:bg-black/[0.04] hover:text-zinc-900"
         >
-          {choosing ? t('save') : t('choose')}
+          {t('save')}
         </button>
-      </div>
+      ) : null}
     </div>
   );
 }
