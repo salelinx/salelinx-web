@@ -250,6 +250,13 @@ export function MarketingDashboard({
               </span>
             </div>
             <div className="px-4 py-3">
+              {report.firstDay ===
+                report.daily[report.daily.length - 1]?.day && (
+                <p className="mb-2 text-xs text-zinc-400">
+                  A day&apos;s gain needs the day before it too, so this fills
+                  in from the second day of tracking.
+                </p>
+              )}
               <ColumnChart
                 name="Views gained per day"
                 values={report.daily.map((d) => d.views)}
@@ -357,7 +364,16 @@ export function MarketingDashboard({
                         {count(v.comments)}
                       </td>
                       <td className="px-3 py-2 text-right font-mono">
-                        {count(v.shares)}
+                        {v.platform === "youtube" ? (
+                          <span
+                            title="YouTube's public API doesn't report shares"
+                            className="text-zinc-400"
+                          >
+                            n/a
+                          </span>
+                        ) : (
+                          count(v.shares)
+                        )}
                       </td>
                     </tr>
                   ))}
