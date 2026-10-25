@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
+import { PLATFORM_THEME, PlatformLogo } from "./PlatformLogo";
 import type {
   MarketingPlatform,
   MarketingReport,
@@ -140,7 +141,12 @@ export function MarketingDashboard({
   return (
     <div className="flex h-screen flex-col">
       <header className="flex h-12 shrink-0 items-center border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
-        <h1 className="text-sm font-semibold">
+        <h1 className="flex items-center gap-2 text-sm font-semibold">
+          <span className="flex -space-x-1">
+            {(["youtube", "instagram", "tiktok"] as const).map((p) => (
+              <PlatformLogo key={p} platform={p} size={18} />
+            ))}
+          </span>
           Marketing
           {report.firstDay && (
             <span className="ml-2 font-normal text-zinc-400">
@@ -173,70 +179,83 @@ export function MarketingDashboard({
               return (
                 <section
                   key={p.platform}
-                  className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3"
+                  className="overflow-hidden rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]"
+                  style={{
+                    backgroundImage: `linear-gradient(${PLATFORM_THEME[p.platform].tint}, transparent 70%)`,
+                  }}
                 >
-                  <div className="flex items-baseline justify-between gap-2">
-                    <h2 className="text-sm font-semibold">
-                      {NAMES[p.platform]}
-                      {acc?.handle && (
-                        <span className="ml-1.5 font-normal text-zinc-400">
-                          {acc.handle}
+                  <div
+                    className="h-1"
+                    style={{ background: PLATFORM_THEME[p.platform].bar }}
+                  />
+                  <div className="px-4 py-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <h2 className="flex items-center gap-2 text-sm font-semibold">
+                        <PlatformLogo platform={p.platform} size={22} />
+                        {NAMES[p.platform]}
+                        {acc?.handle && (
+                          <span className="font-normal text-zinc-400">
+                            {acc.handle}
+                          </span>
+                        )}
+                      </h2>
+                      {connectable && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void connect(p.platform as "instagram" | "tiktok")
+                          }
+                          className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white hover:opacity-90"
+                          style={{
+                            background: PLATFORM_THEME[p.platform].accent,
+                          }}
+                        >
+                          {acc?.logged_in ? "Reconnect" : "Connect"}
+                        </button>
+                      )}
+                    </div>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      <div title="Followers now, and the change over 30 days">
+                        <p className="text-xs text-zinc-500">Followers</p>
+                        <p className="text-xl font-semibold tabular-nums">
+                          {count(p.followers)}
+                        </p>
+                        {p.followersGained30 !== null && (
+                          <p className="text-xs text-zinc-400">
+                            {p.followersGained30 >= 0 ? "+" : ""}
+                            {count(p.followersGained30)} in 30d
+                          </p>
+                        )}
+                      </div>
+                      <div title="Views gained in the last 7 days. A + means some videos were not tracked a week ago, so it is at least this.">
+                        <p className="text-xs text-zinc-500">Views 7d</p>
+                        <p className="text-xl font-semibold tabular-nums">
+                          {count(p.gained7)}
+                          {p.partial7 && "+"}
+                        </p>
+                      </div>
+                      <div title="Views gained in the last 30 days, and all-time views across tracked videos">
+                        <p className="text-xs text-zinc-500">Views 30d</p>
+                        <p className="text-xl font-semibold tabular-nums">
+                          {count(p.gained30)}
+                          {p.partial30 && "+"}
+                        </p>
+                        <p className="text-xs text-zinc-400">
+                          {count(p.views)} all time
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-xs text-zinc-400">
+                      {p.videos} videos, synced {ago(acc?.synced_at ?? null)}
+                      {acc?.last_error && (
+                        <span className="text-red-600">
+                          {" "}
+                          - last sync failed: {acc.last_error}
                         </span>
                       )}
-                    </h2>
-                    {connectable && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          void connect(p.platform as "instagram" | "tiktok")
-                        }
-                        className="text-xs text-zinc-500 underline-offset-2 hover:text-zinc-900 hover:underline"
-                      >
-                        {acc?.logged_in ? "Reconnect" : "Connect"}
-                      </button>
-                    )}
+                      {connectable && !acc?.logged_in && " - not connected"}
+                    </p>
                   </div>
-                  <div className="mt-2 grid grid-cols-3 gap-2">
-                    <div title="Followers now, and the change over 30 days">
-                      <p className="text-xs text-zinc-500">Followers</p>
-                      <p className="text-xl font-semibold tabular-nums">
-                        {count(p.followers)}
-                      </p>
-                      {p.followersGained30 !== null && (
-                        <p className="text-xs text-zinc-400">
-                          {p.followersGained30 >= 0 ? "+" : ""}
-                          {count(p.followersGained30)} in 30d
-                        </p>
-                      )}
-                    </div>
-                    <div title="Views gained in the last 7 days. A + means some videos were not tracked a week ago, so it is at least this.">
-                      <p className="text-xs text-zinc-500">Views 7d</p>
-                      <p className="text-xl font-semibold tabular-nums">
-                        {count(p.gained7)}
-                        {p.partial7 && "+"}
-                      </p>
-                    </div>
-                    <div title="Views gained in the last 30 days, and all-time views across tracked videos">
-                      <p className="text-xs text-zinc-500">Views 30d</p>
-                      <p className="text-xl font-semibold tabular-nums">
-                        {count(p.gained30)}
-                        {p.partial30 && "+"}
-                      </p>
-                      <p className="text-xs text-zinc-400">
-                        {count(p.views)} all time
-                      </p>
-                    </div>
-                  </div>
-                  <p className="mt-2 text-xs text-zinc-400">
-                    {p.videos} videos, synced {ago(acc?.synced_at ?? null)}
-                    {acc?.last_error && (
-                      <span className="text-red-600">
-                        {" "}
-                        - last sync failed: {acc.last_error}
-                      </span>
-                    )}
-                    {connectable && !acc?.logged_in && " - not connected"}
-                  </p>
                 </section>
               );
             })}
@@ -274,12 +293,13 @@ export function MarketingDashboard({
                   key={f}
                   type="button"
                   onClick={() => setFilter(f)}
-                  className={`rounded px-2 py-0.5 text-xs ${
+                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs ${
                     filter === f
-                      ? "bg-zinc-900 text-white"
-                      : "text-zinc-500 hover:text-zinc-900"
+                      ? "border-zinc-900 bg-zinc-900 text-white"
+                      : "border-[var(--admin-border)] text-zinc-500 hover:text-zinc-900"
                   }`}
                 >
+                  {f !== "all" && <PlatformLogo platform={f} size={14} />}
                   {f === "all" ? "All" : NAMES[f]}
                 </button>
               ))}
@@ -324,15 +344,27 @@ export function MarketingDashboard({
                       className="border-t border-[var(--admin-border)]"
                     >
                       <td className="max-w-md px-4 py-2">
-                        <div className="flex items-center gap-2">
-                          {v.thumbnail_url && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={v.thumbnail_url}
-                              alt=""
-                              className="h-9 w-9 shrink-0 rounded object-cover"
-                            />
-                          )}
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-10 w-16 shrink-0">
+                            {v.thumbnail_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={v.thumbnail_url}
+                                alt=""
+                                className="h-10 w-16 rounded object-cover"
+                              />
+                            ) : (
+                              <div
+                                className="h-10 w-16 rounded"
+                                style={{
+                                  background: PLATFORM_THEME[v.platform].tint,
+                                }}
+                              />
+                            )}
+                            <span className="absolute -bottom-1 -right-1 rounded bg-white p-px shadow-sm">
+                              <PlatformLogo platform={v.platform} size={14} />
+                            </span>
+                          </div>
                           <div className="min-w-0">
                             <a
                               href={v.url ?? undefined}
