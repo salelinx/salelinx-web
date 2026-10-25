@@ -47,11 +47,12 @@
   },
   "CookieBanner": {
     "title": "Cookies sur salelinx.com",
-    "body": "Nous utilisons des cookies essentiels au fonctionnement du site. Les cookies facultatifs ci-dessous restent désactivés tant que vous ne les activez pas.",
+    "body": "Les cookies essentiels font fonctionner le site. Les cookies facultatifs nous aident à le mesurer et restent désactivés sauf si vous acceptez.",
     "privacyLink": "Comment nous utilisons les cookies",
     "acceptAll": "Tout accepter",
     "rejectAll": "Tout refuser",
     "save": "Enregistrer mes choix",
+    "choose": "Choisir",
     "essentialLabel": "Essentiels",
     "essentialDesc": "Connexion, langue et votre choix de cookies.",
     "alwaysOn": "Toujours actifs",

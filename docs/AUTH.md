@@ -168,8 +168,7 @@ yes or no. Neither is preselected.
   the login page, accounts created in
   the extension, accounts older than the question):
   `components/MarketingChoicePrompt.tsx` walls the page on their first
-  signed-in visit until they answer. It stays off `/legal/*` and `/auth/*`,
-  and waits for the cookie wall.
+  signed-in visit until they answer. It stays off `/legal/*` and `/auth/*`.
 - **Changing it:** the Email preferences card on `/account`.
 
 The answer is `marketing_opt_out` (`true` = no, `false` = yes, absent = not
