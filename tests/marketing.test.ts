@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildMarketingReport, daysBefore } from "../lib/admin/marketing";
+import {
+  buildMarketingReport,
+  daysBefore,
+  engagementRate,
+} from "../lib/admin/marketing";
 import {
   num,
   parseInstagramInsights,
@@ -26,6 +30,21 @@ const snap = (id: string, day: string, views: number) => ({
 });
 
 describe("marketing report", () => {
+  it("measures a day's gain against yesterday's snapshot", () => {
+    const report = buildMarketingReport({
+      today: "2026-10-26",
+      videos: [video("a", "2026-09-01T00:00:00Z"), video("b", "2026-09-01T00:00:00Z")],
+      stats: [snap("a", "2026-10-25", 100), snap("a", "2026-10-26", 130), snap("b", "2026-10-26", 50)],
+      followers: [],
+    });
+    expect(report.videos.map((v) => v.gained1)).toEqual([30, null]);
+  });
+
+  it("ranks engagement only from 100 views", () => {
+    expect(engagementRate({ views: 99, likes: 50, comments: 0, shares: 0 })).toBeNull();
+    expect(engagementRate({ views: 200, likes: 10, comments: 4, shares: null })).toBe(0.07);
+  });
+
   it("counts days back across a month", () => {
     expect(daysBefore("2026-11-02", 3)).toBe("2026-10-30");
   });

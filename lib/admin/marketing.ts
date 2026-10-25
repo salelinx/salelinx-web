@@ -39,7 +39,8 @@ export type MarketingVideo = MarketingVideoRow & {
   likes: number | null;
   comments: number | null;
   shares: number | null;
-  // Views gained in the last 7 days; null until there is a snapshot from before then.
+  // Views gained in the last day / 7 days; null until there is a snapshot from before then.
+  gained1: number | null;
   gained7: number | null;
 };
 
@@ -71,6 +72,14 @@ export function daysBefore(day: string, n: number): string {
 }
 
 const key = (platform: string, id: string) => `${platform}:${id}`;
+
+/** Likes, comments and shares per view. Under 100 views one like swings it too far to rank on. */
+export function engagementRate(
+  v: Pick<MarketingVideo, "views" | "likes" | "comments" | "shares">,
+): number | null {
+  if (!v.views || v.views < 100) return null;
+  return ((v.likes ?? 0) + (v.comments ?? 0) + (v.shares ?? 0)) / v.views;
+}
 
 /** A video's views gained since `from`: today's less the last snapshot on or before `from`. */
 function gainedSince(
@@ -105,6 +114,7 @@ export function buildMarketingReport(input: {
     byVideo.set(k, [...(byVideo.get(k) ?? []), s]);
   }
 
+  const from1 = daysBefore(today, 1);
   const from7 = daysBefore(today, 7);
   const from30 = daysBefore(today, 30);
   const rows: MarketingVideo[] = videos.map((v) => {
@@ -116,6 +126,7 @@ export function buildMarketingReport(input: {
       likes: latest?.likes ?? null,
       comments: latest?.comments ?? null,
       shares: latest?.shares ?? null,
+      gained1: gainedSince(snaps, from1, v.published_at),
       gained7: gainedSince(snaps, from7, v.published_at),
     };
   });
