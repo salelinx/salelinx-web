@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
+import { UserEmailLink } from "@/components/admin/UserEmailLink";
 import type { AdminFinanceStats } from "@/lib/types/admin";
 
 type State = { stats: AdminFinanceStats } | { error: string } | null;
@@ -46,6 +47,55 @@ function versus(
   const name = monthLabel(lastMonth, "full");
   if (diff === 0) return `Same as ${name}`;
   return `${diff > 0 ? "+" : "-"}${money(Math.abs(diff), currency)} on ${name}`;
+}
+
+function day(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function Table({
+  head,
+  rows,
+}: {
+  head: string[];
+  rows: (string | number)[][];
+}) {
+  return (
+    <table className="w-full text-sm">
+      <thead className="text-left text-xs text-zinc-500">
+        <tr>
+          {head.map((h, i) => (
+            <th
+              key={h}
+              className={`py-1.5 font-medium ${i ? "text-right" : ""}`}
+            >
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr
+            key={String(r[0])}
+            className="border-t border-[var(--admin-border)]"
+          >
+            {r.map((c, i) => (
+              <td
+                key={i}
+                className={`py-1.5 ${i ? "text-right font-mono" : "text-zinc-700"}`}
+              >
+                {c}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 }
 
 function Stat({
@@ -98,6 +148,11 @@ function RowTitle({ children }: { children: React.ReactNode }) {
       {children}
     </h2>
   );
+}
+
+/** A share as a whole percentage, or null with nothing to divide by. */
+function percentOf(part: number, whole: number): number | null {
+  return whole > 0 ? Math.round((part / whole) * 100) : null;
 }
 
 async function fetchStats(): Promise<Exclude<State, null>> {
@@ -184,12 +239,72 @@ export function FinanceDashboard() {
           )}
           {stats && (
             <>
-              <RowTitle>Money</RowTitle>
+              <RowTitle>All time</RowTitle>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <Stat
+                  label="Revenue all time"
+                  value={money(stats.all_time.gross, cur)}
+                  hint={
+                    stats.first_payment_at
+                      ? `Since ${monthLabel(stats.first_payment_at.slice(0, 7), "year")}`
+                      : undefined
+                  }
+                  note="Everything customers have ever been charged, as Stripe settled it, before fees and refunds."
+                />
+                <Stat
+                  label="Kept all time"
+                  value={money(stats.all_time.net, cur)}
+                  hint={`After ${money(stats.all_time.fees, cur)} fees, ${money(stats.all_time.refunds, cur)} refunds`}
+                  note="All-time revenue minus every Stripe fee and refund."
+                />
+                <Stat
+                  label={`Revenue in ${stats.month.slice(0, 4)}`}
+                  value={money(stats.this_year.gross, cur)}
+                  hint={`${money(stats.this_year.net, cur)} kept`}
+                  note="Charged since 1 January, before fees and refunds."
+                />
+                <Stat
+                  label="ARR"
+                  value={money(stats.arr, cur)}
+                  hint={`${money(stats.arpu, cur)} per paying customer a month`}
+                  note="MRR times twelve: what a year looks like if every subscription stays as it is today."
+                />
+              </div>
+
+              <RowTitle>Stripe balance</RowTitle>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                <Stat
+                  label="Available"
+                  value={money(stats.balance.available, cur)}
+                  note="Settled in Stripe and ready to pay out."
+                />
+                <Stat
+                  label="On the way"
+                  value={money(stats.balance.pending, cur)}
+                  note="Payments Stripe has taken but not settled yet. They become available after Stripe's payout delay."
+                />
+                <Stat
+                  label="Next payout"
+                  value={
+                    stats.balance.next_payout
+                      ? money(stats.balance.next_payout.amount, cur)
+                      : "None"
+                  }
+                  hint={
+                    stats.balance.next_payout
+                      ? `Arrives ${day(stats.balance.next_payout.arrives)}`
+                      : "Nothing on its way to the bank"
+                  }
+                  note="The soonest payout Stripe has created that is pending or in transit to the bank."
+                />
+              </div>
+
+              <RowTitle>This month</RowTitle>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat
                   label="MRR"
                   value={money(stats.mrr, cur)}
-                  hint={`${money(stats.arr, cur)} a year, ${money(stats.arpu, cur)} per customer`}
+                  hint={`${money(stats.arr, cur)} a year`}
                   note="Each active subscription's last real payment, after discounts and in the currency Stripe settled it, counted per month. Yearly plans count a twelfth."
                 />
                 <Stat
@@ -304,6 +419,171 @@ export function FinanceDashboard() {
                           </li>
                         ))}
                     </ul>
+                  )}
+                </Box>
+              </div>
+
+              <RowTitle>Coming up</RowTitle>
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <Box title="Next 30 days">
+                  <ul className="space-y-1.5 text-sm">
+                    <li
+                      className="flex justify-between"
+                      title="Paying subscriptions whose period ends in the next 30 days and are not set to cancel, at what their last bill settled."
+                    >
+                      <span className="text-zinc-700">
+                        {stats.renewals_30d.count} renewals due
+                      </span>
+                      <span className="font-mono">
+                        about {money(stats.renewals_30d.amount, cur)}
+                      </span>
+                    </li>
+                    <li
+                      className="flex justify-between"
+                      title="Paying subscriptions set to end at their period end, and the MRR they take with them."
+                    >
+                      <span className="text-zinc-700">
+                        {stats.setting_to_cancel.count} set to cancel
+                      </span>
+                      <span className="font-mono">
+                        -{money(stats.setting_to_cancel.mrr, cur)} MRR
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-zinc-700">
+                        {stats.trials_ending_30d} trials ending
+                      </span>
+                      <span className="text-xs text-zinc-400">
+                        {stats.trialing} on a trial now
+                      </span>
+                    </li>
+                  </ul>
+                </Box>
+                <Box
+                  title="Payments failing"
+                  hint={
+                    stats.failing.length
+                      ? "Oldest first, worth chasing"
+                      : undefined
+                  }
+                >
+                  {stats.failing.length === 0 ? (
+                    <p className="text-sm text-zinc-500">
+                      No failing payments.
+                    </p>
+                  ) : (
+                    <ul className="space-y-1.5 text-sm">
+                      {stats.failing.map((f, i) => (
+                        <li
+                          key={`${f.email}-${i}`}
+                          className="flex items-center justify-between gap-2"
+                        >
+                          <span className="min-w-0 truncate">
+                            <UserEmailLink userId={f.user_id} email={f.email} />
+                            <span className="ml-2 text-xs capitalize text-zinc-400">
+                              {f.tier}
+                            </span>
+                          </span>
+                          <span className="shrink-0 font-mono">
+                            {money(f.amount, f.currency)}
+                            <span className="ml-2 text-xs text-zinc-400">
+                              since {day(f.since)}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Box>
+              </div>
+
+              <RowTitle>Growth</RowTitle>
+              <Box
+                title="MRR movement"
+                hint="Last 6 months. A plan change shows at the renewal it pays for."
+              >
+                <Table
+                  head={[
+                    "Month",
+                    "New",
+                    "Upgrades",
+                    "Downgrades",
+                    "Cancelled",
+                    "Net",
+                    "MRR",
+                  ]}
+                  rows={stats.mrr_movement
+                    .slice(-6)
+                    .reverse()
+                    .map((m) => {
+                      const net =
+                        m.new + m.expansion - m.contraction - m.churned;
+                      return [
+                        monthLabel(m.month, "year"),
+                        m.new ? `+${money(m.new, cur)}` : "-",
+                        m.expansion ? `+${money(m.expansion, cur)}` : "-",
+                        m.contraction ? `-${money(m.contraction, cur)}` : "-",
+                        m.churned ? `-${money(m.churned, cur)}` : "-",
+                        `${net < 0 ? "-" : "+"}${money(Math.abs(net), cur)}`,
+                        money(m.mrr, cur),
+                      ];
+                    })}
+                />
+              </Box>
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <Box title="Trials" hint="By the month the trial started">
+                    <Table
+                      head={[
+                        "Month",
+                        "Started",
+                        "Paid",
+                        "Still in trial",
+                        "Converted",
+                      ]}
+                      rows={stats.trials
+                        .slice(-6)
+                        .reverse()
+                        .map((t) => {
+                          const rate = percentOf(
+                            t.converted,
+                            t.started - t.running,
+                          );
+                          return [
+                            monthLabel(t.month, "year"),
+                            t.started,
+                            t.converted,
+                            t.running || "-",
+                            rate === null ? "-" : `${rate}%`,
+                          ];
+                        })}
+                    />
+                  </Box>
+                </div>
+                <Box title="Referral credits">
+                  {stats.referral_credits.length === 0 ? (
+                    <p className="text-sm text-zinc-500">
+                      No referral rewards paid yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-1 text-sm">
+                      {stats.referral_credits.map((c) => (
+                        <li key={c.currency} className="flex justify-between">
+                          <span className="text-zinc-700">
+                            {c.count} rewards
+                          </span>
+                          <span className="font-mono">
+                            {money(c.amount, c.currency)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {stats.referrals_waiting > 0 && (
+                    <p className="mt-2 text-xs text-zinc-400">
+                      {stats.referrals_waiting} more converted, waiting out the
+                      hold before their reward
+                    </p>
                   )}
                 </Box>
               </div>

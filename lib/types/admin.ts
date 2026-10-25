@@ -86,6 +86,47 @@ export type AdminFinanceStats = {
   this_month: AdminFinanceMonth;
   last_month: AdminFinanceMonth;
   by_month: ({ month: string } & AdminFinanceMonth)[];
+  all_time: AdminFinanceMonth;
+  this_year: AdminFinanceMonth;
+  first_payment_at: string | null;
+  // Stripe balance in the settlement currency, and the soonest payout on its way.
+  balance: {
+    available: number;
+    pending: number;
+    next_payout: { amount: number; arrives: string } | null;
+  };
+  // Paying subscriptions renewing in 30 days, at what their last renewal settled.
+  renewals_30d: { count: number; amount: number };
+  // Paying subscriptions set to end at their period end, and the MRR they take.
+  setting_to_cancel: { count: number; mrr: number };
+  trials_ending_30d: number;
+  // Past-due subscriptions, oldest first. Amount is in the invoice's own currency.
+  failing: {
+    user_id: string | null;
+    email: string | null;
+    tier: string;
+    amount: number;
+    currency: string;
+    since: string;
+  }[];
+  mrr_movement: {
+    month: string;
+    mrr: number;
+    new: number;
+    expansion: number;
+    contraction: number;
+    churned: number;
+  }[];
+  trials: {
+    month: string;
+    started: number;
+    converted: number;
+    running: number;
+  }[];
+  // Referral rewards granted as Stripe credit, per currency.
+  referral_credits: { currency: string; amount: number; count: number }[];
+  // Converted referrals still inside the hold before their reward.
+  referrals_waiting: number;
   paying: number;
   // Active but nothing settled: 100% coupons, comps, bills covered by credit.
   paid_nothing: number;
