@@ -7,6 +7,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Module | Route | Status | Notes |
 | --- | --- | --- | --- |
 | Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts), the latest successful payments (read from Stripe via `admin-list-payments`, see "Latest payments" below) and recent audit activity. |
+| Finance | `/admin/finance` | Live | MRR (and the yearly figure), revenue this month against last, paying customers and trials, revenue per customer, new paying / cancelled / refunded this month, a 12-month revenue chart and MRR by plan. Read from Stripe via `admin-finance-stats`, see "Finance" below. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
 | Users | `/admin/users` | Live, read/write | Roster + per-user detail (dropdown filters for status, tier, cancellation, last active, linked, version, country, browser, source and device; signup source column with brand icons and filter with per-source counts, from `signup_source` in user metadata, migration 030; share the short links in `next.config.ts` `SHORT_LINKS` (`/tt`, `/yt`, ...), which redirect with `utm_source` set, rather than raw utm URLs; country column from `country` in auth app metadata, migration 031, set by `proxy.ts` from `x-vercel-ip-country` on signed-in visits; browser column and filter with per-browser counts, parsed from the freshest install's `device_sessions.user_agent`, migration 035; device column (phone, tablet or computer icon) and filter, the device of the first visit that led to signup, from `signup_source.device`, migration 039, consent-gated like the source and blank for accounts created before it; subscription + tier, linked marketplace accounts, devices, listings + storage, usage vs caps for a selectable period (this period, the usage pages' trailing windows from last 5 minutes to last 72 hours, last 7 / 30 days, all time; caps and percent only on the current-period view), ticket count, admin badge). See "User observability" below. The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
 | Subscriptions | `/admin/subscriptions` | Live, read-only | All subscriptions with emails; filter by status/tier; Stripe ids shown as text (no live Stripe API yet). |
@@ -196,6 +197,16 @@ Key properties:
 - **Errors:** `no_stripe_subscription` (comp row or lapsed - use the entitlement override instead), `already_on_plan`, `no_price_for_tier`, `subscription_canceled`.
 
 See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flow.
+
+### Finance (`admin-finance-stats` Edge Function)
+
+`/admin/finance` loads its numbers client-side from `admin-finance-stats`, behind the same `getUser()` + AAL2 + `admin_users` gate as `admin-list-payments`. Like that card, it reads Stripe because the database keeps only each customer's first payment. Read-only.
+
+- **Revenue** is paid invoices minus their refunds, bucketed by the UTC month each was paid (zero-value trial openings skipped), for the last 12 months.
+- **MRR** sums the active subscriptions' prices at list price (yearly plans count a twelfth a month), split by the price's `tier_id` metadata. Coupons and referral balance credits are not taken off, so it reads a little high once discounts are in play. ARR is MRR x 12; revenue per customer is MRR over paying customers.
+- **New paying this month** is `subscriptions.first_paid_at` in the month; **cancelled** is Stripe subscriptions whose `canceled_at` is in the month; **refunded** is this month's succeeded Stripe refunds.
+- Everything is in one currency, the one most revenue came in. Payments in any other currency are named under the page, not summed in.
+- The month and money arithmetic is in `supabase/functions/admin-finance-stats/stats.ts`, tested by `tests/finance-stats.test.ts`.
 
 ### Latest payments (`admin-list-payments` Edge Function)
 

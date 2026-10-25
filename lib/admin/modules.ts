@@ -4,7 +4,7 @@
 // Modules marked `enabled: false` render in the sidebar as disabled
 // placeholders so the planned shape of the console is visible while the
 // section is still being built. All registered modules are live: Support,
-// Users, Subscriptions, Tier limits, Feature flags, Roadmap, the Analytics group
+// Users, Subscriptions, Finance, Tier limits, Feature flags, Roadmap, the Analytics group
 // (Feature adoption, Extension usage, Web usage, Endpoint health, Storage),
 // Audit log.
 
@@ -41,6 +41,8 @@ export const ADMIN_MODULES: AdminModule[] = [
     href: "/admin/subscriptions",
     enabled: true,
   },
+  // Revenue, MRR and customer counts, read from Stripe (admin-finance-stats).
+  { key: "finance", label: "Finance", href: "/admin/finance", enabled: true },
   { key: "tiers", label: "Tier limits", href: "/admin/tiers", enabled: true },
   {
     key: "flags",
