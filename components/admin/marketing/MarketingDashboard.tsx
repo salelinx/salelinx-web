@@ -1,7 +1,7 @@
 "use client";
 
-// /admin/marketing: a card per platform, views gained per day, and every video
-// with its numbers. Sync now and Connect call the marketing-sync and
+// /admin/marketing: a card per platform, the top three videos, what is
+// trending, views gained per day, and every video with its numbers. Sync now and Connect call the marketing-sync and
 // marketing-oauth Edge Functions with the admin's session.
 
 import { useMemo, useState } from "react";
@@ -9,10 +9,11 @@ import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
 import { PLATFORM_THEME, PlatformLogo } from "./PlatformLogo";
-import type {
-  MarketingPlatform,
-  MarketingReport,
-  MarketingVideo,
+import {
+  engagementRate,
+  type MarketingPlatform,
+  type MarketingReport,
+  type MarketingVideo,
 } from "@/lib/admin/marketing";
 
 export type MarketingAccount = {
@@ -38,6 +39,13 @@ const NOTICES: Record<string, string> = {
 };
 
 type SortKey = "published_at" | "views" | "gained7" | "likes" | "comments";
+type TopKey = "views" | "likes" | "engagement";
+
+const TOP_LABELS: Record<TopKey, string> = {
+  views: "Most viewed",
+  likes: "Most liked",
+  engagement: "Best engagement",
+};
 
 const count = (n: number | null | undefined) =>
   n === null || n === undefined ? "-" : n.toLocaleString("en-GB");
@@ -48,6 +56,29 @@ function ago(iso: string | null): string {
   if (mins < 60) return `${mins}m ago`;
   if (mins < 48 * 60) return `${Math.round(mins / 60)}h ago`;
   return `${Math.round(mins / 1440)}d ago`;
+}
+
+function Thumb({ v, className }: { v: MarketingVideo; className: string }) {
+  return (
+    <div className={`relative shrink-0 ${className}`}>
+      {v.thumbnail_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={v.thumbnail_url}
+          alt=""
+          className="h-full w-full rounded object-cover"
+        />
+      ) : (
+        <div
+          className="h-full w-full rounded"
+          style={{ background: PLATFORM_THEME[v.platform].tint }}
+        />
+      )}
+      <span className="absolute -bottom-1 -right-1 rounded bg-white p-px shadow-sm">
+        <PlatformLogo platform={v.platform} size={14} />
+      </span>
+    </div>
+  );
 }
 
 async function callFunction(name: string, body?: unknown): Promise<Response> {
@@ -81,6 +112,7 @@ export function MarketingDashboard({
   const [message, setMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState<MarketingPlatform | "all">("all");
   const [sort, setSort] = useState<SortKey>("published_at");
+  const [topBy, setTopBy] = useState<TopKey>("views");
 
   const account = (p: MarketingPlatform) =>
     accounts.find((a) => a.platform === p);
@@ -131,6 +163,26 @@ export function MarketingDashboard({
       value(a) < value(b) ? 1 : value(a) > value(b) ? -1 : 0,
     );
   }, [report.videos, filter, sort]);
+
+  const topVideos = useMemo(() => {
+    const score = (v: MarketingVideo) =>
+      topBy === "engagement" ? engagementRate(v) : v[topBy];
+    return report.videos
+      .filter((v) => score(v) !== null)
+      .sort((a, b) => score(b)! - score(a)!)
+      .slice(0, 3);
+  }, [report.videos, topBy]);
+
+  const trending = useMemo(
+    () =>
+      report.videos
+        .filter((v) => (v.gained1 ?? 0) > 0)
+        .sort((a, b) => b.gained1! - a.gained1!)
+        .slice(0, 5),
+    [report.videos],
+  );
+  const firstDayOnly =
+    report.firstDay === report.daily[report.daily.length - 1]?.day;
 
   const top = notice.connected
     ? `${NAMES[notice.connected as MarketingPlatform] ?? notice.connected} connected. Press Sync now to read its videos.`
@@ -262,28 +314,132 @@ export function MarketingDashboard({
           </div>
 
           <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
-            <div className="flex items-baseline justify-between border-b border-[var(--admin-border)] px-4 py-2.5">
-              <h2 className="text-sm font-semibold">Views gained per day</h2>
-              <span className="text-xs text-zinc-400">
-                All platforms, last 30 days
-              </span>
+            <div className="flex flex-wrap items-center gap-2 border-b border-[var(--admin-border)] px-4 py-2.5">
+              <h2 className="mr-auto text-sm font-semibold">Top videos</h2>
+              {(Object.keys(TOP_LABELS) as TopKey[]).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setTopBy(k)}
+                  title={
+                    k === "engagement"
+                      ? "Likes, comments and shares per view, for videos with 100+ views"
+                      : undefined
+                  }
+                  className={`rounded-full border px-2.5 py-0.5 text-xs ${
+                    topBy === k
+                      ? "border-zinc-900 bg-zinc-900 text-white"
+                      : "border-[var(--admin-border)] text-zinc-500 hover:text-zinc-900"
+                  }`}
+                >
+                  {TOP_LABELS[k]}
+                </button>
+              ))}
             </div>
-            <div className="px-4 py-3">
-              {report.firstDay ===
-                report.daily[report.daily.length - 1]?.day && (
-                <p className="mb-2 text-xs text-zinc-400">
-                  A day&apos;s gain needs the day before it too, so this fills
-                  in from the second day of tracking.
-                </p>
-              )}
-              <ColumnChart
-                name="Views gained per day"
-                values={report.daily.map((d) => d.views)}
-                labels={report.daily.map((d) => d.day.slice(8))}
-                height={160}
-              />
-            </div>
+            {topVideos.length === 0 ? (
+              <p className="px-4 py-6 text-sm text-zinc-500">
+                Nothing to rank yet.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3">
+                {topVideos.map((v, i) => {
+                  const rate = engagementRate(v);
+                  return (
+                    <a
+                      key={`${v.platform}:${v.external_id}`}
+                      href={v.url ?? undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group block"
+                    >
+                      <div className="relative">
+                        <Thumb v={v} className="aspect-video w-full" />
+                        <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/70 text-xs font-semibold text-white">
+                          {i + 1}
+                        </span>
+                      </div>
+                      <p className="mt-2 line-clamp-2 text-sm text-zinc-900 group-hover:underline">
+                        {v.title ?? "(untitled)"}
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-500">
+                        <span className="font-mono text-base font-semibold text-zinc-900">
+                          {topBy === "engagement"
+                            ? `${((rate ?? 0) * 100).toFixed(1)}%`
+                            : count(v[topBy])}
+                        </span>{" "}
+                        {topBy === "engagement" ? "engagement" : topBy}
+                      </p>
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </section>
+
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
+              <div className="flex items-baseline justify-between border-b border-[var(--admin-border)] px-4 py-2.5">
+                <h2 className="text-sm font-semibold">Trending</h2>
+                <span className="text-xs text-zinc-400">
+                  Views gained in the last day
+                </span>
+              </div>
+              {firstDayOnly || trending.length === 0 ? (
+                <p className="px-4 py-6 text-sm text-zinc-500">
+                  {firstDayOnly
+                    ? "Fills in from tomorrow: it compares today's views with yesterday's."
+                    : "Nothing gained views in the last day."}
+                </p>
+              ) : (
+                <ol>
+                  {trending.map((v, i) => (
+                    <li
+                      key={`${v.platform}:${v.external_id}`}
+                      className="flex items-center gap-3 border-t border-[var(--admin-border)] px-4 py-2 first:border-t-0"
+                    >
+                      <span className="w-3 text-xs text-zinc-400">{i + 1}</span>
+                      <Thumb v={v} className="h-10 w-16" />
+                      <a
+                        href={v.url ?? undefined}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="min-w-0 flex-1 truncate text-sm text-zinc-900 hover:underline"
+                      >
+                        {v.title ?? "(untitled)"}
+                      </a>
+                      <span className="font-mono text-sm font-semibold text-emerald-600">
+                        +{count(v.gained1)}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+
+            <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
+              <div className="flex items-baseline justify-between border-b border-[var(--admin-border)] px-4 py-2.5">
+                <h2 className="text-sm font-semibold">Views gained per day</h2>
+                <span className="text-xs text-zinc-400">
+                  All platforms, last 30 days
+                </span>
+              </div>
+              <div className="px-4 py-3">
+                {report.firstDay ===
+                  report.daily[report.daily.length - 1]?.day && (
+                  <p className="mb-2 text-xs text-zinc-400">
+                    A day&apos;s gain needs the day before it too, so this fills
+                    in from the second day of tracking.
+                  </p>
+                )}
+                <ColumnChart
+                  name="Views gained per day"
+                  values={report.daily.map((d) => d.views)}
+                  labels={report.daily.map((d) => d.day.slice(8))}
+                  height={160}
+                />
+              </div>
+            </section>
+          </div>
 
           <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
             <div className="flex flex-wrap items-center gap-2 border-b border-[var(--admin-border)] px-4 py-2.5">
@@ -345,26 +501,7 @@ export function MarketingDashboard({
                     >
                       <td className="max-w-md px-4 py-2">
                         <div className="flex items-center gap-3">
-                          <div className="relative h-10 w-16 shrink-0">
-                            {v.thumbnail_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={v.thumbnail_url}
-                                alt=""
-                                className="h-10 w-16 rounded object-cover"
-                              />
-                            ) : (
-                              <div
-                                className="h-10 w-16 rounded"
-                                style={{
-                                  background: PLATFORM_THEME[v.platform].tint,
-                                }}
-                              />
-                            )}
-                            <span className="absolute -bottom-1 -right-1 rounded bg-white p-px shadow-sm">
-                              <PlatformLogo platform={v.platform} size={14} />
-                            </span>
-                          </div>
+                          <Thumb v={v} className="h-10 w-16" />
                           <div className="min-w-0">
                             <a
                               href={v.url ?? undefined}
