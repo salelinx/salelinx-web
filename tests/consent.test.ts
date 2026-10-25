@@ -6,6 +6,7 @@ import {
   needsChoice,
   parseConsentValue,
   serializeConsent,
+  statsUrl,
 } from '@/lib/consent';
 
 describe('consent cookie parsing', () => {
@@ -58,5 +59,26 @@ describe('needsChoice', () => {
     expect(
       needsChoice({ analytics: null, ads: null }, { analytics: false, ads: false }),
     ).toBe(false);
+  });
+});
+
+describe('statsUrl', () => {
+  it('never reports auth or admin pages, in any locale', () => {
+    expect(statsUrl('https://salelinx.com/auth/confirm?token_hash=abc')).toBeNull();
+    expect(statsUrl('https://salelinx.com/fr/auth/reset')).toBeNull();
+    expect(statsUrl('https://salelinx.com/admin/users')).toBeNull();
+  });
+
+  it('keeps only utm params', () => {
+    expect(statsUrl('https://salelinx.com/pricing?utm_source=yt&code=SECRET&utm_medium=video')).toBe(
+      'https://salelinx.com/pricing?utm_source=yt&utm_medium=video',
+    );
+    expect(statsUrl('https://salelinx.com/de/features?email=a%40b.com')).toBe(
+      'https://salelinx.com/de/features',
+    );
+  });
+
+  it('does not mistake a page that starts with auth for the auth section', () => {
+    expect(statsUrl('https://salelinx.com/authors')).toBe('https://salelinx.com/authors');
   });
 });

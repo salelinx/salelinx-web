@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { setStatsOptOut, statsOptedOut } from '@/components/SiteStats';
 import { useHydrated } from '@/lib/use-hydrated';
 import {
   type Consent,
@@ -179,13 +180,14 @@ export function CookieConsent() {
   );
   // Open on a Footer reopen: that visitor came to change a choice.
   const [choosing, setChoosing] = useState(false);
-  const [toggles, setToggles] = useState<{ analytics: boolean; ads: boolean }>(
+  const [toggles, setToggles] = useState<{ analytics: boolean; ads: boolean; stats: boolean }>(
     () => {
-      if (typeof document === 'undefined') return { analytics: false, ads: false };
+      if (typeof document === 'undefined') return { analytics: false, ads: false, stats: true };
       const stored = readConsentCookie();
       return {
         analytics: stored.analytics === 'granted',
         ads: stored.ads === 'granted',
+        stats: !statsOptedOut(),
       };
     },
   );
@@ -202,6 +204,7 @@ export function CookieConsent() {
       setToggles({
         analytics: stored.analytics === 'granted',
         ads: stored.ads === 'granted',
+        stats: !statsOptedOut(),
       });
       setChoosing(true);
       setOpen(true);
@@ -212,7 +215,10 @@ export function CookieConsent() {
 
   if (!ANY_ACTIVE || !hydrated || !open) return null;
 
-  function decide(analytics: boolean, ads: boolean) {
+  // Stats is not a consent category, so Reject all leaves it as the switch
+  // shows rather than turning it off.
+  function decide(analytics: boolean, ads: boolean, stats: boolean) {
+    setStatsOptOut(!stats);
     const previous = readConsentCookie();
     const next: ConsentState = {
       // Only active categories get an answer; an inactive one keeps whatever
@@ -279,21 +285,27 @@ export function CookieConsent() {
               onChange={(v) => setToggles((s) => ({ ...s, ads: v }))}
             />
           ) : null}
+          <ConsentRow
+            label={t('statsLabel')}
+            description={t('statsDesc')}
+            checked={toggles.stats}
+            onChange={(v) => setToggles((s) => ({ ...s, stats: v }))}
+          />
         </div>
       ) : null}
 
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <button type="button" onClick={() => decide(true, true)} className={buttonClass}>
+        <button type="button" onClick={() => decide(true, true, true)} className={buttonClass}>
           {t('acceptAll')}
         </button>
-        <button type="button" onClick={() => decide(false, false)} className={buttonClass}>
+        <button type="button" onClick={() => decide(false, false, toggles.stats)} className={buttonClass}>
           {t('rejectAll')}
         </button>
       </div>
       {choosing ? (
         <button
           type="button"
-          onClick={() => decide(toggles.analytics, toggles.ads)}
+          onClick={() => decide(toggles.analytics, toggles.ads, toggles.stats)}
           className="mt-2 w-full rounded-full px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition hover:bg-black/[0.04] hover:text-zinc-900"
         >
           {t('save')}

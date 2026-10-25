@@ -47,7 +47,7 @@
   },
   "CookieBanner": {
     "title": "salelinx.com 上的 Cookie",
-    "body": "必要 Cookie 保证网站正常运行。可选 Cookie 帮助我们进行统计，除非您同意，否则保持关闭。",
+    "body": "必要 Cookie 保证网站正常运行。可选 Cookie 帮助我们进行统计，除非您同意，否则保持关闭。我们仍会在不使用 Cookie 的情况下统计访问量。",
     "privacyLink": "我们如何使用 Cookie",
     "acceptAll": "全部接受",
     "rejectAll": "全部拒绝",
@@ -60,6 +60,8 @@
     "analyticsDesc": "Google Analytics，用于了解网站的使用情况。",
     "adsLabel": "广告效果衡量",
     "adsDesc": "用于了解您是否通过我们在 Google 上投放的广告来到这里。本网站从不展示任何广告。",
+    "statsLabel": "网站统计",
+    "statsDesc": "不使用 Cookie 的匿名访问计数，帮助我们了解哪些页面有用。关闭即可拒绝。",
     "settings": "Cookie 设置"
   },
   "EmailChoice": {
