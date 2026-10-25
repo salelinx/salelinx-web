@@ -36,7 +36,7 @@ import {
   saveRoadmapItem,
   type RoadmapDraft,
   type RoadmapResult,
-} from "@/app/admin/roadmap/actions";
+} from "@/app/admin/(configuration)/roadmap/actions";
 
 const STATUS_LABEL: Record<RoadmapStatus, string> = {
   exploring: "Exploring",

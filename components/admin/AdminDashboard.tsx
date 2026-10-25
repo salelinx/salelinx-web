@@ -132,12 +132,12 @@ export function AdminDashboard({
               accent={needsReply > 0}
             />
             <StatCard
-              href="/admin/subscriptions"
+              href="/admin/users"
               label="Active subscriptions"
               value={activeSubscriptions}
               hint={`${totalSubscriptions} total`}
             />
-            <Card href="/admin/subscriptions" label="By tier">
+            <Card href="/admin/users" label="By tier">
               {tierEntries.length === 0 ? (
                 <p className="text-sm text-zinc-500">No subscriptions yet.</p>
               ) : (

@@ -522,8 +522,8 @@ function ChurnBox({
           ? undefined
           : `${num(atRisk)} of ${num(churn.payingUsers)} paying`
       }
-      href="/admin/subscriptions"
-      linkLabel="Subscriptions"
+      href="/admin/users"
+      linkLabel="Users"
     >
       {churn.payingUsers === 0 ? (
         <p className="text-sm text-zinc-500">No paying users yet.</p>
