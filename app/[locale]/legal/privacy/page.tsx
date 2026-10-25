@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "16 October 2026";
+const LAST_UPDATED = "25 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -117,7 +117,7 @@ const SECTIONS: LegalSection[] = [
       "Supabase: authentication, database, and file storage (account data, subscription status, usage counters, and cloud-synced listings and images).",
       "Stripe: subscription payments and invoicing.",
       "Resend: transactional email delivery (account and support emails, and shipping label emails you choose to send, which can include label PDFs containing buyer delivery details).",
-      "Vercel: hosting for the salelinx.com website.",
+      "Vercel: hosting for the salelinx.com website, and Vercel Web Analytics, which counts page views without cookies (see the Cookies section).",
       "Google (Sign in with Google): if you choose to sign in with Google, Google processes your sign-in to authenticate you and shares your Google account email and basic profile with us. This happens only when you use the Google sign-in option, is necessary to provide that sign-in method, and is separate from analytics cookies and cookie consent.",
       "Google (Google Analytics): aggregated statistics about how the website is used, only if you consent to analytics cookies in the cookie banner.",
       "Google (Google Ads conversion measurement): confirmation that a visit or signup came from one of our own ads on Google, only if you consent to ad-measurement cookies in the cookie banner. We advertise SaleLinx on Google; we never show ads on salelinx.com. See the Cookies section for details.",
@@ -164,6 +164,7 @@ const SECTIONS: LegalSection[] = [
       "slx_src (browser local storage, optional, only with your consent): if you accept analytics or ad-measurement cookies, we note how you first reached salelinx.com (for example the website or campaign that linked to us, or that you clicked one of our ads), the page you landed on, and whether you were on a phone, tablet or computer. If you then sign up on the website, this is saved with your account so we can see which channels bring us customers. It is removed from your browser if you withdraw consent, and from our systems when you delete your account.",
     ],
     trailing: [
+      "Site statistics without cookies: we count page views with Vercel Web Analytics so we can see which pages are useful and improve the website. It sets no cookies and stores nothing on your device. Vercel recognises a visit only from the request itself, discards that after 24 hours, and gives us aggregate counts (pages viewed, the website that linked to us, country, device type and browser), never anything that identifies you. We do not report sign-in, password reset or admin pages, and we drop query strings except campaign (utm_) tags. Because this is only used to improve the website, it does not need your consent, but you can object at any time: switch off Site stats in Cookie settings in the footer. We then store slx_stats_optout in your browser's local storage to remember that, and send nothing.",
       "We never show ads on salelinx.com, and we set no advertising or cross-site tracking cookies beyond the optional, consent-gated ad-measurement cookies described above.",
     ],
   },

@@ -45,7 +45,8 @@ browsing history, marketplace passwords or session tokens in readable form,
 card details (Stripe-hosted checkout), buyer conversation content on our
 servers. (First-party per-feature usage counts ARE recorded - see the usage
 metering row - and Google Analytics and the Google Ads conversion tag run
-client-side on the website only after explicit per-category cookie consent;
+client-side on the website only after explicit per-category cookie consent,
+while Vercel Web Analytics counts page views without cookies (see below);
 none of that contradicts this line, but do not shorten it back to a bare
 "no analytics". The Ads tag exists because we advertise SaleLinx on Google,
 never to show ads on the site, and it is configured for conversion
@@ -68,6 +69,23 @@ or cross-site tracking, unreadable by scripts, matched against a strict
 longer window, this reasoning stops holding and the cookie must move behind
 the consent banner instead. The privacy policy's Cookies section discloses
 it, including the 30-day lifetime.
+
+### Site stats (Vercel Web Analytics) - PECR position
+
+`components/SiteStats.tsx` reports page views to Vercel Web Analytics for
+every visitor, without asking. Our position: PECR's statistical purposes
+exception (added by the Data (Use and Access) Act 2025, in force 5 Feb 2026;
+ICO storage and access guidance, 29 Apr 2026) covers it. It sets no cookies
+and stores nothing on the device; Vercel identifies a visit from a request
+hash discarded after 24 hours, acts as our processor (existing Vercel DPA)
+and gives us aggregate counts only. The exception needs a free, simple
+objection: the Site stats switch in Cookie settings writes `slx_stats_optout`
+to localStorage, and `beforeSend` then sends nothing. `statsUrl()` in
+`lib/consent.ts` never reports `/auth/*` (token links) or `/admin/*` and
+strips every query param except `utm_*`. This only holds while the data is
+used to improve the site: never send custom events tied to a user, link it to
+ads, or switch to a tool that uses the data for its own purposes without
+moving it behind the consent banner.
 
 Buyer data stance: for buyer personal data handled via order features, the
 seller is the controller and SaleLinx is a processor. It is processed in the

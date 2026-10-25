@@ -47,7 +47,7 @@
   },
   "CookieBanner": {
     "title": "Cookies on salelinx.com",
-    "body": "Essential cookies keep the site working. Optional ones help us measure it and stay off unless you say yes.",
+    "body": "Essential cookies keep the site working. Optional ones help us measure it and stay off unless you say yes. We still count visits without cookies.",
     "privacyLink": "How we use cookies",
     "acceptAll": "Accept all",
     "rejectAll": "Reject all",
@@ -60,6 +60,8 @@
     "analyticsDesc": "Google Analytics, to understand how the site is used.",
     "adsLabel": "Ad measurement",
     "adsDesc": "Tells us whether one of our Google ads brought you here. We never show ads on this site.",
+    "statsLabel": "Site stats",
+    "statsDesc": "Anonymous visit counts with no cookies, so we know which pages help. Switch off to opt out.",
     "settings": "Cookie settings"
   },
   "EmailChoice": {
