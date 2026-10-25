@@ -47,11 +47,12 @@
   },
   "CookieBanner": {
     "title": "Cookies on salelinx.com",
-    "body": "We use essential cookies to make this site work. The optional ones below stay off unless you turn them on.",
+    "body": "Essential cookies keep the site working. Optional ones help us measure it and stay off unless you say yes.",
     "privacyLink": "How we use cookies",
     "acceptAll": "Accept all",
     "rejectAll": "Reject all",
     "save": "Save choices",
+    "choose": "Choose",
     "essentialLabel": "Essential",
     "essentialDesc": "Sign-in, language, and this cookie choice.",
     "alwaysOn": "Always on",

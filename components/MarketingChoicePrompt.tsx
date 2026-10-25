@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { BlockingWall } from '@/components/BlockingWall';
-import { CONSENT_DECIDED_EVENT, cookieChoicePending } from '@/components/CookieConsent';
 import {
   isMarketingPromptExempt,
   marketingChoice,
@@ -21,9 +20,6 @@ import {
 //
 // Yes and No share one style on purpose. Consent only counts if refusing is
 // as easy as agreeing, and nothing else on the site depends on the answer.
-//
-// Shows after the cookie wall, never with it: two BlockingWalls would make
-// each other inert.
 export function MarketingChoicePrompt() {
   const t = useTranslations('EmailChoice');
   const pathname = usePathname();
@@ -34,9 +30,6 @@ export function MarketingChoicePrompt() {
   // hour stale, and asking someone who answered on another device would be
   // worse than one extra request for the few who have not answered at all.
   const [unanswered, setUnanswered] = useState<string | null>(null);
-  const [cookiePending, setCookiePending] = useState<boolean>(
-    () => typeof document !== 'undefined' && cookieChoicePending(),
-  );
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -48,12 +41,7 @@ export function MarketingChoicePrompt() {
       const user = session?.user;
       setCandidate(user && marketingChoice(user.user_metadata) === null ? user.id : null);
     });
-    const cookieDecided = () => setCookiePending(false);
-    window.addEventListener(CONSENT_DECIDED_EVENT, cookieDecided);
-    return () => {
-      data.subscription.unsubscribe();
-      window.removeEventListener(CONSENT_DECIDED_EVENT, cookieDecided);
-    };
+    return () => data.subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -73,12 +61,7 @@ export function MarketingChoicePrompt() {
     };
   }, [candidate]);
 
-  if (
-    !candidate ||
-    unanswered !== candidate ||
-    cookiePending ||
-    isMarketingPromptExempt(pathname)
-  ) {
+  if (!candidate || unanswered !== candidate || isMarketingPromptExempt(pathname)) {
     return null;
   }
 

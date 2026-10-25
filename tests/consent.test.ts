@@ -3,7 +3,6 @@
 // category: consent given for one purpose does not stretch to another.
 import { describe, expect, it } from 'vitest';
 import {
-  isConsentWallExempt,
   needsChoice,
   parseConsentValue,
   serializeConsent,
@@ -59,19 +58,5 @@ describe('needsChoice', () => {
     expect(
       needsChoice({ analytics: null, ads: null }, { analytics: false, ads: false }),
     ).toBe(false);
-  });
-});
-
-describe('isConsentWallExempt', () => {
-  it('leaves the legal pages readable before a choice is made', () => {
-    expect(isConsentWallExempt('/legal/privacy')).toBe(true);
-    expect(isConsentWallExempt('/legal/terms')).toBe(true);
-    expect(isConsentWallExempt('/legal')).toBe(true);
-  });
-
-  it('blocks everywhere else', () => {
-    expect(isConsentWallExempt('/')).toBe(false);
-    expect(isConsentWallExempt('/features')).toBe(false);
-    expect(isConsentWallExempt('/legalese')).toBe(false);
   });
 });
