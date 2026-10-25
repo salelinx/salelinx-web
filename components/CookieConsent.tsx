@@ -230,21 +230,21 @@ export function CookieConsent() {
   // ICO expects Accept all and Reject all to be equally prominent, so the
   // buttons deliberately share the same style.
   const buttonClass =
-    'rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-medium text-zinc-900 transition hover:border-black/30 hover:bg-zinc-50';
+    'rounded-full border border-black/15 bg-white px-3 py-1.5 text-[13px] font-medium text-zinc-900 transition hover:border-black/30 hover:bg-zinc-50';
 
   return (
     <div
       role="region"
       aria-label={t('title')}
-      className="fixed inset-x-3 bottom-3 z-50 max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-4 shadow-xl shadow-black/10 backdrop-blur-md motion-safe:animate-[popIn_0.45s_ease-out] sm:inset-x-auto sm:bottom-5 sm:left-5 sm:w-[380px]"
+      className="fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3 shadow-xl shadow-black/10 backdrop-blur-md motion-safe:animate-[popIn_0.45s_ease-out] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px] sm:p-4"
     >
       <div className="flex gap-3">
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-700 ring-1 ring-amber-200/70">
+        <span className="hidden h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-50 sm:grid text-amber-700 ring-1 ring-amber-200/70">
           <Icon name="cookie" className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold tracking-tight text-zinc-900">{t('title')}</h2>
-          <p className="mt-1 text-sm leading-relaxed text-zinc-600">
+          <h2 className="text-[13px] font-semibold sm:text-sm tracking-tight text-zinc-900">{t('title')}</h2>
+          <p className="mt-0.5 text-xs leading-snug text-zinc-600 sm:mt-1 sm:text-sm sm:leading-relaxed">
             {t('body')}{' '}
             <Link
               href="/legal/privacy#cookies"
@@ -282,23 +282,23 @@ export function CookieConsent() {
         </div>
       ) : null}
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-3 grid grid-cols-[1fr_1fr_auto] gap-2">
         <button type="button" onClick={() => decide(true, true)} className={buttonClass}>
           {t('acceptAll')}
         </button>
         <button type="button" onClick={() => decide(false, false)} className={buttonClass}>
           {t('rejectAll')}
         </button>
+        <button
+          type="button"
+          onClick={() =>
+            choosing ? decide(toggles.analytics, toggles.ads) : setChoosing(true)
+          }
+          className="rounded-full px-2 py-1.5 text-[13px] font-medium text-zinc-600 transition hover:bg-black/[0.04] hover:text-zinc-900"
+        >
+          {choosing ? t('save') : t('choose')}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={() =>
-          choosing ? decide(toggles.analytics, toggles.ads) : setChoosing(true)
-        }
-        className="mt-2 w-full rounded-full px-4 py-1.5 text-sm font-medium text-zinc-600 transition hover:bg-black/[0.04] hover:text-zinc-900"
-      >
-        {choosing ? t('save') : t('choose')}
-      </button>
     </div>
   );
 }
