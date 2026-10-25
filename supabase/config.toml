@@ -59,6 +59,12 @@ verify_jwt = false
 [functions.admin-finance-stats]
 verify_jwt = false
 
+[functions.marketing-sync]
+verify_jwt = false
+
+[functions.marketing-oauth]
+verify_jwt = false
+
 [functions.process-referral-rewards]
 verify_jwt = false
 
