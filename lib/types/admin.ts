@@ -66,25 +66,39 @@ export type AdminSubscriptionRow = {
 // Stripe's paid invoices; the database keeps no payment history). Amounts are
 // minor units. user_id is null when the Stripe customer no longer maps to an
 // account; email is Stripe's snapshot on the invoice.
-// admin-finance-stats response: money in minor units of `currency`.
+// One month of money as Stripe settled it, in minor units of the settlement currency.
+export type AdminFinanceMonth = {
+  gross: number;
+  refunds: number;
+  fees: number;
+  net: number;
+};
+
+// admin-finance-stats response: money in minor units of `currency`, the
+// Stripe account's settlement currency.
 export type AdminFinanceStats = {
   currency: string;
+  month: string;
   mrr: number;
   arr: number;
-  paying_customers: number;
   arpu: number;
-  trialing: number;
   mrr_by_tier: { tier: string; amount: number }[];
-  revenue_this_month: number;
-  revenue_last_month: number;
-  revenue_by_month: { month: string; amount: number }[];
+  this_month: AdminFinanceMonth;
+  last_month: AdminFinanceMonth;
+  by_month: ({ month: string } & AdminFinanceMonth)[];
+  paying: number;
+  // Active but nothing settled: 100% coupons, comps, bills covered by credit.
+  paid_nothing: number;
+  trialing: number;
+  past_due: number;
   // Null when the database read failed.
-  new_paying_this_month: number | null;
-  cancelled_this_month: number;
-  refunds_this_month: number;
-  other_currencies: string[];
+  new_paying: number | null;
+  // Paying customers who left; trials that ended unpaid are trials_ended.
+  cancelled: number;
+  trials_ended: number;
+  net_change: number | null;
+  cancel_rate: number | null;
   generated_at: string;
-  month: string;
 };
 
 export type AdminPayment = {
