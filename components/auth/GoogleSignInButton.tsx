@@ -34,7 +34,7 @@ export function GoogleSignInButton({ next = "/account", marketing }: Props) {
     callback.searchParams.set("next", next);
     callback.searchParams.set("locale", locale);
     if (marketing !== undefined) callback.searchParams.set("mkt", marketing ? "1" : "0");
-    const source = readSignupSource();
+    const source = await readSignupSource();
     if (source) callback.searchParams.set("src", JSON.stringify(source));
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
