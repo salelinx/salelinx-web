@@ -1,7 +1,6 @@
 import { STATS_OPT_OUT_KEY } from '@/lib/consent';
 
-// Without consent it lives in memory and uses only what the request itself carries (URL, referrer, user agent).
-// With consent it is kept in localStorage across visits.
+// Reading the referrer or user agent is device access under PECR reg 6(2)(b), so UK/EEA visitors need consent.
 
 export type SignupSource = {
   source: string;
@@ -70,15 +69,17 @@ export function classifySource(href: string, referrer: string, now = new Date())
   };
 }
 
-// Taken once per full page load, so client-side navigation to /auth/signup keeps the landing page's referrer.
-const firstTouch: SignupSource | undefined =
-  typeof window === 'undefined'
-    ? undefined
-    : {
-        ...classifySource(location.href, document.referrer),
-        ...(isOwnSite(document.referrer) && { source: 'unknown' }),
-        device: deviceType(navigator.userAgent),
-      };
+// Only our own URL is kept at load; nothing about the device is read until we know it is allowed.
+const landing = typeof window === 'undefined' ? undefined : { href: location.href, at: new Date() };
+
+function currentSource(): SignupSource | undefined {
+  if (!landing) return undefined;
+  return {
+    ...classifySource(landing.href, document.referrer, landing.at),
+    ...(isOwnSite(document.referrer) && { source: 'unknown' }),
+    device: deviceType(navigator.userAgent, navigator.maxTouchPoints),
+  };
+}
 
 function isOwnSite(referrer: string): boolean {
   try {
@@ -88,13 +89,19 @@ function isOwnSite(referrer: string): boolean {
   }
 }
 
+const CONSENT_COUNTRIES = new Set(
+  'GB AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE IS LI NO CH'.split(' '),
+);
+
+export function needsConsent(country: string | null): boolean {
+  return !country || CONSENT_COUNTRIES.has(country.toUpperCase());
+}
+
 export function captureSignupSource() {
   try {
-    if (localStorage.getItem(KEY) || !firstTouch || firstTouch.source === 'unknown') return;
-    localStorage.setItem(
-      KEY,
-      JSON.stringify({ ...firstTouch, device: deviceType(navigator.userAgent, navigator.maxTouchPoints) }),
-    );
+    if (localStorage.getItem(KEY)) return;
+    const src = currentSource();
+    if (src && src.source !== 'unknown') localStorage.setItem(KEY, JSON.stringify(src));
   } catch {}
 }
 
@@ -104,13 +111,17 @@ export function clearSignupSource() {
   } catch {}
 }
 
-export function readSignupSource(): SignupSource | undefined {
+export async function readSignupSource(): Promise<SignupSource | undefined> {
   try {
     if (localStorage.getItem(STATS_OPT_OUT_KEY) === '1') return undefined;
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as SignupSource) : firstTouch;
+    if (raw) return JSON.parse(raw) as SignupSource;
+  } catch {}
+  try {
+    const { automatic } = await (await fetch('/api/geo', { cache: 'no-store' })).json();
+    return automatic === true ? currentSource() : undefined;
   } catch {
-    return firstTouch;
+    return undefined;
   }
 }
 

@@ -62,7 +62,7 @@ export default function SignupPage() {
           terms_version: TERMS_VERSION,
           terms_accepted_at: new Date().toISOString(),
           ...marketingChoiceMetadata(marketing),
-          signup_source: readSignupSource(),
+          signup_source: await readSignupSource(),
         },
       },
     });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classifySource, deviceType, parseSignupSource } from '@/lib/signup-source';
+import { classifySource, deviceType, needsConsent, parseSignupSource } from '@/lib/signup-source';
 
 const site = 'https://salelinx.com';
 const src = (path: string, referrer = '') => classifySource(`${site}${path}`, referrer).source;
@@ -61,5 +61,16 @@ describe('parseSignupSource', () => {
     expect(parseSignupSource('not json')).toBeUndefined();
     expect(parseSignupSource('{"medium":"x"}')).toBeUndefined();
     expect(parseSignupSource(JSON.stringify({ source: 'x'.repeat(500) }))?.source).toHaveLength(200);
+  });
+});
+
+describe('needsConsent', () => {
+  it('asks UK, EEA, Swiss and unknown visitors, not the rest', () => {
+    expect(needsConsent('GB')).toBe(true);
+    expect(needsConsent('de')).toBe(true);
+    expect(needsConsent('NO')).toBe(true);
+    expect(needsConsent(null)).toBe(true);
+    expect(needsConsent('US')).toBe(false);
+    expect(needsConsent('AU')).toBe(false);
   });
 });
