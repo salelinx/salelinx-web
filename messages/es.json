@@ -61,7 +61,7 @@
     "adsLabel": "Medición de anuncios",
     "adsDesc": "Nos indica si uno de nuestros anuncios de Google te trajo aquí. Nunca mostramos anuncios en este sitio.",
     "statsLabel": "Estadísticas del sitio",
-    "statsDesc": "Recuento anónimo de visitas, sin cookies, para saber qué páginas sirven. Desactívalo para excluirte.",
+    "statsDesc": "Recuento de visitas sin cookies y cómo nos encontraste si te registras. Desactívalo para excluirte.",
     "settings": "Configuración de cookies"
   },
   "EmailChoice": {
