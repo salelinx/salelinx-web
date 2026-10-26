@@ -61,7 +61,7 @@
     "adsLabel": "Anzeigenmessung",
     "adsDesc": "Zeigt uns, ob dich eine unserer Google-Anzeigen hierher gebracht hat. Wir zeigen auf dieser Website nie Werbung an.",
     "statsLabel": "Website-Statistik",
-    "statsDesc": "Anonyme Besuchszahlen ohne Cookies, damit wir sehen, welche Seiten helfen. Zum Widersprechen ausschalten.",
+    "statsDesc": "Besuchszahlen ohne Cookies und wie du uns gefunden hast, falls du dich registrierst. Zum Widersprechen ausschalten.",
     "settings": "Cookie-Einstellungen"
   },
   "EmailChoice": {

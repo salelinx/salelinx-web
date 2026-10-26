@@ -1,4 +1,7 @@
-// Not strictly necessary storage, so CookieConsent only captures it once a category is granted.
+import { STATS_OPT_OUT_KEY } from '@/lib/consent';
+
+// Without consent it lives in memory and uses only what the request itself carries (URL, referrer, user agent).
+// With consent it is kept in localStorage across visits.
 
 export type SignupSource = {
   source: string;
@@ -67,15 +70,30 @@ export function classifySource(href: string, referrer: string, now = new Date())
   };
 }
 
+// Taken once per full page load, so client-side navigation to /auth/signup keeps the landing page's referrer.
+const firstTouch: SignupSource | undefined =
+  typeof window === 'undefined'
+    ? undefined
+    : {
+        ...classifySource(location.href, document.referrer),
+        ...(isOwnSite(document.referrer) && { source: 'unknown' }),
+        device: deviceType(navigator.userAgent),
+      };
+
+function isOwnSite(referrer: string): boolean {
+  try {
+    return new URL(referrer).host === location.host;
+  } catch {
+    return false;
+  }
+}
+
 export function captureSignupSource() {
   try {
-    if (localStorage.getItem(KEY)) return;
+    if (localStorage.getItem(KEY) || !firstTouch || firstTouch.source === 'unknown') return;
     localStorage.setItem(
       KEY,
-      JSON.stringify({
-        ...classifySource(location.href, document.referrer),
-        device: deviceType(navigator.userAgent, navigator.maxTouchPoints),
-      }),
+      JSON.stringify({ ...firstTouch, device: deviceType(navigator.userAgent, navigator.maxTouchPoints) }),
     );
   } catch {}
 }
@@ -88,8 +106,24 @@ export function clearSignupSource() {
 
 export function readSignupSource(): SignupSource | undefined {
   try {
+    if (localStorage.getItem(STATS_OPT_OUT_KEY) === '1') return undefined;
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as SignupSource) : undefined;
+    return raw ? (JSON.parse(raw) as SignupSource) : firstTouch;
+  } catch {
+    return firstTouch;
+  }
+}
+
+const FIELDS = ['source', 'medium', 'campaign', 'referrer', 'landing', 'at', 'device'] as const;
+
+// The ?src= param on /auth/callback, which anyone can craft: keep known string fields, capped.
+export function parseSignupSource(raw: string | null): SignupSource | undefined {
+  try {
+    const o = JSON.parse(raw ?? '');
+    if (typeof o?.source !== 'string') return undefined;
+    return Object.fromEntries(
+      FIELDS.filter((k) => typeof o[k] === 'string').map((k) => [k, o[k].slice(0, 200)]),
+    ) as SignupSource;
   } catch {
     return undefined;
   }

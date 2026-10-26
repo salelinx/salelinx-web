@@ -61,7 +61,7 @@
     "adsLabel": "Ad measurement",
     "adsDesc": "Tells us whether one of our Google ads brought you here. We never show ads on this site.",
     "statsLabel": "Site stats",
-    "statsDesc": "Anonymous visit counts with no cookies, so we know which pages help. Switch off to opt out.",
+    "statsDesc": "Visit counts with no cookies, and how you found us if you sign up. Switch off to opt out.",
     "settings": "Cookie settings"
   },
   "EmailChoice": {

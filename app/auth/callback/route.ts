@@ -4,6 +4,7 @@ import { safeNext } from "@/lib/auth/safe-next";
 import { routing } from "@/i18n/routing";
 import { TERMS_VERSION } from "@/lib/site";
 import { marketingChoice, marketingChoiceMetadata } from "@/lib/marketing-choice";
+import { parseSignupSource } from "@/lib/signup-source";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -61,6 +62,10 @@ export async function GET(request: Request) {
     const createdAt = Date.parse(data.user?.created_at ?? "");
     if (Date.now() - createdAt < 5 * 60 * 1000) {
       target.searchParams.set("signup", "google");
+      const src = parseSignupSource(url.searchParams.get("src"));
+      if (src && !data.user?.user_metadata?.signup_source) {
+        await supabase.auth.updateUser({ data: { signup_source: src } }).catch(() => {});
+      }
     }
 
     // The signup page's Google button carries the answer to its marketing
