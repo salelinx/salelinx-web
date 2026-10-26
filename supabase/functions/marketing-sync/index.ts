@@ -3,7 +3,7 @@
 // Instagram and TikTok, plus each account's followers, for /admin/marketing.
 // One row per video per day, so a second run in a day overwrites that day.
 //
-// Called by the daily dashboard Cron job with the x-marketing-cron-secret
+// Called by the hourly dashboard Cron job with the x-marketing-cron-secret
 // header (MARKETING_SECRET), or by an admin's "Sync now" with their JWT (same
 // getUser + AAL2 + admin_users gate as the other admin functions).
 //

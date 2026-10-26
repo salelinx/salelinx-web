@@ -202,7 +202,7 @@ See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flo
 
 `/admin/marketing` shows SaleLinx's own YouTube, Instagram and TikTok: our accounts, not users', so nothing here is personal data (`042_marketing.sql`). The stats tables are admin-readable under RLS; `marketing_accounts` holds the Instagram and TikTok logins and has no policies, so admins read it through `admin_marketing_accounts()`, which leaves the tokens out.
 
-- **`marketing-sync`** saves one row per video per day (`marketing_video_stats`) and each account's followers (`marketing_account_stats`). A daily dashboard Cron job calls it with the `x-marketing-cron-secret` header (`MARKETING_SECRET`); **Sync now** calls it with the admin's JWT. A second run in a day overwrites that day.
+- **`marketing-sync`** saves one row per video per day (`marketing_video_stats`) and each account's followers (`marketing_account_stats`). An hourly dashboard Cron job (`0 * * * *`, so today's numbers are at most an hour old) calls it with the `x-marketing-cron-secret` header (`MARKETING_SECRET`); **Sync now** calls it with the admin's JWT. A second run in a day overwrites that day.
   - YouTube: public stats through the Data API with `YOUTUBE_API_KEY` for `YOUTUBE_CHANNEL_HANDLE` (default `@salelinx`). About a dozen quota units a sync, against 10,000 a day. The Data API has no share count, so YouTube's Shares column reads n/a.
   - Instagram: Instagram API with Instagram Login. Posts with likes and comments, plus views and shares from each of the newest 100 posts' insights. The 60-day token is renewed a week before it runs out.
   - TikTok: Display API (`video.list`, `user.info`). The day-long access token is renewed from the year-long refresh token on each run.
