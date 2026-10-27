@@ -1,0 +1,73 @@
+export const metadata = {
+  title:
+    "Des changements de prix en masse, les conversations d'achat dans Messages et un nouveau logo",
+  date: "2026-10-14",
+  summary:
+    "La version 1.1.12 permet à Édition en masse d'augmenter ou de baisser les prix d'un montant ou d'un pourcentage, affiche dans Messages les conversations où vous êtes l'acheteur, enregistre toujours les crosslists en brouillon, ne compte que les crosslists réussis et apporte le nouveau logo du lynx.",
+  tags: ["release"],
+};
+
+# Version 1.1.12
+
+Une version plus courte sur la route d&rsquo;eBay : des outils de prix, des
+messages Vinted plus stables et une nouvelle apparence.
+
+## Nouveautés
+
+- **Des changements de prix en masse.** Édition en masse permet de définir
+  un nouveau prix, ou d&rsquo;augmenter ou de baisser les prix d&rsquo;un
+  montant ou d&rsquo;un pourcentage.
+- **Les conversations d&rsquo;achat dans Messages.** Les conversations où
+  vous êtes l&rsquo;acheteur s&rsquo;affichent aussi désormais, marquées
+  Achat.
+- **Un nouveau logo.** L&rsquo;emblème du lynx apparaît dans le panneau, la
+  fenêtre de la barre d&rsquo;outils et l&rsquo;icône de la barre
+  d&rsquo;outils.
+- **Un message clair quand SaleLinx est indisponible.** Si nos serveurs sont
+  injoignables, tout le panneau indique que SaleLinx est temporairement
+  indisponible, avec un bouton Fermer SaleLinx. Le message disparaît de
+  lui-même dès que le service est rétabli.
+
+## Améliorations
+
+- **Les crosslists sont toujours enregistrés en brouillon.**
+  L&rsquo;interrupteur Auto-post a disparu. Vérifiez vos nouveaux brouillons
+  Depop et Vinted, puis publiez-les depuis Publier les brouillons dans Mes
+  annonces.
+- **Ajouter par URL** affiche une barre de progression pendant la
+  récupération, accepte des liens séparés par des virgules, et échoue tout de
+  suite pour une annonce qui n&rsquo;est plus en ligne au lieu d&rsquo;ouvrir
+  un onglet. Fermer la fenêtre annule l&rsquo;opération.
+- **Un seul avertissement de rechargement.** Quand un onglet Depop ou Vinted
+  doit être rechargé, un seul avertissement l&rsquo;indique, avec un bouton
+  qui le recharge pour vous. Les synchronisations en échec n&rsquo;affichent
+  plus d&rsquo;alerte.
+- **Pas d&rsquo;onglet Vinted ouvert ?** Mes annonces propose désormais
+  d&rsquo;en ouvrir un, au lieu de vous demander de recharger un onglet qui
+  n&rsquo;existe pas.
+- Tout rafraîchir et les rafraîchissements automatiques ignorent les
+  plateformes que vous avez désactivées.
+- Les articles que vous modifiez lors de la vérification du crosslist sont
+  marqués Modifié.
+- Les sections des Paramètres s&rsquo;appellent désormais Compte SaleLinx et
+  Comptes de plateformes, et l&rsquo;interrupteur Animations de page se
+  trouve sous Affichage.
+- Dans une fenêtre étroite, le plein écran réduit le panneau au lieu de
+  l&rsquo;écraser.
+
+## Corrections
+
+- **Messages restait vide pour Vinted.** Quand la vérification de sécurité
+  de Vinted expirait, Messages affichait Aucun nouveau message et les
+  fonctionnalités Vinted se désactivaient. SaleLinx recharge désormais
+  l&rsquo;onglet Vinted une fois et réessaie.
+- Les lignes supprimées en masse ne redeviennent plus sélectionnables un
+  instant juste avant de disparaître.
+
+## Abonnement et facturation
+
+- **Seuls les crosslists réussis comptent.** Chaque crosslist est compté dès
+  qu&rsquo;il aboutit, et votre quota est vérifié avant chaque article, si
+  bien qu&rsquo;un lot qui atteint votre limite mensuelle s&rsquo;arrête et
+  garde le reste pour plus tard. Les articles en échec ne comptent pas dans
+  votre quota.

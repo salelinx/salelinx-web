@@ -1,0 +1,146 @@
+export const metadata = {
+  title: "eBay is here: crosslist in any direction and manage your eBay listings",
+  date: "2026-10-27",
+  summary:
+    "Version 1.2.0 adds eBay: link your eBay account, see and edit your eBay listings in My Listings, and crosslist between eBay, Depop and Vinted in any direction. It also checks every item before you crosslist, suggests links between your listings, shows deleted listings as Deleted, and makes Vinted drafts post.",
+  tags: ["release"],
+};
+
+# Version 1.2.0
+
+SaleLinx now works with eBay. It is our biggest release since launch, so the
+eBay part comes first.
+
+## eBay
+
+- **Link your eBay account.** If you already use SaleLinx, turn eBay on in
+  Settings under Marketplaces, then link it under Marketplace accounts. A
+  small window takes you through eBay's sign-in, and eBay asks which account
+  to use. New installs have eBay switched on already.
+- **Chrome asks for eBay access when you link, not when you update.** The
+  update needs no new permissions, so it installs as usual. When you press
+  Continue to eBay, Chrome asks to let SaleLinx run on eBay's sites. Allow it
+  if you can: eBay drafts and the panel on eBay pages need it. If you skip
+  it, Settings offers Show SaleLinx on eBay under Marketplace accounts so you
+  can allow it later. Without it, linking, My Listings and live crosslists
+  still work.
+- **Your eBay listings in My Listings.** Active listings, items sold or ended
+  unsold in the last 60 days, views over the last 90 days, and your eBay
+  drafts. Edit the title, description, price, quantity, photos, category,
+  condition, item specifics and offers, or unlist, relist and delete. Bulk
+  Edit covers price, title, description and quantity, and cloud save and CSV
+  export work for eBay rows too.
+- **Crosslist to and from eBay.** Crosslist now has From and To pickers with
+  a swap button, so it works between any two of eBay, Depop and Vinted.
+  Items going to eBay are saved as eBay drafts, unless you switch on Post
+  straight away for an item to list it live at a fixed price. Category,
+  condition, item specifics, photos and price are filled in, with the price
+  converted to your eBay site's currency. Crosslisting from eBay needs no
+  eBay tab, and Add from URL takes eBay links.
+- **eBay's fees before anything goes live.** The review shows eBay's fee for
+  each item, or Free to list on eBay, and anything eBay still needs, with a
+  Fill in button. You see the total before posting.
+- **Postage and returns** come from your eBay policies or existing listings,
+  or are asked for once and saved.
+- **eBay settings.** Choose your eBay site (Automatic, or one of 11,
+  including eBay UK, US, Germany, France and Australia), whether you sell as
+  a private or business seller, and your default postage.
+- **Linking across all three.** The Linking tab has an eBay column, so one
+  item can be linked on eBay, Depop and Vinted.
+- **The panel on eBay.** It opens on eBay pages, Alt+S works there, and the
+  toolbar popup has an Open eBay link.
+- **eBay on its own.** You can use SaleLinx with eBay alone, without a Depop
+  or Vinted account.
+
+### Good to know
+
+- **eBay drafts need an eBay tab.** Keep a signed-in eBay tab open on your
+  eBay site. SaleLinx may briefly open one in the background to keep your
+  drafts up to date.
+- **New eBay accounts** have to finish eBay's seller setup first. The review
+  tells you and offers to open eBay.
+- **Stock isn't kept in step with eBay yet.** The Restocker covers Depop and
+  Vinted only, so when an item sells on eBay, end the Depop or Vinted copy
+  yourself, and the other way round.
+- Live eBay listings are fixed price, and titles are cut to eBay's 80
+  characters.
+- eBay listings sync at most every 15 minutes. Press Update to sync now.
+- The other tools, including Relist, Refresh, Dead Stock, Price Drops, the
+  Restocker, Offers, Auto-Offers, Messages, Labels and Grow, stay Depop and
+  Vinted only for now.
+
+## Crosslisting
+
+- **Every item is checked before you crosslist.** Missing details are
+  flagged, the size that will be sent is shown, and Depop's 8-photo limit is
+  flagged, with a photo picker in Edit.
+- **Choices for each item** in the review: Post straight away, Back up to the
+  cloud, and Link to the original. Post straight away starts off each time
+  you open the review. Backing up and linking need a plan with cloud sync.
+- **Seconds between listings** in Crosslist settings, with presets. Posting
+  goes in batches of 10 with a 5-minute break between them.
+- **Faster crosslists.** Failed photo uploads are retried, and a marketplace
+  tab that has stopped responding is reloaded for you.
+- **Post drafts** checks each draft first, and Vinted drafts now post.
+
+## My Listings and Linking
+
+- **Recommended links.** The Linking tab suggests matches, with Link all, a
+  Crosslist button when nothing matches, an All, Active or Drafts filter, and
+  an Already linked section. Links are saved to the cloud for you.
+- **Deleted, not Sold.** A listing you deleted on Depop or Vinted now shows
+  as Deleted, and you can relist it.
+- **Update replaces Refresh** in My Listings and shows its progress.
+- **More filters:** several marketplaces at once, Linked, and Only these.
+  There is also an Infinite scroll option, off by default.
+- The editor opens on a list of the items you selected, with one Queue edits
+  button.
+- A status box shows how each marketplace is doing.
+- Sorting by Listed uses a linked item's newest listing.
+
+## Improved
+
+- **A redesigned Grow tab**, and one Settings button on each feature that
+  shows its active preset.
+- **See how it works** cards on every tab, and a switch for tutorial popups.
+- **Settings is regrouped**, with a tile for each marketplace and an Apply
+  button.
+- **The launcher moves to the bottom-left corner**, unless you had moved it
+  yourself.
+- **Email sign-in** uses a form from salelinx.com, so Chrome can save your
+  password. Log out now signs out this browser only.
+- An offline screen, and a choice to keep or delete your cloud backups when
+  you unlink a marketplace.
+- Fewer long stalls with Depop or Vinted tabs in the background.
+- Descriptions sent to Depop are cut to Depop's 1,000 characters, and
+  dropdowns in scrolling lists open in full.
+
+## Fixed
+
+- **Vinted drafts** would not post, because Vinted refused them. They post
+  now.
+- **Vinted sizes.** Skirts from Vinted's newer catalogues lost their size, a
+  women's skirt could land in Kidswear, S matched XXXS, and boots offered no
+  sizes.
+- **Depop sizes** stopped loading after a change on Depop's side.
+- **Accented brands** failed on Depop with Brand is invalid.
+- **Crosslist results.** Drafts that were created were reported as failed,
+  failed items counted as done, and Pause could stick on Pausing. A Stop now
+  button appears after 30 seconds.
+- Links no longer disappear after an update, and the Restocker no longer
+  takes down a newly linked listing that still had stock.
+- Crosslist no longer asks you to reload a Vinted tab you have just
+  reloaded.
+- The Linking tab no longer bounces at the bottom, and Grow no longer shows
+  Vinted actions that did nothing.
+
+## Plans and billing
+
+- **eBay crosslists count** towards your monthly crosslist allowance, in
+  both directions, like Depop and Vinted ones. eBay's own fees are charged
+  by eBay, not by SaleLinx.
+- **Update doesn't use your Refresh allowance.** It only re-reads your
+  listings.
+- **The trial countdown has moved** from the header to the Membership card
+  in Settings. When a plan ends, the panel says Choose a plan to keep going,
+  and your data stays saved.

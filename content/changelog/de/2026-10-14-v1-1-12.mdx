@@ -1,0 +1,68 @@
+export const metadata = {
+  title:
+    "Massen-Preisänderungen, Kauf-Chats in Nachrichten und ein neues Logo",
+  date: "2026-10-14",
+  summary:
+    "Version 1.1.12 lässt die Massenbearbeitung Preise um einen Betrag oder einen Prozentsatz erhöhen oder senken, zeigt in Nachrichten auch Chats, in denen du der Käufer bist, speichert Crosslistings immer als Entwürfe, zählt nur erfolgreiche Crosslistings und bringt das neue Luchs-Logo.",
+  tags: ["release"],
+};
+
+# Version 1.1.12
+
+Eine kleinere Version auf dem Weg zu eBay: Preiswerkzeuge, stabilere
+Vinted-Nachrichten und ein neuer Look.
+
+## Neu
+
+- **Massen-Preisänderungen.** Die Massenbearbeitung kann einen neuen Preis
+  festlegen oder Preise um einen Betrag oder einen Prozentsatz erhöhen oder
+  senken.
+- **Kauf-Chats in Nachrichten.** Unterhaltungen, in denen du der Käufer
+  bist, erscheinen jetzt auch, markiert mit Kauf.
+- **Ein neues Logo.** Das Luchs-Zeichen erscheint im Panel, im
+  Symbolleisten-Popup und als Symbol in der Symbolleiste.
+- **Eine klare Meldung, wenn SaleLinx nicht verfügbar ist.** Wenn unsere
+  Server nicht erreichbar sind, meldet das ganze Panel, dass SaleLinx
+  vorübergehend nicht verfügbar ist, mit einem Button SaleLinx schließen.
+  Die Meldung verschwindet von selbst, sobald der Dienst wieder läuft.
+
+## Verbessert
+
+- **Crosslistings werden immer als Entwürfe gespeichert.** Der Schalter
+  Auto-post ist weg. Prüfe deine neuen Depop- und Vinted-Entwürfe und poste
+  sie dann über Entwürfe posten in Meine Anzeigen.
+- **Per URL hinzufügen** zeigt beim Laden einen Fortschrittsbalken, nimmt
+  durch Kommas getrennte Links an und schlägt bei einer Anzeige, die nicht
+  mehr online ist, sofort fehl, statt einen Tab zu öffnen. Wenn du das
+  Fenster schließt, wird der Vorgang abgebrochen.
+- **Nur noch eine Warnung zum Neuladen.** Wenn ein Depop- oder Vinted-Tab
+  neu geladen werden muss, sagt dir das eine einzige Warnung, mit einem
+  Button, der ihn für dich neu lädt. Fehlgeschlagene Synchronisierungen
+  öffnen keine Warnmeldung mehr.
+- **Kein Vinted-Tab offen?** Meine Anzeigen bietet jetzt an, einen zu
+  öffnen, statt dich zu bitten, einen Tab neu zu laden, den es nicht gibt.
+- Alle aktualisieren und automatische Aktualisierungen überspringen
+  Marktplätze, die du ausgeschaltet hast.
+- Artikel, die du in der Prüfliste vor dem Crosslisten änderst, werden als
+  Bearbeitet markiert.
+- Die Bereiche der Einstellungen heißen jetzt SaleLinx-Konto und
+  Marktplatz-Konten, und der Schalter Seitenanimationen liegt unter Anzeige.
+- In einem schmalen Fenster verkleinert der Vollbildmodus das Panel, statt
+  es zu stauchen.
+
+## Behoben
+
+- **Vinted-Nachrichten zeigten nichts.** Wenn Vinteds Sicherheitsprüfung
+  abgelaufen war, stand in Nachrichten Keine neuen Nachrichten, und die
+  Vinted-Funktionen schalteten sich ab. SaleLinx lädt den Vinted-Tab jetzt
+  einmal neu und versucht es erneut.
+- Im Stapel gelöschte Zeilen tauchen kurz vor dem Verschwinden nicht mehr
+  als auswählbar wieder auf.
+
+## Tarife und Abrechnung
+
+- **Nur erfolgreiche Crosslistings zählen.** Jedes Crosslisting wird
+  gezählt, sobald es ankommt, und dein Kontingent wird vor jedem Artikel
+  geprüft, sodass ein Stapel, der dein Monatslimit erreicht, anhält und den
+  Rest für später aufhebt. Fehlgeschlagene Artikel zählen nicht zu deinem
+  Kontingent.

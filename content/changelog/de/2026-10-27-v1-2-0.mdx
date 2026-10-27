@@ -1,0 +1,167 @@
+export const metadata = {
+  title:
+    "eBay ist da: in jede Richtung crosslisten und deine eBay-Anzeigen verwalten",
+  date: "2026-10-27",
+  summary:
+    "Version 1.2.0 bringt eBay: Verknüpfe dein eBay-Konto, sieh und bearbeite deine eBay-Anzeigen in Meine Anzeigen und crossliste in jede Richtung zwischen eBay, Depop und Vinted. Außerdem prüft sie jeden Artikel vor dem Crosslisten, schlägt Verknüpfungen zwischen deinen Anzeigen vor, zeigt gelöschte Anzeigen als Gelöscht an und sorgt dafür, dass sich Vinted-Entwürfe posten lassen.",
+  tags: ["release"],
+};
+
+# Version 1.2.0
+
+SaleLinx funktioniert jetzt mit eBay. Es ist unsere größte Version seit dem
+Start, deshalb kommt der eBay-Teil zuerst.
+
+## eBay
+
+- **Verknüpfe dein eBay-Konto.** Wenn du SaleLinx schon nutzt, schalte eBay
+  in den Einstellungen unter Marktplätze ein und verknüpfe es dann unter
+  Marktplatz-Konten. Ein kleines Fenster führt dich durch die Anmeldung bei
+  eBay, und eBay fragt, welches Konto verwendet werden soll. Bei neuen
+  Installationen ist eBay schon eingeschaltet.
+- **Chrome fragt beim Verknüpfen nach eBay-Zugriff, nicht beim Update.** Das
+  Update braucht keine neuen Berechtigungen und wird daher wie gewohnt
+  installiert. Wenn du Weiter zu eBay drückst, fragt Chrome, ob SaleLinx auf
+  den Seiten von eBay laufen darf. Erlaube es, wenn du kannst: eBay-Entwürfe
+  und das Panel auf eBay-Seiten brauchen es. Wenn du es überspringst, bieten
+  die Einstellungen unter Marktplatz-Konten SaleLinx auf eBay anzeigen an,
+  damit du es später erlauben kannst. Ohne die Erlaubnis funktionieren
+  Verknüpfen, Meine Anzeigen und Crosslistings, die sofort live gehen,
+  trotzdem.
+- **Deine eBay-Anzeigen in Meine Anzeigen.** Aktive Anzeigen, Artikel, die in
+  den letzten 60 Tagen verkauft wurden oder unverkauft endeten, Aufrufe der
+  letzten 90 Tage und deine eBay-Entwürfe. Bearbeite Titel, Beschreibung,
+  Preis, Menge, Fotos, Kategorie, Zustand, Artikelmerkmale und
+  Preisvorschläge, oder deaktiviere Anzeigen, stelle sie neu ein und lösche
+  sie. Die Massenbearbeitung deckt Preis, Titel, Beschreibung und Menge ab,
+  und Cloud-Speicherung und CSV-Export funktionieren auch für eBay-Zeilen.
+- **Crosslisten zu und von eBay.** Crosslist hat jetzt Auswahlfelder für Von
+  und Nach mit einem Button zum Tauschen, sodass es zwischen je zwei von
+  eBay, Depop und Vinted funktioniert. Artikel für eBay werden als
+  eBay-Entwürfe gespeichert, außer du schaltest für einen Artikel Sofort
+  posten ein, um ihn live zum Festpreis einzustellen. Kategorie, Zustand,
+  Artikelmerkmale, Fotos und Preis werden ausgefüllt, wobei der Preis in die
+  Währung deiner eBay-Seite umgerechnet wird. Crosslisten von eBay braucht
+  keinen eBay-Tab, und Per URL hinzufügen nimmt eBay-Links.
+- **eBays Gebühren, bevor etwas live geht.** Die Prüfliste zeigt für jeden
+  Artikel die Gebühr von eBay oder Kostenlos auf eBay einstellen und alles,
+  was eBay noch braucht, mit einem Button Ausfüllen. Du siehst die Summe vor
+  dem Posten.
+- **Versand und Rücknahme** kommen aus deinen eBay-Richtlinien oder
+  bestehenden Anzeigen oder werden einmal abgefragt und gespeichert.
+- **eBay-Einstellungen.** Wähle deine eBay-Seite (Automatisch oder eine von
+  11, darunter eBay UK, US, Deutschland, Frankreich und Australien), ob du
+  als privater oder gewerblicher Verkäufer verkaufst, und deinen
+  Standardversand.
+- **Verknüpfen über alle drei.** Der Tab Verknüpfung hat eine eBay-Spalte,
+  sodass ein Artikel auf eBay, Depop und Vinted verknüpft sein kann.
+- **Das Panel auf eBay.** Es öffnet sich auf eBay-Seiten, Alt+S funktioniert
+  dort, und das Symbolleisten-Popup hat einen Link Open eBay.
+- **eBay allein.** Du kannst SaleLinx nur mit eBay nutzen, ohne Depop- oder
+  Vinted-Konto.
+
+### Gut zu wissen
+
+- **eBay-Entwürfe brauchen einen eBay-Tab.** Lass einen eBay-Tab, in dem du
+  angemeldet bist, auf deiner eBay-Seite offen. SaleLinx öffnet eventuell
+  kurz einen im Hintergrund, um deine Entwürfe aktuell zu halten.
+- **Neue eBay-Konten** müssen zuerst die Verkäufereinrichtung von eBay
+  abschließen. Die Prüfliste sagt es dir und bietet an, eBay zu öffnen.
+- **Der Bestand wird noch nicht mit eBay synchron gehalten.** Der Restocker
+  deckt nur Depop und Vinted ab, also beende die Depop- oder Vinted-Kopie
+  selbst, wenn ein Artikel auf eBay verkauft wird, und umgekehrt.
+- Live geschaltete eBay-Anzeigen haben einen Festpreis, und Titel werden auf
+  eBays 80 Zeichen gekürzt.
+- eBay-Anzeigen werden höchstens alle 15 Minuten synchronisiert. Drücke
+  Abgleichen, um sofort zu synchronisieren.
+- Die anderen Werkzeuge, darunter Neu einstellen, Aktualisieren, Lagerhüter,
+  Preissenkungen, der Restocker, Angebote, Auto-Angebote, Nachrichten,
+  Etiketten und Wachstum, bleiben vorerst nur für Depop und Vinted.
+
+## Crosslisting
+
+- **Jeder Artikel wird vor dem Crosslisten geprüft.** Fehlende Angaben
+  werden markiert, du siehst die Größe, die gesendet wird, und Depops Limit
+  von 8 Fotos wird markiert, mit einer Fotoauswahl unter Bearbeiten.
+- **Optionen für jeden Artikel** in der Prüfliste: Sofort posten, In der
+  Cloud sichern und Mit dem Original verknüpfen. Sofort posten steht bei
+  jedem Öffnen der Prüfliste zunächst auf Aus. Sichern und Verknüpfen
+  brauchen einen Tarif mit Cloud-Synchronisierung.
+- **Sekunden zwischen Anzeigen** in den Crosslist-Einstellungen, mit
+  Voreinstellungen. Gepostet wird in Stapeln zu je 10 mit 5 Minuten Pause
+  dazwischen.
+- **Schnellere Crosslistings.** Fehlgeschlagene Foto-Uploads werden erneut
+  versucht, und ein Marktplatz-Tab, der nicht mehr reagiert, wird für dich
+  neu geladen.
+- **Entwürfe posten** prüft zuerst jeden Entwurf, und Vinted-Entwürfe lassen
+  sich jetzt posten.
+
+## Meine Anzeigen und Verknüpfung
+
+- **Empfohlene Links.** Der Tab Verknüpfung schlägt Treffer vor, mit Alle
+  verknüpfen, einem Crosslist-Button, wenn nichts passt, einem Filter Alle,
+  Aktiv oder Entwürfe und einem Bereich Bereits verknüpft. Verknüpfungen
+  werden für dich in der Cloud gespeichert.
+- **Gelöscht, nicht Verkauft.** Eine Anzeige, die du auf Depop oder Vinted
+  gelöscht hast, erscheint jetzt als Gelöscht, und du kannst sie neu
+  einstellen.
+- **Abgleichen ersetzt Aktualisieren** in Meine Anzeigen und zeigt seinen
+  Fortschritt.
+- **Mehr Filter:** mehrere Marktplätze gleichzeitig, Verknüpft und Nur
+  diese. Außerdem gibt es eine Option Endloses Scrollen, standardmäßig aus.
+- Der Editor öffnet sich mit einer Liste der ausgewählten Artikel und einem
+  einzigen Button Einreihen.
+- Ein Statusfeld zeigt, wie es um jeden Marktplatz steht.
+- Beim Sortieren nach Eingestellt zählt die neueste Anzeige eines
+  verknüpften Artikels.
+
+## Verbessert
+
+- **Ein neu gestalteter Tab Wachstum** und ein einziger Button Einstellungen
+  bei jeder Funktion, der ihre aktive Voreinstellung zeigt.
+- **So-funktioniert-es-Karten** auf jedem Tab und ein Schalter für
+  Tutorial-Hinweise.
+- **Die Einstellungen sind neu gruppiert**, mit einer Kachel für jeden
+  Marktplatz und einem Button Übernehmen.
+- **Der Launcher wandert in die linke untere Ecke**, außer du hattest ihn
+  selbst verschoben.
+- **Die Anmeldung per E-Mail** nutzt ein Formular von salelinx.com, sodass
+  Chrome dein Passwort speichern kann. Abmelden meldet dich jetzt nur in
+  diesem Browser ab.
+- Ein Offline-Bildschirm und die Wahl, deine Cloud-Backups zu behalten oder
+  zu löschen, wenn du einen Marktplatz trennst.
+- Weniger lange Hänger bei Depop- oder Vinted-Tabs im Hintergrund.
+- An Depop gesendete Beschreibungen werden auf Depops 1.000 Zeichen gekürzt,
+  und Dropdowns in scrollenden Listen öffnen sich vollständig.
+
+## Behoben
+
+- **Vinted-Entwürfe** ließen sich nicht posten, weil Vinted sie ablehnte.
+  Jetzt klappt es.
+- **Vinted-Größen.** Röcke aus Vinteds neueren Katalogen verloren ihre
+  Größe, ein Damenrock konnte in Kidswear landen, S wurde XXXS zugeordnet,
+  und Stiefel boten keine Größen an.
+- **Depop-Größen** luden nach einer Änderung auf Depops Seite nicht mehr.
+- **Marken mit Akzenten** schlugen auf Depop mit Brand is invalid fehl.
+- **Crosslist-Ergebnisse.** Erstellte Entwürfe wurden als fehlgeschlagen
+  gemeldet, fehlgeschlagene Artikel als erledigt gezählt, und Pause konnte
+  bei Wird pausiert hängen bleiben. Nach 30 Sekunden erscheint ein Button
+  Jetzt stoppen.
+- Verknüpfungen verschwinden nach einem Update nicht mehr, und der Restocker
+  nimmt keine neu verknüpfte Anzeige mehr offline, die noch Bestand hatte.
+- Crosslist bittet dich nicht mehr, einen Vinted-Tab neu zu laden, den du
+  gerade neu geladen hast.
+- Der Tab Verknüpfung federt unten nicht mehr nach, und Wachstum zeigt keine
+  Vinted-Aktionen mehr, die nichts bewirkt haben.
+
+## Tarife und Abrechnung
+
+- **eBay-Crosslistings zählen** zu deinem monatlichen
+  Crosslisting-Kontingent, in beide Richtungen, wie die von Depop und
+  Vinted. eBays eigene Gebühren berechnet eBay, nicht SaleLinx.
+- **Abgleichen verbraucht nicht dein Kontingent für Aktualisieren.** Es liest
+  deine Anzeigen nur neu ein.
+- **Der Countdown der Testphase ist umgezogen**, aus der Kopfzeile auf die
+  Karte Mitgliedschaft in den Einstellungen. Wenn ein Tarif endet, zeigt das
+  Panel „Wähle einen Tarif, um weiterzumachen“, und deine Daten bleiben
+  gespeichert.
