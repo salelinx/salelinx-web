@@ -1,0 +1,60 @@
+export const metadata = {
+  title: "Bulk price changes, buying chats in Messages, and a new logo",
+  date: "2026-10-14",
+  summary:
+    "Version 1.1.12 lets Bulk Edit raise or lower prices by an amount or a percentage, shows chats where you are the buyer in Messages, always saves crosslists as drafts, counts only crosslists that succeed, and brings the new lynx logo.",
+  tags: ["release"],
+};
+
+# Version 1.1.12
+
+A smaller release on the way to eBay: price tools, steadier Vinted messages
+and a new look.
+
+## New
+
+- **Bulk price changes.** Bulk Edit can set a new price, or raise or lower
+  prices by an amount or a percentage.
+- **Buying chats in Messages.** Conversations where you are the buyer now
+  show too, tagged Buying.
+- **A new logo.** The lynx mark appears in the panel, the toolbar popup and
+  the toolbar icon.
+- **A clear message when SaleLinx is down.** If our servers can't be
+  reached, the whole panel says SaleLinx is temporarily down, with a Close
+  SaleLinx button. It clears itself once the service is back.
+
+## Improved
+
+- **Crosslists are always saved as drafts.** The Auto-post switch is gone.
+  Check your new Depop and Vinted drafts, then post them from Post drafts in
+  My Listings.
+- **Add from URL** shows a progress bar while it fetches, takes links
+  separated by commas, and fails straight away for a listing that is no
+  longer up instead of opening a tab. Closing the window cancels it.
+- **One reload warning.** When a Depop or Vinted tab needs reloading, a
+  single warning says so, with a button that reloads it for you. Failed syncs
+  no longer pop up an alert.
+- **No Vinted tab open?** My Listings now offers to open one, instead of
+  asking you to reload a tab that isn't there.
+- Refresh All and automatic refreshes skip marketplaces you have switched
+  off.
+- Items you change in the crosslist review are marked Edited.
+- The Settings sections are now called SaleLinx account and Marketplace
+  accounts, and the Page animations switch lives under Display.
+- In a narrow window, fullscreen scales the panel down instead of squashing
+  it.
+
+## Fixed
+
+- **Vinted Messages showing nothing.** When Vinted's security check lapsed,
+  Messages said No new messages and Vinted features switched off. SaleLinx
+  now reloads the Vinted tab once and tries again.
+- Bulk-deleted rows no longer flash back as selectable just before they
+  disappear.
+
+## Plans and billing
+
+- **Only crosslists that succeed count.** Each crosslist is counted as it
+  lands, and your allowance is checked before every item, so a batch that
+  reaches your monthly limit stops and keeps the rest for later. Failed items
+  don't count towards your allowance.

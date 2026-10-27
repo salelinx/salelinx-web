@@ -1,0 +1,169 @@
+export const metadata = {
+  title:
+    "Llega eBay: haz crosslisting en cualquier dirección y gestiona tus anuncios de eBay",
+  date: "2026-10-27",
+  summary:
+    "La versión 1.2.0 añade eBay: vincula tu cuenta de eBay, consulta y edita tus anuncios de eBay en Mis anuncios, y haz crosslisting entre eBay, Depop y Vinted en cualquier dirección. También comprueba cada artículo antes del crosslisting, sugiere vínculos entre tus anuncios, muestra los anuncios eliminados como Eliminado y hace que los borradores de Vinted se publiquen.",
+  tags: ["release"],
+};
+
+# Versión 1.2.0
+
+SaleLinx ya funciona con eBay. Es nuestra mayor versión desde el
+lanzamiento, así que la parte de eBay va primero.
+
+## eBay
+
+- **Vincula tu cuenta de eBay.** Si ya usas SaleLinx, activa eBay en
+  Ajustes, en Plataformas, y luego vincula tu cuenta en Cuentas de
+  plataformas. Una pequeña ventana te guía por el inicio de sesión de eBay, y
+  eBay te pregunta qué cuenta usar. En las instalaciones nuevas, eBay ya
+  viene activado.
+- **Chrome pide acceso a eBay cuando vinculas la cuenta, no al actualizar.**
+  La actualización no necesita permisos nuevos, así que se instala como
+  siempre. Cuando pulsas Continuar a eBay, Chrome pide permiso para que
+  SaleLinx funcione en los sitios de eBay. Permítelo si puedes: los
+  borradores de eBay y el panel en las páginas de eBay lo necesitan. Si lo
+  omites, Ajustes ofrece Mostrar SaleLinx en eBay en Cuentas de plataformas
+  para que puedas permitirlo más tarde. Sin ese permiso, la vinculación, Mis
+  anuncios y los crosslists que se publican al momento siguen funcionando.
+- **Tus anuncios de eBay en Mis anuncios.** Anuncios activos, artículos
+  vendidos o finalizados sin vender en los últimos 60 días, visitas de los
+  últimos 90 días y tus borradores de eBay. Edita el título, la descripción,
+  el precio, la cantidad, las fotos, la categoría, el estado, las
+  características del artículo y las ofertas, o retira, vuelve a publicar y
+  elimina anuncios. Edición masiva cubre precio, título, descripción y
+  cantidad, y el guardado en la nube y la exportación a CSV también
+  funcionan con las filas de eBay.
+- **Crosslisting hacia y desde eBay.** Crosslist tiene ahora selectores de
+  origen y destino con un botón para intercambiarlos, así que funciona entre
+  dos cualesquiera de eBay, Depop y Vinted. Los artículos que van a eBay se
+  guardan como borradores de eBay, salvo que actives Publicar ya en un
+  artículo para publicarlo al momento a precio fijo. Se rellenan la
+  categoría, el estado, las características del artículo, las fotos y el
+  precio, con el precio convertido a la moneda de tu sitio de eBay. El
+  crosslisting desde eBay no necesita una pestaña de eBay, y Añadir por URL
+  admite enlaces de eBay.
+- **Las tarifas de eBay antes de publicar nada.** La revisión muestra la
+  tarifa de eBay de cada artículo, o Publicación gratis en eBay, y lo que
+  eBay aún necesita, con un botón Completar. Ves el total antes de publicar.
+- **El envío y las devoluciones** se toman de tus políticas de eBay o de tus
+  anuncios existentes, o se piden una vez y se guardan.
+- **Ajustes de eBay.** Elige tu sitio de eBay (Automático, o uno de 11,
+  entre ellos eBay Reino Unido, Estados Unidos, Alemania, Francia y
+  Australia), si vendes como Particular o como Empresa, y tu envío
+  predeterminado.
+- **Vinculación entre las tres.** La pestaña Vincular tiene una columna de
+  eBay, así que un mismo artículo puede vincularse en eBay, Depop y Vinted.
+- **El panel en eBay.** Se abre en las páginas de eBay, Alt+S funciona allí
+  y la ventana de la barra de herramientas tiene un enlace Open eBay.
+- **Solo eBay.** Puedes usar SaleLinx solo con eBay, sin cuenta de Depop ni
+  de Vinted.
+
+### A tener en cuenta
+
+- **Los borradores de eBay necesitan una pestaña de eBay.** Mantén abierta
+  una pestaña de eBay con la sesión iniciada en tu sitio de eBay. SaleLinx
+  puede abrir una brevemente en segundo plano para mantener tus borradores
+  al día.
+- **Las cuentas nuevas de eBay** tienen que completar antes la configuración
+  de vendedor de eBay. La revisión te lo indica y te ofrece abrir eBay.
+- **El stock aún no se sincroniza con eBay.** El Restocker solo cubre Depop
+  y Vinted, así que cuando un artículo se vende en eBay, retira tú mismo la
+  copia de Depop o Vinted, y al revés.
+- Los anuncios publicados en eBay son a precio fijo, y los títulos se
+  recortan a los 80 caracteres de eBay.
+- Los anuncios de eBay se sincronizan como mucho cada 15 minutos. Pulsa
+  Actualizar para sincronizar al momento.
+- Las demás herramientas, entre ellas Republicar, Refrescar, Stock muerto,
+  Bajadas de precio, el Restocker, Ofertas, Auto-Ofertas, Mensajes,
+  Etiquetas y Crecer, siguen siendo solo para Depop y Vinted por ahora.
+
+## Crosslisting
+
+- **Cada artículo se comprueba antes del crosslisting.** Se marcan los datos
+  que faltan, se muestra la talla que se enviará y se avisa del límite de 8
+  fotos de Depop, con un selector de fotos en Editar.
+- **Opciones para cada artículo** en la revisión: Publicar ya, Guardar en la
+  nube y Vincular con el original. Publicar ya empieza desactivado cada vez
+  que abres la revisión. La copia en la nube y la vinculación necesitan un
+  plan con sincronización en la nube.
+- **Segundos entre anuncios** en Ajustes de Crosslist, con valores
+  predefinidos. La publicación va en lotes de 10 con un descanso de 5
+  minutos entre uno y otro.
+- **Crosslists más rápidos.** Las subidas de fotos fallidas se reintentan, y
+  una pestaña de plataforma que ha dejado de responder se recarga por ti.
+- **Publicar borradores** comprueba antes cada borrador, y los borradores de
+  Vinted ya se publican.
+
+## Mis anuncios y Vinculación
+
+- **Enlaces recomendados.** La pestaña Vincular sugiere coincidencias, con
+  Vincular todo, un botón para hacer crosslisting cuando nada coincide, un
+  filtro Todos, Activos o Borradores y una sección Ya vinculados. Los
+  vínculos se guardan en la nube por ti.
+- **Eliminado, no Vendido.** Un anuncio que eliminaste en Depop o Vinted
+  aparece ahora como Eliminado, y puedes volver a publicarlo.
+- **Actualizar sustituye a Refrescar** en Mis anuncios y muestra su
+  progreso.
+- **Más filtros:** varias plataformas a la vez, Vinculados y Solo estos.
+  También hay una opción de Desplazamiento infinito, desactivada por
+  defecto.
+- El editor se abre con una lista de los artículos que has seleccionado, con
+  un único botón Poner en cola.
+- Un cuadro de estado muestra cómo va cada plataforma.
+- Ordenar por Publicado usa el anuncio más reciente de un artículo
+  vinculado.
+
+## Mejoras
+
+- **Una pestaña Crecer rediseñada**, y un único botón Ajustes en cada
+  función, que muestra su ajuste guardado activo.
+- **Tarjetas Ver cómo funciona** en todas las pestañas, y un interruptor
+  para los consejos del tutorial.
+- **Ajustes está reorganizado**, con una ficha para cada plataforma y un
+  botón Aplicar.
+- **El botón flotante de SaleLinx pasa a la esquina inferior izquierda**,
+  salvo que lo hubieras movido tú.
+- **El inicio de sesión con correo** usa un formulario de salelinx.com, así
+  que Chrome puede guardar tu contraseña. Cerrar sesión cierra ahora la
+  sesión solo en este navegador.
+- Una pantalla para cuando estás sin conexión, y la opción de conservar o
+  eliminar tus copias en la nube al desvincular una plataforma.
+- Menos bloqueos largos con pestañas de Depop o Vinted en segundo plano.
+- Las descripciones enviadas a Depop se recortan a los 1000 caracteres de
+  Depop, y los desplegables de las listas con desplazamiento se abren por
+  completo.
+
+## Correcciones
+
+- **Los borradores de Vinted** no se publicaban porque Vinted los rechazaba.
+  Ahora se publican.
+- **Tallas de Vinted.** Las faldas de los catálogos más nuevos de Vinted
+  perdían su talla, una falda de mujer podía acabar en Kidswear, la S
+  coincidía con XXXS y las botas no ofrecían tallas.
+- **Las tallas de Depop** dejaron de cargarse tras un cambio por parte de
+  Depop.
+- **Las marcas con acentos** fallaban en Depop con el error Brand is
+  invalid.
+- **Resultados del crosslisting.** Los borradores que sí se creaban
+  aparecían como fallidos, los artículos fallidos contaban como hechos, y
+  Pausar podía quedarse atascado en Pausando. Un botón Detener ya aparece a
+  los 30 segundos.
+- Los vínculos ya no desaparecen tras una actualización, y el Restocker ya
+  no retira un anuncio recién vinculado que aún tenía stock.
+- Crosslist ya no te pide recargar una pestaña de Vinted que acabas de
+  recargar.
+- La pestaña Vincular ya no rebota al llegar abajo, y Crecer ya no muestra
+  acciones de Vinted que no hacían nada.
+
+## Planes y facturación
+
+- **Los crosslists de eBay cuentan** para tu límite mensual de crosslists,
+  en ambas direcciones, igual que los de Depop y Vinted. Las tarifas propias
+  de eBay las cobra eBay, no SaleLinx.
+- **Actualizar no consume tu límite de Refrescar.** Solo vuelve a leer tus
+  anuncios.
+- **La cuenta atrás de la prueba se ha movido** de la cabecera a la tarjeta
+  Membresía de Ajustes. Cuando termina un plan, el panel dice Elige un plan
+  para continuar, y tus datos siguen guardados.

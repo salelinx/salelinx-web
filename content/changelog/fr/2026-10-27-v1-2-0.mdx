@@ -1,0 +1,177 @@
+export const metadata = {
+  title:
+    "eBay est là : crosslistez dans n'importe quel sens et gérez vos annonces eBay",
+  date: "2026-10-27",
+  summary:
+    "La version 1.2.0 ajoute eBay : liez votre compte eBay, consultez et modifiez vos annonces eBay dans Mes annonces, et crosslistez entre eBay, Depop et Vinted dans n'importe quel sens. Elle vérifie aussi chaque article avant le crosslist, suggère des liaisons entre vos annonces, affiche les annonces supprimées comme Supprimé et permet de publier les brouillons Vinted.",
+  tags: ["release"],
+};
+
+# Version 1.2.0
+
+SaleLinx fonctionne désormais avec eBay. C&rsquo;est notre plus grosse
+version depuis le lancement, la partie eBay vient donc en premier.
+
+## eBay
+
+- **Liez votre compte eBay.** Si vous utilisez déjà SaleLinx, activez eBay
+  dans les Paramètres, sous Plateformes, puis liez votre compte sous Comptes
+  de plateformes. Une petite fenêtre vous guide dans la connexion à eBay, et
+  eBay vous demande quel compte utiliser. Sur les nouvelles installations,
+  eBay est déjà activé.
+- **Chrome demande l&rsquo;accès à eBay quand vous liez votre compte, pas
+  lors de la mise à jour.** La mise à jour ne demande aucune nouvelle
+  autorisation, elle s&rsquo;installe donc comme d&rsquo;habitude. Quand vous
+  appuyez sur Continuer vers eBay, Chrome demande d&rsquo;autoriser SaleLinx
+  à fonctionner sur les sites d&rsquo;eBay. Autorisez-le si vous le pouvez :
+  les brouillons eBay et le panneau sur les pages eBay en ont besoin. Si vous
+  passez cette étape, les Paramètres proposent Afficher SaleLinx sur eBay
+  sous Comptes de plateformes pour l&rsquo;autoriser plus tard. Sans cet
+  accès, la liaison, Mes annonces et les crosslists publiés directement
+  fonctionnent quand même.
+- **Vos annonces eBay dans Mes annonces.** Les annonces actives, les
+  articles vendus ou terminés sans vente au cours des 60 derniers jours, les
+  vues des 90 derniers jours et vos brouillons eBay. Modifiez le titre, la
+  description, le prix, la quantité, les photos, la catégorie, l&rsquo;état,
+  les caractéristiques de l&rsquo;objet et les offres, ou retirez, remettez
+  en vente et supprimez vos annonces. Édition en masse couvre le prix, le
+  titre, la description et la quantité, et la sauvegarde cloud et
+  l&rsquo;export CSV fonctionnent aussi pour les lignes eBay.
+- **Crosslister vers et depuis eBay.** Crosslist propose désormais un
+  sélecteur de source et un sélecteur de destination, avec un bouton pour
+  les inverser : il fonctionne donc entre deux plateformes au choix parmi
+  eBay, Depop et Vinted. Les articles envoyés vers eBay sont enregistrés
+  comme brouillons eBay, sauf si vous activez Publier tout de suite sur un
+  article pour le mettre en ligne à prix fixe. La catégorie, l&rsquo;état,
+  les caractéristiques de l&rsquo;objet, les photos et le prix sont
+  renseignés, avec le prix converti dans la devise de votre site eBay.
+  Crosslister depuis eBay ne nécessite aucun onglet eBay, et Ajouter par URL
+  accepte les liens eBay.
+- **Les frais eBay avant toute mise en ligne.** La vérification affiche les
+  frais d&rsquo;insertion eBay de chaque article, ou Mise en vente gratuite
+  sur eBay, ainsi que tout ce qu&rsquo;eBay demande encore, avec un bouton
+  Compléter. Vous voyez le total avant de publier.
+- **La livraison et les retours** sont repris de vos règles eBay ou de vos
+  annonces existantes, ou bien demandés une fois puis enregistrés.
+- **Les réglages eBay.** Choisissez votre site eBay (Automatique, ou
+  l&rsquo;un des 11 sites, dont eBay UK, US, Allemagne, France et
+  Australie), si vous vendez en tant que particulier ou professionnel, et
+  votre livraison par défaut.
+- **La liaison sur les trois plateformes.** L&rsquo;onglet Liaison a une
+  colonne eBay, si bien qu&rsquo;un même article peut être lié sur eBay,
+  Depop et Vinted.
+- **Le panneau sur eBay.** Il s&rsquo;ouvre sur les pages eBay, Alt+S y
+  fonctionne, et la fenêtre de la barre d&rsquo;outils a un lien Open eBay.
+- **eBay seul.** Vous pouvez utiliser SaleLinx avec eBay uniquement, sans
+  compte Depop ni Vinted.
+
+### Bon à savoir
+
+- **Les brouillons eBay ont besoin d&rsquo;un onglet eBay.** Gardez ouvert
+  un onglet eBay connecté sur votre site eBay. SaleLinx peut en ouvrir un
+  brièvement en arrière-plan pour garder vos brouillons à jour.
+- **Les nouveaux comptes eBay** doivent d&rsquo;abord terminer la
+  configuration vendeur d&rsquo;eBay. La vérification vous le signale et
+  propose d&rsquo;ouvrir eBay.
+- **Le stock n&rsquo;est pas encore synchronisé avec eBay.** Le Restockeur
+  ne couvre que Depop et Vinted : quand un article se vend sur eBay, retirez
+  vous-même la copie Depop ou Vinted, et inversement.
+- Les annonces eBay en ligne sont à prix fixe, et les titres sont coupés aux
+  80 caractères d&rsquo;eBay.
+- Les annonces eBay se synchronisent au plus toutes les 15 minutes. Appuyez
+  sur Mettre à jour pour synchroniser tout de suite.
+- Les autres outils, dont Republier, Rafraîchir, Stock mort, Baisses de prix,
+  le Restockeur, Offres, Offres auto, Messages, Étiquettes et Croissance,
+  restent pour l&rsquo;instant réservés à Depop et Vinted.
+
+## Crosslisting
+
+- **Chaque article est vérifié avant le crosslist.** Les détails manquants
+  sont signalés, la taille qui sera envoyée est affichée, et la limite de
+  8 photos de Depop est signalée, avec un sélecteur de photos dans Modifier.
+- **Des choix pour chaque article** dans la vérification : Publier tout de
+  suite, Sauvegarder dans le cloud et Lier à l&rsquo;original. Publier tout
+  de suite est désactivé à chaque ouverture de la vérification. La
+  sauvegarde et la liaison nécessitent une offre avec la synchronisation
+  cloud.
+- **Secondes entre les annonces** dans les Réglages Crosslist, avec des
+  préréglages. La publication se fait par lots de 10, avec une pause de
+  5 minutes entre chaque lot.
+- **Des crosslists plus rapides.** Les envois de photos en échec sont
+  relancés, et un onglet de plateforme qui ne répond plus est rechargé pour
+  vous.
+- **Publier les brouillons** vérifie d&rsquo;abord chaque brouillon, et les
+  brouillons Vinted se publient désormais.
+
+## Mes annonces et Liaison
+
+- **Liens recommandés.** L&rsquo;onglet Liaison suggère des correspondances,
+  avec Tout lier, un bouton pour crosslister quand rien ne correspond, un
+  filtre Tous, Actives ou Brouillons, et une section Déjà liées. Les
+  liaisons sont enregistrées dans le cloud pour vous.
+- **Supprimé, et non Vendu.** Une annonce que vous avez supprimée sur Depop
+  ou Vinted s&rsquo;affiche désormais comme Supprimé, et vous pouvez la
+  remettre en vente.
+- **Mettre à jour remplace Rafraîchir** dans Mes annonces et affiche sa
+  progression.
+- **Plus de filtres :** plusieurs plateformes à la fois, Liés et Uniquement
+  ceux-ci. Il y a aussi une option Défilement infini, désactivée par défaut.
+- L&rsquo;éditeur s&rsquo;ouvre sur une liste des articles que vous avez
+  sélectionnés, avec un seul bouton Mettre en file d&rsquo;attente.
+- Un encadré de statut indique où en est chaque plateforme.
+- Le tri par Publié utilise l&rsquo;annonce la plus récente d&rsquo;un
+  article lié.
+
+## Améliorations
+
+- **Un onglet Croissance repensé**, et un seul bouton de réglages sur chaque
+  fonctionnalité, qui affiche son préréglage actif.
+- **Des cartes Voir comment ça marche** sur chaque onglet, et un
+  interrupteur Astuces du tutoriel.
+- **Les Paramètres sont réorganisés**, avec une tuile par plateforme et un
+  bouton Appliquer.
+- **Le lanceur passe dans le coin inférieur gauche**, sauf si vous
+  l&rsquo;aviez déplacé vous-même.
+- **La connexion par e-mail** utilise un formulaire de salelinx.com, pour
+  que Chrome puisse enregistrer votre mot de passe. Déconnexion ne
+  déconnecte désormais que ce navigateur.
+- Un écran hors ligne, et le choix de garder ou de supprimer vos sauvegardes
+  cloud quand vous dissociez une plateforme.
+- Moins de longs blocages avec des onglets Depop ou Vinted en arrière-plan.
+- Les descriptions envoyées à Depop sont coupées aux 1 000 caractères de
+  Depop, et les menus déroulants dans les listes qui défilent
+  s&rsquo;ouvrent en entier.
+
+## Corrections
+
+- **Les brouillons Vinted** ne se publiaient pas, car Vinted les refusait.
+  Ils se publient désormais.
+- **Tailles Vinted.** Les jupes des catalogues Vinted plus récents perdaient
+  leur taille, une jupe femme pouvait atterrir dans les vêtements enfants,
+  S correspondait à XXXS, et les bottes ne proposaient aucune taille.
+- **Les tailles Depop** ne se chargeaient plus après un changement côté
+  Depop.
+- **Les marques avec accents** échouaient sur Depop avec le message
+  « Brand is invalid ».
+- **Résultats du crosslist.** Des brouillons bel et bien créés étaient
+  signalés en échec, des articles en échec comptaient comme terminés, et
+  Pause pouvait rester bloqué sur Mise en pause. Un bouton Arrêter apparaît
+  au bout de 30 secondes.
+- Les liaisons ne disparaissent plus après une mise à jour, et le Restockeur
+  ne retire plus une annonce nouvellement liée qui avait encore du stock.
+- Crosslist ne vous demande plus de recharger un onglet Vinted que vous venez
+  de recharger.
+- L&rsquo;onglet Liaison ne rebondit plus en bas de page, et Croissance
+  n&rsquo;affiche plus d&rsquo;actions Vinted qui ne faisaient rien.
+
+## Abonnement et facturation
+
+- **Les crosslists eBay comptent** dans votre quota mensuel de crosslists,
+  dans les deux sens, comme ceux de Depop et de Vinted. Les frais propres à
+  eBay sont facturés par eBay, pas par SaleLinx.
+- **Mettre à jour n&rsquo;utilise pas votre quota de rafraîchissements.** Il
+  relit seulement vos annonces.
+- **Le compte à rebours de l&rsquo;essai a déménagé** de l&rsquo;en-tête
+  vers la carte Abonnement dans les Paramètres. Quand une offre se termine,
+  le panneau affiche Choisissez une offre pour continuer, et vos données
+  restent sauvegardées.
