@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { BlockingWall } from '@/components/BlockingWall';
+import { COOKIE_WALL_EVENT, cookieWallPending } from '@/components/CookieConsent';
 import {
   isMarketingPromptExempt,
   marketingChoice,
@@ -30,6 +31,9 @@ export function MarketingChoicePrompt() {
   // hour stale, and asking someone who answered on another device would be
   // worse than one extra request for the few who have not answered at all.
   const [unanswered, setUnanswered] = useState<string | null>(null);
+  const [cookieWall, setCookieWall] = useState<boolean>(
+    () => typeof document !== 'undefined' && cookieWallPending(),
+  );
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -41,7 +45,12 @@ export function MarketingChoicePrompt() {
       const user = session?.user;
       setCandidate(user && marketingChoice(user.user_metadata) === null ? user.id : null);
     });
-    return () => data.subscription.unsubscribe();
+    const recheck = () => setCookieWall(cookieWallPending());
+    window.addEventListener(COOKIE_WALL_EVENT, recheck);
+    return () => {
+      data.subscription.unsubscribe();
+      window.removeEventListener(COOKIE_WALL_EVENT, recheck);
+    };
   }, []);
 
   useEffect(() => {
@@ -61,7 +70,12 @@ export function MarketingChoicePrompt() {
     };
   }, [candidate]);
 
-  if (!candidate || unanswered !== candidate || isMarketingPromptExempt(pathname)) {
+  if (
+    !candidate ||
+    unanswered !== candidate ||
+    cookieWall ||
+    isMarketingPromptExempt(pathname)
+  ) {
     return null;
   }
 

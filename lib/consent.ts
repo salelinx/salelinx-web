@@ -61,6 +61,13 @@ export function needsChoice(
   );
 }
 
+// The cookie wall leaves the legal pages readable: the banner links to the
+// privacy policy, and a visitor has to be able to read it before answering.
+// Takes the locale-less pathname from next-intl's usePathname.
+export function isConsentWallExempt(pathname: string): boolean {
+  return pathname === '/legal' || pathname.startsWith('/legal/');
+}
+
 // Vercel Web Analytics is outside the categories above: it sets no cookies
 // and keeps only aggregate counts, so it runs under PECR's statistical
 // purposes exception (Data (Use and Access) Act 2025) with an opt-out instead

@@ -259,6 +259,19 @@ body::before {
   }
 }
 
+@keyframes wallFadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes wallCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
 @keyframes popIn {
   0% {
     opacity: 0;
