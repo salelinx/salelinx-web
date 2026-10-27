@@ -300,7 +300,7 @@ export function CookieConsent() {
       aria-label={blocking ? undefined : t('title')}
       className={
         blocking
-          ? 'm-auto w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-black/20 motion-safe:animate-[popIn_0.45s_ease-out] sm:p-8'
+          ? 'm-auto w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-black/15 motion-safe:animate-[wallCardIn_0.8s_cubic-bezier(0.22,1,0.36,1)_0.2s_backwards] sm:p-8'
           : 'fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3.5 shadow-lg shadow-black/[0.08] backdrop-blur-md motion-safe:animate-[popIn_0.6s_ease-out_1s_backwards] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]'
       }
     >
