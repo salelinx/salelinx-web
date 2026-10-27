@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "build:docs-index": "node scripts/build-docs-index.mjs",
+    "indexnow": "node scripts/indexnow.mjs",
     "test": "vitest run",
     "prepare": "git config core.hooksPath .githooks"
   },

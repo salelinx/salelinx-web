@@ -62,6 +62,141 @@ export const LANDING_PAGES: LandingPage[] = [
     doc: { label: 'Crosslist guide', path: '/docs/inventory/crosslist' },
   },
   {
+    slug: 'vinted-to-ebay',
+    navLabel: 'Vinted to eBay crosslister',
+    metaTitle: 'Crosslist from Vinted to eBay in bulk',
+    metaDescription:
+      'Copy your Vinted listings to eBay UK in bulk. Photos, size, brand and condition carried over, eBay category and item specifics filled in, fees shown first.',
+    title: 'Crosslist your Vinted listings to eBay',
+    intro:
+      'Most Vinted sellers could reach more buyers on eBay, but retyping every listing into eBay\'s form takes longer than it is worth. SaleLinx copies the Vinted listings you pick straight to your eBay account. It works out the eBay category, fills in the item specifics eBay asks for, uploads the original photos and shows you eBay\'s fee for every item before anything is posted.',
+    steps: [
+      'Install the SaleLinx Chrome extension, sign in to Vinted and connect your eBay account once in Settings.',
+      'Open the Crosslist tab and set From to Vinted and To to eBay.',
+      'Tick the listings you want. The Unlinked filter hides anything already on eBay.',
+      'Check the review step, which shows eBay\'s fee and anything eBay would refuse, then click Crosslist. eBay has no drafts, so the copies go live as fixed-price listings.',
+    ],
+    points: [
+      {
+        title: 'Item specifics filled in for you',
+        body: 'eBay asks for brand, colour, size, department and more. SaleLinx fills them in from the Vinted listing, and a row eBay would still refuse gets a Fill in button for what is missing.',
+      },
+      {
+        title: 'Postage set once',
+        body: 'SaleLinx uses your eBay business policies or the postage your eBay listings share. If there is nothing to go on, it asks once for your postage, returns and item postcode and remembers them.',
+      },
+      {
+        title: 'Works the other way too',
+        body: 'Pick eBay as From and Vinted as To to bring eBay stock onto Vinted. Copies to Vinted are saved as drafts for you to check and post.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Does eBay need a tab open?',
+        a: 'No. eBay connects through eBay\'s own sign-in, so only Vinted needs a tab open while SaleLinx reads your listings.',
+      },
+      {
+        q: 'Will eBay charge me for the listings?',
+        a: 'That depends on your eBay account. Private sellers in the UK get free listings and pay no selling fee; business sellers pay eBay\'s fees. SaleLinx shows the fee eBay quotes for each item before you post.',
+      },
+      {
+        q: 'Does SaleLinx see my eBay password?',
+        a: 'No. You sign in on eBay\'s own page and can remove SaleLinx\'s access from your eBay account at any time.',
+      },
+    ],
+    doc: { label: 'Crosslist guide', path: '/docs/inventory/crosslist' },
+  },
+  {
+    slug: 'depop-to-ebay',
+    navLabel: 'Depop to eBay crosslister',
+    metaTitle: 'Crosslist from Depop to eBay in bulk',
+    metaDescription:
+      'Move your Depop shop onto eBay UK without retyping it. SaleLinx maps the category, fills eBay item specifics, uploads the photos and shows eBay fees first.',
+    title: 'Crosslist your Depop listings to eBay',
+    intro:
+      'Depop and eBay describe the same item in different ways: Depop puts the title in the first line of the description and uses its own categories and sizes, while eBay wants a title, an eBay category and a list of item specifics. SaleLinx translates between the two, so you can put your Depop shop on eBay in one pass instead of relisting it by hand.',
+    steps: [
+      'Install the SaleLinx Chrome extension, sign in to Depop and connect your eBay account once in Settings.',
+      'Open the Crosslist tab and set From to Depop and To to eBay.',
+      'Tick the listings you want, or switch the filter to Unlinked and select the whole shop.',
+      'Check eBay\'s fee for each item in the review step, then click Crosslist. The copies go live on eBay as fixed-price listings.',
+    ],
+    points: [
+      {
+        title: 'Depop categories mapped to eBay\'s',
+        body: 'SaleLinx picks the eBay category from the title and the Depop category, and carries the size, brand, condition and colour across as eBay item specifics.',
+      },
+      {
+        title: 'Original photos',
+        body: 'The original photo files are uploaded to eBay, not screenshots, so nothing loses quality.',
+      },
+      {
+        title: 'Every copy linked',
+        body: 'Each eBay copy is linked to its Depop original, so the Unlinked filter always shows what is still left to move.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Can I crosslist from eBay to Depop instead?',
+        a: 'Yes. Swap From and To. Copies to Depop are saved as drafts for you to check and post.',
+      },
+      {
+        q: 'What if eBay needs a detail my Depop listing does not have?',
+        a: 'The review step flags the item before anything is posted, and its Fill in button lets you add the missing detail, usually a size or department.',
+      },
+      {
+        q: 'How many items can I crosslist?',
+        a: 'Each plan includes a monthly crosslist allowance, shown on the pricing page, and there is no limit on batch size within it.',
+      },
+    ],
+    doc: { label: 'Crosslist guide', path: '/docs/inventory/crosslist' },
+  },
+  {
+    slug: 'ebay-bulk-edit',
+    navLabel: 'eBay bulk editor',
+    metaTitle: 'Bulk edit eBay listings: prices, titles and photos',
+    metaDescription:
+      'Edit many eBay listings at once. Change prices by an amount or a percent, rewrite titles and descriptions, swap photos, and end or relist in one save.',
+    title: 'Bulk edit your eBay listings',
+    intro:
+      'eBay\'s own editor opens one listing at a time. SaleLinx loads your eBay listings into one grid next to your Depop and Vinted stock, so you can select a batch, change them together and send every change to eBay in one save.',
+    steps: [
+      'Install the SaleLinx Chrome extension and connect your eBay account once in Settings.',
+      'Open My Listings and filter to eBay. Your active listings, and those sold or ended in the last 60 days, are listed.',
+      'Select the listings and click Edit. Change each card by hand, or open Bulk Edit to apply one change to all of them.',
+      'Click Save Changes. The edits are sent straight to eBay.',
+    ],
+    points: [
+      {
+        title: 'Price changes by amount or percent',
+        body: 'Set a new price, or raise or lower prices by a fixed amount or a percentage across the whole selection.',
+      },
+      {
+        title: 'Every field on one card',
+        body: 'Each eBay card has the title, description, price, quantity, photos, category, condition, item specifics and offer settings.',
+      },
+      {
+        title: 'End and relist from the same editor',
+        body: 'Unlist ends an active listing, and an ended listing can be put back on sale with Relist.',
+      },
+    ],
+    faq: [
+      {
+        q: 'Can I set a minimum offer on eBay listings?',
+        a: 'Yes. Each card has Allow offers with a Minimum offer, and business sellers can also set an auto-accept price.',
+      },
+      {
+        q: 'Does it show what the buyer pays?',
+        a: 'For private sellers on eBay UK, each card shows a Buyer will pay figure with eBay\'s Buyer Protection fee added.',
+      },
+      {
+        q: 'How often does SaleLinx check eBay for changes?',
+        a: 'At most every 15 minutes. The eBay refresh button fetches your listings straight away.',
+      },
+    ],
+    doc: { label: 'My Listings guide', path: '/docs/inventory/listings' },
+  },
+  {
     slug: 'depop-auto-refresh',
     navLabel: 'Depop auto refresh',
     metaTitle: 'Depop auto refresh: bump your listings to the top',
