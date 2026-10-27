@@ -262,14 +262,13 @@ body::before {
 @keyframes wallFadeIn {
   from {
     opacity: 0;
-    backdrop-filter: blur(0);
   }
 }
 
 @keyframes wallCardIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
 }
 
