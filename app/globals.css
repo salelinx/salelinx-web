@@ -259,6 +259,12 @@ body::before {
   }
 }
 
+@keyframes wallFadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes popIn {
   0% {
     opacity: 0;

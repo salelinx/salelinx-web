@@ -44,7 +44,8 @@ import { captureSignupSource, clearSignupSource } from '@/lib/signup-source';
 //   asked again before the ads category ever fires (see lib/consent.ts).
 // - CookieSettingsButton in the Footer reopens the banner at any time.
 // - In the UK/EEA/CH (/api/geo) the first choice is a wall: the page is
-//   blurred and inert until the visitor picks. It forces a choice, never
+//   blurred and inert until the visitor picks. It waits for their first
+//   scroll, click or key, or WALL_DELAY_MS, so they see the page first. It forces a choice, never
 //   acceptance: Reject all is exactly as prominent as Accept all, which keeps
 //   it on the right side of the ICO's cookie wall guidance. The legal pages
 //   are exempt so the policy it links to stays readable. Elsewhere, and on a
@@ -68,6 +69,7 @@ const GTAG_SCRIPT_ID = 'ga-gtag';
 // wait its turn: two BlockingWalls would make each other inert.
 export const COOKIE_WALL_EVENT = 'slx:cookie-wall';
 let geoAutomatic: boolean | null = null;
+const WALL_DELAY_MS = 5000;
 
 // Whether the cookie wall is up or may still go up. Client-only.
 export function cookieWallPending(): boolean {
@@ -194,6 +196,7 @@ export function CookieConsent() {
   // The first answer, as opposed to a Footer reopen, which never walls.
   const [required, setRequired] = useState(open);
   const [automatic, setAutomatic] = useState(geoAutomatic);
+  const [armed, setArmed] = useState(false);
   // Open on a Footer reopen: that visitor came to change a choice.
   const [choosing, setChoosing] = useState(false);
   const [toggles, setToggles] = useState<{ analytics: boolean; ads: boolean; stats: boolean }>(
@@ -242,8 +245,22 @@ export function CookieConsent() {
     return () => window.removeEventListener(REOPEN_EVENT, reopen);
   }, []);
 
-  if (!ANY_ACTIVE || !hydrated || !open || (required && automatic === null)) return null;
   const blocking = required && automatic === false && !isConsentWallExempt(pathname);
+
+  useEffect(() => {
+    if (!blocking || armed) return;
+    const arm = () => setArmed(true);
+    const events = ['scroll', 'pointerdown', 'keydown'] as const;
+    events.forEach((e) => window.addEventListener(e, arm, { once: true, passive: true }));
+    const timer = setTimeout(arm, WALL_DELAY_MS);
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, arm));
+      clearTimeout(timer);
+    };
+  }, [blocking, armed]);
+
+  if (!ANY_ACTIVE || !hydrated || !open || (required && automatic === null)) return null;
+  if (blocking && !armed) return null;
 
   // Stats is not a consent category, so Reject all leaves it as the switch
   // shows rather than turning it off.
