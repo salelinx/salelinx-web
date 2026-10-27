@@ -44,9 +44,9 @@ import { captureSignupSource, clearSignupSource } from '@/lib/signup-source';
 //   asked again before the ads category ever fires (see lib/consent.ts).
 // - CookieSettingsButton in the Footer reopens the banner at any time.
 // - In the UK/EEA/CH (/api/geo) the first choice is a wall: the page is
-//   blurred and inert until the visitor picks. It waits for their first
-//   scroll, click or key, or WALL_DELAY_MS, so they see the page first. It forces a choice, never
-//   acceptance: Reject all is exactly as prominent as Accept all, which keeps
+//   blurred and inert until the visitor picks. It comes in WALL_DELAY_MS
+//   after their first scroll, click or key, so they see the page first. It
+//   forces a choice, never acceptance: Reject all is exactly as prominent as Accept all, which keeps
 //   it on the right side of the ICO's cookie wall guidance. The legal pages
 //   are exempt so the policy it links to stays readable. Elsewhere, and on a
 //   Footer reopen, it is a corner card that leaves the page usable.
@@ -69,7 +69,7 @@ const GTAG_SCRIPT_ID = 'ga-gtag';
 // wait its turn: two BlockingWalls would make each other inert.
 export const COOKIE_WALL_EVENT = 'slx:cookie-wall';
 let geoAutomatic: boolean | null = null;
-const WALL_DELAY_MS = 5000;
+const WALL_DELAY_MS = 3000;
 
 // Whether the cookie wall is up or may still go up. Client-only.
 export function cookieWallPending(): boolean {
@@ -249,12 +249,15 @@ export function CookieConsent() {
 
   useEffect(() => {
     if (!blocking || armed) return;
-    const arm = () => setArmed(true);
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const events = ['scroll', 'pointerdown', 'keydown'] as const;
-    events.forEach((e) => window.addEventListener(e, arm, { once: true, passive: true }));
-    const timer = setTimeout(arm, WALL_DELAY_MS);
+    const start = () => {
+      events.forEach((e) => window.removeEventListener(e, start));
+      timer = setTimeout(() => setArmed(true), WALL_DELAY_MS);
+    };
+    events.forEach((e) => window.addEventListener(e, start, { passive: true }));
     return () => {
-      events.forEach((e) => window.removeEventListener(e, arm));
+      events.forEach((e) => window.removeEventListener(e, start));
       clearTimeout(timer);
     };
   }, [blocking, armed]);
