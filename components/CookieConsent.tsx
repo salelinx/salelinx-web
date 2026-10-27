@@ -337,11 +337,11 @@ export function CookieConsent() {
       ) : null}
 
       <div className={`grid grid-cols-2 ${blocking ? 'mt-6 gap-3' : 'mt-3 gap-2'}`}>
-        <button type="button" onClick={() => decide(true, true, true)} className={buttonClass}>
-          {t('acceptAll')}
-        </button>
         <button type="button" onClick={() => decide(false, false, toggles.stats)} className={buttonClass}>
           {t('rejectAll')}
+        </button>
+        <button type="button" onClick={() => decide(true, true, true)} className={buttonClass}>
+          {t('acceptAll')}
         </button>
       </div>
       {choosing ? (
