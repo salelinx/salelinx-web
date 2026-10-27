@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classifySource, deviceType } from '@/lib/signup-source';
+import { classifySource, deviceType, needsConsent, parseSignupSource } from '@/lib/signup-source';
 
 const site = 'https://salelinx.com';
 const src = (path: string, referrer = '') => classifySource(`${site}${path}`, referrer).source;
@@ -47,5 +47,30 @@ describe('deviceType', () => {
     const mac = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15';
     expect(deviceType(mac, 5)).toBe('tablet');
     expect(deviceType(mac, 0)).toBe('computer');
+  });
+});
+
+describe('parseSignupSource', () => {
+  it('keeps known string fields and drops the rest', () => {
+    const raw = JSON.stringify({ source: 'tiktok', device: 'phone', landing: '/', role: 'admin', at: 1 });
+    expect(parseSignupSource(raw)).toEqual({ source: 'tiktok', device: 'phone', landing: '/' });
+  });
+
+  it('rejects junk and caps long values', () => {
+    expect(parseSignupSource(null)).toBeUndefined();
+    expect(parseSignupSource('not json')).toBeUndefined();
+    expect(parseSignupSource('{"medium":"x"}')).toBeUndefined();
+    expect(parseSignupSource(JSON.stringify({ source: 'x'.repeat(500) }))?.source).toHaveLength(200);
+  });
+});
+
+describe('needsConsent', () => {
+  it('asks UK, EEA, Swiss and unknown visitors, not the rest', () => {
+    expect(needsConsent('GB')).toBe(true);
+    expect(needsConsent('de')).toBe(true);
+    expect(needsConsent('NO')).toBe(true);
+    expect(needsConsent(null)).toBe(true);
+    expect(needsConsent('US')).toBe(false);
+    expect(needsConsent('AU')).toBe(false);
   });
 });

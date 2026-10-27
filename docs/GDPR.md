@@ -21,7 +21,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Extension settings | Bot timing preferences, marketplace preference, and user-named settings presets (numeric caps, delays, toggles and the names the user gives them; `user_settings.preferences`, no schema change; presets are only uploaded on plans with the `preset_sync` feature, 022_preset_sync_feature.sql), and the eBay crosslist postage set-up (`preferences.ebayPostage`, which includes the postcode items are sent from). Contains no buyer, listing or message content | Users | Contract (settings that follow the account across devices) | Supabase `user_settings` | Life of account (FK cascades) |
 | Support | Ticket message, replies, app version, user agent, locale; email resolved from auth at send time | Users | Contract / legitimate interest | Supabase `support_tickets`, `support_ticket_replies`; copies in the support inbox | 24 months after ticket closed (automated purge); inbox purged manually |
 | Referrals | Share code; referrer-referee account linkage, status, reward amounts; leaderboard display name and successful-referral count shown to other participants. The display name is self-chosen user content (`referral_codes.display_name`, 007_referrals.sql), falling back to the linked shop username, then a neutral placeholder. Self-chosen names are unique, publicly visible to participants, and moderated: admins can clear one via `admin_clear_referral_display_name()` | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes` (display name), `referrals`, `linked_accounts` (username fallback); leaderboard is a read-only RPC aggregate | Life of account (both FKs cascade) |
-| Signup source | First-touch source of the visit that led to signup: utm source/medium/campaign or ad click id type, referring host, landing path, time, device type (phone, tablet or computer) (`signup_source` in auth user metadata; `lib/signup-source.ts`, held in `localStorage` key `slx_src` until signup) | Users who signed up on the site | Consent (only stored once an analytics or ads cookie category is granted, cleared if both are withdrawn) | Supabase auth user metadata, shown in `/admin/users` | Life of account |
+| Signup source | First-touch source of the visit that led to signup: utm source/medium/campaign or ad click id type, referring host, landing path, time, device type (phone, tablet or computer) (`signup_source` in auth user metadata; `lib/signup-source.ts`, held in `localStorage` key `slx_src` across visits with consent, or read at signup without consent outside the UK/EEA/CH) | Users who signed up on the site | Consent in the UK/EEA/CH, legitimate interest elsewhere; see "Signup source" below | Supabase auth user metadata, shown in `/admin/users` | Life of account |
 | Account country | Two-letter country code of the most recent signed-in site visit, from Vercel's `x-vercel-ip-country` (`country` in auth app metadata, set by `set_my_country()` from `proxy.ts`; 031_user_country.sql). Accounts created before 10 Oct 2026 were backfilled once from their stored Supabase Auth session IP, looked up offline. The IP itself is never stored by us | Users | Legitimate interest (knowing which markets customers are in) | Supabase auth app metadata, shown in `/admin/users` | Life of account; overwritten on each change |
 | Transactional email | Recipient address, message content | Users | Contract | Resend (delivery logs) | Per Resend retention |
 | Trial reminder and win-back email | Which reminders were sent and when, win-back send time, unsubscribe timestamp (025_trial_nudges.sql, 026_winback_email.sql), the user's yes/no answer and when they gave it (`marketing_opt_out`, `marketing_choice_at` in auth user metadata; 028_marketing_opt_out.sql, 034_marketing_explicit_yes.sql, `lib/marketing-choice.ts`); address read from auth at send time | Users who signed up but never started a trial, and users whose plan or trial ended, in both cases only if they answered yes | Consent (PECR reg 22). Every account is asked yes or no with neither preselected: on the signup form, or by `MarketingChoicePrompt` on the first signed-in visit for accounts that never saw the form. Only a yes is emailed. A no is never emailed, and an account that has not answered yet is not emailed either until it answers (034; before that, unanswered accounts were emailed under the soft opt-in). Changeable on `/account` (Email preferences); unsubscribe link and List-Unsubscribe header on every message | Supabase `trial_nudges` (no client policies), Resend | Life of account (FK cascades) |
@@ -46,7 +46,8 @@ browsing history, marketplace passwords or session tokens in readable form,
 card details (Stripe-hosted checkout), buyer conversation content on our
 servers. (First-party per-feature usage counts ARE recorded - see the usage
 metering row - and Google Analytics and the Google Ads conversion tag run
-client-side on the website only after explicit per-category cookie consent;
+client-side on the website only after explicit per-category cookie consent,
+while Vercel Web Analytics counts page views without cookies (see below);
 none of that contradicts this line, but do not shorten it back to a bare
 "no analytics". The Ads tag exists because we advertise SaleLinx on Google,
 never to show ads on the site, and it is configured for conversion
@@ -69,6 +70,36 @@ or cross-site tracking, unreadable by scripts, matched against a strict
 longer window, this reasoning stops holding and the cookie must move behind
 the consent banner instead. The privacy policy's Cookies section discloses
 it, including the 30-day lifetime.
+
+### Site stats (Vercel Web Analytics) - PECR position
+
+`components/SiteStats.tsx` reports page views to Vercel Web Analytics for
+every visitor, without asking. Our position: PECR's statistical purposes
+exception (added by the Data (Use and Access) Act 2025, in force 5 Feb 2026;
+ICO storage and access guidance, 29 Apr 2026) covers it. It sets no cookies
+and stores nothing on the device; Vercel identifies a visit from a request
+hash discarded after 24 hours, acts as our processor (existing Vercel DPA)
+and gives us aggregate counts only. The exception needs a free, simple
+objection: the Site stats switch in Cookie settings writes `slx_stats_optout`
+to localStorage, and `beforeSend` then sends nothing. `statsUrl()` in
+`lib/consent.ts` never reports `/auth/*` (token links) or `/admin/*` and
+strips every query param except `utm_*`. This only holds while the data is
+used to improve the site: never send custom events tied to a user, link it to
+ads, or switch to a tool that uses the data for its own purposes without
+moving it behind the consent banner.
+
+### Signup source - PECR position
+
+Reading the referrer or user agent is gaining access under PECR reg 6(2)(b)
+(in force 5 Feb 2026), and the statistical purposes exception excludes
+automatically emitted information (Schedule A1 para 5(2)) and covers only
+improving the site, not marketing attribution. So UK, EEA and Swiss visitors
+(`needsConsent()` in `lib/signup-source.ts`, unknown country included) get it
+only through the consented `slx_src` path. Elsewhere `readSignupSource()`
+asks `/api/geo` for the `x-vercel-ip-country` decision at signup and only then
+reads the referrer and user agent; until then only our own landing URL is kept
+in memory. Google signups carry it through `/auth/callback?src=`. The Site
+stats switch (`slx_stats_optout`) stops it everywhere.
 
 Buyer data stance: for buyer personal data handled via order features, the
 seller is the controller and SaleLinx is a processor. It is processed in the

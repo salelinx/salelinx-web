@@ -8,6 +8,8 @@
 // on salelinx.com). Each category is only "active" when its env var is set,
 // and a visitor must answer for every active category.
 
+import { routing } from '@/i18n/routing';
+
 export type Consent = 'granted' | 'denied';
 
 export type ConsentState = {
@@ -59,11 +61,23 @@ export function needsChoice(
   );
 }
 
-// The first-visit choice blocks the page until it is answered (ConsentWall in
-// components/CookieConsent.tsx), except on the legal pages: the banner links
-// to the privacy policy, and a visitor has to be able to read what they are
-// being asked about before answering. There the banner stays a corner card.
-// Takes the locale-less pathname from next-intl's usePathname.
-export function isConsentWallExempt(pathname: string): boolean {
-  return pathname === '/legal' || pathname.startsWith('/legal/');
+// Vercel Web Analytics is outside the categories above: it sets no cookies
+// and keeps only aggregate counts, so it runs under PECR's statistical
+// purposes exception (Data (Use and Access) Act 2025) with an opt-out instead
+// of consent. The opt-out lives in localStorage under this key.
+export const STATS_OPT_OUT_KEY = 'slx_stats_optout';
+
+const LOCALE_PREFIX = new RegExp(`^/(?:${routing.locales.join('|')})(?=/|$)`);
+
+// The URL a page view is reported under, or null to drop it. Auth links carry
+// one-time tokens, so those pages and the admin console are never sent, and
+// only utm_ params survive from any query string.
+export function statsUrl(url: string): string | null {
+  const u = new URL(url);
+  const path = u.pathname.replace(LOCALE_PREFIX, '') || '/';
+  if (/^\/(?:auth|admin)(?:\/|$)/.test(path)) return null;
+  u.search = new URLSearchParams(
+    [...u.searchParams].filter(([key]) => key.startsWith('utm_')),
+  ).toString();
+  return u.toString();
 }

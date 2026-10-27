@@ -1,12 +1,12 @@
-import type { NextConfig } from 'next';
-import createMDX from '@next/mdx';
-import createNextIntlPlugin from 'next-intl/plugin';
+import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const withMDX = createMDX({
   extension: /\.mdx?$/,
 });
 
-const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 // Only three external origins are ever contacted from the browser: Supabase
 // (auth/DB), Google Analytics and the Google Ads conversion tag (both loaded
@@ -22,51 +22,60 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 // tracking bug: conversions silently never arrive. The google.<tld> entries
 // are the localized ga-audiences pixel; google.com alone is not enough.
 //
+// The ytimg, cdninstagram, fbcdn and tiktokcdn image hosts are the video
+// thumbnails on /admin/marketing, which each platform serves from its own CDN.
+//
 // script-src needs 'unsafe-inline' because the App Router injects inline
 // bootstrap scripts; moving to nonces requires wiring them through proxy.ts.
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://www.googletagmanager.com https://*.google-analytics.com https://www.google.com https://www.google.co.uk https://ad.doubleclick.net",
+  "img-src 'self' data: blob: https://www.googletagmanager.com https://*.google-analytics.com https://www.google.com https://www.google.co.uk https://ad.doubleclick.net https://i.ytimg.com https://*.cdninstagram.com https://*.fbcdn.net https://*.tiktokcdn.com https://*.tiktokcdn-us.com https://*.tiktokcdn-eu.com",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://ad.doubleclick.net https://stats.g.doubleclick.net",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  'upgrade-insecure-requests',
-].join('; ');
+  "upgrade-insecure-requests",
+].join("; ");
 
 const securityHeaders = [
   // CSP is production-only: local dev talks to localhost Supabase and uses
   // HMR websockets that a strict policy would break.
-  ...(process.env.NODE_ENV === 'production'
-    ? [{ key: 'Content-Security-Policy', value: CSP }]
+  ...(process.env.NODE_ENV === "production"
+    ? [{ key: "Content-Security-Policy", value: CSP }]
     : []),
-  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains",
+  },
   // DENY in production. SAMEORIGIN in development only, so the dev-only
   // /preview harnesses can frame the site inside real phone-sized viewports,
   // which is the only way to see `svh` and the `sm:` breakpoint behave as they
   // do on a device. Production framing protection is unchanged.
   {
-    key: 'X-Frame-Options',
-    value: process.env.NODE_ENV === 'production' ? 'DENY' : 'SAMEORIGIN',
+    key: "X-Frame-Options",
+    value: process.env.NODE_ENV === "production" ? "DENY" : "SAMEORIGIN",
   },
-  { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
+  },
 ];
 
 // Clean links to share in bios and posts. Each lands on the homepage with
 // utm_source set, which lib/signup-source.ts records as the first touch.
 const SHORT_LINKS: Record<string, string> = {
-  yt: 'youtube',
-  tt: 'tiktok',
-  ig: 'instagram',
-  fb: 'facebook',
-  x: 'x',
-  reddit: 'reddit',
+  yt: "youtube",
+  tt: "tiktok",
+  ig: "instagram",
+  fb: "facebook",
+  x: "x",
+  reddit: "reddit",
 };
 
 // /features/[slug] landing pages whose slug changed, old slug to new. Each old
@@ -80,7 +89,7 @@ const MOVED_LANDING_PAGES: Record<string, string> = {
 };
 
 const nextConfig: NextConfig = {
-  pageExtensions: ['ts', 'tsx', 'mdx'],
+  pageExtensions: ["ts", "tsx", "mdx"],
   async redirects() {
     const shortLinks = Object.entries(SHORT_LINKS).map(([path, source]) => ({
       source: `/${path}`,
@@ -117,18 +126,18 @@ const nextConfig: NextConfig = {
     return [
       {
         // /embed/* sets its own headers: it is framed by the extension, which DENY would block.
-        source: '/((?!embed/).*)',
+        source: "/((?!embed/).*)",
         headers: securityHeaders,
       },
       {
         // The docs search index only changes on deploy (built by
         // scripts/build-docs-index.mjs), so let browsers and the CDN hold it
         // for an hour and serve stale while revalidating in the background.
-        source: '/docs/search-index.:locale.json',
+        source: "/docs/search-index.:locale.json",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
+            key: "Cache-Control",
+            value: "public, max-age=3600, stale-while-revalidate=86400",
           },
         ],
       },

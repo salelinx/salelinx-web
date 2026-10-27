@@ -99,10 +99,10 @@ export function LatestPayments() {
       <div className="flex items-center justify-between border-b border-[var(--admin-border)] px-4 py-2.5">
         <h2 className="text-sm font-semibold">Latest payments</h2>
         <Link
-          href="/admin/subscriptions"
+          href="/admin/finance"
           className="text-xs text-zinc-500 underline-offset-2 hover:text-zinc-900 hover:underline"
         >
-          View subscriptions
+          View finance
         </Link>
       </div>
       {state === null ? (

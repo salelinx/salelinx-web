@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { readSignupSource } from "@/lib/signup-source";
 
 type Props = {
   // Where to land after a successful sign-in, same convention as the
@@ -29,11 +30,15 @@ export function GoogleSignInButton({ next = "/account", marketing }: Props) {
     // locale rides along to /auth/callback, which backfills
     // preferred_locale after the code exchange. Without it, OAuth users get
     // English auth emails (send-auth-email falls back when the key is absent).
+    const callback = new URL("/auth/callback", location.origin);
+    callback.searchParams.set("next", next);
+    callback.searchParams.set("locale", locale);
+    if (marketing !== undefined) callback.searchParams.set("mkt", marketing ? "1" : "0");
+    const source = await readSignupSource();
+    if (source) callback.searchParams.set("src", JSON.stringify(source));
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}&locale=${locale}${marketing === undefined ? "" : `&mkt=${marketing ? 1 : 0}`}`,
-      },
+      options: { redirectTo: callback.href },
     });
     // On success the browser navigates away to Google immediately; this only
     // runs if the redirect itself couldn't be started (e.g. provider not

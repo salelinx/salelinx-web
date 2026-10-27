@@ -67,6 +67,82 @@ export type AdminSubscriptionRow = {
 // Stripe's paid invoices; the database keeps no payment history). Amounts are
 // minor units. user_id is null when the Stripe customer no longer maps to an
 // account; email is Stripe's snapshot on the invoice.
+// One month of money as Stripe settled it, in minor units of the settlement currency.
+export type AdminFinanceMonth = {
+  gross: number;
+  refunds: number;
+  fees: number;
+  net: number;
+};
+
+// admin-finance-stats response: money in minor units of `currency`, the
+// Stripe account's settlement currency.
+export type AdminFinanceStats = {
+  currency: string;
+  month: string;
+  mrr: number;
+  arr: number;
+  arpu: number;
+  mrr_by_tier: { tier: string; amount: number }[];
+  this_month: AdminFinanceMonth;
+  last_month: AdminFinanceMonth;
+  by_month: ({ month: string } & AdminFinanceMonth)[];
+  all_time: AdminFinanceMonth;
+  this_year: AdminFinanceMonth;
+  first_payment_at: string | null;
+  // Stripe balance in the settlement currency, and the soonest payout on its way.
+  balance: {
+    available: number;
+    pending: number;
+    next_payout: { amount: number; arrives: string } | null;
+  };
+  // Paying subscriptions renewing in 30 days, at what their last renewal settled.
+  renewals_30d: { count: number; amount: number };
+  // Paying subscriptions set to end at their period end, and the MRR they take.
+  setting_to_cancel: { count: number; mrr: number };
+  trials_ending_30d: number;
+  // Past-due subscriptions, oldest first. Amount is in the invoice's own currency.
+  failing: {
+    user_id: string | null;
+    email: string | null;
+    tier: string;
+    amount: number;
+    currency: string;
+    since: string;
+  }[];
+  mrr_movement: {
+    month: string;
+    mrr: number;
+    new: number;
+    expansion: number;
+    contraction: number;
+    churned: number;
+  }[];
+  trials: {
+    month: string;
+    started: number;
+    converted: number;
+    running: number;
+  }[];
+  // Referral rewards granted as Stripe credit, per currency.
+  referral_credits: { currency: string; amount: number; count: number }[];
+  // Converted referrals still inside the hold before their reward.
+  referrals_waiting: number;
+  paying: number;
+  // Active but nothing settled: 100% coupons, comps, bills covered by credit.
+  paid_nothing: number;
+  trialing: number;
+  past_due: number;
+  // Null when the database read failed.
+  new_paying: number | null;
+  // Paying customers who left; trials that ended unpaid are trials_ended.
+  cancelled: number;
+  trials_ended: number;
+  net_change: number | null;
+  cancel_rate: number | null;
+  generated_at: string;
+};
+
 export type AdminPayment = {
   invoice_id: string;
   user_id: string | null;

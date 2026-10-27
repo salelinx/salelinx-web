@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Link, usePathname } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
+import { setStatsOptOut, statsOptedOut } from '@/components/SiteStats';
 import { useHydrated } from '@/lib/use-hydrated';
-import { BlockingWall } from '@/components/BlockingWall';
-import { Icon } from '@/components/Icon';
 import {
   type Consent,
   type ConsentState,
-  isConsentWallExempt,
   needsChoice,
   parseConsentValue,
   serializeConsent,
@@ -28,10 +26,11 @@ import { captureSignupSource, clearSignupSource } from '@/lib/signup-source';
 // PECR / UK GDPR requirements implemented here:
 // - gtag.js is injected only after at least one category is granted. No
 //   consent, no request to googletagmanager.com, no _ga / _gcl cookies.
-// - Accept all and Reject all sit on the one and only layer, same size, next
-//   to a switch per category and Save choices. The optional switches start
-//   OFF: a pre-ticked box is not consent (CJEU Planet49, and the ICO says the
-//   same), so never default one to on.
+// - Accept all and Reject all sit side by side in the same style, so saying no
+//   is as easy as saying yes. "Choose" opens a switch per category and Save
+//   choices in the same card. The optional switches start OFF: a pre-ticked
+//   box is not consent (CJEU Planet49, and the ICO says the same), so never
+//   default one to on.
 // - Consent Mode v2 defaults everything to denied before the library boots;
 //   grants are per category. ad_personalization stays DENIED even with ads
 //   consent: we measure conversions, we do not build remarketing audiences.
@@ -42,14 +41,11 @@ import { captureSignupSource, clearSignupSource } from '@/lib/signup-source';
 //   months. A visitor who accepted under the older analytics-only banner is
 //   asked again before the ads category ever fires (see lib/consent.ts).
 // - CookieSettingsButton in the Footer reopens the banner at any time.
-// - Until a first answer exists the banner is a wall (BlockingWall): the page
-//   behind is blurred and inert, so the visitor has to pick before going on.
-//   It forces a choice, never acceptance: Reject all is as reachable as
-//   Accept all, which is what keeps it on the right side of the ICO's cookie
-//   wall guidance. Do not add a close button or Escape handler to it. The
-//   legal pages are exempt (isConsentWallExempt) so the policy the banner
-//   links to stays readable, and a reopen from the Footer with a choice
-//   already stored is the plain corner card.
+// - It is a card in the bottom corner that leaves the page usable: nothing
+//   optional runs until a yes, which is all PECR asks, and the ICO is wary of
+//   walls that block a site until the visitor consents. It used to blur and
+//   lock the page, which put a wall in front of everyone arriving from an ad.
+//   No close button: ignoring it is the "no".
 //
 // The whole feature is gated on the env vars: with neither set (local dev,
 // preview) the banner and the settings button do not render and the site
@@ -63,9 +59,6 @@ const ANY_ACTIVE = ACTIVE.analytics || ACTIVE.ads;
 const CONSENT_COOKIE = 'slx_consent';
 const CONSENT_MAX_AGE = 60 * 60 * 24 * 180; // re-ask after 6 months
 const REOPEN_EVENT = 'slx:cookie-settings';
-// Fired once a choice is stored, so MarketingChoicePrompt (which waits its
-// turn behind the cookie wall) knows it can show.
-export const CONSENT_DECIDED_EVENT = 'slx:consent-decided';
 const GTAG_SCRIPT_ID = 'ga-gtag';
 
 declare global {
@@ -83,11 +76,6 @@ export function readConsentCookie(): ConsentState {
     .slice(1)
     .join('=');
   return parseConsentValue(raw);
-}
-
-// Whether the cookie choice is still owed. Client-only.
-export function cookieChoicePending(): boolean {
-  return ANY_ACTIVE && needsChoice(readConsentCookie(), ACTIVE);
 }
 
 function writeConsentCookie(state: ConsentState) {
@@ -190,24 +178,20 @@ export function CookieConsent() {
   const [open, setOpen] = useState<boolean>(
     () => typeof document !== 'undefined' && needsChoice(readConsentCookie(), ACTIVE),
   );
-  // Whether an answer is still owed. Tracked apart from `open` because the
-  // Footer can reopen the banner after a choice was made, and that reopen
-  // must not wall the page.
-  const [required, setRequired] = useState<boolean>(
-    () => typeof document !== 'undefined' && needsChoice(readConsentCookie(), ACTIVE),
-  );
-  const [toggles, setToggles] = useState<{ analytics: boolean; ads: boolean }>(
+  // Open on a Footer reopen: that visitor came to change a choice.
+  const [choosing, setChoosing] = useState(false);
+  const [toggles, setToggles] = useState<{ analytics: boolean; ads: boolean; stats: boolean }>(
     () => {
-      if (typeof document === 'undefined') return { analytics: false, ads: false };
+      if (typeof document === 'undefined') return { analytics: false, ads: false, stats: true };
       const stored = readConsentCookie();
       return {
         analytics: stored.analytics === 'granted',
         ads: stored.ads === 'granted',
+        stats: !statsOptedOut(),
       };
     },
   );
   const t = useTranslations('CookieBanner');
-  const pathname = usePathname();
 
   useEffect(() => {
     if (!ANY_ACTIVE) return;
@@ -220,8 +204,9 @@ export function CookieConsent() {
       setToggles({
         analytics: stored.analytics === 'granted',
         ads: stored.ads === 'granted',
+        stats: !statsOptedOut(),
       });
-      setRequired(needsChoice(stored, ACTIVE));
+      setChoosing(true);
       setOpen(true);
     };
     window.addEventListener(REOPEN_EVENT, reopen);
@@ -230,7 +215,10 @@ export function CookieConsent() {
 
   if (!ANY_ACTIVE || !hydrated || !open) return null;
 
-  function decide(analytics: boolean, ads: boolean) {
+  // Stats is not a consent category, so Reject all leaves it as the switch
+  // shows rather than turning it off.
+  function decide(analytics: boolean, ads: boolean, stats: boolean) {
+    setStatsOptOut(!stats);
     const previous = readConsentCookie();
     const next: ConsentState = {
       // Only active categories get an answer; an inactive one keeps whatever
@@ -241,92 +229,90 @@ export function CookieConsent() {
     writeConsentCookie(next);
     applyConsent(next);
     setOpen(false);
-    setRequired(false);
-    window.dispatchEvent(new Event(CONSENT_DECIDED_EVENT));
+    setChoosing(false);
   }
-
-  const blocking = required && !isConsentWallExempt(pathname);
 
   // ICO expects Accept all and Reject all to be equally prominent, so the
   // buttons deliberately share the same style.
   const buttonClass =
-    'rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200';
+    'rounded-full border border-black/15 bg-white px-3 py-1.5 text-[13px] font-medium text-zinc-900 transition hover:border-black/30 hover:bg-zinc-50';
+  const linkClass =
+    'font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900';
 
-  const card = (
+  return (
     <div
-      // Inside the wall the dialog role sits on BlockingWall instead.
-      role={blocking ? undefined : 'region'}
-      aria-label={blocking ? undefined : t('title')}
-      className={`${
-        blocking
-          ? 'm-auto w-full bg-white dark:bg-zinc-900'
-          : 'fixed inset-x-4 bottom-4 z-50 mx-auto max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white/90 backdrop-blur-md dark:bg-zinc-900/90'
-      } max-w-md rounded-2xl border border-black/10 p-5 shadow-2xl shadow-black/10 motion-safe:animate-[popIn_0.45s_ease-out] dark:border-white/15 dark:shadow-black/40`}
+      role="region"
+      aria-label={t('title')}
+      className="fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3.5 shadow-lg shadow-black/[0.08] backdrop-blur-md motion-safe:animate-[popIn_0.6s_ease-out_1s_backwards] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]"
     >
-      <div className="flex items-center justify-center gap-3">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-700 ring-1 ring-amber-200/70 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-300/20">
-          <Icon name="cookie" className="h-5 w-5" />
-        </span>
-        <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-          {t('title')}
-        </h2>
-      </div>
-
-      <p className="mt-3 text-center text-sm leading-relaxed text-balance text-zinc-600 dark:text-zinc-400">
+      <p className="text-[13px] leading-snug text-zinc-600">
         {t('body')}
       </p>
-      <Link
-        href="/legal/privacy#cookies"
-        className="mx-auto mt-2 block w-fit text-sm font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:decoration-zinc-100"
-      >
-        {t('privacyLink')}
-      </Link>
+      <p className="mt-1.5 text-[13px] leading-snug text-zinc-400">
+        <Link href="/legal/privacy#cookies" className={linkClass}>
+          {t('privacyLink')}
+        </Link>
+        {choosing ? null : (
+          <>
+            {' · '}
+            <button type="button" onClick={() => setChoosing(true)} className={linkClass}>
+              {t('choose')}
+            </button>
+          </>
+        )}
+      </p>
 
-      <div className="mt-4 divide-y divide-black/[0.06] overflow-hidden rounded-xl border border-black/[0.08] bg-zinc-50/80 dark:divide-white/[0.08] dark:border-white/10 dark:bg-white/[0.03]">
-        <ConsentRow
-          label={t('essentialLabel')}
-          description={t('essentialDesc')}
-          alwaysOn={t('alwaysOn')}
-        />
-        {ACTIVE.analytics ? (
+      {choosing ? (
+        <div className="mt-3 divide-y divide-black/[0.06] overflow-hidden rounded-xl border border-black/[0.08] bg-zinc-50/80">
           <ConsentRow
-            label={t('analyticsLabel')}
-            description={t('analyticsDesc')}
-            checked={toggles.analytics}
-            onChange={(v) => setToggles((s) => ({ ...s, analytics: v }))}
+            label={t('essentialLabel')}
+            description={t('essentialDesc')}
+            alwaysOn={t('alwaysOn')}
           />
-        ) : null}
-        {ACTIVE.ads ? (
+          {ACTIVE.analytics ? (
+            <ConsentRow
+              label={t('analyticsLabel')}
+              description={t('analyticsDesc')}
+              checked={toggles.analytics}
+              onChange={(v) => setToggles((s) => ({ ...s, analytics: v }))}
+            />
+          ) : null}
+          {ACTIVE.ads ? (
+            <ConsentRow
+              label={t('adsLabel')}
+              description={t('adsDesc')}
+              checked={toggles.ads}
+              onChange={(v) => setToggles((s) => ({ ...s, ads: v }))}
+            />
+          ) : null}
           <ConsentRow
-            label={t('adsLabel')}
-            description={t('adsDesc')}
-            checked={toggles.ads}
-            onChange={(v) => setToggles((s) => ({ ...s, ads: v }))}
+            label={t('statsLabel')}
+            description={t('statsDesc')}
+            checked={toggles.stats}
+            onChange={(v) => setToggles((s) => ({ ...s, stats: v }))}
           />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
-      <div className="mt-5 grid gap-2 sm:grid-cols-2">
-        <button type="button" onClick={() => decide(true, true)} className={buttonClass}>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => decide(true, true, true)} className={buttonClass}>
           {t('acceptAll')}
         </button>
-        <button type="button" onClick={() => decide(false, false)} className={buttonClass}>
+        <button type="button" onClick={() => decide(false, false, toggles.stats)} className={buttonClass}>
           {t('rejectAll')}
         </button>
       </div>
-      {/* Saves exactly what is switched on, so with nothing on it equals
-          Reject all. Outlined so it does not outweigh the two above. */}
-      <button
-        type="button"
-        onClick={() => decide(toggles.analytics, toggles.ads)}
-        className="mt-2 w-full rounded-full border border-black/15 px-4 py-2.5 text-sm font-medium transition hover:bg-black/[0.04] dark:border-white/20 dark:hover:bg-white/[0.06]"
-      >
-        {t('save')}
-      </button>
+      {choosing ? (
+        <button
+          type="button"
+          onClick={() => decide(toggles.analytics, toggles.ads, toggles.stats)}
+          className="mt-2 w-full rounded-full px-3 py-1.5 text-[13px] font-medium text-zinc-600 transition hover:bg-black/[0.04] hover:text-zinc-900"
+        >
+          {t('save')}
+        </button>
+      ) : null}
     </div>
   );
-
-  return blocking ? <BlockingWall label={t('title')}>{card}</BlockingWall> : card;
 }
 
 function ConsentRow({
@@ -354,7 +340,7 @@ function ConsentRow({
 
   if (alwaysOn) {
     return (
-      <div className="flex items-start justify-between gap-4 px-4 py-3">
+      <div className="flex items-start justify-between gap-4 px-3.5 py-2.5">
         {text}
         <span className="mt-0.5 shrink-0 text-xs font-medium text-zinc-500 dark:text-zinc-400">
           {alwaysOn}
@@ -367,7 +353,7 @@ function ConsentRow({
   // drawn from its checked and focus state. The knob moves with
   // inset-inline-start so it slides the right way in RTL locales too.
   return (
-    <label className="relative flex cursor-pointer items-start justify-between gap-4 px-4 py-3 transition hover:bg-black/[0.02] dark:hover:bg-white/[0.03]">
+    <label className="relative flex cursor-pointer items-start justify-between gap-4 px-3.5 py-2.5 transition hover:bg-black/[0.02] dark:hover:bg-white/[0.03]">
       {text}
       <input
         type="checkbox"

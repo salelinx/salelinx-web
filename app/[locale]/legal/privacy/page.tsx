@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "16 October 2026";
+const LAST_UPDATED = "26 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -120,7 +120,7 @@ const SECTIONS: LegalSection[] = [
       "Supabase: authentication, database, and file storage (account data, subscription status, usage counters, and cloud-synced listings and images).",
       "Stripe: subscription payments and invoicing.",
       "Resend: transactional email delivery (account and support emails, and shipping label emails you choose to send, which can include label PDFs containing buyer delivery details).",
-      "Vercel: hosting for the salelinx.com website.",
+      "Vercel: hosting for the salelinx.com website, and Vercel Web Analytics, which counts page views without cookies (see the Cookies section).",
       "Google (Sign in with Google): if you choose to sign in with Google, Google processes your sign-in to authenticate you and shares your Google account email and basic profile with us. This happens only when you use the Google sign-in option, is necessary to provide that sign-in method, and is separate from analytics cookies and cookie consent.",
       "Google (Google Analytics): aggregated statistics about how the website is used, only if you consent to analytics cookies in the cookie banner.",
       "Google (Google Ads conversion measurement): confirmation that a visit or signup came from one of our own ads on Google, only if you consent to ad-measurement cookies in the cookie banner. We advertise SaleLinx on Google; we never show ads on salelinx.com. See the Cookies section for details.",
@@ -164,9 +164,11 @@ const SECTIONS: LegalSection[] = [
       "slx_ref: set only if you arrive through a referral share link (salelinx.com/r/...), and kept for up to 30 days so we can credit the person who referred you if you sign up. It contains only the referral code, is deleted on your first signed-in visit whether or not a referral is credited, and is not used for advertising or cross-site tracking.",
       "Google Analytics cookies (_ga and _ga_..., optional, only with your consent): if you accept analytics cookies in our banner, Google Analytics sets these for up to 2 years to help us understand how visitors use the website, such as which pages are viewed and roughly where visitors come from. They are set only after you accept, and you can change your mind at any time via the Cookie settings link in the footer, which also removes them. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
       "Google Ads conversion cookies (names starting _gcl, optional, only with your consent): we advertise SaleLinx on Google, and if you accept ad-measurement cookies in our banner, Google sets these for up to 90 days so we can tell that a visit came from one of our own ads and measure whether our advertising works (for example, that an ad click led to a signup). We never show ads on salelinx.com, and we have configured these cookies for conversion measurement only, not for building advertising profiles of you or showing you personalised ads elsewhere. You can change your mind at any time via the Cookie settings link in the footer, which also removes them. Google processes this data on our behalf and it may be transferred to the United States with appropriate safeguards in place.",
-      "slx_src (browser local storage, optional, only with your consent): if you accept analytics or ad-measurement cookies, we note how you first reached salelinx.com (for example the website or campaign that linked to us, or that you clicked one of our ads), the page you landed on, and whether you were on a phone, tablet or computer. If you then sign up on the website, this is saved with your account so we can see which channels bring us customers. It is removed from your browser if you withdraw consent, and from our systems when you delete your account.",
+      "How you found us: when you sign up on the website, we save with your account how you reached salelinx.com on that visit (for example the website or campaign that linked to us, or that you clicked one of our ads), the page you landed on, and whether you were on a phone, tablet or computer, so we can see which channels bring us customers. If you are in the UK, the EEA or Switzerland we only do this if you accept analytics or ad-measurement cookies. Elsewhere we do it without asking, store nothing on your device for it, and you can object by switching off Site stats in Cookie settings in the footer. It is deleted when you delete your account.",
+      "slx_src (browser local storage, optional, only with your consent): if you accept analytics or ad-measurement cookies, we also keep the above in your browser between visits, so a signup days later is still credited to the visit that first brought you here. It is removed from your browser if you withdraw consent.",
     ],
     trailing: [
+      "Site statistics without cookies: we count page views with Vercel Web Analytics so we can see which pages are useful and improve the website. It sets no cookies and stores nothing on your device. Vercel recognises a visit only from the request itself, discards that after 24 hours, and gives us aggregate counts (pages viewed, the website that linked to us, country, device type and browser), never anything that identifies you. We do not report sign-in, password reset or admin pages, and we drop query strings except campaign (utm_) tags. Because this is only used to improve the website, it does not need your consent, but you can object at any time: switch off Site stats in Cookie settings in the footer. We then store slx_stats_optout in your browser's local storage to remember that, and send nothing.",
       "We never show ads on salelinx.com, and we set no advertising or cross-site tracking cookies beyond the optional, consent-gated ad-measurement cookies described above.",
     ],
   },

@@ -8,6 +8,7 @@ import { timingSafeEqual } from "../_shared/security.ts";
 import {
   button,
   codeBlock,
+  COMPANY_INFO,
   EMAIL_ASSETS,
   emailLayout,
   heading,
@@ -161,7 +162,7 @@ async function send(userId: string, email: string, step: Step, code?: string): P
   const offer = code
     ? `\n\n50% off your first month back, on any plan. Code: ${code} (one use, expires in ${CODE_DAYS} days)`
     : "";
-  const text = `${step.body.join("\n\n")}${offer}\n\n${step.cta ?? "Start free trial"}: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}`;
+  const text = `${step.body.join("\n\n")}${offer}\n\n${step.cta ?? "Start free trial"}: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}\n\n${COMPANY_INFO}`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",

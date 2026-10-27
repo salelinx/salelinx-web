@@ -36,6 +36,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
+  COMPANY_INFO,
   EMAIL_ASSETS,
   emailLayout,
   escapeHtml,
@@ -376,7 +377,9 @@ async function sendViaResend(args: ResendSendArgs): Promise<ResendSendResult> {
       reply_to: args.replyTo,
       subject: args.subject,
       html: args.html,
-      text: args.text,
+      // Companies Act disclosure on the plain-text variant; the HTML variant
+      // carries it via the shared emailLayout footer.
+      text: args.text + "\n\n" + COMPANY_INFO,
       headers: args.headers,
       // Inline masthead logo. Referenced as cid: in the HTML, so it renders
       // without the reader having to allow remote images.

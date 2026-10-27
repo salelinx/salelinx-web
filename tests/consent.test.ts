@@ -3,10 +3,10 @@
 // category: consent given for one purpose does not stretch to another.
 import { describe, expect, it } from 'vitest';
 import {
-  isConsentWallExempt,
   needsChoice,
   parseConsentValue,
   serializeConsent,
+  statsUrl,
 } from '@/lib/consent';
 
 describe('consent cookie parsing', () => {
@@ -62,16 +62,23 @@ describe('needsChoice', () => {
   });
 });
 
-describe('isConsentWallExempt', () => {
-  it('leaves the legal pages readable before a choice is made', () => {
-    expect(isConsentWallExempt('/legal/privacy')).toBe(true);
-    expect(isConsentWallExempt('/legal/terms')).toBe(true);
-    expect(isConsentWallExempt('/legal')).toBe(true);
+describe('statsUrl', () => {
+  it('never reports auth or admin pages, in any locale', () => {
+    expect(statsUrl('https://salelinx.com/auth/confirm?token_hash=abc')).toBeNull();
+    expect(statsUrl('https://salelinx.com/fr/auth/reset')).toBeNull();
+    expect(statsUrl('https://salelinx.com/admin/users')).toBeNull();
   });
 
-  it('blocks everywhere else', () => {
-    expect(isConsentWallExempt('/')).toBe(false);
-    expect(isConsentWallExempt('/features')).toBe(false);
-    expect(isConsentWallExempt('/legalese')).toBe(false);
+  it('keeps only utm params', () => {
+    expect(statsUrl('https://salelinx.com/pricing?utm_source=yt&code=SECRET&utm_medium=video')).toBe(
+      'https://salelinx.com/pricing?utm_source=yt&utm_medium=video',
+    );
+    expect(statsUrl('https://salelinx.com/de/features?email=a%40b.com')).toBe(
+      'https://salelinx.com/de/features',
+    );
+  });
+
+  it('does not mistake a page that starts with auth for the auth section', () => {
+    expect(statsUrl('https://salelinx.com/authors')).toBe('https://salelinx.com/authors');
   });
 });

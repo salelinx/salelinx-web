@@ -40,6 +40,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import {
+  COMPANY_INFO,
   EMAIL_ASSETS,
   emailLayout,
   escapeHtml,
@@ -302,6 +303,8 @@ async function handleRequest(req: Request): Promise<Response> {
         : 'If anything looks off, contact us at salelinx.com/account/support.',
       '',
       'Thanks.',
+      '',
+      COMPANY_INFO,
     ].join('\n');
 
   // HTML version â€” most modern mail clients render this; plain-text fallback
