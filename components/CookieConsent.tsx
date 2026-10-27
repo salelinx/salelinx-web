@@ -69,7 +69,7 @@ const GTAG_SCRIPT_ID = 'ga-gtag';
 // wait its turn: two BlockingWalls would make each other inert.
 export const COOKIE_WALL_EVENT = 'slx:cookie-wall';
 let geoAutomatic: boolean | null = null;
-const WALL_DELAY_MS = 3000;
+const WALL_DELAY_MS = 2000;
 
 // Whether the cookie wall is up or may still go up. Client-only.
 export function cookieWallPending(): boolean {
