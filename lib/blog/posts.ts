@@ -9,6 +9,7 @@ import type { BlogCategory, PostMetadata, PostModule } from './types';
 // `export const metadata`, import it here and add it to POSTS. The sitemap,
 // the index page and related-post links all read from this list.
 import * as bestTimeToPostOnVinted from '@/content/blog/en/best-time-to-post-on-vinted.mdx';
+import * as ebayFeesUk from '@/content/blog/en/ebay-fees-uk.mdx';
 import * as taxOnVintedAndDepopSales from '@/content/blog/en/tax-on-vinted-and-depop-sales.mdx';
 import * as vintedParcelLostOrDamaged from '@/content/blog/en/vinted-parcel-lost-or-damaged.mdx';
 
@@ -16,6 +17,7 @@ export const BLOG_CONTENT_LOCALES = ['en'] as const;
 
 const POSTS: PostModule[] = [
   bestTimeToPostOnVinted as unknown as PostModule,
+  ebayFeesUk as unknown as PostModule,
   taxOnVintedAndDepopSales as unknown as PostModule,
   vintedParcelLostOrDamaged as unknown as PostModule,
 ];
@@ -24,7 +26,7 @@ export const BLOG_CATEGORIES: { slug: BlogCategory; title: string; blurb: string
   {
     slug: 'guides',
     title: 'Selling guides',
-    blurb: 'Answers to the questions Depop and Vinted sellers ask most.',
+    blurb: 'Answers to the questions Depop, Vinted and eBay sellers ask most.',
   },
 ];
 

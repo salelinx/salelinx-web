@@ -88,7 +88,7 @@ export function mapDepopToVintedCategory(
   }
 
   // Generic shoes (Depop IDs 58 men, 174 women, 6/14 generic) — refine shoe type
-  if ([58, 174].includes(categoryId ?? 0) && catMapping) {
+  if ([14, 58, 174].includes(categoryId ?? 0) && catMapping) {
     const gender = catMapping.vintedLabel.startsWith('Men') ? 'men' : 'women';
     catMapping = refineShoesCategory(title, description, gender);
   }
@@ -104,6 +104,12 @@ export function mapDepopToVintedCategory(
     const gc = isGirl ? 'Girls clothing' : 'Boys clothing';
     // All catalogIds MUST be leaf nodes (no children) or Vinted won't accept them.
     const kidsRefinements: Array<{ pattern: RegExp; catalogId: number; label: string }> = [
+      // A bundle names the pieces in it, so it goes before every piece.
+      {
+        pattern: /\bbundles?\b|job ?lot/i,
+        catalogId: isGirl ? 1510 : 1760,
+        label: `Kids > ${gc} > Clothing bundles`,
+      },
       // ── Shoes (specific types first, then generic) ──
       {
         pattern: /velcro|hook.?and.?loop|strap/i,

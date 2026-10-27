@@ -26,6 +26,7 @@ import { useClientNow } from "@/lib/admin/use-client-now";
 import { compareVersions, highestVersion } from "@/lib/admin/version";
 import { TIER_ORDER } from "@/lib/admin/tiers";
 import { browserName } from "@/lib/admin/browser";
+import { platformLabel } from "@/lib/admin/platform-links";
 import dynamic from "next/dynamic";
 import { SOCIALS } from "@/components/home/SocialLinks";
 
@@ -69,12 +70,12 @@ function formatDate(iso: string | null): string {
 // it can still be entitled, but only inside the bounded grace window (paid at
 // least once AND under 7 days past due, migration 020). It is a billing
 // problem rather than a healthy customer, and folding it in would hide that.
-// Every marketplace the extension supports, for the "Both" cut on the Linked
-// filter. A missing entry here does NOT fail the type check (an array literal
-// may be a subset of the union), so if a third marketplace is ever added this
-// list has to be updated by hand, and "Both" renamed to "All". The adjacent
-// PLATFORM_TONE record does fail in that case, which is the reminder.
-const LINKED_PLATFORMS: LinkedPlatform[] = ["depop", "vinted"];
+// Every marketplace the extension supports, in the order the Linked filter and
+// the roster badges show them. A missing entry here does NOT fail the type
+// check (an array literal may be a subset of the union), so a new marketplace
+// has to be added by hand. The adjacent PLATFORM_TONE record does fail in that
+// case, which is the reminder.
+const LINKED_PLATFORMS: LinkedPlatform[] = ["depop", "vinted", "ebay"];
 
 const ENTITLED_STATUSES = ["active", "trialing"];
 
@@ -217,9 +218,19 @@ const STATUS_TONE: Record<string, string> = {
   incomplete: "bg-zinc-100 text-zinc-600",
 };
 
+// Pro and Business match the extension's tier lock colours.
+const TIER_TONE: Record<string, string> = {
+  none: "bg-zinc-100 text-zinc-500",
+  trial: "bg-sky-50 text-sky-700",
+  starter: "bg-orange-50 text-orange-700",
+  pro: "bg-blue-50 text-blue-700",
+  business: "bg-violet-50 text-violet-700",
+};
+
 const PLATFORM_TONE: Record<LinkedPlatform, string> = {
   depop: "bg-rose-50 text-rose-700 border-rose-200",
   vinted: "bg-teal-50 text-teal-700 border-teal-200",
+  ebay: "bg-blue-50 text-blue-700 border-blue-200",
 };
 
 export function AdminUserTable({ initialUsers, tiers }: Props) {
@@ -411,12 +422,12 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           if (linked.length > 0) return false;
         } else if (platform === "any") {
           if (linked.length === 0) return false;
-        } else if (platform === "both") {
-          // Everyone who has connected every marketplace we support. Worth its
-          // own cut: these are the accounts crosslisting actually applies to,
-          // and the single-platform options are inclusive ("has Depop"), so
-          // neither of them answers this.
-          if (!LINKED_PLATFORMS.every((pf) => linked.includes(pf))) return false;
+        } else if (platform === "multi") {
+          // Everyone with at least two marketplaces connected. Worth its own
+          // cut: these are the accounts crosslisting actually applies to (any
+          // two of Depop, Vinted and eBay), and the single-platform options
+          // are inclusive ("has Depop"), so none of them answers this.
+          if (LINKED_PLATFORMS.filter((pf) => linked.includes(pf)).length < 2) return false;
         } else if (!linked.includes(platform as LinkedPlatform)) {
           return false;
         }
@@ -561,9 +572,8 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
           options={[
             ["all", "All"],
             ["any", "Any marketplace"],
-            ["depop", "Depop"],
-            ["vinted", "Vinted"],
-            ["both", "Depop and Vinted"],
+            ...LINKED_PLATFORMS.map((p): [string, string] => [p, platformLabel(p)]),
+            ["multi", "Two or more"],
             ["none", "Nothing linked"],
           ]}
           onChange={setPlatform}
@@ -683,8 +693,15 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                     <td className="whitespace-nowrap px-3 py-2">
                       <PlatformTags platforms={u.linked_platforms ?? []} />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 capitalize text-zinc-700">
-                      {u.tier_id ?? "none"}
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <span
+                        className={
+                          "rounded-full px-2 py-0.5 text-xs font-medium capitalize " +
+                          (TIER_TONE[u.tier_id ?? "none"] ?? "bg-zinc-100 text-zinc-700")
+                        }
+                      >
+                        {u.tier_id ?? "none"}
+                      </span>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
                       {u.status ? (
@@ -874,16 +891,16 @@ function PlatformTags({ platforms }: { platforms: LinkedPlatform[] }) {
   }
   return (
     <span className="flex gap-1">
-      {platforms.map((p) => (
+      {LINKED_PLATFORMS.filter((p) => platforms.includes(p)).map((p) => (
         <span
           key={p}
-          title={p === "depop" ? "Depop" : "Vinted"}
+          title={platformLabel(p)}
           className={
             "rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase " +
             PLATFORM_TONE[p]
           }
         >
-          {p === "depop" ? "D" : "V"}
+          {platformLabel(p)[0]}
         </span>
       ))}
     </span>

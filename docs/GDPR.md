@@ -16,8 +16,9 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Usage events | One row per usage increment: feature, the call's delta, server timestamp (017_usage_events.sql), for the admin console's trailing-window views (last 5 minutes to 72 hours) | Users | Legitimate interest (product analytics, support debugging) | Supabase `usage_events` (no client policies; SECURITY DEFINER functions only) | 7 days, purged hourly; cascades on account deletion |
 | Cloud sync (opt-in) | Listing content: titles, descriptions, prices, attributes, photos, enriched marketplace payloads | Users | Contract | Supabase `listings` + `listing-images` bucket | Until user disables sync or deletes account |
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
+| eBay connection | eBay user ID, site, OAuth access and refresh tokens | Users | Contract | Supabase `ebay_tokens` (no client policies; `ebay` edge function only) | Until unlinked, eBay account deletion notice, or account deletion (FK cascades) |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |
-| Extension settings | Bot timing preferences, marketplace preference, and user-named settings presets (numeric caps, delays, toggles and the names the user gives them; `user_settings.preferences`, no schema change; presets are only uploaded on plans with the `preset_sync` feature, 022_preset_sync_feature.sql). Contains no buyer, listing or message content | Users | Contract (settings that follow the account across devices) | Supabase `user_settings` | Life of account (FK cascades) |
+| Extension settings | Bot timing preferences, marketplace preference, and user-named settings presets (numeric caps, delays, toggles and the names the user gives them; `user_settings.preferences`, no schema change; presets are only uploaded on plans with the `preset_sync` feature, 022_preset_sync_feature.sql), and the eBay crosslist postage set-up (`preferences.ebayPostage`, which includes the postcode items are sent from). Contains no buyer, listing or message content | Users | Contract (settings that follow the account across devices) | Supabase `user_settings` | Life of account (FK cascades) |
 | Support | Ticket message, replies, app version, user agent, locale; email resolved from auth at send time | Users | Contract / legitimate interest | Supabase `support_tickets`, `support_ticket_replies`; copies in the support inbox | 24 months after ticket closed (automated purge); inbox purged manually |
 | Referrals | Share code; referrer-referee account linkage, status, reward amounts; leaderboard display name and successful-referral count shown to other participants. The display name is self-chosen user content (`referral_codes.display_name`, 007_referrals.sql), falling back to the linked shop username, then a neutral placeholder. Self-chosen names are unique, publicly visible to participants, and moderated: admins can clear one via `admin_clear_referral_display_name()` | Users | Legitimate interest (growth program users opt into by sharing) | Supabase `referral_codes` (display name), `referrals`, `linked_accounts` (username fallback); leaderboard is a read-only RPC aggregate | Life of account (both FKs cascade) |
 | Signup source | First-touch source of the visit that led to signup: utm source/medium/campaign or ad click id type, referring host, landing path, time, device type (phone, tablet or computer) (`signup_source` in auth user metadata; `lib/signup-source.ts`, held in `localStorage` key `slx_src` across visits with consent, or read at signup without consent outside the UK/EEA/CH) | Users who signed up on the site | Consent in the UK/EEA/CH, legitimate interest elsewhere; see "Signup source" below | Supabase auth user metadata, shown in `/admin/users` | Life of account |
@@ -26,7 +27,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Trial reminder and win-back email | Which reminders were sent and when, win-back send time, unsubscribe timestamp (025_trial_nudges.sql, 026_winback_email.sql), the user's yes/no answer and when they gave it (`marketing_opt_out`, `marketing_choice_at` in auth user metadata; 028_marketing_opt_out.sql, 034_marketing_explicit_yes.sql, `lib/marketing-choice.ts`); address read from auth at send time | Users who signed up but never started a trial, and users whose plan or trial ended, in both cases only if they answered yes | Consent (PECR reg 22). Every account is asked yes or no with neither preselected: on the signup form, or by `MarketingChoicePrompt` on the first signed-in visit for accounts that never saw the form. Only a yes is emailed. A no is never emailed, and an account that has not answered yet is not emailed either until it answers (034; before that, unanswered accounts were emailed under the soft opt-in). Changeable on `/account` (Email preferences); unsubscribe link and List-Unsubscribe header on every message | Supabase `trial_nudges` (no client policies), Resend | Life of account (FK cascades) |
 | Uninstall feedback | Reason chip, optional free-text comment, extension version, panel locale. Anonymous by design: no user id, email, or IP (013_uninstall_feedback.sql; /uninstall page, which tells the user it is anonymous and asks them not to include personal details) | Former users, unidentifiable | Legitimate interest | Supabase `uninstall_feedback` (anon insert-only) | Indefinite. Because rows carry no identifier, a specific person's row cannot be located, so erasure-on-request is not possible; instead, review free-text comments periodically and redact any volunteered personal details |
 | Label emails | Merged label PDF containing buyer name and delivery details, recipient address | Users and their buyers | Processor acting on the user's instruction | Transits Edge Function + Resend only; not stored by us | Not stored |
-| Category resolution | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Transits the `resolve-category` Edge Function on every crosslist (the extension has no local fallback); matched in memory, never logged or stored. Disclosed in the privacy policy under "Category matching for crosslisting" | Not stored |
+| Category resolution | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Transits the `resolve-category` Edge Function on every crosslist (the extension has no local fallback); matched in memory, never logged or stored. For a crosslist into eBay, up to 100 characters of the wording go on to eBay's Taxonomy API under SaleLinx's application token (`ebay-category.ts`), for a listing the user is creating on eBay anyway. Disclosed in the privacy policy under "Category matching for crosslisting" | Not stored |
 | Device sessions | Random per-install device ID, user agent, extension version (015_device_session_version.sql), last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap; knowing which build a support report came from) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
 | Terms acceptance | Terms version and acceptance timestamp | Users | Legal obligation / legitimate interest (record of consent to contract) | Supabase `auth.users` user metadata | Life of account |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
@@ -103,8 +104,15 @@ stats switch (`slx_stats_optout`) stops it everywhere.
 Buyer data stance: for buyer personal data handled via order features, the
 seller is the controller and SaleLinx is a processor. It is processed in the
 extension locally; the only server-side touchpoint is the `send-shipping-labels`
-Edge Function passing a label PDF to Resend. Never add code that persists buyer
-data server-side without revisiting the policy and terms first.
+Edge Function passing a label PDF to Resend. One transit to know about: the `ebay`
+function's My Listings poll receives eBay's sold transactions, which eBay returns
+with the buyer attached. `listingsFromResponse` (`ebay/trading.ts`) keeps only item
+fields (id, title, price, photo, URL) and drops the rest in memory, so nothing about
+the buyer is returned, logged or stored. Keep it that way. This transit is disclosed
+in the privacy policy (Summary, and Order and buyer information), the terms (Buyer
+data) and the DPA (subject matter, nature, types of data, data subjects); change all
+four if it changes. Never add code that
+persists buyer data server-side without revisiting the policy and terms first.
 
 ## Processors and DPAs
 
@@ -231,7 +239,9 @@ Trigger: user emails a deletion request from their account email address
 2. Delete via either path (both run the same steps: storage objects, the
    Stripe customer - cancels any subscription; Stripe keeps invoices for tax
    law, which the policy discloses - then the auth user, which cascades all
-   user-owned rows including tickets):
+   user-owned rows including tickets and `ebay_tokens`; the grant on eBay's
+   side is useless without the tokens, and the user can revoke it in their eBay
+   account):
    - **Admin console:** `/admin/users` > open the user > Danger zone >
      Delete account (step-up reauth; backed by the `admin-delete-user` Edge
      Function, see `docs/ADMIN.md`). No dry run; the drawer shows what the
@@ -265,7 +275,10 @@ On request from the account email:
    keyed by `set_by`.
 3. Storage: download `listing-images/{userId}/` if they want the images.
 4. Do not export `platform_credentials` content (it is encrypted client-side
-   and useless outside their device); note its existence instead.
+   and useless outside their device); note its existence instead. The same
+   goes for the access and refresh tokens in `ebay_tokens`, which are live
+   credentials for their eBay account: export its `ebay_user_id`, `site_id`
+   and timestamps, never the tokens.
 5. Send within a month, in a machine-readable format (JSON or CSV).
 
 ## Breach response

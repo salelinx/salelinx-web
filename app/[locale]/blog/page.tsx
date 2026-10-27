@@ -16,9 +16,9 @@ export async function generateMetadata({
   return pageMetadata({
     locale,
     path: '/blog',
-    title: 'Depop and Vinted selling tips for UK resellers',
+    title: 'Depop, Vinted and eBay selling tips for UK resellers',
     description:
-      'Guides for UK Depop and Vinted sellers: when to list, how to get more views, what the fees really are and what HMRC expects. From the team behind SaleLinx.',
+      'Guides for UK Depop, Vinted and eBay sellers: when to list, how to get more views, what the fees really are and what HMRC expects. From the team behind SaleLinx.',
     contentLocales: BLOG_CONTENT_LOCALES,
   });
 }
@@ -41,11 +41,11 @@ export default async function BlogIndexPage({
       <section className="pt-20 pb-12 sm:pt-24">
         <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>Blog</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight text-balance sm:text-6xl">
-          Selling tips for Depop and Vinted
+          Selling tips for resellers
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
-          Practical answers for UK resellers: when to list, how to get seen, what the fees
-          really are and when the taxman needs to know.
+          Practical answers: when to list, how to get seen, what the fees really are and
+          when the taxman needs to know.
         </p>
       </section>
 

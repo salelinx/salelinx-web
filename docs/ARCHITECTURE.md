@@ -9,9 +9,12 @@ For deeper dives, each section links to a subordinate doc.
 
 SaleLinx is a **Chrome extension that automates listing workflows on
 Depop and Vinted** - crosslisting, relisting, refreshing, following,
-auto-offers, and restocking. Users install it from the Chrome Web Store,
-sign in, link their Depop / Vinted shop, and the bot runs actions from
-their browser.
+auto-offers, and restocking - **and connects eBay** for crosslisting to and
+from eBay and managing eBay listings in My Listings. Users install it from
+the Chrome Web Store, sign in, link their Depop / Vinted shop and connect
+eBay, and the bot runs actions from their browser. eBay is the exception to
+"from their browser": every eBay call goes through the `ebay` Edge Function,
+which holds the eBay app secret and each user's OAuth tokens.
 
 The business model is **subscription SaaS** (Free / Starter / Pro /
 Business monthly plans) plus per-feature usage caps enforced by the
@@ -19,10 +22,10 @@ extension.
 
 ## Two repositories, one Supabase project
 
-| Repo                             | Role                                                                                             | Distributed as                                    |
-| -------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
-| `salelinx-web` (this repo)     | Marketing site, auth UI, Stripe billing, user account dashboard, Edge Functions                  | Vercel deploy - web URL                           |
-| `salelinx-app`      | Chrome MV3 extension - content scripts, background worker, Depop/Vinted automation, linking UX   | Webpack-built `dist/` → zip → Chrome Web Store    |
+| Repo                       | Role                                                                                                        | Distributed as                                 |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `salelinx-web` (this repo) | Marketing site, auth UI, Stripe billing, user account dashboard, Edge Functions                             | Vercel deploy - web URL                        |
+| `salelinx-app`             | Chrome MV3 extension - content scripts, background worker, Depop/Vinted automation, eBay client, linking UX | Webpack-built `dist/` → zip → Chrome Web Store |
 
 **Both point at the same Supabase project** - one user pool, one auth
 store, one DB. A user created via the website is the same user the
@@ -42,9 +45,9 @@ extension sees, and vice versa.
      │  Postgres + GoTrue (auth) + Edge Functions       │
      │  ↑ schema owned by the website repo (migrations) │
      └──────────────────────────────────────────────────┘
-                        │
-                        ▼  (webhook events only)
-                      Stripe
+                │                         │
+                ▼ (webhook events only)   ▼ (ebay function: OAuth + Trading API)
+              Stripe                     eBay
 ```
 
 ## What each repo owns
@@ -61,13 +64,15 @@ extension sees, and vice versa.
 - Server-rendered tier cards on `/pricing` (reads `tier_limits` from Supabase)
 - **Support** - user-facing: a login-gated contact form at `/help/support` (create a ticket, reached from the public `/help` hub) and the ticket history at `/account/tickets` (track + reply). The extension only files + reads.
 - **Admin console** (`/admin`) - internal staff tool, a top-level non-localized route subtree with its own shell (escapes the marketing chrome), gated to `admin_users`. First module is support management; built to grow. See `docs/ADMIN.md` for the routing and security model.
-- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `admin-list-payments`, `delete-account`, `process-referral-rewards`, `get-referral-discount`
+- Edge Functions: `stripe-webhook`, `create-checkout-session`, `create-portal-session`, `change-plan`, `send-auth-email`, `send-support-email`, `send-shipping-labels`, `resolve-category`, `admin-change-plan`, `admin-delete-user`, `admin-list-payments`, `delete-account`, `process-referral-rewards`, `get-referral-discount`, `trial-nudge`, `report-telemetry`, `report-selftest`, `ebay`, `ebay-account-deletion`
+- **The eBay server side** - the `ebay` function is the extension's only route to eBay (OAuth link, My Listings poll, edits, crosslisting into eBay) and owns `ebay_tokens`; `ebay-account-deletion` is eBay's required Marketplace Account Deletion endpoint. See `docs/EDGE-FUNCTIONS.md`
 - **Referral program** - share links (`/r/CODE`), the account Referrals card, and the reward pipeline (see `docs/REFERRALS.md`)
 
 ### Extension (`salelinx-app`) owns
 
 - Chrome MV3 manifest + service worker
 - Depop/Vinted content scripts (scraping, action dispatch)
+- The eBay client: the panel also runs on eBay sites, but eBay data never comes from the page. The extension calls the `ebay` Edge Function instead, with no tab, page bridge or task queue involved
 - Shop linking flow (OAuth-style handshake to link platform accounts)
 - Bot runtime (action queue, delay/backoff, retry, cancellation)
 - Per-user feature enforcement (`checkFeature`, `preflightMetered`, `consumeMetered`, `gateBotStart` in `src/entitlements/gate.ts`)
@@ -93,10 +98,11 @@ All in the shared Supabase project. Migrations live in this repo
 | `tier_limits`            | both               | SQL migrations + admin console RPCs           | Tier definitions - features (bool) and limits (numeric caps)            |
 | `subscriptions`          | both               | `stripe-webhook` Edge Function (service role) | Per-user billing state - tier, status, period end, cancel_at_period_end |
 | `usage_counters`         | both               | `increment_usage_counter` RPC (extension)     | Per-user/feature/period counters - monthly or daily buckets             |
-| `listings`               | extension only     | extension                                     | Cached listing state for crosslist / relist / refresh                   |
-| `linked_accounts`        | extension only     | extension                                     | Maps Supabase user → Depop/Vinted shop IDs                              |
+| `listings`               | extension only     | extension                                     | Cached listing state for crosslist / relist / refresh; `platform` is `depop`, `vinted` or `ebay` (`040_ebay.sql`) |
+| `linked_accounts`        | extension only     | extension (Depop, Vinted); `ebay` function (eBay) | Maps Supabase user → Depop/Vinted shop IDs and the eBay account     |
+| `ebay_tokens`            | `ebay` + `ebay-account-deletion` functions only | `ebay` function (service role)   | Each user's eBay OAuth access and refresh tokens, eBay user ID and site. RLS on with no policies, so no client role can read it (`040_ebay.sql`) |
 | `platform_credentials`   | extension only     | extension (encrypted)                         | Encrypted platform session tokens                                       |
-| `user_settings`          | extension only     | extension (read-merge upserts)                | Per-user bot timing preferences (`delay`, `max_count`) plus a `preferences` JSONB bag: `platforms` (marketplace preference) and `presets`, shaped `{ follow \| refresh \| relist \| autoAccept: { presets: [...], updatedAt: <ms> } }`. Presets are user-named settings snapshots; the cloud copy is gated on the `preset_sync` feature (migration 022: trial, Starter, Pro, Business), saving stays local without it. No schema change was needed |
+| `user_settings`          | extension only     | extension (read-merge upserts)                | Per-user bot timing preferences (`delay`, `max_count`) plus a `preferences` JSONB bag: `platforms` (marketplace preference, now including eBay), `ebayPostage` (the eBay crosslist postage set-up, item postcode included) and `presets`, shaped `{ follow \| refresh \| relist \| autoAccept: { presets: [...], updatedAt: <ms> } }`. Presets are user-named settings snapshots; the cloud copy is gated on the `preset_sync` feature (migration 022: trial, Starter, Pro, Business), saving stays local without it. No schema change was needed |
 | `support_tickets`        | both               | both (web + extension)                        | Support tickets - bug / feature / feedback, status, diagnostics         |
 | `support_ticket_replies` | both               | both (web users + web admins)                 | Ticket conversation thread; `is_admin` flag stamped server-side         |
 | `admin_users`            | both               | SQL/dashboard only                            | Support-admin membership; backs `is_admin()` RLS helper                 |
@@ -123,9 +129,12 @@ quotas, grandfathering via `tier_version`).
 7. User installs Chrome extension from Web Store
 8. Extension boots, asks user to sign in → reuses existing Supabase session
 9. Extension links Depop/Vinted shop (writes to linked_accounts)
+   eBay connects through eBay's consent page instead: the ebay Edge
+   Function swaps the code for tokens (ebay_tokens) and writes
+   linked_accounts itself
 10. User hits Crosslist → extension calls increment_usage_counter RPC
     → checks count against tier_limits.limits.crosslists_per_month
-    → allows or blocks
+    → allows or blocks (crosslists into or out of eBay count the same)
 11. User clicks Manage subscription on /account
     → create-portal-session Edge Function → Stripe Customer Portal
     → cancel/upgrade → webhook updates subscriptions row

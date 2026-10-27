@@ -1,40 +1,46 @@
 export const metadata = {
   title: 'Crosslist',
   description:
-    'Copiez des annonces de Depop vers Vinted ou l\'inverse. Choisissez-les dans une grille ou collez leurs liens, vérifiez-les dans une étape de relecture, et SaleLinx crée les copies en arrière-plan.',
+    'Copiez des annonces entre Depop, Vinted et eBay, dans tous les sens. Choisissez-les dans une grille ou collez leurs liens, vérifiez-les dans une étape de relecture, et SaleLinx crée les copies en arrière-plan.',
   category: 'inventory',
   slug: 'crosslist',
   order: 5,
-  updated: '2026-10-13',
-  tags: ['crosslist', 'depop', 'vinted'],
-  marketplaces: ['depop', 'vinted'],
+  updated: '2026-10-16',
+  tags: ['crosslist', 'depop', 'vinted', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'stub',
 };
 
 # Crosslist
 
-L'onglet **Crosslist** copie sur l'autre marketplace des annonces que
-vous avez déjà créées sur l'une d'elles. Vous choisissez les articles,
-vous les vérifiez dans une étape de relecture, et SaleLinx crée chaque
-copie en arrière-plan. Pas de formulaire de vente à remplir deux fois,
-pas d'onglet à surveiller.
+L'onglet **Crosslist** copie vers une autre marketplace des annonces
+que vous avez déjà créées sur l'une d'elles&nbsp;: Depop, Vinted ou
+eBay, dans tous les sens. Vous choisissez les articles, vous les
+vérifiez dans une étape de relecture, et SaleLinx crée chaque copie en
+arrière-plan. Pas de formulaire de vente à remplir deux fois, pas
+d'onglet à surveiller.
 
-À partir de la version 1.1.12, chaque copie est enregistrée en
-brouillon, que vous vérifiez puis publiez vous-même. L'annonce
-d'origine et sa copie ne sont pas liées automatiquement&nbsp;: pour les
-associer, utilisez l'onglet [Liaison](/docs/automate/linking).
+À partir de la version 1.1.12, chaque copie vers Depop ou Vinted est
+enregistrée en brouillon, que vous vérifiez puis publiez vous-même.
+eBay n'a pas de brouillons&nbsp;: les copies vers eBay sont publiées
+directement, après l'affichage des frais d'eBay. L'annonce d'origine
+et sa copie ne sont pas liées automatiquement&nbsp;: pour les associer,
+utilisez l'onglet [Liaison](/docs/automate/linking).
 
-Il vous faut vos comptes Depop et Vinted liés à SaleLinx, un onglet
-Depop et un onglet Vinted ouverts et connectés à ces mêmes comptes, et
-un forfait avec un quota mensuel de crosslists (tous les forfaits en
-ont un, essai gratuit de 14&nbsp;jours compris).
+Il vous faut deux marketplaces liées à SaleLinx (parmi Depop, Vinted et
+eBay), un onglet ouvert et connecté pour chaque compte Depop ou Vinted
+que vous avez lié (eBay n'a jamais besoin d'onglet), et un forfait avec
+un quota mensuel de crosslists (tous les forfaits en ont un, essai
+gratuit de 14&nbsp;jours compris). Les crosslists vers ou depuis eBay
+comptent dans ce quota.
 
 <Callout>
 Traduction française complète à venir. Voir la
 [version anglaise](/en/docs/inventory/crosslist) pour la sélection
-des annonces (direction, filtres lié / non lié et statut), l'ajout par
-URL, l'étape de relecture, le fonctionnement détaillé (mapping
-catégorie / marque / taille / couleur, conversion des devises, copie
-des photos), les lots, les brouillons, la liaison après coup, les
-paliers d'abonnement et le dépannage.
+des annonces (marketplaces de départ et d'arrivée, filtres lié / non
+lié et statut), l'ajout par URL, l'étape de relecture, le
+fonctionnement détaillé (mapping catégorie / marque / taille /
+couleur, conversion des devises, copie des photos), les lots, les
+brouillons, la liaison après coup, le crosslist vers et depuis eBay
+(frais, livraison), les paliers d'abonnement et le dépannage.
 </Callout>

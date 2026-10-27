@@ -6,7 +6,7 @@ export type CategorySlug =
   | 'automate'
   | 'buyers';
 
-export type Marketplace = 'depop' | 'vinted';
+export type Marketplace = 'depop' | 'vinted' | 'ebay';
 
 export type StatusState = 'ok' | 'degraded' | 'down';
 

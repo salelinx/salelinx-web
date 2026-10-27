@@ -5,9 +5,9 @@ export const metadata = {
   category: 'inventory',
   slug: 'bulk-editor',
   order: 1.5,
-  updated: '2026-10-13',
-  tags: ['bulk edit', 'listings', 'photos', 'discount', 'delete', 'relist'],
-  marketplaces: ['depop', 'vinted'],
+  updated: '2026-10-16',
+  tags: ['bulk edit', 'listings', 'photos', 'discount', 'delete', 'relist', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
@@ -26,7 +26,7 @@ reaches it.
 
 ## The toolbar at a glance
 
-These are always there: **Edit**, **Refresh**, **Duplicate**, **Link** (or
+These are always there: **Edit**, **Update**, **Duplicate**, **Link** (or
 **Unlink**), **Cloud**, **Export**, **Delete** and **Deselect**, which
 clears the selection. The rest depend on what you&rsquo;ve selected:
 
@@ -36,6 +36,10 @@ clears the selection. The rest depend on what you&rsquo;ve selected:
 - **Post** - every listing is a draft.
 - **Hide** or **Unhide** - every listing is an active or hidden Vinted
   listing.
+
+When the selection includes an eBay listing, **Duplicate**, **Link**,
+**Crosslist** and **Relist** don&rsquo;t appear: they work on Depop and
+Vinted listings only.
 
 **Plans.** **Save to Cloud** and **Update Cloud** are part of the Pro and
 Business plans and show a padlock on lower plans. **Relist** and **Link**
@@ -60,8 +64,11 @@ one by hand, or make the same change to many at once with **Bulk Edit**.
    - **Quantity** (Depop) or **Parcel size** (Vinted).
    - A status chip (see Status below).
    - The photo strip (see Photos below).
-3. Click **Save Changes**. The edits are queued and sent to Depop and Vinted
-   in the background.
+   - On an eBay card: title, description, price, quantity, photos,
+     category, condition, item specifics and offer settings. See
+     [My Listings](/docs/inventory/listings) for the eBay details.
+3. Click **Save Changes**. The edits are queued and sent to the
+   marketplaces in the background.
 
 On Depop the brand has to be one Depop recognises. If it isn&rsquo;t, the
 editor says so: pick one from the list, or leave it empty for no brand.
@@ -83,7 +90,8 @@ shows two cards per row. Click anywhere on a card to tick it.
 5. Check the cards, then click **Save Changes**.
 
 Bulk changes only land where they make sense. **Title** and **Parcel size**
-skip Depop cards, **Quantity** skips Vinted cards, and a category only
+skip Depop cards, **Quantity** skips Vinted cards, eBay cards only take
+**Price**, **Title**, **Description** and **Quantity**, and a category only
 applies to cards from its own marketplace (the list offers both Depop and
 Vinted categories). Changing the category clears the size, because sizes
 depend on the category. If nothing in the editor can take the value, the
@@ -107,6 +115,9 @@ The status chip on each card offers the moves that listing can make:
   so this sets the stock to zero, which Depop treats as sold. Depop locks
   sold listings, so this can&rsquo;t be undone; relisting is the only way
   back.
+- **eBay** - **Unlist** ends an active listing. An **Unlisted** listing
+  offers **Relist**, which puts it back on sale; edit it once it&rsquo;s
+  live.
 
 In **Bulk Edit**, use the **Status** field for Vinted listings. It offers
 **Active**, **Hidden** and **Publish** (for Vinted drafts), and each card
@@ -167,11 +178,12 @@ so Vinted listings in the selection are left out.
 To end a sale, select the listings, click **Discount**, then
 **Remove discount**.
 
-## Refresh
+## Update
 
-**Refresh** re-reads the selected listings from Depop and Vinted, so the
-grid shows their current status and details. Use it after editing a listing
-on the marketplace itself, or to check whether a listing is still up. It
+**Update** re-reads the selected listings from their marketplace, eBay
+included, so the grid shows their current status and details. Use it after
+editing a listing on the marketplace itself, or to check whether a listing
+is still up. It
 doesn&rsquo;t bump anything up the search feed; for that, use the
 [Refresh tab](/docs/inventory/refresh).
 
@@ -179,10 +191,12 @@ doesn&rsquo;t bump anything up the search feed; for that, use the
 
 **Crosslist** sends the selection straight to the crosslist queue, the same
 queue the [Crosslist tab](/docs/inventory/crosslist) uses, and creates a
-copy of each listing on the other marketplace.
+copy of each listing on the other marketplace: Depop to Vinted, or Vinted
+to Depop. To crosslist to or from eBay, use the Crosslist tab.
 
-1. Select active listings from one marketplace only. (Drafts, sold listings
-   and mixed selections don&rsquo;t get the button.)
+1. Select active listings from one marketplace only. (Drafts, sold
+   listings, eBay listings and mixed selections don&rsquo;t get the
+   button.)
 2. Click **Crosslist**. You&rsquo;ll need a Depop tab and a Vinted tab open,
    and both accounts linked to SaleLinx.
 
@@ -279,6 +293,8 @@ choose **Export All**.
 ## Delete
 
 **Delete** removes listings from the marketplace for good. There is no undo.
+eBay has no delete, so an eBay listing is ended and removed from My
+Listings instead.
 
 1. Click **Delete**.
 2. If any of the listings are saved to the cloud, the confirmation has a

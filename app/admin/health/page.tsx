@@ -9,7 +9,7 @@ import {
 // /admin/health - marketplace endpoint health, aggregated from passive
 // extension telemetry (migration 010_endpoint_health.sql).
 //
-// Why this exists: every Vinted / Depop endpoint the extension depends on needs
+// Why this exists: every Depop / Vinted endpoint the extension depends on needs
 // a live logged-in browser session (CSRF token, session cookies via the
 // MAIN-world bridge, a real tab, DataDome clearance), so no server-side probe
 // can reach them. Our users' own calls are the only usable health signal. The

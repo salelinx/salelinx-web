@@ -5,7 +5,7 @@ export const metadata = {
   category: 'getting-started',
   slug: 'queue',
   order: 4,
-  updated: '2026-10-13',
+  updated: '2026-10-16',
   tags: ['queue', 'pacing', 'rate-limits', 'breaks', 'pause'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -204,8 +204,18 @@ Panel tabs that work with one marketplace only (**Refresh** and **Shop
 Designer** for Depop, **Auto-Offers** for Vinted) say so when no browser tab
 for it is open: &ldquo;This feature needs a Vinted tab. Open one in any
 window and it will unlock here.&rdquo; Click **Open Vinted** (or **Open
-Depop**) and the panel tab unlocks as soon as the page loads. Crosslist needs both: &ldquo;Both Depop
-and Vinted tabs must be open to crosslist.&rdquo;
+Depop**) and the panel tab unlocks as soon as the page loads. Crosslist
+needs a tab for each of Depop and Vinted you&rsquo;ve linked: &ldquo;Open
+every marketplace you crosslist between.&rdquo;
+
+## eBay works differently
+
+SaleLinx reaches eBay through its own server and eBay&rsquo;s official
+connection, not through a browser tab. eBay never needs a tab open, and
+the planned breaks and rate-limit waits on this page don&rsquo;t apply to
+eBay requests. A run that includes eBay listings, such as a crosslist or
+an edit from **My Listings**, still appears in the queue and waits its turn
+like any other.
 
 ## Closing the panel, the tab or the browser
 

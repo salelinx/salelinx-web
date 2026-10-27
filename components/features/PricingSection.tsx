@@ -458,7 +458,12 @@ export async function PricingSection({
         })}
       </div>
 
+      {/* The cards list every feature, and most of them work on Depop and
+          Vinted only so far. Said once here rather than on each card. */}
       <p className="mt-8 max-w-2xl text-xs text-zinc-500 dark:text-zinc-400">
+        {t("ebayNote")}
+      </p>
+      <p className="mt-2 max-w-2xl text-xs text-zinc-500 dark:text-zinc-400">
         {t("vatNote")}
       </p>
     </section>

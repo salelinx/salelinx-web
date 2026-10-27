@@ -65,8 +65,8 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             </Link>
             ). A card is required to start it, but nothing is charged during
             the trial and you can cancel any time from your account page.
-            There is one trial per SaleLinx account and per Depop or Vinted
-            shop. If you don&rsquo;t cancel, your Starter subscription starts
+            There is one trial per SaleLinx account and per Depop, Vinted or
+            eBay shop. If you don&rsquo;t cancel, your Starter subscription starts
             automatically when the trial ends.
           </p>
         ),
@@ -214,20 +214,20 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
     items: [
       {
         id: 'panel-not-appearing',
-        q: 'The SaleLinx panel doesn&rsquo;t appear on Depop or Vinted',
+        q: 'The SaleLinx panel doesn&rsquo;t appear on Depop, Vinted or eBay',
         a: (
           <div className="space-y-2">
             <p>
               The panel opens from the SaleLinx launcher in the bottom-right
-              corner of every Depop and Vinted page: click it, or press Alt+S
-              (the default shortcut) on a Depop or Vinted tab. The SaleLinx
+              corner of every Depop, Vinted and eBay page: click it, or press
+              Alt+S (the default shortcut) on one of those tabs. The SaleLinx
               icon in Chrome&rsquo;s toolbar only opens a small window for
               signing in. If you can&rsquo;t see the launcher:
             </p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Refresh the Depop or Vinted tab. Tabs that were already open
-                when you installed or updated SaleLinx need a refresh.
+                Refresh the marketplace tab. Tabs that were already open when
+                you installed or updated SaleLinx need a refresh.
               </li>
               <li>
                 Check that SaleLinx is switched on: open chrome://extensions
@@ -246,7 +246,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             </ol>
           </div>
         ),
-        keywords: ['panel', 'missing', 'not showing', 'launcher', 'depop', 'vinted'],
+        keywords: ['panel', 'missing', 'not showing', 'launcher', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'update-available',
@@ -261,7 +261,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             <strong>Open extensions page</strong> (or go to
             chrome://extensions), turn on <strong>Developer mode</strong> at
             the top right, click <strong>Update</strong>, then refresh your
-            Depop and Vinted tabs.
+            Depop, Vinted and eBay tabs.
           </p>
         ),
         keywords: ['update', 'version', 'behind', 'outdated', 'reload'],
@@ -276,7 +276,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             <strong>In use on another device</strong>, click{' '}
             <strong>Use here instead</strong> to carry on here; the other
             device is signed out of SaleLinx. If you&rsquo;ve just closed your
-            Depop and Vinted tabs on the other device, it also frees up by
+            marketplace tabs on the other device, it also frees up by
             itself within about 10 minutes. If you don&rsquo;t recognise the
             other device, take over and then change your password from your{' '}
             <Link href="/account" className="underline underline-offset-4">
@@ -292,9 +292,9 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         q: 'SaleLinx says it&rsquo;s temporarily down',
         a: (
           <p>
-            The panel can&rsquo;t reach our servers right now. Depop and Vinted
-            aren&rsquo;t affected, so you can keep using both sites as normal,
-            and your listings there are untouched. The message clears by
+            The panel can&rsquo;t reach our servers right now. Depop, Vinted
+            and eBay aren&rsquo;t affected, so you can keep using all three
+            sites as normal, and your listings there are untouched. The message clears by
             itself as soon as SaleLinx is reachable again, so there&rsquo;s no
             need to reinstall, sign out or reset your password, even if the
             sign-in screen shows the same message. From version 1.1.12 it
@@ -331,11 +331,14 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <p>
             SaleLinx works through your own signed-in Depop and Vinted
-            sessions, so a feature needs a tab for its marketplace open
-            somewhere in Chrome. Any window will do, and it doesn&rsquo;t have
-            to be the tab you&rsquo;re looking at. Click{' '}
+            sessions, so a Depop or Vinted feature needs a tab for its
+            marketplace open somewhere in Chrome. Any window will do, and it
+            doesn&rsquo;t have to be the tab you&rsquo;re looking at. Click{' '}
             <strong>Open Depop</strong> or <strong>Open Vinted</strong> in the
-            message, or open the site yourself; crosslisting needs both. If a
+            message, or open the site yourself; crosslisting between Depop and
+            Vinted needs both. eBay never needs a tab, because it connects
+            through eBay&rsquo;s own sign-in, so crosslisting to or from eBay
+            only needs the Depop or Vinted tab. If a
             tab is open but SaleLinx asks you to reload it (for example after
             Chrome put the tab to sleep to save memory), click{' '}
             <strong>Reload Depop tab</strong> or{' '}
@@ -345,7 +348,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             none was open.
           </p>
         ),
-        keywords: ['tab', 'open', 'reload', 'needs a tab', 'depop', 'vinted'],
+        keywords: ['tab', 'open', 'reload', 'needs a tab', 'depop', 'vinted', 'ebay'],
       },
       {
         id: 'wrong-marketplace-account',
@@ -360,7 +363,9 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             <strong>Settings</strong> in the panel, click{' '}
             <strong>Unlink</strong> under <strong>Marketplace accounts</strong>,
             then click <strong>Link</strong> for the account you&rsquo;re
-            signed in with. More in{' '}
+            signed in with. eBay works differently: SaleLinx always uses the
+            eBay account linked in <strong>Settings</strong>, whichever account
+            the eBay site is signed in to. More in{' '}
             <Link
               href="/docs/getting-started/connect-your-first-marketplace"
               className="underline underline-offset-4"
@@ -374,11 +379,11 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
       },
       {
         id: 'account-already-linked',
-        q: 'SaleLinx says my Depop or Vinted account is already linked or has used a free trial',
+        q: 'SaleLinx says my Depop, Vinted or eBay account is already linked or has used a free trial',
         a: (
           <p>
-            Each Depop or Vinted account can be linked to only one SaleLinx
-            account at a time. If it&rsquo;s linked to another SaleLinx account
+            Each Depop, Vinted or eBay account can be linked to only one
+            SaleLinx account at a time. If it&rsquo;s linked to another SaleLinx account
             of yours, sign in to that one, click <strong>Unlink</strong> in{' '}
             <strong>Settings</strong>, then sign back in to this account and
             link it. Each shop also gets one free trial: if it already had one
@@ -403,12 +408,17 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
           <p>
             SaleLinx reads your listings from Depop and Vinted while a tab for
             that marketplace is open and signed in to your linked account. In{' '}
-            <strong>My Listings</strong>, the status next to Depop and Vinted
-            at the top shows when each last synced: click{' '}
-            <strong>Refresh All</strong>, or the refresh button beside one
+            <strong>My Listings</strong>, the status next to each marketplace
+            at the top shows when it last synced: click{' '}
+            <strong>Update All</strong>, or the refresh button beside one
             marketplace, to sync now. If it asks you to open or reload a tab,
             or says your session expired, do that on the marketplace site and
-            refresh again. More in the{' '}
+            refresh again. eBay listings come straight from eBay with no tab
+            needed: they update at most every 15 minutes, and you see your
+            active eBay listings plus those sold in the last 60 days. If the
+            eBay status says <strong>reconnect in Settings</strong>, open{' '}
+            <strong>Settings</strong> and click <strong>Link</strong> on the
+            eBay row. More in the{' '}
             <Link
               href="/docs/inventory/listings"
               className="underline underline-offset-4"
@@ -418,7 +428,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             .
           </p>
         ),
-        keywords: ['sync', 'missing', 'my listings', 'refresh', 'out of date'],
+        keywords: ['sync', 'missing', 'my listings', 'refresh', 'out of date', 'ebay'],
       },
       {
         id: 'crosslisting-stuck',
@@ -428,9 +438,10 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             <p>Check these in order:</p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Both your Depop and Vinted accounts are linked, and a Depop tab
-                and a Vinted tab are open, signed in to those accounts. The
-                panel tells you which one is missing.
+                Both marketplaces you&rsquo;re copying between are linked. For
+                Depop and Vinted, a tab for each is also open and signed in to
+                the linked account; eBay needs no tab. The panel tells you
+                which one is missing.
               </li>
               <li>
                 Look at the <Link href="/docs/getting-started/queue" className="underline underline-offset-4">queue</Link> at the bottom of the panel&rsquo;s sidebar.
@@ -443,6 +454,11 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
                 <strong>Rate limited</strong> means Depop or Vinted is limiting
                 requests. SaleLinx waits and carries on by itself when the
                 countdown ends.
+              </li>
+              <li>
+                <strong>eBay is busy right now</strong> means eBay is
+                temporarily turning requests away. Try again later; nothing has
+                been posted or charged.
               </li>
               <li>
                 If you&rsquo;ve used your monthly crosslist allowance, SaleLinx
@@ -466,7 +482,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             </p>
           </div>
         ),
-        keywords: ['stuck', 'hanging', 'frozen', 'slow', 'queued', 'crosslist'],
+        keywords: ['stuck', 'hanging', 'frozen', 'slow', 'queued', 'crosslist', 'ebay', 'busy'],
       },
       {
         id: 'listing-failed-to-post',
@@ -478,7 +494,10 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             marketplace you&rsquo;re copying to, or from details that
             marketplace wouldn&rsquo;t accept. Sign in there with your linked
             account, then select the item in <strong>My Listings</strong> and
-            click <strong>Crosslist</strong> again. From version 1.1.12, failed
+            click <strong>Crosslist</strong> again. When eBay refuses an item,
+            the review step says what eBay needs, usually an item specific such
+            as size or department: click <strong>Fill in</strong>, add it, and
+            the item can be posted. From version 1.1.12, failed
             items don&rsquo;t count towards your monthly crosslist allowance.
             If a whole marketplace is having problems, check the{' '}
             <Link
@@ -548,6 +567,110 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
     ],
   },
   {
+    slug: 'ebay',
+    title: 'eBay',
+    blurb: 'Connecting eBay, managing and crosslisting eBay listings, and what it costs.',
+    items: [
+      {
+        id: 'ebay-connect',
+        q: 'How do I connect my eBay account?',
+        a: <p>Open the SaleLinx panel, go to <em>Settings</em>, and click <em>Link</em> on the eBay row. Sign in on eBay&rsquo;s own page and agree to let SaleLinx manage your listings. SaleLinx never sees your eBay password, and you can unlink at any time.</p>,
+        keywords: ['ebay', 'connect', 'link', 'account'],
+      },
+      {
+        id: 'ebay-fees',
+        q: 'Does crosslisting to eBay cost anything?',
+        a: <p>eBay charges its normal listing fees, the same as listing by hand. SaleLinx shows eBay&rsquo;s fee for every item before anything is posted, so you can go back or remove items first. eBay listings go live straight away, because eBay has no drafts.</p>,
+        keywords: ['ebay', 'fees', 'cost', 'crosslist'],
+      },
+      {
+        id: 'ebay-tab',
+        q: 'Do I need an eBay tab open?',
+        a: (
+          <p>
+            No. eBay connects through eBay&rsquo;s own sign-in, so SaleLinx
+            reaches your eBay listings without an eBay tab open. You still open
+            the panel itself from a Depop, Vinted or eBay page.
+          </p>
+        ),
+        keywords: ['ebay', 'tab', 'open'],
+      },
+      {
+        id: 'ebay-manage-listings',
+        q: 'Can I edit, end or relist eBay listings from SaleLinx?',
+        a: (
+          <p>
+            Yes. Your eBay listings appear in <strong>My Listings</strong>.
+            Open one to edit its title, description, price, quantity, photos,
+            condition, category and item specifics, and save straight to eBay.{' '}
+            <strong>Unlist</strong> ends the listing; eBay has no delete, so
+            deleting an eBay row ends the listing too. An ended listing opens
+            with a <strong>Relist</strong> option. More in the{' '}
+            <Link
+              href="/docs/inventory/listings"
+              className="underline underline-offset-4"
+            >
+              My Listings guide
+            </Link>
+            .
+          </p>
+        ),
+        keywords: ['ebay', 'edit', 'end', 'unlist', 'relist', 'delete', 'my listings'],
+      },
+      {
+        id: 'ebay-postage',
+        q: 'Where does postage come from when I crosslist to eBay?',
+        a: (
+          <p>
+            From your eBay account. SaleLinx uses your eBay business policies,
+            or copies postage and returns from one of your existing eBay
+            listings. If there&rsquo;s nothing to copy, the Crosslist tab asks
+            for your postage once, and you can change it later in{' '}
+            <strong>Settings &rarr; eBay &rarr; Postage</strong>.
+          </p>
+        ),
+        keywords: ['ebay', 'postage', 'shipping', 'returns', 'policies'],
+      },
+      {
+        id: 'ebay-busy',
+        q: 'What does &ldquo;eBay is busy right now&rdquo; mean?',
+        a: (
+          <p>
+            eBay is temporarily turning requests away. Try again later; nothing
+            has been posted or charged.
+          </p>
+        ),
+        keywords: ['ebay', 'busy', 'error', 'try again'],
+      },
+      {
+        id: 'ebay-reconnect',
+        q: 'SaleLinx asks me to reconnect eBay',
+        a: (
+          <p>
+            The permission eBay gives SaleLinx runs out after a while, and it
+            also ends if you remove SaleLinx&rsquo;s access in your eBay
+            account. Open <strong>Settings</strong> in the panel and click{' '}
+            <strong>Link</strong> on the eBay row to approve it again. Your
+            eBay listings aren&rsquo;t affected.
+          </p>
+        ),
+        keywords: ['ebay', 'reconnect', 'link', 'expired', 'access'],
+      },
+      {
+        id: 'ebay-disconnect',
+        q: 'How do I disconnect eBay?',
+        a: (
+          <p>
+            Open <strong>Settings</strong> in the panel and click{' '}
+            <strong>Unlink</strong> on the eBay row. SaleLinx deletes its eBay
+            access straight away, and your listings on eBay stay as they are.
+          </p>
+        ),
+        keywords: ['ebay', 'disconnect', 'unlink', 'remove'],
+      },
+    ],
+  },
+  {
     slug: 'privacy',
     title: 'Privacy & data',
     blurb: 'What we store, where it lives, and how to delete it.',
@@ -560,7 +683,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             No. SaleLinx works through the Depop and Vinted sessions
             you&rsquo;re already signed in to in your own browser, so you never
             give us a marketplace password. To link a shop to your SaleLinx
-            account, we store only its username and account ID.
+            account, we store only its username and account ID. eBay connects through eBay&rsquo;s own sign-in page, and SaleLinx never sees your eBay password. For eBay we also keep the access token eBay gives us, so SaleLinx can act on your listings.
           </p>
         ),
         keywords: ['password', 'credentials', 'security'],
@@ -574,7 +697,10 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             stored with our database provider, Supabase, and payments are
             handled by Stripe. Listing details and photos are only stored with
             us for listings you save to the cloud; the rest of what SaleLinx
-            reads from Depop and Vinted isn&rsquo;t stored on our servers. Data
+            reads from Depop and Vinted isn&rsquo;t stored on our servers. eBay
+            requests go through our servers, which keep the access eBay grants
+            for your account and the postage details you set for eBay
+            crosslists, including the postcode you send from. Data
             travels over HTTPS, Supabase encrypts it at rest, and access rules
             tie every listing and photo to your account. Where our providers
             process data is set out in our{' '}
@@ -599,7 +725,8 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             Enter your password (not needed if you sign in with Google) and we
             email you a confirmation link: open it within 60 minutes while
             signed in and confirm once more. Your account, listings, images,
-            linked marketplace accounts, usage history and support tickets are
+            linked marketplace accounts (including your eBay connection), usage
+            history and support tickets are
             then deleted straight away, and any subscription is canceled with
             no refund for the time left. You can also email{' '}
             <a

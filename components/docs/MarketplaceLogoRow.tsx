@@ -2,11 +2,11 @@ import { Link } from '@/i18n/navigation';
 import type { Marketplace } from '@/lib/docs/types';
 import { MARKETPLACE_LABELS } from '@/lib/docs/status';
 
-const MARKETPLACES: Marketplace[] = ['depop', 'vinted'];
+const MARKETPLACES: Marketplace[] = ['depop', 'vinted', 'ebay'];
 
 export function MarketplaceLogoRow() {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-3 gap-3">
       {MARKETPLACES.map((m) => (
         <Link
           key={m}

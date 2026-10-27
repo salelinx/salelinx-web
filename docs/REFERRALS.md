@@ -141,7 +141,8 @@ aggregates can't come from RLS-scoped reads, so the RPC exposes ONLY
 `(rank, display_name, score, is_me)` - never UUIDs or full emails:
 
 - `display_name` - the referrer's linked shop username (Depop preferred,
-  then Vinted; it's the name buyers already see publicly), else a neutral
+  then Vinted or eBay, which tie in the `ORDER BY` so either can appear; each
+  is the name buyers already see publicly), else a neutral
   rank-based handle `Seller #<rank>`. The email-derived fallback that
   originally shipped was removed pre-squash: a public
   cross-user surface must never show email-derived data.

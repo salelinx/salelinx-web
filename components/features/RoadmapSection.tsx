@@ -27,9 +27,8 @@ export async function RoadmapSection({ standalone = false }: { standalone?: bool
       id="roadmap"
       className={
         standalone
-          ? 'py-14 sm:py-20'
-          : // Larger bottom than the other sections: this is the end of the page.
-            'scroll-mt-20 border-t border-black/10 pt-14 pb-24 sm:pt-20 sm:pb-32 dark:border-white/10'
+          ? 'pt-14 sm:pt-20'
+          : 'scroll-mt-20 border-t border-black/10 pt-14 sm:pt-20 dark:border-white/10'
       }
     >
       {standalone ? (
@@ -67,19 +66,22 @@ export async function RoadmapSection({ standalone = false }: { standalone?: bool
         </div>
       )}
 
-      <div className="mt-16 flex flex-col items-start gap-4 border-t border-black/10 pt-10 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
-        <div>
-          <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('request.eyebrow')}</span>
-          <p className="mt-2 max-w-xl text-zinc-600 dark:text-zinc-400">
-            {t('request.body')}
-          </p>
+      {/* Fixed height in 80px steps: the grid rows count up from the footer, so this rule lands on one. */}
+      <div className="mt-16 h-80 border-t border-black/10 pt-10 sm:h-60 dark:border-white/10">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-center sm:gap-12">
+          <div>
+            <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>{t('request.eyebrow')}</span>
+            <p className="mt-2 max-w-xl text-zinc-600 dark:text-zinc-400">
+              {t('request.body')}
+            </p>
+          </div>
+          <a
+            href="mailto:hello@salelinx.com"
+            className="shrink-0 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
+          >
+            {t('request.cta')}
+          </a>
         </div>
-        <a
-          href="mailto:hello@salelinx.com"
-          className="shrink-0 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
-        >
-          {t('request.cta')}
-        </a>
       </div>
     </section>
   );

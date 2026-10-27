@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { PlatformBadge, platformBorder } from "./HeroPreview";
+import { PlatformBadge, platformBorder, type Platform } from "./HeroPreview";
 import { ProductImage } from "./ProductImage";
 import { usePrefersReducedMotion, useTick } from "./scene-hooks";
 
@@ -17,7 +17,8 @@ import { usePrefersReducedMotion, useTick } from "./scene-hooks";
  * The rows are real classifications, not decoration: each one passes the
  * thresholds in docs/automate/dead-stock for its marketplace (Depop dead at
  * 21+ days, stale at 10+; Vinted dead at 30+, with under 5 likes in every
- * case here). Keep them consistent if the thresholds change.
+ * case here). Keep them consistent if the thresholds change. The eBay row has
+ * no documented threshold yet; it uses Depop's stale numbers until it does.
  */
 
 type Tier = "healthy" | "stale" | "dead";
@@ -25,7 +26,7 @@ type Tier = "healthy" | "stale" | "dead";
 const ROWS: {
   item: string;
   photo: string;
-  platform: "depop" | "vinted";
+  platform: Platform;
   age: number;
   views: number;
   likes: number;
@@ -58,7 +59,7 @@ const ROWS: {
   {
     item: "Cat ring",
     photo: "/products/cat-ring.jpg",
-    platform: "depop",
+    platform: "ebay",
     age: 12,
     views: 22,
     likes: 3,

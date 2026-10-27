@@ -55,6 +55,7 @@ const STATUS_DOT: Record<RoadmapStatus, string> = {
 const MARKETPLACE_LABEL: Record<Marketplace, string> = {
   depop: "Depop",
   vinted: "Vinted",
+  ebay: "eBay",
 };
 
 const TAG_LABEL: Record<RoadmapTagKey, string> = {
