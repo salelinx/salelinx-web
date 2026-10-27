@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
+import { BlockingWall } from '@/components/BlockingWall';
 import { setStatsOptOut, statsOptedOut } from '@/components/SiteStats';
 import { useHydrated } from '@/lib/use-hydrated';
 import {
   type Consent,
   type ConsentState,
+  isConsentWallExempt,
   needsChoice,
   parseConsentValue,
   serializeConsent,
@@ -41,11 +43,13 @@ import { captureSignupSource, clearSignupSource } from '@/lib/signup-source';
 //   months. A visitor who accepted under the older analytics-only banner is
 //   asked again before the ads category ever fires (see lib/consent.ts).
 // - CookieSettingsButton in the Footer reopens the banner at any time.
-// - It is a card in the bottom corner that leaves the page usable: nothing
-//   optional runs until a yes, which is all PECR asks, and the ICO is wary of
-//   walls that block a site until the visitor consents. It used to blur and
-//   lock the page, which put a wall in front of everyone arriving from an ad.
-//   No close button: ignoring it is the "no".
+// - In the UK/EEA/CH (/api/geo) the first choice is a wall: the page is
+//   blurred and inert until the visitor picks. It forces a choice, never
+//   acceptance: Reject all is exactly as prominent as Accept all, which keeps
+//   it on the right side of the ICO's cookie wall guidance. The legal pages
+//   are exempt so the policy it links to stays readable. Elsewhere, and on a
+//   Footer reopen, it is a corner card that leaves the page usable.
+//   No close button either way.
 //
 // The whole feature is gated on the env vars: with neither set (local dev,
 // preview) the banner and the settings button do not render and the site
@@ -60,6 +64,15 @@ const CONSENT_COOKIE = 'slx_consent';
 const CONSENT_MAX_AGE = 60 * 60 * 24 * 180; // re-ask after 6 months
 const REOPEN_EVENT = 'slx:cookie-settings';
 const GTAG_SCRIPT_ID = 'ga-gtag';
+// Fired when the wall's state may have changed, so MarketingChoicePrompt can
+// wait its turn: two BlockingWalls would make each other inert.
+export const COOKIE_WALL_EVENT = 'slx:cookie-wall';
+let geoAutomatic: boolean | null = null;
+
+// Whether the cookie wall is up or may still go up. Client-only.
+export function cookieWallPending(): boolean {
+  return ANY_ACTIVE && geoAutomatic !== true && needsChoice(readConsentCookie(), ACTIVE);
+}
 
 declare global {
   interface Window {
@@ -178,6 +191,9 @@ export function CookieConsent() {
   const [open, setOpen] = useState<boolean>(
     () => typeof document !== 'undefined' && needsChoice(readConsentCookie(), ACTIVE),
   );
+  // The first answer, as opposed to a Footer reopen, which never walls.
+  const [required, setRequired] = useState(open);
+  const [automatic, setAutomatic] = useState(geoAutomatic);
   // Open on a Footer reopen: that visitor came to change a choice.
   const [choosing, setChoosing] = useState(false);
   const [toggles, setToggles] = useState<{ analytics: boolean; ads: boolean; stats: boolean }>(
@@ -192,10 +208,23 @@ export function CookieConsent() {
     },
   );
   const t = useTranslations('CookieBanner');
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!ANY_ACTIVE) return;
     applyConsent(readConsentCookie());
+
+    if (geoAutomatic === null && needsChoice(readConsentCookie(), ACTIVE)) {
+      fetch('/api/geo', { cache: 'no-store' })
+        .then((r) => r.json())
+        .then(({ automatic: a }) => a === true)
+        .catch(() => false)
+        .then((a) => {
+          geoAutomatic = a;
+          setAutomatic(a);
+          window.dispatchEvent(new Event(COOKIE_WALL_EVENT));
+        });
+    }
 
     // The footer's Cookie settings button reopens the banner with the current
     // choices pre-filled.
@@ -213,7 +242,8 @@ export function CookieConsent() {
     return () => window.removeEventListener(REOPEN_EVENT, reopen);
   }, []);
 
-  if (!ANY_ACTIVE || !hydrated || !open) return null;
+  if (!ANY_ACTIVE || !hydrated || !open || (required && automatic === null)) return null;
+  const blocking = required && automatic === false && !isConsentWallExempt(pathname);
 
   // Stats is not a consent category, so Reject all leaves it as the switch
   // shows rather than turning it off.
@@ -229,26 +259,38 @@ export function CookieConsent() {
     writeConsentCookie(next);
     applyConsent(next);
     setOpen(false);
+    setRequired(false);
     setChoosing(false);
+    window.dispatchEvent(new Event(COOKIE_WALL_EVENT));
   }
 
   // ICO expects Accept all and Reject all to be equally prominent, so the
   // buttons deliberately share the same style.
-  const buttonClass =
-    'rounded-full border border-black/15 bg-white px-3 py-1.5 text-[13px] font-medium text-zinc-900 transition hover:border-black/30 hover:bg-zinc-50';
+  const buttonClass = blocking
+    ? 'rounded-full bg-black px-4 py-3 text-base font-medium text-white transition hover:bg-zinc-800'
+    : 'rounded-full border border-black/15 bg-white px-3 py-1.5 text-[13px] font-medium text-zinc-900 transition hover:border-black/30 hover:bg-zinc-50';
+  const textSize = blocking ? 'text-base' : 'text-[13px]';
   const linkClass =
     'font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-2 transition hover:decoration-zinc-900';
 
-  return (
+  const card = (
     <div
-      role="region"
-      aria-label={t('title')}
-      className="fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3.5 shadow-lg shadow-black/[0.08] backdrop-blur-md motion-safe:animate-[popIn_0.6s_ease-out_1s_backwards] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]"
+      // Inside the wall the dialog role sits on BlockingWall instead.
+      role={blocking ? undefined : 'region'}
+      aria-label={blocking ? undefined : t('title')}
+      className={
+        blocking
+          ? 'm-auto w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-black/20 motion-safe:animate-[popIn_0.45s_ease-out] sm:p-8'
+          : 'fixed inset-x-2 bottom-2 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white/95 p-3.5 shadow-lg shadow-black/[0.08] backdrop-blur-md motion-safe:animate-[popIn_0.6s_ease-out_1s_backwards] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[360px]'
+      }
     >
-      <p className="text-[13px] leading-snug text-zinc-600">
+      {blocking ? (
+        <h2 className="mb-3 text-xl font-semibold tracking-tight text-zinc-900">{t('title')}</h2>
+      ) : null}
+      <p className={`${textSize} leading-snug text-zinc-600`}>
         {t('body')}
       </p>
-      <p className="mt-1.5 text-[13px] leading-snug text-zinc-400">
+      <p className={`mt-1.5 ${textSize} leading-snug text-zinc-400`}>
         <Link href="/legal/privacy#cookies" className={linkClass}>
           {t('privacyLink')}
         </Link>
@@ -294,7 +336,7 @@ export function CookieConsent() {
         </div>
       ) : null}
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className={`grid grid-cols-2 ${blocking ? 'mt-6 gap-3' : 'mt-3 gap-2'}`}>
         <button type="button" onClick={() => decide(true, true, true)} className={buttonClass}>
           {t('acceptAll')}
         </button>
@@ -313,6 +355,8 @@ export function CookieConsent() {
       ) : null}
     </div>
   );
+
+  return blocking ? <BlockingWall label={t('title')}>{card}</BlockingWall> : card;
 }
 
 function ConsentRow({
