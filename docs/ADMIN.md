@@ -33,13 +33,14 @@ Consequences:
 
 - **English-only.** No `[locale]` segment, so the admin UI does not use `next-intl` (there is no `NextIntlClientProvider` in this tree). Strings are plain English constants; dates use `"en-US"`. This is intentional for an internal tool.
 - **Hard navigation across the boundary.** Moving between the marketing site and `/admin` is a full page reload (two separate `<html>` roots). The sidebar's "Back to site" link is a plain `<a href>`, not a soft-nav `Link`.
-- **Adding a module is cheap:** append an entry to `lib/admin/modules.ts`, add `app/admin/<module>/page.tsx`, add `components/admin/<module>/*`, and (if it needs a privileged read) one migration with an `is_admin()`-gated RPC. No layout/shell changes. Give the entry a `section` (currently only `"Analytics"`) to file it under a sidebar heading; grouping is by adjacent run, so keep a section's members next to each other in the list.
+- **Adding a module is cheap:** append an entry to `lib/admin/modules.ts`, add `app/admin/<module>/page.tsx`, add `components/admin/<module>/*`, and (if it needs a privileged read) one migration with an `is_admin()`-gated RPC. No layout/shell changes. Give the entry a `section` (currently only `"Analytics"`) to file it under a sidebar heading; grouping is by adjacent run, so keep a section's members next to each other in the list. Copy an existing module's shell (see "Phones" below) so it works on a phone too.
 
 | Concern | File |
 | --- | --- |
 | Shell + Layer-2 gate + theme/fonts | `app/admin/layout.tsx` |
 | Console styles (forked from globals.css) | `app/admin/admin.css` |
-| Sidebar (registry-driven nav) | `components/admin/AdminSidebar.tsx` |
+| Sidebar (registry-driven nav, md and up) | `components/admin/AdminSidebar.tsx` |
+| Phone tab bar + More sheet (below md) | `components/admin/AdminTabBar.tsx` |
 | Module registry | `lib/admin/modules.ts` |
 | `/admin` home dashboard | `app/admin/page.tsx` + `components/admin/AdminDashboard.tsx` |
 | Support module | `app/admin/support/page.tsx` + `components/admin/support/*` |
@@ -81,6 +82,18 @@ Consequences:
 | Audit + identity RPCs, audit table, read/write RPCs | migration `009_admin_console.sql` |
 | Subscription write RPC | migration `009_admin_console.sql` |
 | Users observability widening (linked accounts, devices, listings, storage) | migration `009_admin_console.sql` |
+
+### Phones
+
+The console works on a phone. Below Tailwind's `md` breakpoint (768px):
+
+- **Navigation is a bottom tab bar** (`components/admin/AdminTabBar.tsx`) instead of the sidebar: Overview, Support, Users and Finance, plus More, which opens a sheet with the full module list (the same `AdminNavList` the sidebar renders, so a new registry entry shows up there with no edit). Changing which modules get a tab is the `TABS` list in that file; the active state for both navs comes from `isModuleActive()` in `lib/admin/modules.ts`.
+- **The frame is `h-dvh`, and every module root is `flex h-full flex-col`**, never `h-screen`. `100vh` on a phone ignores the browser toolbar and, with the tab bar under `<main>`, would push the bottom of every module off screen. Each module scrolls inside its own body, as on desktop.
+- **Module headers are `min-h-12` and `flex-wrap`**, so title and controls stack on a narrow screen and look unchanged on a wide one. Search inputs are `min-w-40 flex-1 sm:w-72 sm:flex-none` (full width on a phone).
+- **Filter bars swipe sideways** (`overflow-x-auto whitespace-nowrap`, back to `flex-wrap` from `md`) so a dozen filters do not push the rows below the fold.
+- **Support and Users render a card list on phones** and their full tables from `md`. Both are rendered from the same windowed rows, with CSS deciding which shows. Users gets a phone-only Sort dropdown, since its sorting otherwise lives in the table headers. The other tables scroll sideways inside their module.
+- **Form fields are 16px on touch screens** (`admin.css`, `pointer: coarse`). Below that iOS Safari zooms into a focused field and stays zoomed. The rule sits outside any cascade layer so it beats the `text-xs` utilities.
+- The detail drawers were already `w-full max-w-xl`, so they fill a phone screen; their close buttons are `p-2` for a finger-sized target.
 
 ## Security model
 

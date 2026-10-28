@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { isAdmin } from "@/lib/supabase/admin";
 import { getAdminUser, getIsAal2 } from "@/lib/admin/session";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminTabBar } from "@/components/admin/AdminTabBar";
 import { UserDrawerProvider } from "@/components/admin/UserDrawerProvider";
 import "./admin.css";
 
@@ -82,9 +83,14 @@ export default async function AdminLayout({
             navigating away from the table you are looking at. Read-only there;
             mutations stay in /admin/users. See docs/ADMIN.md. */}
         <UserDrawerProvider>
-          <div className="flex min-h-screen">
+          {/* One viewport-tall frame; each module fills <main> (h-full) and
+              scrolls inside itself. dvh rather than vh so a phone browser's
+              toolbar never hides the bottom of the page. The sidebar shows
+              from md up, the tab bar below it. */}
+          <div className="flex h-dvh flex-col md:flex-row">
             <AdminSidebar adminEmail={adminEmail} />
-            <main className="min-w-0 flex-1">{children}</main>
+            <main className="min-h-0 min-w-0 flex-1">{children}</main>
+            <AdminTabBar adminEmail={adminEmail} />
           </div>
         </UserDrawerProvider>
       </body>

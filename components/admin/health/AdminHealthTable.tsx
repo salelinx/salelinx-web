@@ -132,19 +132,19 @@ export function AdminHealthTable({
   const win = useWindowedRows(visible);
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">
           Endpoint health
           <span className="ml-2 font-normal text-zinc-400">{windowLabel}</span>
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search endpoint"
-            className="w-64 rounded-md border border-[var(--admin-border)] px-2 py-1 text-sm"
+            className="min-w-40 flex-1 rounded-md border border-[var(--admin-border)] px-2 py-1 text-sm sm:w-64 sm:flex-none"
           />
           <AdminRefreshButton />
         </div>
@@ -152,7 +152,7 @@ export function AdminHealthTable({
 
       {/* Summary strip: answers "is anything broken right now" without reading
           the table below. */}
-      <div className="flex shrink-0 gap-6 border-b border-[var(--admin-border)] px-4 py-3">
+      <div className="flex shrink-0 flex-wrap gap-x-6 gap-y-3 border-b border-[var(--admin-border)] px-4 py-3">
         <Stat
           label="Broken"
           value={brokenCount}

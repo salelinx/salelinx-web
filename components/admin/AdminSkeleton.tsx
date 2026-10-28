@@ -11,8 +11,8 @@ export function AdminSkeleton({
   rows?: number;
 }) {
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">{title}</h1>
       </header>
 
@@ -42,8 +42,8 @@ export function AdminSkeleton({
 // table.
 export function AdminCardsSkeleton({ title }: { title: string }) {
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">{title}</h1>
       </header>
 

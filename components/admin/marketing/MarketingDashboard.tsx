@@ -191,8 +191,8 @@ export function MarketingDashboard({
       : null;
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="flex items-center gap-2 text-sm font-semibold">
           <span className="flex -space-x-1">
             {(["youtube", "instagram", "tiktok"] as const).map((p) => (

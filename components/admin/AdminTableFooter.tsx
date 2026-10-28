@@ -27,7 +27,7 @@ export function AdminTableFooter({
 
   return (
     <div
-      className="flex items-center justify-center gap-3 border-t border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3 text-xs"
+      className="flex flex-wrap items-center justify-center gap-3 border-t border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3 text-xs"
       role="status"
       aria-live="polite"
     >
