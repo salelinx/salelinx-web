@@ -10,6 +10,7 @@ import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { SiteStats } from '@/components/SiteStats';
 import { MarketingChoicePrompt } from '@/components/MarketingChoicePrompt';
+import { ExtensionSignupSource } from '@/components/ExtensionSignupSource';
 import { ConversionTracker } from '@/components/ConversionTracker';
 import { SmoothAnchorScroll } from '@/components/SmoothAnchorScroll';
 import { routing } from '@/i18n/routing';
@@ -115,6 +116,7 @@ export default async function LocaleLayout({
           <CookieConsent />
           <SiteStats />
           <MarketingChoicePrompt />
+          <ExtensionSignupSource />
           {/* After CookieConsent: its mount effect defines window.gtag, and sibling effects run in order. */}
           <ConversionTracker />
         </NextIntlClientProvider>

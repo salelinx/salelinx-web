@@ -111,12 +111,20 @@ export function clearSignupSource() {
   } catch {}
 }
 
-export async function readSignupSource(): Promise<SignupSource | undefined> {
+export function storedSignupSource(): SignupSource | undefined {
   try {
     if (localStorage.getItem(STATS_OPT_OUT_KEY) === '1') return undefined;
     const raw = localStorage.getItem(KEY);
     if (raw) return JSON.parse(raw) as SignupSource;
   } catch {}
+}
+
+export async function readSignupSource(): Promise<SignupSource | undefined> {
+  try {
+    if (localStorage.getItem(STATS_OPT_OUT_KEY) === '1') return undefined;
+  } catch {}
+  const stored = storedSignupSource();
+  if (stored) return stored;
   try {
     const { automatic } = await (await fetch('/api/geo', { cache: 'no-store' })).json();
     return automatic === true ? currentSource() : undefined;
