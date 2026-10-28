@@ -684,7 +684,7 @@ split across two modules for that reason.
 
 | | Extension usage (`/admin/usage`) | Web usage (`/admin/usage/web`) |
 | --- | --- | --- |
-| Counters | `crosslist`, `relist`, `refresh`, `follow`, `unfollow` | `checkout_sessions`, `portal_sessions`, `delete_account_requests`, `shipping_label_emails`, `email_change_requests` |
+| Counters | `crosslist`, `relist`, `refresh`, `follow`, `unfollow` | `checkout_sessions`, `portal_sessions`, `delete_account_requests`, `shipping_label_emails`, `install_link_emails`, `email_change_requests` |
 | Written by | The extension, per metered action | Web Edge Functions + the account UI |
 | Cap source | The user's `tier_limits` row, so it varies by tier | A hardcoded constant in the calling function, identical for every tier |
 | Period | Monthly or daily depending on the limit key | Always daily |

@@ -1128,6 +1128,12 @@
     "title": "Willkommen bei SaleLinx",
     "subtitle": "Füge SaleLinx zu Chrome hinzu, um loszulegen.",
     "addToChrome": "Zu Chrome hinzufügen",
-    "toAccount": "Zu meinem Konto"
+    "toAccount": "Zu meinem Konto",
+    "phoneSubtitle": "SaleLinx ist eine Chrome-Erweiterung und wird auf einem Computer installiert, nicht auf dem Handy.",
+    "phoneEmailLink": "Link per E-Mail senden",
+    "phoneSending": "Wird gesendet...",
+    "phoneResend": "Erneut senden",
+    "phoneSent": "Wir haben dir den Installationslink geschickt. Öffne ihn auf deinem Computer, um SaleLinx zu Chrome hinzuzufügen.",
+    "phoneError": "Die E-Mail konnte nicht gesendet werden. Öffne salelinx.com auf deinem Computer."
   }
 }

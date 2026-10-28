@@ -79,7 +79,7 @@ Since migration `017_usage_events.sql` the call also inserts one row into `usage
 
 The website also writes `usage_counters` rows for per-day ABUSE RATE LIMITS that
 have nothing to do with entitlements: `checkout_sessions` and `portal_sessions`
-(20/day), `shipping_label_emails` (15/day), `delete_account_requests` and
+(20/day), `shipping_label_emails` (15/day), `install_link_emails` (3/day), `delete_account_requests` and
 `email_change_requests` (5/day). They reuse the `increment_usage_counter` RPC
 because it is already `auth.uid()`-scoped and needs no new table.
 

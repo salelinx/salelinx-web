@@ -1128,6 +1128,12 @@
     "title": "مرحبًا بك في SaleLinx",
     "subtitle": "أضف SaleLinx إلى Chrome للبدء.",
     "addToChrome": "إضافة إلى Chrome",
-    "toAccount": "الانتقال إلى حسابي"
+    "toAccount": "الانتقال إلى حسابي",
+    "phoneSubtitle": "SaleLinx إضافة لمتصفح Chrome، لذا تُثبَّت على الكمبيوتر وليس على الهاتف.",
+    "phoneEmailLink": "أرسل لي الرابط بالبريد",
+    "phoneSending": "جارٍ الإرسال...",
+    "phoneResend": "أرسله مرة أخرى",
+    "phoneSent": "أرسلنا إليك رابط التثبيت. افتحه على الكمبيوتر لإضافة SaleLinx إلى Chrome.",
+    "phoneError": "تعذّر إرسال البريد. افتح salelinx.com على الكمبيوتر بدلاً من ذلك."
   }
 }

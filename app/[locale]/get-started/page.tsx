@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { pageMetadata } from '@/lib/site';
-import { InstallExtensionButton } from '@/components/InstallExtensionButton';
+import { GetStartedInstall } from '@/components/GetStartedInstall';
 
 // Where website signups land. Extension signups never come here, they already
 // have it installed.
@@ -39,12 +39,7 @@ export default async function GetStartedPage({
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
         {t('title')}
       </h1>
-      <p className="mt-3 text-zinc-600 dark:text-zinc-400">{t('subtitle')}</p>
-
-      <InstallExtensionButton
-        label={t('addToChrome')}
-        className="mt-8 inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-black px-7 py-3.5 text-base font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 [&_svg]:h-5 [&_svg]:w-5"
-      />
+      <GetStartedInstall buttonClassName="mt-8 inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-black px-7 py-3.5 text-base font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 [&_svg]:h-5 [&_svg]:w-5" />
 
       <Link
         href="/account"
