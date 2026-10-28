@@ -168,7 +168,7 @@ export function AdminTicketDetail({
         <button
           type="button"
           onClick={onClose}
-          className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+          className="-mr-2 shrink-0 rounded p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
           aria-label="Close detail"
         >
           x

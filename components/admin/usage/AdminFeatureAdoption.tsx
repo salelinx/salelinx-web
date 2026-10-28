@@ -86,8 +86,8 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
   const compareText = win.compareLabel ? `vs ${win.compareLabel}` : null;
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">
           Feature adoption
           <span className="ml-2 font-normal text-zinc-400">{win.label}</span>
@@ -97,7 +97,7 @@ export function AdminFeatureAdoption({ report, toolbar }: Props) {
             </span>
           )}
         </h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {toolbar}
           <Link
             href="/admin/usage"

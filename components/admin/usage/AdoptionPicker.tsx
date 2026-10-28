@@ -124,7 +124,7 @@ export function AdoptionPicker({
   const shown: AdoptionPreset = custom ? "custom" : preset;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <select
         value={shown}
         onChange={(e) => onPreset(e.target.value as AdoptionPreset)}

@@ -504,8 +504,8 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
     : null;
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">
           Users
           <span className="ml-2 font-normal text-zinc-400">
@@ -514,19 +514,38 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
               : `${visible.length} / ${users.length}`}
           </span>
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search email or user ID"
-            className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
+            className="min-w-40 flex-1 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400 sm:w-72 sm:flex-none"
           />
           <AdminRefreshButton onRefresh={refreshUsers} />
         </div>
       </header>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2.5 text-xs">
+      {/* Eleven dropdowns wrap to half a phone screen, so below md they sit
+          in one row that swipes sideways. */}
+      <div className="flex shrink-0 items-center gap-2 overflow-x-auto whitespace-nowrap border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2.5 text-xs md:flex-wrap md:overflow-visible">
+        {/* The table sorts from its column headers; the phone cards have
+            none, so they get this instead. */}
+        <div className="md:hidden">
+          <FilterSelect
+            label="Sort"
+            value={sortKey}
+            options={[
+              ["created_at", "Newest"],
+              ["last_active", "Last active"],
+              ["tier_id", "Tier"],
+              ["status", "Status"],
+              ["email", "Email"],
+            ]}
+            onChange={(v) => setSortKey(v as SortKey)}
+            highlight={false}
+          />
+        </div>
         <FilterSelect
           label="Status"
           value={status}
@@ -619,7 +638,65 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
             )}
           </p>
         ) : (
-          <table className="w-full border-collapse text-sm">
+          // Phones: one card per user with what you check on the go (plan,
+          // billing, marketplaces, last active). The rest is in the drawer.
+          <ul className="divide-y divide-[var(--admin-border)] md:hidden">
+            {win.windowed.map((u) => {
+              const active = lastActivity(u, now);
+              return (
+                <li key={u.user_id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(u.user_id)}
+                    className={
+                      "block w-full px-4 py-3 text-left active:bg-zinc-100 " +
+                      (selectedId === u.user_id ? "bg-zinc-100" : "")
+                    }
+                  >
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      {u.email ? (
+                        <span className="truncate text-sm text-zinc-800">
+                          {u.email}
+                        </span>
+                      ) : (
+                        <span className="truncate font-mono text-xs text-zinc-400">
+                          {u.user_id}
+                        </span>
+                      )}
+                      {u.is_admin && <AdminTag />}
+                      <span
+                        className={"ml-auto shrink-0 pl-2 text-xs " + active.tone}
+                      >
+                        {active.label}
+                      </span>
+                    </span>
+                    <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      {/* Unlike the table, no "-" placeholders: there is no
+                          column for a blank to hold open. */}
+                      <TierBadge tierId={u.tier_id} />
+                      {u.status && (
+                        <>
+                          <StatusBadge status={u.status} />
+                          <BillingCell
+                            cancelAtPeriodEnd={u.cancel_at_period_end}
+                            status={u.status}
+                            periodEnd={u.current_period_end}
+                            now={now}
+                          />
+                        </>
+                      )}
+                      {(u.linked_platforms ?? []).length > 0 && (
+                        <PlatformTags platforms={u.linked_platforms} />
+                      )}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {visible.length > 0 && (
+          <table className="hidden w-full border-collapse text-sm md:table">
             <thead className="sticky top-0 z-10 bg-[var(--admin-surface)] text-left text-xs text-zinc-500">
               <tr className="border-b border-[var(--admin-border)]">
                 <SortableTh
@@ -658,15 +735,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
             </thead>
             <tbody>
               {win.windowed.map((u) => {
-                const lastActive = mostRecent(
-                  u.last_sign_in_at,
-                  u.last_device_seen_at,
-                );
-                const age = now === null ? null : relativeAge(lastActive, now);
-                const tone =
-                  now === null
-                    ? "text-zinc-500"
-                    : STALENESS_TONE[staleness(lastActive, now)];
+                const active = lastActivity(u, now);
                 return (
                   <tr
                     key={u.user_id}
@@ -694,26 +763,11 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                       <PlatformTags platforms={u.linked_platforms ?? []} />
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
-                      <span
-                        className={
-                          "rounded-full px-2 py-0.5 text-xs font-medium capitalize " +
-                          (TIER_TONE[u.tier_id ?? "none"] ?? "bg-zinc-100 text-zinc-700")
-                        }
-                      >
-                        {u.tier_id ?? "none"}
-                      </span>
+                      <TierBadge tierId={u.tier_id} />
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
                       {u.status ? (
-                        <span
-                          className={
-                            "rounded-full px-2 py-0.5 text-xs font-medium " +
-                            (STATUS_TONE[u.status] ??
-                              "bg-zinc-100 text-zinc-600")
-                          }
-                        >
-                          {u.status}
-                        </span>
+                        <StatusBadge status={u.status} />
                       ) : (
                         <span className="text-zinc-400">-</span>
                       )}
@@ -764,8 +818,8 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
                       {formatDate(u.created_at)}
                     </td>
-                    <td className={"whitespace-nowrap px-3 py-2 " + tone}>
-                      {age ?? formatDate(lastActive)}
+                    <td className={"whitespace-nowrap px-3 py-2 " + active.tone}>
+                      {active.label}
                     </td>
                   </tr>
                 );
@@ -805,6 +859,46 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
         />
       )}
     </div>
+  );
+}
+
+// Last active is the more recent of sign-in and device heartbeat (see
+// docs/ADMIN.md "User observability"), as a relative age tinted by staleness.
+// Falls back to the date until useClientNow has a clock.
+function lastActivity(
+  u: AdminUserRow,
+  now: number | null,
+): { label: string; tone: string } {
+  const lastActive = mostRecent(u.last_sign_in_at, u.last_device_seen_at);
+  const age = now === null ? null : relativeAge(lastActive, now);
+  const tone =
+    now === null ? "text-zinc-500" : STALENESS_TONE[staleness(lastActive, now)];
+  return { label: age ?? formatDate(lastActive), tone };
+}
+
+function TierBadge({ tierId }: { tierId: string | null }) {
+  return (
+    <span
+      className={
+        "rounded-full px-2 py-0.5 text-xs font-medium capitalize " +
+        (TIER_TONE[tierId ?? "none"] ?? "bg-zinc-100 text-zinc-700")
+      }
+    >
+      {tierId ?? "none"}
+    </span>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  return (
+    <span
+      className={
+        "rounded-full px-2 py-0.5 text-xs font-medium " +
+        (STATUS_TONE[status] ?? "bg-zinc-100 text-zinc-600")
+      }
+    >
+      {status}
+    </span>
   );
 }
 
@@ -912,13 +1006,17 @@ function FilterSelect({
   value,
   options,
   onChange,
+  highlight,
 }: {
   label: string;
   value: string;
   options: [string, string][];
   onChange: (value: string) => void;
+  // Dark when the control is narrowing the list. Defaults to "not on All";
+  // the sort control passes false, since a sort never hides anyone.
+  highlight?: boolean;
 }) {
-  const set = value !== "all";
+  const set = highlight ?? value !== "all";
   return (
     <label
       className={

@@ -103,3 +103,12 @@ export const ADMIN_MODULES: AdminModule[] = [
 
   { key: "audit", label: "Audit log", href: "/admin/audit", enabled: true },
 ];
+
+// Whether a module's nav entry should read as the current page. Shared by the
+// desktop sidebar and the phone tab bar so the two never disagree.
+export function isModuleActive(mod: AdminModule, pathname: string): boolean {
+  if (mod.exact) return pathname === mod.href;
+  const under = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
+  return (mod.also ?? [mod.href]).concat(mod.href).some(under);
+}

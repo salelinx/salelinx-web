@@ -182,16 +182,16 @@ export function AdminTicketTable({
     : null;
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">Support tickets</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search message, email, or user ID"
-            className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
+            className="min-w-40 flex-1 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400 sm:w-72 sm:flex-none"
           />
           {/* Tickets and replies live in state so replies can be posted
               optimistically, so reuse the existing refetch here. */}
@@ -199,7 +199,9 @@ export function AdminTicketTable({
         </div>
       </header>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs">
+      {/* One row that swipes sideways on a phone, rather than four wrapped
+          rows pushing the tickets below the fold. Wraps from md up. */}
+      <div className="flex shrink-0 items-center gap-x-6 gap-y-2 overflow-x-auto whitespace-nowrap border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs md:flex-wrap md:overflow-visible">
         <FilterGroup
           label="Status"
           value={status}
@@ -261,7 +263,47 @@ export function AdminTicketTable({
             No tickets match these filters.
           </p>
         ) : (
-          <table className="w-full border-collapse text-sm">
+          // Phones: one card per ticket instead of the eight-column table
+          // below. Same window of rows, same tap target.
+          <ul className="divide-y divide-[var(--admin-border)] md:hidden">
+            {win.windowed.map((tk) => (
+              <li key={tk.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedId(tk.id)}
+                  className={
+                    "block w-full px-4 py-3 text-left active:bg-zinc-100 " +
+                    (selectedId === tk.id ? "bg-zinc-100" : "")
+                  }
+                >
+                  <span className="flex items-center gap-1.5">
+                    <StatusBadge closed={tk.status === "closed"} />
+                    {needsReplyById[tk.id] && <NeedsReplyBadge />}
+                    <span className="ml-auto shrink-0 text-xs text-zinc-500">
+                      {formatRelative(tk.updated_at)}
+                    </span>
+                  </span>
+                  <span className="mt-1.5 line-clamp-2 text-sm text-zinc-800">
+                    {tk.message}
+                  </span>
+                  <span className="mt-1 flex min-w-0 items-center gap-2 text-xs text-zinc-500">
+                    <span className="shrink-0">{typeLabel(tk.type)}</span>
+                    <span className="min-w-0 truncate">
+                      <UserEmailLink
+                        userId={tk.user_id}
+                        email={emails[tk.user_id]}
+                        className="text-zinc-600"
+                      />
+                    </span>
+                    {tk.source && <span className="shrink-0">{tk.source}</span>}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {visible.length > 0 && (
+          <table className="hidden w-full border-collapse text-sm md:table">
             <thead className="sticky top-0 z-10 bg-[var(--admin-surface)] text-left text-xs text-zinc-500">
               <tr className="border-b border-[var(--admin-border)]">
                 <SortableTh
@@ -302,15 +344,7 @@ export function AdminTicketTable({
                     <td className="whitespace-nowrap px-3 py-2">
                       <div className="flex items-center gap-1.5">
                         <StatusBadge closed={isClosed} />
-                        {needsReplyById[tk.id] && (
-                          <span
-                            title="Awaiting your reply"
-                            className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
-                          >
-                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                            Needs reply
-                          </span>
-                        )}
+                        {needsReplyById[tk.id] && <NeedsReplyBadge />}
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-700">
@@ -428,6 +462,18 @@ function SortableTh({
         {active && <span aria-hidden>v</span>}
       </button>
     </th>
+  );
+}
+
+function NeedsReplyBadge() {
+  return (
+    <span
+      title="Awaiting your reply"
+      className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+      Needs reply
+    </span>
   );
 }
 

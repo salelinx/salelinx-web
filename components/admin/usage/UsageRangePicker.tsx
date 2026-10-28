@@ -110,7 +110,7 @@ export function UsageRangePicker({
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <select
         value={custom ? "custom" : preset}
         onChange={(e) => onPreset(e.target.value)}

@@ -29,3 +29,16 @@ body {
   color: var(--admin-foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/* Touch screens: iOS Safari zooms into any focused field smaller than 16px
+   and stays zoomed, which on a phone pushes the page off screen mid-search.
+   The console's fields are text-xs / text-sm for desktop density. This sits
+   outside any cascade layer, so it beats those Tailwind utilities without
+   !important. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

@@ -113,8 +113,8 @@ export function AdminUsageTable({
   const win = useWindowedRows(visible);
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">
           {capKind === "limit" ? "Web usage" : "Extension usage"}
           <span className="ml-2 font-normal text-zinc-400">{periodLabel}</span>
@@ -127,20 +127,20 @@ export function AdminUsageTable({
             </span>
           )}
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           {toolbar}
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search email or user ID"
-            className="w-72 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400"
+            className="min-w-40 flex-1 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400 sm:w-72 sm:flex-none"
           />
           <AdminRefreshButton />
         </div>
       </header>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs">
+      <div className="flex shrink-0 items-center gap-x-6 gap-y-2 overflow-x-auto whitespace-nowrap border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2 text-xs md:flex-wrap md:overflow-visible">
         <FilterGroup
           label="Feature"
           value={feature}

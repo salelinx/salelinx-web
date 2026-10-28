@@ -184,8 +184,8 @@ export function AdminRoadmap({
   const hiddenCount = items.filter((i) => !i.visible).length;
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="text-sm font-semibold">
           Roadmap
           <span className="ml-2 font-normal text-zinc-400">
@@ -473,13 +473,13 @@ function Editor({
       className="fixed inset-y-0 right-0 z-20 flex w-full max-w-xl flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-xl"
     >
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-[var(--admin-border)] px-4">
-        <span className="text-sm font-semibold">
+        <span className="min-w-0 truncate text-sm font-semibold">
           {isNew ? "New roadmap card" : initial.title.en}
         </span>
         <button
           type="button"
           onClick={onClose}
-          className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+          className="-mr-2 shrink-0 rounded p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
           aria-label="Close editor"
         >
           x
@@ -487,7 +487,7 @@ function Editor({
       </header>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-auto p-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <span className={label}>Column</span>
             <div className="flex gap-1">
@@ -517,7 +517,7 @@ function Editor({
           </label>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="block">
             <span className={label}>Tag</span>
             <select

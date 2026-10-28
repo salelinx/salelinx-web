@@ -480,8 +480,8 @@ export function AdminUserDetail({
   return (
     <div className="fixed inset-y-0 right-0 z-20 flex w-full max-w-xl flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-xl">
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-[var(--admin-border)] px-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-sm font-semibold">
             {user.email ?? "User"}
           </span>
           {detail?.is_admin && (
@@ -493,7 +493,7 @@ export function AdminUserDetail({
         <button
           type="button"
           onClick={onClose}
-          className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+          className="-mr-2 shrink-0 rounded p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
           aria-label="Close detail"
         >
           x

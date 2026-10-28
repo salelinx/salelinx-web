@@ -2,22 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ADMIN_MODULES } from "@/lib/admin/modules";
+import { ADMIN_MODULES, isModuleActive } from "@/lib/admin/modules";
 
 // Admin console sidebar. Driven entirely by ADMIN_MODULES so a new section is
 // "append to the registry" - no edit here. Uses plain next/link (admin is
 // non-localized) and a hard-nav <a> back to the marketing site (separate <html>
 // root, so a soft transition across the boundary isn't possible anyway).
+//
+// Desktop only (md and up). Phones get AdminTabBar instead, whose More sheet
+// renders the same AdminNavList below.
 
 type Props = {
   adminEmail: string;
 };
 
 export function AdminSidebar({ adminEmail }: Props) {
-  const pathname = usePathname();
-
   return (
-    <aside className="flex w-56 shrink-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)]">
+    <aside className="hidden w-56 shrink-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)] md:flex">
       <div className="flex h-12 items-center border-b border-[var(--admin-border)] px-4">
         {/* Logo + title link back to the dashboard home (/admin). */}
         <Link
@@ -34,80 +35,102 @@ export function AdminSidebar({ adminEmail }: Props) {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-2">
-        <ul className="space-y-0.5">
-          {ADMIN_MODULES.map((mod, i) => {
-            const under = (href: string) =>
-              pathname === href || pathname.startsWith(href + "/");
-            const active = mod.exact
-              ? pathname === mod.href
-              : (mod.also ?? [mod.href]).concat(mod.href).some(under);
-
-            // A section heading opens each run of grouped modules, and the
-            // first top-level module after a group gets a little air so the
-            // group reads as a block rather than bleeding into what follows.
-            const prev = i > 0 ? ADMIN_MODULES[i - 1].section : undefined;
-            const opensSection =
-              mod.section !== undefined && mod.section !== prev;
-            const closesSection =
-              mod.section === undefined && prev !== undefined;
-            const heading = opensSection ? (
-              <p className="mt-4 mb-1 px-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-                {mod.section}
-              </p>
-            ) : null;
-            const gapClass = closesSection ? "mt-4" : "";
-
-            if (!mod.enabled) {
-              return (
-                <li key={mod.key} className={gapClass}>
-                  {heading}
-                  <span className="flex cursor-default items-center justify-between rounded-md px-3 py-1.5 text-sm text-zinc-400">
-                    {mod.label}
-                    <span className="text-[10px] uppercase tracking-wide text-zinc-300">
-                      soon
-                    </span>
-                  </span>
-                </li>
-              );
-            }
-
-            return (
-              <li key={mod.key} className={gapClass}>
-                {heading}
-                <Link
-                  href={mod.href}
-                  className={
-                    active
-                      ? "flex items-center rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white"
-                      : "flex items-center rounded-md px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-                  }
-                >
-                  {mod.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <AdminNavList />
       </nav>
 
-      <div className="border-t border-[var(--admin-border)] p-3">
-        {adminEmail && (
-          <p
-            className="mb-2 truncate font-mono text-xs text-zinc-500"
-            title={adminEmail}
-          >
-            {adminEmail}
-          </p>
-        )}
-        {/* next/link to a page outside this tree's <html> root: Next performs a
-            full (MPA) navigation across the marketing <-> admin boundary. */}
-        <Link
-          href="/account"
-          className="text-xs text-zinc-500 underline-offset-2 hover:text-zinc-900 hover:underline"
-        >
-          Back to site
-        </Link>
-      </div>
+      <AdminNavFooter adminEmail={adminEmail} />
     </aside>
+  );
+}
+
+// The module list itself. `touch` gives each row a finger-sized target for the
+// phone sheet; `onNavigate` lets that sheet close itself on a tap, including a
+// tap on the page already open (which changes no pathname).
+export function AdminNavList({
+  touch = false,
+  onNavigate,
+}: {
+  touch?: boolean;
+  onNavigate?: () => void;
+}) {
+  const pathname = usePathname();
+  const row = touch ? "px-3 py-2.5 text-[15px]" : "px-3 py-1.5 text-sm";
+
+  return (
+    <ul className="space-y-0.5">
+      {ADMIN_MODULES.map((mod, i) => {
+        const active = isModuleActive(mod, pathname);
+
+        // A section heading opens each run of grouped modules, and the
+        // first top-level module after a group gets a little air so the
+        // group reads as a block rather than bleeding into what follows.
+        const prev = i > 0 ? ADMIN_MODULES[i - 1].section : undefined;
+        const opensSection = mod.section !== undefined && mod.section !== prev;
+        const closesSection = mod.section === undefined && prev !== undefined;
+        const heading = opensSection ? (
+          <p className="mt-4 mb-1 px-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+            {mod.section}
+          </p>
+        ) : null;
+        const gapClass = closesSection ? "mt-4" : "";
+
+        if (!mod.enabled) {
+          return (
+            <li key={mod.key} className={gapClass}>
+              {heading}
+              <span
+                className={`flex cursor-default items-center justify-between rounded-md text-zinc-400 ${row}`}
+              >
+                {mod.label}
+                <span className="text-[10px] uppercase tracking-wide text-zinc-300">
+                  soon
+                </span>
+              </span>
+            </li>
+          );
+        }
+
+        return (
+          <li key={mod.key} className={gapClass}>
+            {heading}
+            <Link
+              href={mod.href}
+              onClick={onNavigate}
+              aria-current={active ? "page" : undefined}
+              className={
+                active
+                  ? `flex items-center rounded-md bg-zinc-900 font-medium text-white ${row}`
+                  : `flex items-center rounded-md text-zinc-700 hover:bg-zinc-100 ${row}`
+              }
+            >
+              {mod.label}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export function AdminNavFooter({ adminEmail }: { adminEmail: string }) {
+  return (
+    <div className="border-t border-[var(--admin-border)] p-3">
+      {adminEmail && (
+        <p
+          className="mb-2 truncate font-mono text-xs text-zinc-500"
+          title={adminEmail}
+        >
+          {adminEmail}
+        </p>
+      )}
+      {/* next/link to a page outside this tree's <html> root: Next performs a
+          full (MPA) navigation across the marketing <-> admin boundary. */}
+      <Link
+        href="/account"
+        className="text-xs text-zinc-500 underline-offset-2 hover:text-zinc-900 hover:underline"
+      >
+        Back to site
+      </Link>
+    </div>
   );
 }
