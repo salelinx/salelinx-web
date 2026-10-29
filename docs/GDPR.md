@@ -30,6 +30,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Category resolution | Listing title and description (truncated to 2000 chars), category IDs | Users | Contract | Transits the `resolve-category` Edge Function on every crosslist (the extension has no local fallback); matched in memory, never logged or stored. For a crosslist into eBay, up to 100 characters of the wording go on to eBay's Taxonomy API under SaleLinx's application token (`ebay-category.ts`), for a listing the user is creating on eBay anyway. Disclosed in the privacy policy under "Category matching for crosslisting" | Not stored |
 | Device sessions | Random per-install device ID, user agent, extension version (015_device_session_version.sql), last-seen timestamps | Users | Legitimate interest (enforcing the per-plan concurrent-device cap; knowing which build a support report came from) | Supabase `device_sessions` | Rows idle 30+ days pruned on next claim; cascades on account deletion |
 | Terms acceptance | Terms version and acceptance timestamp | Users | Legal obligation / legitimate interest (record of consent to contract) | Supabase `auth.users` user metadata | Life of account |
+| Deleted-account tombstones | User UUID, SHA-256 of the lowercased email (`deleted_email_hash()`, prefix `slx-deleted:`), signup and deletion time, last plan and status, country, signup source (043_deleted_accounts.sql). Written by a BEFORE DELETE trigger on `auth.users`, so every deletion path records one | Former users | Legitimate interest (record of closed accounts in `/admin/users`; spotting delete-and-resignup abuse) | Supabase `deleted_accounts` (no client policies; read via `admin_list_deleted_accounts()`) | 24 months, pruned nightly by `prune_deleted_accounts()` |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
 | Status overrides | Admin ID (`set_by`), public status note, timestamps (011_status_overrides.sql) | Admins | Legitimate interest (public incident communication) | Supabase `status_overrides` | Life of the override. `set_by` is `ON DELETE SET NULL`, not CASCADE, so deleting an admin anonymises the row without silently clearing a live incident notice |
 | Endpoint self-test runs | Admin ID (`run_by`), extension version, marketplace, per-endpoint outcomes (012_endpoint_selftest.sql; see the dedicated section below) | Admins | Legitimate interest (operating and debugging the service) | Supabase `endpoint_selftest_runs` / `endpoint_selftest_results` | 180 days via `prune_endpoint_selftest()`; cascades on account deletion |
@@ -39,7 +40,9 @@ SHA-256 hash of a marketplace account identity (no username, no email, nothing
 reversible) so trial eligibility survives account deletion. They deliberately
 have no FK to `auth.users`; deleting a user does not remove them, by design, and
 they hold nothing identifiable. Noted here so the deletion runbook does not add
-them.
+them. `deleted_accounts` is the same kind of exception but is NOT anonymous: an
+email hash can be matched by anyone who knows the address, so it is
+pseudonymous personal data with a 24-month limit and a privacy-policy line.
 
 Not processed at all: third-party analytics or cross-site tracking data,
 browsing history, marketplace passwords or session tokens in readable form,
