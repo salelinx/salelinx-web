@@ -27,7 +27,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "16 October 2026";
+const LAST_UPDATED = "29 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -66,9 +66,11 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Your right to cancel and refunds",
     paragraphs: [
-      "If you are a consumer, you have a legal right to cancel your paid subscription within 14 days and receive a refund, without giving a reason. This is your cooling-off period under the Consumer Contracts Regulations 2013.",
-      "Because a free trial is not a payment, this 14-day period runs from the day of your first actual charge (for a trial that converts, from the day the trial ends and the first payment is taken; for a plan bought without a trial, from the day you are charged). To cancel within the cooling-off period, cancel from the billing portal in your account or email support@salelinx.com, and we will refund your most recent payment.",
-      "After the 14-day cooling-off period, your subscription is non-refundable for the remainder of the current billing period and we do not give partial refunds for unused time; you can still cancel to stop future renewals, and you keep access until the end of the period you have paid for. Nothing in these terms limits your statutory rights as a consumer.",
+      "If you are a consumer, you have a legal right to cancel within 14 days of starting your subscription, without giving a reason. This is your cooling-off period under the Consumer Contracts Regulations 2013. It starts on the day you sign up: the day you start your free trial, or the day you subscribe if you do not have one.",
+      "If you start with a free trial, the trial is your cooling-off period. You are not charged during it, so you can cancel at any point before it ends and pay nothing. When the trial ends and your first payment is taken, the cooling-off period is over, so that payment and every later one are non-refundable.",
+      "If you pay before your 14 days are up, because you subscribed without a free trial or ended your trial early, you can still cancel within those 14 days. Cancel from the billing portal in your account or email support@salelinx.com, and we will refund that payment.",
+      "Otherwise, payments are non-refundable and we do not give partial refunds for unused time. You can cancel at any time to stop future renewals, and you keep access until the end of the period you have paid for. Nothing in these terms limits your statutory rights as a consumer, including your rights if the service is not provided as described.",
+      "If you started your free trial or subscription before 29 October 2026, the terms you signed up under still apply to it: your 14-day cooling-off period runs from your first payment, and cancelling within it gets that payment refunded.",
     ],
   },
   {
