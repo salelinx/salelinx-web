@@ -260,6 +260,8 @@ Guardrails: an admin cannot delete themselves, and cannot delete another admin (
 
 Manual follow-up the function cannot do (also shown in the UI): purge the user's threads from the `support@salelinx.com` inbox.
 
+Deleted accounts stay in the roster as tombstones (migration `043_deleted_accounts.sql`): a BEFORE DELETE trigger on `auth.users` writes a `deleted_accounts` row for every deletion path (this function, self-serve `delete-account`, the script, the dashboard). There is no readable email, only its hash, so the roster shows them under Status > Deleted accounts by user id, and a searched email that hashes to one (`lib/admin/deleted-email-hash.ts`) shows it with that email. "By an admin" is inferred from the matching `user.delete` audit entry's `account_created_at`. Rows are pruned after 24 months (`docs/GDPR.md`).
+
 The Storage module's data source is the `user_storage` gauge from migration `004_storage_quota.sql`: a running per-user byte total for the `listing-images` bucket, kept in lockstep by triggers on `storage.objects` (the same gauge the quota-enforcement triggers read). The table is own-row-only under RLS, so - same pattern as the other cross-user reads - the read is a SECURITY DEFINER RPC that re-checks `public.is_admin()` itself:
 
 - `admin_list_storage()` - every `user_storage` row (`user_id`, `bytes_used`, `updated_at`), largest first. One row per user who has ever uploaded, so the read stays bounded without pagination.

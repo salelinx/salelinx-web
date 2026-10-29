@@ -28,7 +28,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "26 October 2026";
+const LAST_UPDATED = "29 October 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -135,6 +135,7 @@ const SECTIONS: LegalSection[] = [
       "We keep your account data for as long as your account exists. Cloud-synced listings and images can be removed at any time from within the extension, which deletes them from our storage.",
       "Support tickets and their replies are deleted 24 months after the ticket is closed.",
       "To delete your account and all associated data, use the Delete account section on your account page; deletion takes effect immediately. You can also email support@salelinx.com from your account email address and we will complete the deletion within 30 days. Either way, records we are legally required to keep (for example invoices) are retained.",
+      "When an account is deleted we keep, for 24 months, a one-way scrambled code made from its email address (never the address itself), with when the account was created and deleted, its plan, country and how you found us. This lets us keep a record of closed accounts and recognise an account that is deleted and created again to get around our trial rules. We cannot turn the code back into an email address.",
     ],
   },
   {

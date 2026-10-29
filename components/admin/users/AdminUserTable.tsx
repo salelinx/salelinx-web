@@ -13,9 +13,9 @@
 // extension daily looks dormant by sign-in date. The drawer shows the two
 // timestamps separately when the difference matters.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { TierConfig } from "@/lib/types/tiers";
-import type { AdminUserRow, LinkedPlatform } from "@/lib/types/admin";
+import type { AdminDeletedAccount, AdminUserRow, LinkedPlatform } from "@/lib/types/admin";
 import {
   mostRecent,
   relativeAge,
@@ -34,6 +34,7 @@ import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
 import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { deletedEmailHash } from "@/lib/admin/deleted-email-hash";
 
 // The detail drawer is ~1k lines (subscription editing, Stripe plan change,
 // account deletion, devices, listings) and only ever renders after a row click,
@@ -48,6 +49,7 @@ const AdminUserDetail = dynamic(
 
 type Props = {
   initialUsers: AdminUserRow[];
+  deletedAccounts: AdminDeletedAccount[];
   tiers: TierConfig[];
 };
 
@@ -233,7 +235,7 @@ const PLATFORM_TONE: Record<LinkedPlatform, string> = {
   ebay: "bg-blue-50 text-blue-700 border-blue-200",
 };
 
-export function AdminUserTable({ initialUsers, tiers }: Props) {
+export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) {
   const [users, setUsers] = useState<AdminUserRow[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [tier, setTier] = useState<string>("all");
@@ -499,6 +501,28 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
   const win = useWindowedRows(visible);
 
+  const [termHash, setTermHash] = useState<string | null>(null);
+  useEffect(() => {
+    const term = search.trim();
+    if (!term.includes("@")) return;
+    let live = true;
+    void deletedEmailHash(term).then((h) => {
+      if (live) setTermHash(h);
+    });
+    return () => {
+      live = false;
+    };
+  }, [search]);
+  const emailHash = search.includes("@") ? termHash : null;
+
+  // Shown under the Deleted status, or when a searched email matches one.
+  const deletedVisible = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (emailHash) return deletedAccounts.filter((d) => d.email_hash === emailHash);
+    if (status !== "deleted") return [];
+    return term ? deletedAccounts.filter((d) => d.user_id.includes(term)) : deletedAccounts;
+  }, [deletedAccounts, emailHash, search, status]);
+
   const selected = selectedId
     ? (users.find((u) => u.user_id === selectedId) ?? null)
     : null;
@@ -558,6 +582,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
             ["canceled", "Canceled"],
             ["incomplete", "Incomplete"],
             ["none", "No subscription"],
+            ["deleted", "Deleted accounts"],
           ]}
           onChange={setStatus}
         />
@@ -624,7 +649,7 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        {visible.length === 0 ? (
+        {visible.length === 0 && deletedVisible.length === 0 ? (
           <p className="px-4 py-8 text-sm text-zinc-500">
             No users match these filters.{" "}
             {activeFilters > 0 && (
@@ -827,6 +852,12 @@ export function AdminUserTable({ initialUsers, tiers }: Props) {
             </tbody>
           </table>
         )}
+        {deletedVisible.length > 0 && (
+          <DeletedAccounts
+            rows={deletedVisible}
+            email={emailHash ? search.trim() : null}
+          />
+        )}
       </div>
       <AdminTableFooter
         shown={win.shown}
@@ -874,6 +905,53 @@ function lastActivity(
   const tone =
     now === null ? "text-zinc-500" : STALENESS_TONE[staleness(lastActive, now)];
   return { label: age ?? formatDate(lastActive), tone };
+}
+
+function DeletedAccounts({
+  rows,
+  email,
+}: {
+  rows: AdminDeletedAccount[];
+  email: string | null;
+}) {
+  return (
+    <section className="border-t border-[var(--admin-border)]">
+      <h2 className="px-4 pb-1 pt-4 text-xs font-medium text-zinc-500">
+        Deleted accounts ({rows.length})
+      </h2>
+      <ul className="divide-y divide-[var(--admin-border)]">
+        {rows.map((d) => (
+          <li
+            key={d.user_id}
+            className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-4 py-2.5 text-sm text-zinc-500"
+          >
+            <span className="min-w-0 max-w-[16rem] truncate">
+              {email ?? (
+                <span className="font-mono text-xs text-zinc-400">{d.user_id}</span>
+              )}
+            </span>
+            <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600">
+              Deleted {formatDate(d.deleted_at)}
+            </span>
+            <span className="text-xs">{d.deleted_by_admin ? "by an admin" : "by the user"}</span>
+            {d.tier_id && <TierBadge tierId={d.tier_id} />}
+            {d.status && <StatusBadge status={d.status} />}
+            <span className="text-xs">Joined {formatDate(d.signed_up_at)}</span>
+            {d.signup_source && (
+              <span className="text-xs">
+                <SourceCell source={d.signup_source} />
+              </span>
+            )}
+            {d.country && (
+              <span className="text-base" title={d.country}>
+                {flag(d.country)}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function TierBadge({ tierId }: { tierId: string | null }) {

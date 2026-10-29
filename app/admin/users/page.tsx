@@ -1,6 +1,6 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { getTierConfigs } from "@/lib/supabase/tier-config";
-import type { AdminUserRow } from "@/lib/types/admin";
+import type { AdminDeletedAccount, AdminUserRow } from "@/lib/types/admin";
 import { AdminUserTable } from "@/components/admin/users/AdminUserTable";
 
 // /admin/users - the user roster. admin_list_users() is an is_admin()-gated
@@ -17,11 +17,13 @@ export default async function AdminUsersPage() {
   //
   // Tier configs (public-read) let the detail drawer show usage against caps
   // without another round-trip per open. Passed down to the table.
-  const [usersRes, tiers] = await Promise.all([
+  const [usersRes, deletedRes, tiers] = await Promise.all([
     supabase.rpc("admin_list_users"),
+    supabase.rpc("admin_list_deleted_accounts"),
     getTierConfigs(),
   ]);
   const users = (usersRes.data as AdminUserRow[] | null) ?? [];
+  const deleted = (deletedRes.data as AdminDeletedAccount[] | null) ?? [];
 
-  return <AdminUserTable initialUsers={users} tiers={tiers} />;
+  return <AdminUserTable initialUsers={users} deletedAccounts={deleted} tiers={tiers} />;
 }

@@ -49,6 +49,19 @@ export type AdminUserRow = {
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.
+// admin_list_deleted_accounts() (migration 043). No email: only its hash.
+export type AdminDeletedAccount = {
+  user_id: string;
+  email_hash: string | null;
+  signed_up_at: string;
+  deleted_at: string;
+  tier_id: string | null;
+  status: string | null;
+  country: string | null;
+  signup_source: string | null;
+  deleted_by_admin: boolean;
+};
+
 export type AdminSubscriptionRow = {
   id: string;
   user_id: string;
