@@ -1128,6 +1128,12 @@
     "title": "欢迎使用 SaleLinx",
     "subtitle": "将 SaleLinx 添加到 Chrome 即可开始。",
     "addToChrome": "添加到 Chrome",
-    "toAccount": "前往我的账户"
+    "toAccount": "前往我的账户",
+    "phoneSubtitle": "SaleLinx 是 Chrome 扩展，只能安装在电脑上，无法安装在手机上。",
+    "phoneEmailLink": "把链接发到我的邮箱",
+    "phoneSending": "正在发送...",
+    "phoneResend": "再发一次",
+    "phoneSent": "安装链接已发送到你的邮箱。请在电脑上打开它，把 SaleLinx 添加到 Chrome。",
+    "phoneError": "邮件发送失败。请直接在电脑上打开 salelinx.com。"
   }
 }

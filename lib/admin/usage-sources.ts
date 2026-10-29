@@ -48,6 +48,12 @@ export const WEB_COUNTERS: Record<
     period: "day",
     where: "delete-account",
   },
+  install_link_emails: {
+    label: "Install link emails",
+    limit: 3,
+    period: "day",
+    where: "send-install-link",
+  },
   shipping_label_emails: {
     label: "Shipping label emails",
     limit: 15,
