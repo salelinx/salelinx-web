@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="640" height="360" fill="#f4f4f5"/>
+  <rect x="70" y="62" width="300" height="72" rx="36" fill="#ffffff" stroke="#d4d4d8" stroke-width="2"/>
+  <path d="M118 116C102 105 96 96 101 88C105 81 114 82 118 90C122 82 131 81 135 88C140 96 134 105 118 116Z" fill="#FF2300"/>
+  <text x="154" y="106" font-size="22" fill="#3f3f46">Liked your item</text>
+  <rect x="280" y="170" width="290" height="104" rx="26" fill="#18181b"/>
+  <text x="312" y="214" font-size="20" fill="#a1a1aa" text-decoration="line-through">£20</text>
+  <text x="312" y="254" font-size="34" font-weight="700" fill="#ffffff">Offer £17</text>
+  <circle cx="276" cy="316" r="10" fill="#0064D2"/>
+  <circle cx="306" cy="316" r="10" fill="#09B1BA"/>
+  <circle cx="336" cy="316" r="10" fill="#FF2300"/>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="640" height="360" fill="#f4f4f5"/>
+  <text x="60" y="88" font-size="40" font-weight="700" fill="#18181b">Seller fee: £0</text>
+  <text x="60" y="122" font-size="18" fill="#52525b">on a £20 sale, the buyer pays the fee</text>
+  <rect x="60" y="156" width="400" height="72" rx="12" fill="#09B1BA"/>
+  <text x="260" y="200" font-size="24" font-weight="700" fill="#ffffff" text-anchor="middle">£20.00 to you</text>
+  <rect x="464" y="156" width="36" height="72" rx="8" fill="#09B1BA" fill-opacity="0.4"/>
+  <rect x="504" y="156" width="76" height="72" rx="8" fill="#ffffff" stroke="#a1a1aa" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="542" y="198" font-size="15" fill="#52525b" text-anchor="middle">postage</text>
+  <line x1="482" y1="232" x2="482" y2="258" stroke="#a1a1aa" stroke-width="2"/>
+  <text x="482" y="282" font-size="18" fill="#18181b" text-anchor="middle">Vinted fee</text>
+  <text x="482" y="306" font-size="16" fill="#71717a" text-anchor="middle">paid by the buyer</text>
+</svg>

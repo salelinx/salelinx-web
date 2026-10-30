@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="640" height="360" fill="#fbf6ef"/>
+  <path d="M190 130L260 90H460L390 130Z" fill="#e2bf95"/>
+  <path d="M390 130L460 90V240L390 280Z" fill="#b8895a"/>
+  <rect x="190" y="130" width="200" height="150" fill="#cfa06f"/>
+  <path d="M280 130L350 90H380L310 130Z" fill="#f5e6d3"/>
+  <rect x="280" y="130" width="30" height="60" fill="#f5e6d3"/>
+  <circle cx="478" cy="82" r="40" fill="#18181b"/>
+  <text x="478" y="98" font-size="46" font-weight="700" fill="#ffffff" text-anchor="middle">?</text>
+  <rect x="180" y="304" width="280" height="36" rx="18" fill="#09B1BA"/>
+  <text x="320" y="329" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle">2 days to report</text>
+</svg>

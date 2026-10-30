@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#18181b"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#a1a1aa"/>
+    </marker>
+  </defs>
+  <rect width="640" height="360" fill="#f4f4f5"/>
+  <rect x="60" y="60" width="200" height="240" rx="16" fill="#ffffff" stroke="#09B1BA" stroke-width="4"/>
+  <path d="M60 76a16 16 0 0 1 16-16h168a16 16 0 0 1 16 16v26H60z" fill="#09B1BA"/>
+  <text x="160" y="90" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle">Vinted</text>
+  <rect x="80" y="118" width="160" height="86" rx="8" fill="#e4e4e7"/>
+  <rect x="80" y="220" width="130" height="12" rx="6" fill="#d4d4d8"/>
+  <rect x="80" y="244" width="90" height="12" rx="6" fill="#d4d4d8"/>
+  <rect x="380" y="60" width="200" height="240" rx="16" fill="#ffffff" stroke="#0064D2" stroke-width="4"/>
+  <path d="M380 76a16 16 0 0 1 16-16h168a16 16 0 0 1 16 16v26H380z" fill="#0064D2"/>
+  <text x="480" y="90" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle">eBay</text>
+  <rect x="400" y="118" width="160" height="86" rx="8" fill="#e4e4e7"/>
+  <rect x="400" y="220" width="60" height="22" rx="11" fill="#dbe8f8" stroke="#0064D2" stroke-width="2"/>
+  <rect x="468" y="220" width="70" height="22" rx="11" fill="#dbe8f8" stroke="#0064D2" stroke-width="2"/>
+  <rect x="400" y="252" width="80" height="22" rx="11" fill="#dbe8f8" stroke="#0064D2" stroke-width="2"/>
+  <line x1="276" y1="160" x2="362" y2="160" stroke="#18181b" stroke-width="5" marker-end="url(#a)"/>
+  <line x1="362" y1="200" x2="276" y2="200" stroke="#a1a1aa" stroke-width="4" stroke-dasharray="8 6" marker-end="url(#b)"/>
+</svg>

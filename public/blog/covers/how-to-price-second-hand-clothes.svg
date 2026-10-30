@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="640" height="360" fill="#fafaf9"/>
+  <g transform="rotate(-10 210 180)">
+    <path d="M90 110h190l50 70l-50 70H90a14 14 0 0 1-14-14V124a14 14 0 0 1 14-14z" fill="#09B1BA"/>
+    <circle cx="282" cy="180" r="11" fill="#fafaf9"/>
+    <text x="180" y="200" font-size="58" font-weight="700" fill="#ffffff" text-anchor="middle">£28</text>
+  </g>
+  <line x1="390" y1="100" x2="590" y2="100" stroke="#18181b" stroke-width="5" stroke-linecap="round"/>
+  <text x="390" y="86" font-size="20" font-weight="600" fill="#18181b">List £28</text>
+  <line x1="390" y1="180" x2="590" y2="180" stroke="#09B1BA" stroke-width="5" stroke-linecap="round"/>
+  <text x="390" y="166" font-size="20" font-weight="600" fill="#0a8a91">Offer £24</text>
+  <line x1="390" y1="260" x2="590" y2="260" stroke="#FF2300" stroke-width="5" stroke-linecap="round" stroke-dasharray="12 8"/>
+  <text x="390" y="246" font-size="20" font-weight="600" fill="#d61d00">Floor £18</text>
+  <text x="390" y="300" font-size="16" fill="#71717a">never below the floor</text>
+</svg>
