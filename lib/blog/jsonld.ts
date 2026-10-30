@@ -33,7 +33,7 @@ export function postJsonLd(meta: PostMetadata): Record<string, unknown> {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Blog', item: absoluteUrl(LOCALE, '/blog') },
+          { '@type': 'ListItem', position: 1, name: 'Guides', item: absoluteUrl(LOCALE, '/blog') },
           { '@type': 'ListItem', position: 2, name: meta.title },
         ],
       },
@@ -50,7 +50,7 @@ export function blogJsonLd(posts: PostMetadata[]): Record<string, unknown> {
       {
         '@type': 'Blog',
         '@id': `${url}#blog`,
-        name: 'SaleLinx Blog',
+        name: 'SaleLinx Guides',
         url,
         inLanguage: LOCALE,
         publisher: { '@id': `${SITE_URL}/#organization` },
