@@ -10,7 +10,7 @@ import {
 } from '@/lib/site';
 import { TIER_PRICES } from '@/lib/pricing';
 import { Hero } from '@/components/home/Hero';
-import { ScrollWorldDemo } from '@/components/home/ScrollWorldDemo';
+import { ScrollWorldDemoLazy } from '@/components/home/ScrollWorldDemoLazy';
 import { HomeFaq } from '@/components/home/HomeFaq';
 import { FinalCta } from '@/components/home/FinalCta';
 import { RoadmapSection } from '@/components/features/RoadmapSection';
@@ -145,7 +145,23 @@ export default async function Home({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
-      <ScrollWorldDemo />
+      <ScrollWorldDemoLazy
+        fallback={
+          <section
+            id="features"
+            className="min-h-[60vh] border-t border-black/10 dark:border-white/10"
+          >
+            <div className="mx-auto w-full max-w-7xl px-6 pt-14 text-center sm:pt-16">
+              <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-600 dark:text-zinc-400">
+                {tHome('featuresSection.eyebrow')}
+              </span>
+              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+                {tHome('featuresSection.title')}
+              </h2>
+            </div>
+          </section>
+        }
+      />
       {/* The HeadlineFeatures block used to sit here. The feature carousel
           above covers the same ground, so this was saying it twice. */}
       <div className="section-band">
