@@ -70,7 +70,7 @@ export default async function BlogPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(postJsonLd(meta)) }}
       />
-      <Breadcrumbs trail={[{ label: 'Blog', href: '/blog' }, { label: meta.title }]} />
+      <Breadcrumbs trail={[{ label: 'Guides', href: '/blog' }, { label: meta.title }]} />
 
       <article>
         <header className="mt-8">

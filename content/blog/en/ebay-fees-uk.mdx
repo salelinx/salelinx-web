@@ -5,8 +5,8 @@ export const metadata = {
   slug: 'ebay-fees-uk',
   category: 'guides',
   published: '2026-10-20',
-  updated: '2026-10-20',
-  readingMinutes: 12,
+  updated: '2026-10-30',
+  readingMinutes: 13,
   marketplaces: ['ebay'],
 };
 
@@ -131,6 +131,29 @@ motorcycles and vehicles.
   note={<>Worked out from eBay&rsquo;s <a href="https://www.ebay.co.uk/help/buying/paying-items/buyer-protection-fee?id=5594" className="underline underline-offset-4">Buyer Protection fee</a> formula, checked 20 October 2026. The £5 and £20 rows match eBay&rsquo;s own examples.</>}
 />
 
+<Figure caption="How the Buyer Protection fee is built. The rate drops at £20 and again at £300, and nothing is added above £4,000.">
+<svg viewBox="0 0 720 260" className="block h-auto w-full" role="img" aria-label="Stepped chart of the eBay Buyer Protection fee: a flat 10p per item, then 7% of the price up to £20, 4% of the part from £20 to £300, 2% of the part from £300 to £4,000, and nothing above £4,000, where the fee tops out at £86.70" xmlns="http://www.w3.org/2000/svg">
+  <line x1="40" y1="190" x2="690" y2="190" stroke="#a1a1aa" strokeWidth="2" />
+  <rect x="40" y="150" width="60" height="40" fill="#0064D2" fillOpacity="0.9" />
+  <text x="70" y="176" fill="#ffffff" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">10p</text>
+  <rect x="100" y="70" width="160" height="120" fill="#0064D2" fillOpacity="0.7" />
+  <text x="180" y="136" fill="#ffffff" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="16" fontWeight="600" textAnchor="middle">7%</text>
+  <rect x="260" y="110" width="200" height="80" fill="#0064D2" fillOpacity="0.5" />
+  <text x="360" y="156" fill="#ffffff" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="16" fontWeight="600" textAnchor="middle">4%</text>
+  <rect x="460" y="150" width="160" height="40" fill="#0064D2" fillOpacity="0.3" />
+  <text x="540" y="176" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="16" fontWeight="600" textAnchor="middle">2%</text>
+  <rect x="620" y="150" width="70" height="40" fill="#f4f4f5" stroke="#a1a1aa" strokeDasharray="4 3" />
+  <text x="655" y="176" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" textAnchor="middle">0%</text>
+  <text x="70" y="214" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">per item</text>
+  <text x="180" y="214" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">£0 to £20</text>
+  <text x="360" y="214" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">£20 to £300</text>
+  <text x="540" y="214" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">£300 to £4,000</text>
+  <text x="655" y="214" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">above</text>
+  <text x="360" y="40" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="15" fontWeight="600" textAnchor="middle">10p, then a rate on each slice of the price</text>
+  <text x="360" y="246" fill="#71717a" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">£20 item: 10p + £1.40 = £1.50. £4,000 and up: £86.70.</text>
+</svg>
+</Figure>
+
 If you see the fee quoted elsewhere with a 75p flat part, that is the version
 eBay launched in February 2025
 ([eBay](https://www.ebay.co.uk/sellercentre/selling/benefits)). eBay cut the
@@ -150,6 +173,18 @@ The catch is that the buyer&rsquo;s number and yours differ. A buyer who
 offers £20 is offering you £18.60. When you weigh an eBay offer against one on
 Depop or Vinted, compare what you would keep, not the buyer&rsquo;s headline
 number.
+
+<Figure
+  src="/blog/shots/ebay-buyer-protection-help.webp"
+  alt="eBay Customer Service page titled Buyer Protection fee"
+  caption="eBay's own Buyer Protection fee page. Captured 30 October 2026."
+/>
+
+<Figure
+  src="/blog/shots/ebay-listing-fee-line.webp"
+  alt="Listing info on one of our own eBay listings: price 58.94 pounds, including a 2.94 pound Buyer Protection fee"
+  caption="A £56 item of ours on eBay. The buyer pays £58.94, of which £2.94 is the Buyer Protection fee: 10p, plus 7% of the first £20, plus 4% of the other £36. Captured 30 October 2026."
+/>
 
 ## What business sellers pay
 
@@ -218,6 +253,27 @@ list the same item at £21.50, which looks the same to a buyer browsing and
 costs them the same at checkout, and keep £18.47 before VAT on fees. So at the
 same price to the buyer, selling as a business costs you about £1.50 on a £20
 item, not £2.85.
+
+<Figure caption="A £20 item, postage left out. The private seller's buyer pays the fee; the business seller pays it out of the price.">
+<svg viewBox="0 0 720 250" className="block h-auto w-full" role="img" aria-label="Side by side bars for a £20 item. Private seller: buyer pays £21.50, seller keeps £20.00. Business seller: buyer pays £20.00, seller keeps £17.15 after fees before VAT." xmlns="http://www.w3.org/2000/svg">
+  <text x="24" y="34" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="16" fontWeight="600">Private seller</text>
+  <text x="24" y="62" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">Buyer pays</text>
+  <rect x="130" y="48" width="430" height="20" rx="4" fill="#0064D2" fillOpacity="0.85" />
+  <text x="570" y="63" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">£21.50</text>
+  <text x="24" y="94" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">You keep</text>
+  <rect x="130" y="80" width="400" height="20" rx="4" fill="#0064D2" fillOpacity="0.45" />
+  <text x="540" y="95" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">£20.00</text>
+  <text x="24" y="154" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="16" fontWeight="600">Business seller</text>
+  <text x="24" y="182" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">Buyer pays</text>
+  <rect x="130" y="168" width="400" height="20" rx="4" fill="#0064D2" fillOpacity="0.85" />
+  <text x="540" y="183" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">£20.00</text>
+  <text x="24" y="214" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">You keep</text>
+  <rect x="130" y="200" width="343" height="20" rx="4" fill="#0064D2" fillOpacity="0.45" />
+  <text x="483" y="215" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14">£17.15 before VAT on fees</text>
+  <text x="130" y="122" fill="#71717a" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13">Buyer Protection fee of £1.50 sits on top of your price.</text>
+  <text x="130" y="242" fill="#71717a" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13">11.9% + 0.35% + 40p comes out of the price. Bars to scale against £21.50.</text>
+</svg>
+</Figure>
 
 ## eBay, Depop and Vinted compared
 
@@ -347,6 +403,23 @@ is your total trading income across all of them. Our guide to
 [tax on Depop and Vinted sales](/blog/tax-on-vinted-and-depop-sales) covers
 the £1,000 trading allowance and the Self Assessment dates, and the same rules
 apply to eBay.
+
+## How SaleLinx helps
+
+SaleLinx is a Chrome extension for Depop, Vinted and eBay sellers. The fee
+question comes up most when you copy a listing across, so its
+[Vinted to eBay crosslister](/features/vinted-to-ebay) shows eBay&rsquo;s fee
+for each item, and anything eBay would refuse, before the copy is posted. If
+you change your mind about prices later, the
+[eBay bulk editor](/features/ebay-bulk-edit) changes the price, title,
+description or quantity across the eBay listings you select. And
+[My Listings](/docs/inventory/listings) puts your Depop, Vinted and eBay
+listings in one grid, which is where you end the eBay copy the moment an item
+sells elsewhere, before a second buyer turns it into a cancellation defect. On
+eBay, SaleLinx does crosslisting, My Listings and bulk edit only. Vinted&rsquo;s
+terms restrict external software tools, so keep what you do there to what a
+person would do by hand.
+From £7.99 a month, with a [14-day free trial](/pricing).
 
 ## Questions
 

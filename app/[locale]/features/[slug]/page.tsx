@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import { isSignedIn } from '@/lib/auth/session';
+import { getPost } from '@/lib/blog/posts';
 import { routing } from '@/i18n/routing';
 import { LANDING_PAGES, getLandingPage } from '@/lib/landing/pages';
 import { SITE_URL, absoluteUrl, pageMetadata } from '@/lib/site';
@@ -145,6 +146,23 @@ export default async function LandingPage({
             {page.doc.label}
           </Link>
         </p>
+        {page.guides && (
+          <div className="mt-6 text-sm">
+            <p className="font-semibold">Related guides</p>
+            <ul className="mt-2 space-y-1.5">
+              {page.guides.map((guide) => {
+                const post = getPost(guide);
+                return post ? (
+                  <li key={guide}>
+                    <Link href={`/blog/${guide}`} className="underline underline-offset-4">
+                      {post.metadata.title}
+                    </Link>
+                  </li>
+                ) : null;
+              })}
+            </ul>
+          </div>
+        )}
       </section>
 
       <section className="border-t border-black/10 py-12 dark:border-white/10">

@@ -5,8 +5,8 @@ export const metadata = {
   slug: 'vinted-parcel-lost-or-damaged',
   category: 'guides',
   published: '2026-10-09',
-  updated: '2026-10-09',
-  readingMinutes: 6,
+  updated: '2026-10-30',
+  readingMinutes: 7,
   marketplaces: ['vinted'],
 };
 
@@ -36,6 +36,12 @@ post. If you used your own postage, you claim from the carrier yourself.
     ['Buyer never collected it', 'The parcel is sent back to you', 'Order cancelled, buyer refunded', 'Up to £500 if the return never reaches you'],
   ]}
   note={<>From Vinted UK&rsquo;s <a href="https://www.vinted.co.uk/help/465" className="underline underline-offset-4">Refund Policy</a>, <a href="https://www.vinted.co.uk/help/1018" className="underline underline-offset-4">seller compensation</a> and <a href="https://www.vinted.co.uk/help/731" className="underline underline-offset-4">returned parcel</a> pages, checked in October 2026.</>}
+/>
+
+<Figure
+  src="/blog/shots/vinted-refund-policy.webp"
+  alt="Vinted Help Centre article Vinted Refund Policy, listing refunds for orders never shipped or lost, arrived damaged, or significantly not as described"
+  caption="Vinted's refund policy: a buyer can ask for a refund if the order was never shipped or is lost, arrived damaged, or is significantly not as described. Captured 30 October 2026."
 />
 
 ## Before you post: three things that protect you
@@ -86,6 +92,32 @@ From there:
 
 If the buyer does not claim in time, or presses &ldquo;Everything is
 OK&rdquo;, the order completes and you are paid as normal.
+
+<Figure caption="A lost parcel from the seller's side. Your payment is held from the buyer's claim until Vinted decides, which can take several weeks.">
+<svg viewBox="0 0 720 270" className="block h-auto w-full" role="img" aria-label="Timeline of a lost Vinted parcel: you post with a Vinted label, tracking says the parcel seems lost or 25 business days pass, the buyer has 2 days to claim, Vinted investigates for several weeks with your payment held, then the buyer is refunded and you can be compensated up to £500" xmlns="http://www.w3.org/2000/svg">
+  <line x1="40" y1="110" x2="680" y2="110" stroke="#a1a1aa" strokeWidth="2" />
+  <rect x="330" y="98" width="230" height="24" fill="#09B1BA" fillOpacity="0.18" />
+  <circle cx="60" cy="110" r="10" fill="#09B1BA" />
+  <circle cx="210" cy="110" r="10" fill="#f4f4f5" stroke="#a1a1aa" strokeWidth="2" />
+  <circle cx="330" cy="110" r="10" fill="#f4f4f5" stroke="#a1a1aa" strokeWidth="2" />
+  <circle cx="560" cy="110" r="10" fill="#f4f4f5" stroke="#a1a1aa" strokeWidth="2" />
+  <circle cx="670" cy="110" r="10" fill="#09B1BA" />
+  <text x="60" y="66" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">You post</text>
+  <text x="60" y="86" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">Vinted label</text>
+  <text x="210" y="66" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">Seems lost</text>
+  <text x="210" y="86" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">or 25 business days</text>
+  <text x="330" y="66" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">Buyer claims</text>
+  <text x="330" y="86" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">within 2 days</text>
+  <text x="445" y="150" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">Payment held</text>
+  <text x="445" y="170" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">Vinted investigates, several weeks</text>
+  <text x="560" y="66" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">Loss confirmed</text>
+  <text x="560" y="86" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">buyer refunded</text>
+  <text x="670" y="66" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">You are paid</text>
+  <text x="670" y="86" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">up to £500</text>
+  <text x="360" y="222" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="14" textAnchor="middle">No claim in 2 days, or &ldquo;Everything is OK&rdquo;: the order completes and you are paid as normal.</text>
+  <text x="360" y="248" fill="#71717a" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="13" textAnchor="middle">Own postage instead of a Vinted label: no Vinted compensation, you claim from the carrier.</text>
+</svg>
+</Figure>
 
 Vinted does not publish exactly how your compensation is worked out. Its terms
 say the amount &ldquo;may depend on which carrier was used&rdquo;, and the
@@ -170,6 +202,20 @@ From Vinted&rsquo;s [packing rules](https://www.vinted.co.uk/help/65):
 - For anything fragile, always use a sturdy box, never a plastic bag.
 
 For clothes, Vinted&rsquo;s own example is a padded bag or a cardboard box.
+
+## How SaleLinx helps
+
+SaleLinx is a Chrome extension for Depop, Vinted and eBay sellers. It
+cannot make a claim for you, but it helps with the two things that decide
+most claims: using the Vinted label and posting on time. The
+[Labels](/docs/buyers/labels) tab gathers your sold Depop and Vinted orders,
+turns the Vinted labels you pick into
+[one merged PDF](/features/print-shipping-labels) to print or email, and
+shows a countdown to each Vinted posting deadline, so an order is not
+cancelled for going untracked. From the same tab you can order, extend or
+cancel a Vinted label. Vinted&rsquo;s terms restrict external software tools,
+so keep anything you do on Vinted to what a person would do by hand. From
+£7.99 a month, with a [14-day free trial](/pricing).
 
 ## Questions
 

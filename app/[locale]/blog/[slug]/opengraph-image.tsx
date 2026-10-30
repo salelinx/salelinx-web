@@ -17,9 +17,9 @@ export default async function Image({
   const post = getPost(slug);
 
   return articleOgImage({
-    section: 'Blog',
+    section: 'Guides',
     eyebrow: post ? categoryTitle(post.metadata.category) : undefined,
-    title: post?.metadata.title ?? 'SaleLinx Blog',
+    title: post?.metadata.title ?? 'SaleLinx Guides',
     description: post?.metadata.description,
     marketplaces: post?.metadata.marketplaces,
   });

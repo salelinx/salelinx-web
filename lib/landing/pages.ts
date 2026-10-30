@@ -9,6 +9,7 @@ export type LandingPage = {
   points: { title: string; body: string }[];
   faq: { q: string; a: string }[];
   doc: { label: string; path: string };
+  guides?: string[];
 };
 
 export const LANDING_PAGES: LandingPage[] = [
@@ -60,6 +61,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Crosslist guide', path: '/docs/inventory/crosslist' },
+    guides: ['crosslist-vinted-to-ebay', 'best-crosslisting-apps-uk', 'depop-vs-vinted-uk'],
   },
   {
     slug: 'vinted-to-ebay',
@@ -105,6 +107,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Crosslist guide', path: '/docs/inventory/crosslist' },
+    guides: ['crosslist-vinted-to-ebay', 'ebay-item-specifics', 'ebay-fees-uk'],
   },
   {
     slug: 'depop-to-ebay',
@@ -150,6 +153,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Crosslist guide', path: '/docs/inventory/crosslist' },
+    guides: ['ebay-item-specifics', 'ebay-fees-uk', 'depop-vs-vinted-uk'],
   },
   {
     slug: 'ebay-bulk-edit',
@@ -195,6 +199,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'My Listings guide', path: '/docs/inventory/listings' },
+    guides: ['ebay-item-specifics', 'ebay-fees-uk'],
   },
   {
     slug: 'depop-auto-refresh',
@@ -235,6 +240,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Refresh guide', path: '/docs/inventory/refresh' },
+    guides: ['best-time-to-post-on-vinted', 'depop-vs-vinted-uk'],
   },
   {
     slug: 'relist-depop-vinted',
@@ -275,6 +281,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Relist guide', path: '/docs/inventory/relist' },
+    guides: ['how-to-relist-on-vinted', 'vinted-bump-cost-and-does-it-work'],
   },
   {
     slug: 'depop-vinted-follow-bot',
@@ -355,6 +362,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Auto-accept guide', path: '/docs/automate/auto-offers' },
+    guides: ['how-to-send-offers-ebay-vinted-depop', 'how-to-price-second-hand-clothes'],
   },
   {
     slug: 'automatic-price-drops',
@@ -391,6 +399,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Price Drops guide', path: '/docs/automate/price-drops' },
+    guides: ['how-to-price-second-hand-clothes', 'vinted-bump-cost-and-does-it-work'],
   },
   {
     slug: 'print-shipping-labels',
@@ -427,6 +436,7 @@ export const LANDING_PAGES: LandingPage[] = [
       },
     ],
     doc: { label: 'Labels guide', path: '/docs/buyers/labels' },
+    guides: ['vinted-parcel-lost-or-damaged', 'vinted-fees-uk'],
   },
 ];
 

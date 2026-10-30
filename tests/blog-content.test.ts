@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -50,6 +50,15 @@ describe('blog posts', () => {
     expect(files.length).toBeGreaterThan(0);
   });
 
+  it('only links feature pages to guides that exist', () => {
+    const landing = readFileSync(path.join(ROOT, 'lib', 'landing', 'pages.ts'), 'utf8');
+    const slugs = [...landing.matchAll(/guides: \[([^\]]*)\]/g)].flatMap((m) =>
+      [...m[1].matchAll(/'([^']+)'/g)].map((s) => s[1]),
+    );
+    expect(slugs.length).toBeGreaterThan(0);
+    for (const slug of slugs) expect(files).toContain(`${slug}.mdx`);
+  });
+
   for (const file of files) {
     describe(file, () => {
       const source = readFileSync(path.join(BLOG_DIR, file), 'utf8');
@@ -79,6 +88,10 @@ describe('blog posts', () => {
       it('has no em or en dashes', () => {
         // House style (CLAUDE.md "Writing style"), entities included.
         expect(source).not.toMatch(/[–—]|&mdash;|&ndash;/);
+      });
+
+      it('has a cover for the index card', () => {
+        expect(existsSync(path.join(ROOT, 'public', 'blog', 'covers', file.replace(/\.mdx$/, '.svg')))).toBe(true);
       });
 
       it('leaves the h1 to the page', () => {

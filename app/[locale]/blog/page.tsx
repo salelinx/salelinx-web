@@ -39,7 +39,7 @@ export default async function BlogIndexPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd(posts)) }}
       />
       <section className="pt-20 pb-12 sm:pt-24">
-        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>Blog</span>
+        <span className={`${MONO} text-zinc-600 dark:text-zinc-400`}>Guides</span>
         <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight text-balance sm:text-6xl">
           Selling tips for resellers
         </h1>
