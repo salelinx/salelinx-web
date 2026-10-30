@@ -50,6 +50,15 @@ describe('blog posts', () => {
     expect(files.length).toBeGreaterThan(0);
   });
 
+  it('only links feature pages to guides that exist', () => {
+    const landing = readFileSync(path.join(ROOT, 'lib', 'landing', 'pages.ts'), 'utf8');
+    const slugs = [...landing.matchAll(/guides: \[([^\]]*)\]/g)].flatMap((m) =>
+      [...m[1].matchAll(/'([^']+)'/g)].map((s) => s[1]),
+    );
+    expect(slugs.length).toBeGreaterThan(0);
+    for (const slug of slugs) expect(files).toContain(`${slug}.mdx`);
+  });
+
   for (const file of files) {
     describe(file, () => {
       const source = readFileSync(path.join(BLOG_DIR, file), 'utf8');
