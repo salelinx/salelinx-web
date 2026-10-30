@@ -1,10 +1,10 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/Reveal";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { InstallExtensionButton } from "@/components/InstallExtensionButton";
 import { isSignedIn } from "@/lib/auth/session";
-import { Logo3D } from "./Logo3D";
 import { RollingPhrase } from "./RollingPhrase";
 import { HeroGrid } from "./HeroGrid";
 
@@ -74,10 +74,18 @@ export async function Hero() {
       </div>
 
       <div className="mx-auto flex max-w-5xl flex-col items-center px-6 py-10 text-center">
-        {/* No Reveal wrapper: SVG3D runs its own intro once the renderer is
-            ready, and a CSS fade on the container fired at mount, before the
-            canvas existed, so the two animations ran against each other. */}
-        <Logo3D />
+        {/* The box keeps the old 3D canvas size so the hero spacing is
+            unchanged; the mark fills about as much of it as the 3D one did. */}
+        <div aria-hidden className="flex h-28 w-28 shrink-0 items-center justify-center sm:h-48 sm:w-48">
+          <Image
+            src="/salelinx-logo.png"
+            alt=""
+            width={625}
+            height={840}
+            priority
+            className="hero-logo h-[56%] w-auto"
+          />
+        </div>
 
         <Reveal delay={120}>
           <h1 className="mt-0 max-w-3xl sm:mt-1 text-balance text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.03em] text-zinc-900 sm:text-6xl md:text-[4.5rem] dark:text-zinc-50">
