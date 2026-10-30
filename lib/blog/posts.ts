@@ -14,10 +14,12 @@ import * as crosslistVintedToEbay from '@/content/blog/en/crosslist-vinted-to-eb
 import * as depopVsVintedUk from '@/content/blog/en/depop-vs-vinted-uk.mdx';
 import * as ebayFeesUk from '@/content/blog/en/ebay-fees-uk.mdx';
 import * as ebayItemSpecifics from '@/content/blog/en/ebay-item-specifics.mdx';
+import * as howToPriceSecondHandClothes from '@/content/blog/en/how-to-price-second-hand-clothes.mdx';
 import * as howToRelistOnVinted from '@/content/blog/en/how-to-relist-on-vinted.mdx';
 import * as howToSendOffers from '@/content/blog/en/how-to-send-offers-ebay-vinted-depop.mdx';
 import * as taxOnVintedAndDepopSales from '@/content/blog/en/tax-on-vinted-and-depop-sales.mdx';
 import * as vintedBump from '@/content/blog/en/vinted-bump-cost-and-does-it-work.mdx';
+import * as vintedFeesUk from '@/content/blog/en/vinted-fees-uk.mdx';
 import * as vintedParcelLostOrDamaged from '@/content/blog/en/vinted-parcel-lost-or-damaged.mdx';
 
 export const BLOG_CONTENT_LOCALES = ['en'] as const;
@@ -29,10 +31,12 @@ const POSTS: PostModule[] = [
   depopVsVintedUk as unknown as PostModule,
   ebayFeesUk as unknown as PostModule,
   ebayItemSpecifics as unknown as PostModule,
+  howToPriceSecondHandClothes as unknown as PostModule,
   howToRelistOnVinted as unknown as PostModule,
   howToSendOffers as unknown as PostModule,
   taxOnVintedAndDepopSales as unknown as PostModule,
   vintedBump as unknown as PostModule,
+  vintedFeesUk as unknown as PostModule,
   vintedParcelLostOrDamaged as unknown as PostModule,
 ];
 
