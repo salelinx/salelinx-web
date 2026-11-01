@@ -17,6 +17,7 @@ import * as ebayItemSpecifics from '@/content/blog/en/ebay-item-specifics.mdx';
 import * as howToPriceSecondHandClothes from '@/content/blog/en/how-to-price-second-hand-clothes.mdx';
 import * as howToRelistOnVinted from '@/content/blog/en/how-to-relist-on-vinted.mdx';
 import * as howToSendOffers from '@/content/blog/en/how-to-send-offers-ebay-vinted-depop.mdx';
+import * as sideHustleTax3000 from '@/content/blog/en/side-hustle-tax-3000-trading-allowance.mdx';
 import * as taxOnVintedAndDepopSales from '@/content/blog/en/tax-on-vinted-and-depop-sales.mdx';
 import * as vintedBump from '@/content/blog/en/vinted-bump-cost-and-does-it-work.mdx';
 import * as vintedFeesUk from '@/content/blog/en/vinted-fees-uk.mdx';
@@ -34,6 +35,7 @@ const POSTS: PostModule[] = [
   howToPriceSecondHandClothes as unknown as PostModule,
   howToRelistOnVinted as unknown as PostModule,
   howToSendOffers as unknown as PostModule,
+  sideHustleTax3000 as unknown as PostModule,
   taxOnVintedAndDepopSales as unknown as PostModule,
   vintedBump as unknown as PostModule,
   vintedFeesUk as unknown as PostModule,
