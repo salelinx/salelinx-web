@@ -36,6 +36,7 @@ export const EXTENSION_FEATURES: { counter: string; label: string }[] = [
   { counter: "listing_edit", label: "Listing edits saved" },
   { counter: "listing_delete", label: "Bulk deletes" },
   { counter: "listing_duplicate", label: "Bulk duplicates" },
+  { counter: "listing_create", label: "Listings created" },
   { counter: "listing_publish", label: "Drafts bulk-published" },
   { counter: "relist_sold", label: "Sold items bulk-relisted" },
   { counter: "photo_edit", label: "Photos edited" },
