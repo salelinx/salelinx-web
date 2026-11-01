@@ -138,10 +138,18 @@ export function listingsFromResponse(body, page: number) {
     .filter((l) => !activeIds.has(l.itemId));
   const taken = new Set([...activeIds, ...sold.map((l) => l.itemId)]);
   // Ended without selling: relistable from eBay's Unsold list, so the panel keeps showing it.
+  // One that was relisted (by the seller, or by eBay's own automatic relist) lives on under a new
+  // id. GetMyeBaySelling says so only with Relisted, never with that id (RelistedItemID is GetItem
+  // only, so a filter on it here never matched), so it is passed on flagged: the extension reads
+  // the new id with GetItem and moves the row, its cloud copy and its link there.
   const unsold = (body.UnsoldList?.ItemArray?.Item ?? [])
-    // A relisted item lives on under its new id in the active list.
-    .filter((item) => !item.ListingDetails?.RelistedItemID)
-    .map((item) => ({ ...summaryFromActive(item), quantity: 0, watchCount: null, status: 'hidden' }))
+    .map((item) => ({
+      ...summaryFromActive(item),
+      quantity: 0,
+      watchCount: null,
+      status: 'hidden',
+      ...(String(item.Relisted) === 'true' ? { relisted: true } : {}),
+    }))
     .filter((l) => !taken.has(l.itemId));
   const pages = Math.max(
     Number(body.ActiveList?.PaginationResult?.TotalNumberOfPages ?? 0),
@@ -217,6 +225,8 @@ export function itemFromResponse(body) {
     watchCount: it.WatchCount != null ? Number(it.WatchCount) : null,
     hitCount: it.HitCount != null ? Number(it.HitCount) : null,
     hasVariations: !!it.Variations,
+    // On an ended listing that was relisted: the id of its latest relist.
+    relistedItemId: idOrNull(it.ListingDetails?.RelistedItemID),
     status:
       listingStatus === 'Active'
         ? 'active'

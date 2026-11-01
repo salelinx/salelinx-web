@@ -231,15 +231,28 @@ Deno.test('ended unsold listings come back as hidden, unless also active or sold
   const { listings } = listingsFromResponse(
     {
       ActiveList: { ItemArray: { Item: [item('1')] } },
-      UnsoldList: {
-        ItemArray: {
-          Item: [item('1'), item('2'), { ...item('3'), ListingDetails: { RelistedItemID: '4' } }],
-        },
-      },
+      UnsoldList: { ItemArray: { Item: [item('1'), item('2')] } },
     },
     1,
   );
   assertEquals(listings.map((l) => [l.itemId, l.status]), [['2', 'hidden'], ['1', 'active']]);
+});
+
+// GetMyeBaySelling marks a relisted original with Relisted alone; the new id comes from GetItem.
+Deno.test('a relisted unsold listing is flagged, and GetItem names its relist', () => {
+  const item = (id: string) => ({ ItemID: id, Title: 't', SellingStatus: { CurrentPrice: '5.00' } });
+  const { listings } = listingsFromResponse(
+    { UnsoldList: { ItemArray: { Item: [item('2'), { ...item('3'), Relisted: 'true' }] } } },
+    1,
+  );
+  assertEquals(listings.map((l) => [l.itemId, l.status, l.relisted]), [
+    ['2', 'hidden', undefined],
+    ['3', 'hidden', true],
+  ]);
+  const read = (details: Record<string, unknown>) =>
+    itemFromResponse({ Item: { ItemID: '3', ListingDetails: details } }).relistedItemId;
+  assertEquals(read({ RelistedItemID: '4' }), '4');
+  assertEquals(read({}), null);
 });
 
 Deno.test('a new listing carries policies, location and the item fields', () => {
