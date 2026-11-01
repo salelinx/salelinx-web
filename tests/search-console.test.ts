@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeWithSitemap } from "@/lib/admin/search-console";
+import { aggregateQueries, mergeWithSitemap } from "@/lib/admin/search-console";
 
 const row = (url: string, clicks: number, impressions: number) => ({
   keys: [url],
@@ -49,5 +49,53 @@ describe("mergeWithSitemap", () => {
       ["https://salelinx.com/pricing", true],
       ["https://salelinx.com/old", false],
     ]);
+  });
+});
+
+describe("aggregateQueries", () => {
+  const r = (
+    keys: string[],
+    clicks: number,
+    impressions: number,
+    position = 3,
+  ) => ({
+    keys,
+    clicks,
+    impressions,
+    ctr: impressions ? clicks / impressions : 0,
+    position,
+  });
+
+  it("keeps Google's per-search totals and picks the page with most clicks", () => {
+    const out = aggregateQueries(
+      [r(["vinted relist"], 2, 40, 8.5)],
+      [
+        r(["vinted relist", "https://salelinx.com/blog/a"], 0, 30),
+        r(["vinted relist", "https://salelinx.com/docs/b"], 2, 10),
+      ],
+    );
+    expect(out).toEqual([
+      {
+        query: "vinted relist",
+        topPage: "https://salelinx.com/docs/b",
+        clicks: 2,
+        impressions: 40,
+        ctr: 0.05,
+        position: 8.5,
+        brand: false,
+      },
+    ]);
+  });
+
+  it("flags searches for the brand, however it is spelled", () => {
+    const out = aggregateQueries(
+      [
+        r(["salelinx"], 1, 1),
+        r(["sale linx app"], 0, 1),
+        r(["depop fees"], 0, 1),
+      ],
+      [],
+    );
+    expect(out.map((q) => q.brand)).toEqual([true, true, false]);
   });
 });
