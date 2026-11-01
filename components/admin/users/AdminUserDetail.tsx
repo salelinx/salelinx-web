@@ -184,7 +184,7 @@ export function AdminUserDetail({
   // Which period the usage section shows; changing it refetches the bundle
   // with the matching period keys. The stale numbers stay visible during the
   // round trip, like any refetch here.
-  const [usageRange, setUsageRange] = useState<UsageRangePreset>("current");
+  const [usageRange, setUsageRange] = useState<UsageRangePreset>("all");
   // The resolver's note when it cut a window short (events only go back so
   // far), and a usage-only failure that should not blank the whole drawer.
   const [usageNote, setUsageNote] = useState<string | null>(null);
