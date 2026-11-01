@@ -1,11 +1,14 @@
-import type { MetadataRoute } from 'next';
-import { routing } from '@/i18n/routing';
-import { SITE_URL, absoluteUrl } from '@/lib/site';
-import { CATEGORIES } from '@/lib/docs/categories';
-import { ARTICLE_MODULES_BY_LOCALE, TRANSLATED_DOCS_LOCALES } from '@/lib/docs/manifest';
-import { TRANSLATED_CHANGELOG_LOCALES } from '@/lib/docs/changelog';
-import { LANDING_PAGES } from '@/lib/landing/pages';
-import { listPosts } from '@/lib/blog/posts';
+import type { MetadataRoute } from "next";
+import { routing } from "@/i18n/routing";
+import { SITE_URL, absoluteUrl } from "@/lib/site";
+import { CATEGORIES } from "@/lib/docs/categories";
+import {
+  ARTICLE_MODULES_BY_LOCALE,
+  TRANSLATED_DOCS_LOCALES,
+} from "@/lib/docs/manifest";
+import { TRANSLATED_CHANGELOG_LOCALES } from "@/lib/docs/changelog";
+import { LANDING_PAGES } from "@/lib/landing/pages";
+import { listPosts } from "@/lib/blog/posts";
 
 // `locales` limits which language alternates an entry claims; it must match
 // the contentLocales the page itself passes to pageMetadata. Untranslated
@@ -19,31 +22,55 @@ import { listPosts } from '@/lib/blog/posts';
 const STATIC_PATHS: {
   path: string;
   priority: number;
-  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'];
+  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
   locales?: readonly string[];
 }[] = [
-  { path: '/', priority: 1.0, changeFrequency: 'weekly' },
-  { path: '/features', priority: 0.9, changeFrequency: 'weekly' },
-  { path: '/pricing', priority: 0.9, changeFrequency: 'weekly' },
-  { path: '/roadmap', priority: 0.7, changeFrequency: 'weekly' },
-  { path: '/help', priority: 0.6, changeFrequency: 'monthly' },
+  { path: "/", priority: 1.0, changeFrequency: "weekly" },
+  { path: "/features", priority: 0.9, changeFrequency: "weekly" },
+  { path: "/pricing", priority: 0.9, changeFrequency: "weekly" },
+  { path: "/roadmap", priority: 0.7, changeFrequency: "weekly" },
+  { path: "/help", priority: 0.6, changeFrequency: "monthly" },
   // The old /faq is a redirect stub; the FAQ itself lives at /help/faq.
-  // /help/support is deliberately absent: it redirects logged-out visitors
-  // (crawlers included) to login, so listing it would only draw soft-404s.
-  { path: '/help/faq', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/docs', priority: 0.8, changeFrequency: 'weekly', locales: TRANSLATED_DOCS_LOCALES },
+  { path: "/help/faq", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/help/support", priority: 0.5, changeFrequency: "monthly" },
   {
-    path: '/docs/changelog',
+    path: "/docs",
+    priority: 0.8,
+    changeFrequency: "weekly",
+    locales: TRANSLATED_DOCS_LOCALES,
+  },
+  {
+    path: "/docs/changelog",
     priority: 0.6,
-    changeFrequency: 'weekly',
+    changeFrequency: "weekly",
     locales: TRANSLATED_CHANGELOG_LOCALES,
   },
-  { path: '/docs/status', priority: 0.5, changeFrequency: 'daily' },
-  { path: '/blog', priority: 0.7, changeFrequency: 'weekly', locales: ['en'] },
-  { path: '/legal/privacy', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
-  { path: '/legal/terms', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
-  { path: '/legal/dpa', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
-  { path: '/legal/referral-terms', priority: 0.3, changeFrequency: 'yearly', locales: ['en'] },
+  { path: "/docs/status", priority: 0.5, changeFrequency: "daily" },
+  { path: "/blog", priority: 0.7, changeFrequency: "weekly", locales: ["en"] },
+  {
+    path: "/legal/privacy",
+    priority: 0.3,
+    changeFrequency: "yearly",
+    locales: ["en"],
+  },
+  {
+    path: "/legal/terms",
+    priority: 0.3,
+    changeFrequency: "yearly",
+    locales: ["en"],
+  },
+  {
+    path: "/legal/dpa",
+    priority: 0.3,
+    changeFrequency: "yearly",
+    locales: ["en"],
+  },
+  {
+    path: "/legal/referral-terms",
+    priority: 0.3,
+    changeFrequency: "yearly",
+    locales: ["en"],
+  },
 ];
 
 function alternatesFor(
@@ -74,7 +101,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const { slug } of LANDING_PAGES) {
     entries.push({
       url: absoluteUrl(routing.defaultLocale, `/features/${slug}`),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 0.8,
     });
   }
@@ -84,7 +111,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entries.push({
       url: absoluteUrl(routing.defaultLocale, `/blog/${metadata.slug}`),
       lastModified: new Date(metadata.updated),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 0.7,
     });
   }
@@ -93,7 +120,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const path = `/docs/${slug}`;
     entries.push({
       url: absoluteUrl(routing.defaultLocale, path),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 0.7,
       alternates: alternatesFor(path, TRANSLATED_DOCS_LOCALES),
     });
@@ -106,7 +133,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entries.push({
       url: absoluteUrl(routing.defaultLocale, path),
       lastModified: updated ? new Date(updated) : now,
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 0.6,
       alternates: alternatesFor(path, TRANSLATED_DOCS_LOCALES),
     });

@@ -4,19 +4,45 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
-import type { SearchRow } from "@/lib/admin/search-console";
 
 type SortKey = "clicks" | "impressions" | "ctr" | "position";
 
+export type SearchTableRow = {
+  key: string;
+  label: string;
+  href?: string;
+  sub?: string;
+  tag?: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number | null;
+};
+
 type Props = {
-  rows: SearchRow[];
+  rows: SearchTableRow[];
+  view: "pages" | "searches";
   days: number;
   periods: number[];
   range?: string;
+  summary: string;
   error?: string;
 };
 
-export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
+const VIEWS = [
+  { key: "pages", label: "Pages" },
+  { key: "searches", label: "Searches" },
+] as const;
+
+export function AdminSearchTable({
+  rows,
+  view,
+  days,
+  periods,
+  range,
+  summary,
+  error,
+}: Props) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("clicks");
   const [hideEmpty, setHideEmpty] = useState(false);
@@ -25,7 +51,7 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
     const term = search.trim().toLowerCase();
     const filtered = rows.filter(
       (r) =>
-        (!term || r.url.toLowerCase().includes(term)) &&
+        (!term || `${r.label} ${r.sub ?? ""}`.toLowerCase().includes(term)) &&
         (!hideEmpty || r.impressions > 0),
     );
     return [...filtered].sort((a, b) => {
@@ -34,15 +60,6 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
       return b[sortKey] - a[sortKey];
     });
   }, [rows, search, sortKey, hideEmpty]);
-
-  const totals = useMemo(
-    () => ({
-      clicks: rows.reduce((s, r) => s + r.clicks, 0),
-      impressions: rows.reduce((s, r) => s + r.impressions, 0),
-      unseen: rows.filter((r) => r.inSitemap && r.impressions === 0).length,
-    }),
-    [rows],
-  );
 
   return (
     <div className="flex h-full flex-col">
@@ -55,10 +72,26 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
         </h1>
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <div className="flex overflow-hidden rounded-md border border-[var(--admin-border)] text-xs">
+            {VIEWS.map((v) => (
+              <Link
+                key={v.key}
+                href={`/admin/search?view=${v.key}&days=${days}`}
+                className={
+                  "px-2.5 py-1.5 " +
+                  (v.key === view
+                    ? "bg-zinc-900 text-white"
+                    : "bg-white text-zinc-600 hover:bg-zinc-50")
+                }
+              >
+                {v.label}
+              </Link>
+            ))}
+          </div>
+          <div className="flex overflow-hidden rounded-md border border-[var(--admin-border)] text-xs">
             {periods.map((p) => (
               <Link
                 key={p}
-                href={`/admin/search?days=${p}`}
+                href={`/admin/search?view=${view}&days=${p}`}
                 className={
                   "px-2.5 py-1.5 " +
                   (p === days
@@ -70,19 +103,23 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
               </Link>
             ))}
           </div>
-          <label className="flex items-center gap-1.5 text-xs text-zinc-600">
-            <input
-              type="checkbox"
-              checked={hideEmpty}
-              onChange={(e) => setHideEmpty(e.target.checked)}
-            />
-            Hide pages with no impressions
-          </label>
+          {view === "pages" && (
+            <label className="flex items-center gap-1.5 text-xs text-zinc-600">
+              <input
+                type="checkbox"
+                checked={hideEmpty}
+                onChange={(e) => setHideEmpty(e.target.checked)}
+              />
+              Hide pages with no impressions
+            </label>
+          )}
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search URL"
+            placeholder={
+              view === "pages" ? "Search URL or title" : "Search searches"
+            }
             className="min-w-40 flex-1 rounded-md border border-[var(--admin-border)] bg-white px-3 py-1.5 text-xs outline-none focus:border-zinc-400 sm:w-56 sm:flex-none"
           />
           <AdminRefreshButton />
@@ -95,10 +132,7 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
         </p>
       ) : (
         <p className="border-b border-[var(--admin-border)] px-4 py-2 text-xs text-zinc-500">
-          {totals.clicks.toLocaleString()} clicks,{" "}
-          {totals.impressions.toLocaleString()} impressions, {totals.unseen}{" "}
-          sitemap pages not shown in Google yet. Google&rsquo;s figures run
-          about two days behind.
+          {summary} Google&rsquo;s figures run about two days behind.
         </p>
       )}
 
@@ -106,7 +140,9 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
         <table className="w-full border-collapse text-sm">
           <thead className="sticky top-0 z-10 bg-[var(--admin-surface)] text-left text-xs text-zinc-500">
             <tr className="border-b border-[var(--admin-border)]">
-              <th className="px-3 py-2 font-medium">Page</th>
+              <th className="px-3 py-2 font-medium">
+                {view === "pages" ? "Page" : "Search"}
+              </th>
               <SortableTh
                 label="Clicks"
                 active={sortKey === "clicks"}
@@ -132,26 +168,30 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
           <tbody>
             {visible.map((r) => (
               <tr
-                key={r.url}
+                key={r.key}
                 className="border-b border-[var(--admin-border)] hover:bg-zinc-50"
               >
                 <td className="max-w-[28rem] truncate px-3 py-2">
-                  <a
-                    href={r.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-zinc-800 hover:underline"
-                  >
-                    {r.url.replace(/^https?:\/\/[^/]+/, "") || "/"}
-                  </a>
-                  {!r.inSitemap && (
+                  {r.href ? (
+                    <a
+                      href={r.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-zinc-800 hover:underline"
+                    >
+                      {r.label}
+                    </a>
+                  ) : (
+                    <span className="text-zinc-800">{r.label}</span>
+                  )}
+                  {r.tag && (
                     <span className="ml-2 rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] text-zinc-500">
-                      not in sitemap
+                      {r.tag}
                     </span>
                   )}
-                  {r.title && (
+                  {r.sub && (
                     <div className="truncate text-xs text-zinc-500">
-                      {r.title}
+                      {r.sub}
                     </div>
                   )}
                 </td>
@@ -173,7 +213,7 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
         </table>
       </div>
       <p className="shrink-0 border-t border-[var(--admin-border)] px-4 py-2 text-xs text-zinc-500">
-        {visible.length} pages
+        {visible.length} {view}
       </p>
     </div>
   );

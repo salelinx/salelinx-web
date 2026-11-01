@@ -10,7 +10,7 @@ export type SearchRow = {
   title?: string;
 };
 
-type ApiRow = {
+export type ApiRow = {
   keys: string[];
   clicks: number;
   impressions: number;
@@ -64,8 +64,9 @@ function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-export async function fetchSearchConsolePages(
+export async function fetchSearchConsole(
   days: number,
+  dimensions: ("page" | "query")[],
   now = new Date(),
 ): Promise<{ rows: ApiRow[]; startDate: string; endDate: string }> {
   const site = process.env.GSC_SITE_URL ?? "sc-domain:salelinx.com";
@@ -74,7 +75,7 @@ export async function fetchSearchConsolePages(
   const body = {
     startDate: isoDate(start),
     endDate: isoDate(end),
-    dimensions: ["page"],
+    dimensions,
     rowLimit: 25000,
   };
   const res = await fetch(
@@ -136,4 +137,41 @@ export function mergeWithSitemap(
       b.impressions - a.impressions ||
       a.url.localeCompare(b.url),
   );
+}
+
+export type QueryRow = {
+  query: string;
+  topPage: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+  brand: boolean;
+};
+
+const BRAND = /sale\s*linx|salelink/i;
+
+export function aggregateQueries(
+  queryRows: ApiRow[],
+  queryPageRows: ApiRow[],
+): QueryRow[] {
+  const top = new Map<string, ApiRow>();
+  for (const r of queryPageRows) {
+    const best = top.get(r.keys[0]);
+    if (
+      !best ||
+      r.clicks > best.clicks ||
+      (r.clicks === best.clicks && r.impressions > best.impressions)
+    )
+      top.set(r.keys[0], r);
+  }
+  return queryRows.map((r) => ({
+    query: r.keys[0],
+    topPage: top.get(r.keys[0])?.keys[1] ?? "",
+    clicks: r.clicks,
+    impressions: r.impressions,
+    ctr: r.ctr,
+    position: r.position,
+    brand: BRAND.test(r.keys[0]),
+  }));
 }

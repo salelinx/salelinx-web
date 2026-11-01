@@ -2,10 +2,14 @@ import { notFound } from "next/navigation";
 import sitemap from "@/app/sitemap";
 import { createServerClient } from "@/lib/supabase/server";
 import {
-  fetchSearchConsolePages,
+  aggregateQueries,
+  fetchSearchConsole,
   mergeWithSitemap,
 } from "@/lib/admin/search-console";
-import { AdminSearchTable } from "@/components/admin/search/AdminSearchTable";
+import {
+  AdminSearchTable,
+  type SearchTableRow,
+} from "@/components/admin/search/AdminSearchTable";
 import { routing } from "@/i18n/routing";
 import { listPosts } from "@/lib/blog/posts";
 import { LANDING_PAGES } from "@/lib/landing/pages";
@@ -21,6 +25,7 @@ const STATIC_TITLES: Record<string, string> = {
   "/roadmap": "Public roadmap",
   "/help": "Help centre",
   "/help/faq": "FAQ",
+  "/help/support": "Contact support",
   "/docs": "Docs home",
   "/docs/changelog": "Changelog",
   "/docs/status": "Marketplace status",
@@ -58,7 +63,7 @@ function titleFor(
 export default async function AdminSearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ days?: string }>;
+  searchParams: Promise<{ days?: string; view?: string }>;
 }) {
   // The page reads a server-held Google key, so it checks is_admin() itself
   // rather than relying on the layout, which renders in parallel with it.
@@ -66,38 +71,85 @@ export default async function AdminSearchPage({
   const { data: admin } = await supabase.rpc("is_admin");
   if (admin !== true) notFound();
 
-  const requested = Number((await searchParams).days);
-  const days = PERIODS.find((p) => p === requested) ?? 28;
-  const sitemapUrls = sitemap().flatMap((e) => [
-    e.url,
-    ...Object.values(e.alternates?.languages ?? {}).filter(
-      (u): u is string => typeof u === "string",
-    ),
-  ]);
+  const params = await searchParams;
+  const days = PERIODS.find((p) => p === Number(params.days)) ?? 28;
+  const view = params.view === "searches" ? "searches" : "pages";
+  const titles = pageTitles();
+  const path = (url: string) => url.replace(/^https?:\/\/[^/]+/, "") || "/";
 
-  let result: Awaited<ReturnType<typeof fetchSearchConsolePages>> | null = null;
+  let rows: SearchTableRow[] = [];
+  let range: string | undefined;
+  let summary = "";
   let error: string | undefined;
-  if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
-    error =
-      "GOOGLE_SERVICE_ACCOUNT_JSON is not set, so only the sitemap is listed.";
-  } else {
-    try {
-      result = await fetchSearchConsolePages(days);
-    } catch (e) {
-      error = e instanceof Error ? e.message : "Search Console request failed";
+  try {
+    if (view === "searches") {
+      const [byQuery, byQueryPage] = await Promise.all([
+        fetchSearchConsole(days, ["query"]),
+        fetchSearchConsole(days, ["query", "page"]),
+      ]);
+      range = `${byQuery.startDate} to ${byQuery.endDate}`;
+      const queries = aggregateQueries(byQuery.rows, byQueryPage.rows);
+      const brandClicks = queries
+        .filter((q) => q.brand)
+        .reduce((s, q) => s + q.clicks, 0);
+      const allClicks = queries.reduce((s, q) => s + q.clicks, 0);
+      summary = `${queries.length} searches, ${brandClicks} of ${allClicks} clicks from searches for the brand. Google hides rare searches for privacy, so these totals are lower than the Pages view.`;
+      rows = queries.map((q) => ({
+        key: q.query,
+        label: q.query,
+        sub: q.topPage
+          ? `${path(q.topPage)}${titleFor(q.topPage, titles) ? `, ${titleFor(q.topPage, titles)}` : ""}`
+          : undefined,
+        tag: q.brand ? "brand" : undefined,
+        clicks: q.clicks,
+        impressions: q.impressions,
+        ctr: q.ctr,
+        position: q.position,
+      }));
+    } else {
+      const sitemapUrls = sitemap().flatMap((e) => [
+        e.url,
+        ...Object.values(e.alternates?.languages ?? {}).filter(
+          (u): u is string => typeof u === "string",
+        ),
+      ]);
+      let result: Awaited<ReturnType<typeof fetchSearchConsole>> | null = null;
+      try {
+        result = await fetchSearchConsole(days, ["page"]);
+      } catch (e) {
+        error =
+          e instanceof Error ? e.message : "Search Console request failed";
+      }
+      range = result ? `${result.startDate} to ${result.endDate}` : undefined;
+      const pages = mergeWithSitemap(sitemapUrls, result?.rows ?? []);
+      const clicks = pages.reduce((s, r) => s + r.clicks, 0);
+      const impressions = pages.reduce((s, r) => s + r.impressions, 0);
+      const unseen = pages.filter((r) => r.inSitemap && !r.impressions).length;
+      summary = `${clicks} clicks, ${impressions} impressions, ${unseen} sitemap pages not shown in Google yet.`;
+      rows = pages.map((r) => ({
+        key: r.url,
+        label: path(r.url),
+        href: r.url,
+        sub: titleFor(r.url, titles),
+        tag: r.inSitemap ? undefined : "not in sitemap",
+        clicks: r.clicks,
+        impressions: r.impressions,
+        ctr: r.ctr,
+        position: r.position,
+      }));
     }
+  } catch (e) {
+    error = e instanceof Error ? e.message : "Search Console request failed";
   }
 
-  const titles = pageTitles();
   return (
     <AdminSearchTable
-      rows={mergeWithSitemap(sitemapUrls, result?.rows ?? []).map((r) => ({
-        ...r,
-        title: titleFor(r.url, titles),
-      }))}
+      rows={rows}
+      view={view}
       days={days}
       periods={[...PERIODS]}
-      range={result ? `${result.startDate} to ${result.endDate}` : undefined}
+      range={range}
+      summary={summary}
       error={error}
     />
   );
