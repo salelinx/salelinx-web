@@ -238,6 +238,66 @@ Deno.test('ended unsold listings come back as hidden, unless also active or sold
   assertEquals(listings.map((l) => [l.itemId, l.status]), [['2', 'hidden'], ['1', 'active']]);
 });
 
+Deno.test('an auction carries its bids, time left and prices; fixed price carries nothing', () => {
+  const item = (id: string, extra: Record<string, unknown>) => ({
+    ItemID: id,
+    Title: 't',
+    SellingStatus: { CurrentPrice: { '#text': '12.50', '@currencyID': 'GBP' } },
+    ...extra,
+  });
+  const { listings } = listingsFromResponse(
+    {
+      ActiveList: {
+        ItemArray: {
+          Item: [
+            item('1', {
+              ListingType: 'Chinese',
+              TimeLeft: 'P2DT4H',
+              StartPrice: { '#text': '5.00', '@currencyID': 'GBP' },
+              BuyItNowPrice: { '#text': '30.00', '@currencyID': 'GBP' },
+              SellingStatus: {
+                CurrentPrice: { '#text': '12.50', '@currencyID': 'GBP' },
+                BidCount: 3,
+              },
+            }),
+            item('2', {
+              ListingType: 'Chinese',
+              BuyItNowPrice: { '#text': '0.0', '@currencyID': 'GBP' },
+            }),
+            item('3', { ListingType: 'FixedPriceItem', BuyItNowPrice: { '#text': '9.00' } }),
+            item('4', {}),
+          ],
+        },
+      },
+    },
+    1,
+  );
+  const byId = Object.fromEntries(listings.map((l) => [l.itemId, l]));
+  assertEquals(byId['1'].price, 12.5);
+  assertEquals(byId['1'].auction, { bids: 3, timeLeft: 'P2DT4H', startPrice: 5, buyItNow: 30 });
+  // eBay sends a Buy It Now of 0.0 on an auction without one.
+  assertEquals(byId['2'].auction, { bids: 0, timeLeft: null, startPrice: null, buyItNow: null });
+  assertEquals(byId['3'].auction, undefined);
+  assertEquals(byId['4'].auction, undefined);
+});
+
+Deno.test('an ended auction in the Unsold list is still an auction', () => {
+  const { listings } = listingsFromResponse(
+    {
+      UnsoldList: {
+        ItemArray: {
+          Item: [
+            { ItemID: '1', Title: 't', ListingType: 'Chinese', SellingStatus: { CurrentPrice: '5.00' } },
+          ],
+        },
+      },
+    },
+    1,
+  );
+  assertEquals(listings[0].status, 'hidden');
+  assertEquals(listings[0].auction?.bids, 0);
+});
+
 // GetMyeBaySelling marks a relisted original with Relisted alone; the new id comes from GetItem.
 Deno.test('a relisted unsold listing is flagged, and GetItem names its relist', () => {
   const item = (id: string) => ({ ItemID: id, Title: 't', SellingStatus: { CurrentPrice: '5.00' } });
