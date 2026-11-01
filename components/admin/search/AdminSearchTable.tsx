@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { useWindowedRows } from "@/lib/admin/use-windowed-rows";
-import { AdminTableFooter } from "@/components/admin/AdminTableFooter";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 import type { SearchRow } from "@/lib/admin/search-console";
 
@@ -45,8 +43,6 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
     }),
     [rows],
   );
-
-  const win = useWindowedRows(visible);
 
   return (
     <div className="flex h-full flex-col">
@@ -134,7 +130,7 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
             </tr>
           </thead>
           <tbody>
-            {win.windowed.map((r) => (
+            {visible.map((r) => (
               <tr
                 key={r.url}
                 className="border-b border-[var(--admin-border)] hover:bg-zinc-50"
@@ -152,6 +148,11 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
                     <span className="ml-2 rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] text-zinc-500">
                       not in sitemap
                     </span>
+                  )}
+                  {r.title && (
+                    <div className="truncate text-xs text-zinc-500">
+                      {r.title}
+                    </div>
                   )}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2 font-mono tabular-nums">
@@ -171,14 +172,9 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
           </tbody>
         </table>
       </div>
-      <AdminTableFooter
-        shown={win.shown}
-        total={win.total}
-        hasMore={win.hasMore}
-        onShowMore={win.showMore}
-        onShowAll={win.showAll}
-        noun="pages"
-      />
+      <p className="shrink-0 border-t border-[var(--admin-border)] px-4 py-2 text-xs text-zinc-500">
+        {visible.length} pages
+      </p>
     </div>
   );
 }

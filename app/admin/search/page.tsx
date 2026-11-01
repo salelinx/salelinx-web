@@ -6,8 +6,54 @@ import {
   mergeWithSitemap,
 } from "@/lib/admin/search-console";
 import { AdminSearchTable } from "@/components/admin/search/AdminSearchTable";
+import { routing } from "@/i18n/routing";
+import { listPosts } from "@/lib/blog/posts";
+import { LANDING_PAGES } from "@/lib/landing/pages";
+import { CATEGORIES } from "@/lib/docs/categories";
+import { ARTICLE_MODULES_BY_LOCALE } from "@/lib/docs/manifest";
 
 const PERIODS = [7, 28, 90] as const;
+
+const STATIC_TITLES: Record<string, string> = {
+  "/": "Homepage",
+  "/features": "Features overview",
+  "/pricing": "Plans and prices",
+  "/roadmap": "Public roadmap",
+  "/help": "Help centre",
+  "/help/faq": "FAQ",
+  "/docs": "Docs home",
+  "/docs/changelog": "Changelog",
+  "/docs/status": "Marketplace status",
+  "/blog": "Blog index",
+  "/legal/privacy": "Privacy policy",
+  "/legal/terms": "Terms of service",
+  "/legal/dpa": "Data processing agreement",
+  "/legal/referral-terms": "Referral terms",
+};
+
+function pageTitles(): Map<string, string> {
+  const titles = new Map(Object.entries(STATIC_TITLES));
+  for (const p of LANDING_PAGES) titles.set(`/features/${p.slug}`, p.title);
+  for (const { metadata } of listPosts())
+    titles.set(`/blog/${metadata.slug}`, metadata.title);
+  for (const { slug } of CATEGORIES)
+    titles.set(`/docs/${slug}`, `Docs: ${slug.replace(/-/g, " ")}`);
+  for (const { metadata } of ARTICLE_MODULES_BY_LOCALE[routing.defaultLocale])
+    titles.set(`/docs/${metadata.category}/${metadata.slug}`, metadata.title);
+  return titles;
+}
+
+function titleFor(
+  url: string,
+  titles: Map<string, string>,
+): string | undefined {
+  const path = url.replace(/^https?:\/\/[^/]+/, "").replace(/[?#].*$/, "");
+  const [, first, ...rest] = path.split("/");
+  const unprefixed = (routing.locales as readonly string[]).includes(first)
+    ? `/${rest.join("/")}`
+    : path;
+  return titles.get(unprefixed.replace(/(.)\/$/, "$1") || "/");
+}
 
 export default async function AdminSearchPage({
   searchParams,
@@ -42,9 +88,13 @@ export default async function AdminSearchPage({
     }
   }
 
+  const titles = pageTitles();
   return (
     <AdminSearchTable
-      rows={mergeWithSitemap(sitemapUrls, result?.rows ?? [])}
+      rows={mergeWithSitemap(sitemapUrls, result?.rows ?? []).map((r) => ({
+        ...r,
+        title: titleFor(r.url, titles),
+      }))}
       days={days}
       periods={[...PERIODS]}
       range={result ? `${result.startDate} to ${result.endDate}` : undefined}
