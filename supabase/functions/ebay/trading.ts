@@ -90,6 +90,24 @@ const idOrNull = (v) => (v == null ? null : String(v));
 const money = (amount) =>
   amount ? { value: Number(amount['#text'] ?? amount), currency: amount['@currencyID'] ?? null } : null;
 
+// `Chinese` is eBay's name for an auction. `Auction` is documented only as a request filter, and
+// is accepted in case a response ever carries it.
+const AUCTION_TYPES = new Set(['Chinese', 'Auction']);
+
+/** Set on an auction only, so a fixed-price row's shape is unchanged. */
+function auctionFrom(item) {
+  if (!AUCTION_TYPES.has(item.ListingType)) return {};
+  const buyItNow = money(item.BuyItNowPrice)?.value ?? 0;
+  return {
+    auction: {
+      bids: Number(item.SellingStatus?.BidCount ?? 0),
+      timeLeft: item.TimeLeft ?? null,
+      startPrice: money(item.StartPrice)?.value ?? null,
+      buyItNow: buyItNow > 0 ? buyItNow : null,
+    },
+  };
+}
+
 function summaryFromActive(item) {
   const price = money(item.SellingStatus?.CurrentPrice);
   return {
@@ -103,6 +121,7 @@ function summaryFromActive(item) {
     createdAt: item.ListingDetails?.StartTime ?? null,
     watchCount: item.WatchCount != null ? Number(item.WatchCount) : null,
     status: 'active',
+    ...auctionFrom(item),
   };
 }
 
