@@ -164,6 +164,8 @@ All defined in `.env.example`. Public-only by design - the website has no server
 | `HEALTH_CHECK_TOKEN`                 | server          | Optional shared secret for `/api/health/supabase`. Unset leaves the endpoint open; when set, the monitor must send it as `x-health-token`. Not `NEXT_PUBLIC_` — it must never reach the client |
 | `WATCHDOG_TRIGGER_SECRET`            | server          | Required by `/api/watchdog/trigger`. cron-job.org sends it as `Authorization: Bearer …`. Unset makes the route refuse: it fails closed, unlike the health endpoint          |
 | `WATCHDOG_DISPATCH_TOKEN`            | server          | Fine-grained GitHub PAT, **Actions: write on `salelinx/salelinx-web` only**. Lets the trigger route call `workflow_dispatch`. Deliberately not the Supabase PAT, which has full org access      |
+| `GOOGLE_SERVICE_ACCOUNT_JSON`        | server          | The whole JSON key of a Google Cloud service account with the Search Console API enabled, added as a user on the Search Console property. Read by `/admin/search`. Unset shows the sitemap with no figures |
+| `GSC_SITE_URL`                       | server          | Search Console property, `sc-domain:salelinx.com` (the default) for a domain property or `https://salelinx.com/` for a URL-prefix one |
 
 ## Health endpoint (`/api/health/supabase`)
 

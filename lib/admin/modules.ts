@@ -41,6 +41,8 @@ export const ADMIN_MODULES: AdminModule[] = [
   { key: "finance", label: "Finance", href: "/admin/finance", enabled: true },
   // Views and followers on our YouTube, Instagram and TikTok (marketing-sync).
   { key: "marketing", label: "Marketing", href: "/admin/marketing", enabled: true },
+  // Clicks and impressions per sitemap page, from Google Search Console.
+  { key: "search", label: "Search", href: "/admin/search", enabled: true },
   // Tier limits, feature flags and the public roadmap, as tabs of one page
   // (app/admin/(configuration)/layout.tsx).
   {
