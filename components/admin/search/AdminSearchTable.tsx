@@ -153,6 +153,11 @@ export function AdminSearchTable({ rows, days, periods, range, error }: Props) {
                       not in sitemap
                     </span>
                   )}
+                  {r.title && (
+                    <div className="truncate text-xs text-zinc-500">
+                      {r.title}
+                    </div>
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2 font-mono tabular-nums">
                   {r.clicks}

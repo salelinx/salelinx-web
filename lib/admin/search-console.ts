@@ -7,6 +7,7 @@ export type SearchRow = {
   ctr: number;
   position: number | null;
   inSitemap: boolean;
+  title?: string;
 };
 
 type ApiRow = {
@@ -25,10 +26,14 @@ function base64url(input: string | Buffer): string {
 }
 
 async function accessToken(): Promise<string> {
-  const key = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "") as {
-    client_email: string;
-    private_key: string;
-  };
+  let key: { client_email: string; private_key: string };
+  try {
+    key = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "");
+  } catch {
+    throw new Error(
+      "GOOGLE_SERVICE_ACCOUNT_JSON in Vercel is not valid JSON. Paste the whole key file again, from the first { to the last }, then redeploy.",
+    );
+  }
   const now = Math.floor(Date.now() / 1000);
   const unsigned = `${base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }))}.${base64url(
     JSON.stringify({
