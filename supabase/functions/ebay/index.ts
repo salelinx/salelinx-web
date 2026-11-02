@@ -15,11 +15,13 @@
 //   setMarketplace { marketplace }           -> { marketplace } (the eBay site listings go to, e.g. 'EBAY_GB')
 //   listings   { page }                      -> { listings, hasMore }
 //   item       { itemId }                    -> { item }
-//   revise     { itemId, changes }           -> { ok }
+//   revise     { itemId, changes, auction? } -> { ok }
 //   uploadPhoto { dataUrl }                  -> { url }
-//   end        { itemId }                    -> { ok }
-//   relist     { itemId }                    -> { itemId } (the new listing's id)
+//   end        { itemId, auction? }          -> { ok }
+//   relist     { itemId, auction? }          -> { itemId } (the new listing's id; auction: true
+//                                              uses eBay's auction calls, see listingCall)
 //   add        { item }                      -> { itemId } (AddFixedPriceItem; item.templateItemId copies that listing's postage and returns)
+//              item.auction ({ buyItNow, reserve, duration }) lists it as an auction from item.price
 //   shippingServices {}                      -> { services } ({ id, name }[], domestic, listable)
 //   policies   {}                            -> { shipping, returns, payment } ({ id, name }[] each)
 //   aspects    { categoryId }                -> { aspects } (Taxonomy item specifics)
@@ -47,6 +49,7 @@ import {
   EbayError,
   esc,
   itemFromResponse,
+  listingCall,
   listingsFromResponse,
   parseTrading,
   trafficQuery,
@@ -215,10 +218,10 @@ async function item(auth, itemId: string) {
   return itemFromResponse(body);
 }
 
-async function revise(auth, itemId: string, c) {
+async function revise(auth, itemId: string, c, auction: unknown) {
   const fields = reviseFields(c);
   if (!fields) return;
-  await trading('ReviseFixedPriceItem', auth, `<Item><ItemID>${esc(itemId)}</ItemID>${fields}</Item>`);
+  await trading(listingCall('revise', auction), auth, `<Item><ItemID>${esc(itemId)}</ItemID>${fields}</Item>`);
 }
 
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024;
@@ -443,7 +446,7 @@ Deno.serve(async (req: Request) => {
 
       case 'revise': {
         if (typeof body.itemId !== 'string') return json(400, { error: 'Missing itemId' });
-        await revise(await accessTokenFor(admin, user.id), body.itemId, body.changes ?? {});
+        await revise(await accessTokenFor(admin, user.id), body.itemId, body.changes ?? {}, body.auction);
         return json(200, { ok: true });
       }
 
@@ -540,9 +543,12 @@ Deno.serve(async (req: Request) => {
         if (built.error) return json(400, { error: built.error, code: 'bad_request' });
         // A test run: eBay checks everything a real listing would go through, and nothing goes live.
         if (body.verifyOnly === true) {
-          return json(200, verifyFromResponse(await tradingText('VerifyAddFixedPriceItem', auth, built.xml)));
+          return json(
+            200,
+            verifyFromResponse(await tradingText(listingCall('verify', !!item.auction), auth, built.xml)),
+          );
         }
-        const res = await trading('AddFixedPriceItem', auth, built.xml);
+        const res = await trading(listingCall('add', !!item.auction), auth, built.xml);
         return json(200, { itemId: String(res.ItemID) });
       }
 
@@ -567,7 +573,7 @@ Deno.serve(async (req: Request) => {
       case 'relist': {
         if (typeof body.itemId !== 'string') return json(400, { error: 'Missing itemId' });
         const res = await trading(
-          'RelistFixedPriceItem',
+          listingCall('relist', body.auction),
           await accessTokenFor(admin, user.id),
           `<Item><ItemID>${esc(body.itemId)}</ItemID></Item>`,
         );
@@ -577,7 +583,7 @@ Deno.serve(async (req: Request) => {
       case 'end': {
         if (typeof body.itemId !== 'string') return json(400, { error: 'Missing itemId' });
         await trading(
-          'EndFixedPriceItem',
+          listingCall('end', body.auction),
           await accessTokenFor(admin, user.id),
           `<ItemID>${esc(body.itemId)}</ItemID><EndingReason>NotAvailable</EndingReason>`,
         );

@@ -20,6 +20,7 @@ import {
   postageFromItem,
   verifyFromResponse,
   linkSiteId,
+  listingCall,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -458,4 +459,95 @@ Deno.test('link site: a different eBay account does not inherit the old pick', (
 Deno.test('link site: a stored site this function no longer knows is not kept', () => {
   const prior = { ebay_user_id: 'seller1', site_id: 999 };
   assertEquals(linkSiteId(SITES, 'EBAY_US', prior, 'seller1'), { siteId: 0, kept: false });
+});
+
+// The fixed-price calls refuse an auction, and RelistItem refuses a fixed-price listing.
+Deno.test('an auction ends, relists and revises through the auction calls', () => {
+  assertEquals(listingCall('end', true), 'EndItem');
+  assertEquals(listingCall('relist', true), 'RelistItem');
+  assertEquals(listingCall('revise', true), 'ReviseItem');
+  assertEquals(listingCall('add', true), 'AddItem');
+  assertEquals(listingCall('verify', true), 'VerifyAddItem');
+});
+
+Deno.test('anything but an explicit auction stays on the fixed-price calls', () => {
+  for (const auction of [false, undefined, null, 'true', 1]) {
+    assertEquals(listingCall('end', auction), 'EndFixedPriceItem');
+    assertEquals(listingCall('relist', auction), 'RelistFixedPriceItem');
+    assertEquals(listingCall('revise', auction), 'ReviseFixedPriceItem');
+    assertEquals(listingCall('add', auction), 'AddFixedPriceItem');
+    assertEquals(listingCall('verify', auction), 'VerifyAddFixedPriceItem');
+  }
+});
+
+const AUCTION_LISTING = {
+  title: 'Nike jersey',
+  description: '<p>Hi</p>',
+  categoryId: '155183',
+  price: 1,
+  quantity: 5,
+  photos: ['https://i.ebayimg.com/a.jpg'],
+  postcode: 'SN8 1UF',
+  policies: { shipping: '11', returns: '22', payment: '33' },
+};
+
+Deno.test('an auction lists from its starting price, with its Buy It Now, reserve and length', () => {
+  const { xml } = addItemXml(
+    { ...AUCTION_LISTING, auction: { buyItNow: 50, reserve: 20, duration: 'Days_5' } },
+    'EBAY_GB',
+  );
+  for (const part of [
+    '<StartPrice>1.00</StartPrice>',
+    '<Quantity>1</Quantity>',
+    '<ListingType>Chinese</ListingType>',
+    '<ListingDuration>Days_5</ListingDuration>',
+    '<BuyItNowPrice>50.00</BuyItNowPrice>',
+    '<ReservePrice>20.00</ReservePrice>',
+  ]) {
+    assertEquals(xml!.includes(part), true, part);
+  }
+  assertEquals(xml!.includes('GTC'), false);
+  assertEquals(xml!.includes('FixedPriceItem'), false);
+});
+
+Deno.test('an auction leaves out a Buy It Now or reserve it does not have', () => {
+  const { xml } = addItemXml(
+    { ...AUCTION_LISTING, auction: { buyItNow: null, reserve: null, duration: 'Days_7' } },
+    'EBAY_GB',
+  );
+  assertEquals(xml!.includes('BuyItNowPrice'), false);
+  assertEquals(xml!.includes('ReservePrice'), false);
+});
+
+Deno.test('an auction falls back to 7 days, and never sends an unknown length to eBay', () => {
+  for (const duration of [null, undefined, 'GTC', '<x>']) {
+    const { xml } = addItemXml({ ...AUCTION_LISTING, auction: { duration } }, 'EBAY_GB');
+    assertEquals(xml!.includes('<ListingDuration>Days_7</ListingDuration>'), true);
+  }
+});
+
+Deno.test('a listing with no auction stays fixed price, for as long as it runs', () => {
+  const { xml } = addItemXml(AUCTION_LISTING, 'EBAY_GB');
+  assertEquals(xml!.includes('<ListingType>FixedPriceItem</ListingType>'), true);
+  assertEquals(xml!.includes('<ListingDuration>GTC</ListingDuration>'), true);
+  assertEquals(xml!.includes('<Quantity>5</Quantity>'), true);
+});
+
+Deno.test('GetItem gives what an auction needs to list again, and nothing for fixed price', () => {
+  const base = { ItemID: '1', Quantity: 1, SellingStatus: {}, ReturnPolicy: {} };
+  const auction = itemFromResponse({
+    Item: {
+      ...base,
+      ListingType: 'Chinese',
+      StartPrice: { '#text': 1, '@currencyID': 'GBP' },
+      BuyItNowPrice: { '#text': 50, '@currencyID': 'GBP' },
+      ReservePrice: { '#text': 0, '@currencyID': 'GBP' },
+      ListingDuration: 'Days_7',
+    },
+  });
+  assertEquals(auction.auction, { startPrice: 1, buyItNow: 50, reserve: null, duration: 'Days_7' });
+  const fixed = itemFromResponse({
+    Item: { ...base, ListingType: 'FixedPriceItem', StartPrice: { '#text': 9, '@currencyID': 'GBP' } },
+  });
+  assertEquals('auction' in fixed, false);
 });
