@@ -50,7 +50,7 @@ import type {
   AdminUserDetail as Detail,
   LinkedPlatform,
 } from "@/lib/types/admin";
-import { isMonthlyFeature } from "@/lib/admin/period";
+import { currentPeriodKeys, isMonthlyFeature } from "@/lib/admin/period";
 import { WINDOW_PRESETS, resolveUsageRange } from "@/lib/admin/usage-range";
 import type { UsageRangePreset } from "@/lib/admin/usage-range";
 import { capForFeature, percentOfCap } from "@/lib/admin/usage-caps";
@@ -825,6 +825,13 @@ export function AdminUserDetail({
                   })}
                 </ul>
               )}
+              {usageRange === "current" && (
+                <SetUsage
+                  userId={user.user_id}
+                  tierConfig={tierConfig}
+                  onDone={() => setRefreshKey((k) => k + 1)}
+                />
+              )}
             </Section>
 
             <Section title="Support tickets">
@@ -1187,6 +1194,106 @@ function Meta({
       <dt className="text-zinc-500">{label}</dt>
       <dd className="text-zinc-800">{children}</dd>
     </>
+  );
+}
+
+// Sets this period's count for a metered feature, to see what a user at their cap sees.
+function SetUsage({
+  userId,
+  tierConfig,
+  onDone,
+}: {
+  userId: string;
+  tierConfig: TierConfig | null;
+  onDone: () => void;
+}) {
+  const supabase = createBrowserClient();
+  const [feature, setFeature] = useState("crosslist");
+  const [count, setCount] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const cap = capForFeature(feature, tierConfig);
+
+  async function save(value: number) {
+    setBusy(true);
+    setError(null);
+    const keys = currentPeriodKeys(new Date());
+    const { error: rpcError } = await supabase.rpc("admin_set_usage_counter", {
+      p_user_id: userId,
+      p_feature: feature,
+      p_period_key: isMonthlyFeature(feature) ? keys.month : keys.day,
+      p_count: value,
+    });
+    setBusy(false);
+    if (rpcError) {
+      setError(rpcError.message);
+      return;
+    }
+    setCount("");
+    onDone();
+  }
+
+  const n = Number(count);
+  const valid = count.trim() !== "" && Number.isInteger(n) && n >= 0;
+  const input =
+    "rounded border border-[var(--admin-border)] bg-white px-1.5 py-0.5 text-xs text-zinc-700 outline-none focus:border-zinc-400";
+  const button =
+    "rounded border border-[var(--admin-border)] px-2 py-0.5 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-40";
+  return (
+    <div className="mt-3 border-t border-[var(--admin-border)] pt-3">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-xs text-zinc-500">Set used</span>
+        <select
+          value={feature}
+          onChange={(e) => setFeature(e.target.value)}
+          className={input}
+          aria-label="Feature"
+        >
+          {["crosslist", "relist", "refresh", "follow", "unfollow"].map((f) => (
+            <option key={f} value={f}>
+              {f} ({isMonthlyFeature(f) ? "this month" : "today"})
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          min={0}
+          step={1}
+          value={count}
+          onChange={(e) => setCount(e.target.value)}
+          placeholder="0"
+          className={`${input} w-20`}
+          aria-label="Count"
+        />
+        <button
+          type="button"
+          disabled={busy || !valid}
+          onClick={() => save(n)}
+          className={button}
+        >
+          Set
+        </button>
+        {cap !== null && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => save(cap)}
+            className={button}
+          >
+            Max out ({cap})
+          </button>
+        )}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => save(0)}
+          className={button}
+        >
+          Reset
+        </button>
+      </div>
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+    </div>
   );
 }
 
