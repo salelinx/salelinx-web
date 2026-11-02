@@ -518,6 +518,13 @@ export function AdminUserDetail({
           <Meta label="Last seen">
             <When iso={user.last_device_seen_at} now={now} tone />
           </Meta>
+          <Meta label="Theme">
+            {user.theme === "dark" ? "Dark" : user.theme === "light" ? "Light" : "-"}
+          </Meta>
+          <Meta label="Animations">
+            {user.animations === null ? "-" : user.animations ? "On" : "Off"}
+          </Meta>
+          <Meta label="Language">{user.panel_locale?.toUpperCase() ?? "-"}</Meta>
         </dl>
 
         {loading && (
