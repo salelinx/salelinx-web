@@ -46,6 +46,8 @@ export type AdminUserRow = {
   country: string | null;
   // From the same freshest install as extension_version (migration 035).
   user_agent: string | null;
+  // The panel's light or dark theme, from user_settings (migration 045).
+  theme: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.
