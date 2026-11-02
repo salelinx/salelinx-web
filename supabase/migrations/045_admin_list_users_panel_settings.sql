@@ -1,5 +1,6 @@
--- Admin users table: the panel theme (light or dark) the extension saves to
--- user_settings.preferences.theme. Null until the account's extension has saved it.
+-- Admin users table: the panel's theme, animations switch and language, which the
+-- extension saves to user_settings.preferences.panel. Null until the account's
+-- extension has saved them.
 -- New return column, so DROP + CREATE.
 drop function if exists public.admin_list_users();
 
@@ -22,7 +23,9 @@ returns table(
   country text,
   user_agent text,
   signup_device text,
-  theme text
+  theme text,
+  animations boolean,
+  panel_locale text
 )
 language sql
 stable
@@ -49,7 +52,9 @@ as $function$
     u.raw_app_meta_data ->> 'country' AS country,
     ds.user_agent,
     u.raw_user_meta_data -> 'signup_source' ->> 'device' AS signup_device,
-    us.preferences ->> 'theme' AS theme
+    us.preferences -> 'panel' ->> 'theme' AS theme,
+    (us.preferences -> 'panel' ->> 'animations')::boolean AS animations,
+    us.preferences -> 'panel' ->> 'locale' AS panel_locale
   FROM auth.users u
   LEFT JOIN public.user_settings us ON us.user_id = u.id
   LEFT JOIN LATERAL (
