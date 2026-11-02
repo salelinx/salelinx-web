@@ -46,6 +46,11 @@ export type AdminUserRow = {
   country: string | null;
   // From the same freshest install as extension_version (migration 035).
   user_agent: string | null;
+  // The panel's theme, hero animations switch and language, which the extension
+  // saves to user_settings (migration 045). Null until it has.
+  theme: string | null;
+  animations: boolean | null;
+  panel_locale: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.

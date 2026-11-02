@@ -197,6 +197,50 @@ function BrowserCell({ userAgent }: { userAgent: string | null }) {
   );
 }
 
+function ThemeCell({ theme }: { theme: string | null }) {
+  if (theme !== "light" && theme !== "dark") return <span className="text-zinc-400">-</span>;
+  const label = theme === "dark" ? "Dark mode" : "Light mode";
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4 fill-none stroke-current text-zinc-600"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label={label}
+    >
+      <title>{label}</title>
+      {theme === "dark" ? (
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      ) : (
+        <>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function AnimationsCell({ on }: { on: boolean | null }) {
+  if (on === null) return <span className="text-zinc-400">-</span>;
+  const label = on ? "Animations on" : "Animations off";
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`h-4 w-4 fill-none stroke-current ${on ? "text-zinc-600" : "text-zinc-300"}`}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label={label}
+    >
+      <title>{label}</title>
+      <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+      {!on && <path d="M3 3l18 18" />}
+    </svg>
+  );
+}
+
 // ISO 3166-1 alpha-2 code to its regional-indicator flag.
 const flag = (code: string) =>
   String.fromCodePoint(...[...code].map((c) => 0x1f1a5 + c.charCodeAt(0)));
@@ -746,6 +790,9 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
                 <th className="px-3 py-2 font-medium">Device</th>
                 <th className="px-3 py-2 font-medium">Country</th>
                 <th className="px-3 py-2 font-medium">Browser</th>
+                <th className="px-3 py-2 font-medium">Theme</th>
+                <th className="px-3 py-2 font-medium">Animations</th>
+                <th className="px-3 py-2 font-medium">Language</th>
                 <SortableTh
                   label="Joined"
                   active={sortKey === "created_at"}
@@ -839,6 +886,15 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
                       title={u.user_agent ?? undefined}
                     >
                       <BrowserCell userAgent={u.user_agent} />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <ThemeCell theme={u.theme} />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <AnimationsCell on={u.animations} />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 font-mono text-xs uppercase text-zinc-600">
+                      {u.panel_locale ?? <span className="text-zinc-400">-</span>}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-zinc-500">
                       {formatDate(u.created_at)}

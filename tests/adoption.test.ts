@@ -12,6 +12,7 @@ import {
   tierCanUse,
 } from "@/lib/admin/adoption";
 import type { AdminUsageRow, AdminUserRow } from "@/lib/types/admin";
+import { EXTENSION_FEATURES } from "@/lib/admin/extension-features";
 import type { TierConfig } from "@/lib/types/tiers";
 
 const NOW = new Date("2026-09-07T12:00:00Z");
@@ -271,11 +272,11 @@ describe("foldAdoption", () => {
     const window = resolveAdoptionWindow({}, NOW);
     const rows = [row("a", "brand_new_thing", "2026-09", 1)];
     const r = foldAdoption({ rows, users, tiers: TIERS, window });
-    expect(r.featuresTotal).toBe(29);
+    expect(r.featuresTotal).toBe(EXTENSION_FEATURES.length + 1);
     const novel = r.features.find((f) => f.feature === "brand_new_thing")!;
     expect(novel.users).toBe(1);
     expect(novel.label).toBe("brand_new_thing");
-    expect(r.features.filter((f) => f.users === 0)).toHaveLength(28);
+    expect(r.features.filter((f) => f.users === 0)).toHaveLength(EXTENSION_FEATURES.length);
   });
 
   it("restricts both numerator and denominator to the paid base", () => {

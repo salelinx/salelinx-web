@@ -18,8 +18,8 @@ type Props = {
 
 export function AdminSidebar({ adminEmail }: Props) {
   return (
-    <aside className="hidden w-56 shrink-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)] md:flex">
-      <div className="flex h-12 items-center border-b border-[var(--admin-border)] px-4">
+    <aside className="hidden w-44 shrink-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)] md:flex">
+      <div className="flex h-12 items-center border-b border-[var(--admin-border)] px-3">
         {/* Logo + title link back to the dashboard home (/admin). */}
         <Link
           href="/admin"
