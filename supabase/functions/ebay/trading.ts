@@ -56,9 +56,10 @@ export function parseTrading(call: string, text: string) {
   return body;
 }
 
-/** VerifyAddFixedPriceItem: eBay checks the listing and quotes fees without creating it. */
+/** VerifyAddFixedPriceItem or VerifyAddItem: eBay checks the listing and quotes fees without creating it. */
 export function verifyFromResponse(text: string) {
-  const body = xml.parse(text)?.VerifyAddFixedPriceItemResponse;
+  const parsed = xml.parse(text);
+  const body = parsed?.VerifyAddFixedPriceItemResponse ?? parsed?.VerifyAddItemResponse;
   if (!body) throw new EbayError('Unexpected eBay response to VerifyAddFixedPriceItem', 'ebay', 502);
   const messages = (severity: string) =>
     (body.Errors ?? [])
@@ -104,6 +105,24 @@ function auctionFrom(item) {
       timeLeft: item.TimeLeft ?? null,
       startPrice: money(item.StartPrice)?.value ?? null,
       buyItNow: buyItNow > 0 ? buyItNow : null,
+    },
+  };
+}
+
+const priceOrNull = (amount) => {
+  const value = money(amount)?.value ?? 0;
+  return value > 0 ? value : null;
+};
+
+/** What a new listing needs to be this auction again. Set on an auction only. */
+function auctionTermsFrom(it) {
+  if (!AUCTION_TYPES.has(it.ListingType)) return {};
+  return {
+    auction: {
+      startPrice: priceOrNull(it.StartPrice),
+      buyItNow: priceOrNull(it.BuyItNowPrice),
+      reserve: priceOrNull(it.ReservePrice),
+      duration: it.ListingDuration ?? null,
     },
   };
 }
@@ -244,6 +263,7 @@ export function itemFromResponse(body) {
     watchCount: it.WatchCount != null ? Number(it.WatchCount) : null,
     hitCount: it.HitCount != null ? Number(it.HitCount) : null,
     hasVariations: !!it.Variations,
+    ...auctionTermsFrom(it),
     // On an ended listing that was relisted: the id of its latest relist.
     relistedItemId: idOrNull(it.ListingDetails?.RelistedItemID),
     status:
@@ -367,7 +387,35 @@ const MARKET_COUNTRY = {
   EBAY_NL: ['NL', 'EUR'], EBAY_AU: ['AU', 'AUD'], EBAY_CA: ['CA', 'CAD'],
 };
 
-/** A new fixed-price listing (AddFixedPriceItem), or a reason it cannot be sent. */
+// Ending, relisting and revising come in two sets of calls: the fixed-price set refuses an auction,
+// and RelistItem refuses a fixed-price listing. The extension says which from its stored row, as
+// asking eBay first would cost a call each time.
+const LISTING_CALLS = {
+  end: { fixedPrice: 'EndFixedPriceItem', auction: 'EndItem' },
+  relist: { fixedPrice: 'RelistFixedPriceItem', auction: 'RelistItem' },
+  revise: { fixedPrice: 'ReviseFixedPriceItem', auction: 'ReviseItem' },
+  add: { fixedPrice: 'AddFixedPriceItem', auction: 'AddItem' },
+  verify: { fixedPrice: 'VerifyAddFixedPriceItem', auction: 'VerifyAddItem' },
+};
+
+/** Anything but an explicit true is fixed price, as an older extension sends nothing. */
+export function listingCall(action: keyof typeof LISTING_CALLS, auction: unknown): string {
+  return LISTING_CALLS[action][auction === true ? 'auction' : 'fixedPrice'];
+}
+
+/** An auction can't run Good 'Til Cancelled, so it keeps the length it had. */
+function auctionXml(a): string {
+  const price = (tag: string, value) =>
+    typeof value === 'number' && value > 0 ? `<${tag}>${value.toFixed(2)}</${tag}>` : '';
+  const duration = /^Days_\d+$/.test(String(a.duration)) ? a.duration : 'Days_7';
+  return (
+    `<ListingType>Chinese</ListingType><ListingDuration>${duration}</ListingDuration>` +
+    price('BuyItNowPrice', a.buyItNow) +
+    price('ReservePrice', a.reserve)
+  );
+}
+
+/** A new listing, fixed price or with `c.auction` an auction from `c.price`, or a reason it cannot be sent. */
 export function addItemXml(c, marketplace: string): { xml?: string; error?: string } {
   const [country, currency] = MARKET_COUNTRY[marketplace] ?? MARKET_COUNTRY.EBAY_GB;
   const p = c.policies ?? {};
@@ -394,8 +442,8 @@ export function addItemXml(c, marketplace: string): { xml?: string; error?: stri
       `</SellerProfiles>`
     : copied;
   const xml =
-    `<Item>${reviseFields({ ...c, quantity: Number.isInteger(c.quantity) ? c.quantity : 1 })}` +
-    `<ListingType>FixedPriceItem</ListingType><ListingDuration>GTC</ListingDuration>` +
+    `<Item>${reviseFields({ ...c, quantity: !c.auction && Number.isInteger(c.quantity) ? c.quantity : 1 })}` +
+    `${c.auction ? auctionXml(c.auction) : '<ListingType>FixedPriceItem</ListingType><ListingDuration>GTC</ListingDuration>'}` +
     `<Country>${country}</Country><Currency>${currency}</Currency>` +
     `<PostalCode>${esc(c.postcode.trim().slice(0, 20))}</PostalCode>` +
     `${delivery}</Item>`;
