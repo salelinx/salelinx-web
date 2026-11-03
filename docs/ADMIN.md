@@ -60,7 +60,8 @@ Consequences:
 | Shared usage loader | `lib/admin/usage-data.ts` |
 | Audit log module | `app/admin/audit/page.tsx` + `components/admin/audit/*` |
 | Storage module | `app/admin/storage/page.tsx` + `components/admin/storage/*` |
-| Shared needs-reply predicate | `lib/admin/needs-reply.ts` (support table + dashboard) |
+| Shared needs-reply predicate + open-ticket loader | `lib/admin/needs-reply.ts` (support table, dashboard, nav alert) |
+| Support nav alert triangle | `components/admin/NeedsReplyProvider.tsx`: a client read, not a layout prop, because the layout stays mounted across soft navigations. Re-checks on navigation and window focus, and after any ticket change. No polling |
 | Per-request memoized gate lookups | `lib/admin/session.ts` (`getAdminUser`, `getIsAal2`) |
 | Module loading skeletons | `components/admin/AdminSkeleton.tsx` + `app/admin/**/loading.tsx` |
 | Table row windowing | `lib/admin/use-windowed-rows.ts` + `components/admin/AdminTableFooter.tsx` |

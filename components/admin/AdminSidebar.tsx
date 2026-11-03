@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_MODULES, isModuleActive } from "@/lib/admin/modules";
+import {
+  NeedsReplyTriangle,
+  useNeedsReply,
+} from "@/components/admin/NeedsReplyProvider";
 
 // Admin console sidebar. Driven entirely by ADMIN_MODULES so a new section is
 // "append to the registry" - no edit here. Uses plain next/link (admin is
@@ -54,6 +58,7 @@ export function AdminNavList({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const { count: needsReply } = useNeedsReply();
   const row = touch ? "px-3 py-2.5 text-[15px]" : "px-3 py-1.5 text-sm";
 
   return (
@@ -104,6 +109,14 @@ export function AdminNavList({
               }
             >
               {mod.label}
+              {mod.key === "support" && needsReply > 0 && (
+                <NeedsReplyTriangle
+                  count={needsReply}
+                  className={`ml-auto h-4 w-4 shrink-0 ${
+                    active ? "text-amber-400" : "text-amber-600"
+                  }`}
+                />
+              )}
             </Link>
           </li>
         );

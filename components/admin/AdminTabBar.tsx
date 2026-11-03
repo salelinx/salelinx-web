@@ -5,6 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_MODULES, isModuleActive } from "@/lib/admin/modules";
 import { AdminNavFooter, AdminNavList } from "@/components/admin/AdminSidebar";
+import {
+  NeedsReplyTriangle,
+  useNeedsReply,
+} from "@/components/admin/NeedsReplyProvider";
 
 // Phone navigation (below md), in place of the sidebar, which would take most
 // of a phone's width. The modules you reach for away from a desk sit on the
@@ -63,6 +67,7 @@ const TAB_MODULES = TABS.map((tab) => {
 
 export function AdminTabBar({ adminEmail }: { adminEmail: string }) {
   const pathname = usePathname();
+  const { count: needsReply } = useNeedsReply();
   // The sheet remembers the page it was opened on rather than a boolean, so
   // any navigation (including the browser back button) closes it without an
   // effect having to watch the pathname.
@@ -96,7 +101,15 @@ export function AdminTabBar({ adminEmail }: { adminEmail: string }) {
               aria-current={active ? "page" : undefined}
               className={tabClass(active)}
             >
-              <TabIcon>{tab.icon}</TabIcon>
+              <span className="relative">
+                <TabIcon>{tab.icon}</TabIcon>
+                {tab.key === "support" && needsReply > 0 && (
+                  <NeedsReplyTriangle
+                    count={needsReply}
+                    className="absolute -top-1 -right-3 h-3.5 w-3.5 text-amber-600"
+                  />
+                )}
+              </span>
               {tab.label}
             </Link>
           );
