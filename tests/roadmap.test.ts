@@ -4,9 +4,11 @@ import path from 'node:path';
 import { createTranslator } from 'next-intl';
 import { LOCALES } from '../lib/i18n/locales';
 import {
+  ROADMAP_TITLE_MAX,
   itemsByStatus,
   localized,
   missingLocales,
+  roadmapCopy,
   roadmapMeta,
   type RoadmapItem,
 } from '../lib/roadmap/types';
@@ -131,5 +133,74 @@ describe('Roadmap.meta messages', () => {
     expect(shipped('en', 'Oct 2026')).toBe('Shipped Oct 2026');
     expect(shipped('es', 'octubre de 2026')).toBe('Lanzado en octubre de 2026');
     expect(shipped('zh', 'unused')).toBe('2026 年 10 月发布');
+  });
+});
+
+describe('roadmapCopy', () => {
+  // The same rule as the roadmap_items.id CHECK.
+  const VALID_ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+  it('hides the copy and keeps everything else', () => {
+    const original = item({
+      id: 'auto-relist',
+      status: 'building',
+      tag: 'automation',
+      marketplaces: ['vinted'],
+      title: { en: 'Auto relist', fr: 'Titre' },
+      description: { en: 'Body', fr: 'Corps' },
+      target_quarter: '2027-Q1',
+    });
+    expect(roadmapCopy(original, ['auto-relist'])).toEqual({
+      ...original,
+      id: 'auto-relist-copy',
+      title: { en: 'Auto relist (copy)', fr: 'Titre' },
+      visible: false,
+    });
+  });
+
+  it('leaves the original untouched', () => {
+    const original = item({ title: { en: 'Auto relist' } });
+    roadmapCopy(original, []);
+    expect(original.title.en).toBe('Auto relist');
+    expect(original.visible).toBe(true);
+  });
+
+  it('skips ids already in use', () => {
+    const taken = ['x', 'x-copy', 'x-copy-2'];
+    expect(roadmapCopy(item({ id: 'x' }), taken).id).toBe('x-copy-3');
+  });
+
+  it('counts up rather than stacking suffixes when copying a copy', () => {
+    const copy = roadmapCopy(
+      item({ id: 'x-copy', title: { en: 'X (copy)' }, visible: false }),
+      ['x', 'x-copy'],
+    );
+    expect(copy.id).toBe('x-copy-2');
+    expect(copy.title.en).toBe('X (copy)');
+  });
+
+  it('keeps a full-length id within the cap and valid', () => {
+    const long = `${'a'.repeat(54)}-${'b'.repeat(5)}`;
+    expect(long).toHaveLength(60);
+    const { id } = roadmapCopy(item({ id: long }), [long]);
+    expect(id.length).toBeLessThanOrEqual(60);
+    expect(id).toMatch(VALID_ID);
+    expect(id.endsWith('-copy')).toBe(true);
+  });
+
+  it('does not leave a double hyphen when the cut lands on one', () => {
+    const long = `${'a'.repeat(55)}-bbbb`;
+    const { id } = roadmapCopy(item({ id: long }), [long]);
+    expect(id).toBe(`${'a'.repeat(55)}-copy`);
+    expect(id).toMatch(VALID_ID);
+  });
+
+  it('keeps a full-length title within the cap the save function enforces', () => {
+    const { title } = roadmapCopy(
+      item({ title: { en: 't'.repeat(ROADMAP_TITLE_MAX) } }),
+      [],
+    );
+    expect(title.en.length).toBeLessThanOrEqual(ROADMAP_TITLE_MAX);
+    expect(title.en.endsWith(' (copy)')).toBe(true);
   });
 });

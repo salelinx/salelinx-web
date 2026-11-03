@@ -3,7 +3,7 @@
 // Board editor for the public roadmap (roadmap_items, migration
 // 032_roadmap_items.sql). Three columns mirroring the homepage section; each
 // card can be reordered within its column, moved to the next or previous
-// column, or opened in the editor drawer.
+// column, copied as a hidden draft, or opened in the editor drawer.
 //
 // Writes go through server actions that call the is_admin()-gated RPCs, which
 // are the security boundary and write their own audit entries (each one
@@ -22,8 +22,10 @@ import {
   ROADMAP_MARKETPLACES,
   ROADMAP_STATUSES,
   ROADMAP_TAGS,
+  ROADMAP_TITLE_MAX,
   itemsByStatus,
   missingLocales,
+  roadmapCopy,
   roadmapMeta,
   type LocalizedText,
   type RoadmapItem,
@@ -66,7 +68,7 @@ const TAG_LABEL: Record<RoadmapTagKey, string> = {
   marketplaces: "Marketplaces",
 };
 
-const TITLE_MAX = 120;
+const TITLE_MAX = ROADMAP_TITLE_MAX;
 const DESCRIPTION_MAX = 400;
 
 // RPC error codes from 032_roadmap_items.sql, in words.
@@ -181,6 +183,28 @@ export function AdminRoadmap({
     );
   }
 
+  // Saves straight away, hidden, then opens the copy in the editor, since
+  // changing it is why you made it. Cancel there keeps the hidden card.
+  function copy(item: RoadmapItem) {
+    const draft = roadmapCopy(
+      item,
+      items.map((i) => i.id),
+    );
+    setMessage(null);
+    startTransition(async () => {
+      const res = await saveRoadmapItem(draft, true);
+      if (!res.ok) {
+        setMessage({ ok: false, text: errorText(res.error) });
+        return;
+      }
+      setMessage({
+        ok: true,
+        text: `Copied "${item.title.en}" as a hidden card. Its translations came too, so update them if you change the wording.`,
+      });
+      setEditing({ draft, isNew: false });
+    });
+  }
+
   const hiddenCount = items.filter((i) => !i.visible).length;
 
   return (
@@ -256,6 +280,7 @@ export function AdminRoadmap({
                     onDown={() => move(item, 1)}
                     onLeft={() => shift(item, -1)}
                     onRight={() => shift(item, 1)}
+                    onCopy={() => copy(item)}
                     onEdit={() => {
                       setMessage(null);
                       setEditing({ draft: { ...item }, isNew: false });
@@ -295,6 +320,7 @@ function Card({
   onDown,
   onLeft,
   onRight,
+  onCopy,
   onEdit,
 }: {
   item: RoadmapItem;
@@ -307,6 +333,7 @@ function Card({
   onDown: () => void;
   onLeft: () => void;
   onRight: () => void;
+  onCopy: () => void;
   onEdit: () => void;
 }) {
   const missing = missingLocales(item);
@@ -368,14 +395,25 @@ function Card({
             &rarr;
           </button>
         </div>
-        <button
-          type="button"
-          onClick={onEdit}
-          disabled={disabled}
-          className="rounded px-2 py-0.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
-        >
-          Edit
-        </button>
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={onCopy}
+            disabled={disabled}
+            title="Make a hidden copy of this card"
+            className="rounded px-2 py-0.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+          >
+            Copy
+          </button>
+          <button
+            type="button"
+            onClick={onEdit}
+            disabled={disabled}
+            className="rounded px-2 py-0.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+          >
+            Edit
+          </button>
+        </div>
       </div>
     </article>
   );
