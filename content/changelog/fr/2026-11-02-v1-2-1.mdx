@@ -1,0 +1,105 @@
+export const metadata = {
+  title:
+    "Créer une annonce, Republier sur eBay et étiquettes d'enchères dans Mes annonces",
+  date: "2026-11-02",
+  summary:
+    "La version 1.2.1 ajoute Créer une annonce, qui crée une même annonce sur Depop, Vinted et eBay en une seule fois, et amène Republier sur eBay. Mes annonces signale les enchères eBay, Publier les brouillons vous laisse choisir quels brouillons publier, et les étiquettes d'envoi Depop se téléchargent à nouveau.",
+  tags: ["release"],
+};
+
+# Version 1.2.1
+
+Créez une annonce une seule fois pour toutes vos plateformes, et republiez sur
+eBay comme sur Depop et Vinted.
+
+## Créer une annonce
+
+- **Un nouveau bouton dans Mes annonces.** Saisissez une seule fois les
+  photos, le titre, la description, le prix et les détails, choisissez vos
+  plateformes, et SaleLinx crée l&rsquo;annonce sur chacune d&rsquo;elles.
+- **Une seule catégorie et une seule taille.** Choisissez-les dans les listes
+  de la première plateforme et les autres sont adaptées pour vous. Appuyez sur
+  Modifier sur une plateforme pour corriger ce résultat.
+- **Des brouillons d&rsquo;abord.** Les annonces sont enregistrées en brouillon
+  par défaut, pour que vous puissiez les vérifier avant leur mise en ligne.
+  Vous pouvez désactiver cette option pour publier tout de suite, et les frais
+  d&rsquo;eBay s&rsquo;affichent avant.
+- **Sauvegarde et liaison.** Avec une offre incluant la synchronisation cloud,
+  les nouvelles annonces peuvent être sauvegardées dans le cloud et liées entre
+  elles.
+- **Rien à saisir deux fois.** Le formulaire garde ce que vous avez saisi et,
+  si une plateforme échoue, Réessayer ne crée que ce qui manque.
+
+## Republier sur eBay
+
+- **eBay dans l&rsquo;onglet Republier.** Les annonces eBay apparaissent
+  désormais avec celles de Depop et Vinted, et les copies liées restent liées
+  après une republication.
+- **Ce que vous pouvez changer.** Les options de titre, de description et de
+  prix fonctionnent sur eBay, et vous pouvez enregistrer la republication en
+  brouillon. Les options de photos restent réservées à Depop et Vinted.
+- **Les enchères restent des enchères,** avec le même prix de départ, la même
+  durée et l&rsquo;éventuel prix Achat immédiat. Si une annonce a déjà reçu des
+  enchères, la fenêtre vous prévient d&rsquo;abord, car republier y met fin plus
+  tôt et annule toutes les enchères.
+- **Les brouillons gardent leurs offres.** Une republication enregistrée en
+  brouillon conserve ses réglages d&rsquo;offres.
+- **Une nouvelle fenêtre Republier,** organisée comme la vérification du
+  crosslist : les options Pour chaque article, puis une ligne par article avec
+  une case pour l&rsquo;ignorer, ses propres options et son prix.
+
+## Améliorations
+
+- **Les enchères eBay dans Mes annonces.** Une enchère en cours s&rsquo;affiche
+  comme active, avec une étiquette Enchères à côté de son prix. Survolez
+  l&rsquo;étiquette pour voir les enchères, la date de fin, le prix de départ et
+  le prix Achat immédiat. Pour modifier une enchère, l&rsquo;éditeur vous renvoie
+  vers eBay, et les modifications en masse l&rsquo;ignorent.
+- **Publier les brouillons vous laisse choisir.** Chaque brouillon a une case à
+  cocher. Décochez-la pour le garder en brouillon.
+- **Une seule fenêtre quand une plateforme demande votre attention.** Si un
+  onglet a besoin d&rsquo;une plateforme fermée, déconnectée ou sur le mauvais
+  compte, une seule fenêtre indique quoi corriger, avec un bouton pour chacune.
+  L&rsquo;onglet reprend dès que tout est prêt.
+- **SaleLinx n&rsquo;ouvre plus d&rsquo;onglet eBay tout seul.** S&rsquo;il lui
+  faut un onglet eBay connecté, il vous demande d&rsquo;en ouvrir un.
+- **Les nouveautés après une mise à jour.** Une courte carte présente ce
+  qu&rsquo;apporte une version, une seule fois par version.
+- **Une plus grande partie du panneau est traduite** en français, en espagnol
+  et en allemand, notamment la file des tâches, Croissance, la fenêtre de mise
+  à niveau et les infobulles. La fenêtre de la barre d&rsquo;outils suit la
+  langue de votre panneau.
+- **Support** se résume maintenant à un message à envoyer, sans type à choisir.
+- **Étiquettes** affiche ses filtres et sa recherche pendant le chargement de
+  vos commandes.
+
+## Corrections
+
+- **Étiquettes d&rsquo;envoi Depop.** Depop a déplacé ses fichiers
+  d&rsquo;étiquettes, ce qui faisait échouer tous les téléchargements
+  d&rsquo;étiquettes Depop. Ils fonctionnent à nouveau. Chrome demande
+  l&rsquo;autorisation la première fois. Si vous refusez, ce téléchargement
+  laisse de côté les étiquettes Depop et garde celles de Vinted.
+- **Des brouillons eBay publiés en enchères.** Un brouillon publié pouvait
+  devenir une enchère de 7 jours avec les frais de port d&rsquo;eBay. Les
+  nouveaux brouillons eBay sont à prix fixe et sont publiés avec vos frais de
+  port enregistrés, si vous en avez.
+- **Des annonces republiées par eBay affichées deux fois.** Quand eBay republie
+  un article, ou que vous le republiez sur eBay, la ligne, la copie cloud et les
+  liens passent désormais à la nouvelle annonce.
+- **Fenêtre Republier.** Les articles cochés puis masqués par un filtre ne
+  disparaissent plus. Un changement de prix en masse enregistré s&rsquo;affiche
+  dès l&rsquo;ouverture et peut être annulé, et les prix eBay sont correctement
+  arrondis.
+- Dans Publier les brouillons, un brouillon sélectionné via deux lignes
+  n&rsquo;est plus publié qu&rsquo;une seule fois.
+- Les photos des onglets Republier et Rafraîchir ne clignotent plus quand la
+  liste se met à jour en arrière-plan.
+
+## Abonnement et facturation
+
+- **Créer une annonce et vos crosslists.** La première plateforme sur laquelle
+  une annonce est créée est gratuite. Chacune des suivantes compte comme un
+  crosslist, vérifié sur votre quota avant sa création, et le formulaire vous
+  prévient s&rsquo;il ne vous en reste pas assez.
+- **Republier sur eBay** utilise le même quota mensuel de republications.
