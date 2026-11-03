@@ -3,7 +3,9 @@
 // Board editor for the public roadmap (roadmap_items, migration
 // 032_roadmap_items.sql). Three columns mirroring the homepage section; each
 // card can be reordered within its column, moved to the next or previous
-// column, copied as a hidden draft, or opened in the editor drawer.
+// column, copied as a hidden draft, archived, or opened in the editor drawer.
+// Archived cards sit in a section under the board, off the site (RLS keeps them
+// from the public read) until restored.
 //
 // Writes go through server actions that call the is_admin()-gated RPCs, which
 // are the security boundary and write their own audit entries (each one
@@ -16,6 +18,7 @@
 
 import { useState, useTransition } from "react";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
+import { AdminSection } from "@/components/admin/AdminSection";
 import type { Marketplace } from "@/lib/docs/types";
 import { LOCALES, LOCALE_LABELS, type Locale } from "@/lib/i18n/locales";
 import {
@@ -23,6 +26,7 @@ import {
   ROADMAP_STATUSES,
   ROADMAP_TAGS,
   ROADMAP_TITLE_MAX,
+  archivedItems,
   itemsByStatus,
   missingLocales,
   roadmapCopy,
@@ -33,6 +37,7 @@ import {
   type RoadmapTagKey,
 } from "@/lib/roadmap/types";
 import {
+  archiveRoadmapItem,
   deleteRoadmapItem,
   reorderRoadmapItems,
   saveRoadmapItem,
@@ -135,6 +140,7 @@ const BLANK_DRAFT: RoadmapDraft = {
   // New cards start hidden so translations can be filled in before they go
   // public. Publishing is one checkbox away.
   visible: false,
+  archived_at: null,
 };
 
 type Editing = { draft: RoadmapDraft; isNew: boolean };
@@ -205,7 +211,23 @@ export function AdminRoadmap({
     });
   }
 
-  const hiddenCount = items.filter((i) => !i.visible).length;
+  function setArchived(item: RoadmapItem, archived: boolean) {
+    act(
+      () => archiveRoadmapItem(item.id, archived),
+      archived
+        ? `Archived "${item.title.en}". It is off the site now.`
+        : `Restored "${item.title.en}" to ${STATUS_LABEL[item.status]}${item.visible ? "" : " (hidden)"}.`,
+    );
+  }
+
+  function edit(item: RoadmapItem) {
+    setMessage(null);
+    setEditing({ draft: { ...item }, isNew: false });
+  }
+
+  const archived = archivedItems(items);
+  const onBoard = items.filter((i) => !i.archived_at);
+  const hiddenCount = onBoard.filter((i) => !i.visible).length;
 
   return (
     <div className="flex h-full flex-col">
@@ -213,7 +235,7 @@ export function AdminRoadmap({
         <h1 className="text-sm font-semibold">
           Roadmap
           <span className="ml-2 font-normal text-zinc-400">
-            {items.length} cards
+            {onBoard.length} cards
             {hiddenCount > 0 ? `, ${hiddenCount} hidden` : ""}
           </span>
         </h1>
@@ -251,8 +273,8 @@ export function AdminRoadmap({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-auto p-4">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="min-h-0 flex-1 overflow-auto">
+        <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-3">
           {ROADMAP_STATUSES.map((status, col) => {
             const column = itemsByStatus(items, status);
             return (
@@ -272,24 +294,54 @@ export function AdminRoadmap({
                     key={item.id}
                     item={item}
                     disabled={pending}
-                    canUp={i > 0}
-                    canDown={i < column.length - 1}
-                    canLeft={col > 0}
-                    canRight={col < ROADMAP_STATUSES.length - 1}
-                    onUp={() => move(item, -1)}
-                    onDown={() => move(item, 1)}
-                    onLeft={() => shift(item, -1)}
-                    onRight={() => shift(item, 1)}
-                    onCopy={() => copy(item)}
-                    onEdit={() => {
-                      setMessage(null);
-                      setEditing({ draft: { ...item }, isNew: false });
+                    moves={{
+                      canUp: i > 0,
+                      canDown: i < column.length - 1,
+                      canLeft: col > 0,
+                      canRight: col < ROADMAP_STATUSES.length - 1,
+                      onUp: () => move(item, -1),
+                      onDown: () => move(item, 1),
+                      onLeft: () => shift(item, -1),
+                      onRight: () => shift(item, 1),
                     }}
+                    onArchive={() => setArchived(item, true)}
+                    onCopy={() => copy(item)}
+                    onEdit={() => edit(item)}
                   />
                 ))}
               </section>
             );
           })}
+        </div>
+
+        <div className="border-t border-[var(--admin-border)]">
+          <AdminSection
+            storageKey="roadmap-archive"
+            title="Archive"
+            summary={`${archived.length} ${archived.length === 1 ? "card" : "cards"}, not on the site`}
+          >
+            <div className="px-4 pt-1 pb-3">
+              {archived.length === 0 ? (
+                <p className="rounded-md border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-xs text-zinc-400">
+                  Nothing archived. Archive on a card takes it off the site and
+                  keeps it here.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                  {archived.map((item) => (
+                    <Card
+                      key={item.id}
+                      item={item}
+                      disabled={pending}
+                      onArchive={() => setArchived(item, false)}
+                      onCopy={() => copy(item)}
+                      onEdit={() => edit(item)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </AdminSection>
         </div>
       </div>
 
@@ -312,33 +364,35 @@ export function AdminRoadmap({
 function Card({
   item,
   disabled,
-  canUp,
-  canDown,
-  canLeft,
-  canRight,
-  onUp,
-  onDown,
-  onLeft,
-  onRight,
+  moves,
+  onArchive,
   onCopy,
   onEdit,
 }: {
   item: RoadmapItem;
   disabled: boolean;
-  canUp: boolean;
-  canDown: boolean;
-  canLeft: boolean;
-  canRight: boolean;
-  onUp: () => void;
-  onDown: () => void;
-  onLeft: () => void;
-  onRight: () => void;
+  // Only cards on the board have a place to move to.
+  moves?: {
+    canUp: boolean;
+    canDown: boolean;
+    canLeft: boolean;
+    canRight: boolean;
+    onUp: () => void;
+    onDown: () => void;
+    onLeft: () => void;
+    onRight: () => void;
+  };
+  // Archives a card on the board, restores one in the archive.
+  onArchive: () => void;
   onCopy: () => void;
   onEdit: () => void;
 }) {
+  const archived = Boolean(item.archived_at);
   const missing = missingLocales(item);
   const btn =
     "rounded px-1.5 py-0.5 text-xs text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 disabled:opacity-30 disabled:hover:bg-transparent";
+  const textBtn =
+    "rounded px-2 py-0.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50";
 
   return (
     <article
@@ -374,34 +428,49 @@ function Card({
       <p className="mt-2 text-[11px] uppercase tracking-wide text-zinc-400">
         {metaLabel(item)}
       </p>
-      {missing.length > 0 && (
+      {missing.length > 0 && !archived && (
         <p className="mt-1 text-[11px] text-amber-700">
           English shown for: {missing.map((l) => l.toUpperCase()).join(", ")}
         </p>
       )}
 
-      <div className="mt-2 flex items-center justify-between border-t border-[var(--admin-border)] pt-2">
-        <div className="flex items-center gap-0.5">
-          <button type="button" className={btn} disabled={disabled || !canLeft} onClick={onLeft} title="Move to previous column" aria-label="Move to previous column">
-            &larr;
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-y-1 border-t border-[var(--admin-border)] pt-2">
+        {moves && (
+          <div className="flex items-center gap-0.5">
+            <button type="button" className={btn} disabled={disabled || !moves.canLeft} onClick={moves.onLeft} title="Move to previous column" aria-label="Move to previous column">
+              &larr;
+            </button>
+            <button type="button" className={btn} disabled={disabled || !moves.canUp} onClick={moves.onUp} title="Move up" aria-label="Move up">
+              &uarr;
+            </button>
+            <button type="button" className={btn} disabled={disabled || !moves.canDown} onClick={moves.onDown} title="Move down" aria-label="Move down">
+              &darr;
+            </button>
+            <button type="button" className={btn} disabled={disabled || !moves.canRight} onClick={moves.onRight} title="Move to next column" aria-label="Move to next column">
+              &rarr;
+            </button>
+          </div>
+        )}
+        <div className="ml-auto flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={onArchive}
+            disabled={disabled}
+            title={
+              archived
+                ? `Move back to ${STATUS_LABEL[item.status]}`
+                : "Take this card off the site and keep it in the archive"
+            }
+            className={textBtn}
+          >
+            {archived ? "Restore" : "Archive"}
           </button>
-          <button type="button" className={btn} disabled={disabled || !canUp} onClick={onUp} title="Move up" aria-label="Move up">
-            &uarr;
-          </button>
-          <button type="button" className={btn} disabled={disabled || !canDown} onClick={onDown} title="Move down" aria-label="Move down">
-            &darr;
-          </button>
-          <button type="button" className={btn} disabled={disabled || !canRight} onClick={onRight} title="Move to next column" aria-label="Move to next column">
-            &rarr;
-          </button>
-        </div>
-        <div className="flex items-center gap-0.5">
           <button
             type="button"
             onClick={onCopy}
             disabled={disabled}
             title="Make a hidden copy of this card"
-            className="rounded px-2 py-0.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+            className={textBtn}
           >
             Copy
           </button>
@@ -409,7 +478,7 @@ function Card({
             type="button"
             onClick={onEdit}
             disabled={disabled}
-            className="rounded px-2 py-0.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+            className={textBtn}
           >
             Edit
           </button>
@@ -551,7 +620,9 @@ function Editor({
               checked={draft.visible}
               onChange={(e) => set("visible", e.target.checked)}
             />
-            Show on the homepage
+            {draft.archived_at
+              ? "Show on the homepage once restored"
+              : "Show on the homepage"}
           </label>
         </div>
 
@@ -736,7 +807,9 @@ function Editor({
             {confirmDelete ? (
               <>
                 <span className="text-zinc-600">
-                  Delete for good? Unticking &quot;Show on the homepage&quot; hides it instead.
+                  {draft.archived_at
+                    ? "Delete for good? Left in the archive, it stays off the site anyway."
+                    : 'Delete for good? Unticking "Show on the homepage" hides it instead.'}
                 </span>
                 <button
                   type="button"

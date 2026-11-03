@@ -43,6 +43,10 @@ export type RoadmapItem = {
   // 'YYYY-MM', shown on shipped cards.
   shipped_month: string | null;
   visible: boolean;
+  // Set when the card is in the console's archive (migration
+  // 046_roadmap_archive.sql). Independent of status and visible, so restoring
+  // puts it back as it was. RLS keeps these rows from the public site.
+  archived_at: string | null;
   updated_at: string;
 };
 
@@ -69,7 +73,7 @@ const COPY_TITLE_SUFFIX = ' (copy)';
 // and in the editor. Copying a copy counts up (x-copy, x-copy-2) rather than
 // stacking suffixes. Translations come along unchanged.
 export function roadmapCopy<
-  T extends Pick<RoadmapItem, 'id' | 'title' | 'visible'>,
+  T extends Pick<RoadmapItem, 'id' | 'title' | 'visible' | 'archived_at'>,
 >(item: T, takenIds: string[]): T {
   const idBase = item.id.replace(/-copy(-\d+)?$/, '');
   let id = '';
@@ -90,6 +94,7 @@ export function roadmapCopy<
     id,
     title: { ...item.title, en: titleBase + COPY_TITLE_SUFFIX },
     visible: false,
+    archived_at: null,
   };
 }
 
@@ -98,8 +103,15 @@ export function itemsByStatus(
   status: RoadmapStatus,
 ): RoadmapItem[] {
   return items
-    .filter((i) => i.status === status)
+    .filter((i) => i.status === status && !i.archived_at)
     .sort((a, b) => a.sort_order - b.sort_order || a.id.localeCompare(b.id));
+}
+
+// The console's archive, most recently archived first.
+export function archivedItems(items: RoadmapItem[]): RoadmapItem[] {
+  return items
+    .filter((i) => i.archived_at)
+    .sort((a, b) => (b.archived_at ?? '').localeCompare(a.archived_at ?? ''));
 }
 
 // The card footer, as a translation key plus values. Built from status and

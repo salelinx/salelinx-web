@@ -7,8 +7,8 @@ import type { RoadmapItem, RoadmapStatus } from "@/lib/roadmap/types";
 
 // Server actions behind /admin/roadmap.
 //
-// All three go through the is_admin()-gated RPCs from 032_roadmap_items.sql,
-// which are the real boundary (the web app never holds the service-role key)
+// All of them go through the is_admin()-gated RPCs from 032_roadmap_items.sql
+// and 046_roadmap_archive.sql, which are the real boundary (the web app never holds the service-role key)
 // and which write their own audit entries. These wrappers exist to marshal
 // arguments and revalidate, not to enforce anything.
 
@@ -25,6 +25,7 @@ export type RoadmapDraft = Pick<
   | "target_quarter"
   | "shipped_month"
   | "visible"
+  | "archived_at"
 >;
 
 async function run(
@@ -68,6 +69,16 @@ export async function saveRoadmapItem(
 
 export async function deleteRoadmapItem(id: string): Promise<RoadmapResult> {
   return run("admin_delete_roadmap_item", { p_id: id });
+}
+
+export async function archiveRoadmapItem(
+  id: string,
+  archived: boolean,
+): Promise<RoadmapResult> {
+  return run("admin_archive_roadmap_item", {
+    p_id: id,
+    p_archived: archived,
+  });
 }
 
 export async function reorderRoadmapItems(

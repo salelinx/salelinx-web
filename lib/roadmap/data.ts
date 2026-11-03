@@ -9,8 +9,8 @@ import type { RoadmapItem } from './types';
 
 export const ROADMAP_CACHE_TAG = 'roadmap-items';
 
-// Cookie-less anon client, so RLS returns published cards only, even when the
-// visitor is an admin. Throws on error so unstable_cache does not hold on to a
+// Cookie-less anon client, so RLS returns published cards only (never hidden or
+// archived ones), even when the visitor is an admin. Throws on error so unstable_cache does not hold on to a
 // failed read for the whole TTL.
 const loadPublished = unstable_cache(
   async (): Promise<RoadmapItem[]> => {
@@ -42,7 +42,7 @@ export async function getCachedRoadmapItems(): Promise<RoadmapItem[] | null> {
 }
 
 /**
- * Every card including hidden drafts, uncached. Admin console only. The error
+ * Every card including hidden drafts and the archive, uncached. Admin console only. The error
  * is returned rather than swallowed so a missing migration reads as an error
  * in the console, not as an empty roadmap.
  */
