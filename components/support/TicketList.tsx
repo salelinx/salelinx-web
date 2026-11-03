@@ -205,7 +205,7 @@ function UserTicketCard({
           {replies.map((r) => (
             <div key={r.id}>
               <div className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                {r.is_admin ? t("authorSupport") : t("authorYou")} Ã‚Â·{" "}
+                {r.is_admin ? t("authorSupport") : t("authorYou")} ·{" "}
                 {formatWhen(r.created_at)}
               </div>
               <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-800 dark:text-zinc-200">

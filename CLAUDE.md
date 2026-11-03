@@ -17,15 +17,15 @@ Read `docs/ARCHITECTURE.md` first - it's the whole-system context (both repos, s
 
 ```
 docs/
-â”œâ”€â”€ ARCHITECTURE.md     Big-picture: extension + web + Supabase, who owns what
-â”œâ”€â”€ OVERVIEW.md         Web-repo stack, request lifecycle, folder layout, env vars
-â”œâ”€â”€ AUTH.md             Signup / login / reset / verify flows, session handling
-â”œâ”€â”€ ENTITLEMENTS.md     tier_limits + usage_counters, config-driven gating
-â”œâ”€â”€ STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
-â”œâ”€â”€ EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
-â”œâ”€â”€ SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
-â”œâ”€â”€ REFERRALS.md        Referral program: share links, claims, conversions, reward grants
-â””â”€â”€ GDPR.md             Data inventory (ROPA), retention, deletion/export runbooks, breach process
+├── ARCHITECTURE.md     Big-picture: extension + web + Supabase, who owns what
+├── OVERVIEW.md         Web-repo stack, request lifecycle, folder layout, env vars
+├── AUTH.md             Signup / login / reset / verify flows, session handling
+├── ENTITLEMENTS.md     tier_limits + usage_counters, config-driven gating
+├── STRIPE.md           Checkout, webhook, Customer Portal, pricing change workflow
+├── EDGE-FUNCTIONS.md   Deno functions (incl. send-shipping-labels), deploy, secrets
+├── SUPPORT.md          Support ticket -> email flow, Database Webhooks, threading
+├── REFERRALS.md        Referral program: share links, claims, conversions, reward grants
+└── GDPR.md             Data inventory (ROPA), retention, deletion/export runbooks, breach process
 ```
 
 ## After making changes
@@ -101,11 +101,11 @@ See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the tic
 - 2-space indent, single quotes, trailing commas (Prettier defaults)
 - No default exports - named exports only. **Exception:** MDX files under `content/` default-export their page component by design; this is the single allowed exception.
 - Tailwind utility classes; no CSS modules unless truly needed
-- No emojis in code or user-visible strings (ASCII check-marks like `âœ“` are fine in limited UI spots)
+- No emojis in code or user-visible strings (ASCII check-marks like `✓` are fine in limited UI spots)
 
 ## Writing style
 
-- **Never use em-dashes (`â€”`) or en-dashes (`â€“`)** in any text: UI copy, marketing copy, docs, commit messages, comments, PR descriptions. They are a strong AI-writing tell. Use a comma, a period, parentheses, or a plain hyphen (`-`) instead. This rule covers everything that renders as text - .tsx strings, .md files, code comments, README, CLAUDE.md itself.
+- **Never use em-dashes (`—`) or en-dashes (`–`)** in any text: UI copy, marketing copy, docs, commit messages, comments, PR descriptions. They are a strong AI-writing tell. Use a comma, a period, parentheses, or a plain hyphen (`-`) instead. This rule covers everything that renders as text - .tsx strings, .md files, code comments, README, CLAUDE.md itself.
 
 ## Gotchas
 

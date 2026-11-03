@@ -182,7 +182,7 @@ export function AdminFeatureFlags({ tiers }: Props) {
                                 : "text-zinc-400 hover:bg-zinc-100")
                           }
                         >
-                          {enabled ? "âœ“ on" : "off"}
+                          {enabled ? "✓ on" : "off"}
                         </button>
                       </td>
                     );

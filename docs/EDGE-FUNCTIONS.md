@@ -225,7 +225,7 @@ const rawBody = await req.text();
 const payload = wh.verify(rawBody, Object.fromEntries(req.headers));
 ```
 
-The signing secret is shown in the Supabase dashboard (Auth â†’ Hooks â†’ Send email hook) as `v1,whsec_<base64>`. Strip the `v1,whsec_` prefix before passing to `new Webhook()`.
+The signing secret is shown in the Supabase dashboard (Auth → Hooks → Send email hook) as `v1,whsec_<base64>`. Strip the `v1,whsec_` prefix before passing to `new Webhook()`.
 
 ## Send email hook + Resend
 
@@ -233,17 +233,17 @@ The signing secret is shown in the Supabase dashboard (Auth â†’ Hooks â†
 
 ```
 User action (signup / forgot password / change email)
-  â–¼
+  ▼
 Supabase Auth prepares the email
-  â–¼
+  ▼
 POST https://<project-ref>.supabase.co/functions/v1/send-auth-email
   signed with webhook-id / webhook-timestamp / webhook-signature
   body: { user, email_data: { token, token_hash, redirect_to, email_action_type, ... } }
-  â–¼
+  ▼
 Edge Function: verify signature -> render HTML template -> POST to Resend API
-  â–¼
+  ▼
 User receives branded email; link goes to {SUPABASE_URL}/auth/v1/verify?...
-  â–¼
+  ▼
 Supabase verifies the token and redirects to redirect_to (our /auth/callback)
 ```
 
@@ -291,29 +291,29 @@ Flow per webhook:
 
 ```
 support_tickets INSERT
-  â–¼
+  ▼
 Database Webhook POSTs to send-support-email with x-support-webhook-secret
-  â–¼
+  ▼
 Function: verify header -> auth.admin.getUserById(record.user_id) -> render templates
-  â–¼
+  ▼
 1. STAFF notif -> Resend (From: SUPPORT_NOTIFY_FROM, To: SUPPORT_NOTIFY_TO, Reply-To: author)
-  â–¼
+  ▼
    Synthesize Message-ID <{id}@{from-domain}> and
    UPDATE support_tickets SET notification_message_id = <message-id>
-  â–¼
+  ▼
 2. AUTO-ACK -> Resend (To: author, Reply-To: SUPPORT_NOTIFY_NOREPLY)  [best-effort;
    a failure is logged but does not fail the webhook]
 ```
 
 ```
 support_ticket_replies INSERT
-  â–¼
+  ▼
 Database Webhook POSTs to send-support-email
-  â–¼
+  ▼
 Function: verify header
-  â–¼
+  ▼
 SELECT id, type, message, user_id, notification_message_id FROM support_tickets WHERE id = ticket_id
-  â–¼
+  ▼
 if record.is_admin = true  (admin reply):
    look up the OWNER's email (ticket.user_id, NOT record.user_id)
    POST to Resend (To: owner, From: SUPPORT_NOTIFY_FROM, Reply-To: SUPPORT_NOTIFY_NOREPLY)
@@ -333,25 +333,25 @@ See `docs/SUPPORT.md` for the end-to-end ticket flow.
 
 ```
 User clicks "Email labels" in the extension
-  â–¼
+  ▼
 Extension POSTs to https://<project-ref>.supabase.co/functions/v1/send-shipping-labels
   Authorization: Bearer <user JWT>
   body: { to, pdfBase64, filename, count }
-  â–¼
+  ▼
 Function: validate JWT via supabase.auth.getUser(jwt) -> 401 if invalid
-  â–¼
+  ▼
 Entitlement gate: caller's active/trialing subscription tier must have
 features.shipping_label_email = true (read via user-scoped client, RLS
 "own read") -> 403 upgrade_required otherwise
-  â–¼
+  ▼
 Rate limit: increment_usage_counter('shipping_label_emails', YYYY-MM-DD)
 -> 429 rate_limited past 50 sends/day
-  â–¼
+  ▼
 Validate payload: filename shape, count 1..500, attachment starts with
 %PDF magic bytes, <= 25MB
-  â–¼
+  ▼
 POST to Resend with the base64 PDF as an attachment
-  â–¼
+  ▼
 Recipient receives the labels in their inbox
 ```
 
