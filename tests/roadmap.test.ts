@@ -5,6 +5,7 @@ import { createTranslator } from 'next-intl';
 import { LOCALES } from '../lib/i18n/locales';
 import {
   ROADMAP_TITLE_MAX,
+  archivedItems,
   itemsByStatus,
   localized,
   missingLocales,
@@ -25,6 +26,7 @@ function item(over: Partial<RoadmapItem>): RoadmapItem {
     target_quarter: null,
     shipped_month: null,
     visible: true,
+    archived_at: null,
     updated_at: '2026-10-13T00:00:00Z',
     ...over,
   };
@@ -133,6 +135,41 @@ describe('Roadmap.meta messages', () => {
     expect(shipped('en', 'Oct 2026')).toBe('Shipped Oct 2026');
     expect(shipped('es', 'octubre de 2026')).toBe('Lanzado en octubre de 2026');
     expect(shipped('zh', 'unused')).toBe('2026 年 10 月发布');
+  });
+});
+
+describe('the archive', () => {
+  const when = (day: number) => `2026-11-0${day}T00:00:00Z`;
+
+  it('keeps archived cards out of their column', () => {
+    const items = [
+      item({ id: 'on-board', status: 'shipped' }),
+      item({ id: 'put-away', status: 'shipped', archived_at: when(1) }),
+    ];
+    expect(itemsByStatus(items, 'shipped').map((i) => i.id)).toEqual(['on-board']);
+  });
+
+  it('lists only archived cards, most recent first', () => {
+    const items = [
+      item({ id: 'on-board' }),
+      item({ id: 'older', archived_at: when(1) }),
+      item({ id: 'newer', archived_at: when(2) }),
+    ];
+    expect(archivedItems(items).map((i) => i.id)).toEqual(['newer', 'older']);
+  });
+
+  // Rows read before the migration has run have no such column at all.
+  it('treats a row with no archived_at as on the board', () => {
+    const row = item({ id: 'old-row' });
+    delete (row as Partial<RoadmapItem>).archived_at;
+    expect(itemsByStatus([row], 'exploring')).toHaveLength(1);
+    expect(archivedItems([row])).toHaveLength(0);
+  });
+
+  it('puts a copy of an archived card back on the board', () => {
+    const copy = roadmapCopy(item({ id: 'x', archived_at: when(1) }), ['x']);
+    expect(copy.archived_at).toBeNull();
+    expect(copy.visible).toBe(false);
   });
 });
 
