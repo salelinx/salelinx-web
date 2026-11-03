@@ -6,6 +6,7 @@ import { getAdminUser, getIsAal2 } from "@/lib/admin/session";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminTabBar } from "@/components/admin/AdminTabBar";
 import { UserDrawerProvider } from "@/components/admin/UserDrawerProvider";
+import { NeedsReplyProvider } from "@/components/admin/NeedsReplyProvider";
 import "./admin.css";
 
 // Top-level, non-localized admin console. It is a SIBLING of app/[locale]/ so
@@ -87,11 +88,13 @@ export default async function AdminLayout({
               scrolls inside itself. dvh rather than vh so a phone browser's
               toolbar never hides the bottom of the page. The sidebar shows
               from md up, the tab bar below it. */}
-          <div className="flex h-dvh flex-col md:flex-row">
-            <AdminSidebar adminEmail={adminEmail} />
-            <main className="min-h-0 min-w-0 flex-1">{children}</main>
-            <AdminTabBar adminEmail={adminEmail} />
-          </div>
+          <NeedsReplyProvider>
+            <div className="flex h-dvh flex-col md:flex-row">
+              <AdminSidebar adminEmail={adminEmail} />
+              <main className="min-h-0 min-w-0 flex-1">{children}</main>
+              <AdminTabBar adminEmail={adminEmail} />
+            </div>
+          </NeedsReplyProvider>
         </UserDrawerProvider>
       </body>
     </html>

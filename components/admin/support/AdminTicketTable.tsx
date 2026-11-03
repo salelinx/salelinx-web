@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
 import { UserEmailLink } from "@/components/admin/UserEmailLink";
+import { useNeedsReply } from "@/components/admin/NeedsReplyProvider";
 import type { SupportTicket, SupportReply } from "@/lib/types/support";
 import { ticketNeedsReply } from "@/lib/admin/needs-reply";
 import dynamic from "next/dynamic";
@@ -75,6 +76,7 @@ export function AdminTicketTable({
   emails,
 }: Props) {
   const supabase = createBrowserClient();
+  const { refresh: refreshNavAlert } = useNeedsReply();
 
   const [tickets, setTickets] = useState<SupportTicket[]>(initialTickets);
   const [replies, setReplies] = useState<SupportReply[]>(initialReplies);
@@ -107,7 +109,10 @@ export function AdminTicketTable({
     [needsReplyById],
   );
 
+  // Every ticket change (reply, close, reopen, delete) and the Refresh button
+  // land here, so this also keeps the nav's alert triangle current.
   async function refreshAll() {
+    void refreshNavAlert();
     const { data: ts } = await supabase
       .from("support_tickets")
       .select("*")
