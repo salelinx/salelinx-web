@@ -12,19 +12,19 @@ the tier the REFEREE bought (see Reward rules): Starter = 1 week, Pro =
 Referrer opens /account -> Referrals card
   get_or_create_referral_code() RPC creates their code lazily
   share link: {SITE_URL}/r/{CODE}
-  â–¼
+  ▼
 Friend clicks the link -> app/r/[code]/route.ts
   sets slx_ref cookie (HttpOnly, 30 days, last-touch wins)
   redirects to /invited (landing page explaining the deal)
-  â–¼
+  ▼
 Friend signs up and confirms email (any auth path)
   proxy.ts sees a signed-in request still carrying slx_ref
   claim_referral(code) RPC inserts a referrals row (pending), cookie cleared
-  â–¼
+  ▼
 Friend subscribes -> create-checkout-session
   has_pending_referral() true -> that tier's coupon auto-applied
   (allow_promotion_codes omitted; Stripe rejects the pair)
-  â–¼
+  ▼
 First PAID invoice (amount_paid > 0) -> stripe-webhook
   referrals row -> converted, converted_at stamped
   Two webhook paths flip it, whichever arrives first (status-guarded no-ops
@@ -33,7 +33,7 @@ First PAID invoice (amount_paid > 0) -> stripe-webhook
   directly, so it never races the subscriptions insert), and
   invoice.payment_succeeded converts trials at day 7 and renewals
 
-  â–¼
+  ▼
 7 days later -> process-referral-rewards (daily Cron)
   referee still entitled? referrer has a live subscription?
   stripe.customers.createBalanceTransaction: MINUS a fraction of the
@@ -107,10 +107,10 @@ leaderboard UI. This function remains the gate for any future caller.
 ## State machine (`referrals.status`)
 
 ```
-pending â”€â”€(first paid invoice)â”€â”€> converted â”€â”€(job claims row)â”€â”€> rewarding â”€â”€(credit granted)â”€â”€> rewarded
-   â”‚                                  â”‚
-   â”‚                                  â”œâ”€â”€(referee lapsed inside the hold)â”€â”€â”€â”€â”€â”€> void
-   â””â”€â”€(never pays; row just sits)     â””â”€â”€(referrer had no subscription 90d)â”€â”€â”€â”€> void
+pending ──(first paid invoice)──> converted ──(job claims row)──> rewarding ──(credit granted)──> rewarded
+   │                                  │
+   │                                  ├──(referee lapsed inside the hold)──────> void
+   └──(never pays; row just sits)     └──(referrer had no subscription 90d)────> void
 ```
 
 - `pending` - claimed at signup; referee has not paid.
@@ -212,9 +212,9 @@ path and must never break anything:
 
   | Referrer \ Referee | starter (25%) | pro (50%) | business (100%) |
   | --- | --- | --- | --- |
-  | starter (Â£7.99) | Â£2.00 | Â£4.00 | Â£7.99 |
-  | pro (Â£14.99) | Â£3.75 | Â£7.50 | Â£14.99 |
-  | business (Â£24.99) | Â£6.25 | Â£12.50 | Â£24.99 |
+  | starter (£7.99) | £2.00 | £4.00 | £7.99 |
+  | pro (£14.99) | £3.75 | £7.50 | £14.99 |
+  | business (£24.99) | £6.25 | £12.50 | £24.99 |
 
   `Math.round` on the fraction; 799 * 25% = 199.75 -> 200 is the only pair
   that rounds at these prices. Payback is at most 2 months of referee list

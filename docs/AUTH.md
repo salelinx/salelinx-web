@@ -6,7 +6,7 @@ Email + password auth via Supabase. No magic links, no social providers (for now
 
 | Route                   | Server/Client        | What it does                                                                                                                |
 | ----------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `/auth/signup`          | Client               | Email + password + confirm. Validates â‰¥ 8 chars + match. Calls `signUp()`. Shows "check your email" on success.             |
+| `/auth/signup`          | Client               | Email + password + confirm. Validates ≥ 8 chars + match. Calls `signUp()`. Shows "check your email" on success.             |
 | `/auth/login`           | Client               | Email + password. Calls `signInWithPassword()`. Redirects to `/account`.                                                    |
 | `/auth/forgot-password` | Client               | Email only. Calls `resetPasswordForEmail()`. Shows "check your email".                                                      |
 | `/auth/reset-password`  | Client               | New password + confirm. Calls `updateUser({ password })`. User must have a session from clicking the reset link.            |
@@ -18,18 +18,18 @@ Email + password auth via Supabase. No magic links, no social providers (for now
 
 ```
 User submits email + password
-  â–¼
+  ▼
 supabase.auth.signUp({ email, password, emailRedirectTo: /auth/callback?next=/get-started })
-  â–¼
+  ▼
 Supabase sends verification email
-  â–¼
-User clicks link â†’ /auth/callback?code=...&next=/get-started
-  â–¼
-exchangeCodeForSession â†’ session cookie set
-  â–¼
+  ▼
+User clicks link → /auth/callback?code=...&next=/get-started
+  ▼
+exchangeCodeForSession → session cookie set
+  ▼
 redirect to /get-started (welcome + Add to Chrome, links on to /account)
-  â–¼
-user.email_confirmed_at now set â†’ banner hidden
+  ▼
+user.email_confirmed_at now set → banner hidden
 ```
 
 **If Supabase "Confirm email" is OFF** - signup returns a session immediately and the user lands on `/get-started` without the email step. The signup page handles both. Google signups from the signup page land there too; login keeps going to `/account`.
@@ -38,11 +38,11 @@ user.email_confirmed_at now set â†’ banner hidden
 
 ```
 User submits email + password
-  â–¼
+  ▼
 supabase.auth.signInWithPassword()
-  â–¼
+  ▼
 Session cookie set
-  â–¼
+  ▼
 router.push('/account') + router.refresh() (triggers server component re-render so Header updates)
 ```
 
@@ -63,26 +63,26 @@ Admins only. It is required for the admin console (`is_admin()` in Postgres only
 
 ```
 User enters email on /auth/forgot-password
-  â–¼
+  ▼
 supabase.auth.resetPasswordForEmail(email, { redirectTo })
-  â–¼
+  ▼
 Supabase Auth fires the send-email hook -> send-auth-email Edge Function
-  â–¼
+  ▼
 Function emails a link to OUR page, never to /auth/v1/verify:
   {SITE_URL}/auth/confirm?token_hash=...&type=recovery&next=...
-  â–¼
+  ▼
 User clicks. The page renders a button and does NOTHING on load.
-  â–¼
+  ▼
 User presses "Continue to reset password"
-  â–¼
+  ▼
 supabase.auth.verifyOtp({ type: 'recovery', token_hash }) -> recovery session
-  â–¼
+  ▼
 Always routes to /auth/reset-password (never `next`, see below)
-  â–¼
+  ▼
 Page checks a session exists, then supabase.auth.updateUser({ password })
-  â–¼
+  ▼
 supabase.auth.signOut({ scope: 'others' }) revokes all other sessions
-  â–¼
+  ▼
 redirect to /account
 ```
 
@@ -142,7 +142,7 @@ See `supabase/functions/create-checkout-session/index.ts`.
 
 ## Auth cookies + `proxy.ts`
 
-Next.js 16 renamed `middleware.ts` â†’ `proxy.ts`. The file MUST export a function called `proxy` (not `middleware`). It runs on every request and:
+Next.js 16 renamed `middleware.ts` → `proxy.ts`. The file MUST export a function called `proxy` (not `middleware`). It runs on every request and:
 
 1. Reads Supabase auth cookies from the incoming request
 2. Calls `supabase.auth.getClaims()` (verifies the JWT locally against the project's ES256 signing keys; the client still refreshes the token when it's close to expiry)
@@ -193,9 +193,9 @@ or otherwise trust it in SQL: compare it as text, as 028 does.
 - No flash of wrong UI on page load
 - Pages become dynamic (server-rendered on demand) instead of static, which is fine
 
-## Email delivery (Send Email Hook â†’ Resend)
+## Email delivery (Send Email Hook → Resend)
 
-Auth emails do **not** go through Supabase's SMTP. Supabase Auth is configured to POST every email to the `send-auth-email` Edge Function (Authentication â†’ Hooks â†’ Send email hook), which verifies the Standard Webhooks signature, renders an HTML template, and calls Resend.
+Auth emails do **not** go through Supabase's SMTP. Supabase Auth is configured to POST every email to the `send-auth-email` Edge Function (Authentication → Hooks → Send email hook), which verifies the Standard Webhooks signature, renders an HTML template, and calls Resend.
 
 - Templates live in `supabase/functions/send-auth-email/templates.ts` - one per `email_action_type` (signup, recovery, magiclink, invite, email_change, reauthentication).
 - The link in every email points at `${SITE_URL}/auth/confirm?token_hash=<token_hash>&type=<action>&next=<redirect_to>`, **not** at Supabase's `/auth/v1/verify`. See "Why the link is not a verify URL" below. `/auth/confirm` calls `verifyOtp` on a button press and then forwards to `next`.

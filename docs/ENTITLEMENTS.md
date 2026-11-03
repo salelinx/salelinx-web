@@ -69,10 +69,10 @@ Since migration `017_usage_events.sql` the call also inserts one row into `usage
 ### Extension
 
 - `src/entitlements/gate.ts` wraps every gateable action (shipped and live)
-- `checkFeature(featureKey)` â†’ boolean feature gate
-- `preflightMetered(...)` â†’ reads the cap and current period count, returns `{ allowed, cappedAmount, remaining }` without writing
-- `consumeMetered(...)` â†’ calls the `increment_usage_counter` RPC with the delta actually completed, after the run
-- `gateBotStart(...)` â†’ the combined pre-flight used by bot handlers
+- `checkFeature(featureKey)` → boolean feature gate
+- `preflightMetered(...)` → reads the cap and current period count, returns `{ allowed, cappedAmount, remaining }` without writing
+- `consumeMetered(...)` → calls the `increment_usage_counter` RPC with the delta actually completed, after the run
+- `gateBotStart(...)` → the combined pre-flight used by bot handlers
 - Fails closed: no cached subscription or a signed-out user yields `auth_required`, never an allow
 
 ## Not everything in usage_counters is a tier limit

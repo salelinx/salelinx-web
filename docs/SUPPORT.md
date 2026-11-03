@@ -27,45 +27,45 @@ End-to-end picture of how a user files a support ticket (from the website or the
 
 ```
 User files a ticket (web form OR extension Support tab)
-  â–¼
+  ▼
 INSERT INTO support_tickets (user_id, type, message, platform, source, ...)
   - web sets source='web' + locale + user_agent
   - extension sets source='extension' + app_version + tier_id + locale
-  â–¼
+  ▼
 Database Webhook "support-ticket-created" fires
-  â–¼
+  ▼
 POST {project-ref}.supabase.co/functions/v1/send-support-email
   x-support-webhook-secret: <secret>
-  â–¼
+  ▼
 Edge Function (new ticket):
   1. Verify x-support-webhook-secret
   2. Look up author email via auth.admin.getUserById(record.user_id)  (service role)
   3. Send STAFF notification  -> To: support@salelinx.com, Reply-To: author
   4. Persist Message-ID to support_tickets.notification_message_id
   5. Send AUTO-ACK to author  -> To: author, Reply-To: support@  (best-effort)
-  â–¼
+  ▼
 Staff see the ticket in Gmail AND in the /admin/support console.
 The user gets an auto-ack and can track the ticket at /account/tickets.
 
 Staff reply (admin panel inserts a reply row with is_admin = true)
-  â–¼
+  ▼
 Database Webhook "support-ticket-reply-created" fires
-  â–¼
+  ▼
 Edge Function (reply), is_admin = true:
   1. Load the parent ticket (need its user_id - the OWNER)
   2. Look up the OWNER's email (ticket.user_id, NOT the admin's id)
   3. Send the reply -> To: owner, From: support@, Reply-To: support@
      (presented as "SaleLinx Support"; admin identity never shown)
-  â–¼
+  ▼
 The user receives the reply by email and also sees it in their thread.
 
 User replies (web reply box inserts a reply row with is_admin = false)
-  â–¼
+  ▼
 Edge Function (reply), is_admin = false:
   1. Load the parent ticket
   2. Send a STAFF notification -> To: support@, Reply-To: user,
      threaded under notification_message_id
-  â–¼
+  ▼
 Gmail threads the user reply under the original notification.
 ```
 
