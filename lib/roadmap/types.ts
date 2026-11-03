@@ -58,6 +58,41 @@ export function missingLocales(item: Pick<RoadmapItem, 'title' | 'description'>)
   );
 }
 
+// Same caps as admin_save_roadmap_item and the roadmap_items.id CHECK.
+export const ROADMAP_TITLE_MAX = 120;
+const ROADMAP_ID_MAX = 60;
+
+const COPY_TITLE_SUFFIX = ' (copy)';
+
+// What the console's Copy button saves: the same card, hidden, with a free id
+// and "(copy)" on its English title, so the two can be told apart on the board
+// and in the editor. Copying a copy counts up (x-copy, x-copy-2) rather than
+// stacking suffixes. Translations come along unchanged.
+export function roadmapCopy<
+  T extends Pick<RoadmapItem, 'id' | 'title' | 'visible'>,
+>(item: T, takenIds: string[]): T {
+  const idBase = item.id.replace(/-copy(-\d+)?$/, '');
+  let id = '';
+  for (let n = 1; !id || takenIds.includes(id); n++) {
+    const suffix = n === 1 ? '-copy' : `-copy-${n}`;
+    id =
+      idBase.slice(0, ROADMAP_ID_MAX - suffix.length).replace(/-+$/, '') +
+      suffix;
+  }
+
+  const titleBase = item.title.en
+    .replace(/ \(copy\)$/, '')
+    .slice(0, ROADMAP_TITLE_MAX - COPY_TITLE_SUFFIX.length)
+    .trimEnd();
+
+  return {
+    ...item,
+    id,
+    title: { ...item.title, en: titleBase + COPY_TITLE_SUFFIX },
+    visible: false,
+  };
+}
+
 export function itemsByStatus(
   items: RoadmapItem[],
   status: RoadmapStatus,
