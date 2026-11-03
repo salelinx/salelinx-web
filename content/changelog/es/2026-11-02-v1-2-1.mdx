@@ -1,0 +1,100 @@
+export const metadata = {
+  title:
+    "Crear anuncio, Republicar en eBay y etiquetas de subasta en Mis anuncios",
+  date: "2026-11-02",
+  summary:
+    "La versión 1.2.1 añade Crear anuncio, que crea un mismo anuncio en Depop, Vinted y eBay de una sola vez, y lleva Republicar a eBay. Mis anuncios marca las subastas de eBay, Publicar borradores te deja elegir qué borradores publicar y las etiquetas de envío de Depop vuelven a descargarse.",
+  tags: ["release"],
+};
+
+# Versión 1.2.1
+
+Crea un anuncio una sola vez para todas tus plataformas y republica en eBay
+igual que en Depop y Vinted.
+
+## Crear anuncio
+
+- **Un botón nuevo en Mis anuncios.** Rellena una sola vez las fotos, el título,
+  la descripción, el precio y los detalles, elige tus plataformas y SaleLinx
+  crea el anuncio en cada una de ellas.
+- **Una sola categoría y una sola talla.** Elígelas de las listas de la primera
+  plataforma y las demás se adaptan por ti. Pulsa Editar en una plataforma para
+  corregir el resultado.
+- **Primero, borradores.** Los anuncios se guardan como borradores por defecto,
+  para que puedas revisarlos antes de publicarlos. Puedes desactivarlo para
+  publicar enseguida, y antes se muestra la tarifa de eBay.
+- **Copia y vinculación.** Con un plan con sincronización en la nube, los
+  anuncios nuevos pueden guardarse en la nube y vincularse entre sí.
+- **Nada que rellenar dos veces.** El formulario conserva lo que has introducido
+  y, si falla una plataforma, Reintentar crea solo lo que falta.
+
+## Republicar en eBay
+
+- **eBay en la pestaña Republicar.** Los anuncios de eBay aparecen ahora junto a
+  los de Depop y Vinted, y las copias vinculadas siguen vinculadas tras
+  republicar.
+- **Qué puedes cambiar.** Las opciones de título, descripción y precio funcionan
+  en eBay, y puedes guardar la republicación como borrador. Las opciones de
+  fotos siguen siendo solo para Depop y Vinted.
+- **Las subastas siguen siendo subastas,** con el mismo precio inicial, la misma
+  duración y el precio Cómpralo ya, si lo tienen. Si una subasta tiene pujas, la
+  ventana te avisa antes, porque republicar la termina antes de tiempo y cancela
+  todas las pujas.
+- **Los borradores conservan sus ofertas.** Una republicación guardada como
+  borrador mantiene sus ajustes de ofertas.
+- **Una ventana Republicar nueva,** organizada como la revisión del crosslist:
+  las opciones Para cada artículo y luego una fila por artículo, con una casilla
+  para omitirlo, sus propias opciones y su precio.
+
+## Mejoras
+
+- **Subastas de eBay en Mis anuncios.** Una subasta en curso aparece como activa,
+  con una etiqueta Subasta junto a su precio. Pasa el cursor por la etiqueta para
+  ver las pujas, la fecha de finalización, el precio inicial y el precio Cómpralo
+  ya. Para cambiar una subasta, el editor te lleva a eBay, y los cambios en lote
+  la omiten.
+- **Publicar borradores te deja elegir.** Cada borrador tiene una casilla.
+  Desmárcala para dejarlo como borrador.
+- **Una sola ventana cuando una plataforma necesita atención.** Si una pestaña
+  necesita una plataforma cerrada, con la sesión cerrada o en la cuenta
+  equivocada, una sola ventana indica qué corregir, con un botón para cada una.
+  La pestaña continúa en cuanto todo está listo.
+- **SaleLinx ya no abre pestañas de eBay por su cuenta.** Si necesita una pestaña
+  de eBay con la sesión iniciada, te pide que abras una.
+- **Novedades tras una actualización.** Una tarjeta breve muestra lo que trae una
+  versión, una sola vez por versión.
+- **Más partes del panel están traducidas** al francés, al español y al alemán,
+  como la cola de tareas, Crecer, la ventana de mejora de plan y las
+  descripciones emergentes. La ventana de la barra de herramientas sigue el idioma
+  de tu panel.
+- **Soporte** ahora es solo un mensaje que enviar, sin tipo que elegir.
+- **Etiquetas** muestra sus filtros y su búsqueda mientras se cargan tus pedidos.
+
+## Correcciones
+
+- **Etiquetas de envío de Depop.** Depop movió sus archivos de etiquetas, lo que
+  hacía fallar todas las descargas de etiquetas de Depop. Ya vuelven a funcionar.
+  Chrome pide permiso la primera vez. Si lo rechazas, esa descarga deja fuera las
+  etiquetas de Depop y mantiene las de Vinted.
+- **Borradores de eBay publicados como subastas.** Un borrador publicado podía
+  convertirse en una subasta de 7 días con los gastos de envío de eBay. Los
+  borradores nuevos de eBay tienen precio fijo y se publican con tus gastos de
+  envío guardados, si los tienes.
+- **Anuncios republicados por eBay que aparecían dos veces.** Cuando eBay republica
+  un artículo, o lo republicas tú en eBay, la fila, la copia en la nube y los
+  vínculos pasan ahora al anuncio nuevo.
+- **Ventana Republicar.** Los artículos marcados y luego ocultos por un filtro ya
+  no desaparecen. Un cambio de precio en lote guardado se muestra en cuanto se abre
+  la ventana y se puede quitar, y los precios de eBay se redondean correctamente.
+- En Publicar borradores, un borrador seleccionado desde dos filas ahora se publica
+  una sola vez.
+- Las fotos de las pestañas Republicar y Refrescar ya no parpadean cuando la lista
+  se actualiza en segundo plano.
+
+## Planes y facturación
+
+- **Crear anuncio y tus crosslists.** La primera plataforma en la que se crea un
+  anuncio es gratis. Cada una de las siguientes cuenta como un crosslist, se
+  comprueba con tu límite antes de crearse y el formulario te avisa si no te
+  quedan suficientes.
+- **Republicar en eBay** usa el mismo límite mensual de republicaciones.

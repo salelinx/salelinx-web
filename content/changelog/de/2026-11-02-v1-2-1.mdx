@@ -1,0 +1,99 @@
+export const metadata = {
+  title:
+    "Anzeige erstellen, Neu einstellen bei eBay und Auktions-Markierungen in Meine Anzeigen",
+  date: "2026-11-02",
+  summary:
+    "Version 1.2.1 bringt Anzeige erstellen, das eine neue Anzeige in einem Schritt bei Depop, Vinted und eBay anlegt, und Neu einstellen für eBay. Meine Anzeigen markiert eBay-Auktionen, bei Entwürfe posten wählst du aus, welche Entwürfe gepostet werden, und Depop-Versandetiketten lassen sich wieder herunterladen.",
+  tags: ["release"],
+};
+
+# Version 1.2.1
+
+Erstelle eine Anzeige einmal für alle deine Marktplätze und stelle bei eBay
+genauso neu ein wie bei Depop und Vinted.
+
+## Anzeige erstellen
+
+- **Ein neuer Button in Meine Anzeigen.** Gib Fotos, Titel, Beschreibung, Preis
+  und Details nur einmal ein, wähle deine Marktplätze, und SaleLinx legt die
+  Anzeige auf jedem von ihnen an.
+- **Eine Kategorie und eine Größe.** Wähle sie aus den Listen des ersten
+  Marktplatzes, die anderen werden für dich abgestimmt. Drücke bei einem
+  Marktplatz auf Bearbeiten, um das Ergebnis zu korrigieren.
+- **Erst Entwürfe.** Anzeigen werden standardmäßig als Entwürfe gespeichert,
+  damit du sie vor dem Livegang prüfen kannst. Du kannst das ausschalten, um
+  sofort zu posten, und siehst vorher die eBay-Gebühr.
+- **Sichern und verknüpfen.** Mit einem Tarif mit Cloud-Synchronisierung können
+  neue Anzeigen in der Cloud gesichert und miteinander verknüpft werden.
+- **Nichts doppelt eingeben.** Das Formular behält deine Eingaben, und wenn ein
+  Marktplatz fehlschlägt, legt Erneut versuchen nur an, was noch fehlt.
+
+## Neu einstellen bei eBay
+
+- **eBay im Tab Neu einstellen.** eBay-Anzeigen stehen jetzt neben denen von
+  Depop und Vinted, und verknüpfte Kopien bleiben nach dem Neueinstellen
+  verknüpft.
+- **Was du ändern kannst.** Die Optionen für Titel, Beschreibung und Preis
+  funktionieren bei eBay, und du kannst das Neueinstellen als Entwurf speichern.
+  Die Foto-Optionen gibt es weiterhin nur für Depop und Vinted.
+- **Auktionen bleiben Auktionen,** mit demselben Startpreis, derselben Laufzeit
+  und einem eventuellen Sofort-Kaufen-Preis. Hat eine Auktion Gebote, warnt dich
+  das Fenster vorher, denn das Neueinstellen beendet sie vorzeitig und storniert
+  alle Gebote.
+- **Entwürfe behalten ihre Preisvorschläge.** Beim Speichern als Entwurf bleiben
+  die Einstellungen für Preisvorschläge erhalten.
+- **Ein neues Fenster für Neu einstellen,** aufgebaut wie die Crosslist-Prüfliste:
+  Optionen Für jeden Artikel, dann eine Zeile pro Artikel mit einem Häkchen zum
+  Überspringen, eigenen Optionen und eigenem Preis.
+
+## Verbessert
+
+- **eBay-Auktionen in Meine Anzeigen.** Eine laufende Auktion wird als aktiv
+  angezeigt, mit der Markierung Auktion neben dem Preis. Fahre mit der Maus
+  darüber, um Gebote, Enddatum, Startpreis und Sofort-Kaufen-Preis zu sehen. Um
+  eine Auktion zu ändern, führt dich der Editor zu eBay, und Massenänderungen
+  überspringen sie.
+- **Bei Entwürfe posten wählst du aus.** Jeder Entwurf hat ein Häkchen. Entferne
+  es, damit er ein Entwurf bleibt.
+- **Ein einziges Fenster, wenn ein Marktplatz Aufmerksamkeit braucht.** Braucht ein
+  Tab einen Marktplatz, der geschlossen, abgemeldet oder im falschen Konto ist,
+  zeigt ein einziges Fenster, was zu tun ist, mit je einem Button. Der Tab macht
+  weiter, sobald alles bereit ist.
+- **SaleLinx öffnet eBay-Tabs nicht mehr von selbst.** Wenn ein angemeldeter
+  eBay-Tab gebraucht wird, bittet es dich, einen zu öffnen.
+- **Neuigkeiten nach einem Update.** Eine kurze Karte zeigt, was eine Version
+  bringt, einmal pro Version.
+- **Mehr vom Panel ist übersetzt,** auf Französisch, Spanisch und Deutsch, darunter
+  die Aufgabenliste, Wachstum, das Upgrade-Fenster und Tooltips. Das Popup der
+  Symbolleiste folgt deiner Panel-Sprache.
+- **Support** ist jetzt nur noch eine Nachricht zum Senden, ohne Typauswahl.
+- **Etiketten** zeigt Filter und Suche schon, während deine Bestellungen laden.
+
+## Behoben
+
+- **Depop-Versandetiketten.** Depop hat seine Etikett-Dateien verschoben, wodurch
+  jeder Download von Depop-Etiketten fehlschlug. Sie funktionieren wieder. Chrome
+  fragt beim ersten Mal nach der Berechtigung. Lehnst du ab, lässt dieser Download
+  die Depop-Etiketten weg und behält die von Vinted.
+- **eBay-Entwürfe, die als Auktion online gingen.** Ein geposteter Entwurf konnte
+  zu einer 7-Tage-Auktion mit eBays eigenen Versandkosten werden. Neue
+  eBay-Entwürfe haben einen Festpreis und werden mit deinen gespeicherten
+  Versandkosten gepostet, wenn du welche gespeichert hast.
+- **Von eBay neu eingestellte Anzeigen doppelt angezeigt.** Wenn eBay einen Artikel
+  neu einstellt oder du das bei eBay tust, wandern Zeile, Cloud-Kopie und
+  Verknüpfungen jetzt zur neuen Anzeige.
+- **Fenster Neu einstellen.** Markierte Artikel, die ein Filter ausblendet, fallen
+  nicht mehr heraus. Eine gespeicherte Massen-Preisänderung erscheint sofort beim
+  Öffnen und lässt sich entfernen, und eBay-Preise werden korrekt gerundet.
+- Bei Entwürfe posten wird ein Entwurf, der über zwei Zeilen ausgewählt wurde, jetzt
+  nur einmal gepostet.
+- Fotos in den Tabs Neu einstellen und Aktualisieren blinken nicht mehr, wenn sich
+  die Liste im Hintergrund aktualisiert.
+
+## Tarife und Abrechnung
+
+- **Anzeige erstellen und deine Crosslists.** Der erste Marktplatz, auf dem eine
+  Anzeige angelegt wird, ist kostenlos. Jeder weitere zählt als ein Crosslist, wird
+  vorher mit deinem Kontingent abgeglichen, und das Formular sagt dir, wenn nicht
+  mehr genug übrig sind.
+- **Neu einstellen bei eBay** nutzt dasselbe monatliche Kontingent fürs Neueinstellen.
