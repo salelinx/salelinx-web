@@ -706,6 +706,7 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
                           <BillingCell
                             cancelAtPeriodEnd={u.cancel_at_period_end}
                             status={u.status}
+                            declineReason={u.decline_reason}
                             periodEnd={u.current_period_end}
                             now={now}
                           />
@@ -802,6 +803,7 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
                       <BillingCell
                         cancelAtPeriodEnd={u.cancel_at_period_end}
                         status={u.status}
+                        declineReason={u.decline_reason}
                         periodEnd={u.current_period_end}
                         now={now}
                       />
@@ -990,17 +992,26 @@ function AdminTag() {
   );
 }
 
+const declineLabel = (code: string | null) =>
+  !code
+    ? "Retrying payment"
+    : code === "generic_decline" || code === "card_declined"
+      ? "Card declined"
+      : code.charAt(0).toUpperCase() + code.slice(1).replace(/_/g, " ");
+
 // Which marketplaces the user has connected. The full username and a link to
 // the shop live in the detail drawer; the roster only needs the presence
 // signal, so this stays a single initial per platform.
 function BillingCell({
   cancelAtPeriodEnd,
   status,
+  declineReason,
   periodEnd,
   now,
 }: {
   cancelAtPeriodEnd: boolean;
   status: string | null;
+  declineReason: string | null;
   periodEnd: string | null;
   /** From useClientNow in the parent: reading the clock during render is both
    *  impure and a hydration mismatch waiting to happen. Null until hydration,
@@ -1021,7 +1032,7 @@ function BillingCell({
         className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
         title="The last payment failed; Stripe is retrying the card"
       >
-        Retrying payment
+        {declineLabel(declineReason)}
       </span>
     );
   }
