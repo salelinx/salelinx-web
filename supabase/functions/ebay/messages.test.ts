@@ -4,10 +4,16 @@
 import { assertEquals, assertThrows } from 'jsr:@std/assert@1';
 import { EbayError } from './trading.ts';
 import {
+  answersMissing,
+  answersQuery,
   conversationsFromResponse,
+  hasUnanswered,
+  inboxHeadersQuery,
   MAX_MESSAGE_CHARS,
   memberMessagesQuery,
   replyXml,
+  withAnswers,
+  withReadState,
 } from './messages.ts';
 
 const me = { userId: 'u-immutable-1', username: 'My_Shop' };
@@ -45,6 +51,7 @@ Deno.test('an unanswered question reads as the customer speaking last', () => {
       title: 'Black Velvet Crossbody Bag',
       listingId: '111222333',
       otherParty: 'buyer_jo',
+      unread: 0,
       messages: [
         {
           id: '9001',
@@ -269,6 +276,158 @@ Deno.test('a reply is checked before it reaches eBay', () => {
 });
 
 // index.ts can't be imported here (it starts a server), so these are checked in its source.
+// The two reads of one answered question, from a real account (2026-11-04), with the text replaced.
+const PHOTO = 'https://i.ebayimg.com/images/a.jpg';
+const answeredInAll = () =>
+  exchange({
+    MessageStatus: 'Answered',
+    LastModifiedDate: '2026-11-01T11:00:00.000Z',
+    MessageMedia: { MediaName: 'a', MediaURL: PHOTO },
+  });
+const answeredInAnswers = () =>
+  exchange({
+    MessageStatus: 'Answered',
+    LastModifiedDate: '2026-11-01T11:00:00.000Z',
+    Response: 'Yes, still here',
+  });
+
+Deno.test('the two reads together give the reply and the photo', () => {
+  const merged = withAnswers(answer(answeredInAll()), answer(answeredInAnswers()));
+  const [thread] = conversationsFromResponse(merged, me);
+  assertEquals(
+    thread.messages.map((m) => [m.text, m.fromMe, m.photos ?? null]),
+    [
+      ['Could I buy this?', false, [PHOTO]],
+      ['Yes, still here', true, null],
+    ],
+  );
+  assertEquals(thread.fromMe, true);
+  assertEquals(thread.text, 'Yes, still here');
+  assertEquals(thread.at, Date.parse('2026-11-01T11:00:00.000Z'));
+});
+
+Deno.test('a reply stays on its own question', () => {
+  const other = exchange({ MessageStatus: 'Unanswered' }, { MessageID: '9002', Body: 'And this?' });
+  const merged = withAnswers(answer(answeredInAll(), other), answer(answeredInAnswers()));
+  assertEquals(merged.MemberMessage.MemberMessageExchange[1].Response, undefined);
+});
+
+Deno.test('a buyer writing again after the reply still needs one', () => {
+  const again = exchange(
+    { CreationDate: '2026-11-01T12:00:00.000Z', LastModifiedDate: '2026-11-01T12:00:00.000Z' },
+    { MessageID: '9002', Body: 'Thanks, how much is postage?' },
+  );
+  const merged = withAnswers(answer(answeredInAll(), again), answer(answeredInAnswers()));
+  const [thread] = conversationsFromResponse(merged, me);
+  assertEquals(thread.fromMe, false);
+  assertEquals(thread.parentMessageId, '9002');
+});
+
+Deno.test('if reading the answers fails, the list stands and promises nothing', () => {
+  const [thread] = conversationsFromResponse(withAnswers(answer(answeredInAll()), null), me);
+  assertEquals(thread.fromMe, null);
+  assertEquals(thread.messages.length, 1);
+  assertEquals(thread.messages[0].photos, [PHOTO]);
+});
+
+Deno.test('the second read is only spent when an answer is missing', () => {
+  assertEquals(answersMissing(answer(answeredInAll())), true);
+  assertEquals(answersMissing(answer(exchange())), false);
+  assertEquals(answersMissing(answer(answeredInAnswers())), false);
+  assertEquals(answersMissing({}), false);
+});
+
+Deno.test('both reads cover the same window', () => {
+  const now = new Date('2026-11-04T00:00:00.000Z');
+  const window = (q: string) => q.slice(q.indexOf('<StartCreationTime>'));
+  assertEquals(window(answersQuery(7, now)), window(memberMessagesQuery(7, now)));
+  assertEquals(answersQuery(7, now).includes('<MessageStatus>Answered</MessageStatus>'), true);
+  assertEquals(
+    answersQuery(7, now).includes('<MailMessageType>AskSellerQuestion</MailMessageType>'),
+    true,
+  );
+});
+
+// A row of the inbox's headers, from a real account (2026-11-04).
+const inboxRow = (over = {}) => ({
+  Sender: 'buyer_jo',
+  MessageID: '555',
+  ExternalMessageID: '9001',
+  Read: 'false',
+  MessageType: 'AskSellerQuestion',
+  ...over,
+});
+const inboxOf = (...rows) => ({ Messages: { Message: rows.length === 1 ? rows[0] : rows } });
+
+Deno.test('a question eBay has as unread counts on its thread', () => {
+  const merged = withReadState(answer(exchange()), inboxOf(inboxRow()));
+  assertEquals(conversationsFromResponse(merged, me)[0].unread, 1);
+});
+
+Deno.test('a question eBay has as read does not', () => {
+  const merged = withReadState(answer(exchange()), inboxOf(inboxRow({ Read: 'true' })));
+  assertEquals(conversationsFromResponse(merged, me)[0].unread, 0);
+});
+
+Deno.test('every unread question in a thread counts', () => {
+  const second = exchange({}, { MessageID: '9002', Body: 'And postage?' });
+  const merged = withReadState(
+    answer(exchange(), second),
+    inboxOf(inboxRow(), inboxRow({ ExternalMessageID: '9002', MessageID: '556' })),
+  );
+  assertEquals(conversationsFromResponse(merged, me)[0].unread, 2);
+});
+
+Deno.test("it matches on the question, not the inbox row's own id", () => {
+  const merged = withReadState(answer(exchange()), inboxOf(inboxRow({ ExternalMessageID: '1' })));
+  assertEquals(conversationsFromResponse(merged, me)[0].unread, 0);
+});
+
+Deno.test('our own message unread by the other side is not unread for us', () => {
+  const mine = exchange({}, { SenderID: 'My_Shop', RecipientID: 'buyer_jo' });
+  const merged = withReadState(answer(mine), inboxOf(inboxRow()));
+  assertEquals(conversationsFromResponse(merged, me)[0].unread, 0);
+});
+
+Deno.test('with no inbox read, nothing is unread and the list stands', () => {
+  const merged = withReadState(answer(exchange()), null);
+  const [thread] = conversationsFromResponse(merged, me);
+  assertEquals(thread.unread, 0);
+  assertEquals(thread.messages.length, 1);
+});
+
+Deno.test('the inbox is only read when something is waiting', () => {
+  assertEquals(hasUnanswered(answer(exchange())), true);
+  assertEquals(hasUnanswered(answer(answeredInAll())), false);
+  assertEquals(hasUnanswered({}), false);
+});
+
+Deno.test('the inbox read covers the same window and only asks for headers', () => {
+  const now = new Date('2026-11-04T00:00:00.000Z');
+  const query = inboxHeadersQuery(7, now);
+  const start = memberMessagesQuery(7, now).match(/<StartCreationTime>(.*?)</)?.[1];
+  assertEquals(query.includes(`<StartTime>${start}</StartTime>`), true);
+  assertEquals(query.includes('<DetailLevel>ReturnHeaders</DetailLevel>'), true);
+  assertEquals(query.includes('<FolderID>0</FolderID>'), true);
+});
+
+Deno.test('the function reads the inbox and merges it', () => {
+  const index = source('./index.ts');
+  assertEquals(index.includes('hasUnanswered(answer)'), true);
+  assertEquals(index.includes('withReadState('), true);
+});
+
+Deno.test('a failed extra read sends back its code and no text', () => {
+  const index = source('./index.ts');
+  assertEquals(index.includes("partial[name] = e?.code ?? 'failed'"), true);
+});
+
+Deno.test('the function reads the answers and merges them', () => {
+  const index = source('./index.ts');
+  assertEquals(index.includes('answersMissing(answer)'), true);
+  assertEquals(index.includes('withAnswers(answer, answered)'), true);
+});
+
 const source = (file: string) => Deno.readTextFileSync(new URL(file, import.meta.url));
 
 Deno.test('messages ask for no new permission', () => {

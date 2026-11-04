@@ -14,17 +14,42 @@ export const MAX_MESSAGE_CHARS = 2000;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** One call however many threads there are, as each comes with its question and answers. The shared
- *  daily quota pays for it. `All`, because `AskSellerQuestion` returned nothing for a question whose
- *  own type is AskSellerQuestion. */
-export function memberMessagesQuery(maxAgeDays: unknown, now: Date): string {
+const windowStart = (maxAgeDays: unknown, now: Date): string => {
   const asked = Number(maxAgeDays);
   const days = Number.isFinite(asked) && asked > 0 ? Math.min(asked, 30) : 3;
-  const start = new Date(now.getTime() - days * DAY_MS).toISOString();
+  return new Date(now.getTime() - days * DAY_MS).toISOString();
+};
+
+const FIRST_PAGE =
+  '<Pagination><EntriesPerPage>200</EntriesPerPage><PageNumber>1</PageNumber></Pagination>';
+
+const windowQuery = (maxAgeDays: unknown, now: Date): string =>
+  `<StartCreationTime>${windowStart(maxAgeDays, now)}</StartCreationTime>` +
+  `<EndCreationTime>${now.toISOString()}</EndCreationTime>${FIRST_PAGE}`;
+
+/** Every question and its photos, but no answers. One call however many threads there are, which the
+ *  shared daily quota pays for. `All`, because `AskSellerQuestion` alone returned nothing for a
+ *  question waiting on a reply. */
+export function memberMessagesQuery(maxAgeDays: unknown, now: Date): string {
+  return `<MailMessageType>All</MailMessageType>${windowQuery(maxAgeDays, now)}`;
+}
+
+/** Answered questions with their answers, but no photos. On a real account (2026-11-04) neither read
+ *  returned both, so it takes the two. */
+export function answersQuery(maxAgeDays: unknown, now: Date): string {
   return (
-    '<MailMessageType>All</MailMessageType>' +
-    `<StartCreationTime>${start}</StartCreationTime><EndCreationTime>${now.toISOString()}</EndCreationTime>` +
-    '<Pagination><EntriesPerPage>200</EntriesPerPage><PageNumber>1</PageNumber></Pagination>'
+    '<MailMessageType>AskSellerQuestion</MailMessageType><MessageStatus>Answered</MessageStatus>' +
+    windowQuery(maxAgeDays, now)
+  );
+}
+
+/** The inbox's headers over the same window: neither read above says what has been read, and this
+ *  does. Headers, as the full messages only come ten at a time. */
+export function inboxHeadersQuery(maxAgeDays: unknown, now: Date): string {
+  return (
+    '<DetailLevel>ReturnHeaders</DetailLevel><FolderID>0</FolderID>' +
+    `<StartTime>${windowStart(maxAgeDays, now)}</StartTime><EndTime>${now.toISOString()}</EndTime>` +
+    FIRST_PAGE
   );
 }
 
@@ -40,6 +65,8 @@ const isMe = (name: unknown, me: Me) => same(name, me.userId) || same(name, me.u
 
 const list = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 
+const exchangesOf = (body) => list(body?.MemberMessage?.MemberMessageExchange);
+
 const textOf = (x) => String((x && typeof x === 'object' ? x['#text'] : x) ?? '');
 
 const timeOf = (date: unknown) => Date.parse(String(date)) || 0;
@@ -53,6 +80,57 @@ const photosOf = (exchange, question): string[] => [
       .filter((url) => url.startsWith('https://')),
   ),
 ];
+
+/** Whether a question has an answer this read left out, as fetching them spends the shared quota. */
+export function answersMissing(body): boolean {
+  return exchangesOf(body).some((e) => e?.MessageStatus === 'Answered' && e.Response == null);
+}
+
+/** Puts answers on the questions they belong to. `answered` is null when that read failed: the list
+ *  still stands, and those threads go on saying nothing about who spoke last. */
+export function withAnswers(body, answered) {
+  const byQuestion = new Map(
+    exchangesOf(answered)
+      .filter((e) => e?.Question?.MessageID && e.Response != null)
+      .map((e) => [String(e.Question.MessageID), e.Response]),
+  );
+  return {
+    ...body,
+    MemberMessage: {
+      ...body?.MemberMessage,
+      MemberMessageExchange: exchangesOf(body).map((e) => {
+        const response = byQuestion.get(String(e?.Question?.MessageID));
+        return response != null && e.Response == null ? { ...e, Response: response } : e;
+      }),
+    },
+  };
+}
+
+/** Whether anything is waiting on a reply. An answered question has been read, so without one the
+ *  shared quota needn't pay to ask. */
+export function hasUnanswered(body): boolean {
+  return exchangesOf(body).some((e) => e?.Question?.MessageID && e.MessageStatus !== 'Answered');
+}
+
+/** Marks the questions eBay's inbox has as unread, matching its ExternalMessageID to the question's
+ *  MessageID (the two were equal on a real account, 2026-11-04). `inbox` is null when that read was
+ *  skipped or failed, which reads as nothing unread. */
+export function withReadState(body, inbox) {
+  const unread = new Set(
+    list(inbox?.Messages?.Message)
+      .filter((m) => m?.ExternalMessageID && m.Read === 'false')
+      .map((m) => String(m.ExternalMessageID)),
+  );
+  return {
+    ...body,
+    MemberMessage: {
+      ...body?.MemberMessage,
+      MemberMessageExchange: exchangesOf(body).map((e) =>
+        unread.has(String(e?.Question?.MessageID)) ? { ...e, Unread: true } : e,
+      ),
+    },
+  };
+}
 
 /** A thread is a buyer and a listing: eBay files each question separately. Answers carry no date of
  *  their own, so the exchange's last change stands in for one. */
@@ -74,6 +152,7 @@ export function conversationsFromResponse(body, me: Me) {
       messages: [],
       parentMessageId: null,
       parentAt: -1,
+      unread: 0,
       unknownAnswers: new Set(),
     };
     threads.set(id, thread);
@@ -88,6 +167,7 @@ export function conversationsFromResponse(body, me: Me) {
       from: String(question.SenderID ?? ''),
       photos: photosOf(exchange, question),
     });
+    if (!askedByMe && exchange.Unread) thread.unread += 1;
     // What gets answered: the buyer's newest question.
     if (!askedByMe && at >= thread.parentAt) {
       thread.parentMessageId = questionId;
@@ -104,8 +184,8 @@ export function conversationsFromResponse(body, me: Me) {
         from: '',
       });
     });
-    // Answered with no text to show, as on eBay's site if it withholds it: nobody can say who spoke
-    // last from this, and the pill promises a customer is waiting.
+    // Answered with no text to show, when reading the answers failed: this thread can't say what
+    // came last, and the pill promises a customer is waiting.
     if (exchange.MessageStatus === 'Answered' && answers.length === 0) {
       thread.unknownAnswers.add(questionId);
     }

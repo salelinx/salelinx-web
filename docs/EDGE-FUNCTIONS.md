@@ -471,7 +471,10 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   docs. A new scope must also be granted to the keyset (developer.ebay.com, Application Keys)
   first, or eBay's consent screen fails with `invalid_scope` for everyone connecting.
 - **Messages.** `conversations` and `sendMessage` use the Trading API (`GetMemberMessages`,
-  `AddMemberMessageRTQ`, `messages.ts`), so each list spends the shared daily quota. eBay's newer
+  `AddMemberMessageRTQ`, `messages.ts`), so each list spends the shared daily quota: up to three calls. `All` has every
+  question and its photos, `AskSellerQuestion` with `MessageStatus=Answered` has the answers (read
+  when something is answered), and `GetMyMessages` headers have what's been read (read when something
+  is waiting). A failed extra read leaves the list standing and its code in `partial`. eBay's newer
   Message API returned none of a real seller's buyer messages (2026-11-03). Text, usernames and
   photo links pass through in memory and must never be logged, and the buyer's email address eBay
   sends is dropped (`GDPR.md`, which also lists the legal pages that disclose this).

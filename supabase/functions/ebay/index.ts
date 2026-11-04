@@ -68,7 +68,17 @@ import {
   linkSiteId,
   QUOTA_MESSAGE,
 } from './trading.ts';
-import { conversationsFromResponse, memberMessagesQuery, replyXml } from './messages.ts';
+import {
+  answersMissing,
+  answersQuery,
+  conversationsFromResponse,
+  hasUnanswered,
+  inboxHeadersQuery,
+  memberMessagesQuery,
+  replyXml,
+  withAnswers,
+  withReadState,
+} from './messages.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -569,9 +579,23 @@ Deno.serve(async (req: Request) => {
       case 'conversations': {
         const auth = await accessTokenFor(admin, user.id);
         const me = await ebayIdentity(admin, user.id);
-        const query = memberMessagesQuery(body.maxAgeDays, new Date());
-        const answer = await trading('GetMemberMessages', auth, query);
-        return json(200, { conversations: conversationsFromResponse(answer, me) });
+        const now = new Date();
+        const days = body.maxAgeDays;
+        const answer = await trading('GetMemberMessages', auth, memberMessagesQuery(days, now));
+        // These add to the list and cost the buyers' messages nothing if they fail, so neither fails
+        // it. Only a failure's code goes back, for the extension's log.
+        const partial = {};
+        const extra = (name, call, query) =>
+          trading(call, auth, query).catch((e) => {
+            partial[name] = e?.code ?? 'failed';
+            return null;
+          });
+        const [answered, inbox] = await Promise.all([
+          answersMissing(answer) ? extra('answers', 'GetMemberMessages', answersQuery(days, now)) : null,
+          hasUnanswered(answer) ? extra('readState', 'GetMyMessages', inboxHeadersQuery(days, now)) : null,
+        ]);
+        const merged = withReadState(withAnswers(answer, answered), inbox);
+        return json(200, { conversations: conversationsFromResponse(merged, me), partial });
       }
 
       case 'sendMessage': {
