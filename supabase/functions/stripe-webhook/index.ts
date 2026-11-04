@@ -186,6 +186,19 @@ async function handleSubscriptionDeleted(
   }
 }
 
+/** The issuer's decline code (insufficient_funds, expired_card...) for the admin roster. */
+async function declineReason(invoice: Stripe.Invoice): Promise<string | null> {
+  const id = typeof invoice.charge === "string" ? invoice.charge : invoice.charge?.id;
+  if (!id) return null;
+  try {
+    const charge = await stripe.charges.retrieve(id);
+    return charge.outcome?.reason ?? charge.failure_code ?? null;
+  } catch (err) {
+    console.warn(`invoice ${invoice.id}: decline reason unavailable: ${(err as Error).message}`);
+    return null;
+  }
+}
+
 async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
   const subId = subscriptionIdFromInvoice(invoice);
   // One-off invoices genuinely have no subscription; those are not our concern
@@ -212,7 +225,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
   // leave the row past_due even though the stamp above was skipped.
   const { error: statusErr } = await supabase
     .from("subscriptions")
-    .update({ status: "past_due" })
+    .update({ status: "past_due", last_decline_reason: await declineReason(invoice) })
     .eq("stripe_subscription_id", subId);
   if (statusErr) throw new Error(`past_due update failed: ${statusErr.message}`);
 }
@@ -242,7 +255,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
 
   const { error: clearErr } = await supabase
     .from("subscriptions")
-    .update({ past_due_since: null })
+    .update({ past_due_since: null, last_decline_reason: null })
     .eq("stripe_subscription_id", subId);
   if (clearErr) throw new Error(`past_due_since clear failed: ${clearErr.message}`);
 
