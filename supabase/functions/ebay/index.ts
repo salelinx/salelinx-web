@@ -17,6 +17,7 @@
 //   item       { itemId }                    -> { item }
 //   revise     { itemId, changes, auction? } -> { ok }
 //   uploadPhoto { dataUrl }                  -> { url }
+//   uploadMessagePhoto { dataUrl }           -> { url } (for a reply, through the Media API)
 //   end        { itemId, auction? }          -> { ok }
 //   relist     { itemId, auction? }          -> { itemId } (the new listing's id; auction: true
 //                                              uses eBay's auction calls, see listingCall)
@@ -30,6 +31,9 @@
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
 //   offers     {}                            -> { offers } (buyers' Best Offers still waiting on the seller)
 //   respondOffer { itemId, offerId, response, price?, currency?, quantity? } -> { ok } (Accept, Decline or Counter)
+//   conversations { maxAgeDays }             -> { conversations } (buyers' messages, messages.ts)
+//   sendMessage { reply, text, photos? }     -> { ok } (reply: { itemId, parentMessageId, recipientId };
+//                                              photos: addresses from uploadMessagePhoto)
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect eBay again, 'quota' when the app's daily eBay call limit is used
@@ -70,6 +74,17 @@ import {
   respondOfferXml,
   QUOTA_MESSAGE,
 } from './trading.ts';
+import {
+  answersMissing,
+  answersQuery,
+  conversationsFromResponse,
+  hasUnanswered,
+  inboxHeadersQuery,
+  memberMessagesQuery,
+  replyXml,
+  withAnswers,
+  withReadState,
+} from './messages.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -77,6 +92,7 @@ const SANDBOX = Deno.env.get('EBAY_ENV') === 'sandbox';
 const AUTH_HOST = SANDBOX ? 'https://auth.sandbox.ebay.com' : 'https://auth.ebay.com';
 const API_HOST = SANDBOX ? 'https://api.sandbox.ebay.com' : 'https://api.ebay.com';
 const APIZ_HOST = SANDBOX ? 'https://apiz.sandbox.ebay.com' : 'https://apiz.ebay.com';
+const APIM_HOST = SANDBOX ? 'https://apim.sandbox.ebay.com' : 'https://apim.ebay.com';
 
 // sell.inventory and sell.account are for crosslisting, asked for now so
 // linked users do not have to consent a second time when it ships.
@@ -243,12 +259,27 @@ async function rest(auth, path: string) {
   return body;
 }
 
-async function uploadPhoto(auth, dataUrl: string): Promise<string> {
+// Who a message's sender or recipient has to be for it to be the seller's own.
+async function ebayIdentity(admin, userId: string) {
+  const { data } = await admin
+    .from('linked_accounts')
+    .select('platform_user_id, platform_username')
+    .eq('user_id', userId)
+    .eq('platform', 'ebay')
+    .maybeSingle();
+  return { userId: data?.platform_user_id, username: data?.platform_username };
+}
+
+function photoBlob(dataUrl: string): Blob {
   const m = /^data:(image\/[a-z+]+);base64,(.+)$/s.exec(dataUrl ?? '');
   if (!m) throw new EbayError('Expected an image data URL', 'bad_request');
   const bytes = Uint8Array.from(atob(m[2]), (ch) => ch.charCodeAt(0));
   if (bytes.length > MAX_PHOTO_BYTES) throw new EbayError('Photo is too large', 'bad_request');
+  return new Blob([bytes], { type: m[1] });
+}
 
+async function uploadPhoto(auth, dataUrl: string): Promise<string> {
+  const photo = photoBlob(dataUrl);
   const form = new FormData();
   form.append(
     'XML Payload',
@@ -256,7 +287,7 @@ async function uploadPhoto(auth, dataUrl: string): Promise<string> {
       `<UploadSiteHostedPicturesRequest xmlns="urn:ebay:apis:eBLBaseComponents">` +
       `<PictureSet>Supersize</PictureSet></UploadSiteHostedPicturesRequest>`,
   );
-  form.append('image', new Blob([bytes], { type: m[1] }), 'photo');
+  form.append('image', photo, 'photo');
   const res = await fetch(`${API_HOST}/ws/api.dll`, {
     method: 'POST',
     headers: {
@@ -269,6 +300,25 @@ async function uploadPhoto(auth, dataUrl: string): Promise<string> {
   });
   const body = parseTrading('UploadSiteHostedPictures', await res.text());
   return String(body.SiteHostedPictureDetails.FullURL);
+}
+
+/** A photo for a message. eBay's reply call asks for one from the Media API rather than the upload
+ *  listings use. It isn't a Trading call, so it leaves the shared daily quota alone, and sell.inventory
+ *  is all it needs, which every token has had from the start. */
+async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
+  const form = new FormData();
+  form.append('image', photoBlob(dataUrl), 'photo');
+  const res = await fetch(`${APIM_HOST}/commerce/media/v1_beta/image/create_image_from_file`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${auth.token}` },
+    body: form,
+  });
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 429) throw new EbayError(QUOTA_MESSAGE, 'quota', 429);
+  if (!res.ok || !body?.imageUrl) {
+    throw new EbayError(body?.errors?.[0]?.message ?? `eBay photo upload failed (${res.status})`, 'ebay', 502);
+  }
+  return String(body.imageUrl);
 }
 
 // ── Linking ────────────────────────────────────────────────────────────────
@@ -458,6 +508,10 @@ Deno.serve(async (req: Request) => {
         return json(200, { url: await uploadPhoto(await accessTokenFor(admin, user.id), body.dataUrl) });
       }
 
+      case 'uploadMessagePhoto': {
+        return json(200, { url: await uploadMessagePhoto(await accessTokenFor(admin, user.id), body.dataUrl) });
+      }
+
       case 'aspects': {
         const categoryId = String(body.categoryId ?? '');
         if (!/^\d+$/.test(categoryId)) return json(400, { error: 'Missing categoryId' });
@@ -554,6 +608,35 @@ Deno.serve(async (req: Request) => {
         }
         const res = await trading(listingCall('add', !!item.auction), auth, built.xml);
         return json(200, { itemId: String(res.ItemID) });
+      }
+
+      case 'conversations': {
+        const auth = await accessTokenFor(admin, user.id);
+        const me = await ebayIdentity(admin, user.id);
+        const now = new Date();
+        const days = body.maxAgeDays;
+        const answer = await trading('GetMemberMessages', auth, memberMessagesQuery(days, now));
+        // These add to the list and cost the buyers' messages nothing if they fail, so neither fails
+        // it. Only a failure's code goes back, for the extension's log.
+        const partial = {};
+        const extra = (name, call, query) =>
+          trading(call, auth, query).catch((e) => {
+            partial[name] = e?.code ?? 'failed';
+            return null;
+          });
+        const [answered, inbox] = await Promise.all([
+          answersMissing(answer) ? extra('answers', 'GetMemberMessages', answersQuery(days, now)) : null,
+          hasUnanswered(answer) ? extra('readState', 'GetMyMessages', inboxHeadersQuery(days, now)) : null,
+        ]);
+        const merged = withReadState(withAnswers(answer, answered), inbox);
+        return json(200, { conversations: conversationsFromResponse(merged, me), partial });
+      }
+
+      case 'sendMessage': {
+        // Checked first, so a refused reply spends none of the shared daily quota.
+        const xml = replyXml(body.reply, body.text, body.photos);
+        await trading('AddMemberMessageRTQ', await accessTokenFor(admin, user.id), xml);
+        return json(200, { ok: true });
       }
 
       case 'shippingServices': {

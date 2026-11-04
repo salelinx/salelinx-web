@@ -27,7 +27,7 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "29 October 2026";
+const LAST_UPDATED = "3 November 2026";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -100,7 +100,7 @@ const SECTIONS: LegalSection[] = [
   {
     heading: "Buyer data",
     paragraphs: [
-      "Order features such as shipping labels involve personal data about your buyers (for example names and delivery details printed on labels). For that data, you are the data controller and SaleLinx acts as your processor: we process buyer data only on your instructions, only to provide the feature you invoked (for example delivering a label email to the address you chose), and we do not store it after delivery. If you connect eBay, eBay also includes buyer details with the sales SaleLinx loads from your eBay account; we discard them in memory without passing them on, logging or storing them.",
+      "Order features such as shipping labels involve personal data about your buyers (for example names and delivery details printed on labels). For that data, you are the data controller and SaleLinx acts as your processor: we process buyer data only on your instructions, only to provide the feature you invoked (for example delivering a label email to the address you chose), and we do not store it after delivery. If you connect eBay, eBay also includes buyer details with the sales SaleLinx loads from your eBay account; we discard them in memory without passing them on, logging or storing them. If you use Messages with eBay, your conversations with eBay members pass through our servers between eBay and your device, and are not logged or stored.",
       "You are responsible for having a lawful basis to use your buyers' data and for sending labels only to recipients who legitimately need them. Details are in our privacy policy, and the terms on which we process buyer data as your processor are set out in our Data Processing Addendum.",
     ],
   },
