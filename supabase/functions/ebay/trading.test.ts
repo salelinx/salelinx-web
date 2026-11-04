@@ -21,6 +21,8 @@ import {
   verifyFromResponse,
   linkSiteId,
   listingCall,
+  bestOffersFromResponse,
+  respondOfferXml,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -550,4 +552,67 @@ Deno.test('GetItem gives what an auction needs to list again, and nothing for fi
     Item: { ...base, ListingType: 'FixedPriceItem', StartPrice: { '#text': 9, '@currencyID': 'GBP' } },
   });
   assertEquals('auction' in fixed, false);
+});
+
+const BEST_OFFERS = `<?xml version="1.0" encoding="UTF-8"?>
+<GetBestOffersResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+  <Ack>Success</Ack>
+  <ItemBestOffersArray>
+    <ItemBestOffers>
+      <Role>Seller</Role>
+      <BestOfferArray>
+        <BestOffer>
+          <BestOfferID>5001</BestOfferID>
+          <ExpirationTime>2026-11-05T10:00:00.000Z</ExpirationTime>
+          <Buyer><UserID>jeans_fan</UserID></Buyer>
+          <Price currencyID="GBP">20.0</Price>
+          <Status>Pending</Status>
+          <Quantity>1</Quantity>
+          <BuyerMessage>Would you take 20?</BuyerMessage>
+          <BestOfferCodeType>BuyerBestOffer</BestOfferCodeType>
+        </BestOffer>
+        <BestOffer>
+          <BestOfferID>5002</BestOfferID>
+          <Buyer><UserID>other</UserID></Buyer>
+          <Price currencyID="GBP">22.0</Price>
+          <Status>Pending</Status>
+          <BestOfferCodeType>SellerCounterOffer</BestOfferCodeType>
+        </BestOffer>
+      </BestOfferArray>
+      <Item>
+        <ItemID>110551234567</ItemID>
+        <BuyItNowPrice currencyID="GBP">28.0</BuyItNowPrice>
+        <Currency>GBP</Currency>
+      </Item>
+    </ItemBestOffers>
+  </ItemBestOffersArray>
+</GetBestOffersResponse>`;
+
+Deno.test('GetBestOffers keeps the offers waiting on the seller', () => {
+  const offers = bestOffersFromResponse(parseTrading('GetBestOffers', BEST_OFFERS));
+  assertEquals(offers, [
+    {
+      itemId: '110551234567',
+      offerId: '5001',
+      buyer: 'jeans_fan',
+      price: 20,
+      currency: 'GBP',
+      listPrice: 28,
+      quantity: 1,
+      expiresAt: '2026-11-05T10:00:00.000Z',
+    },
+  ]);
+});
+
+Deno.test('a counter sends its total price and quantity; anything unknown is refused', () => {
+  const { xml } = respondOfferXml({ itemId: '1', offerId: '2', response: 'Counter', price: 24, currency: 'GBP' });
+  assertEquals(
+    xml,
+    '<ItemID>1</ItemID><BestOfferID>2</BestOfferID><Action>Counter</Action>' +
+      '<CounterOfferPrice currencyID="GBP">24.00</CounterOfferPrice><CounterOfferQuantity>1</CounterOfferQuantity>',
+  );
+  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Accept' }).error, undefined);
+  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Counter', price: 0 }).error !== undefined, true);
+  assertEquals(respondOfferXml({ itemId: '1<x/>', offerId: '2', response: 'Accept' }).error !== undefined, true);
+  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Delete' }).error !== undefined, true);
 });
