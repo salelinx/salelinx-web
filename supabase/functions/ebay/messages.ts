@@ -11,6 +11,9 @@ import { EbayError, esc } from './trading.ts';
 
 /** eBay's limit on a message. */
 export const MAX_MESSAGE_CHARS = 2000;
+/** Most photos to a message. The Trading docs give no number, and the Message API's say five. */
+export const MAX_MESSAGE_PHOTOS = 5;
+const MAX_PHOTO_URL_CHARS = 200;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -206,9 +209,25 @@ export function conversationsFromResponse(body, me: Me) {
     .sort((a, b) => b.at - a.at);
 }
 
+/** Attached by address, from uploadMessagePhoto. eBay checks each and refuses one that doesn't exist. */
+function mediaXml(photos: unknown): string {
+  const list = photos ?? [];
+  if (!Array.isArray(list) || list.length > MAX_MESSAGE_PHOTOS) {
+    throw new EbayError(`A message takes up to ${MAX_MESSAGE_PHOTOS} photos`, 'bad_request');
+  }
+  return list
+    .map((url, i) => {
+      if (typeof url !== 'string' || !url.startsWith('https://') || url.length > MAX_PHOTO_URL_CHARS) {
+        throw new EbayError('Bad photo address', 'bad_request');
+      }
+      return `<MessageMedia><MediaName>Photo ${i + 1}</MediaName><MediaURL>${esc(url)}</MediaURL></MessageMedia>`;
+    })
+    .join('');
+}
+
 /** AddMemberMessageRTQ. Never public: left out, a reply's visibility on the listing would be eBay's
- *  call rather than the seller's. */
-export function replyXml(reply, text: unknown): string {
+ *  call rather than the seller's. A photo can't go alone, as eBay requires the body. */
+export function replyXml(reply, text: unknown, photos?: unknown): string {
   if (!/^\d+$/.test(String(reply?.itemId))) throw new EbayError('Missing item', 'bad_request');
   if (!reply?.parentMessageId) throw new EbayError('Missing question', 'bad_request');
   if (!reply?.recipientId) throw new EbayError('Missing recipient', 'bad_request');
@@ -220,6 +239,7 @@ export function replyXml(reply, text: unknown): string {
   return (
     `<ItemID>${reply.itemId}</ItemID><MemberMessage><Body>${esc(body)}</Body>` +
     '<DisplayToPublic>false</DisplayToPublic>' +
+    mediaXml(photos) +
     `<ParentMessageID>${esc(reply.parentMessageId)}</ParentMessageID>` +
     `<RecipientID>${esc(reply.recipientId)}</RecipientID></MemberMessage>`
   );

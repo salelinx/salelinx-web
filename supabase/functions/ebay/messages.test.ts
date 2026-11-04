@@ -10,6 +10,7 @@ import {
   hasUnanswered,
   inboxHeadersQuery,
   MAX_MESSAGE_CHARS,
+  MAX_MESSAGE_PHOTOS,
   memberMessagesQuery,
   replyXml,
   withAnswers,
@@ -273,6 +274,40 @@ Deno.test('a reply is checked before it reaches eBay', () => {
   ]) {
     assertThrows(() => replyXml(reply, text), EbayError);
   }
+});
+
+Deno.test('photos go in a reply where eBay expects them, and a reply without any is unchanged', () => {
+  const url = 'https://i.ebayimg.com/images/g/abc/s-l1600.jpg';
+  const xml = replyXml(target, 'See this', [url, url + '2']);
+  assertEquals(
+    xml.includes(
+      '<DisplayToPublic>false</DisplayToPublic>' +
+        `<MessageMedia><MediaName>Photo 1</MediaName><MediaURL>${url}</MediaURL></MessageMedia>` +
+        `<MessageMedia><MediaName>Photo 2</MediaName><MediaURL>${url}2</MediaURL></MessageMedia>` +
+        '<ParentMessageID>',
+    ),
+    true,
+  );
+  assertEquals(replyXml(target, 'hi', []), replyXml(target, 'hi'));
+  assertEquals(replyXml(target, 'hi', null), replyXml(target, 'hi'));
+});
+
+Deno.test('photos are checked before they reach eBay', () => {
+  const url = 'https://i.ebayimg.com/a.jpg';
+  assertEquals(replyXml(target, 'hi', Array(MAX_MESSAGE_PHOTOS).fill(url)).length > 0, true);
+  for (const photos of [
+    Array(MAX_MESSAGE_PHOTOS + 1).fill(url),
+    'https://i.ebayimg.com/a.jpg',
+    [42],
+    ['http://i.ebayimg.com/a.jpg'],
+    ['javascript:alert(1)'],
+    ['https://i.ebayimg.com/' + 'x'.repeat(200)],
+  ]) {
+    assertThrows(() => replyXml(target, 'hi', photos), EbayError);
+  }
+  // A photo can't go alone: eBay requires the body.
+  assertThrows(() => replyXml(target, '  ', [url]), EbayError);
+  assertEquals(replyXml(target, 'hi', [url + '?a=1&b=2<c>']).includes('a=1&amp;b=2&lt;c&gt;'), true);
 });
 
 // index.ts can't be imported here (it starts a server), so these are checked in its source.
