@@ -302,6 +302,8 @@ Deno.test('photos are checked before they reach eBay', () => {
     ['http://i.ebayimg.com/a.jpg'],
     ['javascript:alert(1)'],
     ['https://i.ebayimg.com/' + 'x'.repeat(200)],
+    ['https://evil.example/a.jpg'],
+    ['https://ebayimg.com.evil.example/a.jpg'],
   ]) {
     assertThrows(() => replyXml(target, 'hi', photos), EbayError);
   }
@@ -311,6 +313,26 @@ Deno.test('photos are checked before they reach eBay', () => {
 });
 
 // index.ts can't be imported here (it starts a server), so these are checked in its source.
+Deno.test('a reply photo is checked against the plan and counted before it is decoded or sent', () => {
+  const index = source('./index.ts').replace(/\r\n/g, '\n');
+  const from = index.indexOf("case 'uploadMessagePhoto': {");
+  const code = index.slice(from, index.indexOf('\n      case ', from + 1));
+  const plan = code.indexOf("checkFeatureAllowed(userScoped, user.id, 'messages', 'ebay')");
+  const refuse = code.indexOf('if (!gate.ok) return json(gate.status, gate.body);');
+  const count = code.indexOf('countMessagePhoto(userScoped, user.id)');
+  const upload = code.indexOf('await uploadMessagePhoto(');
+  assertEquals(plan >= 0 && plan < refuse && refuse < count && count < upload, true);
+});
+
+Deno.test('a reply photo goes through the strict checks, both ways', () => {
+  const index = source('./index.ts').replace(/\r\n/g, '\n');
+  const from = index.indexOf('async function uploadMessagePhoto(');
+  const fn = index.slice(from, index.indexOf('\n}\n', from));
+  assertEquals(fn.includes('decodeMessagePhoto(dataUrl)'), true);
+  assertEquals(fn.includes('photoBlob('), false);
+  assertEquals(fn.includes('!isEbayPhotoUrl(url)'), true);
+});
+
 // The two reads of one answered question, from a real account (2026-11-04), with the text replaced.
 const PHOTO = 'https://i.ebayimg.com/images/a.jpg';
 const answeredInAll = () =>

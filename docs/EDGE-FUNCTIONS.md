@@ -502,6 +502,14 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   `upgrade_required` or `limit_reached`. Without it, anyone signed in could post to eBay past their
   plan by calling `add` directly. A `verifyOnly` fee check creates nothing and is not gated. Both
   functions read the rule from that one module, so change it there.
+- **Reply photos.** `uploadMessagePhoto` checks the plan first (`_shared/feature-gate.ts`, 403
+  `upgrade_required`), then the seller's pace: at 100 photos in a UTC hour it answers 429
+  `rate_limited`. That's an abuse limit, and there is deliberately no daily cap. It reads the hour row
+  `increment_usage_counter` keeps for itself and counts under the month, as the function refuses a
+  caller naming an hour, and a key of our own per hour would fill the 2,000 rows it allows a user. A
+  failed lookup or count refuses. The rest is in `ebay/message-photos.ts`: it must be a JPEG by its
+  first bytes, up to 5MB, checked before decoding. `sendMessage` only attaches addresses on eBay's own
+  picture host (`isEbayPhotoUrl`), and an upload answering with any other names the host in its error.
 - **Fee check.** A `verifyOnly` add answers each fee as `{ name, amount, discount }`: `amount` is
   eBay's fee less its `PromotionalDiscount`, which is how a free listing from the seller's monthly
   allowance comes back (the whole fee discounted). eBay notes Verify may leave the discount out, so

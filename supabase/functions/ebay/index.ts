@@ -39,7 +39,10 @@
 // must connect eBay again, 'quota' when the app's daily eBay call limit is used
 // up, 'ebay' for an eBay-side refusal. A real add (not verifyOnly) can also be
 // refused with 403 'upgrade_required' or 'limit_reached' by the crosslist
-// paywall in _shared/crosslist-gate.ts, before anything reaches eBay.
+// paywall in _shared/crosslist-gate.ts, before anything reaches eBay. Uploading a
+// reply's photo (uploadMessagePhoto) answers 403 'upgrade_required' on a plan
+// without Messages, 429 'rate_limited' at a pace only a script reaches, and
+// 'bad_request' for anything but a JPEG (message-photos.ts).
 //
 // Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
 // EBAY_RUNAME_STORE (Chrome Web Store extension), EBAY_RUNAMES (optional JSON
@@ -51,6 +54,13 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
 import { checkCrosslistAllowed } from '../_shared/crosslist-gate.ts';
+import { checkFeatureAllowed } from '../_shared/feature-gate.ts';
+import {
+  countMessagePhoto,
+  decodeMessagePhoto,
+  isEbayPhotoUrl,
+  photoHostOf,
+} from './message-photos.ts';
 import {
   EbayError,
   esc,
@@ -307,7 +317,7 @@ async function uploadPhoto(auth, dataUrl: string): Promise<string> {
  *  is all it needs, which every token has had from the start. */
 async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
   const form = new FormData();
-  form.append('image', photoBlob(dataUrl), 'photo');
+  form.append('image', decodeMessagePhoto(dataUrl), 'photo');
   const res = await fetch(`${APIM_HOST}/commerce/media/v1_beta/image/create_image_from_file`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${auth.token}` },
@@ -318,7 +328,12 @@ async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
   if (!res.ok || !body?.imageUrl) {
     throw new EbayError(body?.errors?.[0]?.message ?? `eBay photo upload failed (${res.status})`, 'ebay', 502);
   }
-  return String(body.imageUrl);
+  const url = String(body.imageUrl);
+  // sendMessage only takes eBay's own addresses, so one it wouldn't is worth saying here: by host only.
+  if (!isEbayPhotoUrl(url)) {
+    throw new EbayError(`eBay gave a photo address we don't accept (${photoHostOf(url)})`, 'ebay', 502);
+  }
+  return url;
 }
 
 // ── Linking ────────────────────────────────────────────────────────────────
@@ -509,6 +524,13 @@ Deno.serve(async (req: Request) => {
       }
 
       case 'uploadMessagePhoto': {
+        // Both before the photo is decoded or eBay is called, so a refused upload costs next to nothing.
+        const userScoped = createClient(supabaseUrl, anonKey, {
+          global: { headers: { Authorization: `Bearer ${jwt}` } },
+        });
+        const gate = await checkFeatureAllowed(userScoped, user.id, 'messages', 'ebay');
+        if (!gate.ok) return json(gate.status, gate.body);
+        await countMessagePhoto(userScoped, user.id);
         return json(200, { url: await uploadMessagePhoto(await accessTokenFor(admin, user.id), body.dataUrl) });
       }
 
