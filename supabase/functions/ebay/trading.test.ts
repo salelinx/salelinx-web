@@ -605,14 +605,14 @@ Deno.test('GetBestOffers keeps the offers waiting on the seller', () => {
 });
 
 Deno.test('a counter sends its total price and quantity; anything unknown is refused', () => {
-  const { xml } = respondOfferXml({ itemId: '1', offerId: '2', action: 'Counter', price: 24, currency: 'GBP' });
+  const { xml } = respondOfferXml({ itemId: '1', offerId: '2', response: 'Counter', price: 24, currency: 'GBP' });
   assertEquals(
     xml,
     '<ItemID>1</ItemID><BestOfferID>2</BestOfferID><Action>Counter</Action>' +
       '<CounterOfferPrice currencyID="GBP">24.00</CounterOfferPrice><CounterOfferQuantity>1</CounterOfferQuantity>',
   );
-  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', action: 'Accept' }).error, undefined);
-  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', action: 'Counter', price: 0 }).error !== undefined, true);
-  assertEquals(respondOfferXml({ itemId: '1<x/>', offerId: '2', action: 'Accept' }).error !== undefined, true);
-  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', action: 'Delete' }).error !== undefined, true);
+  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Accept' }).error, undefined);
+  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Counter', price: 0 }).error !== undefined, true);
+  assertEquals(respondOfferXml({ itemId: '1<x/>', offerId: '2', response: 'Accept' }).error !== undefined, true);
+  assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Delete' }).error !== undefined, true);
 });

@@ -29,7 +29,7 @@
 //   conditions { categoryId }                -> { conditions } (allowed condition ids)
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
 //   offers     {}                            -> { offers } (buyers' Best Offers still waiting on the seller)
-//   respondOffer { itemId, offerId, action, price?, currency?, quantity? } -> { ok } (Accept, Decline or Counter)
+//   respondOffer { itemId, offerId, response, price?, currency?, quantity? } -> { ok } (Accept, Decline or Counter)
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect eBay again, 'quota' when the app's daily eBay call limit is used

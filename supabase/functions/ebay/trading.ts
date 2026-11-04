@@ -561,9 +561,9 @@ export function bestOffersFromResponse(body) {
 /** RespondToBestOffer. A counter's price is the total for the offer's quantity. */
 export function respondOfferXml(r): { xml?: string; error?: string } {
   if (!/^\d+$/.test(String(r.itemId)) || !/^\d+$/.test(String(r.offerId))) return { error: 'Missing offer' };
-  if (!['Accept', 'Decline', 'Counter'].includes(r.action)) return { error: 'Unknown offer action' };
-  let xml = `<ItemID>${r.itemId}</ItemID><BestOfferID>${r.offerId}</BestOfferID><Action>${r.action}</Action>`;
-  if (r.action === 'Counter') {
+  if (!['Accept', 'Decline', 'Counter'].includes(r.response)) return { error: 'Unknown offer response' };
+  let xml = `<ItemID>${r.itemId}</ItemID><BestOfferID>${r.offerId}</BestOfferID><Action>${r.response}</Action>`;
+  if (r.response === 'Counter') {
     const price = Number(r.price);
     const quantity = Number.isInteger(r.quantity) && r.quantity > 0 ? r.quantity : 1;
     if (!(price > 0)) return { error: 'Counter price must be above 0' };
