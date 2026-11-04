@@ -1,0 +1,77 @@
+export const metadata = {
+  title: "Offres, Messages et Baisses de prix sur eBay, et annonces vendues retirées partout",
+  date: "2026-11-04",
+  summary:
+    "La version 1.2.2 amène Offres, Messages et Baisses de prix sur eBay, retire les autres copies d'une annonce liée quand elle se vend, et ajoute la sélection d'une plage par Maj-clic dans Mes annonces. L'onglet Offres est repensé et se charge bien plus vite.",
+  tags: ["release"],
+};
+
+# Version 1.2.2
+
+Répondez aux offres et messages eBay depuis le panneau, programmez des baisses
+de prix eBay, et évitez qu'un article se vende deux fois.
+
+## Offres sur eBay
+
+- **Une colonne eBay.** Les offres eBay s'affichent à côté de Depop et Vinted.
+  Acceptez, refusez ou faites une contre-offre sans ouvrir eBay.
+- **L'acceptation automatique gère eBay.** Activez eBay dans ses réglages. Les
+  offres eBay sont vérifiées au plus une fois par heure.
+- **Les contre-offres restent sous votre prix.** Le panneau indique Trop élevé
+  avant l'envoi.
+
+## Messages sur eBay
+
+- **Une seule boîte** pour Depop, Vinted et eBay, ceux qui attendent en
+  premier.
+- **Répondez aux acheteurs eBay** avec jusqu'à 5 photos, et voyez les photos
+  qu'ils envoient.
+- **Des filtres** pour les non lus, les lus et chaque plateforme. L'étiquette
+  À répondre signale les conversations qui vous attendent.
+
+## Baisses de prix sur eBay
+
+- Les annonces eBay sauvegardées dans le cloud baissent au même rythme que
+  Depop et Vinted.
+- Sauvegardez des annonces dans le cloud directement depuis l'onglet Baisses
+  de prix.
+- Les enchères sont ignorées, leur prix ne peut pas baisser.
+
+## Vendu une fois, retiré partout
+
+- Quand une annonce liée se vend, ses autres copies sont retirées après la
+  synchronisation suivante. Depop passe en épuisé, eBay est clôturé et Vinted
+  est masqué par défaut.
+- Une notification indique ce qui a été retiré et ce qui n'a pas pu l'être.
+- Désactivable dans les réglages de l'onglet Liaison.
+
+## Améliorations
+
+- **Un onglet Offres plus rapide.** Les offres Depop se chargent en une
+  seconde environ au lieu de 15 ou plus, chaque plateforme s'affiche dès
+  qu'elle répond, et vos dernières offres apparaissent tout de suite pendant
+  le chargement des nouvelles.
+- **Un onglet Offres plus clair,** avec le prix en premier sur chaque offre,
+  un seul champ de prix pour les contre-offres, et un bouton Démarrer pour
+  l'acceptation automatique avec ses réglages à côté.
+- **Sélectionnez une plage dans Mes annonces.** Cliquez sur une annonce, puis
+  Maj-clic sur une autre pour tout sélectionner entre les deux.
+- **La modification groupée** peut activer ou désactiver les offres eBay sur
+  plusieurs annonces à la fois.
+- **Les mises à jour arrivent plus tôt.** SaleLinx vérifie s'il existe une
+  nouvelle version à l'ouverture.
+- **Accès au clavier** sur les écrans de connexion, d'essai et de liaison des
+  comptes, et des messages plus clairs quand la liaison échoue.
+- **Créer une annonce :** les flèches du clavier fonctionnent dans les listes
+  et les sélecteurs de couleur, et Échap ferme d'abord une liste ouverte.
+
+## Corrections
+
+- Une offre Depop pouvait être manquée quand le compteur d'offres de Depop
+  n'était pas à jour.
+- La fenêtre des plateformes pouvait demander d'ouvrir eBay alors qu'un
+  onglet eBay était déjà ouvert mais en veille.
+- L'état de synchronisation pouvait rester sur Non synchronisé. Il réessaie
+  désormais.
+- Désactiver les animations de page arrête aussi l'animation de Liaison.
+- Les photos de l'éditeur d'annonces ne clignotent plus pendant le chargement.
