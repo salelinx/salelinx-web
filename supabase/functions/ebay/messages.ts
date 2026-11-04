@@ -7,13 +7,13 @@
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
 
+import { isEbayPhotoUrl } from './message-photos.ts';
 import { EbayError, esc } from './trading.ts';
 
 /** eBay's limit on a message. */
 export const MAX_MESSAGE_CHARS = 2000;
 /** Most photos to a message. The Trading docs give no number, and the Message API's say five. */
 export const MAX_MESSAGE_PHOTOS = 5;
-const MAX_PHOTO_URL_CHARS = 200;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -209,7 +209,7 @@ export function conversationsFromResponse(body, me: Me) {
     .sort((a, b) => b.at - a.at);
 }
 
-/** Attached by address, from uploadMessagePhoto. eBay checks each and refuses one that doesn't exist. */
+/** Attached by address, from uploadMessagePhoto. eBay's own, as we shouldn't rely on it to refuse others. */
 function mediaXml(photos: unknown): string {
   const list = photos ?? [];
   if (!Array.isArray(list) || list.length > MAX_MESSAGE_PHOTOS) {
@@ -217,9 +217,7 @@ function mediaXml(photos: unknown): string {
   }
   return list
     .map((url, i) => {
-      if (typeof url !== 'string' || !url.startsWith('https://') || url.length > MAX_PHOTO_URL_CHARS) {
-        throw new EbayError('Bad photo address', 'bad_request');
-      }
+      if (!isEbayPhotoUrl(url)) throw new EbayError('Bad photo address', 'bad_request');
       return `<MessageMedia><MediaName>Photo ${i + 1}</MediaName><MediaURL>${esc(url)}</MediaURL></MessageMedia>`;
     })
     .join('');
