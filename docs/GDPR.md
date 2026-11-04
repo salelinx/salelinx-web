@@ -115,8 +115,8 @@ the buyer is returned, logged or stored. Keep it that way. This transit is discl
 in the privacy policy (Summary, and Order and buyer information), the terms (Buyer
 data) and the DPA (subject matter, nature, types of data, data subjects); change all
 four if it changes. A second transit: the `offers` action returns each Best Offer's
-buyer eBay user ID and message to the extension, which shows them in the Offers tab
-as it does Depop and Vinted buyers. They pass through in memory and are never logged
+buyer eBay user ID to the extension, which shows it in the Offers tab
+as it does Depop and Vinted buyers. It passes through in memory and is never logged
 or stored server-side. Never add code that
 persists buyer data server-side without revisiting the policy and terms first.
 

@@ -600,8 +600,6 @@ Deno.test('GetBestOffers keeps the offers waiting on the seller', () => {
       listPrice: 28,
       quantity: 1,
       expiresAt: '2026-11-05T10:00:00.000Z',
-      message: 'Would you take 20?',
-      counter: false,
     },
   ]);
 });

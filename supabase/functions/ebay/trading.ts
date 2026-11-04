@@ -554,8 +554,6 @@ export function bestOffersFromResponse(body) {
         listPrice: money(g.Item?.BuyItNowPrice)?.value ?? null,
         quantity: Number(o.Quantity ?? 1),
         expiresAt: o.ExpirationTime ?? null,
-        message: o.BuyerMessage ?? null,
-        counter: o.BestOfferCodeType === 'BuyerCounterOffer',
       })),
   );
 }
