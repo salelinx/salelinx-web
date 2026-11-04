@@ -15,6 +15,8 @@ const ARRAY_PATHS = new Set([
   'GetItemResponse.Item.PictureDetails.PictureURL',
   'GetItemResponse.Item.ItemSpecifics.NameValueList',
   'GetItemResponse.Item.ItemSpecifics.NameValueList.Value',
+  'GetBestOffersResponse.ItemBestOffersArray.ItemBestOffers',
+  'GetBestOffersResponse.ItemBestOffersArray.ItemBestOffers.BestOfferArray.BestOffer',
 ]);
 
 const xml = new XMLParser({
@@ -533,4 +535,40 @@ export function linkSiteId(
       ? siteIds[registration]
       : siteIds.EBAY_GB;
   return { siteId: fromRegistration, kept: false };
+}
+
+// Offers no longer waiting on the seller. SellerCounterOffer waits on the buyer.
+const SETTLED_OFFER = new Set(['Accepted', 'Declined', 'Expired', 'Retracted', 'AdminEnded', 'Countered']);
+
+/** GetBestOffers: the buyers' offers the seller can still answer, one row per offer. */
+export function bestOffersFromResponse(body) {
+  return (body.ItemBestOffersArray?.ItemBestOffers ?? []).flatMap((g) =>
+    (g.BestOfferArray?.BestOffer ?? [])
+      .filter((o) => !SETTLED_OFFER.has(o.Status) && o.BestOfferCodeType !== 'SellerCounterOffer')
+      .map((o) => ({
+        itemId: String(g.Item?.ItemID ?? ''),
+        offerId: String(o.BestOfferID),
+        buyer: o.Buyer?.UserID ?? '',
+        price: money(o.Price)?.value ?? 0,
+        currency: money(o.Price)?.currency ?? g.Item?.Currency ?? null,
+        listPrice: money(g.Item?.BuyItNowPrice)?.value ?? null,
+        quantity: Number(o.Quantity ?? 1),
+        expiresAt: o.ExpirationTime ?? null,
+      })),
+  );
+}
+
+/** RespondToBestOffer. A counter's price is the total for the offer's quantity. */
+export function respondOfferXml(r): { xml?: string; error?: string } {
+  if (!/^\d+$/.test(String(r.itemId)) || !/^\d+$/.test(String(r.offerId))) return { error: 'Missing offer' };
+  if (!['Accept', 'Decline', 'Counter'].includes(r.response)) return { error: 'Unknown offer response' };
+  let xml = `<ItemID>${r.itemId}</ItemID><BestOfferID>${r.offerId}</BestOfferID><Action>${r.response}</Action>`;
+  if (r.response === 'Counter') {
+    const price = Number(r.price);
+    const quantity = Number.isInteger(r.quantity) && r.quantity > 0 ? r.quantity : 1;
+    if (!(price > 0)) return { error: 'Counter price must be above 0' };
+    const currency = /^[A-Z]{3}$/.test(String(r.currency)) ? ` currencyID="${r.currency}"` : '';
+    xml += `<CounterOfferPrice${currency}>${price.toFixed(2)}</CounterOfferPrice><CounterOfferQuantity>${quantity}</CounterOfferQuantity>`;
+  }
+  return { xml };
 }

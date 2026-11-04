@@ -51,6 +51,8 @@ export type AdminUserRow = {
   theme: string | null;
   animations: boolean | null;
   panel_locale: string | null;
+  // Issuer decline code of the latest failed payment (migration 047).
+  decline_reason: string | null;
 };
 
 // Row from admin_list_subscriptions(): a full subscriptions row.

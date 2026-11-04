@@ -29,6 +29,8 @@
 //   categories { q }                         -> { categories } (Taxonomy suggestions)
 //   conditions { categoryId }                -> { conditions } (allowed condition ids)
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
+//   offers     {}                            -> { offers } (buyers' Best Offers still waiting on the seller)
+//   respondOffer { itemId, offerId, response, price?, currency?, quantity? } -> { ok } (Accept, Decline or Counter)
 //   conversations { maxAgeDays }             -> { conversations } (buyers' messages, messages.ts)
 //   sendMessage { reply, text, photos? }     -> { ok } (reply: { itemId, parentMessageId, recipientId };
 //                                              photos: addresses from uploadMessagePhoto)
@@ -68,6 +70,8 @@ import {
   shippingServicesFromDetails,
   verifyFromResponse,
   linkSiteId,
+  bestOffersFromResponse,
+  respondOfferXml,
   QUOTA_MESSAGE,
 } from './trading.ts';
 import {
@@ -651,6 +655,23 @@ Deno.serve(async (req: Request) => {
           '<ShowSellerProfilePreferences>true</ShowSellerProfilePreferences>',
         );
         return json(200, policiesFromPreferences(res));
+      }
+
+      case 'offers': {
+        const res = await trading(
+          'GetBestOffers',
+          await accessTokenFor(admin, user.id),
+          '<BestOfferStatus>Active</BestOfferStatus><DetailLevel>ReturnAll</DetailLevel>' +
+            '<Pagination><EntriesPerPage>200</EntriesPerPage><PageNumber>1</PageNumber></Pagination>',
+        );
+        return json(200, { offers: bestOffersFromResponse(res) });
+      }
+
+      case 'respondOffer': {
+        const built = respondOfferXml(body);
+        if (built.error) return json(400, { error: built.error, code: 'bad_request' });
+        await trading('RespondToBestOffer', await accessTokenFor(admin, user.id), built.xml);
+        return json(200, { ok: true });
       }
 
       case 'relist': {

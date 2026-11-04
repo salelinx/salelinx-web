@@ -13,6 +13,7 @@
 // extension daily looks dormant by sign-in date. The drawer shows the two
 // timestamps separately when the difference matters.
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import type { TierConfig } from "@/lib/types/tiers";
 import type { AdminDeletedAccount, AdminUserRow, LinkedPlatform } from "@/lib/types/admin";
@@ -75,7 +76,7 @@ function formatDate(iso: string | null): string {
 // Every marketplace the extension supports, in the order the Linked filter and
 // the roster badges show them. A missing entry here does NOT fail the type
 // check (an array literal may be a subset of the union), so a new marketplace
-// has to be added by hand. The adjacent PLATFORM_TONE record does fail in that
+// has to be added by hand. The adjacent PLATFORM_LOGO record does fail in that
 // case, which is the reminder.
 const LINKED_PLATFORMS: LinkedPlatform[] = ["depop", "vinted", "ebay"];
 
@@ -229,10 +230,10 @@ const TIER_TONE: Record<string, string> = {
   business: "bg-violet-50 text-violet-700",
 };
 
-const PLATFORM_TONE: Record<LinkedPlatform, string> = {
-  depop: "bg-rose-50 text-rose-700 border-rose-200",
-  vinted: "bg-teal-50 text-teal-700 border-teal-200",
-  ebay: "bg-blue-50 text-blue-700 border-blue-200",
+const PLATFORM_LOGO: Record<LinkedPlatform, string> = {
+  depop: "/depop-logo.png",
+  vinted: "/vinted-logo.png",
+  ebay: "/ebay-logo.svg",
 };
 
 export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) {
@@ -705,6 +706,7 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
                           <BillingCell
                             cancelAtPeriodEnd={u.cancel_at_period_end}
                             status={u.status}
+                            declineReason={u.decline_reason}
                             periodEnd={u.current_period_end}
                             now={now}
                           />
@@ -801,6 +803,7 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
                       <BillingCell
                         cancelAtPeriodEnd={u.cancel_at_period_end}
                         status={u.status}
+                        declineReason={u.decline_reason}
                         periodEnd={u.current_period_end}
                         now={now}
                       />
@@ -989,17 +992,26 @@ function AdminTag() {
   );
 }
 
+const declineLabel = (code: string | null) =>
+  !code
+    ? "Retrying payment"
+    : code === "generic_decline" || code === "card_declined"
+      ? "Card declined"
+      : code.charAt(0).toUpperCase() + code.slice(1).replace(/_/g, " ");
+
 // Which marketplaces the user has connected. The full username and a link to
 // the shop live in the detail drawer; the roster only needs the presence
 // signal, so this stays a single initial per platform.
 function BillingCell({
   cancelAtPeriodEnd,
   status,
+  declineReason,
   periodEnd,
   now,
 }: {
   cancelAtPeriodEnd: boolean;
   status: string | null;
+  declineReason: string | null;
   periodEnd: string | null;
   /** From useClientNow in the parent: reading the clock during render is both
    *  impure and a hydration mismatch waiting to happen. Null until hydration,
@@ -1020,7 +1032,7 @@ function BillingCell({
         className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
         title="The last payment failed; Stripe is retrying the card"
       >
-        Retrying payment
+        {declineLabel(declineReason)}
       </span>
     );
   }
@@ -1064,16 +1076,16 @@ function PlatformTags({ platforms }: { platforms: LinkedPlatform[] }) {
   return (
     <span className="flex gap-1">
       {LINKED_PLATFORMS.filter((p) => platforms.includes(p)).map((p) => (
-        <span
+        <Image
           key={p}
+          src={PLATFORM_LOGO[p]}
+          alt={platformLabel(p)}
           title={platformLabel(p)}
-          className={
-            "rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase " +
-            PLATFORM_TONE[p]
-          }
-        >
-          {platformLabel(p)[0]}
-        </span>
+          width={16}
+          height={16}
+          unoptimized
+          className="h-4 w-4 rounded-[3px]"
+        />
       ))}
     </span>
   );
