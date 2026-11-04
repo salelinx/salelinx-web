@@ -49,6 +49,10 @@ import * as v120En from "@/content/changelog/en/2026-10-27-v1-2-0.mdx";
 import * as v120Fr from "@/content/changelog/fr/2026-10-27-v1-2-0.mdx";
 import * as v120Es from "@/content/changelog/es/2026-10-27-v1-2-0.mdx";
 import * as v120De from "@/content/changelog/de/2026-10-27-v1-2-0.mdx";
+import * as v122En from "@/content/changelog/en/2026-11-04-v1-2-2.mdx";
+import * as v122Fr from "@/content/changelog/fr/2026-11-04-v1-2-2.mdx";
+import * as v122Es from "@/content/changelog/es/2026-11-04-v1-2-2.mdx";
+import * as v122De from "@/content/changelog/de/2026-11-04-v1-2-2.mdx";
 import * as v121En from "@/content/changelog/en/2026-11-02-v1-2-1.mdx";
 import * as v121Fr from "@/content/changelog/fr/2026-11-02-v1-2-1.mdx";
 import * as v121Es from "@/content/changelog/es/2026-11-02-v1-2-1.mdx";
@@ -63,6 +67,7 @@ import * as v115De from "@/content/changelog/de/2026-08-29-v1-1-5.mdx";
 // metadata.date descending, so the order here does not matter.
 const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   en: [
+    v122En as unknown as ChangelogModule,
     v121En as unknown as ChangelogModule,
     v120En as unknown as ChangelogModule,
     v1112En as unknown as ChangelogModule,
@@ -79,6 +84,7 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEn as unknown as ChangelogModule,
   ],
   fr: [
+    v122Fr as unknown as ChangelogModule,
     v121Fr as unknown as ChangelogModule,
     v120Fr as unknown as ChangelogModule,
     v1112Fr as unknown as ChangelogModule,
@@ -95,6 +101,7 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseFr as unknown as ChangelogModule,
   ],
   es: [
+    v122Es as unknown as ChangelogModule,
     v121Es as unknown as ChangelogModule,
     v120Es as unknown as ChangelogModule,
     v1112Es as unknown as ChangelogModule,
@@ -111,6 +118,7 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEs as unknown as ChangelogModule,
   ],
   de: [
+    v122De as unknown as ChangelogModule,
     v121De as unknown as ChangelogModule,
     v120De as unknown as ChangelogModule,
     v1112De as unknown as ChangelogModule,
@@ -130,6 +138,7 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
   // read the English ones. Add locale dirs under content/changelog to change
   // that, and add the locale to TRANSLATED_CHANGELOG_LOCALES below.
   ar: [
+    v122En as unknown as ChangelogModule,
     v121En as unknown as ChangelogModule,
     v120En as unknown as ChangelogModule,
     v1112En as unknown as ChangelogModule,
@@ -146,6 +155,7 @@ const CHANGELOG_MODULES_BY_LOCALE: Record<Locale, ChangelogModule[]> = {
     initialReleaseEn as unknown as ChangelogModule,
   ],
   zh: [
+    v122En as unknown as ChangelogModule,
     v121En as unknown as ChangelogModule,
     v120En as unknown as ChangelogModule,
     v1112En as unknown as ChangelogModule,

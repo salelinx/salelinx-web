@@ -1,0 +1,76 @@
+export const metadata = {
+  title: "Angebote, Nachrichten und Preissenkungen auf eBay, und verkaufte Anzeigen verschwinden überall",
+  date: "2026-11-04",
+  summary:
+    "Version 1.2.2 bringt Angebote, Nachrichten und Preissenkungen zu eBay, nimmt die anderen Kopien einer verknüpften Anzeige herunter, wenn sie verkauft wird, und ergänzt in Meine Anzeigen die Bereichsauswahl per Umschalt-Klick. Der Tab Angebote ist neu gestaltet und lädt deutlich schneller.",
+  tags: ["release"],
+};
+
+# Version 1.2.2
+
+Beantworte eBay-Angebote und Nachrichten direkt im Panel, plane
+Preissenkungen für eBay und verhindere, dass ein Artikel doppelt verkauft
+wird.
+
+## Angebote auf eBay
+
+- **Eine eBay-Spalte.** eBay-Preisvorschläge stehen neben Depop und Vinted.
+  Annehmen, ablehnen oder Gegenangebot, ohne eBay zu öffnen.
+- **Automatisch annehmen gilt auch für eBay.** Schalte eBay in den
+  Einstellungen ein. eBay-Angebote werden höchstens einmal pro Stunde geprüft.
+- **Gegenangebote bleiben unter deinem Preis.** Das Panel zeigt Zu hoch, bevor
+  du sendest.
+
+## Nachrichten auf eBay
+
+- **Ein Posteingang** für Depop, Vinted und eBay, wer wartet, steht oben.
+- **Antworte eBay-Käufern** mit bis zu 5 Fotos und sieh die Fotos, die sie
+  schicken.
+- **Filter** für ungelesen, gelesen und jeden Marktplatz. Die Markierung
+  Unbeantwortet zeigt, welche Unterhaltungen auf dich warten.
+
+## Preissenkungen auf eBay
+
+- In der Cloud gesicherte eBay-Anzeigen sinken nach demselben Plan wie Depop
+  und Vinted.
+- Sichere Anzeigen direkt im Tab Preissenkungen in der Cloud.
+- Auktionen werden übersprungen, ihr Preis kann nicht sinken.
+
+## Einmal verkauft, überall weg
+
+- Wird eine verknüpfte Anzeige verkauft, verschwinden ihre anderen Kopien nach
+  der nächsten Synchronisierung. Depop wird auf ausverkauft gesetzt, eBay
+  beendet und Vinted standardmäßig ausgeblendet.
+- Ein Hinweis zeigt, was entfernt wurde und was nicht entfernt werden konnte.
+- Abschaltbar in den Einstellungen des Tabs Verknüpfung.
+
+## Verbessert
+
+- **Ein schnellerer Tab Angebote.** Depop-Angebote laden in etwa einer Sekunde
+  statt 15 oder mehr, jeder Marktplatz erscheint, sobald er antwortet, und
+  deine letzten Angebote sind sofort zu sehen, während neue laden.
+- **Ein übersichtlicherer Tab Angebote,** mit dem Preis zuerst bei jedem
+  Angebot, einem einzigen Preisfeld für Gegenangebote und einem Start-Button
+  für Automatisch annehmen mit den Einstellungen daneben.
+- **Bereich in Meine Anzeigen auswählen.** Klicke eine Anzeige an, dann
+  Umschalt-Klick auf eine andere, um alles dazwischen auszuwählen.
+- **Massenbearbeitung** kann eBay-Angebote für viele Anzeigen auf einmal
+  ein- oder ausschalten.
+- **Updates kommen schneller an.** SaleLinx prüft beim Öffnen, ob es eine neue
+  Version gibt.
+- **Tastaturbedienung** auf den Bildschirmen für Anmeldung, Testphase und
+  Kontoverknüpfung, und klarere Meldungen, wenn die Verknüpfung fehlschlägt.
+- **Anzeige erstellen:** Pfeiltasten funktionieren in Listen und
+  Farbauswahlen, und Esc schließt zuerst eine offene Liste.
+
+## Behoben
+
+- Ein Depop-Angebot konnte übersehen werden, wenn Depops Angebotszähler nicht
+  aktuell war.
+- Das Marktplatz-Fenster konnte verlangen, eBay zu öffnen, obwohl schon ein
+  eBay-Tab offen war, aber ruhte.
+- Der Synchronisierungsstatus konnte auf Nicht synchronisiert hängen bleiben.
+  Jetzt versucht er es erneut.
+- Wenn Seitenanimationen aus sind, steht jetzt auch die Animation in
+  Verknüpfung still.
+- Fotos im Anzeigen-Editor flackern nicht mehr, während Anzeigen laden.

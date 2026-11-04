@@ -1,0 +1,77 @@
+export const metadata = {
+  title: "Ofertas, Mensajes y Bajadas de precio en eBay, y anuncios vendidos retirados de todas partes",
+  date: "2026-11-04",
+  summary:
+    "La versión 1.2.2 lleva Ofertas, Mensajes y Bajadas de precio a eBay, retira las demás copias de un anuncio vinculado cuando se vende y añade la selección de un rango con Mayús-clic en Mis anuncios. La pestaña Ofertas se ha rediseñado y carga mucho más rápido.",
+  tags: ["release"],
+};
+
+# Versión 1.2.2
+
+Responde a ofertas y mensajes de eBay desde el panel, programa bajadas de
+precio en eBay y evita que un artículo se venda dos veces.
+
+## Ofertas en eBay
+
+- **Una columna de eBay.** Las ofertas de eBay aparecen junto a Depop y
+  Vinted. Acepta, rechaza o haz una contraoferta sin abrir eBay.
+- **La aceptación automática incluye eBay.** Activa eBay en sus ajustes. Las
+  ofertas de eBay se revisan como mucho una vez por hora.
+- **Las contraofertas no superan tu precio.** El panel avisa Demasiado alto
+  antes de enviar.
+
+## Mensajes en eBay
+
+- **Una sola bandeja** para Depop, Vinted y eBay, con quien espera primero.
+- **Responde a compradores de eBay** con hasta 5 fotos y ve las fotos que te
+  envían.
+- **Filtros** para no leídos, leídos y cada plataforma. La etiqueta Por
+  responder marca las conversaciones que te esperan.
+
+## Bajadas de precio en eBay
+
+- Los anuncios de eBay guardados en la nube bajan con el mismo calendario que
+  Depop y Vinted.
+- Guarda anuncios en la nube directamente desde la pestaña Bajadas de precio.
+- Las subastas se omiten, su precio no puede bajar.
+
+## Vendido una vez, retirado de todo
+
+- Cuando se vende un anuncio vinculado, sus otras copias se retiran tras la
+  siguiente sincronización. Depop pasa a agotado, eBay se finaliza y Vinted se
+  oculta por defecto.
+- Un aviso indica qué se retiró y qué no se pudo retirar.
+- Puedes desactivarlo en los ajustes de la pestaña Vincular.
+
+## Mejoras
+
+- **Una pestaña Ofertas más rápida.** Las ofertas de Depop cargan en un
+  segundo aproximadamente en lugar de 15 o más, cada plataforma aparece en
+  cuanto responde y tus últimas ofertas se ven al instante mientras cargan las
+  nuevas.
+- **Una pestaña Ofertas más clara,** con el precio primero en cada oferta, un
+  único campo de precio para las contraofertas y un botón Iniciar para la
+  aceptación automática con sus ajustes al lado.
+- **Selecciona un rango en Mis anuncios.** Haz clic en un anuncio y luego
+  Mayús-clic en otro para seleccionar todo lo que hay entre ellos.
+- **La edición masiva** puede activar o desactivar las ofertas de eBay en
+  muchos anuncios a la vez.
+- **Las actualizaciones llegan antes.** SaleLinx busca una nueva versión al
+  abrirlo.
+- **Acceso con teclado** en las pantallas de inicio de sesión, prueba y
+  vinculación de cuentas, y mensajes más claros cuando falla la vinculación.
+- **Crear anuncio:** las flechas del teclado funcionan en sus listas y
+  selectores de color, y Esc cierra primero una lista abierta.
+
+## Correcciones
+
+- Una oferta de Depop podía perderse cuando el contador de ofertas de Depop no
+  estaba al día.
+- La ventana de plataformas podía pedir abrir eBay aunque una pestaña de eBay
+  ya estuviera abierta pero en reposo.
+- El estado de sincronización podía quedarse en No sincronizado. Ahora vuelve
+  a intentarlo.
+- Desactivar las animaciones de página también detiene la animación de
+  Vincular.
+- Las fotos del editor de anuncios ya no parpadean mientras cargan los
+  anuncios.
