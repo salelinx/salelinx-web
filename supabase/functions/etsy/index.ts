@@ -69,6 +69,73 @@ async function api(token: string, path: string, init: RequestInit = {}) {
   return body;
 }
 
+async function accessTokenFor(admin, userId: string): Promise<{ token: string; shopId: string }> {
+  const { data: row, error } = await admin
+    .from('etsy_tokens')
+    .select('access_token, access_expires_at, refresh_token, shop_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) throw new EtsyError('Token lookup failed', 'unavailable', 500);
+  if (!row) throw new EtsyError('Etsy is not connected', 'not_linked', 409);
+
+  if (new Date(row.access_expires_at).getTime() - Date.now() > 60_000) {
+    return { token: row.access_token, shopId: row.shop_id };
+  }
+  const fresh = await tokenRequest({ grant_type: 'refresh_token', refresh_token: row.refresh_token });
+  await admin
+    .from('etsy_tokens')
+    .update({
+      access_token: fresh.access_token,
+      access_expires_at: inSeconds(fresh.expires_in),
+      refresh_token: fresh.refresh_token,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+  return { token: fresh.access_token, shopId: row.shop_id };
+}
+
+const STATES = ['active', 'draft', 'inactive', 'expired', 'sold_out'];
+const MAX_LISTINGS = 2000;
+
+function summary(l) {
+  const images = [...(l.images ?? [])].sort((a, b) => a.rank - b.rank);
+  return {
+    listingId: String(l.listing_id),
+    state: l.state,
+    title: l.title ?? '',
+    description: l.description ?? '',
+    price: l.price ? l.price.amount / l.price.divisor : 0,
+    currency: l.price?.currency_code ?? null,
+    quantity: l.quantity ?? 0,
+    url: l.url ?? null,
+    favorers: l.num_favorers ?? 0,
+    views: l.views ?? null,
+    photos: images.map((i) => i.url_fullxfull ?? i.url_570xN).filter(Boolean),
+    tags: l.tags ?? [],
+    createdAt: l.created_timestamp ? l.created_timestamp * 1000 : null,
+    updatedAt: l.updated_timestamp ? l.updated_timestamp * 1000 : null,
+  };
+}
+
+async function listings(admin, userId: string) {
+  const { token, shopId } = await accessTokenFor(admin, userId);
+  const out = [];
+  let complete = true;
+  for (const state of STATES) {
+    for (let offset = 0; ; offset += 100) {
+      if (out.length >= MAX_LISTINGS) {
+        complete = false;
+        break;
+      }
+      const qs = new URLSearchParams({ state, limit: '100', offset: String(offset), includes: 'Images' });
+      const page = await api(token, `/shops/${shopId}/listings?${qs}`);
+      out.push(...(page.results ?? []).map(summary));
+      if (offset + 100 >= (page.count ?? 0)) break;
+    }
+  }
+  return { listings: out, complete };
+}
+
 async function link(admin, userScoped, userId: string, body) {
   if (typeof body.code !== 'string' || !body.code) throw new EtsyError('Missing code', 'bad_request', 400);
   if (typeof body.codeVerifier !== 'string' || !/^[A-Za-z0-9._~-]{43,128}$/.test(body.codeVerifier)) {
@@ -178,6 +245,9 @@ Deno.serve(async (req: Request) => {
         });
         return json(200, await link(admin, userScoped, user.id, body));
       }
+
+      case 'listings':
+        return json(200, await listings(admin, user.id));
 
       case 'unlink': {
         await admin.from('etsy_tokens').delete().eq('user_id', user.id);
