@@ -28,6 +28,8 @@
 //   categories { q }                         -> { categories } (Taxonomy suggestions)
 //   conditions { categoryId }                -> { conditions } (allowed condition ids)
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
+//   conversations { maxAgeDays }             -> { conversations } (buyers' messages, messages.ts)
+//   sendMessage { reply, text }              -> { ok } (reply: { itemId, parentMessageId, recipientId })
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect eBay again, 'quota' when the app's daily eBay call limit is used
@@ -66,6 +68,7 @@ import {
   linkSiteId,
   QUOTA_MESSAGE,
 } from './trading.ts';
+import { conversationsFromResponse, memberMessagesQuery, replyXml } from './messages.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -237,6 +240,17 @@ async function rest(auth, path: string) {
     throw new EbayError(body?.errors?.[0]?.message ?? `eBay request failed (${res.status})`, 'ebay', 502);
   }
   return body;
+}
+
+// Who a message's sender or recipient has to be for it to be the seller's own.
+async function ebayIdentity(admin, userId: string) {
+  const { data } = await admin
+    .from('linked_accounts')
+    .select('platform_user_id, platform_username')
+    .eq('user_id', userId)
+    .eq('platform', 'ebay')
+    .maybeSingle();
+  return { userId: data?.platform_user_id, username: data?.platform_username };
 }
 
 async function uploadPhoto(auth, dataUrl: string): Promise<string> {
@@ -550,6 +564,21 @@ Deno.serve(async (req: Request) => {
         }
         const res = await trading(listingCall('add', !!item.auction), auth, built.xml);
         return json(200, { itemId: String(res.ItemID) });
+      }
+
+      case 'conversations': {
+        const auth = await accessTokenFor(admin, user.id);
+        const me = await ebayIdentity(admin, user.id);
+        const query = memberMessagesQuery(body.maxAgeDays, new Date());
+        const answer = await trading('GetMemberMessages', auth, query);
+        return json(200, { conversations: conversationsFromResponse(answer, me) });
+      }
+
+      case 'sendMessage': {
+        // Checked first, so a refused reply spends none of the shared daily quota.
+        const xml = replyXml(body.reply, body.text);
+        await trading('AddMemberMessageRTQ', await accessTokenFor(admin, user.id), xml);
+        return json(200, { ok: true });
       }
 
       case 'shippingServices': {

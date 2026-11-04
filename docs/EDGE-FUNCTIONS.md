@@ -48,7 +48,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial (day 1 and day 4) and send one win-back email after a plan or trial ends, with a per-customer one-use 50% first-month promo code; also serves the HMAC-signed unsubscribe link, which sets `trial_nudges.unsubscribed_at` and `marketing_opt_out` in the user's metadata so `/account` shows the emails as off |
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
-| `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts. Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
+| `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, messages (`conversations`, `sendMessage`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
@@ -465,6 +465,16 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   triggers (006) decide before any token is kept (their refusals come back as
   `ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`). Only then does the service role upsert
   `ebay_tokens`.
+- **Scopes.** `SCOPES` is what a seller is asked to consent to, and a token refresh sends the same
+  list, so adding one breaks every linked seller: eBay refuses a refresh asking for more than they
+  consented to. Leaving `scope` out of the refresh means whatever they consented to, per eBay's
+  docs. A new scope must also be granted to the keyset (developer.ebay.com, Application Keys)
+  first, or eBay's consent screen fails with `invalid_scope` for everyone connecting.
+- **Messages.** `conversations` and `sendMessage` use the Trading API (`GetMemberMessages`,
+  `AddMemberMessageRTQ`, `messages.ts`), so each list spends the shared daily quota. eBay's newer
+  Message API returned none of a real seller's buyer messages (2026-11-03). Text, usernames and
+  photo links pass through in memory and must never be logged, and the buyer's email address eBay
+  sends is dropped (`GDPR.md`, which also lists the legal pages that disclose this).
 - **Site.** `ebay_tokens.site_id` is the eBay site every listing call goes to, and with it the
   listing's country, currency and categories. A new link starts it on the account's
   registration marketplace, UK when eBay does not say or names a site the function doesn't
