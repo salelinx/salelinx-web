@@ -245,6 +245,6 @@ export const config = {
   // _vercel is Vercel Web Analytics (components/SiteStats.tsx): rewritten,
   // its script and intake 404.
   matcher: [
-    "/((?!api(?:/|$)|_vercel|_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|webmanifest|mp4)$).*)",
+    "/((?!api(?:/|$)|_vercel|_next/static|_next/image|favicon.ico|.*/opengraph-image$|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|webmanifest|mp4)$).*)",
   ],
 };

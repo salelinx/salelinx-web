@@ -85,7 +85,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <p>
             On a paid plan, open your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>
             , click <strong>Manage subscription</strong> and choose the new
@@ -107,7 +107,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <p>
             Open your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>{' '}
             and click <strong>Manage subscription</strong>. Stripe&rsquo;s
@@ -132,7 +132,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             away and its allowances apply immediately. On a paid plan, every
             change happens in Stripe&rsquo;s billing portal: click{' '}
             <strong>Manage subscription</strong> on your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>{' '}
             and pick the plan. Moving to a lower plan always goes through{' '}
@@ -147,7 +147,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <p>
             Open your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>{' '}
             and click <strong>Manage subscription</strong>. Stripe&rsquo;s
@@ -185,7 +185,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
           <p>
             Copy your link from the <strong>Refer &amp; Earn</strong> tab in
             the SaleLinx panel, or from <strong>Refer a friend</strong> on your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>
             . Friends who sign up through it get a discount on their first
@@ -279,7 +279,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             marketplace tabs on the other device, it also frees up by
             itself within about 10 minutes. If you don&rsquo;t recognise the
             other device, take over and then change your password from your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>
             .
@@ -556,7 +556,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
             . We email you when we reply, and you can follow and answer the
             conversation in <strong>My tickets</strong> in the Support tab or
             under <strong>Your tickets</strong> on your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>
             .
@@ -718,7 +718,7 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <p>
             Open your{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               account page
             </Link>
             , scroll to the bottom and click <strong>Delete account</strong>.

@@ -83,7 +83,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         a: (
           <p>
             Con un plan de pago, abre tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>
             , haz clic en <strong>Gestionar suscripción</strong> y elige el
@@ -105,7 +105,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         a: (
           <p>
             Abre tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>{' '}
             y haz clic en <strong>Gestionar suscripción</strong>. Se abre el
@@ -130,7 +130,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             en el momento y sus límites se aplican de inmediato. Con un plan de
             pago, todos los cambios se hacen en el portal de facturación de
             Stripe: haz clic en <strong>Gestionar suscripción</strong> en tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>{' '}
             y elige el plan. Para bajar a un plan inferior, usa siempre{' '}
@@ -145,7 +145,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         a: (
           <p>
             Abre tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>{' '}
             y haz clic en <strong>Gestionar suscripción</strong>. Se abre el
@@ -184,7 +184,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             Copia tu enlace desde la pestaña{' '}
             <strong>Recomienda y gana</strong> del panel de SaleLinx, o desde{' '}
             <strong>Recomienda a un amigo</strong> en tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>
             . Los amigos que se registren con él obtienen un descuento en su
@@ -282,7 +282,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             marketplace en el otro dispositivo, también se libera solo en
             unos 10 minutos. Si no reconoces el otro dispositivo, toma el
             control y después cambia tu contraseña desde tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>
             .
@@ -565,7 +565,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
             . Te avisamos por correo cuando respondemos, y puedes seguir la
             conversación y contestar en <strong>Mis tickets</strong>, en la
             pestaña Soporte, o en <strong>Tus tickets</strong>, en tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>
             .
@@ -734,7 +734,7 @@ export const FAQ_GROUPS_ES: FAQGroup[] = [
         a: (
           <p>
             Abre tu{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               página de cuenta
             </Link>
             , baja hasta el final y haz clic en{' '}
