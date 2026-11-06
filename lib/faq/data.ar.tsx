@@ -83,7 +83,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
         a: (
           <p>
             إن كانت لديك خطة مدفوعة، افتح{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>{' '}
             واضغط <strong>إدارة الاشتراك</strong>، ثم اختر الخطة الجديدة في
@@ -103,7 +103,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
         a: (
           <p>
             افتح{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>{' '}
             واضغط <strong>إدارة الاشتراك</strong>. تُفتح بوابة الفوترة لدى
@@ -126,7 +126,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             إلى إنهاء التجربة مبكراً: يُخصم ثمن تلك الخطة من بطاقتك فوراً
             وتسري حصصها مباشرة. أما مع خطة مدفوعة، فكل تغيير يتم في بوابة
             الفوترة لدى Stripe: اضغط <strong>إدارة الاشتراك</strong> في{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>{' '}
             واختر الخطة. والانتقال إلى خطة أدنى يتم دائماً عبر{' '}
@@ -141,7 +141,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
         a: (
           <p>
             افتح{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>{' '}
             واضغط <strong>إدارة الاشتراك</strong>. تُفتح بوابة الفوترة لدى
@@ -177,7 +177,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
           <p>
             انسخ رابطك من تبويب <strong>Refer &amp; Earn</strong> في لوحة
             SaleLinx، أو من قسم <strong>أحِل صديقاً</strong> في{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>
             . يحصل الأصدقاء الذين يسجّلون عبره على خصم على شهرهم الأول. وبعد أن
@@ -269,7 +269,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             على الجهاز الآخر، فسيتحرر المكان تلقائياً خلال نحو 10
             دقائق. وإن لم تتعرّف على الجهاز الآخر، فاستعد الاستخدام ثم غيّر
             كلمة المرور من{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>
             .
@@ -546,7 +546,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
             . نرسل إليك بريداً عندما نرد، ويمكنك متابعة المحادثة والرد عليها
             في <strong>My tickets</strong> داخل تبويب Support، أو في{' '}
             <strong>تذاكرك</strong> على{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>
             .
@@ -704,7 +704,7 @@ export const FAQ_GROUPS_AR: FAQGroup[] = [
         a: (
           <p>
             افتح{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               صفحة حسابك
             </Link>
             ، وانزل إلى أسفلها واضغط <strong>حذف الحساب</strong>. أدخل كلمة

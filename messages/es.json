@@ -911,7 +911,7 @@
   },
   "Docs": {
     "metaTitle": "Documentación y guías",
-    "metaDescription": "Guías paso a paso para la extensión de Chrome SaleLinx: configuración, crosslist, republicación, automatizaciones, ofertas, mensajes y etiquetas en Depop, Vinted y eBay.",
+    "metaDescription": "Guías paso a paso para la extensión de Chrome SaleLinx: configuración, crosslist, republicación, automatizaciones, ofertas y etiquetas en Depop, Vinted y eBay.",
     "eyebrow": "Docs",
     "heroTitle": "Aprende SaleLinx.",
     "heroBody": "Guías paso a paso y tutoriales para la extensión Chrome de SaleLinx. Para respuestas rápidas a preguntas comunes, ve a la <faq>FAQ</faq>.",
@@ -929,12 +929,12 @@
       "inventory": {
         "title": "Inventario y publicación",
         "blurb": "Anuncios, bots, republicación, refresco, crosslist, shop designer, import CSV, sincronización en la nube.",
-        "metaDescription": "Gestiona tu inventario con SaleLinx: anuncios, Grow, republicación, refresco, crosslist, Shop Designer, importación CSV, edición masiva y sincronización en la nube."
+        "metaDescription": "Gestiona tu inventario con SaleLinx: anuncios, republicación, refresco, crosslist, Shop Designer, importación CSV, edición masiva y sincronización en la nube."
       },
       "automate": {
         "title": "Automatización",
         "blurb": "Stock estancado, ofertas automáticas, linking, reposicionador, bajadas de precio.",
-        "metaDescription": "Automatiza tus ventas con SaleLinx: stock estancado, aceptación automática de ofertas, envío de ofertas, vinculación de anuncios, reposición y bajadas de precio."
+        "metaDescription": "Automatiza tus ventas con SaleLinx: stock estancado, aceptación automática de ofertas, envío de ofertas, vinculación de anuncios y bajadas de precio."
       },
       "buyers": {
         "title": "Mensajes de compradores",
@@ -1016,7 +1016,7 @@
   },
   "Faq": {
     "metaTitle": "Preguntas frecuentes",
-    "metaDescription": "Respuestas rápidas a preguntas comunes sobre SaleLinx: prueba gratuita, facturación y planes, tu cuenta, privacidad y solución de problemas de la extensión de Chrome.",
+    "metaDescription": "Respuestas rápidas sobre SaleLinx: prueba gratuita, facturación y planes, tu cuenta, privacidad y solución de problemas de la extensión de Chrome.",
     "eyebrow": "FAQ",
     "title": "Preguntas frecuentes.",
     "body": "Respuestas rápidas a las preguntas que más nos hacen. ¿Buscas un tutorial completo? <docs>Explora los docs</docs>.",

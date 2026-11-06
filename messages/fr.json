@@ -911,7 +911,7 @@
   },
   "Docs": {
     "metaTitle": "Documentation et guides",
-    "metaDescription": "Guides pas à pas pour l'extension Chrome SaleLinx : installation, crosslist, republication, automatisations, offres, messages et étiquettes sur Depop, Vinted et eBay.",
+    "metaDescription": "Guides pas à pas pour l'extension Chrome SaleLinx : installation, crosslist, republication, automatisations, offres et étiquettes sur Depop, Vinted et eBay.",
     "eyebrow": "Docs",
     "heroTitle": "Apprendre SaleLinx.",
     "heroBody": "Guides pas à pas et explications pour l'extension Chrome SaleLinx. Pour des réponses rapides aux questions courantes, consultez la <faq>FAQ</faq>.",
@@ -924,7 +924,7 @@
       "getting-started": {
         "title": "Premiers pas",
         "blurb": "Installez l'extension, connectez-vous et publiez votre première annonce.",
-        "metaDescription": "Premiers pas avec SaleLinx : installez l'extension Chrome, connectez-vous, reliez Depop, Vinted ou eBay et découvrez la file d'attente, les réglages et votre abonnement."
+        "metaDescription": "Premiers pas avec SaleLinx : installez l'extension Chrome, reliez Depop, Vinted ou eBay et découvrez la file d'attente, les réglages et votre abonnement."
       },
       "inventory": {
         "title": "Inventaire et publication",
@@ -934,7 +934,7 @@
       "automate": {
         "title": "Automatisation",
         "blurb": "Stock dormant, offres automatiques, linking, réapprovisionneur, baisses de prix.",
-        "metaDescription": "Automatisez vos ventes avec SaleLinx : stock dormant, offres acceptées automatiquement, envoi d'offres, liaison d'annonces, réapprovisionneur et baisses de prix."
+        "metaDescription": "Automatisez vos ventes avec SaleLinx : stock dormant, offres acceptées automatiquement, envoi d'offres, liaison d'annonces et baisses de prix."
       },
       "buyers": {
         "title": "Messages acheteurs",
@@ -997,7 +997,7 @@
     },
     "changelog": {
       "metaTitle": "Changelog",
-      "metaDescription": "Ce qui a changé dans chaque version de l'extension Chrome SaleLinx : nouvelles fonctionnalités, corrections et améliorations pour vendre sur Depop, Vinted et eBay.",
+      "metaDescription": "Ce qui a changé dans chaque version de l'extension Chrome SaleLinx : nouvelles fonctionnalités et corrections pour vendre sur Depop, Vinted et eBay.",
       "eyebrow": "Changelog",
       "title": "Quoi de neuf dans SaleLinx",
       "body": "Notes de version de l'extension SaleLinx. L'entrée la plus récente est en haut.",

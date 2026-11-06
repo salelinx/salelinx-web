@@ -82,7 +82,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: (
           <p>
             如果你已经是付费套餐，打开{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>
             ，点击 <strong>管理订阅</strong>，在 Stripe 的账单门户里选择新套餐。
@@ -102,7 +102,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: (
           <p>
             打开你的{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>{' '}
             并点击 <strong>管理订阅</strong>。Stripe 的账单门户会打开，你可以
@@ -124,7 +124,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             选择套餐会提前结束试用：立即从你的卡上扣除该套餐的费用，它的额度
             也马上生效。如果是付费套餐，所有更改都在 Stripe 的账单门户里完成：
             在{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>{' '}
             点击 <strong>管理订阅</strong> 并选择套餐。降级到更低的套餐，始终
@@ -139,7 +139,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: (
           <p>
             打开你的{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>{' '}
             并点击 <strong>管理订阅</strong>。Stripe 的账单门户会显示你的发票
@@ -173,7 +173,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: (
           <p>
             在 SaleLinx 面板的 <strong>Refer &amp; Earn</strong> 标签页，或{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>{' '}
             的 <strong>推荐好友</strong> 区域复制你的链接。通过这个链接注册的
@@ -259,7 +259,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             另一台设备会退出 SaleLinx。如果你刚在另一台设备上关掉了平台
             标签页，大约 10 分钟内也会自动释放。如果你不认识那台设备，
             先接管使用，然后在{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>{' '}
             修改密码。
@@ -512,7 +512,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
             </a>
             。我们回复时会发邮件通知你，你可以在 Support 标签页的{' '}
             <strong>My tickets</strong> 里，或在{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>{' '}
             的 <strong>你的工单</strong> 里查看并回复。
@@ -667,7 +667,7 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: (
           <p>
             打开你的{' '}
-            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
+            <Link href="/account" className="underline underline-offset-4">
               账户页面
             </Link>
             ，滚动到最底部，点击 <strong>删除账户</strong>。输入密码（如果你用
