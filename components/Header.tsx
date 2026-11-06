@@ -1,17 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { createServerClient } from "@/lib/supabase/server";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { MobileMenu } from "@/components/MobileMenu";
 import { HelpMenu } from "@/components/HelpMenu";
+import { AuthSwitch } from "@/components/AuthSwitch";
 
 export async function Header() {
-  const supabase = await createServerClient();
-  // Local JWT verification (getClaims) instead of getUser(): the Header only
-  // needs "is someone signed in", and getUser() costs a network round-trip to
-  // Supabase Auth on every page view. proxy.ts handles token refresh.
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const isAuthed = Boolean(claimsData?.claims);
   const t = await getTranslations("Header");
 
   return (
@@ -65,97 +59,100 @@ export async function Header() {
           >
             {t("navBlog")}
           </Link>
-          {isAuthed ? (
-            <>
-              <div className="group relative hidden md:block">
-                <Link
-                  href="/help"
-                  className="transition-colors duration-200 hover:text-black dark:hover:text-white"
-                >
-                  {t("support")}
-                </Link>
-                <HelpMenu
-                  labels={{
-                    faq: t("navFaq"),
-                    docs: t("navDocs"),
-                    status: t("navStatus"),
-                    contact: t("supportContact"),
-                  }}
-                />
-              </div>
-              <div className="group relative">
-                <Link
-                  href="/account"
-                  className="transition-colors duration-200 hover:text-black dark:hover:text-white"
-                >
-                  {t("account")}
-                </Link>
-                {/* pt-2 keeps the hover area contiguous between trigger and panel */}
-                <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-                  <div className="w-52 rounded-xl border border-black/10 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-zinc-900">
-                    {(
-                      [
-                        ["#plan", t("accountPlan")],
-                        ["#security", t("accountSecurity")],
-                        ["#referrals", t("accountReferrals")],
-                        ["#support", t("accountSupport")],
-                      ] as const
-                    ).map(([hash, label]) => (
-                      <Link
-                        key={hash}
-                        href={`/account${hash}`}
-                        className="block rounded-lg px-3 py-2 text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
-                      >
-                        {label}
-                      </Link>
-                    ))}
-                    <form action="/auth/signout" method="post">
-                      <button
-                        type="submit"
-                        className="block w-full rounded-lg px-3 py-2 text-start text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
-                      >
-                        {t("signOut")}
-                      </button>
-                    </form>
+          <AuthSwitch
+            signedIn={
+              <>
+                <div className="group relative hidden md:block">
+                  <Link
+                    href="/help"
+                    className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+                  >
+                    {t("support")}
+                  </Link>
+                  <HelpMenu
+                    labels={{
+                      faq: t("navFaq"),
+                      docs: t("navDocs"),
+                      status: t("navStatus"),
+                      contact: t("supportContact"),
+                    }}
+                  />
+                </div>
+                <div className="group relative">
+                  <Link
+                    href="/account"
+                    className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+                  >
+                    {t("account")}
+                  </Link>
+                  {/* pt-2 keeps the hover area contiguous between trigger and panel */}
+                  <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                    <div className="w-52 rounded-xl border border-black/10 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-zinc-900">
+                      {(
+                        [
+                          ["#plan", t("accountPlan")],
+                          ["#security", t("accountSecurity")],
+                          ["#referrals", t("accountReferrals")],
+                          ["#support", t("accountSupport")],
+                        ] as const
+                      ).map(([hash, label]) => (
+                        <Link
+                          key={hash}
+                          href={`/account${hash}`}
+                          className="block rounded-lg px-3 py-2 text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        >
+                          {label}
+                        </Link>
+                      ))}
+                      <form action="/auth/signout" method="post">
+                        <button
+                          type="submit"
+                          className="block w-full rounded-lg px-3 py-2 text-start text-zinc-700 hover:bg-black/5 hover:text-black dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        >
+                          {t("signOut")}
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Support is reachable signed OUT too: someone who cannot log
-                  in is exactly the person who needs it, and /help/support
-                  itself redirects to login. */}
-              <div className="group relative hidden md:block">
+              </>
+            }
+            signedOut={
+              <>
+                {/* Support is reachable signed OUT too: someone who cannot log
+                    in is exactly the person who needs it, and /help/support
+                    itself redirects to login. */}
+                <div className="group relative hidden md:block">
+                  <Link
+                    href="/help"
+                    className="transition-colors duration-200 hover:text-black dark:hover:text-white"
+                  >
+                    {t("support")}
+                  </Link>
+                  <HelpMenu
+                    labels={{
+                      faq: t("navFaq"),
+                      docs: t("navDocs"),
+                      status: t("navStatus"),
+                      contact: t("supportContact"),
+                    }}
+                  />
+                </div>
+                {/* The redesign deliberately dropped the header's Get started
+                    button and Add to Chrome pill to slim this side down; the
+                    hero carries both CTAs. Support survives that trim because
+                    it is navigation rather than a CTA, and the Footer, /help
+                    and several FAQ answers all point at /docs/status through
+                    this menu. */}
                 <Link
-                  href="/help"
+                  href="/auth/login"
                   className="transition-colors duration-200 hover:text-black dark:hover:text-white"
                 >
-                  {t("support")}
+                  {t("signIn")}
                 </Link>
-                <HelpMenu
-                  labels={{
-                    faq: t("navFaq"),
-                    docs: t("navDocs"),
-                    status: t("navStatus"),
-                    contact: t("supportContact"),
-                  }}
-                />
-              </div>
-              {/* The redesign deliberately dropped the header's Get started
-                  button and Add to Chrome pill to slim this side down; the
-                  hero carries both CTAs. Support survives that trim because
-                  it is navigation rather than a CTA, and the Footer, /help
-                  and several FAQ answers all point at /docs/status through
-                  this menu. */}
-              <Link
-                href="/auth/login"
-                className="transition-colors duration-200 hover:text-black dark:hover:text-white"
-              >
-                {t("signIn")}
-              </Link>
-            </>
-          )}
+              </>
+            }
+          />
           <LanguageSwitcher />
         </nav>
 
@@ -165,7 +162,6 @@ export async function Header() {
         <div className="ms-auto flex items-center gap-2 sm:hidden">
           <LanguageSwitcher triggerClassName="h-9 w-9" />
           <MobileMenu
-            isAuthed={isAuthed}
             labels={{
               navFeatures: t("navFeatures"),
               navPricing: t("navPricing"),

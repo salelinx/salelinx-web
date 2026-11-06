@@ -89,7 +89,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: (
           <p>
             Avec un forfait payant, ouvrez votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>
             , cliquez sur <strong>Gérer l'abonnement</strong> et choisissez le
@@ -111,7 +111,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: (
           <p>
             Ouvrez votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>{' '}
             et cliquez sur <strong>Gérer l'abonnement</strong>. Le portail de
@@ -137,7 +137,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             Avec un forfait payant, tout changement se fait dans le portail de
             facturation Stripe : cliquez sur{' '}
             <strong>Gérer l'abonnement</strong> sur votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>{' '}
             et choisissez le forfait. Pour passer à un forfait inférieur,
@@ -152,7 +152,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: (
           <p>
             Ouvrez votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>{' '}
             et cliquez sur <strong>Gérer l'abonnement</strong>. Le portail de
@@ -191,7 +191,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             Copiez votre lien depuis l'onglet <strong>Parrainage</strong> du
             panneau SaleLinx, ou depuis <strong>Parrainez un ami</strong> sur
             votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>
             . Les amis qui s'inscrivent avec ce lien obtiennent une réduction
@@ -290,7 +290,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             d'elle-même en 10 minutes environ. Si vous ne reconnaissez pas
             l'autre appareil, reprenez la main puis changez votre mot de passe
             depuis votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>
             .
@@ -577,7 +577,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
             pouvez suivre la conversation et y répondre dans{' '}
             <strong>Mes tickets</strong> de l'onglet Support ou dans{' '}
             <strong>Vos tickets</strong> sur votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>
             .
@@ -749,7 +749,7 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: (
           <p>
             Ouvrez votre{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               page compte
             </Link>
             , descendez tout en bas et cliquez sur{' '}

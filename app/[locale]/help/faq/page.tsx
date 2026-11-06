@@ -36,7 +36,7 @@ export default async function FAQPage({
   const t = await getTranslations('Faq');
   const groups = getFaqGroups(locale as Locale);
 
-  const jsonLd = faqJsonLd({ locale, groups });
+  const jsonLd = faqJsonLd({ locale, items: groups.flatMap((g) => g.items) });
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6">

@@ -139,7 +139,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   }
 
-  return entries;
+  // One <url> per language version: alternates alone leave them unlisted.
+  return entries.flatMap((e) =>
+    e.alternates?.languages
+      ? Object.values(e.alternates.languages).map((url) => ({ ...e, url: url as string }))
+      : [e],
+  );
 }
 
 export const baseUrl = SITE_URL;

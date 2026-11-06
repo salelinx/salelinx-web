@@ -101,7 +101,6 @@ export default async function Home({
         installUrl: CHROME_WEB_STORE_URL,
         downloadUrl: CHROME_WEB_STORE_URL,
         applicationSubCategory: 'Browser Extension',
-        browserRequirements: 'Requires Google Chrome',
         // The languages the extension ships in (its _locales dirs), NOT the
         // website's six routing locales; ar/zh are website-only.
         inLanguage: ['en', 'fr', 'es', 'de'],

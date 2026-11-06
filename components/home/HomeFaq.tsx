@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/Reveal';
 import { getAllFAQItems } from '@/lib/faq';
+import { faqJsonLd } from '@/lib/faq/jsonld';
 import type { Locale } from '@/lib/i18n/locales';
 import { FaqClouds } from './FaqClouds';
 
@@ -32,6 +33,10 @@ export async function HomeFaq() {
 
   return (
     <section id="faq" className="relative overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd({ locale, items, path: '/' })) }}
+      />
       <FaqClouds />
       {/* Same padding as every other section. It used to keep a larger bottom
           as the end of the page; the roadmap comes after it now and carries

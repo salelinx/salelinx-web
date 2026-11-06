@@ -84,7 +84,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         a: (
           <p>
             Mit einem bezahlten Paket öffnest du deine{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>
             , klickst auf <strong>Abonnement verwalten</strong> und wählst im
@@ -107,7 +107,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         a: (
           <p>
             Öffne deine{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>{' '}
             und klicke auf <strong>Abonnement verwalten</strong>. Das
@@ -134,7 +134,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
             belastet und seine Kontingente gelten sofort. Mit einem bezahlten
             Paket läuft jeder Wechsel über das Stripe-Abrechnungsportal: Klicke
             auf deiner{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>{' '}
             auf <strong>Abonnement verwalten</strong> und wähle das Paket. Ein
@@ -150,7 +150,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         a: (
           <p>
             Öffne deine{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>{' '}
             und klicke auf <strong>Abonnement verwalten</strong>. Das
@@ -189,7 +189,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
             Kopiere deinen Link im Tab <strong>Werben &amp; Verdienen</strong>{' '}
             des SaleLinx-Panels oder unter <strong>Freunde werben</strong> auf
             deiner{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>
             . Freunde, die sich darüber registrieren, bekommen einen Rabatt auf
@@ -289,7 +289,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
             Platz auch von selbst nach etwa 10 Minuten frei. Erkennst du das
             andere Gerät nicht, übernimm die Sitzung und ändere dann dein
             Passwort über deine{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>
             .
@@ -575,7 +575,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
             senden. Wir benachrichtigen dich per E-Mail, wenn wir antworten,
             und du kannst das Gespräch unter <strong>Meine Tickets</strong> im
             Support-Tab oder unter <strong>Deine Tickets</strong> auf deiner{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>{' '}
             verfolgen und beantworten.
@@ -746,7 +746,7 @@ export const FAQ_GROUPS_DE: FAQGroup[] = [
         a: (
           <p>
             Öffne deine{' '}
-            <Link href="/account" className="underline underline-offset-4">
+            <Link href="/account" rel="nofollow" className="underline underline-offset-4">
               Kontoseite
             </Link>
             , scrolle ganz nach unten und klicke auf{' '}

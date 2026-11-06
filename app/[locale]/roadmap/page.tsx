@@ -14,7 +14,7 @@ export async function generateMetadata({
     locale,
     path: '/roadmap',
     title: t('sectionHeader.title'),
-    description: t('sectionHeader.body'),
+    description: t('metaDescription'),
   });
 }
 

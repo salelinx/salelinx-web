@@ -492,8 +492,8 @@
     "adminActionError": "La acción falló. Inténtalo de nuevo."
   },
   "Help": {
-    "metaTitle": "Ayuda",
-    "metaDescription": "Encuentra respuestas, consulta la documentacion o contacta con el equipo de SaleLinx.",
+    "metaTitle": "Ayuda y soporte",
+    "metaDescription": "Consigue ayuda con SaleLinx: respuestas a preguntas frecuentes, guías paso a paso para la extensión de Chrome, estado en vivo y contacto con el equipo.",
     "eyebrow": "Centro de ayuda",
     "title": "Como podemos ayudarte?",
     "body": "Busca en las preguntas frecuentes, lee la documentacion o envianos un mensaje. Responderemos por correo electronico y en tu cuenta.",
@@ -503,8 +503,8 @@
     "docsCardBody": "Guias paso a paso para cada funcion de SaleLinx.",
     "statusCardTitle": "Estado",
     "statusCardBody": "Estado en vivo de los marketplaces y de las funciones de la extensión que trabajan con ellos.",
-    "supportMetaTitle": "Contactar con soporte",
-    "supportMetaDescription": "Envia un mensaje al equipo de SaleLinx.",
+    "supportMetaTitle": "Contactar con el soporte de SaleLinx",
+    "supportMetaDescription": "Envía un mensaje al equipo de SaleLinx sobre tu cuenta, tu plan o la facturación, o sobre un problema con la extensión de Chrome en Depop, Vinted o eBay.",
     "supportTitle": "Contactar con soporte",
     "supportBody": "Envianos un mensaje y responderemos por correo electronico y en tu cuenta.",
     "supportSignedOutBody": "Puedes escribirnos por correo sin tener cuenta. Iniciar sesion te permite seguir las respuestas en un solo sitio.",
@@ -910,8 +910,8 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs",
-    "metaDescription": "Guías paso a paso y tutoriales para la extensión Chrome de SaleLinx.",
+    "metaTitle": "Documentación y guías",
+    "metaDescription": "Guías paso a paso para la extensión de Chrome SaleLinx: configuración, crosslist, republicación, automatizaciones, ofertas, mensajes y etiquetas en Depop, Vinted y eBay.",
     "eyebrow": "Docs",
     "heroTitle": "Aprende SaleLinx.",
     "heroBody": "Guías paso a paso y tutoriales para la extensión Chrome de SaleLinx. Para respuestas rápidas a preguntas comunes, ve a la <faq>FAQ</faq>.",
@@ -923,19 +923,23 @@
     "category": {
       "getting-started": {
         "title": "Primeros pasos",
-        "blurb": "Instala la extensión, inicia sesión y publica tu primer anuncio."
+        "blurb": "Instala la extensión, inicia sesión y publica tu primer anuncio.",
+        "metaDescription": "Primeros pasos con SaleLinx: instala la extensión de Chrome, inicia sesión, conecta Depop, Vinted o eBay y conoce la cola, los ajustes y tu plan."
       },
       "inventory": {
         "title": "Inventario y publicación",
-        "blurb": "Anuncios, bots, republicación, refresco, crosslist, shop designer, import CSV, sincronización en la nube."
+        "blurb": "Anuncios, bots, republicación, refresco, crosslist, shop designer, import CSV, sincronización en la nube.",
+        "metaDescription": "Gestiona tu inventario con SaleLinx: anuncios, Grow, republicación, refresco, crosslist, Shop Designer, importación CSV, edición masiva y sincronización en la nube."
       },
       "automate": {
         "title": "Automatización",
-        "blurb": "Stock estancado, ofertas automáticas, linking, reposicionador, bajadas de precio."
+        "blurb": "Stock estancado, ofertas automáticas, linking, reposicionador, bajadas de precio.",
+        "metaDescription": "Automatiza tus ventas con SaleLinx: stock estancado, aceptación automática de ofertas, envío de ofertas, vinculación de anuncios, reposición y bajadas de precio."
       },
       "buyers": {
         "title": "Mensajes de compradores",
-        "blurb": "Ofertas, mensajes, etiquetas de envío y valoraciones."
+        "blurb": "Ofertas, mensajes, etiquetas de envío y valoraciones.",
+        "metaDescription": "Atiende a tus compradores con SaleLinx: responde ofertas y mensajes desde un solo panel e imprime tus etiquetas de envío reunidas en un único PDF."
       }
     },
     "task": {
@@ -963,8 +967,8 @@
       "next": "Siguiente"
     },
     "status": {
-      "metaTitle": "Estado",
-      "metaDescription": "Estado en vivo de la extension SaleLinx y de los marketplaces conectados.",
+      "metaTitle": "Estado de los marketplaces",
+      "metaDescription": "Estado en vivo de la extensión SaleLinx y de los marketplaces conectados: comprueba si Depop, Vinted y eBay funcionan con normalidad ahora mismo.",
       "eyebrow": "Estado",
       "title": "Estado de SaleLinx",
       "body": "Las marketplaces en las que SaleLinx puede hacer crosslisting ahora mismo. Si ves errores y una marketplace aparece marcada aquí, el equipo ya está en ello.",
@@ -993,7 +997,7 @@
     },
     "changelog": {
       "metaTitle": "Changelog",
-      "metaDescription": "Qué cambió en las últimas versiones de la extensión SaleLinx.",
+      "metaDescription": "Qué cambió en cada versión de la extensión de Chrome SaleLinx: nuevas funciones, correcciones y mejoras para quienes venden en Depop, Vinted y eBay.",
       "eyebrow": "Changelog",
       "title": "Novedades de SaleLinx",
       "body": "Notas de versión de la extensión SaleLinx. La entrada más reciente está arriba.",
@@ -1011,8 +1015,8 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ",
-    "metaDescription": "Respuestas rápidas a preguntas comunes sobre SaleLinx: facturación, cuenta, solución de problemas, privacidad.",
+    "metaTitle": "Preguntas frecuentes",
+    "metaDescription": "Respuestas rápidas a preguntas comunes sobre SaleLinx: prueba gratuita, facturación y planes, tu cuenta, privacidad y solución de problemas de la extensión de Chrome.",
     "eyebrow": "FAQ",
     "title": "Preguntas frecuentes.",
     "body": "Respuestas rápidas a las preguntas que más nos hacen. ¿Buscas un tutorial completo? <docs>Explora los docs</docs>.",
@@ -1066,7 +1070,8 @@
       "eyebrow": "¿Tienes una petición?",
       "body": "¿Falta una marketplace o una función? Dinos qué necesitas y la pesaremos en la próxima ronda de planificación.",
       "cta": "Escribe a hello@salelinx.com"
-    }
+    },
+    "metaDescription": "La hoja de ruta de SaleLinx: lo que se está estudiando, construyendo y ya se ha lanzado para la extensión de Chrome. Las fechas son objetivos, no compromisos."
   },
   "Uninstall": {
     "metaTitle": "Sentimos que te vayas",

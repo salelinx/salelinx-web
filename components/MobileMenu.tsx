@@ -1,5 +1,6 @@
 "use client";
 
+import { useIsAuthed } from "@/components/AuthSwitch";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -26,11 +27,11 @@ interface Labels {
 }
 
 interface Props {
-  isAuthed: boolean;
   labels: Labels;
 }
 
-export function MobileMenu({ isAuthed, labels }: Props) {
+export function MobileMenu({ labels }: Props) {
+  const isAuthed = useIsAuthed();
   // Read straight from the LanguageSwitcher namespace rather than threading
   // another label down from Header: "Language" is already translated in all
   // seven locales there, and a second copy would be one more thing to keep in

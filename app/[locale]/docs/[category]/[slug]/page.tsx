@@ -41,7 +41,8 @@ export async function generateMetadata({
   return pageMetadata({
     locale,
     path: `/docs/${category}/${slug}`,
-    title: article.metadata.title,
+    title: `${article.metadata.title} | SaleLinx Docs`,
+    absoluteTitle: true,
     description: article.metadata.description,
     contentLocales: TRANSLATED_DOCS_LOCALES,
     // opengraph-image.tsx in this segment generates the per-article image.
