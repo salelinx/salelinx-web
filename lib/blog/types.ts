@@ -2,6 +2,8 @@ import type { Marketplace } from '@/lib/docs/types';
 
 export type BlogCategory = 'guides';
 
+export type AuthorId = 'lewis' | 'matt';
+
 export type PostMetadata = {
   // Used for the h1, <title> and og:title, so keep it under about 60 characters.
   title: string;
@@ -9,6 +11,7 @@ export type PostMetadata = {
   description: string;
   slug: string;
   category: BlogCategory;
+  author: AuthorId;
   // YYYY-MM-DD. `updated` is the last time the facts were re-checked, which is
   // what dateModified and the sitemap's lastModified report.
   published: string;

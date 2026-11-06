@@ -90,6 +90,8 @@ const MOVED_LANDING_PAGES: Record<string, string> = {
 
 const nextConfig: NextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
+  // The blog page reads its own MDX source for the FAQPage JSON-LD.
+  outputFileTracingIncludes: { "/[locale]/blog/[slug]": ["./content/blog/en/*.mdx"] },
   async redirects() {
     const shortLinks = Object.entries(SHORT_LINKS).map(([path, source]) => ({
       source: `/${path}`,

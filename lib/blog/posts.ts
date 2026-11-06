@@ -1,4 +1,9 @@
-import type { BlogCategory, PostMetadata, PostModule } from './types';
+import type { AuthorId, BlogCategory, PostMetadata, PostModule } from './types';
+
+export const AUTHORS: Record<AuthorId, string> = {
+  lewis: 'Lewis Ludlam',
+  matt: 'Matt Valetsky',
+};
 
 // Blog posts are English-only: they target UK search queries, so there is no
 // per-locale content tree like content/docs/. Every locale serves these

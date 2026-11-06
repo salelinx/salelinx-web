@@ -4,8 +4,9 @@ export const metadata = {
     'How a Vinted Bump is priced, where a bumped item shows, the maths on when it pays for itself, and when a price drop or an offer to likers does more for less.',
   slug: 'vinted-bump-cost-and-does-it-work',
   category: 'guides',
+  author: 'matt',
   published: '2026-10-30',
-  updated: '2026-10-30',
+  updated: '2026-11-06',
   readingMinutes: 10,
   marketplaces: ['vinted'],
 };
@@ -13,10 +14,10 @@ export const metadata = {
 A Vinted Bump is a paid boost that shows one listing higher in the newsfeed
 and in search for 3 or 7 days, or until it sells. There is no fixed price:
 Vinted works the fee out from the item&rsquo;s price and the length you pick,
-and only shows it at checkout. It does work, in the sense that bumped items
-get seen more. Whether it pays depends on the item. On a piece with a decent
-margin that just needs eyes, it often does. On a cheap item, or one that
-people are already seeing and skipping, it rarely does.
+and only shows it at checkout. Vinted says a Bump is meant to increase your
+chance of selling by showing the item higher, but it publishes no sales
+figures, and we have no data of our own on how often it works. Whether it
+pays depends on the item and what the fee turns out to be.
 
 <Callout variant="tip" title="The short answer">
 Bump an item when it has a healthy margin, good photos and a fair price, and
@@ -29,7 +30,7 @@ it does not make the listing better.
 ## What a Bump actually does
 
 Vinted&rsquo;s [Bump help page](https://www.vinted.co.uk/help/340), checked
-on 30 October 2026, describes it as &ldquo;a paid feature you can add to any
+on 6 November 2026, describes it as &ldquo;a paid feature you can add to any
 listing to increase your chance of selling the item&rdquo;. Bumped items
 &ldquo;appear higher in member newsfeeds and search results&rdquo; in your
 registered country. The rules that matter:
@@ -86,11 +87,10 @@ judge whether a particular Bump did anything.
 
 Vinted does not publish a price table. The
 [price list](https://www.vinted.co.uk/pricelist), last updated 8 October
-2026 and checked the same day as this guide, says the fee &ldquo;will vary
+2026 and checked again on 6 November 2026, says the fee &ldquo;will vary
 depending on the chosen duration and item price&rdquo;, that it includes VAT,
-and that you see the exact amount at checkout. The pattern sellers see in
-practice follows from that: a 7-day Bump costs more than a 3-day one on the
-same item, and a £40 item costs more to bump than a £4 one.
+and that you see the exact amount at checkout. Vinted does not say how
+the fee changes with each, so check both options at checkout.
 
 So the only reliable way to know the price is to start the purchase. From
 Vinted&rsquo;s
@@ -112,33 +112,35 @@ this week. It pays off when the extra chance, multiplied by what you keep from
 the sale, is bigger than the fee.
 
 Vinted charges sellers no selling fee, so what you keep is roughly the item
-price minus what the item cost you. Put the numbers in:
+price minus what the item cost you. Because Vinted publishes no Bump prices,
+the table uses made-up fee ratios, not Vinted figures. Look up the real fee at
+checkout and see which row it is closest to:
 
 <CompareTable
   caption="Example Bump maths at different item prices"
-  columns={['Item price', 'Example Bump fee', 'Extra chance of a sale the Bump needs to add']}
+  columns={['Bump fee as a share of the item price', 'Extra chance of a sale the Bump needs to add']}
   rows={[
-    ['£3', '£0.75', '25 percentage points'],
-    ['£12', '£1.20', '10 percentage points'],
-    ['£30', '£2.00', '7 percentage points'],
-    ['£80', '£3.50', '4 to 5 percentage points'],
+    ['5%', '5 percentage points'],
+    ['10%', '10 percentage points'],
+    ['20%', '20 percentage points'],
+    ['30%', '30 percentage points'],
   ]}
-  note="Illustrative only. Vinted publishes no Bump prices, so the fees here are made-up round figures to show the shape of the decision; your checkout will show different amounts. The last column is fee divided by item price, which is the break-even if the item cost you nothing. If you paid for the item, divide the fee by your margin instead."
+  note="Illustrative ratios, not Vinted prices: Vinted publishes no Bump fees. The right column is the fee divided by the item price, which is the break-even if the item cost you nothing. If you paid for the item, divide the fee by your margin instead."
 />
 
-Read the last column as the question to ask yourself. Bumping a £3 top makes
-sense only if you believe the Bump turns a one-in-four chance of selling this
-week into a one-in-two. That is a big claim for a boost that lasts a few days.
-Bumping an £80 coat only has to tip the odds a few points, which a week near
-the top of search can plausibly do.
+Read the right column as the question to ask yourself. If the fee is 25% of
+the price, the Bump has to lift your chance of selling by 25 points to break
+even, which is a lot to ask of a boost that lasts a few days. If it is 5%, it
+only has to add a few points. The cheaper the item, the more likely the fee is
+a big share of it, though Vinted does not publish how the fee scales.
 
 Two things sharpen the sums:
 
-- **Use your margin, not the price.** If you bought a £30 item for £15 to
-  resell, the Bump has to add twice the extra chance in the table.
+- **Use your margin, not the price.** If you bought an item for half what
+  you are asking, the Bump has to add twice the extra chance in the table.
 - **A Bump ends when the item sells.** On a 7-day Bump that sells on day 2
   you paid for seven days and used two. That is fine, you got the sale, but it
-  means the 3-day option is usually the better first try.
+  means the 3-day option is a sensible first try, if its fee is lower.
 
 ## Bump, Showcase, price drop or offer
 
@@ -234,8 +236,8 @@ A Bump is usually wasted when:
   gets the tap.
 - **The item is out of season.** Bumping a bikini in November reaches people
   who are not looking for one.
-- **It is cheap.** Under about £5, the fee is a big slice of the sale and the
-  maths above rarely works. Bundle cheap items instead.
+- **It is cheap.** If the fee shown at checkout is a big slice of the price,
+  the maths above rarely works. Bundle cheap items instead.
 - **The listing might be removed.** Vinted does not refund a Bump on a
   listing removed for breaking the catalogue rules.
 
@@ -265,8 +267,8 @@ the right tool. For an item nobody has touched in a month, see our guide to
    the title. Whole item, good light, in the first photo.
 5. **Check the listing follows the catalogue rules.** Right category, one
    item, nothing Vinted might remove. There is no refund if it goes.
-6. **Start with 3 days.** If it sells, you saved the difference. If it does
-   not, the 7-day version was unlikely to either.
+6. **Compare the 3 and 7 day fees at checkout.** If 3 days costs less, start
+   there.
 7. **Note the view count** when the Bump starts, then compare it when it
    ends. Your profile shows the Bump stats; the before-and-after tells you
    whether to do it again.
@@ -297,10 +299,13 @@ you press Bump on a listing and choose a length, before anything is charged.
 
 ### Does bumping on Vinted actually work?
 
-It raises the listing in the newsfeed and search for the paid period, so it
-gets more views. Whether those views turn into a sale depends on the price,
-photos and condition, which the Bump does not change. It works best on items
-with a good margin that have simply not been seen.
+Vinted says a Bump is &ldquo;a paid feature you can add to any listing to
+increase your chance of selling the item&rdquo; and that bumped items appear
+higher in newsfeeds and search results
+([Vinted](https://www.vinted.co.uk/help/340)). It publishes no figures on how
+often a Bump leads to a sale, and we have not measured it. The Bump does not
+change your price, photos or condition, which decide whether a view becomes a
+sale.
 
 ### Can I bump the same item twice?
 
