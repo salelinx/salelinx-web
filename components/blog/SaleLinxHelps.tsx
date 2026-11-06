@@ -34,8 +34,8 @@ export function SaleLinxHelps({ shot, children }: { shot: keyof typeof SHOTS; ch
         width={3840}
         height={2160}
         quality={90}
-        sizes="(max-width: 768px) 100vw, 672px"
-        className="mt-6 h-auto w-full rounded-lg border border-black/10 shadow-xl dark:border-white/10"
+        sizes="(max-width: 640px) 134vw, 672px"
+        className="mt-6 aspect-[4/3] w-full rounded-lg border border-black/10 object-cover object-[100%_0] shadow-xl sm:aspect-video dark:border-white/10"
       />
       {children}
       <Link
