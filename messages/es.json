@@ -1,7 +1,7 @@
 {
   "Layout": {
     "metaTitle": "SaleLinx - Crosslister de Vinted, Depop y eBay",
-    "metaDescription": "Crosslista entre Vinted, Depop y eBay con un clic. Republicación masiva, ofertas automáticas, bajadas de precio y etiquetas de envío en una extensión de Chrome. Prueba gratis de 14 días."
+    "metaDescription": "Crosslista Vinted, Depop y eBay con un clic. Republicación masiva, ofertas auto, bajadas de precio y etiquetas. Extensión de Chrome, prueba gratis 14 días."
   },
   "Header": {
     "navFeatures": "Funciones",
@@ -547,7 +547,7 @@
     },
     "referralTerms": {
       "title": "Términos del programa de recomendación",
-      "metaDescription": "Las condiciones del programa de recomendación de SaleLinx: el descuento para el invitado, cómo el recomendador gana tiempo gratis en su plan, el periodo de retención y el límite de recompensas, y las reglas de uso justo."
+      "metaDescription": "Las condiciones del programa de recomendación de SaleLinx: descuento del invitado, tiempo gratis, periodo de retención, límite de recompensas y uso justo."
     }
   },
   "Invited": {
@@ -573,7 +573,7 @@
   },
   "Features": {
     "metaTitle": "Funciones: crosslista, republica y automatiza Depop, Vinted y eBay",
-    "metaDescription": "Todas las funciones de SaleLinx para vendedores de Depop, Vinted y eBay: crosslisting, republicación, actualización, reposición, ofertas, mensajes, etiquetas de envío y más, desde un solo panel del navegador.",
+    "metaDescription": "Todas las funciones de SaleLinx para vendedores de Depop, Vinted y eBay: crosslisting, republicación, actualización, reposición, ofertas, etiquetas y más.",
     "hero": {
       "title": "Todo lo que SaleLinx hace por ti."
     },
@@ -850,7 +850,7 @@
     "sectionHeader": {
       "eyebrow": "Sección 02 / Precios",
       "title": "Elige un plan. Cámbialo cuando quieras. Cancela cuando quieras.",
-      "body": "Todos los planes incluyen la misma extensión. Los niveles superiores suben los topes mensuales y desbloquean las automatizaciones más pesadas como las ofertas automáticas y el restocker."
+      "body": "Todos los planes incluyen la misma extensión. Los niveles superiores suben los topes y desbloquean automatizaciones pesadas, como las ofertas automáticas."
     },
     "popular": "Popular",
     "whatsIncluded": "Qué incluye",
