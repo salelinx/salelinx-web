@@ -72,7 +72,7 @@ export default async function BlogPostPage({
   );
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-6 pt-12 pb-20">
+    <main className="reading-column mx-auto w-full max-w-3xl px-6 pt-12 pb-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(postJsonLd(meta, faq)) }}

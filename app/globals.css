@@ -93,6 +93,17 @@ body {
   );
 }
 
+/* Long reads keep the whole text column clear, top to bottom. */
+body:has(.reading-column) {
+  --guide-fade: linear-gradient(
+    to right,
+    black calc(50% - 560px),
+    transparent calc(50% - 400px),
+    transparent calc(50% + 400px),
+    black calc(50% + 560px)
+  );
+}
+
 /* Vertical column guides. Viewport-fixed, so they never slide sideways.
    80px cells centred on the viewport means the 1280px (max-w-7xl) content
    container lands exactly on a guide at both edges: 1280 / 80 = 16. */
