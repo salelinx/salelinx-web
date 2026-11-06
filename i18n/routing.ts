@@ -8,6 +8,8 @@ export const routing = defineRouting({
   locales: ['en', 'fr', 'es', 'de', 'ar', 'zh'],
   defaultLocale: 'en',
   localePrefix: 'as-needed',
+  // The Link header lists untranslated locales too; pageMetadata() emits the right hreflang set.
+  alternateLinks: false,
   localeCookie: {
     name: LOCALE_COOKIE_NAME,
     maxAge: 60 * 60 * 24 * 365,
