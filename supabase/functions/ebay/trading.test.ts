@@ -23,6 +23,8 @@ import {
   listingCall,
   bestOffersFromResponse,
   respondOfferXml,
+  unshippedOrdersFromResponse,
+  markShippedXml,
 } from './trading.ts';
 
 const SELLING = `<?xml version="1.0" encoding="UTF-8"?>
@@ -615,4 +617,65 @@ Deno.test('a counter sends its total price and quantity; anything unknown is ref
   assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Counter', price: 0 }).error !== undefined, true);
   assertEquals(respondOfferXml({ itemId: '1<x/>', offerId: '2', response: 'Accept' }).error !== undefined, true);
   assertEquals(respondOfferXml({ itemId: '1', offerId: '2', response: 'Delete' }).error !== undefined, true);
+});
+
+const ORDERS = `<?xml version="1.0" encoding="UTF-8"?>
+<GetOrdersResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+  <Ack>Success</Ack>
+  <OrderArray>
+    <Order>
+      <OrderID>12-34567-89012</OrderID>
+      <PaidTime>2026-11-04T09:00:00.000Z</PaidTime>
+      <BuyerUserID>jeans_fan</BuyerUserID>
+      <ShippingAddress><Name>Sam Buyer</Name></ShippingAddress>
+      <Total currencyID="GBP">31.50</Total>
+      <ShippingServiceSelected><ShippingService>UK_RoyalMailSecondClassStandard</ShippingService></ShippingServiceSelected>
+      <TransactionArray>
+        <Transaction>
+          <Item><ItemID>110551234567</ItemID><Title>Levi's 501 W32</Title></Item>
+          <QuantityPurchased>1</QuantityPurchased>
+          <TransactionPrice currencyID="GBP">28.00</TransactionPrice>
+          <ShippingServiceSelected><ShippingPackageInfo><HandleByTime>2026-11-06T23:59:59.000Z</HandleByTime></ShippingPackageInfo></ShippingServiceSelected>
+        </Transaction>
+      </TransactionArray>
+    </Order>
+    <Order>
+      <OrderID>12-34567-00001</OrderID>
+      <PaidTime>2026-11-01T09:00:00.000Z</PaidTime>
+      <ShippedTime>2026-11-02T09:00:00.000Z</ShippedTime>
+      <Total currencyID="GBP">10.00</Total>
+    </Order>
+    <Order>
+      <OrderID>12-34567-00002</OrderID>
+      <Total currencyID="GBP">10.00</Total>
+    </Order>
+  </OrderArray>
+</GetOrdersResponse>`;
+
+Deno.test('GetOrders keeps only paid orders not yet posted', () => {
+  assertEquals(unshippedOrdersFromResponse(parseTrading('GetOrders', ORDERS)), [
+    {
+      orderId: '12-34567-89012',
+      paidAt: '2026-11-04T09:00:00.000Z',
+      buyer: 'jeans_fan',
+      buyerName: 'Sam Buyer',
+      total: 31.5,
+      currency: 'GBP',
+      service: 'UK_RoyalMailSecondClassStandard',
+      shipBy: '2026-11-06T23:59:59.000Z',
+      items: [{ itemId: '110551234567', title: "Levi's 501 W32", quantity: 1, price: 28 }],
+    },
+  ]);
+});
+
+Deno.test('marking posted sends tracking only with a carrier', () => {
+  assertEquals(markShippedXml({ orderId: '12-34567-89012' }).xml, '<OrderID>12-34567-89012</OrderID><Shipped>true</Shipped>');
+  assertEquals(
+    markShippedXml({ orderId: '1', carrier: 'Royal Mail', tracking: 'AB123' }).xml,
+    '<OrderID>1</OrderID><Shipped>true</Shipped><Shipment><ShipmentTrackingDetails>' +
+      '<ShippingCarrierUsed>Royal Mail</ShippingCarrierUsed><ShipmentTrackingNumber>AB123</ShipmentTrackingNumber>' +
+      '</ShipmentTrackingDetails></Shipment>',
+  );
+  assertEquals(markShippedXml({ orderId: '1', tracking: 'AB123' }).error !== undefined, true);
+  assertEquals(markShippedXml({ orderId: '1<x/>' }).error !== undefined, true);
 });

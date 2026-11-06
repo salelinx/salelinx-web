@@ -17,6 +17,8 @@ const ARRAY_PATHS = new Set([
   'GetItemResponse.Item.ItemSpecifics.NameValueList.Value',
   'GetBestOffersResponse.ItemBestOffersArray.ItemBestOffers',
   'GetBestOffersResponse.ItemBestOffersArray.ItemBestOffers.BestOfferArray.BestOffer',
+  'GetOrdersResponse.OrderArray.Order',
+  'GetOrdersResponse.OrderArray.Order.TransactionArray.Transaction',
 ]);
 
 const xml = new XMLParser({
@@ -571,4 +573,42 @@ export function respondOfferXml(r): { xml?: string; error?: string } {
     xml += `<CounterOfferPrice${currency}>${price.toFixed(2)}</CounterOfferPrice><CounterOfferQuantity>${quantity}</CounterOfferQuantity>`;
   }
   return { xml };
+}
+
+/** GetOrders: paid orders the seller hasn't posted yet. eBay sends no photos; the extension has them. */
+export function unshippedOrdersFromResponse(body) {
+  return (body.OrderArray?.Order ?? [])
+    .filter((o) => o.PaidTime && !o.ShippedTime && o.CancelStatus !== 'CancelComplete')
+    .map((o) => {
+      const lines = o.TransactionArray?.Transaction ?? [];
+      const total = money(o.Total);
+      return {
+        orderId: String(o.OrderID),
+        paidAt: o.PaidTime,
+        buyer: o.BuyerUserID ?? '',
+        buyerName: o.ShippingAddress?.Name ?? '',
+        total: total?.value ?? 0,
+        currency: total?.currency ?? null,
+        service: o.ShippingServiceSelected?.ShippingService ?? null,
+        shipBy: lines[0]?.ShippingServiceSelected?.ShippingPackageInfo?.HandleByTime ?? null,
+        items: lines.map((t) => ({
+          itemId: String(t.Item?.ItemID ?? ''),
+          title: t.Item?.Title ?? '',
+          quantity: Number(t.QuantityPurchased ?? 1),
+          price: money(t.TransactionPrice)?.value ?? 0,
+        })),
+      };
+    });
+}
+
+export function markShippedXml(r): { xml?: string; error?: string } {
+  if (!/^[\w-]+$/.test(String(r.orderId ?? ''))) return { error: 'Missing order' };
+  const carrier = String(r.carrier ?? '').trim();
+  const tracking = String(r.tracking ?? '').trim();
+  if (!carrier !== !tracking) return { error: 'Carrier and tracking number go together' };
+  const shipment = tracking
+    ? `<Shipment><ShipmentTrackingDetails><ShippingCarrierUsed>${esc(carrier)}</ShippingCarrierUsed>` +
+      `<ShipmentTrackingNumber>${esc(tracking)}</ShipmentTrackingNumber></ShipmentTrackingDetails></Shipment>`
+    : '';
+  return { xml: `<OrderID>${esc(r.orderId)}</OrderID><Shipped>true</Shipped>${shipment}` };
 }
