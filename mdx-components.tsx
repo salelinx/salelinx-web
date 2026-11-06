@@ -5,6 +5,7 @@ import { VideoEmbed } from '@/components/docs/mdx/VideoEmbed';
 import { InstallPinCallout } from '@/components/docs/mdx/InstallPinCallout';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
 import { CompareTable } from '@/components/blog/CompareTable';
+import { SaleLinxHelps } from '@/components/blog/SaleLinxHelps';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -71,6 +72,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     InstallPinCallout,
     InstallExtensionButton,
     CompareTable,
+    SaleLinxHelps,
     ...components,
   };
 }

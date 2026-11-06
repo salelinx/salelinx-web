@@ -33,7 +33,7 @@ export default async function BlogIndexPage({
   const posts = listPosts().map((p) => p.metadata);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-6">
+    <main className="mx-auto w-full max-w-[78rem] px-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd(posts)) }}
@@ -56,7 +56,7 @@ export default async function BlogIndexPage({
           <section
             key={cat.slug}
             aria-labelledby={`blog-${cat.slug}`}
-            className="border-t border-black/10 py-12 dark:border-white/10"
+            className="py-12"
           >
             <h2 id={`blog-${cat.slug}`} className="text-2xl font-semibold tracking-tight">
               {cat.title}

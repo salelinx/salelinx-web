@@ -809,7 +809,7 @@
       },
       "autoOffers": {
         "name": "Auto-Angebote",
-        "detail": "Käufer, die eines deiner Vinted- oder eBay-Inserate geliked oder beobachtet haben, bekommen automatisch ein Angebot von dir. So wird aus Interesse ein Verkauf."
+        "detail": "Käufer, die eines deiner Vinted-Inserate geliked haben, bekommen automatisch ein Angebot von dir. So wird aus Interesse ein Verkauf."
       },
       "linking": {
         "name": "Verknüpfen",

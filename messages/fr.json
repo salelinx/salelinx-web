@@ -809,7 +809,7 @@
       },
       "autoOffers": {
         "name": "Auto-offres",
-        "detail": "Les acheteurs qui ont aimé ou suivi une de vos annonces Vinted ou eBay reçoivent automatiquement une offre de votre part, pour transformer leur intérêt en ventes."
+        "detail": "Les acheteurs qui ont aimé une de vos annonces Vinted reçoivent automatiquement une offre de votre part, pour transformer leur intérêt en ventes."
       },
       "linking": {
         "name": "Liaison",

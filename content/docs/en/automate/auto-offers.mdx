@@ -6,21 +6,22 @@ export const metadata = {
   slug: 'auto-offers',
   order: 2,
   updated: '2026-10-16',
-  tags: ['offers', 'auto-accept', 'automation', 'depop', 'vinted', 'presets'],
-  marketplaces: ['depop', 'vinted'],
+  tags: ['offers', 'auto-accept', 'automation', 'depop', 'vinted', 'ebay', 'presets'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
 # Auto-Accept Offers
 
-Auto-Accept Offers checks your pending Depop and Vinted offers on a
+Auto-Accept Offers checks your pending Depop, Vinted and eBay offers on a
 schedule and accepts any that meet a threshold you set. It removes the
 manual step for offers you would always say yes to, while still
 letting you handle bigger or more interesting offers by hand.
 
-It doesn&rsquo;t cover eBay. There, business sellers set an auto-accept
-price on each listing instead, in its editor in
-[My Listings](/docs/inventory/listings).
+It covers eBay too, but eBay is off until you tick it. eBay offers are
+checked at most once an hour, whatever interval you pick. Business
+sellers can also set an auto-accept price on each eBay listing, in its
+editor in [My Listings](/docs/inventory/listings).
 
 ## Where it lives
 
@@ -52,7 +53,7 @@ mixed prices behaves correctly.
 3. Next to **And &ge;**, enter an optional price floor. For example,
    £5 means &ldquo;ignore anything below £5, whatever the
    percentage&rdquo;. Leave it at 0 for no floor.
-4. **Platforms** - tick Depop, Vinted, or both. The same rule applies
+4. **Platforms** - tick any of Depop, Vinted and eBay. The same rule applies
    to each one you tick.
 5. **Check every** - how often to check: 5, 10, 15 or 30 minutes, or
    1 hour (default 15 minutes).
@@ -68,7 +69,7 @@ A line under the title sums up the current rule, for example
 15m.&rdquo;
 
 Steps 2 to 5 can be filled in at once from a preset (**Default** is
-90%, no floor, both platforms, every 15 minutes; **Careful** is 95%,
+90%, no floor, Depop and Vinted, every 15 minutes; **Careful** is 95%,
 every 30 minutes), and you can save your own. The on/off switch is
 never part of a preset. See [Offers](/docs/buyers/offers) for how
 presets work and sync.
@@ -78,7 +79,7 @@ presets work and sync.
 Checks run in the background while Chrome is open, even when the
 panel is closed. SaleLinx reads and accepts offers through your
 signed-in marketplace tabs, so keep a Depop tab and a Vinted tab open
-for the platforms you ticked. If a marketplace can&rsquo;t be reached,
+for the platforms you ticked. eBay needs no open tab. If a marketplace can&rsquo;t be reached,
 that check finds nothing there and tries again at the next interval;
 the other marketplace is still checked.
 

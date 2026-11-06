@@ -90,6 +90,8 @@ const MOVED_LANDING_PAGES: Record<string, string> = {
 
 const nextConfig: NextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
+  // The blog page reads its own MDX source for the FAQPage JSON-LD.
+  outputFileTracingIncludes: { "/[locale]/blog/[slug]": ["./content/blog/en/*.mdx"] },
   async redirects() {
     const shortLinks = Object.entries(SHORT_LINKS).map(([path, source]) => ({
       source: `/${path}`,
@@ -116,8 +118,8 @@ const nextConfig: NextConfig = {
   images: {
     // Next 16 only honours quality values listed here; anything else silently
     // falls back to 75. The panel screenshots need 90 because they are UI
-    // captures full of 11px text, where 75 is visibly soft.
-    qualities: [75, 90],
+    // captures full of 11px text, where 75 is visibly soft. 60 is the blog hero photos.
+    qualities: [60, 75, 90],
   },
   experimental: {
     viewTransition: true,

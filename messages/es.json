@@ -809,7 +809,7 @@
       },
       "autoOffers": {
         "name": "Auto-ofertas",
-        "detail": "Los compradores que dieron like o siguen uno de tus anuncios de Vinted o eBay reciben automáticamente una oferta tuya, y el interés se convierte en ventas."
+        "detail": "Los compradores que dieron like a uno de tus anuncios de Vinted reciben automáticamente una oferta tuya, y el interés se convierte en ventas."
       },
       "linking": {
         "name": "Vinculación",

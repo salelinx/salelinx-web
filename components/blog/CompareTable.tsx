@@ -25,9 +25,22 @@ export function CompareTable({
 }) {
   return (
     <figure className="my-8">
-      {/* The wrapper scrolls, not the page: a three-column table is wider
-          than a phone screen. */}
-      <div className="overflow-x-auto rounded-xl border border-black/10 dark:border-white/15">
+      <div role="group" aria-label={caption} className="divide-y divide-black/10 rounded-xl border border-black/10 text-sm sm:hidden dark:divide-white/10 dark:border-white/15">
+        {rows.map(([label, ...cells], r) => (
+          <dl key={r} className="px-4 py-3">
+            <div className="font-semibold text-zinc-900 dark:text-zinc-100">{label}</div>
+            {cells.map((cell, c) => (
+              <div key={c} className="mt-2">
+                <dt className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">
+                  {columns[c + 1]}
+                </dt>
+                <dd className="text-zinc-700 dark:text-zinc-300">{cell}</dd>
+              </div>
+            ))}
+          </dl>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto rounded-xl border border-black/10 sm:block dark:border-white/15">
         <table className="w-full min-w-[34rem] border-collapse text-start text-sm">
           <caption className="sr-only">{caption}</caption>
           <thead>

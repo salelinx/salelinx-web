@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { parseFaq } from '@/lib/blog/faq';
 
 // Static checks over content/blog/. The MDX modules themselves cannot load
 // under plain vitest (no MDX loader), so this reads the sources as text, the
@@ -79,6 +80,16 @@ describe('blog posts', () => {
         expect(meta.published).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(meta.updated).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(meta.updated! >= meta.published!).toBe(true);
+        expect(source).toMatch(/\n  author: '(lewis|matt)',\n/);
+      });
+
+      it('has a Questions section that parses to plain-text FAQPage answers', () => {
+        const faq = parseFaq(source);
+        expect(faq.length).toBeGreaterThan(0);
+        for (const { question, answer } of faq) {
+          expect(question).toMatch(/\?$/);
+          expect(answer).not.toMatch(/[<>]|\]\(|&[a-z]+;/);
+        }
       });
 
       it('states a reading time that matches the body', () => {
@@ -90,8 +101,14 @@ describe('blog posts', () => {
         expect(source).not.toMatch(/[–—]|&mdash;|&ndash;/);
       });
 
-      it('has a cover for the index card', () => {
+      it('has a cover for the index card and a hero photo', () => {
         expect(existsSync(path.join(ROOT, 'public', 'blog', 'covers', file.replace(/\.mdx$/, '.svg')))).toBe(true);
+        expect(existsSync(path.join(ROOT, 'public', 'blog', 'photos', file.replace(/\.mdx$/, '.jpg')))).toBe(true);
+      });
+
+      it('shows SaleLinx with a panel screenshot that exists', () => {
+        const shot = source.match(/<SaleLinxHelps shot="([a-z]+)">/)?.[1];
+        expect(existsSync(path.join(ROOT, 'public', 'blog', 'panel', `${shot}.webp`))).toBe(true);
       });
 
       it('leaves the h1 to the page', () => {
