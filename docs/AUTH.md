@@ -95,7 +95,7 @@ including the Chrome extension's. Two caveats:
 - The extension shares the same user pool, so its next token refresh fails and
   it must re-prompt for login.
 - Revocation kills refresh tokens only. Already-issued access JWTs stay valid
-  until expiry, so `getClaims()` consumers (`proxy.ts`, the Header) can show a
+  until expiry, so `getClaims()` and session consumers (`proxy.ts`, `AuthSwitch`) can show a
   revoked session as signed in for up to the access-token TTL, while `getUser()`
   consumers (protected pages, Edge Functions) reject it on the next request.
   RLS remains the real data boundary.
@@ -124,7 +124,7 @@ if (!user) redirect("/auth/login");
 
 See `app/[locale]/account/page.tsx`.
 
-`getUser()` is right here because a protected page wants the canonical, server-validated user record. When code only needs "is someone signed in" (the Header, `proxy.ts`), use `supabase.auth.getClaims()` instead: it verifies the JWT locally and skips the network round-trip.
+`getUser()` is right here because a protected page wants the canonical, server-validated user record. When server code only needs "is someone signed in" (`proxy.ts`), use `supabase.auth.getClaims()` instead: it verifies the JWT locally and skips the network round-trip.
 
 ### Edge Function
 
@@ -187,11 +187,10 @@ or otherwise trust it in SQL: compare it as text, as 028 does.
 
 ## Header state
 
-`components/Header.tsx` is a **Server Component** - it checks for a signed-in session on every request (via `getClaims()`, locally verified, no network call). Means:
+`components/AuthSwitch.tsx` picks the signed-in or signed-out variant in the browser (`onAuthStateChange`). The Header, `FinalCta`, `PostCta` and the `/features/[slug]` CTA use it, so the public pages are static and served from cache:
 
-- Signed-in and signed-out states render correctly without client-side JS
-- No flash of wrong UI on page load
-- Pages become dynamic (server-rendered on demand) instead of static, which is fine
+- Signed-in visitors see the signed-out variant for a moment on page load.
+- The homepage and `/pricing` stay dynamic: `PricingSection` reads the IP country and trial eligibility on the server.
 
 ## Email delivery (Send Email Hook → Resend)
 

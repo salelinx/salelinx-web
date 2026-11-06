@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
-import { isSignedIn } from '@/lib/auth/session';
+import { AuthSwitch } from '@/components/AuthSwitch';
 import { getPost } from '@/lib/blog/posts';
 import { routing } from '@/i18n/routing';
 import { LANDING_PAGES, getLandingPage } from '@/lib/landing/pages';
@@ -41,8 +41,6 @@ export default async function LandingPage({
   setRequestLocale(locale);
   const page = getLandingPage(slug);
   if (!page) notFound();
-  const signedIn = await isSignedIn();
-
   const url = absoluteUrl(routing.defaultLocale, `/features/${slug}`);
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -87,19 +85,22 @@ export default async function LandingPage({
         </h1>
         <p className="mt-6 text-lg text-zinc-600 dark:text-zinc-400">{page.intro}</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          {signedIn ? (
-            <InstallExtensionButton
-              label="Add to Chrome"
-              className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-            />
-          ) : (
-            <Link
-              href="/auth/signup"
-              className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
-            >
-              Start your free 14-day trial
-            </Link>
-          )}
+          <AuthSwitch
+            signedIn={
+              <InstallExtensionButton
+                label="Add to Chrome"
+                className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
+              />
+            }
+            signedOut={
+              <Link
+                href="/auth/signup"
+                className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white dark:bg-white dark:text-black"
+              >
+                Start your free 14-day trial
+              </Link>
+            }
+          />
           <Link
             href="/pricing"
             className="rounded-full border border-black/10 px-6 py-3 text-sm font-medium dark:border-white/20"
