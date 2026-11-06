@@ -492,8 +492,8 @@
     "adminActionError": "Action failed. Please try again."
   },
   "Help": {
-    "metaTitle": "Help",
-    "metaDescription": "Find answers, browse the docs, or contact the SaleLinx team.",
+    "metaTitle": "Help and support",
+    "metaDescription": "Get help with SaleLinx: answers to common questions, step-by-step guides for the Chrome extension, live status and a way to contact the team.",
     "eyebrow": "Help center",
     "title": "How can we help?",
     "body": "Search the FAQ, read the docs, or send us a message. We'll reply by email and in your account.",
@@ -503,8 +503,8 @@
     "docsCardBody": "Step-by-step guides and walkthroughs for every SaleLinx feature.",
     "statusCardTitle": "Status",
     "statusCardBody": "Live status of the marketplaces and the extension features that run against them.",
-    "supportMetaTitle": "Contact support",
-    "supportMetaDescription": "Send the SaleLinx team a message.",
+    "supportMetaTitle": "Contact SaleLinx support",
+    "supportMetaDescription": "Send the SaleLinx team a message about your account, your plan or billing, or a problem with the Chrome extension on Depop, Vinted or eBay.",
     "supportTitle": "Contact support",
     "supportBody": "Send us a message and we'll reply by email and in your account.",
     "supportSignedOutBody": "You can reach us by email without an account. Signing in lets you track replies in one place.",
@@ -910,8 +910,8 @@
     }
   },
   "Docs": {
-    "metaTitle": "Docs",
-    "metaDescription": "Step-by-step guides and walkthroughs for the SaleLinx Chrome extension.",
+    "metaTitle": "Documentation and guides",
+    "metaDescription": "Step-by-step guides for the SaleLinx Chrome extension: setup, crosslisting, relisting, automations, offers, messages and labels on Depop, Vinted and eBay.",
     "eyebrow": "Docs",
     "heroTitle": "Learn SaleLinx.",
     "heroBody": "Step-by-step guides and walkthroughs for the SaleLinx Chrome extension. For quick answers to common questions, head to the <faq>FAQ</faq>.",
@@ -923,19 +923,23 @@
     "category": {
       "getting-started": {
         "title": "Getting started",
-        "blurb": "Install the extension, sign in, and post your first listing."
+        "blurb": "Install the extension, sign in, and post your first listing.",
+        "metaDescription": "Get started with SaleLinx: install the Chrome extension, sign in, connect Depop, Vinted or eBay, and learn the queue, settings and your plan."
       },
       "inventory": {
         "title": "Inventory & posting",
-        "blurb": "Listings, bots, relist, refresh, crosslist, shop designer, CSV import, cloud sync."
+        "blurb": "Listings, bots, relist, refresh, crosslist, shop designer, CSV import, cloud sync.",
+        "metaDescription": "Manage your stock with SaleLinx: My Listings, Grow, relist, refresh, crosslist, Shop Designer, CSV import, bulk editing and cloud sync."
       },
       "automate": {
         "title": "Automate",
-        "blurb": "Dead stock, auto-offers, linking, restocker, price drops."
+        "blurb": "Dead stock, auto-offers, linking, restocker, price drops.",
+        "metaDescription": "Automate selling with SaleLinx: dead stock, auto-accept offers, sending offers, linking listings, the restocker and scheduled price drops."
       },
       "buyers": {
         "title": "Buyer messages",
-        "blurb": "Offers, messages, shipping labels and feedback."
+        "blurb": "Offers, messages, shipping labels and feedback.",
+        "metaDescription": "Handle buyers with SaleLinx: answer offers and messages from one panel, and print your shipping labels merged into a single PDF."
       }
     },
     "task": {
@@ -963,8 +967,8 @@
       "next": "Next"
     },
     "status": {
-      "metaTitle": "Status",
-      "metaDescription": "Live status of the SaleLinx extension and the marketplaces it connects to.",
+      "metaTitle": "Marketplace status",
+      "metaDescription": "Live status of the SaleLinx extension and the marketplaces it connects to: see whether Depop, Vinted and eBay are working normally right now.",
       "eyebrow": "Status",
       "title": "SaleLinx status",
       "body": "Which marketplaces SaleLinx is currently able to crosslist to. If you're seeing errors and a marketplace is flagged here, the team is already on it.",
@@ -993,7 +997,7 @@
     },
     "changelog": {
       "metaTitle": "Changelog",
-      "metaDescription": "What changed in recent releases of the SaleLinx extension.",
+      "metaDescription": "What changed in each release of the SaleLinx Chrome extension: new features, fixes and improvements for people selling on Depop, Vinted and eBay.",
       "eyebrow": "Changelog",
       "title": "What's new in SaleLinx",
       "body": "Release notes for the SaleLinx extension. The newest entry is at the top.",
@@ -1011,8 +1015,8 @@
     }
   },
   "Faq": {
-    "metaTitle": "FAQ",
-    "metaDescription": "Quick answers to common questions about SaleLinx: billing, account, troubleshooting, privacy.",
+    "metaTitle": "Frequently asked questions",
+    "metaDescription": "Quick answers to common questions about SaleLinx: the free trial, billing and plans, your account, privacy and fixing problems with the Chrome extension.",
     "eyebrow": "FAQ",
     "title": "Frequently asked questions.",
     "body": "Quick answers to the questions we hear most. Looking for a full walkthrough instead? <docs>Browse the docs</docs>.",
@@ -1066,7 +1070,8 @@
       "eyebrow": "Have a request?",
       "body": "Missing a marketplace or feature? Tell us what you need and we'll weigh it in the next planning round.",
       "cta": "Email hello@salelinx.com"
-    }
+    },
+    "metaDescription": "The SaleLinx roadmap: what is being scoped, built and already shipped for the Chrome extension. Dates are targets, not commitments."
   },
   "Uninstall": {
     "metaTitle": "Sorry to see you go",

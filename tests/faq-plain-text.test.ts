@@ -66,7 +66,7 @@ const GROUPS: FAQGroup[] = [
 ];
 
 describe('faqJsonLd', () => {
-  const graph = faqJsonLd({ locale: 'en', groups: GROUPS });
+  const graph = faqJsonLd({ locale: 'en', items: GROUPS.flatMap((g) => g.items) });
   const nodes = graph['@graph'] as Record<string, unknown>[];
   const faq = nodes[0];
   const questions = faq.mainEntity as {

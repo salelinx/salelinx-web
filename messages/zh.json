@@ -492,8 +492,8 @@
     "adminActionError": "操作失败。请重试。"
   },
   "Help": {
-    "metaTitle": "帮助",
-    "metaDescription": "查找答案、浏览文档，或者联系 SaleLinx 团队。",
+    "metaTitle": "帮助与支持",
+    "metaDescription": "获取 SaleLinx 帮助：查看常见问题解答、阅读 Chrome 扩展的分步指南、了解实时服务状态，或者直接联系 SaleLinx 团队。",
     "eyebrow": "帮助中心",
     "title": "需要什么帮助？",
     "body": "搜索常见问题、阅读文档，或者给我们发消息。我们会通过邮件和你的账户回复。",
@@ -503,8 +503,8 @@
     "docsCardBody": "SaleLinx 每项功能的分步指南和操作演示。",
     "statusCardTitle": "平台状态",
     "statusCardBody": "各平台及在其上运行的扩展功能的实时状态。",
-    "supportMetaTitle": "联系支持",
-    "supportMetaDescription": "给 SaleLinx 团队发消息。",
+    "supportMetaTitle": "联系 SaleLinx 支持",
+    "supportMetaDescription": "就你的账户、套餐或账单，或者 Chrome 扩展在 Depop、Vinted、eBay 上遇到的问题，给 SaleLinx 团队发消息。",
     "supportTitle": "联系支持",
     "supportBody": "给我们发消息，我们会通过邮件和你的账户回复。",
     "supportSignedOutBody": "无需账户也可以通过邮件联系我们。登录后可在一处跟进所有回复。",
@@ -910,8 +910,8 @@
     }
   },
   "Docs": {
-    "metaTitle": "文档",
-    "metaDescription": "SaleLinx Chrome 扩展的分步指南和操作演示。",
+    "metaTitle": "文档与指南",
+    "metaDescription": "SaleLinx Chrome 扩展的分步指南：设置、跨平台上架、重新上架、自动化、报价、消息，以及 Depop、Vinted 和 eBay 的快递面单。",
     "eyebrow": "文档",
     "heroTitle": "学会使用 SaleLinx。",
     "heroBody": "SaleLinx Chrome 扩展的分步指南和操作演示。如果只是想快速找到常见问题的答案，请前往<faq>常见问题</faq>。",
@@ -923,19 +923,23 @@
     "category": {
       "getting-started": {
         "title": "快速上手",
-        "blurb": "安装扩展、登录，并发布你的第一个商品。"
+        "blurb": "安装扩展、登录，并发布你的第一个商品。",
+        "metaDescription": "SaleLinx 快速上手：安装 Chrome 扩展、登录、连接 Depop、Vinted 或 eBay，并了解队列、设置和你的套餐。"
       },
       "inventory": {
         "title": "库存与发布",
-        "blurb": "商品、机器人、重新上架、刷新、跨平台上架、店铺设计器、CSV 导入、云端同步。"
+        "blurb": "商品、机器人、重新上架、刷新、跨平台上架、店铺设计器、CSV 导入、云端同步。",
+        "metaDescription": "用 SaleLinx 管理库存：商品、Grow、重新上架、刷新、跨平台上架、店铺设计器、CSV 导入、批量编辑和云端同步。"
       },
       "automate": {
         "title": "自动化",
-        "blurb": "滞销商品、自动报价、账号连接、库存同步、降价。"
+        "blurb": "滞销商品、自动报价、账号连接、库存同步、降价。",
+        "metaDescription": "用 SaleLinx 自动化销售：滞销商品、自动接受报价、发送报价、关联商品、库存同步和定时降价。"
       },
       "buyers": {
         "title": "买家消息",
-        "blurb": "报价、消息、快递面单和评价。"
+        "blurb": "报价、消息、快递面单和评价。",
+        "metaDescription": "用 SaleLinx 处理买家事务：在一个面板里回复报价和消息，并把快递面单合并到一个 PDF 中打印。"
       }
     },
     "task": {
@@ -963,8 +967,8 @@
       "next": "下一篇"
     },
     "status": {
-      "metaTitle": "平台状态",
-      "metaDescription": "实时查看 SaleLinx 目前可以跨平台上架到哪些平台。",
+      "metaTitle": "平台运行状态",
+      "metaDescription": "实时查看 SaleLinx 扩展及其连接平台的状态：确认 Depop、Vinted 和 eBay 现在是否运行正常。",
       "eyebrow": "状态",
       "title": "平台状态",
       "body": "查看 SaleLinx 目前能够跨平台上架到哪些平台。如果你遇到报错，而某个平台在这里被标记出来，说明团队已经在处理了。",
@@ -993,7 +997,7 @@
     },
     "changelog": {
       "metaTitle": "更新日志",
-      "metaDescription": "SaleLinx 扩展近期版本的更新内容。",
+      "metaDescription": "SaleLinx Chrome 扩展每个版本的更新内容：为 Depop、Vinted 和 eBay 卖家带来的新功能、修复和改进。",
       "eyebrow": "更新日志",
       "title": "SaleLinx 的新变化",
       "body": "SaleLinx 扩展的版本说明。最新的一条在最上面。",
@@ -1011,8 +1015,8 @@
     }
   },
   "Faq": {
-    "metaTitle": "常见问题",
-    "metaDescription": "关于 SaleLinx 的常见问题快速解答：账单、账户、故障排查、隐私。",
+    "metaTitle": "常见问题解答",
+    "metaDescription": "关于 SaleLinx 的常见问题快速解答：免费试用、账单与套餐、你的账户、隐私，以及 Chrome 扩展的故障排查。",
     "eyebrow": "常见问题",
     "title": "常见问题。",
     "body": "我们被问得最多的问题的快速解答。想看完整的操作步骤？<docs>浏览文档</docs>。",
@@ -1066,7 +1070,8 @@
       "eyebrow": "有想提的需求？",
       "body": "缺少某个平台或功能？告诉我们你需要什么，我们会在下一轮规划中评估。",
       "cta": "发邮件到 hello@salelinx.com"
-    }
+    },
+    "metaDescription": "SaleLinx 路线图：Chrome 扩展正在评估、正在开发和已经发布的内容。日期是目标，不是承诺。"
   },
   "Uninstall": {
     "metaTitle": "很遗憾你要离开",
