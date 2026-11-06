@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { getArticle } from '@/lib/docs/getArticle';
+import { docsCanonicalLocale } from '@/lib/docs/jsonld';
 import type { CategorySlug } from '@/lib/docs/types';
 import type { Locale } from '@/lib/i18n/locales';
 import { OG_SIZE, articleOgImage } from '@/lib/og/article-card';
@@ -20,7 +21,7 @@ export default async function Image({
 }) {
   const { locale, category, slug } = await params;
   const article = getArticle(locale as Locale, category as CategorySlug, slug);
-  const t = await getTranslations({ locale, namespace: 'Docs' });
+  const t = await getTranslations({ locale: docsCanonicalLocale(locale), namespace: 'Docs' });
 
   return articleOgImage({
     section: 'Docs',

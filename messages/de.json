@@ -924,7 +924,7 @@
       "getting-started": {
         "title": "Erste Schritte",
         "blurb": "Installiere die Erweiterung, melde dich an und veröffentliche dein erstes Inserat.",
-        "metaDescription": "Erste Schritte mit SaleLinx: Installiere die Chrome-Erweiterung, melde dich an, verbinde Depop, Vinted oder eBay und lerne Warteschlange, Einstellungen und Tarif kennen."
+        "metaDescription": "Erste Schritte mit SaleLinx: Installiere die Chrome-Erweiterung, verbinde Depop, Vinted oder eBay und lerne Warteschlange, Einstellungen und Tarif kennen."
       },
       "inventory": {
         "title": "Bestand und Veröffentlichung",
@@ -934,7 +934,7 @@
       "automate": {
         "title": "Automatisierung",
         "blurb": "Tote Bestände, automatische Angebote, Linking, Restocker, Preissenkungen.",
-        "metaDescription": "Automatisiere deine Verkäufe mit SaleLinx: tote Bestände, automatisch angenommene Angebote, Angebote senden, Inserate verknüpfen, Restocker und geplante Preissenkungen."
+        "metaDescription": "Automatisiere deine Verkäufe mit SaleLinx: tote Bestände, automatisch angenommene Angebote, Angebote senden, Inserate verknüpfen und Preissenkungen."
       },
       "buyers": {
         "title": "Käufernachrichten",
@@ -997,7 +997,7 @@
     },
     "changelog": {
       "metaTitle": "Changelog",
-      "metaDescription": "Was sich in jeder Version der SaleLinx Chrome-Erweiterung geändert hat: neue Funktionen, Fehlerbehebungen und Verbesserungen für Verkäufer auf Depop, Vinted und eBay.",
+      "metaDescription": "Was sich in jeder Version der SaleLinx Chrome-Erweiterung geändert hat: neue Funktionen und Fehlerbehebungen für Verkäufer auf Depop, Vinted und eBay.",
       "eyebrow": "Changelog",
       "title": "Was ist neu in SaleLinx",
       "body": "Versionshinweise für die SaleLinx-Erweiterung. Der neueste Eintrag steht oben.",
@@ -1016,7 +1016,7 @@
   },
   "Faq": {
     "metaTitle": "Häufige Fragen",
-    "metaDescription": "Schnelle Antworten auf häufige Fragen zu SaleLinx: kostenlose Testphase, Abrechnung und Tarife, dein Konto, Datenschutz und Fehlerbehebung der Chrome-Erweiterung.",
+    "metaDescription": "Schnelle Antworten zu SaleLinx: kostenlose Testphase, Abrechnung und Tarife, dein Konto, Datenschutz und Fehlerbehebung der Chrome-Erweiterung.",
     "eyebrow": "FAQ",
     "title": "Häufig gestellte Fragen.",
     "body": "Schnelle Antworten auf die Fragen, die wir am häufigsten hören. Suchst du stattdessen eine vollständige Anleitung? <docs>Docs ansehen</docs>.",

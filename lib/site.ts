@@ -13,10 +13,10 @@ export const SITE_NAME = 'SaleLinx';
 // materially so future signups record the version they actually agreed to.
 export const TERMS_VERSION = '2026-10-29';
 
-// Live listing: https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj
+// Live listing: https://chromewebstore.google.com/detail/salelinx-vinted-depop-eba/oichfmfogobecihmhlgkfcfbdceomenj
 export const CHROME_WEB_STORE_URL = process.env.NEXT_PUBLIC_EXTENSION_ID
-  ? `https://chromewebstore.google.com/detail/salelinx/${process.env.NEXT_PUBLIC_EXTENSION_ID}`
-  : 'https://chromewebstore.google.com/detail/salelinx/oichfmfogobecihmhlgkfcfbdceomenj';
+  ? `https://chromewebstore.google.com/detail/salelinx-vinted-depop-eba/${process.env.NEXT_PUBLIC_EXTENSION_ID}`
+  : 'https://chromewebstore.google.com/detail/salelinx-vinted-depop-eba/oichfmfogobecihmhlgkfcfbdceomenj';
 
 export const SOCIAL_LINKS = {
   tiktok: 'https://www.tiktok.com/@salelinx',
