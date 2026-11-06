@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
@@ -98,13 +99,13 @@ export default async function BlogPostPage({
         </header>
 
         <figure className="mt-8">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={`/blog/photos/${slug}.jpg`}
             alt={meta.photo.alt}
-            width={1600}
-            height={900}
-            fetchPriority="high"
+            width={3840}
+            height={2160}
+            priority
+            sizes="(max-width: 768px) 100vw, 720px"
             className="block aspect-[16/9] w-full rounded-xl object-cover"
           />
           <figcaption className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">

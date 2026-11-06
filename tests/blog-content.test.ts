@@ -106,6 +106,11 @@ describe('blog posts', () => {
         expect(existsSync(path.join(ROOT, 'public', 'blog', 'photos', file.replace(/\.mdx$/, '.jpg')))).toBe(true);
       });
 
+      it('shows SaleLinx with a panel screenshot that exists', () => {
+        const shot = source.match(/<SaleLinxHelps shot="([a-z]+)">/)?.[1];
+        expect(existsSync(path.join(ROOT, 'public', 'blog', 'panel', `${shot}.webp`))).toBe(true);
+      });
+
       it('leaves the h1 to the page', () => {
         // The post page renders metadata.title as the h1.
         expect(body).not.toMatch(/^# /m);
