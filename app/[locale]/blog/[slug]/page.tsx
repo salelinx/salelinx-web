@@ -102,10 +102,11 @@ export default async function BlogPostPage({
           <Image
             src={`/blog/photos/${slug}.jpg`}
             alt={meta.photo.alt}
-            width={3840}
-            height={2160}
+            // Fixed 600 so crawlers get the 1200px 2x file (under 100KB), not the 3840px original.
+            width={600}
+            height={338}
+            quality={60}
             priority
-            sizes="(max-width: 768px) 100vw, 720px"
             className="block aspect-[16/9] w-full rounded-xl object-cover"
           />
           <figcaption className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">

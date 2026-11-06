@@ -31,10 +31,9 @@ export function SaleLinxHelps({ shot, children }: { shot: keyof typeof SHOTS; ch
       <Image
         src={`/blog/panel/${shot}.webp`}
         alt={SHOTS[shot]}
-        width={3840}
-        height={2160}
-        quality={90}
-        sizes="(max-width: 640px) 134vw, 672px"
+        // Fixed 600 so crawlers get the 1200px 2x file (under 100KB), not the 3840px original.
+        width={600}
+        height={338}
         className="mt-6 aspect-[4/3] w-full rounded-lg border border-black/10 object-cover object-[100%_0] shadow-xl sm:aspect-video dark:border-white/10"
       />
       {children}
