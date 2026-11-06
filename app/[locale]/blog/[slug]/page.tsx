@@ -97,6 +97,25 @@ export default async function BlogPostPage({
           </p>
         </header>
 
+        <figure className="mt-8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/blog/photos/${slug}.jpg`}
+            alt={meta.photo.alt}
+            width={1600}
+            height={900}
+            fetchPriority="high"
+            className="block aspect-[16/9] w-full rounded-xl object-cover"
+          />
+          <figcaption className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            Photo:{' '}
+            <a href={meta.photo.href} className="underline underline-offset-4" rel="noopener">
+              {meta.photo.credit}
+            </a>{' '}
+            on Unsplash
+          </figcaption>
+        </figure>
+
         <div className="mt-8">
           <MDX />
         </div>

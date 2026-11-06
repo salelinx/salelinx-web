@@ -25,6 +25,7 @@ export function postJsonLd(meta: PostMetadata, faq: FaqItem[]): Record<string, u
         description: meta.description,
         url,
         mainEntityOfPage: url,
+        image: `${SITE_URL}/blog/photos/${meta.slug}.jpg`,
         inLanguage: LOCALE,
         datePublished: meta.published,
         dateModified: meta.updated,

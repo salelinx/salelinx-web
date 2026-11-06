@@ -101,8 +101,9 @@ describe('blog posts', () => {
         expect(source).not.toMatch(/[–—]|&mdash;|&ndash;/);
       });
 
-      it('has a cover for the index card', () => {
+      it('has a cover for the index card and a hero photo', () => {
         expect(existsSync(path.join(ROOT, 'public', 'blog', 'covers', file.replace(/\.mdx$/, '.svg')))).toBe(true);
+        expect(existsSync(path.join(ROOT, 'public', 'blog', 'photos', file.replace(/\.mdx$/, '.jpg')))).toBe(true);
       });
 
       it('leaves the h1 to the page', () => {

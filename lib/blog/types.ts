@@ -20,6 +20,7 @@ export type PostMetadata = {
   // when the body has drifted, so edit this when the test says so.
   readingMinutes: number;
   marketplaces?: Marketplace[];
+  photo: { alt: string; credit: string; href: string };
 };
 
 export type PostModule = {

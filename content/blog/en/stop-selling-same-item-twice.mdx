@@ -9,6 +9,11 @@ export const metadata = {
   updated: '2026-11-06',
   readingMinutes: 7,
   marketplaces: ['vinted', 'depop', 'ebay'],
+  photo: {
+    alt: 'A large pile of cardboard parcels ready to post',
+    credit: 'Rohit Choudhari',
+    href: 'https://unsplash.com/photos/a-large-pile-of-brown-cardboard-boxes-with-blue-tape-qO2ztAz5g7A',
+  },
 };
 
 The only way to avoid overselling when you crosslist is to take the other
@@ -159,6 +164,12 @@ takes the other listings down when one sells: Depop quantity is set to 0,
 Vinted is hidden (or deleted, if you choose) and eBay is ended, staying in My
 Listings so it can be relisted. See the
 [Linking docs](/docs/automate/linking).
+
+<Figure
+  src="/panel/02-my-listings.png"
+  alt="The SaleLinx My Listings tab in Chrome: each linked item shows its Depop and Vinted copies together, with status, price, views, likes and quantity."
+  caption="My Listings with linked items: each row holds the same item's copy on every marketplace, which is what the take-down works from."
+/>
 
 It has limits, and it can lag. It notices a sale on its next check, about every
 5 minutes for Depop and Vinted and about every 15 for eBay, so another buyer
