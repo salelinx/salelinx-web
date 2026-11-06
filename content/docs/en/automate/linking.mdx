@@ -1,24 +1,26 @@
 export const metadata = {
   title: 'Linking',
   description:
-    'Pair individual Depop listings with their Vinted counterparts. Fuzzy-match suggests the right partner; one click links them so the Restocker and other features know they\'re the same item.',
+    'Pair the same item across Depop, Vinted and eBay. Fuzzy-match suggests the right partner; one click links them so SaleLinx can take the others down when one sells.',
   category: 'automate',
   slug: 'linking',
   order: 3,
   updated: '2026-10-13',
-  tags: ['linking', 'restocker', 'depop', 'vinted'],
-  marketplaces: ['depop', 'vinted'],
+  tags: ['linking', 'restocker', 'take down', 'depop', 'vinted', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
 # Linking
 
-The Linking tab pairs a Depop listing with its Vinted counterpart so
-the rest of SaleLinx knows they&rsquo;re the same physical item. Once
-two listings are linked:
+The Linking tab pairs listings for the same item across Depop, Vinted
+and eBay so the rest of SaleLinx knows they&rsquo;re the same physical
+item. Once listings are linked:
 
-- The [Restocker](/docs/automate/restocker) keeps their stock in step
-  and takes the other side down when the item sells out.
+- When one sells, SaleLinx takes the others down (see
+  &ldquo;Taking the others down when one sells&rdquo; below).
+- The [Restocker](/docs/automate/restocker) keeps the stock of Depop and
+  Vinted listings in step.
 - [My Listings](/docs/inventory/listings) shows the pair as one row
   with both marketplace logos, and the **Linked** filter finds them.
 - The Restocker tab&rsquo;s **Linked** / **Unlinked** filter
@@ -27,7 +29,7 @@ two listings are linked:
 Crosslisting doesn&rsquo;t link the original and the new copy for
 you. After a [Crosslist](/docs/inventory/crosslist), pair the two
 listings here (or from My Listings). The same goes for items you
-listed on both marketplaces yourself, and for pairs whose link was
+listed on more than one marketplace yourself, and for pairs whose link was
 removed.
 
 ## What you need
@@ -37,10 +39,11 @@ removed.
   linked. The tab&rsquo;s **Save to cloud** button helps with this
   (see below), and [Cloud sync](/docs/inventory/cloud-sync) explains
   the rest.
-- **A Depop tab and a Vinted tab open.** Each column fills in from a
+- **A tab open for Depop and Vinted.** Each column fills in from a
   fresh read of that marketplace. If one isn&rsquo;t open, or its
   session has expired, the column shows a short note with a link to
-  open it instead of the listings.
+  open it instead of the listings. eBay needs no open tab, but if its
+  connection has lapsed the column asks you to reconnect it in Settings.
 - Active, sold and draft listings can all be linked here. A sold
   item stays linkable because the Restocker still needs the pair.
 
@@ -53,10 +56,9 @@ Along the top:
 - **Save to cloud** - appears with a count when listings on screen
   aren&rsquo;t saved to the cloud yet.
 - **Recommended links** - suggests pairs to link in one go.
-- **Refresh** - re-reads both marketplaces.
+- **Refresh** - re-reads your marketplaces.
 
-Below that are two columns. The left one is the marketplace you&rsquo;re
-browsing, the right one is the other marketplace. Each lists the
+Below that is one column for each marketplace you have linked. Each lists the
 cloud-saved listings that aren&rsquo;t linked yet, with a search box
 and a count. A card shows the photo, title and price, plus a **Sold**
 or **Draft** badge where that applies.
@@ -130,7 +132,7 @@ with **Include sold** off, sold listings and drafts are left out.
 
 ## Refresh
 
-**Refresh** re-reads your listings on Depop and Vinted at the same
+**Refresh** re-reads your listings on your marketplaces at the same
 time, then reloads the columns. Use it after you&rsquo;ve added new
 listings on either side. The button shows **Refreshing&hellip;** while
 it runs.
@@ -138,7 +140,7 @@ it runs.
 ## Linking from My Listings
 
 You can also link without opening this tab. In **My Listings**, select
-one Depop listing and one Vinted listing and click **Link** in the
+two listings from different marketplaces and click **Link** in the
 toolbar. With a linked row selected, the same button reads **Unlink**.
 See [Bulk editor](/docs/inventory/bulk-editor) for the rest of the
 toolbar.
@@ -159,6 +161,43 @@ restock counts.
 
 Removing either listing from the cloud also removes its link.
 
+## Taking the others down when one sells
+
+Added in version 1.2.2. When a linked listing sells on Depop, Vinted or
+eBay, SaleLinx takes the other listings in the group down so the item
+doesn&rsquo;t sell twice:
+
+- **Depop**: the quantity is set to 0, so it shows as sold out.
+- **Vinted**: the listing is hidden by default, or deleted if you chose
+  that in the Restocker&rsquo;s **When a linked item sells out** setting.
+- **eBay**: the listing is ended. It stays in My Listings, so you can
+  relist it.
+
+It is on once you have linked listings. The **Take linked listings down
+when one sells** switch in **Linking settings** turns it off. If you
+turn it back on, it does not act on sales from while it was off.
+
+It has limits:
+
+- **It is not instant.** SaleLinx notices a sale on its next check, about
+  every 5 minutes for Depop and Vinted and about every 15 for eBay.
+  Another buyer could still buy the item in between.
+- **It only runs while Chrome is open with SaleLinx running.** Checking
+  Depop and Vinted needs a Depop or Vinted tab open. eBay does not.
+- **It needs Pro or Business.** On other plans, nothing is taken down.
+- **It leaves a listing up when it shows more than one in stock.**
+- **It gives up after repeated failures.** SaleLinx retries a failed
+  take-down up to 12 times, then tells you to end the listing
+  yourself. A cancelled sale does not put the other listings back up.
+- **It ignores sales from before it was switched on.**
+
+If the [Restocker](/docs/automate/restocker) is running for an item,
+the Restocker handles the Depop and Vinted copies (it counts stock down
+and reposts), and SaleLinx still takes down the eBay copy.
+
+When it acts, a card tells you what was taken down, what was left up and
+what failed.
+
 ## Plan and access
 
 Linking is included on **Pro and Business**. The free trial and
@@ -174,5 +213,5 @@ user of linked pairs, is Business only.
   any linking.
 - [Crosslist](/docs/inventory/crosslist) - create the copy on the
   other marketplace, then link the two here.
-- [Restocker](/docs/automate/restocker) - the main user of linked
-  pairs.
+- [Restocker](/docs/automate/restocker) - counts down stock on linked
+  Depop and Vinted listings.

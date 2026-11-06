@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="640" height="360" fill="#ffefea"/>
+  <text x="60" y="88" font-size="40" font-weight="700" fill="#18181b">Not as described?</text>
+  <text x="60" y="122" font-size="18" fill="#52525b">30 days to claim, 48 hours to reply</text>
+  <rect x="60" y="156" width="230" height="72" rx="12" fill="#ff2300"/>
+  <text x="175" y="200" font-size="24" font-weight="700" fill="#ffffff" text-anchor="middle">Buyer: 30 days</text>
+  <rect x="310" y="156" width="230" height="72" rx="12" fill="#ffffff" stroke="#a1a1aa" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="425" y="200" font-size="24" font-weight="700" fill="#18181b" text-anchor="middle">You: 48 hours</text>
+  <line x1="292" y1="192" x2="308" y2="192" stroke="#a1a1aa" stroke-width="2"/>
+  <text x="60" y="282" font-size="18" fill="#18181b">Photos and honest notes win claims</text>
+  <text x="60" y="306" font-size="16" fill="#71717a">Depop's decision is final</text>
+</svg>

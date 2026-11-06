@@ -27,6 +27,16 @@ import * as taxOnVintedAndDepopSales from '@/content/blog/en/tax-on-vinted-and-d
 import * as vintedBump from '@/content/blog/en/vinted-bump-cost-and-does-it-work.mdx';
 import * as vintedFeesUk from '@/content/blog/en/vinted-fees-uk.mdx';
 import * as vintedParcelLostOrDamaged from '@/content/blog/en/vinted-parcel-lost-or-damaged.mdx';
+import * as crosslistVintedToDepop from '@/content/blog/en/crosslist-vinted-to-depop.mdx';
+import * as depopFeesUk from '@/content/blog/en/depop-fees-uk.mdx';
+import * as depopRefunds from '@/content/blog/en/depop-refunds-not-as-described.mdx';
+import * as doesVintedReportToHmrc from '@/content/blog/en/does-vinted-report-to-hmrc.mdx';
+import * as moreSalesOnDepop from '@/content/blog/en/how-to-get-more-sales-on-depop.mdx';
+import * as stopSellingTwice from '@/content/blog/en/stop-selling-same-item-twice.mdx';
+import * as vintedAccountBanned from '@/content/blog/en/vinted-account-banned.mdx';
+import * as vintedAlgorithm from '@/content/blog/en/vinted-algorithm-and-search.mdx';
+import * as vintedItemsNotSelling from '@/content/blog/en/vinted-items-not-selling.mdx';
+import * as vintedVsEbayUk from '@/content/blog/en/vinted-vs-ebay-uk.mdx';
 
 export const BLOG_CONTENT_LOCALES = ['en'] as const;
 
@@ -45,6 +55,16 @@ const POSTS: PostModule[] = [
   vintedBump as unknown as PostModule,
   vintedFeesUk as unknown as PostModule,
   vintedParcelLostOrDamaged as unknown as PostModule,
+  crosslistVintedToDepop as unknown as PostModule,
+  depopFeesUk as unknown as PostModule,
+  depopRefunds as unknown as PostModule,
+  doesVintedReportToHmrc as unknown as PostModule,
+  moreSalesOnDepop as unknown as PostModule,
+  stopSellingTwice as unknown as PostModule,
+  vintedAccountBanned as unknown as PostModule,
+  vintedAlgorithm as unknown as PostModule,
+  vintedItemsNotSelling as unknown as PostModule,
+  vintedVsEbayUk as unknown as PostModule,
 ];
 
 export const BLOG_CATEGORIES: { slug: BlogCategory; title: string; blurb: string }[] = [

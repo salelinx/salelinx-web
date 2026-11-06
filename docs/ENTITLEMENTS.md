@@ -137,11 +137,11 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 
 | Label                       | JSON key                 | Free | Starter | Pro       | Business  |
 | --------------------------- | ------------------------ | ---- | ------- | --------- | --------- |
-| Crosslists / mo             | `crosslists_per_month`   | 0    | 150     | 3,500     | Unlimited |
-| Relists / mo                | `relists_per_month`      | 0    | 150     | 3,500     | Unlimited |
-| Refreshes / day             | `refreshes_per_day`      | 0    | 100     | Unlimited | Unlimited |
-| Follows / day               | `follows_per_day`        | 0    | 500     | Unlimited | Unlimited |
-| Unfollows / day             | `unfollows_per_day`      | 0    | 500     | Unlimited | Unlimited |
+| Crosslists / mo             | `crosslists_per_month`   | 0    | 150     | 500       | Unlimited |
+| Relists / mo                | `relists_per_month`      | 0    | 200     | 750       | Unlimited |
+| Refreshes / day             | `refreshes_per_day`      | 0    | 200     | Unlimited | Unlimited |
+| Follows / day               | `follows_per_day`        | 0    | 200     | 500       | Unlimited |
+| Unfollows / day             | `unfollows_per_day`      | 0    | 200     | 500       | Unlimited |
 | Cloud storage               | `cloud_storage_bytes`    | -    | -       | 500 MB    | 1 GB      |
 | Support response (days)     | `support_response_days`  | 7    | 5       | -         | -         |
 | Support response (hours)    | `support_response_hours` | -    | -       | 48        | 24        |
@@ -155,8 +155,11 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 | Shop Designer               | `shop_designer`          | ✗    | ✓       | ✓         | ✓         |
 | Dead Stock                  | `dead_stock`             | ✗    | ✓       | ✓         | ✓         |
 | Settings presets sync       | `preset_sync`            | ✗    | ✓       | ✓         | ✓         |
+| Emailing labels             | `shipping_label_email`   | ✗    | ✗       | ✗         | ✓         |
 | Restocker                   | `restocker`              | ✗    | ✗       | ✗         | ✓         |
 | Price Drops (auto-markdown) | `auto_markdown`          | ✗    | ✗       | ✗         | ✓         |
+
+The trial row has Starter's features with lower caps: 50 crosslists, 100 relists, 100 refreshes, follows and unfollows a day, 5-day support. The table shows the live values in `tier_limits` as of 6 Nov 2026.
 
 **Note:** the JSON feature key for auto-offers is `auto_offer` (singular), not `auto_offers`. Match the key exactly when reading - typos silently fail as "feature absent" = disabled.
 

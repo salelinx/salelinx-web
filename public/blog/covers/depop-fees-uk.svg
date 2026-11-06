@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="640" height="360" fill="#ffefea"/>
+  <text x="60" y="88" font-size="40" font-weight="700" fill="#18181b">Selling fee: £0</text>
+  <text x="60" y="122" font-size="18" fill="#52525b">UK sellers pay processing, not the old 10%</text>
+  <rect x="60" y="156" width="470" height="72" rx="12" fill="#ff2300"/>
+  <text x="295" y="200" font-size="24" font-weight="700" fill="#ffffff" text-anchor="middle">£19.12 to you on £20</text>
+  <rect x="534" y="156" width="46" height="72" rx="8" fill="#ff2300" fill-opacity="0.4"/>
+  <line x1="557" y1="232" x2="557" y2="258" stroke="#a1a1aa" stroke-width="2"/>
+  <text x="557" y="282" font-size="18" fill="#18181b" text-anchor="middle">2.9% + £0.30</text>
+  <text x="557" y="306" font-size="16" fill="#71717a" text-anchor="middle">processing</text>
+  <rect x="60" y="262" width="150" height="44" rx="22" fill="#ffffff" stroke="#a1a1aa" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="135" y="291" font-size="18" fill="#52525b" text-anchor="middle">12% if boosted</text>
+</svg>

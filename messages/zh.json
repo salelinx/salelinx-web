@@ -809,7 +809,7 @@
       },
       "autoOffers": {
         "name": "自动报价",
-        "detail": "点赞或关注过你 Vinted 或 eBay 商品的买家会自动收到你的报价，把关注变成成交。"
+        "detail": "点赞过你 Vinted 商品的买家会自动收到你的报价，把关注变成成交。"
       },
       "linking": {
         "name": "关联",

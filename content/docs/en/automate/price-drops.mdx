@@ -7,7 +7,7 @@ export const metadata = {
   order: 5,
   updated: '2026-10-16',
   tags: ['markdown', 'price', 'automation'],
-  marketplaces: ['depop', 'vinted'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
@@ -18,7 +18,9 @@ schedule you set per item. It turns slow-moving stock over without
 you having to remember to revisit it, and it never goes below the
 floor you choose.
 
-Price Drops works on Depop and Vinted listings; eBay support is coming.
+Price Drops works on Depop, Vinted and eBay listings. It skips eBay
+auctions, because an auction&rsquo;s price is its current bid, and eBay
+listings with variations.
 
 ## How the maths works
 
