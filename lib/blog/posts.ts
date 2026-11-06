@@ -37,6 +37,9 @@ import * as vintedAccountBanned from '@/content/blog/en/vinted-account-banned.md
 import * as vintedAlgorithm from '@/content/blog/en/vinted-algorithm-and-search.mdx';
 import * as vintedItemsNotSelling from '@/content/blog/en/vinted-items-not-selling.mdx';
 import * as vintedVsEbayUk from '@/content/blog/en/vinted-vs-ebay-uk.mdx';
+import * as salelinxVsCrosslist from '@/content/blog/en/salelinx-vs-crosslist.mdx';
+import * as salelinxVsListPerfectly from '@/content/blog/en/salelinx-vs-list-perfectly.mdx';
+import * as salelinxVsVendoo from '@/content/blog/en/salelinx-vs-vendoo.mdx';
 
 export const BLOG_CONTENT_LOCALES = ['en'] as const;
 
@@ -65,6 +68,9 @@ const POSTS: PostModule[] = [
   vintedAlgorithm as unknown as PostModule,
   vintedItemsNotSelling as unknown as PostModule,
   vintedVsEbayUk as unknown as PostModule,
+  salelinxVsCrosslist as unknown as PostModule,
+  salelinxVsListPerfectly as unknown as PostModule,
+  salelinxVsVendoo as unknown as PostModule,
 ];
 
 export const BLOG_CATEGORIES: { slug: BlogCategory; title: string; blurb: string }[] = [
