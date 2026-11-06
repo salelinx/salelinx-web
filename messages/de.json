@@ -1,7 +1,7 @@
 {
   "Layout": {
     "metaTitle": "SaleLinx - Vinted, Depop & eBay Crosslister",
-    "metaDescription": "Crosslisten zwischen Vinted, Depop und eBay mit einem Klick. Massen-Relisting, Auto-Angebote, Preissenkungen und Versandetiketten in einer Chrome-Erweiterung. 14 Tage gratis testen."
+    "metaDescription": "Crosslisten zwischen Vinted, Depop und eBay per Klick. Massen-Relisting, Auto-Angebote, Preissenkungen, Versandetiketten. Chrome-Erweiterung, 14 Tage gratis."
   },
   "Header": {
     "navFeatures": "Funktionen",
@@ -547,7 +547,7 @@
     },
     "referralTerms": {
       "title": "Bedingungen des Empfehlungsprogramms",
-      "metaDescription": "Die Bedingungen des SaleLinx-Empfehlungsprogramms: der Rabatt für Geworbene, wie Werbende Gratiszeit auf ihrem Tarif verdienen, die Haltefrist und die Obergrenze für Prämien sowie die Fair-Use-Regeln."
+      "metaDescription": "Die Bedingungen des SaleLinx-Empfehlungsprogramms: Rabatt für Geworbene, Gratiszeit für Werbende, Haltefrist, Obergrenze für Prämien und Fair-Use-Regeln."
     }
   },
   "Invited": {
@@ -572,8 +572,8 @@
     "termsLink": "Bedingungen des Empfehlungsprogramms ansehen"
   },
   "Features": {
-    "metaTitle": "Funktionen: Depop, Vinted und eBay crosslisten, neu listen und automatisieren",
-    "metaDescription": "Jede SaleLinx-Funktion für Vinted-, Depop- und eBay-Verkäufer: Crosslisting, Neu listen, Aktualisieren, Auffüllen, Angebote, Nachrichten, Versandetiketten und mehr, alles von einem Browser-Panel aus.",
+    "metaTitle": "Funktionen: Depop, Vinted und eBay crosslisten und automatisieren",
+    "metaDescription": "Jede SaleLinx-Funktion für Vinted-, Depop- und eBay-Verkäufer: Crosslisting, Neu listen, Aktualisieren, Auffüllen, Angebote, Versandetiketten und mehr.",
     "hero": {
       "title": "Alles, was SaleLinx für dich tut."
     },
@@ -850,7 +850,7 @@
     "sectionHeader": {
       "eyebrow": "Abschnitt 02 / Preise",
       "title": "Wähle ein Paket. Wechsle jederzeit. Kündige jederzeit.",
-      "body": "Jedes Paket liefert dieselbe Erweiterung. Höhere Stufen erhöhen die monatlichen Limits und schalten die schwereren Automatisierungen wie automatische Angebote und den Restocker frei."
+      "body": "Jedes Paket liefert dieselbe Erweiterung. Höhere Stufen erhöhen die monatlichen Limits und schalten schwerere Automatisierungen wie Auto-Angebote frei."
     },
     "popular": "Beliebt",
     "whatsIncluded": "Was enthalten ist",

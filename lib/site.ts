@@ -91,7 +91,11 @@ export function pageMetadata({
       ? undefined
       : languageAlternates(path, contentLocales);
   return {
-    title: absoluteTitle ? { absolute: title } : title,
+    // Search results cut titles past ~70 characters; drop the brand suffix first.
+    title:
+      absoluteTitle || title.length + ` | ${SITE_NAME}`.length > 70
+        ? { absolute: title }
+        : title,
     description,
     alternates: {
       canonical,

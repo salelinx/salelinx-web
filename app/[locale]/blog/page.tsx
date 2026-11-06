@@ -18,7 +18,7 @@ export async function generateMetadata({
     path: '/blog',
     title: 'Depop, Vinted and eBay selling tips for UK resellers',
     description:
-      'Guides for UK Depop, Vinted and eBay sellers: when to list, how to get more views, what the fees really are and what HMRC expects. From the team behind SaleLinx.',
+      'Guides for UK Depop, Vinted and eBay sellers: when to list, how to get more views, what the fees really are and what HMRC expects. From the SaleLinx team.',
     contentLocales: BLOG_CONTENT_LOCALES,
   });
 }

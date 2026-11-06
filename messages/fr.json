@@ -1,7 +1,7 @@
 {
   "Layout": {
     "metaTitle": "SaleLinx - Crosslister Vinted, Depop et eBay",
-    "metaDescription": "Crosslistez entre Vinted, Depop et eBay en un clic. Republication en masse, offres auto, baisses de prix et étiquettes d'envoi dans une extension Chrome. Essai gratuit de 14 jours."
+    "metaDescription": "Crosslistez Vinted, Depop et eBay en un clic. Republication en masse, offres auto, baisses de prix et étiquettes. Extension Chrome, essai gratuit 14 jours."
   },
   "Header": {
     "navFeatures": "Fonctionnalités",
@@ -543,11 +543,11 @@
     },
     "dpa": {
       "title": "Avenant relatif au traitement des données",
-      "metaDescription": "Comment SaleLinx traite les données de vos acheteurs en votre nom en tant que sous-traitant au sens de l'article 28 du RGPD, et les sous-traitants ultérieurs concernés."
+      "metaDescription": "Comment SaleLinx traite les données de vos acheteurs en votre nom comme sous-traitant au sens de l'article 28 du RGPD, et les sous-traitants ultérieurs."
     },
     "referralTerms": {
       "title": "Conditions du programme de parrainage",
-      "metaDescription": "Les conditions du programme de parrainage SaleLinx : la réduction pour le filleul, comment le parrain gagne du temps gratuit sur son forfait, la période de blocage et le plafond des récompenses, et les règles d'usage loyal."
+      "metaDescription": "Les conditions du parrainage SaleLinx : réduction du filleul, temps gratuit du parrain, période de blocage, plafond des récompenses et règles d'usage loyal."
     }
   },
   "Invited": {
@@ -572,8 +572,8 @@
     "termsLink": "Voir les conditions du programme de parrainage"
   },
   "Features": {
-    "metaTitle": "Fonctionnalités : crosslistez, republiez et automatisez Depop, Vinted et eBay",
-    "metaDescription": "Toutes les fonctionnalités SaleLinx pour les vendeurs Depop, Vinted et eBay : crosslisting, republication, actualisation, réapprovisionnement, offres, messages, étiquettes d'expédition et plus encore, depuis un seul panneau de navigateur.",
+    "metaTitle": "Fonctionnalités : crosslistez et automatisez Depop, Vinted et eBay",
+    "metaDescription": "Toutes les fonctionnalités SaleLinx pour les vendeurs Depop, Vinted et eBay : crosslisting, republication, actualisation, réapprovisionnement, offres et plus.",
     "hero": {
       "title": "Tout ce que SaleLinx fait pour vous."
     },
@@ -850,7 +850,7 @@
     "sectionHeader": {
       "eyebrow": "Section 02 / Tarifs",
       "title": "Choisissez un forfait. Changez à tout moment. Annulez à tout moment.",
-      "body": "Chaque forfait livre la même extension. Les niveaux supérieurs augmentent les plafonds mensuels et débloquent les automatisations plus lourdes comme les offres automatiques et le restocker."
+      "body": "Chaque forfait livre la même extension. Les niveaux supérieurs relèvent les plafonds et débloquent les automatisations lourdes, comme les offres auto."
     },
     "popular": "Populaire",
     "whatsIncluded": "Ce qui est inclus",

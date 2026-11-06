@@ -76,7 +76,7 @@ describe('blog posts', () => {
         // Longer titles get cut off in search results.
         expect(meta.title!.length).toBeLessThanOrEqual(65);
         expect(meta.description?.length ?? 0).toBeGreaterThanOrEqual(70);
-        expect(meta.description!.length).toBeLessThanOrEqual(170);
+        expect(meta.description!.length).toBeLessThanOrEqual(160);
         expect(meta.published).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(meta.updated).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(meta.updated! >= meta.published!).toBe(true);
