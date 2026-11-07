@@ -76,14 +76,16 @@ function currentSource(): SignupSource | undefined {
   if (!landing) return undefined;
   return {
     ...classifySource(landing.href, document.referrer, landing.at),
-    ...(isOwnSite(document.referrer) && { source: 'unknown' }),
+    ...(isOwnFlow(document.referrer) && { source: 'unknown' }),
     device: deviceType(navigator.userAgent, navigator.maxTouchPoints),
   };
 }
 
-function isOwnSite(referrer: string): boolean {
+// Returning from Stripe checkout means they signed up earlier, so it is not a first touch.
+function isOwnFlow(referrer: string): boolean {
   try {
-    return new URL(referrer).host === location.host;
+    const host = new URL(referrer).host;
+    return host === location.host || /(^|\.)stripe\.com$/.test(host);
   } catch {
     return false;
   }
