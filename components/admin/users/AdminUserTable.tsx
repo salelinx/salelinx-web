@@ -128,18 +128,25 @@ function sourceParts(source: string) {
 function sourceLabel(source: string) {
   const { icon, ads } = sourceParts(source);
   if (icon) return ads ? `${icon.name} Ads` : icon.name;
+  if (source === "social") return "Social media";
   const words = source.replace(/_/g, " ");
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+// Phone signups with no referrer, set by hand: in-app browsers hide which app it was.
+const SOURCE_GROUPS: Record<string, string[]> = { social: ["instagram", "tiktok", "youtube"] };
+
 function SourceCell({ source }: { source: string }) {
   const { icon, ads } = sourceParts(source);
-  if (!icon) return <>{sourceLabel(source)}</>;
+  const icons = SOURCE_GROUPS[source]?.map((s) => SOURCE_ICONS[s]) ?? (icon ? [icon] : []);
+  if (!icons.length) return <>{sourceLabel(source)}</>;
   return (
     <span className="inline-flex items-center gap-1.5" title={sourceLabel(source)}>
-      <svg viewBox="0 0 24 24" className={`h-4 w-4 fill-current ${icon.color}`} aria-label={icon.name}>
-        <path d={icon.path} />
-      </svg>
+      {icons.map((i) => (
+        <svg key={i.name} viewBox="0 0 24 24" className={`h-4 w-4 fill-current ${i.color}`} aria-label={i.name}>
+          <path d={i.path} />
+        </svg>
+      ))}
       {ads && <span className="text-xs text-zinc-500">Ads</span>}
     </span>
   );
