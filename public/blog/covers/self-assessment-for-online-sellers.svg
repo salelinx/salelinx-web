@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="640" height="360" fill="#f4f4f5"/>
+  <text x="48" y="78" font-size="32" font-weight="800" fill="#18181b">Self Assessment</text>
+  <text x="48" y="112" font-size="19" fill="#52525b">How to file for Vinted, Depop and eBay sales</text>
+  <rect x="48" y="150" width="250" height="160" rx="14" fill="#ffffff" stroke="#a1a1aa" stroke-width="2"/>
+  <rect x="48" y="150" width="250" height="40" rx="14" fill="#18181b"/>
+  <rect x="48" y="176" width="250" height="14" fill="#18181b"/>
+  <text x="173" y="177" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">DEADLINE</text>
+  <text x="173" y="243" font-size="52" font-weight="800" fill="#18181b" text-anchor="middle">31 Jan</text>
+  <text x="173" y="282" font-size="22" font-weight="600" fill="#52525b" text-anchor="middle">2027</text>
+  <g font-size="18" fill="#18181b">
+    <rect x="334" y="154" width="26" height="26" rx="6" fill="#ffffff" stroke="#18181b" stroke-width="2"/>
+    <path d="M340 167l5 5 9-10" stroke="#18181b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="374" y="174">Register and get a UTR</text>
+    <rect x="334" y="196" width="26" height="26" rx="6" fill="#ffffff" stroke="#18181b" stroke-width="2"/>
+    <path d="M340 209l5 5 9-10" stroke="#18181b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="374" y="216">Add up your sales</text>
+    <rect x="334" y="238" width="26" height="26" rx="6" fill="#ffffff" stroke="#18181b" stroke-width="2"/>
+    <path d="M340 251l5 5 9-10" stroke="#18181b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="374" y="258">File online</text>
+    <rect x="334" y="280" width="26" height="26" rx="6" fill="#ffffff" stroke="#18181b" stroke-width="2"/>
+    <path d="M340 293l5 5 9-10" stroke="#18181b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="374" y="300">Pay what you owe</text>
+  </g>
+</svg>

@@ -40,6 +40,12 @@ import * as vintedVsEbayUk from '@/content/blog/en/vinted-vs-ebay-uk.mdx';
 import * as salelinxVsCrosslist from '@/content/blog/en/salelinx-vs-crosslist.mdx';
 import * as salelinxVsListPerfectly from '@/content/blog/en/salelinx-vs-list-perfectly.mdx';
 import * as salelinxVsVendoo from '@/content/blog/en/salelinx-vs-vendoo.mdx';
+import * as blackFridayChristmas from '@/content/blog/en/black-friday-christmas-selling-vinted-depop-ebay.mdx';
+import * as sellUnwantedPresents from '@/content/blog/en/sell-unwanted-christmas-presents.mdx';
+import * as vintedPay from '@/content/blog/en/vinted-pay-what-changes-for-sellers.mdx';
+import * as ebayInternationalShipping from '@/content/blog/en/ebay-international-shipping-uk.mdx';
+import * as selfAssessment from '@/content/blog/en/self-assessment-for-online-sellers.mdx';
+import * as depopShippingChanges from '@/content/blog/en/depop-shipping-changes-2026.mdx';
 
 export const BLOG_CONTENT_LOCALES = ['en'] as const;
 
@@ -71,6 +77,12 @@ const POSTS: PostModule[] = [
   salelinxVsCrosslist as unknown as PostModule,
   salelinxVsListPerfectly as unknown as PostModule,
   salelinxVsVendoo as unknown as PostModule,
+  blackFridayChristmas as unknown as PostModule,
+  sellUnwantedPresents as unknown as PostModule,
+  vintedPay as unknown as PostModule,
+  ebayInternationalShipping as unknown as PostModule,
+  selfAssessment as unknown as PostModule,
+  depopShippingChanges as unknown as PostModule,
 ];
 
 export const BLOG_CATEGORIES: { slug: BlogCategory; title: string; blurb: string }[] = [
