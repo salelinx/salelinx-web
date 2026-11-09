@@ -267,7 +267,7 @@ export function FinanceDashboard() {
                   label="ARR"
                   value={money(stats.arr, cur)}
                   hint={`${money(stats.arpu, cur)} per paying customer a month`}
-                  note="MRR times twelve: what a year looks like if every subscription stays as it is today."
+                  note="MRR times twelve: what a year looks like if every subscription stays as it is today. Trials are left out until they pay."
                 />
               </div>
 
@@ -305,7 +305,7 @@ export function FinanceDashboard() {
                   label="MRR"
                   value={money(stats.mrr, cur)}
                   hint={`${money(stats.arr, cur)} a year`}
-                  note="Each active subscription's last real payment, after discounts and in the currency Stripe settled it, counted per month. Yearly plans count a twelfth."
+                  note="Each active subscription's last real payment, after discounts and in the currency Stripe settled it, counted per month. Yearly plans count a twelfth. Trials are left out until they pay."
                 />
                 <Stat
                   label="Revenue this month"
@@ -328,6 +328,29 @@ export function FinanceDashboard() {
                   label="Refunded this month"
                   value={money(stats.this_month.refunds, cur)}
                   note="Money paid back to customers this month."
+                />
+              </div>
+
+              <RowTitle>Including trials</RowTitle>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <Stat
+                  label="MRR with trials"
+                  value={money(stats.mrr_with_trials, cur)}
+                  hint={[
+                    `+${money(stats.trial_mrr.amount, cur)} from ${stats.trial_mrr.counted} trial${stats.trial_mrr.counted === 1 ? "" : "s"}`,
+                    stats.trial_mrr.unpriced
+                      ? `${stats.trial_mrr.unpriced} not priced`
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                  note="MRR plus every running trial at its plan's list price, before any discount, converted at the rate of the latest payment Stripe settled in its currency. Trials set to cancel are left out, and so is a trial in a currency nobody has paid in yet (not priced)."
+                />
+                <Stat
+                  label="ARR with trials"
+                  value={money(stats.arr_with_trials, cur)}
+                  hint="If every running trial pays"
+                  note="MRR with trials times twelve: what a year looks like if every running trial pays and nothing else changes."
                 />
               </div>
 

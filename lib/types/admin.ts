@@ -102,6 +102,11 @@ export type AdminFinanceStats = {
   month: string;
   mrr: number;
   arr: number;
+  // What running trials add to MRR at their plan's list price. Unpriced are
+  // trials in a currency nothing has settled in yet, left out of the amount.
+  trial_mrr: { amount: number; counted: number; unpriced: number };
+  mrr_with_trials: number;
+  arr_with_trials: number;
   arpu: number;
   mrr_by_tier: { tier: string; amount: number }[];
   this_month: AdminFinanceMonth;

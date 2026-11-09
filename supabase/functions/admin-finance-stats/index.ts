@@ -17,6 +17,7 @@ import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
 import {
+  latestRates,
   moneyByMonth,
   moneySince,
   monthKey,
@@ -25,8 +26,10 @@ import {
   percent,
   perMonth,
   trialFunnel,
+  trialMrr,
   type BalanceTxn,
   type SubHistory,
+  type TrialPlan,
 } from "./stats.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -142,6 +145,7 @@ Deno.serve(async (req) => {
   }[] = [];
   let movement: ReturnType<typeof mrrMovement>;
   let trials: ReturnType<typeof trialFunnel>;
+  let trial: ReturnType<typeof trialMrr>;
   try {
     const [balanceTxns, balance, payouts, subs, invoices] = await Promise.all([
       take(stripe.balanceTransactions.list({ limit: 100 }), MAX_TXNS),
@@ -271,6 +275,65 @@ Deno.serve(async (req) => {
         renewals.amount += periodic;
       }
     }
+
+    // Running trials at their plan's list price, for MRR with trials. Prices
+    // are multi-currency and a subscription's price carries only the default
+    // currency, so each plan is fetched once with its currency options, and
+    // converted at the latest payment Stripe settled in that currency. Trials
+    // set to cancel will not pay, so they are left out.
+    const running = subs.filter(
+      (s) => s.status === "trialing" && !s.cancel_at_period_end,
+    );
+    const priceIds = [
+      ...new Set(running.map((s) => s.items.data[0]?.price?.id)),
+    ].filter((id): id is string => !!id);
+    const prices = new Map(
+      (
+        await Promise.all(
+          priceIds.map((id) =>
+            stripe.prices.retrieve(id, { expand: ["currency_options"] }),
+          ),
+        )
+      ).map((p) => [p.id, p]),
+    );
+    const plans: TrialPlan[] = running.flatMap((s) => {
+      const item = s.items.data[0];
+      const price = item ? prices.get(item.price.id) : undefined;
+      if (!item || !price?.recurring) return [];
+      const unit =
+        s.currency === price.currency
+          ? price.unit_amount
+          : (price.currency_options?.[s.currency]?.unit_amount ?? null);
+      return [
+        {
+          amount: unit === null ? null : unit * (item.quantity ?? 1),
+          currency: s.currency,
+          interval: price.recurring.interval,
+          count: price.recurring.interval_count ?? 1,
+        },
+      ];
+    });
+    const rates = latestRates(
+      invoices.flatMap((inv) => {
+        const charge = typeof inv.charge === "object" ? inv.charge : null;
+        const bt =
+          charge && typeof charge.balance_transaction === "object"
+            ? charge.balance_transaction
+            : null;
+        return charge && bt
+          ? [
+              {
+                currency: charge.currency,
+                charged: charge.amount,
+                settled: bt.amount,
+                at: bt.created,
+              },
+            ]
+          : [];
+      }),
+      currency,
+    );
+    trial = trialMrr(plans, rates);
 
     // Ended inside its trial: a trial that never paid, not a paying customer lost.
     const endedThisMonth = subs.filter(
@@ -412,6 +475,9 @@ Deno.serve(async (req) => {
     month: monthKey(monthStart),
     mrr,
     arr: mrr * 12,
+    trial_mrr: trial,
+    mrr_with_trials: mrr + trial.amount,
+    arr_with_trials: (mrr + trial.amount) * 12,
     arpu: paying ? Math.round(mrr / paying) : 0,
     mrr_by_tier: [...mrrByTier].map(([tier, amount]) => ({ tier, amount })),
     this_month: thisMonth,
