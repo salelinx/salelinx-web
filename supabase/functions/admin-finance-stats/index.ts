@@ -66,6 +66,18 @@ function jwtAal(authHeader: string): string {
   }
 }
 
+// The subscription's Stripe customer, and its email unless the customer was deleted.
+function customerOf(sub: Stripe.Subscription) {
+  const c = sub.customer;
+  return {
+    customer_id: typeof c === "string" ? c : c.id,
+    email: typeof c === "object" && !c.deleted ? c.email : null,
+  };
+}
+
+const tierOf = (sub: Stripe.Subscription) =>
+  sub.items.data[0]?.price?.metadata?.tier_id ?? "unknown";
+
 async function take<T>(list: AsyncIterable<T>, max: number): Promise<T[]> {
   const out: T[] = [];
   for await (const item of list) {
@@ -143,6 +155,15 @@ Deno.serve(async (req) => {
     currency: string;
     since: number;
   }[] = [];
+  // Trials set to cancel at trial end (at = trial end), and trials cancelled
+  // in the last 30 days (left, at = when it ended).
+  const leaving: {
+    customer_id: string;
+    email: string | null;
+    tier: string;
+    at: number;
+    left: boolean;
+  }[] = [];
   let movement: ReturnType<typeof mrrMovement>;
   let trials: ReturnType<typeof trialFunnel>;
   let trial: ReturnType<typeof trialMrr>;
@@ -204,24 +225,24 @@ Deno.serve(async (req) => {
 
     for (const sub of subs) {
       const item = sub.items.data[0];
-      const tier = item?.price?.metadata?.tier_id ?? "unknown";
+      const tier = tierOf(sub);
       if (sub.status === "trialing") {
         trialing++;
-        if ((sub.trial_end ?? 0) <= soon && !sub.cancel_at_period_end)
-          trialsEndingSoon++;
+        if (sub.cancel_at_period_end)
+          leaving.push({
+            ...customerOf(sub),
+            tier,
+            at: sub.trial_end ?? sub.current_period_end,
+            left: false,
+          });
+        else if ((sub.trial_end ?? 0) <= soon) trialsEndingSoon++;
         continue;
       }
       if (sub.status === "past_due") {
         const inv =
           typeof sub.latest_invoice === "object" ? sub.latest_invoice : null;
-        const customer =
-          typeof sub.customer === "object" && !sub.customer.deleted
-            ? sub.customer
-            : null;
         failing.push({
-          customer_id:
-            typeof sub.customer === "string" ? sub.customer : sub.customer.id,
-          email: customer?.email ?? null,
+          ...customerOf(sub),
           tier,
           amount: inv?.amount_due ?? 0,
           currency: inv?.currency ?? item?.price?.currency ?? currency,
@@ -343,6 +364,18 @@ Deno.serve(async (req) => {
       !!s.trial_end && (s.canceled_at ?? 0) <= s.trial_end;
     trialsEnded = endedThisMonth.filter(inTrial).length;
     cancelled = endedThisMonth.length - trialsEnded;
+    // Covers a portal set to cancel immediately, where a trial that cancels
+    // ends at once and never shows as set to cancel.
+    for (const s of subs) {
+      const ended = s.ended_at ?? s.canceled_at ?? 0;
+      if (s.status === "canceled" && inTrial(s) && ended >= nowSec - 30 * DAY)
+        leaving.push({
+          ...customerOf(s),
+          tier: tierOf(s),
+          at: ended,
+          left: true,
+        });
+    }
 
     trials = trialFunnel(
       subs
@@ -420,13 +453,13 @@ Deno.serve(async (req) => {
     admin
       .from("referrals")
       .select("status, reward_amount_cents, reward_currency"),
-    failing.length
+    failing.length || leaving.length
       ? admin
           .from("subscriptions")
           .select("user_id, stripe_customer_id")
           .in(
             "stripe_customer_id",
-            failing.map((f) => f.customer_id),
+            [...failing, ...leaving].map((f) => f.customer_id),
           )
       : Promise.resolve({ data: [], error: null }),
   ]);
@@ -434,7 +467,7 @@ Deno.serve(async (req) => {
     ["first_paid_at", newRes],
     ["comp", compRes],
     ["referrals", referralRes],
-    ["failing owners", ownersRes],
+    ["owners", ownersRes],
   ] as const)
     if (res.error)
       console.error(
@@ -505,6 +538,22 @@ Deno.serve(async (req) => {
         ...f,
         user_id: owner.get(customer_id) ?? null,
         since: new Date(since * 1000).toISOString(),
+      })),
+    // Still to leave first, soonest first; then those gone, latest first.
+    trials_leaving: leaving
+      .sort((a, b) =>
+        a.left !== b.left
+          ? a.left
+            ? 1
+            : -1
+          : a.left
+            ? b.at - a.at
+            : a.at - b.at,
+      )
+      .map(({ customer_id, at, ...t }) => ({
+        ...t,
+        user_id: owner.get(customer_id) ?? null,
+        at: new Date(at * 1000).toISOString(),
       })),
     mrr_movement: movement,
     trials: trials,

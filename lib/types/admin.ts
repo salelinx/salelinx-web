@@ -135,6 +135,15 @@ export type AdminFinanceStats = {
     currency: string;
     since: string;
   }[];
+  // Running trials set to cancel at trial end (left false, at = trial end),
+  // then trials cancelled in the last 30 days (left true, at = when it ended).
+  trials_leaving: {
+    user_id: string | null;
+    email: string | null;
+    tier: string;
+    at: string;
+    left: boolean;
+  }[];
   mrr_movement: {
     month: string;
     mrr: number;

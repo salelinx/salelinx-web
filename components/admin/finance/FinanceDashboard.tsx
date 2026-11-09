@@ -205,6 +205,9 @@ export function FinanceDashboard() {
   const symbol = money(0, cur).replace(/[\d.,\s]/g, "");
   const lastMonthKey =
     stats?.by_month[stats.by_month.length - 2]?.month ?? stats?.month ?? "";
+  // Running trials set to cancel; the rest of trials_leaving already left.
+  const leavingAtEnd = stats?.trials_leaving.filter((t) => !t.left).length ?? 0;
+  const leftRecently = (stats?.trials_leaving.length ?? 0) - leavingAtEnd;
 
   return (
     <div className="flex h-full flex-col">
@@ -352,6 +355,22 @@ export function FinanceDashboard() {
                   hint="If every running trial pays"
                   note="MRR with trials times twelve: what a year looks like if every running trial pays and nothing else changes."
                 />
+                <Stat
+                  label="Continuing after trial"
+                  value={String(stats.trialing - leavingAtEnd)}
+                  hint={`of ${stats.trialing} on a trial now`}
+                  note="Running trials not set to cancel. A card is taken at signup, so each one bills when its trial ends unless that payment fails."
+                />
+                <Stat
+                  label="Leaving at trial end"
+                  value={String(leavingAtEnd)}
+                  hint={
+                    leftRecently
+                      ? `${leftRecently} more left during a trial in 30 days`
+                      : "Set to cancel when the trial ends"
+                  }
+                  note="Running trials set to cancel when the trial ends. Who they are is under Leaving after trial, with trials that already cancelled in the last 30 days."
+                />
               </div>
 
               <RowTitle>Customers</RowTitle>
@@ -447,7 +466,7 @@ export function FinanceDashboard() {
               </div>
 
               <RowTitle>Coming up</RowTitle>
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
                 <Box title="Next 30 days">
                   <ul className="space-y-1.5 text-sm">
                     <li
@@ -512,6 +531,41 @@ export function FinanceDashboard() {
                             <span className="ml-2 text-xs text-zinc-400">
                               since {day(f.since)}
                             </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Box>
+                <Box
+                  title="Leaving after trial"
+                  hint={
+                    stats.trials_leaving.length
+                      ? "Set to cancel, then left in 30 days"
+                      : undefined
+                  }
+                >
+                  {stats.trials_leaving.length === 0 ? (
+                    <p className="text-sm text-zinc-500">
+                      No trials set to cancel or cancelled in 30 days.
+                    </p>
+                  ) : (
+                    <ul className="space-y-1.5 text-sm">
+                      {stats.trials_leaving.map((t, i) => (
+                        <li
+                          key={`${t.email}-${i}`}
+                          className="flex items-center justify-between gap-2"
+                        >
+                          <span className="min-w-0 truncate">
+                            <UserEmailLink userId={t.user_id} email={t.email} />
+                            <span className="ml-2 text-xs capitalize text-zinc-400">
+                              {t.tier}
+                            </span>
+                          </span>
+                          <span
+                            className={`shrink-0 text-xs ${t.left ? "text-zinc-400" : "text-zinc-700"}`}
+                          >
+                            {t.left ? "left" : "leaves"} {day(t.at)}
                           </span>
                         </li>
                       ))}
