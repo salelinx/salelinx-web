@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  latestRates,
   moneyByMonth,
   moneySince,
   monthsBack,
@@ -7,6 +8,7 @@ import {
   percent,
   perMonth,
   trialFunnel,
+  trialMrr,
   type BalanceTxn,
 } from "../supabase/functions/admin-finance-stats/stats";
 
@@ -195,5 +197,61 @@ describe("finance history", () => {
       converted: 1,
       running: 1,
     });
+  });
+});
+
+describe("MRR with trials", () => {
+  it("converts at the latest payment settled in each currency", () => {
+    const rates = latestRates(
+      [
+        {
+          currency: "eur",
+          charged: 1000,
+          settled: 850,
+          at: at("2026-09-01T00:00:00Z"),
+        },
+        {
+          currency: "eur",
+          charged: 1000,
+          settled: 870,
+          at: at("2026-10-01T00:00:00Z"),
+        },
+        {
+          currency: "gbp",
+          charged: 999,
+          settled: 999,
+          at: at("2026-10-02T00:00:00Z"),
+        },
+        {
+          currency: "usd",
+          charged: 0,
+          settled: 0,
+          at: at("2026-10-03T00:00:00Z"),
+        },
+      ],
+      "gbp",
+    );
+    expect(rates.get("gbp")).toBe(1);
+    expect(rates.get("eur")).toBe(0.87);
+    expect(rates.has("usd")).toBe(false);
+  });
+
+  it("prices running trials at list price, leaving out what it cannot convert", () => {
+    const rates = new Map([
+      ["gbp", 1],
+      ["eur", 0.87],
+    ]);
+    expect(
+      trialMrr(
+        [
+          { amount: 999, currency: "gbp", interval: "month", count: 1 },
+          { amount: 12000, currency: "gbp", interval: "year", count: 1 },
+          { amount: 1200, currency: "eur", interval: "month", count: 1 },
+          { amount: 1200, currency: "usd", interval: "month", count: 1 },
+          { amount: null, currency: "gbp", interval: "month", count: 1 },
+        ],
+        rates,
+      ),
+    ).toEqual({ amount: 999 + 1000 + 1044, counted: 3, unpriced: 2 });
   });
 });

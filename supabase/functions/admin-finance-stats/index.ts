@@ -17,6 +17,7 @@ import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
 import {
+  latestRates,
   moneyByMonth,
   moneySince,
   monthKey,
@@ -25,8 +26,10 @@ import {
   percent,
   perMonth,
   trialFunnel,
+  trialMrr,
   type BalanceTxn,
   type SubHistory,
+  type TrialPlan,
 } from "./stats.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -62,6 +65,18 @@ function jwtAal(authHeader: string): string {
     return "";
   }
 }
+
+// The subscription's Stripe customer, and its email unless the customer was deleted.
+function customerOf(sub: Stripe.Subscription) {
+  const c = sub.customer;
+  return {
+    customer_id: typeof c === "string" ? c : c.id,
+    email: typeof c === "object" && !c.deleted ? c.email : null,
+  };
+}
+
+const tierOf = (sub: Stripe.Subscription) =>
+  sub.items.data[0]?.price?.metadata?.tier_id ?? "unknown";
 
 async function take<T>(list: AsyncIterable<T>, max: number): Promise<T[]> {
   const out: T[] = [];
@@ -140,8 +155,18 @@ Deno.serve(async (req) => {
     currency: string;
     since: number;
   }[] = [];
+  // Trials set to cancel at trial end (at = trial end), and trials cancelled
+  // in the last 30 days (left, at = when it ended).
+  const leaving: {
+    customer_id: string;
+    email: string | null;
+    tier: string;
+    at: number;
+    left: boolean;
+  }[] = [];
   let movement: ReturnType<typeof mrrMovement>;
   let trials: ReturnType<typeof trialFunnel>;
+  let trial: ReturnType<typeof trialMrr>;
   try {
     const [balanceTxns, balance, payouts, subs, invoices] = await Promise.all([
       take(stripe.balanceTransactions.list({ limit: 100 }), MAX_TXNS),
@@ -200,24 +225,24 @@ Deno.serve(async (req) => {
 
     for (const sub of subs) {
       const item = sub.items.data[0];
-      const tier = item?.price?.metadata?.tier_id ?? "unknown";
+      const tier = tierOf(sub);
       if (sub.status === "trialing") {
         trialing++;
-        if ((sub.trial_end ?? 0) <= soon && !sub.cancel_at_period_end)
-          trialsEndingSoon++;
+        if (sub.cancel_at_period_end)
+          leaving.push({
+            ...customerOf(sub),
+            tier,
+            at: sub.trial_end ?? sub.current_period_end,
+            left: false,
+          });
+        else if ((sub.trial_end ?? 0) <= soon) trialsEndingSoon++;
         continue;
       }
       if (sub.status === "past_due") {
         const inv =
           typeof sub.latest_invoice === "object" ? sub.latest_invoice : null;
-        const customer =
-          typeof sub.customer === "object" && !sub.customer.deleted
-            ? sub.customer
-            : null;
         failing.push({
-          customer_id:
-            typeof sub.customer === "string" ? sub.customer : sub.customer.id,
-          email: customer?.email ?? null,
+          ...customerOf(sub),
           tier,
           amount: inv?.amount_due ?? 0,
           currency: inv?.currency ?? item?.price?.currency ?? currency,
@@ -272,6 +297,65 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Running trials at their plan's list price, for MRR with trials. Prices
+    // are multi-currency and a subscription's price carries only the default
+    // currency, so each plan is fetched once with its currency options, and
+    // converted at the latest payment Stripe settled in that currency. Trials
+    // set to cancel will not pay, so they are left out.
+    const running = subs.filter(
+      (s) => s.status === "trialing" && !s.cancel_at_period_end,
+    );
+    const priceIds = [
+      ...new Set(running.map((s) => s.items.data[0]?.price?.id)),
+    ].filter((id): id is string => !!id);
+    const prices = new Map(
+      (
+        await Promise.all(
+          priceIds.map((id) =>
+            stripe.prices.retrieve(id, { expand: ["currency_options"] }),
+          ),
+        )
+      ).map((p) => [p.id, p]),
+    );
+    const plans: TrialPlan[] = running.flatMap((s) => {
+      const item = s.items.data[0];
+      const price = item ? prices.get(item.price.id) : undefined;
+      if (!item || !price?.recurring) return [];
+      const unit =
+        s.currency === price.currency
+          ? price.unit_amount
+          : (price.currency_options?.[s.currency]?.unit_amount ?? null);
+      return [
+        {
+          amount: unit === null ? null : unit * (item.quantity ?? 1),
+          currency: s.currency,
+          interval: price.recurring.interval,
+          count: price.recurring.interval_count ?? 1,
+        },
+      ];
+    });
+    const rates = latestRates(
+      invoices.flatMap((inv) => {
+        const charge = typeof inv.charge === "object" ? inv.charge : null;
+        const bt =
+          charge && typeof charge.balance_transaction === "object"
+            ? charge.balance_transaction
+            : null;
+        return charge && bt
+          ? [
+              {
+                currency: charge.currency,
+                charged: charge.amount,
+                settled: bt.amount,
+                at: bt.created,
+              },
+            ]
+          : [];
+      }),
+      currency,
+    );
+    trial = trialMrr(plans, rates);
+
     // Ended inside its trial: a trial that never paid, not a paying customer lost.
     const endedThisMonth = subs.filter(
       (s) => s.status === "canceled" && (s.canceled_at ?? 0) >= monthStart,
@@ -280,6 +364,18 @@ Deno.serve(async (req) => {
       !!s.trial_end && (s.canceled_at ?? 0) <= s.trial_end;
     trialsEnded = endedThisMonth.filter(inTrial).length;
     cancelled = endedThisMonth.length - trialsEnded;
+    // Covers a portal set to cancel immediately, where a trial that cancels
+    // ends at once and never shows as set to cancel.
+    for (const s of subs) {
+      const ended = s.ended_at ?? s.canceled_at ?? 0;
+      if (s.status === "canceled" && inTrial(s) && ended >= nowSec - 30 * DAY)
+        leaving.push({
+          ...customerOf(s),
+          tier: tierOf(s),
+          at: ended,
+          left: true,
+        });
+    }
 
     trials = trialFunnel(
       subs
@@ -357,13 +453,13 @@ Deno.serve(async (req) => {
     admin
       .from("referrals")
       .select("status, reward_amount_cents, reward_currency"),
-    failing.length
+    failing.length || leaving.length
       ? admin
           .from("subscriptions")
           .select("user_id, stripe_customer_id")
           .in(
             "stripe_customer_id",
-            failing.map((f) => f.customer_id),
+            [...failing, ...leaving].map((f) => f.customer_id),
           )
       : Promise.resolve({ data: [], error: null }),
   ]);
@@ -371,7 +467,7 @@ Deno.serve(async (req) => {
     ["first_paid_at", newRes],
     ["comp", compRes],
     ["referrals", referralRes],
-    ["failing owners", ownersRes],
+    ["owners", ownersRes],
   ] as const)
     if (res.error)
       console.error(
@@ -412,6 +508,9 @@ Deno.serve(async (req) => {
     month: monthKey(monthStart),
     mrr,
     arr: mrr * 12,
+    trial_mrr: trial,
+    mrr_with_trials: mrr + trial.amount,
+    arr_with_trials: (mrr + trial.amount) * 12,
     arpu: paying ? Math.round(mrr / paying) : 0,
     mrr_by_tier: [...mrrByTier].map(([tier, amount]) => ({ tier, amount })),
     this_month: thisMonth,
@@ -439,6 +538,22 @@ Deno.serve(async (req) => {
         ...f,
         user_id: owner.get(customer_id) ?? null,
         since: new Date(since * 1000).toISOString(),
+      })),
+    // Still to leave first, soonest first; then those gone, latest first.
+    trials_leaving: leaving
+      .sort((a, b) =>
+        a.left !== b.left
+          ? a.left
+            ? 1
+            : -1
+          : a.left
+            ? b.at - a.at
+            : a.at - b.at,
+      )
+      .map(({ customer_id, at, ...t }) => ({
+        ...t,
+        user_id: owner.get(customer_id) ?? null,
+        at: new Date(at * 1000).toISOString(),
       })),
     mrr_movement: movement,
     trials: trials,

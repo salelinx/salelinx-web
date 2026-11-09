@@ -205,6 +205,9 @@ export function FinanceDashboard() {
   const symbol = money(0, cur).replace(/[\d.,\s]/g, "");
   const lastMonthKey =
     stats?.by_month[stats.by_month.length - 2]?.month ?? stats?.month ?? "";
+  // Running trials set to cancel; the rest of trials_leaving already left.
+  const leavingAtEnd = stats?.trials_leaving.filter((t) => !t.left).length ?? 0;
+  const leftRecently = (stats?.trials_leaving.length ?? 0) - leavingAtEnd;
 
   return (
     <div className="flex h-full flex-col">
@@ -267,7 +270,7 @@ export function FinanceDashboard() {
                   label="ARR"
                   value={money(stats.arr, cur)}
                   hint={`${money(stats.arpu, cur)} per paying customer a month`}
-                  note="MRR times twelve: what a year looks like if every subscription stays as it is today."
+                  note="MRR times twelve: what a year looks like if every subscription stays as it is today. Trials are left out until they pay."
                 />
               </div>
 
@@ -305,7 +308,7 @@ export function FinanceDashboard() {
                   label="MRR"
                   value={money(stats.mrr, cur)}
                   hint={`${money(stats.arr, cur)} a year`}
-                  note="Each active subscription's last real payment, after discounts and in the currency Stripe settled it, counted per month. Yearly plans count a twelfth."
+                  note="Each active subscription's last real payment, after discounts and in the currency Stripe settled it, counted per month. Yearly plans count a twelfth. Trials are left out until they pay."
                 />
                 <Stat
                   label="Revenue this month"
@@ -328,6 +331,45 @@ export function FinanceDashboard() {
                   label="Refunded this month"
                   value={money(stats.this_month.refunds, cur)}
                   note="Money paid back to customers this month."
+                />
+              </div>
+
+              <RowTitle>Including trials</RowTitle>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <Stat
+                  label="MRR with trials"
+                  value={money(stats.mrr_with_trials, cur)}
+                  hint={[
+                    `+${money(stats.trial_mrr.amount, cur)} from ${stats.trial_mrr.counted} trial${stats.trial_mrr.counted === 1 ? "" : "s"}`,
+                    stats.trial_mrr.unpriced
+                      ? `${stats.trial_mrr.unpriced} not priced`
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                  note="MRR plus every running trial at its plan's list price, before any discount, converted at the rate of the latest payment Stripe settled in its currency. Trials set to cancel are left out, and so is a trial in a currency nobody has paid in yet (not priced)."
+                />
+                <Stat
+                  label="ARR with trials"
+                  value={money(stats.arr_with_trials, cur)}
+                  hint="If every running trial pays"
+                  note="MRR with trials times twelve: what a year looks like if every running trial pays and nothing else changes."
+                />
+                <Stat
+                  label="Continuing after trial"
+                  value={String(stats.trialing - leavingAtEnd)}
+                  hint={`of ${stats.trialing} on a trial now`}
+                  note="Running trials not set to cancel. A card is taken at signup, so each one bills when its trial ends unless that payment fails."
+                />
+                <Stat
+                  label="Leaving at trial end"
+                  value={String(leavingAtEnd)}
+                  hint={
+                    leftRecently
+                      ? `${leftRecently} more left during a trial in 30 days`
+                      : "Set to cancel when the trial ends"
+                  }
+                  note="Running trials set to cancel when the trial ends. Who they are is under Leaving after trial, with trials that already cancelled in the last 30 days."
                 />
               </div>
 
@@ -424,7 +466,7 @@ export function FinanceDashboard() {
               </div>
 
               <RowTitle>Coming up</RowTitle>
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
                 <Box title="Next 30 days">
                   <ul className="space-y-1.5 text-sm">
                     <li
@@ -489,6 +531,41 @@ export function FinanceDashboard() {
                             <span className="ml-2 text-xs text-zinc-400">
                               since {day(f.since)}
                             </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Box>
+                <Box
+                  title="Leaving after trial"
+                  hint={
+                    stats.trials_leaving.length
+                      ? "Set to cancel, then left in 30 days"
+                      : undefined
+                  }
+                >
+                  {stats.trials_leaving.length === 0 ? (
+                    <p className="text-sm text-zinc-500">
+                      No trials set to cancel or cancelled in 30 days.
+                    </p>
+                  ) : (
+                    <ul className="space-y-1.5 text-sm">
+                      {stats.trials_leaving.map((t, i) => (
+                        <li
+                          key={`${t.email}-${i}`}
+                          className="flex items-center justify-between gap-2"
+                        >
+                          <span className="min-w-0 truncate">
+                            <UserEmailLink userId={t.user_id} email={t.email} />
+                            <span className="ml-2 text-xs capitalize text-zinc-400">
+                              {t.tier}
+                            </span>
+                          </span>
+                          <span
+                            className={`shrink-0 text-xs ${t.left ? "text-zinc-400" : "text-zinc-700"}`}
+                          >
+                            {t.left ? "left" : "leaves"} {day(t.at)}
                           </span>
                         </li>
                       ))}

@@ -186,6 +186,63 @@ export function perMonth(
   return Math.round((amount * PER_MONTH[interval]) / Math.max(1, count));
 }
 
+/** A payment as charged in its own currency, and what it settled as. */
+export type SettledPayment = {
+  currency: string;
+  charged: number;
+  settled: number;
+  at: number;
+};
+
+/**
+ * Settlement-currency units per unit of each currency, from the latest payment
+ * Stripe settled in it. The settlement currency itself is 1.
+ */
+export function latestRates(
+  payments: SettledPayment[],
+  settlement: string,
+): Map<string, number> {
+  const latest = new Map<string, SettledPayment>();
+  for (const p of payments) {
+    if (p.charged <= 0 || p.currency === settlement) continue;
+    const seen = latest.get(p.currency);
+    if (!seen || p.at > seen.at) latest.set(p.currency, p);
+  }
+  const rates = new Map([[settlement, 1]]);
+  for (const [cur, p] of latest) rates.set(cur, p.settled / p.charged);
+  return rates;
+}
+
+/** A running trial's plan: its list price in the trial's own currency, and how often it bills. */
+export type TrialPlan = {
+  // Null when the price has no amount in that currency.
+  amount: number | null;
+  currency: string;
+  interval: Interval;
+  count: number;
+};
+
+/**
+ * What the running trials would add to MRR if each paid its plan's list
+ * price, in the settlement currency. A trial with no price in its currency,
+ * or in a currency nothing has settled in yet, is left out as unpriced.
+ */
+export function trialMrr(trials: TrialPlan[], rates: Map<string, number>) {
+  let amount = 0;
+  let counted = 0;
+  let unpriced = 0;
+  for (const t of trials) {
+    const rate = rates.get(t.currency);
+    if (t.amount === null || rate === undefined) {
+      unpriced++;
+      continue;
+    }
+    amount += perMonth(Math.round(t.amount * rate), t.interval, t.count);
+    counted++;
+  }
+  return { amount, counted, unpriced };
+}
+
 /** A share of `whole`, as a whole percentage, or null when there is nothing to divide by. */
 export function percent(part: number, whole: number): number | null {
   return whole > 0 ? Math.round((part / whole) * 100) : null;
