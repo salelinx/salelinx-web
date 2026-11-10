@@ -82,6 +82,8 @@ import {
   linkSiteId,
   bestOffersFromResponse,
   respondOfferXml,
+  unshippedOrdersFromResponse,
+  markShippedXml,
   QUOTA_MESSAGE,
 } from './trading.ts';
 import {
@@ -687,6 +689,26 @@ Deno.serve(async (req: Request) => {
             '<Pagination><EntriesPerPage>200</EntriesPerPage><PageNumber>1</PageNumber></Pagination>',
         );
         return json(200, { offers: bestOffersFromResponse(res) });
+      }
+
+      case 'orders': {
+        const now = new Date();
+        const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const res = await trading(
+          'GetOrders',
+          await accessTokenFor(admin, user.id),
+          `<CreateTimeFrom>${from.toISOString()}</CreateTimeFrom><CreateTimeTo>${now.toISOString()}</CreateTimeTo>` +
+            '<OrderRole>Seller</OrderRole><OrderStatus>Completed</OrderStatus>' +
+            '<Pagination><EntriesPerPage>100</EntriesPerPage><PageNumber>1</PageNumber></Pagination>',
+        );
+        return json(200, { orders: unshippedOrdersFromResponse(res) });
+      }
+
+      case 'markShipped': {
+        const built = markShippedXml(body);
+        if (built.error) return json(400, { error: built.error, code: 'bad_request' });
+        await trading('CompleteSale', await accessTokenFor(admin, user.id), built.xml);
+        return json(200, { ok: true });
       }
 
       case 'respondOffer': {
