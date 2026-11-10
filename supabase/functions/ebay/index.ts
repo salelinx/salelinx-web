@@ -31,7 +31,10 @@
 //   traffic    { itemIds }                   -> { views: { [itemId]: n } } (last 90 days)
 //   offers     {}                            -> { offers } (buyers' Best Offers still waiting on the seller)
 //   respondOffer { itemId, offerId, response, price?, currency?, quantity? } -> { ok } (Accept, Decline or Counter)
-//   conversations { maxAgeDays }             -> { conversations } (buyers' messages, messages.ts)
+//   offerEligible {}                         -> { listingIds } (listings with watchers eBay will take a seller offer on)
+//   sendOffer  { listingId, discountPercentage | price, currency?, message? } -> { sent } (buyers it reached;
+//              gated on auto_offer; refusals come back as negotiation.ts's codes)
+//   conversations { maxAgeDays }           -> { conversations } (buyers' messages, messages.ts)
 //   sendMessage { reply, text, photos? }     -> { ok } (reply: { itemId, parentMessageId, recipientId };
 //                                              photos: addresses from uploadMessagePhoto)
 //
@@ -97,6 +100,7 @@ import {
   withAnswers,
   withReadState,
 } from './messages.ts';
+import { eligibleIdsFromResponse, offerErrorCode, sendOfferBody } from './negotiation.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -257,9 +261,30 @@ async function revise(auth, itemId: string, c, auction: unknown) {
 }
 
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024;
+const OFFER_ELIGIBLE_MAX = 1000;
 const TRAFFIC_BATCH = 200;
 
 const MARKETPLACE_BY_SITE = Object.fromEntries(Object.entries(SITE_IDS).map(([m, id]) => [id, m]));
+
+// Negotiation API: not a Trading call, so it leaves the shared daily quota alone.
+async function negotiation(auth, path: string, payload?: unknown) {
+  const res = await fetch(`${API_HOST}/sell/negotiation/v1${path}`, {
+    method: payload ? 'POST' : 'GET',
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+      'X-EBAY-C-MARKETPLACE-ID': MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB',
+      ...(payload ? { 'Content-Type': 'application/json' } : {}),
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 429) throw new EbayError(QUOTA_MESSAGE, 'quota', 429);
+  if (!res.ok) {
+    const err = body?.errors?.[0];
+    throw new EbayError(err?.message ?? `eBay request failed (${res.status})`, offerErrorCode(err?.errorId), 502);
+  }
+  return body;
+}
 
 async function rest(auth, path: string) {
   const res = await fetch(`${API_HOST}${path}`, { headers: { Authorization: `Bearer ${auth.token}` } });
@@ -689,6 +714,33 @@ Deno.serve(async (req: Request) => {
             '<Pagination><EntriesPerPage>200</EntriesPerPage><PageNumber>1</PageNumber></Pagination>',
         );
         return json(200, { offers: bestOffersFromResponse(res) });
+      }
+
+      case 'offerEligible': {
+        const auth = await accessTokenFor(admin, user.id);
+        const listingIds: string[] = [];
+        for (let offset = 0; offset < OFFER_ELIGIBLE_MAX; offset += PAGE_SIZE) {
+          const page = await negotiation(auth, `/find_eligible_items?limit=${PAGE_SIZE}&offset=${offset}`);
+          listingIds.push(...eligibleIdsFromResponse(page));
+          if (!page?.next) break;
+        }
+        return json(200, { listingIds });
+      }
+
+      case 'sendOffer': {
+        const built = sendOfferBody(body);
+        if (built.error) return json(400, { error: built.error, code: 'bad_request' });
+        const userScoped = createClient(supabaseUrl, anonKey, {
+          global: { headers: { Authorization: `Bearer ${jwt}` } },
+        });
+        const gate = await checkFeatureAllowed(userScoped, user.id, 'auto_offer', 'ebay');
+        if (!gate.ok) return json(gate.status, gate.body);
+        const res = await negotiation(
+          await accessTokenFor(admin, user.id),
+          '/send_offer_to_interested_buyers',
+          built.body,
+        );
+        return json(200, { sent: res.offers?.length ?? 0 });
       }
 
       case 'orders': {
