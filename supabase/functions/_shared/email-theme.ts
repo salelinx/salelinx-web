@@ -1,25 +1,24 @@
 // Shared visual language for every transactional email we send, so auth,
 // support and shipping-label mail all look like the same product.
 //
-// Tokens mirror app/globals.css and the homepage components: warm cream page,
-// white card, near-black pill buttons, monospace uppercase eyebrow labels.
+// White page and card, near-black pill buttons, monospace uppercase eyebrow labels.
 //
 // Email HTML is not web HTML. Rules that shape everything below:
 //   - Tables for layout. No flexbox, no grid, no CSS custom properties.
 //   - Inline styles only. Gmail strips <style> blocks in many contexts.
 //   - Solid hex only. rgba() borders render inconsistently, so the hairline
-//     is pre-blended against the cream background rather than left translucent.
+//     is pre-blended against white rather than left translucent.
 //   - Web fonts do not load. Geist is listed first for clients that happen to
 //     have it, then a system stack that keeps the same geometric-neutral feel.
 //   - color-scheme is pinned to light. Left unset, Gmail and Outlook invert
 //     colours on their own and produce muddy, off-brand results.
 
 export const theme = {
-  page: "#faf8f3", // --background
-  band: "#efece3", // --background-band
+  page: "#ffffff",
+  band: "#f4f4f5",
   card: "#ffffff",
-  hairline: "#e6e3da", // black/8 pre-blended onto the cream page
-  panelBg: "#faf9f6",
+  hairline: "#ebebeb", // black/8 pre-blended onto white
+  panelBg: "#fafafa",
   ink: "#171717", // --foreground
   inkSoft: "#3f3f46",
   muted: "#71717a",
@@ -46,7 +45,7 @@ export const MONO_STACK =
 // The bytes live here rather than being read from disk so the function has no
 // filesystem or network dependency at send time, and so the logo cannot break
 // because a site deploy has not landed yet. Source: public/salelinx-email-logo.png
-// (the mark on the masthead cream, RGB, no alpha). Regenerate with:
+// (the mark on white, RGB, no alpha). Regenerate with:
 //   python -c "import base64;print(base64.b64encode(open('public/salelinx-email-logo.png','rb').read()).decode())"
 export const LOGO_CID = "salelinx-logo";
 
@@ -60,7 +59,7 @@ export const LOGO_ATTACHMENT = {
   content_type: "image/png",
   content_id: LOGO_CID,
   content:
-    "iVBORw0KGgoAAAANSUhEUgAAAD8AAABUCAIAAAC6DngRAAAACXBIWXMAAAEFAAABBQFgahLRAAAHIklEQVR42tVbZ1QVRxidqEcU9CACNoyCHgXBikHRmAho0OSkCGJvOScBFBU0VhRj70DsUXNsiEaNoliwoNgREWNUDIKKIoq91+RXbhwdln37lt3Hvn3z7pkfvG924e4y881X7iP/vn2haty5fUPSfurk0Z3J29T+tjIOovaGb7/5+lDqXkP7w/u3bWxs/tiykWv2cbFzK1asmLh+reFUmzY+mNq7Zye/7K9fy/3oHebMniGaipkYTQixs7M7fvQQp+wxOnT4lLzD2DGjhPZjRw5Su6OjY/bFPzllv3rVSvIB0ePHMvubV09r1qxB7Q0auN0uzOeR/bMn9+3t7dkDTJwwnk0NGRLG7G3btnn+9AF37DFCQ38gAkz+eSK1Hz2cKrT36hnyz5vn3LE/efwwKYkF8bF0aviwCMkH44g9RuNGjYQs4YXWrV1FV/9XX3YVTm3elMgd+3FjR4tef4UKFehx+/jhnZYtmjM7fGjWmVN8sc84dZwYwNbW9sSxNHosuLjUYXY3N9e7RQUcsccQ8mOAs7944Sxm8b6FrikwsPPb1884Yj9wQD8ihfr16xVcv4IL0g7uq1SpErPjMOaI/fJflxAjwLp/9KAI12zbuql8+fJsZ2sbh5aJ/dmsDGIcAQF+L58/wmUrVyxjRgcHh6t5f3PB/tWLx/AzMg/Qs0d3utZnz5rOjAhFcaPl2Rt6fUOEhf1Ir/xpZBQzRkUO44J9584BpDTgZDA8IrAfLM8+pHsQUQCWDMyaOY1tgPyrly3MfkD/vkQZli1dRG9B9lilShVYkCcgrLCCd8/8PQ05L5zP8vZuBcuUyTGWZO/v35GoQVC37+7duUn91fhxY5AH08jCAuzxIp2cnIhK1KjhvCFxHcsHEEEg3dGb/euXT/DyiKlAFH0l9xJ+D47kv85l6soeZQ/PJh6kbEBAChdUlpNLNXtsuC6BXxDt4OXZBMGc2dljdcJpYJ8RM6Bf395Ft66bi33Sts316n1MzAlnZ6c1q3/TmP2LZw8jIsKJXoALormBBuxzcy7SY0VPVK9eXWE1V479gX17hKmdzpgxfYrp7DduSDDTBlWOYUOHmMIeERWyOMIBJsVEq2P/+8aEcuXKEW6wPmGNUvZY67otmIYNGwweHOrr2xaHrsxlKLEYK0eXYI/AQ3KbVq1aFX+je3BQeHhoq5YtNHwAWmJA8r5753ZUdmvVqil5Gaq5pbBHosDaCix9nj5tcvqJI5i6dTMfvYbatWtp+/oRbwrbeHiM+Lh5lStXNrzy2pUcOfYzZ0xlZcfI4UNZ3IcAAfmo/D+3LOjTu6dh+xH/bdFl25O2GGV/Iz8P/PDQyPyFiwzxN1an/vsSZWclzuc9+0ED+yNyzLucLZxDSV6+XKMV0CpN3rFVxExURu/aJVCaPQrW8JKiidGjRurpFuGjR0QNF0Y4yBiFF1SrVs2wjyR9Wo0cEWkR145ngHPD6t2zawd2sJ/f58LZRQviSmcfO38OD4cUCtG9e/UQWuDNRZ5HzH5fyi5OYgRJtG/fDvm0NHt4G2PnBT9AKUCaPVwv4R5YGghnxOxhIlaCunVdaEmrmH3r1t7EeoDOQDF7nMPE2pCyO5mYVo7kATh9/2efc+m81VHH0j+SdoAwVZC1oImHx9LFC54+vvd+3bOEIzioG//shRUrUlhwjVqRpOGg5Z89oqBi9ijxwdS/Xx8U43+Jm88/e2GgT9BJdXNzRZCMD1OnTNKNBEIuVOkCAvywjpXf5eHuLswkCXLh1P0pLB3RgTey+8OH9gv7beieo5CPCF7+RoScSK9LxJi7kpPYB/xsVt6urvWRs8poJdu185W8EWIUSQlriSgNEhqmiNAcPj6fGFMBs4FXK6maweZUVI3q1MnfHNTr1KmtsK6NBEp0L7TDSmtpKA+Zg73yvj48uDA9wpl688ZVFXVMzYNN71YtVekaIQIgH7op8oI2IqlF13b1oyCnqp9DBbXNmnqVKgeWringRNCQ/cEDKarYI3LBuamkEyrNHpIgtOS1Yn8644TeekyUL5HAm8C1b59eogqc+QTtcn0rfJ3BhKwFFUWUs6mGhWLxwnjLaGHR7uwREqz2AZA3nMlMh7OjH6HhsZiSF85u7pyZqhoqTb08sefguenagwc0k5Rdaa8c71KVrGJC9DiqI6HVXJnek07qIry/oRGDFdYJcRlyfnZ+G2vd6K1Ly0g/JirtGgOER2i107uUN+910ue0aN6s1Adwb9yYFr24098jvUhYt1qos5dEx46faaV81V5Vh4FESdSlEQFtJX7ZM6cEQTs6UERWTcope9YBwNdk2LeuhC4I5Rbe2bMTesXypcj/RbW7+3cLrYA9C1TxrThk4uwBvh80wGrYM43+siULaUMJ6yfz9ElrYk8HJKMQ4sun2PyyZ/UiyFWoBNb62GNcyj7HRMhlZ/8fH/lzUxUulB8AAAAASUVORK5CYII=",
+    "iVBORw0KGgoAAAANSUhEUgAAAD8AAABUCAIAAAC6DngRAAAACXBIWXMAAAozAAAKMwE1B9wPAAALK0lEQVR4nNVbZ0xUTxCfaxRFBQQV1MRuRIyKYBdr7AQFCZEAsaCxoPJBjZIoGk3U6AejsRdigmCNDYxALDEiIRQBQSyxgNhAQIoicO/2H+4H6/PuPI/HnfCfD0Zud9/7zezM7MzsPGKmkUajYYx9+vQpNDS0qKiIMaZWqzEkCAJjLCMjo3fv3tnZ2eIhSxOZPhUofX19nZycnj59yhhraGjgjDU0NPTv39/Jyenly5f/jAEyfSoAXb16lYicnJzu3bvHGcDQsmXLiGjo0KHFxcWc2/aCXqOVcUVFRd++fYnIzs4uPj4eDAD9+fPnSUvjxo2rrKzkS9oFetYs44iICCJSKpXW1tbXrl1jjNXV1THGCgsL7e3twYCvr69ardZoqb2gF7TKkJ6eLteSTCazsrK6fv06Z2DOnDlEZGVlRURr1qyxtAFQSxdAlpMnTyYilUpFRLa2tklJSRg9efIkflcqlUR04MABbhvtAr1aK8vjx48TkUKhkMvlRGRvb5+amsoYq6mpmTp1KvQKmwPVshADJE32xcXFXbt2JSKZTKZQKIjI1dU1Ly8PQ4MGDQIDYCwzM9NCKkQS1kD7/f39IX7+78CBA9+8ecMYy8zMdHR05AwMHjz4y5cvlvChJGENpHju3DmOmwP18PAoKSlhjN28eVOpVMpkMtjG/PnzBUEwu/8hCWsgwrdv33bu3BnKI2Zg+vTp379/F9sGft+yZYvZ9YekLYMUJ02aREQwXDEDgYGB4HD79u3cgonowoUL5mWApC0Dgi1btnDEOgysX78eM1esWMF9q6OjIwIkcxmARPTwgJcuXdKRvZiBXbt2Mcbq6+sXLlxIRNbW1kTk6elZXV1triBCInoIr6CgAEC56oNkMhlYOn78OGOsurp6xowZRGRjY0NEK1asMJf+tErvq6qqevbsqY+eMyCXyy9evMgYKysrmzhxIt+BM2fOmIWBVqHXaDReXl4GlYezZGtrm5iYyBgrLS0FAwqFonPnzk+ePGm9AUhEz188a9YssdfXIXDl4OCAOKK8vHz27NkY8jSHAUhHj31fsGCBEfScARcXl5ycHMZYbW0tkhgiCg8Pb6X+tBa9r6+vcfR8tFevXtAWjUZz6NAhW1tbIrp06VJrYjjp6LHj06ZN+yt6PsHBwQFwGWNpaWlDhgzp0qULQiNpBiDdY2o0mp8/fyKcNGi1+iqEaSEhIR8/fmSMff/+PTg4eMqUKdhGCQYgJULmiWxCQsJfQeswgE3o0aNHdHQ0HhIXF5eQkCBN/C3Oa/GOqqqq3bt329nZGXT2Rgj5AJZMmzYN9Z/a2lpptmsqekEQ8IL6+vqzZ8/26dPHRIUxvgk2NjZbt26F6+SiMTN6/tzk5GQPDw8dEUomRXNiOWDAgBs3bnC1NN0A/oJeo9FA5J8+fQoODtZ5a+tJJpKCn5/fu3fvWrQJZIq2XLlypUePHsD9V+fYGkVycHA4duyYWGoS0WPxz58/161bByHpxPFmJ0Xzls6bN+/Dhw+mHMOG0WPZx48fvb29xcmRpUkul0NGPXv2fPDgwV+PYQPosSA3N3fAgAGA3krrbCkptQxYWVnFxcUZZ0AXPaampqY6OzubEgK0hmRaMjiESpZcLkdk8ScV+g09JqWmpqIaowMdL7PEPii0dQedJ0NXbW1tHz58+CcGfqHHcF5eXvfu3cVlJpB5QeNpjo6OcGViNsQiAwODBg36+vWrwUCoCT0GysrK3N3deRlVB7Gzs7Obm1u3bt3Mhd7Z2TkrKysnJ+fYsWNBQUFIMrnaiG0A5Wj9Q6AJPQaCgoJ46ol3DBkyZMmSJbGxsU+fPo2Pj1+5cqWrq2tLYxuDpNDKeN68eVx2lZWVly9fHj16tDgGwYtUKlV6ero+A8R15syZM+JMYtOmTWlpabW1tbhWCAsLkxCTmcLA4cOHcbBwLdi2bZuYAYj/4MGD+v6HwE1xcbGLiwuU7MSJE7i3YYz9+PFj8+bNqCXBCZgRvaxZ+589e4b4T61WAx/qXGAP6Dds2KBvu03oQ0JCrKysDh48iBIkHpGfn4+YDIeIJbyNXCtgLy+v8vJyvBc81NfXjx07VhxEzJw507DmZGVl+fv7FxYWYhibePfuXVToLX1aKbTgPD09X7x4IY5wbt26JS5subi46HueRvSlpaU1NTXYF0g9Pj4eWbNFTytOwNepU6ewsLCbN28WFhbW19czxmbOnCmOf86fP6+jPE0+B0EpBu7fv9+hQ4fWJB8SSC6yKBsbG3d390OHDp0+fVosfnd3d52L1Eb0uJeESr169Qo+8d9IXUwIY8Uic3V15e4beNauXSsW/2+nVV1dHUry/x66fsqijwGMxcbGcr/yS3MYY1FRUfr1+DYkmV5pGk0GBQUFcDAkbvKApf7jeLhFhA3x9vaGWTfpPWPMx8enzXXGFIJqbN++vRE9dCYxMbGdS50Tj3xSUlIIgp8/f/7/QvBi8Y8ZM6bprEUk8y8dvGTi9dB+/fo1oo+MjEQe+b/QHNIeZyEhIUVFRdTQ0DBs2DDw5Ojo2J7FL9di8/PzQ++VRqOhjIwMqPuMGTP279/fnm1XocUZFBSEg7XR3584cYKI3Nzc6urqNm/e/G9OK4TcCL/4f0xEP3bsWB4fUFhYGBHl5uYyxgICAizteYwAVRjN/eVyOVquIiIieHDQyAqSLsZYYGCgRdHjyTKZbPjw4Vu3bo2Jibl8+fKRI0dCQ0N5+cggAzzMnD17tjjMbEzXBUHAwRseHm45zQF0Ly+vpKQkcYzOyxmRkZEqlUq/ZIQ/e/XqdeTIEeD8FSHj0gu/Hj161EKyxzM3btyI2BC5REMz8ZJ3XFycjl7hz1GjRiF1RJ/hb3ktD+5zcnIsVOAmoqioKJ6+6deV+P5v3LhRLEGsvX37NvyMzsKmSIH/qt9y00oCDj8/P33J6RAk+Pz5czRj8L6qpUuXmloJjImJMaPyQGU7duyImofxGxFNsxxRz0NW5eXl9e3btz/dh/5Cj2G1Wj1hwgRzMYCHLF682MQbfUHLHnoiiWjkyJHGW5p/qyFjUkpKCmIeaYeueBXQR0dHm3idL2gBjB8/Hm08FRUVxndMt34PCR04cECy6+S+mdOjR49M76YQBGHv3r1YImjJyGRd9Nz/rFq1iveTmU4qlUq/9o9u0pbexaqNmrhh9OICCUrKOEFMlDpyNk9PT/HCO3futKiTRa0lU2YavnUDekEQli9fbvqtG+Q9ffr0z58/NyY+zY1oluulpj8NcBXauXOnuN/YOIHJc+fOMcYWLVqEH318fCz0KQQZGeMF0evXr+PK5K+bAFVxdXV9//49Y2zHjh1E1KVLF3xo0wZ9yA3aHS8qKpo7dy6v1xmxBGxRQEAAlt+6dUulUu3evdsSbeDUIvOPjo7GPRnK6n/iAQzs27cPy/Pz81evXo2bAfM2UpOJ83iFuaSkJCIiAlW3P91K4KSTy+Xo/BAEobq6mt/ttAF61mwGPJYKDQ1FKAKD1rEHsGRvb5+RkcEj8LZEL94EKEB+fr74Ns7gbWufPn1ev37dBj7HRB7evXsXGRmJqr/4pokbgIeHByKWdvH1gM6hCEzfvn07deoUTlmxa0Kw5O/v316+3NAhQRB4uqRWq5OTk318fPglqVKpxP/37NnTXr590Ce0lHHpZmdnc5OAPVhbWz9+/Ni8O0DMrMT9Erbi9evXy5cvt7a2hgV7e3sDurkMwMzoDZpEdnY2zmkiiomJMaP+ELMkiV3ThQsXOnXqNGzYMPFXue0avc45XVRUNGLECPRrqdvwyw0JBJF//vwZ3y2ZRfb/AcDOInS7pmadAAAAAElFTkSuQmCC",
 } as const;
 
 // The dot-grid ground tile used to live here, attached by content id and drawn
@@ -68,13 +67,22 @@ export const LOGO_ATTACHMENT = {
 // deliberately. Gmail strips CSS background-image and ignores the background
 // attribute, so in those clients the tile had no rendered reference at all,
 // which left an unreferenced attachment on the message and made the mail arrive
-// with a stray file for the reader to download. A flat cream fill via bgcolor
-// looks the same in the clients that were dropping the tile anyway. Do not
+// with a stray file for the reader to download. Do not
 // reintroduce a background image by content id; only a real <img> reference is
 // reliably treated as inline. Tile source, if ever needed: public/email-dot-tile.png
 
 /** Every inline asset the layout references. Pass to Resend's attachments. */
 export const EMAIL_ASSETS = [LOGO_ATTACHMENT];
+
+// Source: public/email-chrome-logo.png, the site's ChromeLogo SVG at 3x. Gmail does not render SVG.
+export const CHROME_LOGO_CID = "chrome-logo";
+export const CHROME_LOGO_ATTACHMENT = {
+  filename: "chrome-logo.png",
+  content_type: "image/png",
+  content_id: CHROME_LOGO_CID,
+  content:
+    "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",
+} as const;
 
 export function escapeHtml(value: string): string {
   return value
@@ -86,11 +94,14 @@ export function escapeHtml(value: string): string {
 }
 
 /** Primary call to action. Pill shape and near-black fill, as on the site. */
-export function button(href: string, label: string): string {
+export function button(href: string, label: string, iconCid?: string): string {
+  const icon = iconCid
+    ? `<img src="cid:${iconCid}" width="18" height="18" alt="" style="display:inline-block;width:18px;height:18px;border:0;vertical-align:-4px;margin-right:10px;" />`
+    : "";
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 8px;">
     <tr>
       <td style="border-radius:999px;background:${theme.button};">
-        <a href="${href}" style="display:inline-block;padding:15px 30px;font-family:${FONT_STACK};font-size:15px;font-weight:600;line-height:1;color:${theme.buttonInk};text-decoration:none;border-radius:999px;">${label} &nbsp;&rarr;</a>
+        <a href="${href}" style="display:inline-block;padding:15px 30px;font-family:${FONT_STACK};font-size:15px;font-weight:600;line-height:1;color:${theme.buttonInk};text-decoration:none;border-radius:999px;">${icon}${label} &nbsp;&rarr;</a>
       </td>
     </tr>
   </table>`;
@@ -98,9 +109,9 @@ export function button(href: string, label: string): string {
 
 /** Copy-the-URL fallback, for clients that mangle or strip the button. */
 export function linkFallback(url: string, prefix: string): string {
-  return `<p style="margin:20px 0 0;font-family:${FONT_STACK};font-size:13px;line-height:1.6;color:${theme.muted};">
+  return `<p style="margin:24px 0 0;font-family:${FONT_STACK};font-size:12px;line-height:1.6;color:${theme.faint};">
     ${prefix}<br />
-    <a href="${url}" style="color:${theme.inkSoft};word-break:break-all;">${url}</a>
+    <a href="${url}" style="color:${theme.muted};text-decoration:none;word-break:break-all;">${url}</a>
   </p>`;
 }
 
@@ -115,7 +126,7 @@ export function paragraph(text: string, marginBottom = 24): string {
 
 /** Inset panel for quoted content: a ticket body, a message, a summary. */
 export function panel(innerHtml: string): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:${theme.page};border:1px solid ${theme.hairline};border-radius:12px;">
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:${theme.panelBg};border:1px solid ${theme.hairline};border-radius:12px;">
     <tr><td style="padding:16px 18px;font-family:${FONT_STACK};font-size:14px;line-height:1.6;color:${theme.inkSoft};">${innerHtml}</td></tr>
   </table>`;
 }
@@ -169,7 +180,6 @@ type LayoutInput = {
  * way reads as a lightly reskinned template no matter what the colours are.
  * This is built from the things that are actually ours:
  *
- *   - the dot-grid cream ground from the site background
  *   - a left-aligned masthead and headline, not centred
  *   - the Depop/Vinted split rule, which no other product can use
  *   - the mono uppercase eyebrow in an outlined pill, as on the homepage
@@ -270,10 +280,6 @@ export function emailLayout(input: LayoutInput): string {
             </tr>
 
           </table>
-        </td>
-      </tr>
-    </table>
-
         </td>
       </tr>
     </table>
