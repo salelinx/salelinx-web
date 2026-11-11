@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 const {
   authorizeUrl,
   isShopDomain,
+  oneOffPlan,
   photoFiles,
   productDetail,
   productEdit,
@@ -377,5 +378,58 @@ describe('productDetail', () => {
     });
     expect(productDetail('s', video).editable.photos).toBe(false);
     expect(productDetail('s', node({ mediaCount: { count: 60 } })).editable.photos).toBe(false);
+  });
+});
+
+describe('oneOffPlan', () => {
+  const detail = (over: Record<string, unknown> = {}) => ({
+    ...productDetail('s', {
+      legacyResourceId: '7',
+      status: 'ACTIVE',
+      variantsCount: { count: 1 },
+      variants: {
+        nodes: [
+          {
+            id: 'gid://shopify/ProductVariant/70',
+            inventoryItem: {
+              id: 'gid://shopify/InventoryItem/700',
+              tracked: true,
+              inventoryLevels: {
+                nodes: [
+                  { location: { id: 'gid://shopify/Location/1' }, quantities: [{ quantity: 3 }] },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    }),
+    ...over,
+  });
+
+  it('takes one off a tracked product with one variant', () => {
+    expect(oneOffPlan(detail())).toEqual({
+      kind: 'take',
+      inventoryItemId: 'gid://shopify/InventoryItem/700',
+      locationId: 'gid://shopify/Location/1',
+      from: 3,
+    });
+  });
+
+  it('leaves a product that is not for sale, or has none left', () => {
+    const d = detail();
+    expect(oneOffPlan({ ...d, listing: { ...d.listing, status: 'DRAFT' } }).kind).toBe('gone');
+    expect(oneOffPlan({ ...d, stock: { ...d.stock!, quantity: 0 } }).kind).toBe('gone');
+  });
+
+  it('archives one whose stock is not tracked', () => {
+    expect(oneOffPlan(detail({ tracked: false, stock: null })).kind).toBe('archive');
+  });
+
+  it('leaves variants and several locations to the seller', () => {
+    expect(oneOffPlan(detail({ variantId: null, tracked: false, stock: null })).kind).toBe(
+      'manual',
+    );
+    expect(oneOffPlan(detail({ stock: null })).kind).toBe('manual');
   });
 });

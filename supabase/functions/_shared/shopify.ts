@@ -393,6 +393,8 @@ export interface ProductDetail {
   quantity: number | null;
   editable: { price: boolean; quantity: boolean; photos: boolean };
   variantId: string | null;
+  /** The one variant's stock is tracked. False with several variants. */
+  tracked: boolean;
   stock: { inventoryItemId: string; locationId: string; quantity: number } | null;
   media: { id: string; url: string }[];
 }
@@ -423,7 +425,29 @@ export function productDetail(shop: string, p: any): ProductDetail {
     quantity: stock?.quantity ?? null,
     editable: { price: single, quantity: stock !== null && !!stock.locationId, photos },
     variantId: single ? variant.id : null,
+    tracked: single && item?.tracked === true,
     stock: stock?.locationId ? stock : null,
     media,
   };
+}
+
+/** What a sale of a linked listing elsewhere does to this product (the seller's rule, 2026-11-11):
+ *  one off its stock, so a product with some left stays for sale. */
+export type OneOffPlan =
+  /** Not for sale: a draft, archived, or no stock left. */
+  | { kind: 'gone' }
+  /** Several variants, or stock at several locations: which one sold is the seller's call. */
+  | { kind: 'manual' }
+  /** One variant, stock not tracked: Shopify would never sell it out, so it's archived. */
+  | { kind: 'archive' }
+  | { kind: 'take'; inventoryItemId: string; locationId: string; from: number };
+
+export function oneOffPlan(d: ProductDetail): OneOffPlan {
+  if (d.listing.status !== 'ACTIVE') return { kind: 'gone' };
+  if (!d.variantId) return { kind: 'manual' };
+  if (!d.tracked) return { kind: 'archive' };
+  if (!d.stock) return { kind: 'manual' };
+  if (d.stock.quantity <= 0) return { kind: 'gone' };
+  const { inventoryItemId, locationId, quantity } = d.stock;
+  return { kind: 'take', inventoryItemId, locationId, from: quantity };
 }
