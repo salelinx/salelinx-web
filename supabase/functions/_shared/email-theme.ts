@@ -181,7 +181,6 @@ type LayoutInput = {
  * This is built from the things that are actually ours:
  *
  *   - a left-aligned masthead and headline, not centred
- *   - the Depop/Vinted split rule, which no other product can use
  *   - the mono uppercase eyebrow in an outlined pill, as on the homepage
  *   - the zinc-900 pill CTA, matching the site's primary button
  *
@@ -233,9 +232,6 @@ export function emailLayout(input: LayoutInput): string {
                         </tr></table>
                       </a>
                     </td>
-                    <td align="right" style="vertical-align:middle;font-family:${MONO_STACK};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${theme.faint};">
-                      Depop &nbsp;+&nbsp; Vinted
-                    </td>
                   </tr>
                 </table>
               </td>
@@ -243,12 +239,6 @@ export function emailLayout(input: LayoutInput): string {
 
             <tr>
               <td style="background:${theme.card};border:1px solid ${theme.hairline};border-radius:18px;padding:0;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td height="3" style="font-size:0;line-height:0;height:3px;background:${theme.depop};border-top-left-radius:18px;">&nbsp;</td>
-                    <td height="3" style="font-size:0;line-height:0;height:3px;background:${theme.vinted};border-top-right-radius:18px;">&nbsp;</td>
-                  </tr>
-                </table>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr><td style="padding:34px 38px 38px;">
                     ${eyebrowHtml}
