@@ -3,10 +3,9 @@ import {
   CHROME_LOGO_CID,
   COMPANY_INFO,
   emailLayout,
-  FONT_STACK,
   heading,
+  note,
   paragraph,
-  theme,
 } from "../_shared/email-theme.ts";
 
 // Mirrors CHROME_WEB_STORE_URL in lib/site.ts, which Deno cannot import.
@@ -62,7 +61,7 @@ export function installLinkEmail(locale: Locale): { subject: string; html: strin
       heading(c.heading),
       paragraph(c.body),
       button(STORE_URL, c.cta, CHROME_LOGO_CID),
-      `<p style="margin:20px 0 0;font-family:${FONT_STACK};font-size:13px;line-height:1.6;color:${theme.muted};">${c.fallback}</p>`,
+      note(c.fallback),
     ].join("\n"),
   });
   const text = `${c.heading}\n\n${c.body}\n\n${c.cta}: ${STORE_URL}\n\n${COMPANY_INFO}\n`;

@@ -122,6 +122,11 @@ export function paragraph(text: string, marginBottom = 24): string {
   return `<p style="margin:0 0 ${marginBottom}px;font-family:${FONT_STACK};font-size:15.5px;line-height:1.65;color:${theme.inkSoft};">${text}</p>`;
 }
 
+/** Small muted line under the button: expiry, safety notes, alternatives. */
+export function note(text: string): string {
+  return `<p style="margin:20px 0 0;font-family:${FONT_STACK};font-size:13px;line-height:1.6;color:${theme.muted};">${text}</p>`;
+}
+
 /** Inset panel for quoted content: a ticket body, a message, a summary. */
 export function panel(innerHtml: string): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:${theme.panelBg};border:1px solid ${theme.hairline};border-radius:12px;">
