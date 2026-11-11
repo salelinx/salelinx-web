@@ -26,8 +26,6 @@ export const theme = {
   button: "#18181b", // zinc-900, matches the homepage primary CTA
   buttonInk: "#ffffff",
   accent: "#059669", // emerald, the site's "live" signal
-  depop: "#ff2300",
-  vinted: "#007782",
 } as const;
 
 export const FONT_STACK =
@@ -251,16 +249,8 @@ export function emailLayout(input: LayoutInput): string {
             <tr>
               <td style="padding:26px 2px 0;">
                 ${footerNoteHtml}
-                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 10px;">
-                  <tr>
-                    <td style="padding:0 7px 0 0;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${theme.depop};"></span></td>
-                    <td style="padding:0 14px 0 0;font-family:${FONT_STACK};font-size:12px;color:${theme.muted};">Depop</td>
-                    <td style="padding:0 7px 0 0;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${theme.vinted};"></span></td>
-                    <td style="font-family:${FONT_STACK};font-size:12px;color:${theme.muted};">Vinted</td>
-                  </tr>
-                </table>
                 <p style="margin:0 0 10px;font-family:${FONT_STACK};font-size:12px;line-height:1.65;color:${theme.faint};">
-                  Run both shops from one panel.<br />
+                  Run all your shops from one panel.<br />
                   <a href="${siteUrl}" style="color:${theme.muted};text-decoration:none;">salelinx.com</a>
                 </p>
                 <p style="margin:0;font-family:${FONT_STACK};font-size:11px;line-height:1.65;color:${theme.faint};">
