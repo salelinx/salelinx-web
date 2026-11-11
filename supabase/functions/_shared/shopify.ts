@@ -279,3 +279,151 @@ export function refusal(userErrors: { message?: string }[] | undefined): Shopify
   const gone = /not exist|not found|couldn.t find/i.test(message);
   return new ShopifyError(message, gone ? 'not_found' : 'shopify', gone ? 404 : 422);
 }
+
+// ── Editing a product ──────────────────────────────────────────────────────
+
+/** The editor's changes to a product, checked. Price and quantity are the one variant's. */
+export interface ProductEdit {
+  title?: string;
+  /** Plain text, as the editor holds it. */
+  description?: string;
+  vendor?: string;
+  productType?: string;
+  price?: number;
+  quantity?: number;
+  /** The photos in order: the product's own image addresses and new ones. */
+  photos?: string[];
+}
+
+const MAX_PHOTOS = 250;
+
+/** The `changes` the extension sent, or a `bad_request` naming the first field that's wrong. */
+export function productEdit(raw: unknown): ProductEdit {
+  const bad = (field: string) => new ShopifyError(`Bad ${field}`, 'bad_request', 400);
+  if (!raw || typeof raw !== 'object') throw bad('changes');
+  const c = raw as Record<string, unknown>;
+  const out: ProductEdit = {};
+  const text = (field: 'title' | 'description' | 'vendor' | 'productType', max: number) => {
+    const v = c[field];
+    if (v === undefined) return;
+    if (typeof v !== 'string' || v.length > max) throw bad(field);
+    out[field] = v;
+  };
+  text('title', 255);
+  text('description', 60_000);
+  text('vendor', 255);
+  text('productType', 255);
+  if (out.title !== undefined && !out.title.trim()) throw bad('title');
+  if (c.price !== undefined) {
+    const p = c.price;
+    if (typeof p !== 'number' || !Number.isFinite(p) || p <= 0 || p >= 1e9) throw bad('price');
+    out.price = Math.round(p * 100) / 100;
+  }
+  if (c.quantity !== undefined) {
+    const q = c.quantity;
+    if (typeof q !== 'number' || !Number.isInteger(q) || q < 0 || q > 1_000_000) {
+      throw bad('quantity');
+    }
+    out.quantity = q;
+  }
+  if (c.photos !== undefined) {
+    const list = c.photos;
+    if (
+      !Array.isArray(list) ||
+      list.length > MAX_PHOTOS ||
+      !list.every((u) => typeof u === 'string' && u.length <= 2048 && /^https:\/\//.test(u))
+    ) {
+      throw bad('photos');
+    }
+    out.photos = list as string[];
+  }
+  return out;
+}
+
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/** The editor's plain-text description as Shopify's HTML: a paragraph per blank-line block, a
+ *  line break per line. Whatever formatting the old description had is replaced. */
+export function textToHtml(text: string): string {
+  return text
+    .replace(/\r\n?/g, '\n')
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => `<p>${escapeHtml(block).replace(/\n/g, '<br>')}</p>`)
+    .join('');
+}
+
+/** An image address without its query, which Shopify uses for a cache-busting version. */
+const bare = (url: string) => url.split('?')[0];
+
+/** `photos` as productSet's files: a photo the product already has keeps its media id, so
+ *  Shopify keeps it rather than copying it; anything else is fetched from its address. */
+export function photoFiles(
+  photos: string[],
+  media: { id: string; url: string }[],
+): ({ id: string } | { originalSource: string; contentType: 'IMAGE' })[] {
+  const byUrl = new Map(media.map((m) => [bare(m.url), m.id]));
+  const used = new Set<string>();
+  return photos.map((url) => {
+    const id = byUrl.get(bare(url));
+    if (id && !used.has(id)) {
+      used.add(id);
+      return { id };
+    }
+    return { originalSource: url, contentType: 'IMAGE' as const };
+  });
+}
+
+/** True when `photos` is the product's media, same photos in the same order. */
+export function samePhotos(photos: string[], media: { url: string }[]): boolean {
+  return (
+    photos.length === media.length && photos.every((url, i) => bare(url) === bare(media[i].url))
+  );
+}
+
+/** One product read for the editor (the shopify function's PRODUCT_QUERY). What the extension
+ *  gets is `listing` and the `editable` flags; the ids stay here for the save. */
+export interface ProductDetail {
+  listing: ShopifyListingSummary;
+  /** `listing.description` is Shopify's text version, all on one line. */
+  descriptionHtml: string;
+  /** Units available, when SaleLinx can set them: one variant, tracked, at one location. */
+  quantity: number | null;
+  editable: { price: boolean; quantity: boolean; photos: boolean };
+  variantId: string | null;
+  stock: { inventoryItemId: string; locationId: string; quantity: number } | null;
+  media: { id: string; url: string }[];
+}
+
+// deno-lint-ignore no-explicit-any
+export function productDetail(shop: string, p: any): ProductDetail {
+  const listing = productSummary(shop, p);
+  const variant = p.variants?.nodes?.[0];
+  const single = Number(p.variantsCount?.count) === 1 && typeof variant?.id === 'string';
+  const item = variant?.inventoryItem;
+  const levels = item?.inventoryLevels?.nodes ?? [];
+  const available = Number(levels[0]?.quantities?.[0]?.quantity);
+  const stock =
+    single && item?.tracked === true && levels.length === 1 && Number.isFinite(available)
+      ? { inventoryItemId: item.id, locationId: levels[0].location?.id, quantity: available }
+      : null;
+  const nodes = p.media?.nodes ?? [];
+  const media = nodes
+    .filter((m: { id?: string; image?: { url?: string } }) => m?.id && m.image?.url)
+    .map((m: { id: string; image: { url: string } }) => ({ id: m.id, url: m.image.url }));
+  // A video, or a photo Shopify is still processing, isn't one SaleLinx can show, and a photo
+  // save would drop it: the photos are only editable when the editor sees every one.
+  const photos =
+    media.length === nodes.length && Number(p.mediaCount?.count ?? nodes.length) === nodes.length;
+  return {
+    listing,
+    descriptionHtml: String(p.descriptionHtml ?? ''),
+    quantity: stock?.quantity ?? null,
+    editable: { price: single, quantity: stock !== null && !!stock.locationId, photos },
+    variantId: single ? variant.id : null,
+    stock: stock?.locationId ? stock : null,
+    media,
+  };
+}

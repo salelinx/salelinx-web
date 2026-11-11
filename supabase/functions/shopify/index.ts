@@ -19,6 +19,16 @@
 //   setStatus { productId, status } -> { status, totalInventory, tracksInventory }
 //                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide
 //   deleteProduct { productId } -> { ok }   for good; one already gone counts as deleted
+//   product { productId } -> { listing, descriptionHtml, quantity, editable }
+//                one product for the editor: listing as `listings` gives it (up
+//                to 50 photos; its description is Shopify's one-line text, so the
+//                editor reads descriptionHtml), quantity the units available when
+//                SaleLinx can set them, editable { price, quantity, photos }
+//   updateProduct { productId, changes } -> as `product`, read after the save
+//                changes: title, description (plain text), vendor, productType,
+//                price, quantity, photos (addresses in order); a change the
+//                product doesn't allow is refused with 'not_editable'
+//   uploadPhoto { dataUrl } -> { url }   a new photo, staged in Shopify for the save
 //   listings { cursor? } -> { listings, cursor, hasMore }
 //                up to 100 products a call, in Shopify's order; pass the
 //                returned cursor back for the next call. Status is Shopify's
@@ -27,6 +37,8 @@
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect Shopify again, 'busy' when Shopify throttles or a token refresh
 // is already running, 'shop_unavailable' for a lapsed or locked store,
+// 'not_found' for a product gone from the store, 'not_editable' for an edit
+// the product doesn't allow (see updateProduct),
 // 'bad_signature' / 'expired' / 'bad_request' for a redirect that doesn't
 // check out, 'shopify' for anything else Shopify refused.
 //
@@ -40,10 +52,15 @@ import {
   ShopifyError,
   adminGraphql,
   authorizeUrl,
+  photoFiles,
+  productDetail,
+  productEdit,
   productGid,
   productSummary,
   refusal,
+  samePhotos,
   shopIdFromGid,
+  textToHtml,
   tokenRequest,
   verifiedShop,
 } from '../_shared/shopify.ts';
@@ -363,6 +380,232 @@ async function deleteProduct(admin, userId: string, productId: unknown) {
   return { ok: true };
 }
 
+// ── Editing a product ──────────────────────────────────────────────────────
+
+// About 120 points: one variant with its stock levels, and up to 50 photos.
+const PRODUCT_QUERY = `query ($id: ID!) {
+  product(id: $id) {
+    legacyResourceId
+    title
+    description
+    descriptionHtml
+    status
+    onlineStoreUrl
+    totalInventory
+    tracksInventory
+    vendor
+    productType
+    createdAt
+    updatedAt
+    priceRangeV2 { minVariantPrice { amount currencyCode } }
+    variantsCount { count }
+    variants(first: 1) {
+      nodes {
+        id
+        inventoryItem {
+          id
+          tracked
+          inventoryLevels(first: 2) {
+            nodes { location { id } quantities(names: ["available"]) { quantity } }
+          }
+        }
+      }
+    }
+    mediaCount { count }
+    media(first: 50) { nodes { id ... on MediaImage { image { url } } } }
+  }
+}`;
+
+async function readProduct(auth, id: string) {
+  const { product } = await adminGraphql(auth.shop, auth.token, PRODUCT_QUERY, {
+    id,
+  });
+  if (!product) {
+    throw new ShopifyError('This product is no longer in your Shopify store', 'not_found', 404);
+  }
+  return productDetail(auth.shop, product);
+}
+
+const forEditor = (d) => ({
+  listing: d.listing,
+  descriptionHtml: d.descriptionHtml,
+  quantity: d.quantity,
+  editable: d.editable,
+});
+
+async function product(admin, userId: string, productId: unknown) {
+  const id = productGid(productId);
+  return forEditor(await readProduct(await accessTokenFor(admin, userId), id));
+}
+
+const UPDATE_MUTATION = `mutation ($product: ProductUpdateInput!) {
+  productUpdate(product: $product) {
+    product { id }
+    userErrors { field message }
+  }
+}`;
+
+const PRICE_MUTATION = `mutation ($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+  productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+    product { id }
+    userErrors { field message }
+  }
+}`;
+
+// changeFromQuantity makes it a compare-and-set: a sale between the read and
+// this write makes Shopify refuse rather than the edit wiping the sale out.
+const STOCK_MUTATION = `mutation ($input: InventorySetQuantitiesInput!, $key: String!) {
+  inventorySetQuantities(input: $input) @idempotent(key: $key) {
+    inventoryAdjustmentGroup { id }
+    userErrors { field message }
+  }
+}`;
+
+// productSet replaces a list it's given, so `files` is the product's whole
+// photo set, and nothing else is sent with it.
+const PHOTOS_MUTATION = `mutation ($identifier: ProductSetIdentifiers, $input: ProductSetInput!) {
+  productSet(identifier: $identifier, input: $input, synchronous: true) {
+    product { id }
+    userErrors { field message }
+  }
+}`;
+
+async function mutate(auth, query: string, variables, key: string) {
+  const data = await adminGraphql(auth.shop, auth.token, query, variables);
+  const refused = refusal(data?.[key]?.userErrors);
+  if (refused) throw refused;
+}
+
+/**
+ * The editor's save. Checks what the product allows first (one variant for a
+ * price, tracked stock at one location for a quantity, photos the editor saw
+ * in full), then sends each kind of change as its own call. Answers with the
+ * product as it reads afterwards, for the extension's row.
+ */
+async function updateProduct(admin, userId: string, productId: unknown, rawChanges: unknown) {
+  const id = productGid(productId);
+  const changes = productEdit(rawChanges);
+  const auth = await accessTokenFor(admin, userId);
+  const before = await readProduct(auth, id);
+  const refuse = (message: string) => new ShopifyError(message, 'not_editable', 422);
+  if (changes.price !== undefined && !before.editable.price) {
+    throw refuse('This product has variants: set their prices in Shopify');
+  }
+  if (changes.quantity !== undefined && !before.editable.quantity) {
+    throw refuse(
+      'SaleLinx can only set the stock of a product with one variant, tracked at one location',
+    );
+  }
+  if (changes.photos !== undefined && !before.editable.photos) {
+    throw refuse("This product has media SaleLinx can't show: change its photos in Shopify");
+  }
+
+  const fields: Record<string, string> = {};
+  if (changes.title !== undefined) fields.title = changes.title.trim();
+  if (changes.description !== undefined) fields.descriptionHtml = textToHtml(changes.description);
+  if (changes.vendor !== undefined) fields.vendor = changes.vendor.trim();
+  if (changes.productType !== undefined) fields.productType = changes.productType.trim();
+  if (Object.keys(fields).length > 0) {
+    await mutate(auth, UPDATE_MUTATION, { product: { id, ...fields } }, 'productUpdate');
+  }
+  if (changes.price !== undefined) {
+    await mutate(
+      auth,
+      PRICE_MUTATION,
+      {
+        productId: id,
+        variants: [{ id: before.variantId, price: changes.price.toFixed(2) }],
+      },
+      'productVariantsBulkUpdate',
+    );
+  }
+  if (
+    changes.quantity !== undefined &&
+    before.stock &&
+    changes.quantity !== before.stock.quantity
+  ) {
+    const { inventoryItemId, locationId, quantity } = before.stock;
+    await mutate(
+      auth,
+      STOCK_MUTATION,
+      {
+        input: {
+          name: 'available',
+          reason: 'correction',
+          quantities: [
+            {
+              inventoryItemId,
+              locationId,
+              quantity: changes.quantity,
+              changeFromQuantity: quantity,
+            },
+          ],
+        },
+        key: crypto.randomUUID(),
+      },
+      'inventorySetQuantities',
+    );
+  }
+  if (changes.photos !== undefined && !samePhotos(changes.photos, before.media)) {
+    await mutate(
+      auth,
+      PHOTOS_MUTATION,
+      {
+        identifier: { id },
+        input: { files: photoFiles(changes.photos, before.media) },
+      },
+      'productSet',
+    );
+  }
+  return forEditor(await readProduct(auth, id));
+}
+
+const MAX_PHOTO_BYTES = 20 * 1024 * 1024;
+
+const STAGED_MUTATION = `mutation ($input: [StagedUploadInput!]!) {
+  stagedUploadsCreate(input: $input) {
+    stagedTargets { url resourceUrl parameters { name value } }
+    userErrors { field message }
+  }
+}`;
+
+/** A photo the editor added, put where Shopify can take it from: the answer's
+ *  url goes in the photo list the save sends. */
+async function uploadPhoto(admin, userId: string, dataUrl: unknown) {
+  const m = /^data:(image\/(?:jpeg|png|webp|gif));base64,(.+)$/s.exec(
+    typeof dataUrl === 'string' ? dataUrl : '',
+  );
+  if (!m) throw new ShopifyError('Expected an image data URL', 'bad_request', 400);
+  const bytes = Uint8Array.from(atob(m[2]), (ch) => ch.charCodeAt(0));
+  if (bytes.length > MAX_PHOTO_BYTES) {
+    throw new ShopifyError('Photo is too large', 'bad_request', 400);
+  }
+  const filename = `photo.${m[1].split('/')[1].replace('jpeg', 'jpg')}`;
+  const auth = await accessTokenFor(admin, userId);
+  const { stagedUploadsCreate: res } = await adminGraphql(auth.shop, auth.token, STAGED_MUTATION, {
+    input: [
+      {
+        resource: 'IMAGE',
+        filename,
+        mimeType: m[1],
+        httpMethod: 'POST',
+        fileSize: String(bytes.length),
+      },
+    ],
+  });
+  const refused = refusal(res?.userErrors);
+  if (refused) throw refused;
+  const target = res?.stagedTargets?.[0];
+  if (!target?.url || !target.resourceUrl) {
+    throw new ShopifyError('Shopify gave no upload address', 'shopify', 502);
+  }
+  const form = new FormData();
+  for (const p of target.parameters ?? []) form.append(p.name, p.value);
+  form.append('file', new Blob([bytes], { type: m[1] }), filename);
+  const up = await fetch(target.url, { method: 'POST', body: form });
+  if (!up.ok) throw new ShopifyError(`Photo upload failed (${up.status})`, 'shopify', 502);
+  return { url: target.resourceUrl };
+}
 // ── Handler ────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -443,6 +686,15 @@ Deno.serve(async (req: Request) => {
 
       case 'deleteProduct':
         return json(200, await deleteProduct(admin, user.id, body.productId));
+
+      case 'product':
+        return json(200, await product(admin, user.id, body.productId));
+
+      case 'updateProduct':
+        return json(200, await updateProduct(admin, user.id, body.productId, body.changes));
+
+      case 'uploadPhoto':
+        return json(200, await uploadPhoto(admin, user.id, body.dataUrl));
 
       default:
         return json(400, { error: `Unknown action: ${String(body?.action)}` });

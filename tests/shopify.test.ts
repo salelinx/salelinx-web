@@ -8,11 +8,16 @@ import { describe, expect, it } from 'vitest';
 const {
   authorizeUrl,
   isShopDomain,
+  photoFiles,
+  productDetail,
+  productEdit,
   productGid,
   productSummary,
   queryMessage,
   refusal,
+  samePhotos,
   shopIdFromGid,
+  textToHtml,
   verifiedShop,
   verifyWebhook,
 } = await import('../supabase/functions/_shared/shopify');
@@ -161,7 +166,9 @@ describe('productSummary', () => {
     updatedAt: '2026-11-02T10:00:00Z',
     priceRangeV2: { minVariantPrice: { amount: '24.50', currencyCode: 'GBP' } },
     variantsCount: { count: 1 },
-    media: { nodes: [{ image: { url: 'https://cdn.shopify.com/a.jpg' } }, {}, { image: null }] },
+    media: {
+      nodes: [{ image: { url: 'https://cdn.shopify.com/a.jpg' } }, {}, { image: null }],
+    },
   };
 
   it('reads the price, stock and photos, and links the product in the admin', () => {
@@ -209,5 +216,166 @@ describe('product changes', () => {
     const other = refusal([{ message: "Title can't be blank" }]);
     expect(other?.code).toBe('shopify');
     expect(other?.message).toBe("Title can't be blank");
+  });
+});
+
+describe('productEdit', () => {
+  it('keeps the fields it knows, rounding the price to pence', () => {
+    expect(productEdit({ title: 'Hat', price: 9.999, quantity: 2, other: 1 })).toEqual({
+      title: 'Hat',
+      price: 10,
+      quantity: 2,
+    });
+  });
+
+  it('refuses a blank title, a bad price or quantity, and photos that are not https', () => {
+    expect(() => productEdit({ title: '  ' })).toThrow('Bad title');
+    expect(() => productEdit({ price: 0 })).toThrow('Bad price');
+    expect(() => productEdit({ quantity: 1.5 })).toThrow('Bad quantity');
+    expect(() => productEdit({ photos: ['http://x/a.jpg'] })).toThrow('Bad photos');
+    expect(() => productEdit(null)).toThrow('Bad changes');
+  });
+
+  it('lets a quantity of 0 through', () => {
+    expect(productEdit({ quantity: 0 })).toEqual({ quantity: 0 });
+  });
+});
+
+describe('textToHtml', () => {
+  it('makes a paragraph per block and a line break per line, escaped', () => {
+    expect(textToHtml('One <b>\nTwo\r\n\r\nThree & four')).toBe(
+      '<p>One &lt;b&gt;<br>Two</p><p>Three &amp; four</p>',
+    );
+  });
+
+  it('gives nothing for an empty description', () => {
+    expect(textToHtml('  \n ')).toBe('');
+  });
+});
+
+describe('photo sets', () => {
+  const media = [
+    {
+      id: 'gid://shopify/MediaImage/1',
+      url: 'https://cdn.shopify.com/a.jpg?v=1',
+    },
+    {
+      id: 'gid://shopify/MediaImage/2',
+      url: 'https://cdn.shopify.com/b.jpg?v=2',
+    },
+  ];
+
+  it('keeps known photos by id, whatever their version, and fetches new ones', () => {
+    expect(
+      photoFiles(
+        [
+          'https://cdn.shopify.com/b.jpg?v=9',
+          'https://staged.example/new',
+          'https://cdn.shopify.com/a.jpg',
+        ],
+        media,
+      ),
+    ).toEqual([
+      { id: 'gid://shopify/MediaImage/2' },
+      { originalSource: 'https://staged.example/new', contentType: 'IMAGE' },
+      { id: 'gid://shopify/MediaImage/1' },
+    ]);
+  });
+
+  it('copies a photo that appears twice rather than using one media id twice', () => {
+    const twice = photoFiles([media[0].url, media[0].url], media);
+    expect(twice[1]).toEqual({
+      originalSource: media[0].url,
+      contentType: 'IMAGE',
+    });
+  });
+
+  it('tells an unchanged set from a reordered one', () => {
+    expect(samePhotos([media[0].url, media[1].url], media)).toBe(true);
+    expect(samePhotos([media[1].url, media[0].url], media)).toBe(false);
+    expect(samePhotos([media[0].url], media)).toBe(false);
+  });
+});
+
+describe('productDetail', () => {
+  const node = (over: Record<string, unknown> = {}) => ({
+    legacyResourceId: '7',
+    title: 'Hat',
+    status: 'ACTIVE',
+    variantsCount: { count: 1 },
+    variants: {
+      nodes: [
+        {
+          id: 'gid://shopify/ProductVariant/70',
+          inventoryItem: {
+            id: 'gid://shopify/InventoryItem/700',
+            tracked: true,
+            inventoryLevels: {
+              nodes: [
+                {
+                  location: { id: 'gid://shopify/Location/1' },
+                  quantities: [{ quantity: 3 }],
+                },
+              ],
+            },
+          },
+        },
+      ],
+    },
+    mediaCount: { count: 1 },
+    media: {
+      nodes: [
+        {
+          id: 'gid://shopify/MediaImage/1',
+          image: { url: 'https://cdn/a.jpg' },
+        },
+      ],
+    },
+    ...over,
+  });
+
+  it('lets the editor set price, stock and photos on a simple product', () => {
+    const d = productDetail('s.myshopify.com', node());
+    expect(d.editable).toEqual({ price: true, quantity: true, photos: true });
+    expect(d.quantity).toBe(3);
+    expect(d.stock).toEqual({
+      inventoryItemId: 'gid://shopify/InventoryItem/700',
+      locationId: 'gid://shopify/Location/1',
+      quantity: 3,
+    });
+  });
+
+  it('leaves price and stock alone on a product with variants', () => {
+    const d = productDetail('s.myshopify.com', node({ variantsCount: { count: 3 } }));
+    expect(d.editable.price).toBe(false);
+    expect(d.editable.quantity).toBe(false);
+    expect(d.quantity).toBeNull();
+  });
+
+  it('leaves stock alone when untracked or kept at two locations', () => {
+    const untracked = node();
+    untracked.variants.nodes[0].inventoryItem.tracked = false;
+    expect(productDetail('s', untracked).editable.quantity).toBe(false);
+    const two = node();
+    const levels = two.variants.nodes[0].inventoryItem.inventoryLevels.nodes;
+    levels.push({ ...levels[0], location: { id: 'gid://shopify/Location/2' } });
+    expect(productDetail('s', two).editable.quantity).toBe(false);
+  });
+
+  it('leaves photos alone with a video, a photo still processing, or more than it read', () => {
+    const video = node({
+      mediaCount: { count: 2 },
+      media: {
+        nodes: [
+          {
+            id: 'gid://shopify/MediaImage/1',
+            image: { url: 'https://cdn/a.jpg' },
+          },
+          { id: 'gid://shopify/Video/2' },
+        ],
+      },
+    });
+    expect(productDetail('s', video).editable.photos).toBe(false);
+    expect(productDetail('s', node({ mediaCount: { count: 60 } })).editable.photos).toBe(false);
   });
 });

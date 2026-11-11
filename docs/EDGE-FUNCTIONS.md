@@ -627,8 +627,23 @@ code=<code>` and nothing else.
   a product already gone counts as deleted. `productId` is the numeric id (`productGid` checks it);
   Shopify's first `userErrors` message comes back as `shopify` (422), or `not_found` (404) for a
   product that is gone (`refusal`).
+- **The editor** (`product`, `updateProduct`, `uploadPhoto`). `product { productId }` reads one
+  product (`productDetail`): the listing, `descriptionHtml` (the listing's `description` is
+  Shopify's one-line text) and what SaleLinx may change. Price needs one variant; quantity needs
+  that variant's stock tracked at one location; photos need every media item to be a ready image,
+  50 at most, since the photo save replaces the whole set. `updateProduct { productId, changes }`
+  checks the changes (`productEdit`), reads the product again, refuses what it doesn't allow with
+  `not_editable` (422), then sends title, description (plain text made into paragraphs by
+  `textToHtml`), vendor and product type through `productUpdate`, the price through
+  `productVariantsBulkUpdate`, the quantity through `inventorySetQuantities` with
+  `changeFromQuantity` (a sale in between makes Shopify refuse) and the photos through
+  `productSet` with `files` alone (`photoFiles`: a photo the product has keeps its media id). It
+  answers with the product read afterwards. `uploadPhoto { dataUrl }` stages a new photo
+  (`stagedUploadsCreate`, then a form POST to Shopify's storage) and answers with the address the
+  photo list then carries.
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
-  example in Shopify's OAuth docs, plus `productSummary`, `productGid` and `refusal`.
+  example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
+  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`).
 
 ## Excluded from TypeScript checks
 
