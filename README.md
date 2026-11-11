@@ -176,6 +176,8 @@ supabase functions deploy <name>
 | `report-selftest`          | Admin endpoint self-test runs from the extension                    |
 | `ebay`                     | The extension's only route to eBay (OAuth tokens, Trading API)      |
 | `ebay-account-deletion`    | eBay Marketplace Account Deletion notices                           |
+| `shopify`                  | The extension's only route to Shopify (in progress)                 |
+| `shopify-public`           | The Shopify app's App URL and webhooks                              |
 
 Set function secrets (each function only reads the ones it needs):
 
