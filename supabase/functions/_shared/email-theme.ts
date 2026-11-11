@@ -249,10 +249,6 @@ export function emailLayout(input: LayoutInput): string {
             <tr>
               <td style="padding:26px 2px 0;">
                 ${footerNoteHtml}
-                <p style="margin:0 0 10px;font-family:${FONT_STACK};font-size:12px;line-height:1.65;color:${theme.faint};">
-                  Run all your shops from one panel.<br />
-                  <a href="${siteUrl}" style="color:${theme.muted};text-decoration:none;">salelinx.com</a>
-                </p>
                 <p style="margin:0;font-family:${FONT_STACK};font-size:11px;line-height:1.65;color:${theme.faint};">
                   ${COMPANY_INFO}
                 </p>
