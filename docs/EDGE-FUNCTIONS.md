@@ -570,7 +570,11 @@ billing, a page in Shopify's admin, final scopes).
   an install lands on our App URL (`shopify-public`) and we run the OAuth ourselves. Its allowed
   redirect URLs are `https://<extension-id>.chromiumapp.org/shopify`, for the Web Store id and each
   unpacked id in use. The scopes are `SCOPES` in `_shared/shopify.ts`; changing them makes every
-  linked store approve again.
+  linked store approve again. The app's settings are kept in `shopify/shopify.app.toml` (made by
+  `shopify app config link`), and `npx @shopify/cli app deploy --path shopify --no-release`
+  turns it into a new app version to release in the Dev Dashboard. A deploy replaces every setting
+  with the file's, so change the file, never only the dashboard, and re-link first if the
+  dashboard was edited.
 - **Linking.** There is no store-address box (Shopify's App Store rule 2.3.1), so the store comes
   from Shopify. The seller opens the install link in the extension's popup and Shopify sends the
   popup to the App URL with `shop`, `host`, `timestamp` and `hmac`. The extension catches that
@@ -589,9 +593,12 @@ billing, a page in Shopify's admin, final scopes).
   seller would have to reconnect. So `accessTokenFor` claims `refreshing_until` (30 seconds) with a
   conditional update: only the call that claims it refreshes, and the others re-read the row until
   the new token is there (about 4 seconds, then `busy`). A refresh Shopify refuses answers `reauth`.
-- **Webhooks.** Set on the app's version in the Dev Dashboard, all pointing at `shopify-public`:
-  `app/uninstalled` deletes the store's tokens and keeps the link, so the extension shows
-  Reconnect. The three compliance topics every public app must answer go to the same address:
+- **Webhooks**, all pointing at `shopify-public`. `app/uninstalled` deletes the store's tokens
+  and keeps the link, so the extension shows Reconnect. Shopify refuses app-wide subscriptions
+  while the app uses the legacy install flow, so `link` subscribes each store to it through the
+  Admin API (`webhookSubscriptionCreate`); a store that wasn't subscribed still ends up at
+  Reconnect, as its next call gets 401. The three compliance topics every public app must answer
+  are in `shopify.app.toml` (the legacy install flow allows those):
   `shop/redact` (48 hours after an uninstall) deletes the store's tokens, link and listings, and
   the two customer topics have nothing to delete, as SaleLinx keeps no data about a store's
   customers. Read the body raw before verifying: the HMAC covers its exact bytes.
