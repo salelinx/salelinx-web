@@ -77,6 +77,7 @@ Live in `supabase/functions/`. They run on Supabase, not Vercel. Deno, not Node 
 - `ebay` - `verify_jwt = false` (handler validates via `getUser(jwt)`; the extension's only route to eBay. Holds the app secret and per-user OAuth tokens in `ebay_tokens`, which has RLS on and no policies, and speaks the Trading API. Buyer messages pass through it, so nothing from them may be logged. A real `add` (not `verifyOnly`) posts the eBay copy itself, so it runs the same crosslist paywall as `resolve-category` (`_shared/crosslist-gate.ts`); keep the two on that one module. `EBAY_ENV=sandbox` switches hosts)
 - `signup-notify` - `verify_jwt = false` (the `trg_notify_signup` trigger on `auth.users` (migration 048) POSTs just the new user's id; the function looks the account up and emails staff through `_shared/payment-notify.ts`. No secret: it only ever announces an account created in the last 5 minutes)
 - `ebay-account-deletion` - `verify_jwt = false` (eBay's required Marketplace Account Deletion endpoint; GET answers the challenge, POSTs are verified against `x-ebay-signature` and delete that eBay account's tokens, link and listings)
+- `etsy` - `verify_jwt = false` (handler validates via `getUser(jwt)`; the extension's only route to Etsy's Open API v3. Holds the app key and per-user OAuth tokens in `etsy_tokens`, which has RLS on and no policies)
 
 See `docs/EDGE-FUNCTIONS.md` for deploy + secrets, `docs/SUPPORT.md` for the ticket flow.
 

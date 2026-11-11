@@ -51,6 +51,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `signup-notify`           | false        | `trg_notify_signup` on `auth.users` (048) POSTs the new user's id; emails staff "New signup" via `_shared/payment-notify.ts`. Unauthenticated, but only announces accounts under 5 minutes old |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
+| `etsy`                    | false*       | Extension's only route to Etsy's Open API v3: OAuth link (PKCE) and unlink. Tokens live in `etsy_tokens` (service role only); auth by `getUser(jwt)` |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -105,6 +106,7 @@ supabase functions deploy resolve-category --no-verify-jwt
 supabase functions deploy process-referral-rewards --no-verify-jwt
 supabase functions deploy ebay --no-verify-jwt
 supabase functions deploy ebay-account-deletion --no-verify-jwt
+supabase functions deploy etsy --no-verify-jwt
 ```
 
 ## Secrets
@@ -147,6 +149,9 @@ supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... E
 # Entered in the portal's Marketplace Account Deletion settings as well.
 supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=<32-80 chars>
 supabase secrets set EBAY_DELETION_ENDPOINT='https://<project>.supabase.co/functions/v1/ebay-account-deletion'
+# Etsy (etsy.com/developers app). Its callback URLs are each extension's
+# https://<extension-id>.chromiumapp.org/etsy, dev and store.
+supabase secrets set ETSY_KEYSTRING=... ETSY_SHARED_SECRET=...
 # Referrals (docs/REFERRALS.md): the referee first-month-discount coupons
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.

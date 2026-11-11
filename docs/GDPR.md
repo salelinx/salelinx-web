@@ -17,6 +17,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Cloud sync (opt-in) | Listing content: titles, descriptions, prices, attributes, photos, enriched marketplace payloads | Users | Contract | Supabase `listings` + `listing-images` bucket | Until user disables sync or deletes account |
 | Linked accounts | Marketplace user ID and username | Users | Contract | Supabase `linked_accounts` | Life of account |
 | eBay connection | eBay user ID, site, OAuth access and refresh tokens | Users | Contract | Supabase `ebay_tokens` (no client policies; `ebay` edge function only) | Until unlinked, eBay account deletion notice, or account deletion (FK cascades) |
+| Etsy connection | Etsy user ID, shop ID, OAuth access and refresh tokens | Users | Contract | Supabase `etsy_tokens` (no client policies; `etsy` edge function only) | Until unlinked or account deletion (FK cascades) |
 | Platform credentials | Client-side encrypted marketplace session blobs (we cannot read them) | Users | Contract | Supabase `platform_credentials` | Life of account |
 | Extension settings | Bot timing preferences, marketplace preference, and user-named settings presets (numeric caps, delays, toggles and the names the user gives them; `user_settings.preferences`, no schema change; presets are only uploaded on plans with the `preset_sync` feature, 022_preset_sync_feature.sql), and the eBay crosslist postage set-up (`preferences.ebayPostage`, which includes the postcode items are sent from). Contains no buyer, listing or message content | Users | Contract (settings that follow the account across devices) | Supabase `user_settings` | Life of account (FK cascades) |
 | Support | Ticket message, replies, app version, user agent, locale; email resolved from auth at send time | Users | Contract / legitimate interest | Supabase `support_tickets`, `support_ticket_replies`; copies in the support inbox | 24 months after ticket closed (automated purge); inbox purged manually |
@@ -253,9 +254,9 @@ Trigger: user emails a deletion request from their account email address
 2. Delete via either path (both run the same steps: storage objects, the
    Stripe customer - cancels any subscription; Stripe keeps invoices for tax
    law, which the policy discloses - then the auth user, which cascades all
-   user-owned rows including tickets and `ebay_tokens`; the grant on eBay's
-   side is useless without the tokens, and the user can revoke it in their eBay
-   account):
+   user-owned rows including tickets, `ebay_tokens` and `etsy_tokens`; the
+   grant on eBay's or Etsy's side is useless without the tokens, and the user
+   can revoke it in that account):
    - **Admin console:** `/admin/users` > open the user > Danger zone >
      Delete account (step-up reauth; backed by the `admin-delete-user` Edge
      Function, see `docs/ADMIN.md`). No dry run; the drawer shows what the
@@ -292,7 +293,8 @@ On request from the account email:
    and useless outside their device); note its existence instead. The same
    goes for the access and refresh tokens in `ebay_tokens`, which are live
    credentials for their eBay account: export its `ebay_user_id`, `site_id`
-   and timestamps, never the tokens.
+   and timestamps, never the tokens. Likewise `etsy_tokens`: its
+   `etsy_user_id`, `shop_id` and timestamps only.
 5. Send within a month, in a machine-readable format (JSON or CSV).
 
 ## Breach response

@@ -92,6 +92,9 @@ verify_jwt = false
 [functions.ebay]
 verify_jwt = false
 
+[functions.etsy]
+verify_jwt = false
+
 [functions.signup-notify]
 verify_jwt = false
 
