@@ -641,9 +641,17 @@ code=<code>` and nothing else.
   answers with the product read afterwards. `uploadPhoto { dataUrl }` stages a new photo
   (`stagedUploadsCreate`, then a form POST to Shopify's storage) and answers with the address the
   photo list then carries.
+- **Linked sales** (`takeOneOff { productId, key }`). A listing linked to the product sold on a
+  marketplace, so one comes off the product's stock (`oneOffPlan`): with one variant tracked at one
+  location it's set to one less with `changeFromQuantity`, under the `@idempotent` key the
+  extension names the sale with, so a retry of that sale can't take a second unit off. Untracked
+  stock is archived instead, and several variants or locations are left alone (`manual`). It
+  answers with what happened (`counted`, `sold`, `archived`, `manual` or `gone`) and the product
+  read afterwards.
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
   example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
-  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`).
+  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`) and
+  `oneOffPlan`.
 
 ## Excluded from TypeScript checks
 

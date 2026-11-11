@@ -29,6 +29,9 @@
 //                price, quantity, photos (addresses in order); a change the
 //                product doesn't allow is refused with 'not_editable'
 //   uploadPhoto { dataUrl } -> { url }   a new photo, staged in Shopify for the save
+//   takeOneOff { productId, key } -> { result, listing, descriptionHtml, quantity, editable }
+//                a linked listing sold elsewhere: one off the product's stock.
+//                result 'counted', 'sold', 'archived', 'manual' or 'gone' (see takeOneOff)
 //   listings { cursor? } -> { listings, cursor, hasMore }
 //                up to 100 products a call, in Shopify's order; pass the
 //                returned cursor back for the next call. Status is Shopify's
@@ -54,6 +57,7 @@ import {
   authorizeUrl,
   photoFiles,
   productDetail,
+  oneOffPlan,
   productEdit,
   productGid,
   productSummary,
@@ -560,6 +564,55 @@ async function updateProduct(admin, userId: string, productId: unknown, rawChang
   return forEditor(await readProduct(auth, id));
 }
 
+/**
+ * A linked listing sold elsewhere: one off this product's stock (oneOffPlan).
+ * `key` names the sale, so a retry of the same one can't take a second unit
+ * off. Answers with what happened and the product as it reads afterwards:
+ * 'counted' (some left, still for sale), 'sold' (none left), 'archived'
+ * (untracked stock), 'manual' (several variants or locations, left alone) or
+ * 'gone' (not for sale anyway).
+ */
+async function takeOneOff(admin, userId: string, productId: unknown, key: unknown) {
+  const id = productGid(productId);
+  if (typeof key !== 'string' || !/^[\w:.-]{1,200}$/.test(key)) {
+    throw new ShopifyError('Bad key', 'bad_request', 400);
+  }
+  const auth = await accessTokenFor(admin, userId);
+  const before = await readProduct(auth, id);
+  const plan = oneOffPlan(before);
+  if (plan.kind === 'gone' || plan.kind === 'manual') {
+    return { result: plan.kind, ...forEditor(before) };
+  }
+  if (plan.kind === 'archive') {
+    await mutate(auth, STATUS_MUTATION, { product: { id, status: 'ARCHIVED' } }, 'productUpdate');
+  } else {
+    await mutate(
+      auth,
+      STOCK_MUTATION,
+      {
+        input: {
+          name: 'available',
+          reason: 'correction',
+          quantities: [
+            {
+              inventoryItemId: plan.inventoryItemId,
+              locationId: plan.locationId,
+              quantity: plan.from - 1,
+              changeFromQuantity: plan.from,
+            },
+          ],
+        },
+        key,
+      },
+      'inventorySetQuantities',
+    );
+  }
+  const after = await readProduct(auth, id);
+  const result =
+    plan.kind === 'archive' ? 'archived' : (after.quantity ?? 0) > 0 ? 'counted' : 'sold';
+  return { result, ...forEditor(after) };
+}
+
 const MAX_PHOTO_BYTES = 20 * 1024 * 1024;
 
 const STAGED_MUTATION = `mutation ($input: [StagedUploadInput!]!) {
@@ -695,6 +748,9 @@ Deno.serve(async (req: Request) => {
 
       case 'uploadPhoto':
         return json(200, await uploadPhoto(admin, user.id, body.dataUrl));
+
+      case 'takeOneOff':
+        return json(200, await takeOneOff(admin, user.id, body.productId, body.key));
 
       default:
         return json(400, { error: `Unknown action: ${String(body?.action)}` });
