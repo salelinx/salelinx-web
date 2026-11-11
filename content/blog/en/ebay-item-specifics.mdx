@@ -4,43 +4,36 @@ export const metadata = {
     'What eBay item specifics are, which ones clothing and shoe listings need in the UK, why eBay blocks a listing without them, and how to fix old listings in bulk.',
   slug: 'ebay-item-specifics',
   category: 'guides',
-  published: '2026-10-30',
+  author: 'matt',
+  published: '2026-10-12',
   updated: '2026-10-30',
-  readingMinutes: 11,
+  readingMinutes: 10,
   marketplaces: ['ebay'],
+  photo: {
+    alt: 'The brand label on the back of a pair of jeans',
+    credit: 'Gabriel Dalton',
+    href: 'https://unsplash.com/photos/a-label-on-the-back-of-a-pair-of-jeans-N8KNEZPwTgE',
+  },
 };
 
-Item specifics are the structured fields on an eBay listing: brand, size,
-colour, department, type, material and so on. They are separate from the
-title and the description, and they are the only part of a listing that
-eBay&rsquo;s search filters can read. When eBay says a listing is missing
-required item specifics, it means one of those fields is empty or holds a
-value eBay does not recognise, and it will not let the listing go live until
-you fill it in.
+Item specifics are the structured fields on an eBay listing, such as brand, size, colour, department and type. A listing missing a required one will not go live.
 
 <Callout variant="tip" title="The short answer">
-A listing is refused when a required specific is empty or has a made-up
-value. For clothing in the UK that is almost always Brand, Size, Colour,
-Department or Type. The sell form marks every required field, so fill those
-first, pick eBay&rsquo;s suggested value rather than typing your own, and
-check Seller Hub&rsquo;s missing specifics filter for the listings you
-already have up.
+
+- **A listing is refused when a required specific is empty or has a made-up value.**
+- For UK clothing that is almost always Brand, Size, Colour, Department or Type.
+- The sell form marks every required field. Fill those first, and pick eBay&rsquo;s suggested value rather than typing your own.
+- For listings already up, use Seller Hub&rsquo;s missing specifics filter.
+
 </Callout>
 
-## What item specifics are
+## What are item specifics?
 
-eBay&rsquo;s [Seller Centre](https://www.ebay.co.uk/sellercentre/listings/item-specifics)
-describes them as fields that &ldquo;may include brand, size, type, colour,
-style or other relevant info about the item you&rsquo;re selling&rdquo;. Each
-one is a name and a value: Brand is the name, Nike is the value. The names
-depend on the category you list in. A pair of trainers gets UK Shoe Size and
-Upper Material; a dress gets Dress Length and Sleeve Length.
+They are separate from the title and description, and **they are the only part of a listing that eBay&rsquo;s search filters can read.** eBay&rsquo;s [Seller Centre](https://www.ebay.co.uk/sellercentre/listings/item-specifics) describes them as fields that &ldquo;may include brand, size, type, colour, style or other relevant info about the item you&rsquo;re selling&rdquo;.
 
-They matter because eBay does not read your description the way a buyer
-does. Its filters, its category pages and a lot of its search ranking work
-from these fields. Write &ldquo;size 12 black Zara dress&rdquo; in the title
-and leave the Size field empty, and a buyer who ticks Size 12 in the filter
-panel will never see it.
+Each one is a name and a value: Brand is the name, Nike is the value. The names depend on the category. Trainers get UK Shoe Size and Upper Material; a dress gets Dress Length and Sleeve Length.
+
+eBay does not read your description the way a buyer does. Its filters, category pages and a lot of its search ranking work from these fields. Write &ldquo;size 12 black Zara dress&rdquo; in the title and leave Size empty, and a buyer who ticks Size 12 will never see it.
 
 <Figure caption="A fragment of the eBay sell form. Required specifics are marked, and an empty one blocks the listing.">
 <svg viewBox="0 0 720 400" className="block h-auto w-full" role="img" aria-label="Mock eBay sell form showing Brand, Size, Colour and Department filled in and a required Type field left empty with an error message" fontFamily="ui-sans-serif, system-ui, sans-serif">
@@ -83,69 +76,32 @@ panel will never see it.
   caption="Item specifics on one of our own eBay listings, a Royal Worcester teacup. Every one of these fields is something a buyer can filter on. Captured 30 October 2026."
 />
 
-## Required, recommended and additional
+## Required, recommended or additional?
 
-eBay sorts the specifics for every category into three groups, and the
-difference decides whether your listing goes live.
+eBay sorts the specifics for every category into three groups. **The difference decides whether your listing goes live.**
 
-- **Required.** The Seller Centre says &ldquo;New or revised listings that
-  don&rsquo;t include required item specifics will be blocked.&rdquo; These
-  are the ones with a mark next to them in the sell form. Brand, Size and
-  Colour are the examples eBay itself gives as &ldquo;critical to the buyer
-  experience&rdquo;.
-- **Recommended.** Not needed to list, but eBay says they &ldquo;improve
-  your potential buyers&rsquo; search experience&rdquo;. They feed the
-  filters and the category pages, so a listing without them is live but
-  easy to miss.
-- **Additional.** Everything else eBay offers for the category. Useful when
-  a buyer is picky, otherwise optional.
+- **Required:** the Seller Centre says &ldquo;New or revised listings that don&rsquo;t include required item specifics will be blocked.&rdquo; They have a mark in the sell form. Brand, Size and Colour are eBay&rsquo;s examples of what is &ldquo;critical to the buyer experience&rdquo;.
+- **Recommended:** not needed to list, but eBay says they &ldquo;improve your potential buyers&rsquo; search experience&rdquo;. They feed the filters and category pages, so a listing without them is live but easy to miss.
+- **Additional:** everything else eBay offers for the category. Optional.
 
-There is a fourth label you will see from time to time: **Required soon**.
-eBay adds new required specifics a few times a year and flags them in the
-sell form with the date they become mandatory. Its
-[April 2022 notice](https://www.ebay.co.uk/sellercentre/news/2022-april/item-specifics)
-is a typical example: new fields appeared in May and became required in
-July. A listing that was fine when you wrote it can need a new field the
-next time you revise it.
+There is also a fourth label, **Required soon**. eBay adds new required specifics a few times a year and flags them in the sell form with the date they become mandatory.
 
-## Why eBay refuses a listing
+Its [April 2022 notice](https://www.ebay.co.uk/sellercentre/news/2022-april/item-specifics) is a typical example: new fields appeared in May and became required in July. A listing that was fine when you wrote it can need a new field the next time you revise it.
 
-eBay blocks a listing at the point you save it, and the message is nearly
-always one of these four.
+## Why does eBay refuse a listing?
 
-1. **A required specific is empty.** The most common one by far. The sell
-   form highlights the field and will not let you continue.
-2. **The value is not one eBay recognises.** You can type a custom value in
-   many fields, but for some, Size being the big one, eBay now only accepts
-   its own list. Its
-   [listing help](https://www.ebay.co.uk/help/selling/listings/creating-listing?id=4105)
-   says that from August 2026 apparel and footwear listings with
-   &ldquo;unclear or missing size or condition details may be hidden until
-   updated&rdquo;, and names &ldquo;See description&rdquo; and
-   &ldquo;N/A&rdquo; as the kind of value it will flag.
-3. **The category is wrong.** Each category has its own set of specifics.
-   List a women&rsquo;s coat under Men&rsquo;s Coats and eBay asks for a
-   different Size list and a different Department, and your values stop
-   matching.
-4. **A placeholder in a required identifier.** eBay&rsquo;s
-   [item description policy](https://www.ebay.co.uk/help/policies/listing-policies/item-description-policy?id=4372)
-   says that &ldquo;Does not apply&rdquo;, unbranded or generic, and
-   &ldquo;N/A&rdquo; are not allowed in required product identifiers such
-   as EAN or MPN. Second-hand clothes rarely need those, but a listing can
-   still be refused for it if you pick a category that does.
+eBay blocks a listing when you save it. The message is nearly always one of these four:
 
-The same policy says the consequences of ignoring it run from
-&ldquo;removing the listing&rdquo; through warnings to &ldquo;restricting
-activity or account suspension&rdquo;. In practice an empty field just
-stops the listing. A wrong or misleading value on a live listing is what
-leads to removal.
+1. **A required specific is empty.** The most common by far. The sell form highlights the field and will not let you continue.
+2. **The value is not one eBay recognises.** You can type a custom value in many fields, but for some, Size above all, eBay now only accepts its own list. Its [listing help](https://www.ebay.co.uk/help/selling/listings/creating-listing?id=4105) says that from August 2026 apparel and footwear listings with &ldquo;unclear or missing size or condition details may be hidden until updated&rdquo;, and names &ldquo;See description&rdquo; and &ldquo;N/A&rdquo; as values it will flag.
+3. **The category is wrong.** Each category has its own specifics. List a women&rsquo;s coat under Men&rsquo;s Coats and eBay asks for a different Size list and Department, and your values stop matching.
+4. **A placeholder in a required identifier.** eBay&rsquo;s [item description policy](https://www.ebay.co.uk/help/policies/listing-policies/item-description-policy?id=4372) says &ldquo;Does not apply&rdquo;, unbranded or generic, and &ldquo;N/A&rdquo; are not allowed in required product identifiers such as EAN or MPN. Second-hand clothes rarely need those, but a category that does can still refuse the listing.
 
-## What is required for clothes, shoes and accessories
+The same policy says the consequences run from &ldquo;removing the listing&rdquo; through warnings to &ldquo;restricting activity or account suspension&rdquo;. In practice an empty field just stops the listing. **A wrong or misleading value on a live listing is what leads to removal.**
 
-The exact set depends on the leaf category, and eBay changes it. The sell
-form is the only complete list, and it is the one to trust. The table below
-is what sellers listing in eBay UK&rsquo;s Clothes, Shoes and Accessories
-tree meet most often.
+## What is required for clothes and shoes?
+
+The exact set depends on the leaf category, and eBay changes it. **The sell form is the only complete list, so trust it over any table.** This is what sellers in eBay UK&rsquo;s Clothes, Shoes and Accessories tree meet most often.
 
 <CompareTable
   caption="Item specifics UK clothing sellers meet most often"
@@ -161,72 +117,36 @@ tree meet most often.
   note="Built from eBay's Seller Centre page on item specifics, its 1 May 2019 Fashion requirements announcement and its item description policy, all checked 30 October 2026, plus what the sell form asks for in those categories. The sell form shows the current set for the exact category you pick; treat it as the source if it disagrees with this table."
 />
 
-Two of these catch sellers out again and again. **Department** is not the
-same as the category: eBay wants Men, Women, Unisex Adult, Boys or Girls as
-a field, even if the category already says Women&rsquo;s. **Size Type**
-(Regular, Petite, Tall, Plus, Maternity) sits next to Size on many clothing
-categories and is easy to scroll past.
+Two of these catch sellers out again and again:
 
-## How to see the required list before you list
+- **Department** is not the same as the category. eBay wants Men, Women, Unisex Adult, Boys or Girls as a field, even if the category already says Women&rsquo;s.
+- **Size Type** (Regular, Petite, Tall, Plus, Maternity) sits next to Size on many clothing categories and is easy to scroll past.
+
+## How do I see the required list before I list?
 
 You do not have to guess.
 
-- **In the sell form.** Pick the category first, then scroll to Item
-  specifics. The required fields sit at the top with a mark, and the
-  dropdown values under each one are eBay&rsquo;s own list. The Seller
-  Centre advises you to &ldquo;use eBay&rsquo;s suggested values as much as
-  possible rather than creating your own custom values&rdquo;, because a
-  custom value does not match a filter.
-- **In Seller Hub, for listings already up.** The Active listings page has
-  quick filters for listings missing Required, Required soon and
-  Recommended specifics, and the Overview tab shows a task reminder when any
-  listing is missing a required one. The Download button on the same page
-  offers an Excel file of your listings with their specifics, which you can
-  fill in and upload back.
-- **In the app.** My eBay and the eBay app show which of your active
-  listings have missing item specifics, according to the Seller Centre.
+- **In the sell form.** Pick the category first, then scroll to Item specifics. Required fields sit at the top with a mark, and the dropdown values are eBay&rsquo;s own list. The Seller Centre advises you to &ldquo;use eBay&rsquo;s suggested values as much as possible rather than creating your own custom values&rdquo;, because a custom value does not match a filter.
+- **In Seller Hub, for listings already up.** The Active listings page has quick filters for listings missing Required, Required soon and Recommended specifics. The Overview tab shows a task reminder when any listing is missing a required one. The Download button offers an Excel file of your listings with their specifics, which you can fill in and upload back.
+- **In the app.** My eBay and the eBay app show which active listings have missing item specifics, according to the Seller Centre.
 
-## What to put when you genuinely do not know
+## What do I put when I do not know?
 
-Most refusals come from fields that are hard to fill honestly on second-hand
-stock: no label, a faded size, a brand you cannot read. Here is what works
-and what does not.
+Most refusals come from fields that are hard to fill honestly on second-hand stock: no label, a faded size, a brand you cannot read.
 
-- **Brand.** If there is no brand, eBay&rsquo;s own list includes
-  Unbranded and Handmade. Pick the one that is true. Do not type the shop
-  you bought it from, and do not put a designer name on an item that only
-  looks like one.
-- **Size.** Use the closest supported size. The item description policy
-  says &ldquo;If an exact size is not available, select the closest
-  supported size option&rdquo;, and that sellers &ldquo;must select the size
-  that most accurately matches the manufacturer&rsquo;s size
-  designation&rdquo;. Put the measurements in the description, not the Size
-  field. &ldquo;See description&rdquo; in the Size field is exactly what
-  eBay has said it will hide from August 2026.
-- **Colour.** Pick the dominant colour from the list. Multicoloured is a
-  valid value for prints.
-- **Material.** Read the care label. If there is none, choose the closest
-  from the list, or leave a recommended field empty rather than guess. Only
-  a required field blocks the listing.
-- **Product identifiers.** EAN, UPC and MPN are rarely required for clothes.
-  When they are, the policy bans &ldquo;Does not apply&rdquo; and
-  &ldquo;N/A&rdquo;. If the item really has no code, check whether you are
-  in the right category; a used-clothing category normally does not ask.
+- **Brand:** if there is no brand, eBay&rsquo;s list includes Unbranded and Handmade. Pick the one that is true. Do not type the shop you bought it from, or a designer name on an item that only looks like one.
+- **Size:** use the closest supported size. The item description policy says &ldquo;If an exact size is not available, select the closest supported size option&rdquo;, and that sellers &ldquo;must select the size that most accurately matches the manufacturer&rsquo;s size designation&rdquo;. Put measurements in the description, not the Size field. &ldquo;See description&rdquo; in Size is exactly what eBay has said it will hide from August 2026.
+- **Colour:** pick the dominant colour from the list. Multicoloured is valid for prints.
+- **Material:** read the care label. If there is none, choose the closest from the list, or leave a recommended field empty rather than guess. Only a required field blocks the listing.
+- **Product identifiers:** EAN, UPC and MPN are rarely required for clothes. When they are, the policy bans &ldquo;Does not apply&rdquo; and &ldquo;N/A&rdquo;. If the item really has no code, check you are in the right category, since a used-clothing category normally does not ask.
 
-A specific must be true. The policy also bans &ldquo;Including terms in the
-wrong field&rdquo; and &ldquo;Including information that is not specific to
-that field&rdquo;, so a Colour of &ldquo;Black Nike Hoodie M&rdquo; is a
-policy breach, not a keyword trick.
+**A specific must be true.** The policy also bans &ldquo;Including terms in the wrong field&rdquo; and &ldquo;Including information that is not specific to that field&rdquo;, so a Colour of &ldquo;Black Nike Hoodie M&rdquo; is a policy breach, not a keyword trick.
 
-## How specifics drive search and filters
+## How do specifics drive search?
 
-Buyers on eBay rarely scroll past the first page. They search, then narrow
-with the panel on the left or the filter sheet on mobile: Size, Brand,
-Colour, Condition, Price. Every one of those filters reads a specific, not
-the title. The Seller Centre puts it plainly: filling them in &ldquo;will
-help to increase your product&rsquo;s visibility, especially when buyers use
-the left-hand navigation filters&rdquo;, and some specifics &ldquo;can even
-make your listings more likely to appear in Google Shopping results&rdquo;.
+Buyers search, then narrow with the left-hand panel or the mobile filter sheet: Size, Brand, Colour, Condition, Price.
+
+**Every one of those filters reads a specific, not the title.** The Seller Centre says filling them in &ldquo;will help to increase your product&rsquo;s visibility, especially when buyers use the left-hand navigation filters&rdquo;, and some specifics &ldquo;can even make your listings more likely to appear in Google Shopping results&rdquo;.
 
 <Figure caption="Three filters, two listings. Only the listing with its specifics filled in survives the filter.">
 <svg viewBox="0 0 720 330" className="block h-auto w-full" role="img" aria-label="A buyer's filters for Size M, Brand Nike and Colour Black match a listing with those specifics filled in, and skip a listing whose specifics are empty" fontFamily="ui-sans-serif, system-ui, sans-serif">
@@ -255,108 +175,72 @@ make your listings more likely to appear in Google Shopping results&rdquo;.
 </svg>
 </Figure>
 
-The same page says eBay ranks which specifics to show you by
-&ldquo;buyer demand data which is compiled from searches on the site over
-the past 30 days&rdquo;. In other words, the fields near the top of the sell
-form are the ones buyers are filtering on right now, so they are the ones
-worth filling even when they are only recommended.
+The same page says eBay ranks which specifics to show you by &ldquo;buyer demand data which is compiled from searches on the site over the past 30 days&rdquo;. So the fields near the top of the sell form are the ones buyers are filtering on right now. They are worth filling even when only recommended.
 
-## Fixing the listings you already have
+## How do I fix the listings I already have?
 
-If you have been selling for a while, some of your live listings are
-missing fields that have since become required. They stay live, because the
-block only applies to new and revised listings, but every one of them is
-invisible to the filters, and the next time you edit one eBay will stop you
-until you fill it in.
+Some of your live listings may be missing fields that have since become required. **They stay live, because the block only applies to new and revised listings,** but they are invisible to the filters, and the next time you edit one eBay will stop you until you fill it in.
 
-**In Seller Hub.** Go to Listings, then Active, and use the
-&ldquo;Item specifics: required&rdquo; quick filter. Select the listings and
-click Edit to add specifics to several at once, or use Download, pick the
-missing specifics file, fill in the spreadsheet and upload it. The
-spreadsheet route is the quicker one above about 50 listings.
+In Seller Hub, go to Listings, then Active, and use the &ldquo;Item specifics: required&rdquo; quick filter. Then either:
 
-Whichever route you take, fix Size and Condition first on clothing and
-footwear. Those are the two eBay has said it may hide listings for.
+- Select the listings and click Edit to add specifics to several at once, or
+- Use Download, pick the missing specifics file, fill in the spreadsheet and upload it. This is quicker above about 50 listings.
+
+Whichever route you take, fix Size and Condition first on clothing and footwear. Those are the two eBay has said it may hide listings for. Our [eBay fees guide](/blog/ebay-fees-uk) covers what each listing costs once it sells.
 
 ## Crosslisting from Vinted or Depop
 
-Vinted and Depop have far fewer structured fields than eBay. Vinted has a
-brand, a size, a condition and up to two colours. Depop has a brand, a size,
-a condition and a colour. Neither has Department, Type, Style, Size Type or
-Material. So when you copy a listing across, the eBay form has gaps that the
-source listing cannot fill, and eBay refuses the copy.
+**Vinted and Depop have far fewer structured fields than eBay,** so a copied listing has gaps eBay refuses.
 
-Any crosslisting app has to deal with this in one of three ways: post what
-it has and let eBay reject it, ask you for every missing field before it
-posts, or work the missing ones out from the title and category and ask
-only for what is left. Our
-[comparison of crosslisting apps](/blog/best-crosslisting-apps-uk) covers
-how each one handles it.
+- **Vinted:** a brand, a size, a condition and up to two colours.
+- **Depop:** a brand, a size, a condition and a colour.
+- **Neither has** Department, Type, Style, Size Type or Material.
 
-If you crosslist by hand, do the eBay listing from the sell form with the
-Vinted tab open beside it, and fill the required block before you touch the
-description. The description is the part you can copy and paste; the
-specifics are the part you cannot.
+Any crosslisting app deals with this in one of three ways:
 
-## How SaleLinx helps
+1. Post what it has and let eBay reject it.
+2. Ask you for every missing field before it posts.
+3. Work the missing ones out from the title and category, and ask only for what is left.
 
-SaleLinx is a Chrome extension for Depop, Vinted and eBay sellers. Its
-[Vinted to eBay](/features/vinted-to-ebay) and
-[Depop to eBay](/features/depop-to-ebay) crosslisters take the third route
-above: they pick the eBay category, fill in brand, colour, size, department
-and the rest from the source listing, check each item with eBay before
-anything is posted, and show a Fill in button on any row eBay would still
-refuse. Copies to eBay go live, so that check is the review step. For
-listings already on eBay, [My Listings](/docs/inventory/listings) shows
-them next to your Depop and Vinted stock; select the eBay ones and click
-Edit, and each card has the category, condition and item specifics, with
-Save Changes sending them straight to eBay. The
-[eBay bulk editor](/features/ebay-bulk-edit) changes price, title,
-description and quantity across a selection; specifics are set per card. On
-eBay SaleLinx does crosslisting, My Listings and bulk edit, nothing else
-yet. From £7.99 a month, with a [14-day free trial](/pricing).
+Our [comparison of crosslisting apps](/blog/best-crosslisting-apps-uk) covers how each one handles it.
+
+If you crosslist by hand, do the eBay listing from the sell form with the Vinted tab open beside it, and fill the required block before you touch the description. The description you can copy and paste. The specifics you cannot.
+
+<SaleLinxHelps shot="crosslist">
+
+SaleLinx is a Chrome extension for Depop, Vinted and eBay sellers. Its [Vinted to eBay](/features/vinted-to-ebay) and [Depop to eBay](/features/depop-to-ebay) crosslisters take the third route above.
+
+- **They pick the eBay category** and fill in brand, colour, size, department and the rest from the source listing.
+- **They check each item with eBay before anything is posted,** and show a Fill in button on any row eBay would still refuse.
+- **[My Listings](/docs/inventory/listings) shows your eBay listings** next to your Depop and Vinted stock. Select the eBay ones and click Edit, and each card has the category, condition and item specifics, with Save Changes sending them straight to eBay.
+- **The [eBay bulk editor](/features/ebay-bulk-edit) changes price, title, description and quantity** across a selection. Specifics are set per card.
+
+Copies to eBay go live, so that check is the review step. From £7.99 a month, with a [14-day free trial](/pricing).
+
+</SaleLinxHelps>
 
 ## Questions
 
 ### What does &ldquo;missing required item specifics&rdquo; mean on eBay?
 
-One or more fields that eBay requires for that category is empty, or holds
-a value eBay does not accept. The listing will not be saved until you fill
-it in. In the sell form the field is highlighted; in Seller Hub the listing
-appears under the Required quick filter.
+One or more fields that eBay requires for that category is empty, or holds a value eBay does not accept. The listing will not be saved until you fill it in. In the sell form the field is highlighted, and in Seller Hub the listing appears under the Required quick filter.
 
 ### Which item specifics are required for clothing on eBay UK?
 
-It varies by category, but Brand, Size, Colour, Department and Type are the
-usual set, with Style, Material and a size measurement added in some
-categories. Pick the category in the sell form and look at the marked
-fields; that list is the current one.
+It varies by category, but Brand, Size, Colour, Department and Type are the usual set. Style, Material and a size measurement are added in some categories. Pick the category in the sell form and look at the marked fields, since that list is the current one.
 
 ### Can I put &ldquo;Does not apply&rdquo; in an item specific?
 
-Not in a required product identifier. eBay&rsquo;s item description policy
-bans &ldquo;Does not apply&rdquo;, &ldquo;N/A&rdquo; and unbranded or
-generic in those fields. For Brand, pick Unbranded from eBay&rsquo;s list if
-the item has no brand. For Size, pick the closest supported size and put
-the measurements in the description.
+Not in a required product identifier. eBay&rsquo;s item description policy bans &ldquo;Does not apply&rdquo;, &ldquo;N/A&rdquo; and unbranded or generic in those fields. For Brand, pick Unbranded from eBay&rsquo;s list if the item has no brand. For Size, pick the closest supported size and put the measurements in the description.
 
 ### Do item specifics affect how many people see my listing?
 
-Yes. eBay&rsquo;s search filters, its category pages and part of its ranking
-read the specifics rather than the title. A listing with empty specifics is
-live but drops out of every filtered search, and eBay says complete
-specifics can also help listings appear in Google Shopping.
+Yes. eBay&rsquo;s search filters, its category pages and part of its ranking read the specifics rather than the title. A listing with empty specifics is live but drops out of every filtered search, and eBay says complete specifics can also help listings appear in Google Shopping.
 
 ### Will my old listings be removed if they are missing specifics?
 
-Not for an empty field. The block applies to new and revised listings, so
-old ones stay live until you edit them. The exception is clothing and
-footwear with an unclear or missing size or condition, which eBay has said
-it may hide from August 2026 until updated. Fix those first.
+Not for an empty field. The block applies to new and revised listings, so old ones stay live until you edit them. The exception is clothing and footwear with an unclear or missing size or condition, which eBay has said it may hide from August 2026 until updated. Fix those first.
 
 ### How do I add item specifics to lots of listings at once?
 
-In Seller Hub, filter Active listings by missing required specifics, select
-them and use Edit, or download the missing specifics spreadsheet, fill it in
-and upload it. Our [eBay fees guide](/blog/ebay-fees-uk) covers what each
-of those listings costs you once it sells.
+In Seller Hub, filter Active listings by missing required specifics, select them and use Edit. Or download the missing specifics spreadsheet, fill it in and upload it.

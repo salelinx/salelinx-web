@@ -1,4 +1,9 @@
-import type { BlogCategory, PostMetadata, PostModule } from './types';
+import type { AuthorId, BlogCategory, PostMetadata, PostModule } from './types';
+
+export const AUTHORS: Record<AuthorId, string> = {
+  lewis: 'Lewis Ludlam',
+  matt: 'Matt Valetsky',
+};
 
 // Blog posts are English-only: they target UK search queries, so there is no
 // per-locale content tree like content/docs/. Every locale serves these
@@ -22,6 +27,25 @@ import * as taxOnVintedAndDepopSales from '@/content/blog/en/tax-on-vinted-and-d
 import * as vintedBump from '@/content/blog/en/vinted-bump-cost-and-does-it-work.mdx';
 import * as vintedFeesUk from '@/content/blog/en/vinted-fees-uk.mdx';
 import * as vintedParcelLostOrDamaged from '@/content/blog/en/vinted-parcel-lost-or-damaged.mdx';
+import * as crosslistVintedToDepop from '@/content/blog/en/crosslist-vinted-to-depop.mdx';
+import * as depopFeesUk from '@/content/blog/en/depop-fees-uk.mdx';
+import * as depopRefunds from '@/content/blog/en/depop-refunds-not-as-described.mdx';
+import * as doesVintedReportToHmrc from '@/content/blog/en/does-vinted-report-to-hmrc.mdx';
+import * as moreSalesOnDepop from '@/content/blog/en/how-to-get-more-sales-on-depop.mdx';
+import * as stopSellingTwice from '@/content/blog/en/stop-selling-same-item-twice.mdx';
+import * as vintedAccountBanned from '@/content/blog/en/vinted-account-banned.mdx';
+import * as vintedAlgorithm from '@/content/blog/en/vinted-algorithm-and-search.mdx';
+import * as vintedItemsNotSelling from '@/content/blog/en/vinted-items-not-selling.mdx';
+import * as vintedVsEbayUk from '@/content/blog/en/vinted-vs-ebay-uk.mdx';
+import * as salelinxVsCrosslist from '@/content/blog/en/salelinx-vs-crosslist.mdx';
+import * as salelinxVsListPerfectly from '@/content/blog/en/salelinx-vs-list-perfectly.mdx';
+import * as salelinxVsVendoo from '@/content/blog/en/salelinx-vs-vendoo.mdx';
+import * as blackFridayChristmas from '@/content/blog/en/black-friday-christmas-selling-vinted-depop-ebay.mdx';
+import * as sellUnwantedPresents from '@/content/blog/en/sell-unwanted-christmas-presents.mdx';
+import * as vintedPay from '@/content/blog/en/vinted-pay-what-changes-for-sellers.mdx';
+import * as ebayInternationalShipping from '@/content/blog/en/ebay-international-shipping-uk.mdx';
+import * as selfAssessment from '@/content/blog/en/self-assessment-for-online-sellers.mdx';
+import * as depopShippingChanges from '@/content/blog/en/depop-shipping-changes-2026.mdx';
 
 export const BLOG_CONTENT_LOCALES = ['en'] as const;
 
@@ -40,6 +64,25 @@ const POSTS: PostModule[] = [
   vintedBump as unknown as PostModule,
   vintedFeesUk as unknown as PostModule,
   vintedParcelLostOrDamaged as unknown as PostModule,
+  crosslistVintedToDepop as unknown as PostModule,
+  depopFeesUk as unknown as PostModule,
+  depopRefunds as unknown as PostModule,
+  doesVintedReportToHmrc as unknown as PostModule,
+  moreSalesOnDepop as unknown as PostModule,
+  stopSellingTwice as unknown as PostModule,
+  vintedAccountBanned as unknown as PostModule,
+  vintedAlgorithm as unknown as PostModule,
+  vintedItemsNotSelling as unknown as PostModule,
+  vintedVsEbayUk as unknown as PostModule,
+  salelinxVsCrosslist as unknown as PostModule,
+  salelinxVsListPerfectly as unknown as PostModule,
+  salelinxVsVendoo as unknown as PostModule,
+  blackFridayChristmas as unknown as PostModule,
+  sellUnwantedPresents as unknown as PostModule,
+  vintedPay as unknown as PostModule,
+  ebayInternationalShipping as unknown as PostModule,
+  selfAssessment as unknown as PostModule,
+  depopShippingChanges as unknown as PostModule,
 ];
 
 export const BLOG_CATEGORIES: { slug: BlogCategory; title: string; blurb: string }[] = [

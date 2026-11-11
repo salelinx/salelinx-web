@@ -1,13 +1,13 @@
 export const metadata = {
   title: 'Dead Stock',
   description:
-    'Find listings that have been live too long with too little engagement, and choose what to do about them.',
+    'Find listings that have been live too long with too little engagement, and choose what to do about each one from a single list.',
   category: 'automate',
   slug: 'dead-stock',
   order: 1,
   updated: '2026-10-16',
-  tags: ['dead stock', 'analytics', 'depop', 'vinted'],
-  marketplaces: ['depop', 'vinted'],
+  tags: ['dead stock', 'analytics', 'depop', 'vinted', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
@@ -19,7 +19,7 @@ health tiers. It surfaces the items that are tying up capital
 without producing sales, so you can decide whether to drop the
 price, relist, or delete them.
 
-Dead Stock works on Depop and Vinted listings; eBay support is coming.
+Dead Stock works on Depop, Vinted and eBay listings.
 
 ## When to use it
 
@@ -35,8 +35,9 @@ Dead Stock works on Depop and Vinted listings; eBay support is coming.
 ## How the classification works
 
 Each active listing is placed in one of four tiers. The thresholds
-differ by marketplace because Depop and Vinted have different
-baseline engagement rates.
+differ by marketplace because each has different baseline
+engagement rates. These are the defaults; the tab&rsquo;s settings
+let you change them.
 
 **Depop**
 
@@ -55,6 +56,23 @@ baseline engagement rates.
 - **Slow Mover**: 7+ days old, and fewer than 3 likes or fewer than 20
   views.
 - **Healthy**: anything above those bars.
+
+**eBay**
+
+eBay listings run until they sell, so they take longer to count as
+old. eBay has watchers rather than likes, and its views cover the last
+90 days.
+
+- **Dead Stock**: 60+ days old, and fewer than 2 watchers or fewer than
+  60 views.
+- **Stale**: 30+ days old, and fewer than 2 watchers or fewer than 60
+  views.
+- **Slow Mover**: 14+ days old, and fewer than 1 watcher or fewer than
+  30 views.
+- **Healthy**: anything above those bars.
+
+If eBay has no view figure for a listing, it is judged on watchers
+alone. Auctions are never flagged, because they end on their own.
 
 Sold, hidden and draft listings are excluded. Age is measured from
 the date the listing was created on the marketplace, not the last
@@ -89,7 +107,7 @@ The Dead Stock tab has four blocks, top to bottom:
 The filters above the list narrow it by tier (**All**, **Dead**,
 **Stale**, **Slow**, **Price dropped**) and by marketplace. They only
 change the list. The capital total, the tier counts and the Worst
-Performers cards always cover both marketplaces.
+Performers cards always cover every marketplace.
 
 Double-click any card or row to open the listing on the marketplace.
 
@@ -101,9 +119,12 @@ Each row in the list has three buttons:
   10% straight away. See &ldquo;Price dropped&rdquo; below.
 - **Relist** - opens the Relist window with that listing. See
   [Relist](/docs/inventory/relist).
-- **Delete** - deletes the listing on the marketplace. The first click
+- **Delete** - deletes the listing on the marketplace (on eBay it ends
+  the listing). The first click
   changes the button to **Click again to confirm**; click again within
   a few seconds to go ahead.
+
+**-10%** is not offered for eBay listings with variations.
 
 **-10%** and **Delete** change your real listings, so use them
 deliberately. All three only work on listings from the marketplace
@@ -139,7 +160,7 @@ it counts them as zero, so an older listing can show as flagged until
 the next sync fills them in.
 
 The **Reload listings** button above the list fetches fresh data from
-both marketplaces and re-classifies everything, rather than waiting
+your marketplaces and re-classifies everything, rather than waiting
 for the background sync. Use it after a burst of sales or price
 changes, when the counts are behind what your shop actually looks
 like.

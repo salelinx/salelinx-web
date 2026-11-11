@@ -1,7 +1,7 @@
 export const metadata = {
   title: 'Restocker',
   description:
-    'Cross-platform stock sync. Reposts sold Vinted listings while you have stock left, keeps linked Depop and Vinted listings on one stock count, and takes the other side down when the item sells out.',
+    'Cross-platform stock sync. Reposts sold Vinted listings while stock lasts, pools stock for linked Depop and Vinted listings, delists the other at sell-out.',
   category: 'automate',
   slug: 'restocker',
   order: 4,
@@ -30,8 +30,11 @@ fresh listing is how an item stays up there. On Depop, SaleLinx writes
 your stock into Depop&rsquo;s own quantity field instead, and Depop
 keeps the listing live until it runs out.
 
-The Restocker works with Depop and Vinted listings; eBay support is
-coming.
+The Restocker works with Depop and Vinted listings, not eBay ones. It is
+not the only thing that takes a linked listing down: since version 1.2.2,
+SaleLinx also does that for linked listings when the Restocker is off or
+not running, and for the eBay copy of a listing. See
+[Linking](/docs/automate/linking).
 
 ## Where it lives
 

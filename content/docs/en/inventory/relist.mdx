@@ -6,8 +6,8 @@ export const metadata = {
   slug: 'relist',
   order: 3,
   updated: '2026-10-16',
-  tags: ['relist', 'depop', 'vinted', 'presets'],
-  marketplaces: ['depop', 'vinted'],
+  tags: ['relist', 'depop', 'vinted', 'ebay', 'presets'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
@@ -22,10 +22,12 @@ the old one.
 The result: your item gets a fresh listed date and goes back out to
 buyers as new stock, instead of sinking further down as old stock.
 
-Relist works on Depop and Vinted; eBay support is coming. To put an
-ended eBay listing back on sale, select it in
-[My Listings](/docs/inventory/listings), click **Edit** and pick
-**Relist** in its status.
+Relist works on Depop, Vinted and eBay. On eBay it ends the listing and
+relists it, with no photo changes. An auction relists as an auction, and
+relisting one that has bids ends it early and cancels every bid. You can
+also put an ended eBay listing back on sale from
+[My Listings](/docs/inventory/listings): select it, click **Edit** and
+pick **Relist** in its status.
 
 ## When to use it
 
@@ -40,7 +42,7 @@ a Depop listing up without recreating it, use the
 
 ## How it works
 
-For each listing you relist, SaleLinx:
+For each Depop or Vinted listing you relist, SaleLinx:
 
 1. Reads the listing live from Depop or Vinted (title, description,
    price, category, size, brand, condition, shipping and photos) and
@@ -62,10 +64,10 @@ the old one by hand.
 
 ## Running a relist
 
-Open the **Relist** tab. It shows your live Depop and Vinted listings
+Open the **Relist** tab. It shows your live Depop, Vinted and eBay listings
 in one list, oldest first, with how long each has been listed.
 
-1. Narrow the list if you need to: **All**, Depop or Vinted, the
+1. Narrow the list if you need to: **All**, Depop, Vinted or eBay, the
    search box, and the age filter (**Any age**, older than, newer
    than, or between two ages, in hours, days or weeks).
 2. Tick the listings you want to relist. The box at the left of the
@@ -79,7 +81,7 @@ A progress bar shows how far the run has got, and the listings being
 relisted are greyed out until they&rsquo;re done. Click **Stop** to
 end the run early.
 
-The list is read live from both marketplaces, so it only shows
+The list is read live from your marketplaces, so it only shows
 listings that are on your shop right now. The reload button next to
 the search box fetches it again.
 

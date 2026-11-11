@@ -95,6 +95,9 @@ verify_jwt = false
 [functions.etsy]
 verify_jwt = false
 
+[functions.signup-notify]
+verify_jwt = false
+
 # eBay calls this unauthenticated; POSTs are checked against x-ebay-signature.
 [functions.ebay-account-deletion]
 verify_jwt = false

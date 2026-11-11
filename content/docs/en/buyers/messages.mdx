@@ -1,23 +1,22 @@
 export const metadata = {
   title: 'Messages',
   description:
-    'Read and reply to buyer messages from Depop and Vinted in one panel, without leaving the page you\'re on.',
+    'Read and reply to buyer messages from Depop, Vinted and eBay in one panel, without leaving the page you\'re on.',
   category: 'buyers',
   slug: 'messages',
   order: 2,
   updated: '2026-10-16',
-  tags: ['messages', 'conversations', 'depop', 'vinted'],
-  marketplaces: ['depop', 'vinted'],
+  tags: ['messages', 'conversations', 'depop', 'vinted', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
 # Messages
 
-The **Messages** tab puts your Depop and Vinted chats side by side
-in two columns, so you can read and reply without opening each
+The **Messages** tab puts your Depop, Vinted and eBay chats side by side
+in a column each, so you can read and reply without opening each
 marketplace&rsquo;s inbox. The column for the site you&rsquo;re on
-sits on the left. Messages covers Depop and Vinted; eBay support is
-coming.
+sits on the left. Messages covers Depop, Vinted and eBay.
 
 Each card shows the other person&rsquo;s avatar and username, how
 long ago the last message was sent, a preview of that message, and
@@ -40,6 +39,9 @@ replied. The newest conversation sits at the top of each column.
   update, for example) are left out.
 - **Depop** shows up to the 72 most recent conversations in the
   window.
+- **eBay** shows its conversations with the messages already loaded,
+  and needs no open eBay tab. Replies to eBay can be up to 2000
+  characters, and you can attach photos.
 
 The number in the toolbar is how many conversations are listed
 across both columns, and each column header shows its own count in
@@ -91,7 +93,8 @@ and each one fills in as soon as its marketplace answers.
 - If a column can&rsquo;t reach its marketplace, it says so instead
   of showing an empty list, for example when no tab for that
   marketplace is open or you&rsquo;re signed out. Fix that, then
-  click refresh.
+  click refresh. For eBay, the column offers a **Reconnect** button
+  instead, because only reconnecting eBay in Settings can fix it.
 - A blurred column with a **Link account** button means you
   haven&rsquo;t linked that marketplace yet. The button takes you to
   Settings.

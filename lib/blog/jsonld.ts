@@ -1,6 +1,8 @@
 import { routing } from '@/i18n/routing';
 import { SITE_URL, absoluteUrl } from '@/lib/site';
 import { organizationNode } from '@/lib/docs/jsonld';
+import { AUTHORS } from './posts';
+import type { FaqItem } from './faq';
 import type { PostMetadata } from './types';
 
 // Posts are English-only, so every URL here is the default-locale one, which
@@ -11,7 +13,7 @@ export function postUrl(slug: string): string {
   return absoluteUrl(LOCALE, `/blog/${slug}`);
 }
 
-export function postJsonLd(meta: PostMetadata): Record<string, unknown> {
+export function postJsonLd(meta: PostMetadata, faq: FaqItem[]): Record<string, unknown> {
   const url = postUrl(meta.slug);
   return {
     '@context': 'https://schema.org',
@@ -23,10 +25,15 @@ export function postJsonLd(meta: PostMetadata): Record<string, unknown> {
         description: meta.description,
         url,
         mainEntityOfPage: url,
+        image: `${SITE_URL}/blog/photos/${meta.slug}.jpg`,
         inLanguage: LOCALE,
         datePublished: meta.published,
         dateModified: meta.updated,
-        author: { '@id': `${SITE_URL}/#organization` },
+        author: {
+          '@type': 'Person',
+          name: AUTHORS[meta.author],
+          worksFor: { '@id': `${SITE_URL}/#organization` },
+        },
         publisher: { '@id': `${SITE_URL}/#organization` },
         isPartOf: { '@id': `${absoluteUrl(LOCALE, '/blog')}#blog` },
       },
@@ -37,6 +44,19 @@ export function postJsonLd(meta: PostMetadata): Record<string, unknown> {
           { '@type': 'ListItem', position: 2, name: meta.title },
         ],
       },
+      ...(faq.length
+        ? [
+            {
+              '@type': 'FAQPage',
+              '@id': `${url}#faq`,
+              mainEntity: faq.map((f) => ({
+                '@type': 'Question',
+                name: f.question,
+                acceptedAnswer: { '@type': 'Answer', text: f.answer },
+              })),
+            },
+          ]
+        : []),
       organizationNode(),
     ],
   };

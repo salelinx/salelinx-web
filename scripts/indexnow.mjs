@@ -8,7 +8,7 @@
 // public/<key>.txt from the site.
 
 const SITE = "https://salelinx.com";
-const KEY = "040fc1fa3a3f40329939d881490f2b0c";
+const KEY = "f7438242411d6f73914f9bad92604b53";
 
 const xml = await (await fetch(`${SITE}/sitemap.xml`)).text();
 const urlList = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);

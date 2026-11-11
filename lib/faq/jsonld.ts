@@ -1,8 +1,8 @@
 import { SITE_NAME, SITE_URL, absoluteUrl } from '@/lib/site';
 import { faqPlainText } from './plain-text';
-import type { FAQGroup } from './types';
+import type { FAQItem } from './types';
 
-// FAQPage structured data for /help/faq.
+// FAQPage structured data for /help/faq and the homepage FAQ.
 //
 // Worth being clear about what this does and does not buy: since Google
 // restricted FAQ rich results to authoritative government and health sites,
@@ -14,15 +14,16 @@ import type { FAQGroup } from './types';
 // no canonical-locale remap: each locale describes its own URL.
 export function faqJsonLd({
   locale,
-  groups,
+  items,
+  path = '/help/faq',
 }: {
   locale: string;
-  groups: FAQGroup[];
+  items: FAQItem[];
+  path?: string;
 }): Record<string, unknown> {
-  const url = absoluteUrl(locale, '/help/faq');
+  const url = absoluteUrl(locale, path);
 
-  const questions = groups
-    .flatMap((group) => group.items)
+  const questions = items
     .map((item) => ({ q: item.q, text: faqPlainText(item.a) }))
     // An answer that flattens to nothing (a bare button, say) would be an
     // empty acceptedAnswer, which is invalid. Drop it rather than emit it.

@@ -1,3 +1,4 @@
+import type { MDXProps } from 'mdx/types';
 import type { IconName } from '@/components/Icon';
 
 export type CategorySlug =
@@ -42,7 +43,7 @@ export type ChangelogEntryMetadata = {
 
 export type ChangelogModule = {
   metadata: ChangelogEntryMetadata;
-  default: React.ComponentType;
+  default: React.ComponentType<MDXProps>;
 };
 
 export type MarketplaceStatus = {

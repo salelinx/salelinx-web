@@ -29,12 +29,12 @@ export async function generateMetadata({
   const cat = getCategory(category);
   if (!cat) return { title: t('metaTitle') };
   const title = t(`category.${cat.slug}.title`);
-  const blurb = t(`category.${cat.slug}.blurb`);
   return pageMetadata({
     locale,
     path: `/docs/${cat.slug}`,
-    title,
-    description: blurb,
+    title: `${title} | SaleLinx Docs`,
+    absoluteTitle: true,
+    description: t(`category.${cat.slug}.metaDescription`),
     contentLocales: TRANSLATED_DOCS_LOCALES,
   });
 }
@@ -54,6 +54,10 @@ export default async function CategoryPage({
     locale,
     categoryTitle: t(`category.${cat.slug}.title`),
     docsLabel: t('breadcrumbDocs'),
+    articles: articles.map((a) => ({
+      name: a.metadata.title,
+      path: `/docs/${a.metadata.category}/${a.metadata.slug}`,
+    })),
   });
 
   return (

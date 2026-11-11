@@ -64,7 +64,16 @@ export default async function ChangelogPage({
               {formatChangelogDate(metadata.date, locale as Locale)}
             </span>
             <div className="mt-2">
-              <Body />
+              <Body
+                components={{
+                  h1: ({ children }) => (
+                    <h2 className="mt-2 mb-6 text-3xl font-semibold tracking-tight sm:text-4xl">{children}</h2>
+                  ),
+                  h2: ({ children }) => (
+                    <h3 className="mt-10 mb-4 text-xl font-semibold tracking-tight sm:text-2xl">{children}</h3>
+                  ),
+                }}
+              />
             </div>
           </section>
         ))}

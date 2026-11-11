@@ -29,8 +29,8 @@ import { useTranslations } from 'next-intl';
 type Slide = { file: string; labelKey: string };
 
 const SLIDES: Slide[] = [
-  { file: '01-crosslist.png', labelKey: 'crosslist' },
-  { file: '02-my-listings.png', labelKey: 'listings' },
+  { file: '01-crosslist.webp', labelKey: 'crosslist' },
+  { file: '02-my-listings.webp', labelKey: 'listings' },
   { file: '03-restocker.png', labelKey: 'restocker' },
   { file: '04-shop-designer.png', labelKey: 'shopDesigner' },
   { file: '05-grow.png', labelKey: 'followBot' },

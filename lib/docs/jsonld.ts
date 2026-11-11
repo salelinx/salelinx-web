@@ -88,10 +88,12 @@ export function categoryJsonLd({
   locale,
   categoryTitle,
   docsLabel,
+  articles,
 }: {
   locale: string;
   categoryTitle: string;
   docsLabel: string;
+  articles: { name: string; path: string }[];
 }): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
@@ -100,6 +102,16 @@ export function categoryJsonLd({
         { name: docsLabel, path: '/docs' },
         { name: categoryTitle },
       ]),
+      {
+        '@type': 'ItemList',
+        name: categoryTitle,
+        itemListElement: articles.map((a, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: a.name,
+          url: absoluteUrl(docsCanonicalLocale(locale), a.path),
+        })),
+      },
       organizationNode(),
     ],
   };

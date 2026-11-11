@@ -21,6 +21,24 @@ export const dynamic = "force-dynamic";
 // Long enough to measure 30-day growth against a snapshot from before it.
 const HISTORY_DAYS = 45;
 
+// PostgREST returns at most 1,000 rows per request.
+const PAGE = 1000;
+
+async function selectAll<E>(
+  page: (
+    from: number,
+    to: number,
+  ) => PromiseLike<{ data: unknown[] | null; error: E | null }>,
+) {
+  const data: unknown[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const res = await page(from, from + PAGE - 1);
+    if (res.error) return { data, error: res.error };
+    data.push(...(res.data ?? []));
+    if ((res.data?.length ?? 0) < PAGE) return { data, error: null };
+  }
+}
+
 export default async function AdminMarketingPage({
   searchParams,
 }: {
@@ -36,8 +54,24 @@ export default async function AdminMarketingPage({
 
   const [accountsRes, videosRes, statsRes, followersRes] = await Promise.all([
     supabase.rpc("admin_marketing_accounts"),
-    supabase.from("marketing_videos").select("*"),
-    supabase.from("marketing_video_stats").select("*").gte("day", since),
+    selectAll((from, to) =>
+      supabase
+        .from("marketing_videos")
+        .select("*")
+        .order("platform")
+        .order("external_id")
+        .range(from, to),
+    ),
+    selectAll((from, to) =>
+      supabase
+        .from("marketing_video_stats")
+        .select("*")
+        .gte("day", since)
+        .order("day")
+        .order("platform")
+        .order("external_id")
+        .range(from, to),
+    ),
     supabase.from("marketing_account_stats").select("*").gte("day", since),
   ]);
 

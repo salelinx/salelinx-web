@@ -104,6 +104,11 @@ const SOURCE_ICONS: Record<string, { path: string; color: string; name: string }
   tiktok: { name: "TikTok", color: "text-zinc-950", path: socialPath("TikTok") },
   youtube: { name: "YouTube", color: "text-[#FF0000]", path: socialPath("YouTube") },
   instagram: { name: "Instagram", color: "text-[#FF0069]", path: socialPath("Instagram") },
+  chrome_web_store: {
+    name: "Chrome Web Store",
+    color: "text-[#4285F4]",
+    path: "M0 1.637v19.09c0 .9.736 1.636 1.636 1.636h.131a10.4 10.4 0 0 1-.13-1.636 10.3 10.3 0 0 1 1.667-5.64l4.202 7.276h1.128A3.77 3.77 0 0 1 12 16.958a3.77 3.77 0 0 1 3.366 5.406h1.048a4.7 4.7 0 0 0-1.587-5.406h6.83a10.34 10.34 0 0 1 .577 5.406h.13c.9 0 1.636-.737 1.636-1.637V1.637Zm9.273 2.181h5.454a1.09 1.09 0 1 1 0 2.182H9.273a1.09 1.09 0 1 1 0-2.182M12 10.364a10.36 10.36 0 0 1 9.233 5.652H12a4.71 4.71 0 0 0-4.677 4.149L3.91 14.25A10.34 10.34 0 0 1 12 10.364",
+  },
 };
 SOURCE_ICONS.meta = { ...SOURCE_ICONS.facebook, name: "Meta" };
 SOURCE_ICONS["chatgpt.com"] = {
@@ -123,18 +128,25 @@ function sourceParts(source: string) {
 function sourceLabel(source: string) {
   const { icon, ads } = sourceParts(source);
   if (icon) return ads ? `${icon.name} Ads` : icon.name;
+  if (source === "social") return "Social media";
   const words = source.replace(/_/g, " ");
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+// Phone signups with no referrer, set by hand: in-app browsers hide which app it was.
+const SOURCE_GROUPS: Record<string, string[]> = { social: ["instagram", "tiktok", "youtube"] };
+
 function SourceCell({ source }: { source: string }) {
   const { icon, ads } = sourceParts(source);
-  if (!icon) return <>{sourceLabel(source)}</>;
+  const icons = SOURCE_GROUPS[source]?.map((s) => SOURCE_ICONS[s]) ?? (icon ? [icon] : []);
+  if (!icons.length) return <>{sourceLabel(source)}</>;
   return (
     <span className="inline-flex items-center gap-1.5" title={sourceLabel(source)}>
-      <svg viewBox="0 0 24 24" className={`h-4 w-4 fill-current ${icon.color}`} aria-label={icon.name}>
-        <path d={icon.path} />
-      </svg>
+      {icons.map((i) => (
+        <svg key={i.name} viewBox="0 0 24 24" className={`h-4 w-4 fill-current ${i.color}`} aria-label={i.name}>
+          <path d={i.path} />
+        </svg>
+      ))}
       {ads && <span className="text-xs text-zinc-500">Ads</span>}
     </span>
   );

@@ -1,7 +1,7 @@
 export const metadata = {
   title: 'Restockeur',
   description:
-    'Synchronisation de stock entre plateformes. Republie les annonces Vinted vendues tant qu\'il vous reste du stock, garde les annonces Depop et Vinted liées sur un même compteur de stock et retire l\'autre côté quand l\'article est épuisé.',
+    'Republie les annonces Vinted vendues tant qu\'il reste du stock, unifie le stock des annonces Depop et Vinted liées et retire l\'autre côté en cas de rupture.',
   category: 'automate',
   slug: 'restocker',
   order: 4,
@@ -33,7 +33,7 @@ sauvegardées dans le cloud.
 
 <Callout>
 Traduction française complète à venir. Voir la
-[version anglaise](/en/docs/automate/restocker) pour l'onglet
+[version anglaise](/docs/automate/restocker) pour l'onglet
 Restockeur, l'ajout d'un article, l'export et l'import du stock, le
 lancement du Restockeur, le détail des deux flux (republications
 Vinted, paires liées), les réglages, ce que le Restockeur ne fait pas

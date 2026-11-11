@@ -1,20 +1,20 @@
 export const metadata = {
   title: 'Offers',
   description:
-    'Pending offers from Depop and Vinted in one inbox. Accept, decline or counter from the panel without opening the marketplace.',
+    'Pending offers from Depop, Vinted and eBay in one inbox. Accept, decline or counter from the panel without opening the marketplace.',
   category: 'buyers',
   slug: 'offers',
   order: 1,
   updated: '2026-10-16',
-  tags: ['offers', 'depop', 'vinted', 'presets'],
-  marketplaces: ['depop', 'vinted'],
+  tags: ['offers', 'depop', 'vinted', 'ebay', 'presets'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
 # Offers
 
-The **Offers** tab gathers your pending offers from Depop and Vinted
-in one place, in two columns side by side. The marketplace you are
+The **Offers** tab gathers your pending offers from Depop, Vinted and eBay
+in one place, in a column each, side by side. The marketplace you are
 browsing has its column on the left. Each card shows the item, the
 buyer&rsquo;s username, when the offer came in, the offer amount, your
 listed price and the discount the buyer is asking for, with three
@@ -24,8 +24,9 @@ The tab also hosts the [Auto-Accept Offers](/docs/automate/auto-offers)
 block at the top, for accepting offers above a threshold without you
 clicking through.
 
-Offers covers Depop and Vinted; eBay support is coming. For now, you set
-eBay&rsquo;s offer options on each listing in its editor in
+Offers covers Depop, Vinted and eBay. On eBay it shows Best Offers,
+which you can accept, decline or counter here. You still set eBay&rsquo;s
+offer options on each listing in its editor in
 [My Listings](/docs/inventory/listings).
 
 ## What shows up
@@ -35,6 +36,9 @@ eBay&rsquo;s offer options on each listing in its editor in
 - **Vinted** - offers buyers have made in your inbox conversations
   that you haven&rsquo;t answered yet. Offers you made as a buyer are
   not shown.
+- **eBay** - Best Offers waiting for your answer. eBay gives each
+  one a 48 hour window. Its cards take the title and photo from the
+  listing in My Listings.
 
 Bundle offers (several items in one Vinted offer) list each item in
 the bundle inside the card.
@@ -76,7 +80,7 @@ marketplace, so they go through promptly even while a bot is running.
 ## Refreshing
 
 Offers load when you open the tab. The **Refresh** button (the
-circular arrow at the top of the tab) loads both marketplaces again.
+circular arrow at the top of the tab) loads every marketplace again.
 There&rsquo;s no auto-refresh on a timer. To avoid repeat requests,
 SaleLinx reuses offers it fetched in the last two minutes, so a
 brand-new offer can take a couple of minutes to appear.
@@ -97,14 +101,14 @@ card at a time, or leave the ones you don&rsquo;t want to expire.
 
 The [Auto-Accept Offers](/docs/automate/auto-offers) settings have a
 preset picker at the top. A preset saves the minimum percentage of the
-asking price, the price floor, which platforms (Depop, Vinted) to
+asking price, the price floor, which platforms (Depop, Vinted, eBay) to
 check, and how often to check. Picking a preset fills in every setting
 at once, and for auto-accept the picked preset is the live rule
 immediately. Two are built in:
 
-- **Default** - 90% of asking, no price floor, both platforms,
+- **Default** - 90% of asking, no price floor, Depop and Vinted,
   checked every 15 minutes.
-- **Careful** - 95% of asking, no price floor, both platforms,
+- **Careful** - 95% of asking, no price floor, Depop and Vinted,
   checked every 30 minutes.
 
 A preset deliberately does not include the auto-accept on/off switch.

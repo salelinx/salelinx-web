@@ -1,11 +1,16 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { Breadcrumbs } from '@/components/docs/Breadcrumbs';
 import { PostCard } from '@/components/blog/PostCard';
 import { PostCta } from '@/components/blog/PostCta';
+import { parseFaq } from '@/lib/blog/faq';
 import { postJsonLd } from '@/lib/blog/jsonld';
 import {
+  AUTHORS,
   BLOG_CONTENT_LOCALES,
   categoryTitle,
   formatPostDate,
@@ -62,13 +67,15 @@ export default async function BlogPostPage({
   const meta = post.metadata;
   const MDX = post.default;
   const related = relatedPosts(meta, 2);
-  const wasUpdated = meta.updated !== meta.published;
+  const faq = parseFaq(
+    readFileSync(path.join(process.cwd(), 'content/blog/en', `${slug}.mdx`), 'utf8'),
+  );
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-6 pt-12 pb-20">
+    <main className="reading-column mx-auto w-full max-w-3xl px-6 pt-12 pb-20">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(postJsonLd(meta)) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(postJsonLd(meta, faq)) }}
       />
       <Breadcrumbs trail={[{ label: 'Guides', href: '/blog' }, { label: meta.title }]} />
 
@@ -81,16 +88,35 @@ export default async function BlogPostPage({
             {meta.title}
           </h1>
           <p className="mt-5 text-sm text-zinc-500 dark:text-zinc-400">
-            By the SaleLinx team &middot;{' '}
-            <time dateTime={meta.published}>{formatPostDate(meta.published)}</time>
-            {wasUpdated ? (
-              <>
-                {' '}
-                &middot; Updated <time dateTime={meta.updated}>{formatPostDate(meta.updated)}</time>
-              </>
-            ) : null}
+            By {AUTHORS[meta.author]} &middot;{' '}
+            <time dateTime={meta.published}>{formatPostDate(meta.published)}</time> &middot; Facts
+            checked <time dateTime={meta.updated}>{formatPostDate(meta.updated)}</time>
+          </p>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            We make SaleLinx, the crosslisting extension, so read our product mentions with that in
+            mind.
           </p>
         </header>
+
+        <figure className="mt-8">
+          <Image
+            src={`/blog/photos/${slug}.jpg`}
+            alt={meta.photo.alt}
+            // Fixed 600 so crawlers get the 1200px 2x file (under 100KB), not the 3840px original.
+            width={600}
+            height={338}
+            quality={60}
+            priority
+            className="block aspect-[16/9] w-full rounded-xl object-cover"
+          />
+          <figcaption className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            Photo:{' '}
+            <a href={meta.photo.href} className="underline underline-offset-4" rel="noopener">
+              {meta.photo.credit}
+            </a>{' '}
+            on Unsplash
+          </figcaption>
+        </figure>
 
         <div className="mt-8">
           <MDX />
