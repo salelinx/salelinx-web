@@ -53,7 +53,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `signup-notify`           | false        | `trg_notify_signup` on `auth.users` (048) POSTs the new user's id; emails staff "New signup" via `_shared/payment-notify.ts`. Unauthenticated, but only announces accounts under 5 minutes old |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
-| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
+| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products, status changes, delete. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
 | `shopify-public`          | false        | The Shopify app's App URL (GET, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
@@ -621,8 +621,14 @@ billing, a page in Shopify's admin, final scopes).
   locked it), `bad_signature` / `expired` / `bad_request` (a redirect that doesn't check out),
   `shopify` (anything else Shopify refused). Each is logged as `user=<uuid> action=<action>
 code=<code>` and nothing else.
+- **Product changes** for My Listings: `setStatus { productId, status }` (ACTIVE, DRAFT or ARCHIVED,
+  through `productUpdate`) answers with the product's status and stock, which the extension maps
+  onto its row; `deleteProduct { productId }` (`productDelete`, synchronous) deletes for good, and
+  a product already gone counts as deleted. `productId` is the numeric id (`productGid` checks it);
+  Shopify's first `userErrors` message comes back as `shopify` (422), or `not_found` (404) for a
+  product that is gone (`refusal`).
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
-  example in Shopify's OAuth docs, and `productSummary` against a products query node.
+  example in Shopify's OAuth docs, plus `productSummary`, `productGid` and `refusal`.
 
 ## Excluded from TypeScript checks
 

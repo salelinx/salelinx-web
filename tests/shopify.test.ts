@@ -8,8 +8,10 @@ import { describe, expect, it } from 'vitest';
 const {
   authorizeUrl,
   isShopDomain,
+  productGid,
   productSummary,
   queryMessage,
+  refusal,
   shopIdFromGid,
   verifiedShop,
   verifyWebhook,
@@ -189,5 +191,23 @@ describe('productSummary', () => {
     });
     expect(s.price).toBeNull();
     expect(s.totalInventory).toBeNull();
+  });
+});
+
+describe('product changes', () => {
+  it('turns a numeric product id into its GID and refuses anything else', () => {
+    expect(productGid('8812')).toBe('gid://shopify/Product/8812');
+    for (const bad of ['', 'gid://shopify/Product/1', '12a', 12, null]) {
+      expect(() => productGid(bad)).toThrow('Bad product id');
+    }
+  });
+
+  it("reads Shopify's first refusal, telling a product that is gone from the rest", () => {
+    expect(refusal(undefined)).toBeNull();
+    expect(refusal([])).toBeNull();
+    expect(refusal([{ message: 'Product does not exist' }])?.code).toBe('not_found');
+    const other = refusal([{ message: "Title can't be blank" }]);
+    expect(other?.code).toBe('shopify');
+    expect(other?.message).toBe("Title can't be blank");
   });
 });

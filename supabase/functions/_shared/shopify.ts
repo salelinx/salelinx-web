@@ -263,3 +263,19 @@ export function productSummary(shop: string, p: any): ShopifyListingSummary {
 
 /** `gid://shopify/Shop/123` -> `123`. */
 export const shopIdFromGid = (gid: string): string => gid.split('/').pop() ?? gid;
+
+/** A product's numeric id, as the extension holds it, made into its GID. */
+export function productGid(productId: unknown): string {
+  if (typeof productId !== 'string' || !/^\d{1,20}$/.test(productId)) {
+    throw new ShopifyError('Bad product id', 'bad_request', 400);
+  }
+  return `gid://shopify/Product/${productId}`;
+}
+
+/** Shopify's first refusal, or nothing. `not_found` for a product that is gone. */
+export function refusal(userErrors: { message?: string }[] | undefined): ShopifyError | null {
+  const message = userErrors?.[0]?.message;
+  if (!message) return null;
+  const gone = /not exist|not found|couldn.t find/i.test(message);
+  return new ShopifyError(message, gone ? 'not_found' : 'shopify', gone ? 404 : 422);
+}
