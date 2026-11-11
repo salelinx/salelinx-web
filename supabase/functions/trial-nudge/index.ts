@@ -7,6 +7,8 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { timingSafeEqual } from "../_shared/security.ts";
 import {
   button,
+  CHROME_LOGO_ATTACHMENT,
+  CHROME_LOGO_CID,
   codeBlock,
   COMPANY_INFO,
   EMAIL_ASSETS,
@@ -187,7 +189,7 @@ async function send(userId: string, email: string, step: Step, code?: string): P
           codeBlock(code) +
           paragraph(`One use, just for you. Expires in ${CODE_DAYS} days.`, 24)
         : "") +
-      button(step.url ?? PRICING_URL, step.cta ?? "Start free trial"),
+      button(step.url ?? PRICING_URL, step.cta ?? "Start free trial", step.url ? CHROME_LOGO_CID : undefined),
     footerNote: `You're getting this because you signed up for SaleLinx. <a href="${unsubUrl}" style="color:inherit;">Unsubscribe</a>`,
     siteUrl: SITE_URL,
   });
@@ -212,7 +214,7 @@ async function send(userId: string, email: string, step: Step, code?: string): P
         "List-Unsubscribe": `<${unsubUrl}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
-      attachments: EMAIL_ASSETS,
+      attachments: step.url ? [...EMAIL_ASSETS, CHROME_LOGO_ATTACHMENT] : EMAIL_ASSETS,
     }),
   });
   if (!res.ok) throw new Error(`resend ${res.status}: ${await res.text()}`);
