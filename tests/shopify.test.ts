@@ -335,6 +335,21 @@ describe('productDetail', () => {
     ...over,
   });
 
+  it('takes the stock level as the total, which Shopify updates a moment after a change', () => {
+    // Straight after a restock to 1 the product's totalInventory can still say 0, which reads as
+    // Sold: the level is what the change wrote.
+    const d = productDetail(
+      's.myshopify.com',
+      node({ status: 'ACTIVE', totalInventory: 0, tracksInventory: true }),
+    );
+    expect(d.listing.totalInventory).toBe(3);
+    const variants = productDetail(
+      's.myshopify.com',
+      node({ variantsCount: { count: 3 }, totalInventory: 7, tracksInventory: true }),
+    );
+    expect(variants.listing.totalInventory).toBe(7);
+  });
+
   it('lets the editor set price, stock and photos on a simple product', () => {
     const d = productDetail('s.myshopify.com', node());
     expect(d.editable).toEqual({ price: true, quantity: true, photos: true });

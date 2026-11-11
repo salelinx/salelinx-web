@@ -401,7 +401,7 @@ export interface ProductDetail {
 
 // deno-lint-ignore no-explicit-any
 export function productDetail(shop: string, p: any): ProductDetail {
-  const listing = productSummary(shop, p);
+  const summary = productSummary(shop, p);
   const variant = p.variants?.nodes?.[0];
   const single = Number(p.variantsCount?.count) === 1 && typeof variant?.id === 'string';
   const item = variant?.inventoryItem;
@@ -419,6 +419,10 @@ export function productDetail(shop: string, p: any): ProductDetail {
   // save would drop it: the photos are only editable when the editor sees every one.
   const photos =
     media.length === nodes.length && Number(p.mediaCount?.count ?? nodes.length) === nodes.length;
+  // The product's totalInventory catches up with a stock change a moment later, so a read straight
+  // after one (the editor's save, a linked sale's takeOneOff) still has the old count and would
+  // read as Sold. The level is the count itself: with one, it is the total.
+  const listing = stock ? { ...summary, totalInventory: stock.quantity } : summary;
   return {
     listing,
     descriptionHtml: String(p.descriptionHtml ?? ''),
