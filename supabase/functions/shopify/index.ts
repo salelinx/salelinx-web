@@ -16,6 +16,9 @@
 //                hmac). The extension checks state; this checks the signature.
 //   unlink  {}          -> { ok }
 //   account {}          -> { shopName, shopDomain, currency }
+//   setStatus { productId, status } -> { status, totalInventory, tracksInventory }
+//                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide
+//   deleteProduct { productId } -> { ok }   for good; one already gone counts as deleted
 //   listings { cursor? } -> { listings, cursor, hasMore }
 //                up to 100 products a call, in Shopify's order; pass the
 //                returned cursor back for the next call. Status is Shopify's
@@ -37,7 +40,9 @@ import {
   ShopifyError,
   adminGraphql,
   authorizeUrl,
+  productGid,
   productSummary,
+  refusal,
   shopIdFromGid,
   tokenRequest,
   verifiedShop,
@@ -309,6 +314,55 @@ async function listings(admin, userId: string, cursor: unknown) {
   return { listings: out, cursor: hasMore ? after : null, hasMore };
 }
 
+// ── Product changes ────────────────────────────────────────────────────────
+
+const STATUSES = new Set(['ACTIVE', 'DRAFT', 'ARCHIVED']);
+
+const STATUS_MUTATION = `mutation ($product: ProductUpdateInput!) {
+  productUpdate(product: $product) {
+    product { status totalInventory tracksInventory }
+    userErrors { field message }
+  }
+}`;
+
+/** Sends back what the product reads as afterwards, as the extension's row maps it. */
+async function setStatus(admin, userId: string, productId: unknown, status: unknown) {
+  const id = productGid(productId);
+  if (typeof status !== 'string' || !STATUSES.has(status)) {
+    throw new ShopifyError('Bad status', 'bad_request', 400);
+  }
+  const auth = await accessTokenFor(admin, userId);
+  const { productUpdate: res } = await adminGraphql(auth.shop, auth.token, STATUS_MUTATION, {
+    product: { id, status },
+  });
+  const refused = refusal(res?.userErrors);
+  if (refused) throw refused;
+  const p = res?.product ?? {};
+  return {
+    status: String(p.status ?? status),
+    totalInventory: typeof p.totalInventory === 'number' ? p.totalInventory : null,
+    tracksInventory: p.tracksInventory === true,
+  };
+}
+
+const DELETE_MUTATION = `mutation ($id: ID!) {
+  productDelete(input: { id: $id }, synchronous: true) {
+    deletedProductId
+    userErrors { field message }
+  }
+}`;
+
+/** For good: Shopify keeps no copy, and takes the variants and unshared media with it. */
+async function deleteProduct(admin, userId: string, productId: unknown) {
+  const id = productGid(productId);
+  const auth = await accessTokenFor(admin, userId);
+  const { productDelete: res } = await adminGraphql(auth.shop, auth.token, DELETE_MUTATION, { id });
+  const refused = refusal(res?.userErrors);
+  // Deleted already, in Shopify or by an earlier try: what was asked for is done.
+  if (refused && refused.code !== 'not_found') throw refused;
+  return { ok: true };
+}
+
 // ── Handler ────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -383,6 +437,12 @@ Deno.serve(async (req: Request) => {
 
       case 'listings':
         return json(200, await listings(admin, user.id, body.cursor));
+
+      case 'setStatus':
+        return json(200, await setStatus(admin, user.id, body.productId, body.status));
+
+      case 'deleteProduct':
+        return json(200, await deleteProduct(admin, user.id, body.productId));
 
       default:
         return json(400, { error: `Unknown action: ${String(body?.action)}` });
