@@ -5,8 +5,15 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 
-const { authorizeUrl, isShopDomain, queryMessage, shopIdFromGid, verifiedShop, verifyWebhook } =
-  await import('../supabase/functions/_shared/shopify');
+const {
+  authorizeUrl,
+  isShopDomain,
+  productSummary,
+  queryMessage,
+  shopIdFromGid,
+  verifiedShop,
+  verifyWebhook,
+} = await import('../supabase/functions/_shared/shopify');
 
 const SECRET = 'hush';
 const DOCS_QUERY = {
@@ -134,5 +141,53 @@ describe('helpers', () => {
 
   it('takes the number from a Shop GID', () => {
     expect(shopIdFromGid('gid://shopify/Shop/954889')).toBe('954889');
+  });
+});
+
+describe('productSummary', () => {
+  const node = {
+    legacyResourceId: '8812',
+    title: 'Denim jacket',
+    description: 'Worn twice',
+    status: 'ACTIVE',
+    onlineStoreUrl: null,
+    totalInventory: 0,
+    tracksInventory: true,
+    vendor: '',
+    productType: 'Jackets',
+    createdAt: '2026-11-01T10:00:00Z',
+    updatedAt: '2026-11-02T10:00:00Z',
+    priceRangeV2: { minVariantPrice: { amount: '24.50', currencyCode: 'GBP' } },
+    variantsCount: { count: 1 },
+    media: { nodes: [{ image: { url: 'https://cdn.shopify.com/a.jpg' } }, {}, { image: null }] },
+  };
+
+  it('reads the price, stock and photos, and links the product in the admin', () => {
+    const s = productSummary('test-shop.myshopify.com', node);
+    expect(s).toMatchObject({
+      productId: '8812',
+      status: 'ACTIVE',
+      price: 24.5,
+      currency: 'GBP',
+      totalInventory: 0,
+      tracksInventory: true,
+      variants: 1,
+      vendor: null,
+      productType: 'Jackets',
+      url: 'https://test-shop.myshopify.com/admin/products/8812',
+      storeUrl: null,
+    });
+    // A video or 3D model has no image: it is left out.
+    expect(s.photos).toEqual(['https://cdn.shopify.com/a.jpg']);
+  });
+
+  it('leaves a missing price and stock unknown rather than zero', () => {
+    const s = productSummary('test-shop.myshopify.com', {
+      ...node,
+      priceRangeV2: null,
+      totalInventory: null,
+    });
+    expect(s.price).toBeNull();
+    expect(s.totalInventory).toBeNull();
   });
 });

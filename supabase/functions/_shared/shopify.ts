@@ -155,13 +155,23 @@ export async function tokenRequest(
   return body as ShopifyTokens;
 }
 
+/** What a query cost and what the store's bucket has left, from Shopify's
+ *  `extensions.cost`. */
+export interface GraphqlCost {
+  requested: number;
+  available: number;
+  restoreRate: number;
+}
+
 /** One Admin GraphQL call. Errors come back as ShopifyError codes the
- *  extension can act on: `reauth`, `busy` or `shopify`. */
+ *  extension can act on: `reauth`, `busy` or `shopify`. `onCost` gets the
+ *  query's cost, for a caller pacing several calls. */
 export async function adminGraphql<T>(
   shop: string,
   token: string,
   query: string,
   variables?: Record<string, unknown>,
+  onCost?: (cost: GraphqlCost) => void,
 ): Promise<T> {
   const res = await fetch(`https://${shop}/admin/api/${API_VERSION}/graphql.json`, {
     method: 'POST',
@@ -190,7 +200,65 @@ export async function adminGraphql<T>(
     }
     throw new ShopifyError(String(body.errors[0]?.message ?? 'Shopify error'), 'shopify');
   }
+  const cost = body.extensions?.cost;
+  if (onCost && cost?.throttleStatus) {
+    onCost({
+      requested: Number(cost.requestedQueryCost) || 0,
+      available: Number(cost.throttleStatus.currentlyAvailable) || 0,
+      restoreRate: Number(cost.throttleStatus.restoreRate) || 50,
+    });
+  }
   return body.data as T;
+}
+
+/** A product as the extension's My Listings takes it. Status is Shopify's
+ *  own (ACTIVE, DRAFT, ARCHIVED, UNLISTED): the extension maps it. */
+export interface ShopifyListingSummary {
+  productId: string;
+  title: string;
+  description: string;
+  status: string;
+  price: number | null;
+  currency: string | null;
+  totalInventory: number | null;
+  tracksInventory: boolean;
+  variants: number;
+  photos: string[];
+  vendor: string | null;
+  productType: string | null;
+  /** The product in the store's admin, where the seller manages it. */
+  url: string;
+  /** The product on the online store, when it is published there. */
+  storeUrl: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+/** One node of the products query in the shopify function. */
+// deno-lint-ignore no-explicit-any
+export function productSummary(shop: string, p: any): ShopifyListingSummary {
+  const id = String(p.legacyResourceId);
+  const price = Number(p.priceRangeV2?.minVariantPrice?.amount);
+  return {
+    productId: id,
+    title: String(p.title ?? ''),
+    description: String(p.description ?? ''),
+    status: String(p.status ?? ''),
+    price: Number.isFinite(price) ? price : null,
+    currency: p.priceRangeV2?.minVariantPrice?.currencyCode ?? null,
+    totalInventory: typeof p.totalInventory === 'number' ? p.totalInventory : null,
+    tracksInventory: p.tracksInventory === true,
+    variants: Number(p.variantsCount?.count) || 1,
+    photos: (p.media?.nodes ?? [])
+      .map((m: { image?: { url?: string } }) => m?.image?.url)
+      .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0),
+    vendor: p.vendor || null,
+    productType: p.productType || null,
+    url: `https://${shop}/admin/products/${id}`,
+    storeUrl: p.onlineStoreUrl ?? null,
+    createdAt: p.createdAt ?? null,
+    updatedAt: p.updatedAt ?? null,
+  };
 }
 
 /** `gid://shopify/Shop/123` -> `123`. */

@@ -16,6 +16,10 @@
 //                hmac). The extension checks state; this checks the signature.
 //   unlink  {}          -> { ok }
 //   account {}          -> { shopName, shopDomain, currency }
+//   listings { cursor? } -> { listings, cursor, hasMore }
+//                up to 100 products a call, in Shopify's order; pass the
+//                returned cursor back for the next call. Status is Shopify's
+//                own: the extension maps it onto My Listings' statuses.
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect Shopify again, 'busy' when Shopify throttles or a token refresh
@@ -33,6 +37,7 @@ import {
   ShopifyError,
   adminGraphql,
   authorizeUrl,
+  productSummary,
   shopIdFromGid,
   tokenRequest,
   verifiedShop,
@@ -227,6 +232,83 @@ async function link(admin, userScoped, userId: string, query) {
   };
 }
 
+// ── Listings ───────────────────────────────────────────────────────────────
+
+// 25 products with 8 photos each asks about 550 points of the store's bucket,
+// under Shopify's 1,000-point cap on one query and inside a Standard store's
+// bucket, which refills at 100 points a second.
+const PRODUCTS_QUERY = `query ($cursor: String) {
+  products(first: 25, after: $cursor) {
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      legacyResourceId
+      title
+      description
+      status
+      onlineStoreUrl
+      totalInventory
+      tracksInventory
+      vendor
+      productType
+      createdAt
+      updatedAt
+      priceRangeV2 { minVariantPrice { amount currencyCode } }
+      variantsCount { count }
+      media(first: 8) { nodes { ... on MediaImage { image { url } } } }
+    }
+  }
+}`;
+
+const PAGES_PER_CALL = 4;
+// Keeps a call, waits included, well inside the extension's 30-second timeout.
+const LISTINGS_BUDGET_MS = 15_000;
+
+/**
+ * A run of product pages. Between pages it waits for the store's bucket to
+ * hold the next page's cost, so a big store is read without being throttled.
+ * A throttle or failure after the first page ends the run early with the
+ * cursor kept, and the extension asks again from there; one on the first page
+ * is the call failing.
+ */
+async function listings(admin, userId: string, cursor: unknown) {
+  if (cursor != null && typeof cursor !== 'string') {
+    throw new ShopifyError('Bad cursor', 'bad_request', 400);
+  }
+  const auth = await accessTokenFor(admin, userId);
+  const started = Date.now();
+  const out = [];
+  let after = (cursor as string | null) ?? null;
+  let hasMore = true;
+  let cost = null;
+  for (let page = 0; page < PAGES_PER_CALL && hasMore; page++) {
+    if (cost && cost.available < cost.requested) {
+      const waitMs = ((cost.requested - cost.available) / cost.restoreRate) * 1000;
+      if (Date.now() - started + waitMs > LISTINGS_BUDGET_MS) break;
+      await sleep(waitMs);
+    }
+    let data;
+    try {
+      data = await adminGraphql(
+        auth.shop,
+        auth.token,
+        PRODUCTS_QUERY,
+        { cursor: after },
+        (c) => (cost = c),
+      );
+    } catch (err) {
+      if (page === 0) throw err;
+      break;
+    }
+    const products = data?.products;
+    for (const p of products?.nodes ?? []) out.push(productSummary(auth.shop, p));
+    hasMore = products?.pageInfo?.hasNextPage === true;
+    after = products?.pageInfo?.endCursor ?? null;
+    if (!after) hasMore = false;
+    if (Date.now() - started > LISTINGS_BUDGET_MS) break;
+  }
+  return { listings: out, cursor: hasMore ? after : null, hasMore };
+}
+
 // ── Handler ────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -298,6 +380,9 @@ Deno.serve(async (req: Request) => {
           currency: me.currencyCode ?? null,
         });
       }
+
+      case 'listings':
+        return json(200, await listings(admin, user.id, body.cursor));
 
       default:
         return json(400, { error: `Unknown action: ${String(body?.action)}` });

@@ -53,7 +53,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `signup-notify`           | false        | `trg_notify_signup` on `auth.users` (048) POSTs the new user's id; emails staff "New signup" via `_shared/payment-notify.ts`. Unauthenticated, but only announces accounts under 5 minutes old |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
-| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
+| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
 | `shopify-public`          | false        | The Shopify app's App URL (GET, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
@@ -607,13 +607,22 @@ billing, a page in Shopify's admin, final scopes).
   real page, as the app must work from Shopify's admin without the extension.
 - **Unlink** deletes the tokens. The app stays installed in the store until the seller removes it
   in Shopify's admin.
+- **Listings** (`listings { cursor? }`) is the store's products for the extension's My Listings:
+  up to four pages of 25 a call, each product with up to 8 photos, in Shopify's order, with the
+  cursor to pass back for the next call (null once there are no more). A page asks about 550 of the
+  store's GraphQL points (Shopify caps one query at 1,000, and a Standard store refills 100 a
+  second), so between pages the call waits for the bucket from `extensions.cost` (`adminGraphql`'s
+  `onCost`), and it stops after 15 seconds with the cursor kept. A throttle or failure after the
+  first page ends the call early the same way; one on the first page is the call failing. Status is
+  Shopify's own (ACTIVE, DRAFT, ARCHIVED, UNLISTED), and `url` is the product in the store's admin;
+  the extension maps the rest (`productSummary` in `_shared/shopify.ts`).
 - **Errors** are `{ error, code }`: `not_linked` and `reauth` (connect again), `busy` (Shopify
   throttled, or a refresh in flight), `shop_unavailable` (the store's plan lapsed or Shopify
   locked it), `bad_signature` / `expired` / `bad_request` (a redirect that doesn't check out),
   `shopify` (anything else Shopify refused). Each is logged as `user=<uuid> action=<action>
 code=<code>` and nothing else.
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
-  example in Shopify's OAuth docs.
+  example in Shopify's OAuth docs, and `productSummary` against a products query node.
 
 ## Excluded from TypeScript checks
 
