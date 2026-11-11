@@ -383,6 +383,113 @@ export function samePhotos(photos: string[], media: { url: string }[]): boolean 
   );
 }
 
+// ── A crosslist into the store ─────────────────────────────────────────────
+
+/** A listing crosslisted into the store, as the extension builds it from the source. */
+export interface NewProduct {
+  title: string;
+  /** Plain text, made into HTML here. */
+  description: string;
+  /** The brand. */
+  vendor: string;
+  /** The category, in words. */
+  productType: string;
+  price: number;
+  quantity: number;
+  /** The one value of a Size option; empty for none. */
+  size: string;
+  /** Condition and colours. */
+  tags: string[];
+  /** Fetched by Shopify from where the source keeps them. */
+  photos: string[];
+  /** DRAFT unless the seller chose to post straight away. */
+  status: 'DRAFT' | 'ACTIVE';
+}
+
+const MAX_TAGS = 250;
+
+/** The `product` the extension sent, or a `bad_request` naming the first field that's wrong. */
+export function newProduct(raw: unknown): NewProduct {
+  const bad = (field: string) => new ShopifyError(`Bad ${field}`, 'bad_request', 400);
+  if (!raw || typeof raw !== 'object') throw bad('product');
+  const c = raw as Record<string, unknown>;
+  const text = (field: string, max: number): string => {
+    const v = c[field] ?? '';
+    if (typeof v !== 'string' || v.length > max) throw bad(field);
+    return v.trim();
+  };
+  const title = text('title', 255);
+  if (!title) throw bad('title');
+  const price = c.price;
+  if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0 || price >= 1e9) {
+    throw bad('price');
+  }
+  const quantity = c.quantity ?? 1;
+  if (
+    typeof quantity !== 'number' ||
+    !Number.isInteger(quantity) ||
+    quantity < 1 ||
+    quantity > 1_000_000
+  ) {
+    throw bad('quantity');
+  }
+  const tags = c.tags ?? [];
+  if (
+    !Array.isArray(tags) ||
+    tags.length > MAX_TAGS ||
+    !tags.every((t) => typeof t === 'string' && t.length <= 255)
+  ) {
+    throw bad('tags');
+  }
+  const photos = c.photos ?? [];
+  if (
+    !Array.isArray(photos) ||
+    photos.length > MAX_PHOTOS ||
+    !photos.every((u) => typeof u === 'string' && u.length <= 2048 && /^https:\/\//.test(u))
+  ) {
+    throw bad('photos');
+  }
+  const status = c.status;
+  if (status !== 'DRAFT' && status !== 'ACTIVE') throw bad('status');
+  return {
+    title,
+    description: text('description', 60_000),
+    vendor: text('vendor', 255),
+    productType: text('productType', 255),
+    price: Math.round(price * 100) / 100,
+    quantity,
+    size: text('size', 255),
+    // A comma would split one tag into two.
+    tags: [...new Set((tags as string[]).map((t) => t.replace(/,/g, ' ').trim()).filter(Boolean))],
+    photos: photos as string[],
+    status,
+  };
+}
+
+/** productSet's input for a new product: one variant, with the size as its Size option (Shopify's
+ *  own default Title when there is none), and its stock tracked at `locationId`. */
+export function newProductInput(p: NewProduct, locationId: string) {
+  const [optionName, value] = p.size ? ['Size', p.size] : ['Title', 'Default Title'];
+  return {
+    title: p.title,
+    descriptionHtml: textToHtml(p.description),
+    ...(p.vendor ? { vendor: p.vendor } : {}),
+    ...(p.productType ? { productType: p.productType } : {}),
+    status: p.status,
+    tags: p.tags,
+    productOptions: [{ name: optionName, position: 1, values: [{ name: value }] }],
+    variants: [
+      {
+        optionValues: [{ optionName, name: value }],
+        price: p.price.toFixed(2),
+        inventoryItem: { tracked: true },
+        inventoryQuantities: [{ locationId, name: 'available', quantity: p.quantity }],
+      },
+    ],
+    files: p.photos.map((url) => ({ originalSource: url, contentType: 'IMAGE' })),
+  };
+}
+
 /** One product read for the editor (the shopify function's PRODUCT_QUERY). What the extension
  *  gets is `listing` and the `editable` flags; the ids stay here for the save. */
 export interface ProductDetail {

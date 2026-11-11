@@ -8,6 +8,8 @@ import { describe, expect, it } from 'vitest';
 const {
   authorizeUrl,
   isShopDomain,
+  newProduct,
+  newProductInput,
   oneOffPlan,
   photoFiles,
   productDetail,
@@ -239,6 +241,85 @@ describe('productEdit', () => {
 
   it('lets a quantity of 0 through', () => {
     expect(productEdit({ quantity: 0 })).toEqual({ quantity: 0 });
+  });
+});
+
+describe('newProduct', () => {
+  const base = { title: ' Denim jacket ', price: 38.499, status: 'DRAFT' };
+
+  it('fills in what was left out, rounds the price and cleans the tags', () => {
+    expect(
+      newProduct({ ...base, tags: ['Very good', 'Blue, navy', 'Very good', ' '] }),
+    ).toEqual({
+      title: 'Denim jacket',
+      description: '',
+      vendor: '',
+      productType: '',
+      price: 38.5,
+      quantity: 1,
+      size: '',
+      tags: ['Very good', 'Blue  navy'],
+      photos: [],
+      status: 'DRAFT',
+    });
+  });
+
+  it('refuses what Shopify would, before any call', () => {
+    expect(() => newProduct({ ...base, title: ' ' })).toThrow('Bad title');
+    expect(() => newProduct({ ...base, price: 0 })).toThrow('Bad price');
+    expect(() => newProduct({ ...base, quantity: 0 })).toThrow('Bad quantity');
+    expect(() => newProduct({ ...base, status: 'ARCHIVED' })).toThrow('Bad status');
+    expect(() => newProduct({ ...base, photos: ['http://x/a.jpg'] })).toThrow('Bad photos');
+    expect(() => newProduct({ ...base, tags: 'Good' })).toThrow('Bad tags');
+  });
+});
+
+describe('newProductInput', () => {
+  const product = {
+    title: 'Denim jacket',
+    description: 'Cropped.\n\nLace panels.',
+    vendor: 'Levi',
+    productType: 'Jackets',
+    price: 38.5,
+    quantity: 2,
+    size: 'M',
+    tags: ['Very good', 'Blue'],
+    photos: ['https://cdn/a.jpg'],
+    status: 'ACTIVE' as const,
+  };
+
+  it('puts the size in a Size option, with the stock at the location', () => {
+    expect(newProductInput(product, 'gid://shopify/Location/1')).toEqual({
+      title: 'Denim jacket',
+      descriptionHtml: '<p>Cropped.</p><p>Lace panels.</p>',
+      vendor: 'Levi',
+      productType: 'Jackets',
+      status: 'ACTIVE',
+      tags: ['Very good', 'Blue'],
+      productOptions: [{ name: 'Size', position: 1, values: [{ name: 'M' }] }],
+      variants: [
+        {
+          optionValues: [{ optionName: 'Size', name: 'M' }],
+          price: '38.50',
+          inventoryItem: { tracked: true },
+          inventoryQuantities: [
+            { locationId: 'gid://shopify/Location/1', name: 'available', quantity: 2 },
+          ],
+        },
+      ],
+      files: [{ originalSource: 'https://cdn/a.jpg', contentType: 'IMAGE' }],
+    });
+  });
+
+  it("uses Shopify's default variant without a size, and leaves out an empty brand", () => {
+    const input = newProductInput({ ...product, size: '', vendor: '' }, 'loc');
+    expect(input.productOptions).toEqual([
+      { name: 'Title', position: 1, values: [{ name: 'Default Title' }] },
+    ]);
+    expect(input.variants[0].optionValues).toEqual([
+      { optionName: 'Title', name: 'Default Title' },
+    ]);
+    expect(input).not.toHaveProperty('vendor');
   });
 });
 

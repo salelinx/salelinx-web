@@ -29,6 +29,11 @@
 //                price, quantity, photos (addresses in order); a change the
 //                product doesn't allow is refused with 'not_editable'
 //   uploadPhoto { dataUrl } -> { url }   a new photo, staged in Shopify for the save
+//   createProduct { product } -> as `product`, read after the create
+//                a crosslist into the store, held to the crosslist allowance.
+//                product: title, description (plain text), vendor, productType,
+//                price, quantity, size (a Size option), tags, photos (fetched
+//                by Shopify), status DRAFT or ACTIVE; stock at the primary location
 //   takeOneOff { productId, key } -> { result, listing, descriptionHtml, quantity, editable }
 //                a linked listing sold elsewhere: one off the product's stock.
 //                result 'counted', 'sold', 'archived', 'manual' or 'gone' (see takeOneOff)
@@ -40,6 +45,7 @@
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
 // must connect Shopify again, 'busy' when Shopify throttles or a token refresh
 // is already running, 'shop_unavailable' for a lapsed or locked store,
+// 'upgrade_required' / 'limit_reached' for a crosslist past the plan,
 // 'not_found' for a product gone from the store, 'not_editable' for an edit
 // the product doesn't allow (see updateProduct),
 // 'bad_signature' / 'expired' / 'bad_request' for a redirect that doesn't
@@ -51,10 +57,13 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
+import { checkCrosslistAllowed } from '../_shared/crosslist-gate.ts';
 import {
   ShopifyError,
   adminGraphql,
   authorizeUrl,
+  newProduct,
+  newProductInput,
   photoFiles,
   productDetail,
   oneOffPlan,
@@ -613,6 +622,39 @@ async function takeOneOff(admin, userId: string, productId: unknown, key: unknow
   return { result, ...forEditor(after) };
 }
 
+// No id: the store's primary location, where a crosslisted product's stock goes.
+const LOCATION_QUERY = '{ location { id } }';
+
+const CREATE_MUTATION = `mutation ($input: ProductSetInput!) {
+  productSet(input: $input, synchronous: true) {
+    product { id }
+    userErrors { field message }
+  }
+}`;
+
+/**
+ * A crosslist into the store (newProduct): one product, its stock at the
+ * store's primary location, its photos fetched by Shopify from where the
+ * source keeps them. The caller has checked the crosslist allowance. Answers
+ * with the product as it reads afterwards, for the extension's row.
+ */
+async function createProduct(admin, userId: string, raw: unknown) {
+  const product = newProduct(raw);
+  const auth = await accessTokenFor(admin, userId);
+  const { location } = await adminGraphql(auth.shop, auth.token, LOCATION_QUERY);
+  if (!location?.id) {
+    throw new ShopifyError('Your Shopify store has no location to hold stock', 'shopify', 422);
+  }
+  const data = await adminGraphql(auth.shop, auth.token, CREATE_MUTATION, {
+    input: newProductInput(product, location.id),
+  });
+  const refused = refusal(data?.productSet?.userErrors);
+  if (refused) throw refused;
+  const id = data?.productSet?.product?.id;
+  if (!id) throw new ShopifyError('Shopify did not create the product', 'shopify', 502);
+  return forEditor(await readProduct(auth, id));
+}
+
 const MAX_PHOTO_BYTES = 20 * 1024 * 1024;
 
 const STAGED_MUTATION = `mutation ($input: [StagedUploadInput!]!) {
@@ -751,6 +793,18 @@ Deno.serve(async (req: Request) => {
 
       case 'takeOneOff':
         return json(200, await takeOneOff(admin, user.id, body.productId, body.key));
+
+      // Posts a crosslist itself, so it is held to the same paywall as
+      // resolve-category and the ebay function's add: nothing else on the
+      // server gates a Shopify crosslist. Checked before any Shopify call.
+      case 'createProduct': {
+        const userScoped = createClient(supabaseUrl, anonKey, {
+          global: { headers: { Authorization: `Bearer ${jwt}` } },
+        });
+        const gate = await checkCrosslistAllowed(userScoped, user.id, 'shopify');
+        if (!gate.ok) return json(gate.status, gate.body);
+        return json(200, await createProduct(admin, user.id, body.product));
+      }
 
       default:
         return json(400, { error: `Unknown action: ${String(body?.action)}` });

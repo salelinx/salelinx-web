@@ -650,10 +650,19 @@ code=<code>` and nothing else.
   stock is archived instead, and several variants or locations are left alone (`manual`). It
   answers with what happened (`counted`, `sold`, `archived`, `manual` or `gone`) and the product
   read afterwards.
+- **Crosslisting into the store** (`createProduct { product }`). Posts a crosslist itself, so it
+  calls `checkCrosslistAllowed` before any Shopify call, as resolve-category and the ebay
+  function's `add` do: nothing else on the server gates a Shopify crosslist. The extension still
+  counts it afterwards. `newProduct` checks what it sent (title, plain-text description, vendor,
+  productType, price, quantity of at least 1, size, tags, https photos, status DRAFT or ACTIVE),
+  and `newProductInput` makes one `productSet` call of it: the size as the one value of a Size
+  option (Shopify's default Title variant without one), the stock tracked at the store's primary
+  location (`location` with no id), the photos fetched by Shopify from where the source keeps them.
+  It answers like `product`, read after the create.
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
   example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
-  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`) and
-  `oneOffPlan`.
+  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`),
+  `oneOffPlan`, and the crosslist's `newProduct` and `newProductInput`.
 
 ## Excluded from TypeScript checks
 
