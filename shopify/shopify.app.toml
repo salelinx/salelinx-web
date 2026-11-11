@@ -1,0 +1,31 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "1358d2c72523a2584682e156a097d3d1"
+application_url = "https://owaxopwpktmffqsxavsz.supabase.co/functions/v1/shopify-public"
+embedded = false
+name = "SaleLinx"
+
+[webhooks]
+api_version = "2026-10"
+
+  # app/uninstalled can't go here: Shopify refuses app-wide subscriptions while
+  # use_legacy_install_flow is on, so the shopify function subscribes each store
+  # when it links.
+  #
+  # Required of every public app. shop/redact deletes the store's tokens, link
+  # and listings; SaleLinx keeps no data about a store's customers.
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+  uri = "https://owaxopwpktmffqsxavsz.supabase.co/functions/v1/shopify-public"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products,write_inventory,read_locations"
+optional_scopes = [ ]
+use_legacy_install_flow = true
+
+[auth]
+redirect_urls = [
+  "https://oichfmfogobecihmhlgkfcfbdceomenj.chromiumapp.org/shopify",
+  "https://acnjmgidhnjeoajfgonciolifngejdmi.chromiumapp.org/shopify"
+]
