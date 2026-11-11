@@ -5,7 +5,7 @@
 // not gated on the marketing choice.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { EMAIL_ASSETS } from "../_shared/email-theme.ts";
+import { CHROME_LOGO_ATTACHMENT, EMAIL_ASSETS } from "../_shared/email-theme.ts";
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
 import { installLinkEmail, type Locale, SUPPORTED_LOCALES } from "./email.ts";
 
@@ -29,7 +29,7 @@ async function sendEmail(to: string, locale: Locale): Promise<void> {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: [to], subject, html, text, attachments: EMAIL_ASSETS }),
+    body: JSON.stringify({ from, to: [to], subject, html, text, attachments: [...EMAIL_ASSETS, CHROME_LOGO_ATTACHMENT] }),
   });
   if (!res.ok) throw new Error(`resend ${res.status}: ${await res.text()}`);
 }

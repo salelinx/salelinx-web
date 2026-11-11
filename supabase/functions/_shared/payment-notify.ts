@@ -1,4 +1,4 @@
-// Staff notification for anything money-related.
+// Staff notification for anything money-related, plus new signups.
 //
 // Deliberately fire-and-forget. A notification is not worth failing a webhook
 // for: the handler returning 500 makes Stripe redeliver the event, and a

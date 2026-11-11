@@ -1,9 +1,10 @@
 import {
   button,
+  CHROME_LOGO_CID,
   COMPANY_INFO,
   emailLayout,
   heading,
-  linkFallback,
+  note,
   paragraph,
 } from "../_shared/email-theme.ts";
 
@@ -24,7 +25,7 @@ const EMAIL_COPY: Record<
     heading: "Add SaleLinx to Chrome",
     body: "SaleLinx is a Chrome extension, so it installs on a computer rather than a phone. Open this email on your computer, add SaleLinx to Chrome, then sign in with the account you just created.",
     cta: "Add to Chrome",
-    fallback: "Or copy this link into Chrome on your computer:",
+    fallback: "Or search for SaleLinx in the Chrome Web Store.",
   },
   fr: {
     subject: "Votre lien d'installation SaleLinx",
@@ -32,7 +33,7 @@ const EMAIL_COPY: Record<
     heading: "Ajouter SaleLinx à Chrome",
     body: "SaleLinx est une extension Chrome : elle s'installe sur un ordinateur, pas sur un téléphone. Ouvrez cet e-mail sur votre ordinateur, ajoutez SaleLinx à Chrome, puis connectez-vous avec le compte que vous venez de créer.",
     cta: "Ajouter à Chrome",
-    fallback: "Ou copiez ce lien dans Chrome sur votre ordinateur :",
+    fallback: "Ou cherchez SaleLinx sur le Chrome Web Store.",
   },
   es: {
     subject: "Tu enlace para instalar SaleLinx",
@@ -40,7 +41,7 @@ const EMAIL_COPY: Record<
     heading: "Añade SaleLinx a Chrome",
     body: "SaleLinx es una extensión de Chrome, así que se instala en un ordenador, no en el móvil. Abre este correo en tu ordenador, añade SaleLinx a Chrome e inicia sesión con la cuenta que acabas de crear.",
     cta: "Añadir a Chrome",
-    fallback: "O copia este enlace en Chrome en tu ordenador:",
+    fallback: "O busca SaleLinx en Chrome Web Store.",
   },
   de: {
     subject: "Dein SaleLinx-Installationslink",
@@ -48,7 +49,7 @@ const EMAIL_COPY: Record<
     heading: "SaleLinx zu Chrome hinzufügen",
     body: "SaleLinx ist eine Chrome-Erweiterung und wird auf einem Computer installiert, nicht auf dem Handy. Öffne diese E-Mail auf deinem Computer, füge SaleLinx zu Chrome hinzu und melde dich mit dem Konto an, das du gerade erstellt hast.",
     cta: "Zu Chrome hinzufügen",
-    fallback: "Oder kopiere diesen Link in Chrome auf deinem Computer:",
+    fallback: "Oder suche im Chrome Web Store nach SaleLinx.",
   },
 };
 
@@ -56,12 +57,11 @@ export function installLinkEmail(locale: Locale): { subject: string; html: strin
   const c = EMAIL_COPY[locale];
   const html = emailLayout({
     preheader: c.preheader,
-    eyebrow: "SaleLinx",
     bodyHtml: [
       heading(c.heading),
       paragraph(c.body),
-      button(STORE_URL, c.cta),
-      linkFallback(STORE_URL, c.fallback),
+      button(STORE_URL, c.cta, CHROME_LOGO_CID),
+      note(c.fallback),
     ].join("\n"),
   });
   const text = `${c.heading}\n\n${c.body}\n\n${c.cta}: ${STORE_URL}\n\n${COMPANY_INFO}\n`;

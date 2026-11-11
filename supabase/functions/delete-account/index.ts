@@ -49,6 +49,7 @@ import {
   emailLayout,
   heading,
   linkFallback,
+  note,
   paragraph,
 } from "../_shared/email-theme.ts";
 import {
@@ -217,10 +218,9 @@ async function sendConfirmationEmail(args: {
       heading(c.heading),
       paragraph(c.body),
       button(args.confirmUrl, c.cta),
+      note(`${c.expiry} ${c.ignore}`),
       linkFallback(args.confirmUrl, c.fallback),
-      paragraph(`${c.expiry} ${c.ignore}`, 0),
     ].join("\n"),
-    footerNote: c.expiry,
   });
   const text = `${c.heading}\n\n${c.body}\n\n${c.cta}: ${args.confirmUrl}\n\n${c.expiry}\n${c.ignore}\n\n${COMPANY_INFO}\n`;
 
