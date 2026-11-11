@@ -175,8 +175,9 @@ The answer is `marketing_opt_out` (`true` = no, `false` = yes, absent = not
 asked) plus `marketing_choice_at` in auth user metadata; helpers are in
 `lib/marketing-choice.ts`. `trial_nudge_due()` and `winback_due()` skip
 `marketing_opt_out = true` and anyone with `trial_nudges.unsubscribed_at` set,
-except the day-1 install reminder for accounts with no `device_sessions` row,
-which is a service email and only skips an unsubscribe (049).
+except the day-1 and day-4 install emails for accounts with no
+`device_sessions` row, which are service emails and only skip an unsubscribe
+(049).
 Saying yes again calls the `clear_marketing_unsubscribe()` RPC (migration 029)
 so an earlier email-link unsubscribe does not silently keep blocking.
 

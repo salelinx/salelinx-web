@@ -80,15 +80,18 @@ const INSTALL_STEPS: Step[] = [
     ],
   },
   {
-    subject: "Your Depop, Vinted and eBay shops in one panel",
-    preheader: "Add SaleLinx to Chrome on your computer to start your free trial.",
-    title: "Here's what you're missing",
+    subject: "How to install SaleLinx",
+    preheader: "Three steps on your computer.",
+    title: "Installing SaleLinx",
     eyebrow: "Getting started",
     cta: "Add to Chrome",
     url: STORE_URL,
     body: [
-      "With SaleLinx you list an item once and crosslist it to Depop, Vinted and eBay, then bulk edit, refresh listings and print shipping labels from one panel.",
-      "Add it to Chrome on your computer and your 14-day free trial is one click away.",
+      "SaleLinx still isn't on your computer, so here's how to get it set up.",
+      "1. On your computer, open this email in Chrome and press Add to Chrome below.",
+      "2. Click the puzzle piece at the top right of Chrome and pin SaleLinx.",
+      "3. Open SaleLinx and sign in with the account you made.",
+      `Stuck? Get help at ${SITE_URL}/help`,
     ],
   },
 ];

@@ -18,8 +18,7 @@ AS $$
     AND (
       (u.raw_user_meta_data->>'marketing_opt_out') = 'false'
       -- 7 days keeps the first run off the 60-day backlog.
-      OR (COALESCE(n.step, 0) = 0 AND NOT i.installed
-          AND u.created_at > NOW() - INTERVAL '7 days')
+      OR (NOT i.installed AND u.created_at > NOW() - INTERVAL '7 days')
     )
     AND u.created_at > NOW() - INTERVAL '60 days'
     AND n.unsubscribed_at IS NULL
