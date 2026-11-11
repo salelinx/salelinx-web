@@ -14,6 +14,7 @@ import {
   heading,
   paragraph,
 } from "../_shared/email-theme.ts";
+import { STORE_URL } from "../send-install-link/email.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2025-02-24.acacia",
@@ -40,6 +41,7 @@ type Step = {
   body: string[];
   eyebrow?: string;
   cta?: string;
+  url?: string;
 };
 
 const STEPS: Step[] = [
@@ -60,6 +62,33 @@ const STEPS: Step[] = [
     body: [
       "Most sellers start by crosslisting: pick listings on Depop, Vinted or eBay and SaleLinx copies them to another marketplace, photos, category, size and all.",
       "Your 14-day trial is still there if you want to try it.",
+    ],
+  },
+];
+
+const INSTALL_STEPS: Step[] = [
+  {
+    subject: "One step left: add SaleLinx to Chrome",
+    preheader: "Open this on your computer to finish setting up.",
+    title: "Finish setting up SaleLinx",
+    eyebrow: "Getting started",
+    cta: "Add to Chrome",
+    url: STORE_URL,
+    body: [
+      "Your account is ready, but SaleLinx isn't installed yet. It's a Chrome extension, so it runs on a computer rather than a phone.",
+      "Open this email on your computer, add SaleLinx to Chrome, then sign in with the account you made. It takes about a minute.",
+    ],
+  },
+  {
+    subject: "Your Depop, Vinted and eBay shops in one panel",
+    preheader: "Add SaleLinx to Chrome on your computer to start your free trial.",
+    title: "Here's what you're missing",
+    eyebrow: "Getting started",
+    cta: "Add to Chrome",
+    url: STORE_URL,
+    body: [
+      "With SaleLinx you list an item once and crosslist it to Depop, Vinted and eBay, then bulk edit, refresh listings and print shipping labels from one panel.",
+      "Add it to Chrome on your computer and your 14-day free trial is one click away.",
     ],
   },
 ];
@@ -155,14 +184,14 @@ async function send(userId: string, email: string, step: Step, code?: string): P
           codeBlock(code) +
           paragraph(`One use, just for you. Expires in ${CODE_DAYS} days.`, 24)
         : "") +
-      button(PRICING_URL, step.cta ?? "Start free trial"),
+      button(step.url ?? PRICING_URL, step.cta ?? "Start free trial"),
     footerNote: `You're getting this because you signed up for SaleLinx. <a href="${unsubUrl}" style="color:inherit;">Unsubscribe</a>`,
     siteUrl: SITE_URL,
   });
   const offer = code
     ? `\n\n50% off your first month back, on any plan. Code: ${code} (one use, expires in ${CODE_DAYS} days)`
     : "";
-  const text = `${step.body.join("\n\n")}${offer}\n\n${step.cta ?? "Start free trial"}: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}\n\n${COMPANY_INFO}`;
+  const text = `${step.body.join("\n\n")}${offer}\n\n${step.cta ?? "Start free trial"}: ${step.url ?? PRICING_URL}\n\nUnsubscribe: ${unsubUrl}\n\n${COMPANY_INFO}`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -216,9 +245,9 @@ Deno.serve(async (req) => {
 
   const now = () => new Date().toISOString();
   const jobs = [
-    ...((trial.data ?? []) as { user_id: string; email: string; step: number }[]).map((r) => ({
+    ...((trial.data ?? []) as { user_id: string; email: string; step: number; installed: boolean }[]).map((r) => ({
       ...r,
-      step: STEPS[r.step],
+      step: (r.installed ? STEPS : INSTALL_STEPS)[r.step],
       record: { step: r.step + 1, last_sent_at: now() },
     })),
     ...((winback.data ?? []) as {
