@@ -22,6 +22,8 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 - **`ebay`** - the extension's only route to eBay. It has to be server-side: every token exchange and refresh needs the app's client secret, which cannot ship in a .crx, and each user's refresh token is a long-lived credential for their eBay account. Holds both. See "eBay" below.
 - **`ebay-account-deletion`** - eBay will not let a production keyset make calls until it has a public Marketplace Account Deletion endpoint to notify. See "eBay" below.
+- **`shopify`** - the extension's only route to Shopify, server-side for the same reason as `ebay`: the token exchange and every refresh need the app's client secret. See "Shopify" below.
+- **`shopify-public`** - the Shopify app's App URL and webhooks, which Shopify calls without a SaleLinx session. See "Shopify" below.
 
 ## The nineteen functions
 
@@ -51,6 +53,8 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `signup-notify`           | false        | `trg_notify_signup` on `auth.users` (048) POSTs the new user's id; emails staff "New signup" via `_shared/payment-notify.ts`. Unauthenticated, but only announces accounts under 5 minutes old |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
+| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
+| `shopify-public`          | false        | The Shopify app's App URL (GET, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -105,6 +109,8 @@ supabase functions deploy resolve-category --no-verify-jwt
 supabase functions deploy process-referral-rewards --no-verify-jwt
 supabase functions deploy ebay --no-verify-jwt
 supabase functions deploy ebay-account-deletion --no-verify-jwt
+supabase functions deploy shopify --no-verify-jwt
+supabase functions deploy shopify-public --no-verify-jwt
 ```
 
 ## Secrets
@@ -147,6 +153,9 @@ supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... E
 # Entered in the portal's Marketplace Account Deletion settings as well.
 supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=<32-80 chars>
 supabase secrets set EBAY_DELETION_ENDPOINT='https://<project>.supabase.co/functions/v1/ebay-account-deletion'
+# Shopify (Dev Dashboard > the SaleLinx app > Settings). The secret also signs
+# Shopify's redirects and webhooks, so both functions read it.
+supabase secrets set SHOPIFY_CLIENT_ID=... SHOPIFY_CLIENT_SECRET=...
 # Referrals (docs/REFERRALS.md): the referee first-month-discount coupons
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.
@@ -549,6 +558,55 @@ Gotchas:
 - **`EBAY_ENV=sandbox` switches every host at once** (auth, api, apiz) in both functions and
   in `resolve-category`. Sandbox tokens and production tokens are not interchangeable, so a
   project switched between them needs every user to reconnect.
+
+## Shopify (`shopify`, `shopify-public`)
+
+In progress: no seller can connect yet. The extension hides Shopify behind a dev build flag, and
+the app has no distribution type. The extension side is in
+`../salelinx-app/docs/technical/SHOPIFY.md`, including what's needed before review (Shopify
+billing, a page in Shopify's admin, final scopes).
+
+- **The app.** One Shopify app in the Dev Dashboard, not embedded, with the legacy install flow, so
+  an install lands on our App URL (`shopify-public`) and we run the OAuth ourselves. Its allowed
+  redirect URLs are `https://<extension-id>.chromiumapp.org/shopify`, for the Web Store id and each
+  unpacked id in use. The scopes are `SCOPES` in `_shared/shopify.ts`; changing them makes every
+  linked store approve again.
+- **Linking.** There is no store-address box (Shopify's App Store rule 2.3.1), so the store comes
+  from Shopify. The seller opens the install link in the extension's popup and Shopify sends the
+  popup to the App URL with `shop`, `host`, `timestamp` and `hmac`. The extension catches that
+  address and sends its params to `authorizeUrl`, which checks the signature, its age (5 minutes)
+  and the store address, then answers with the store's consent page, carrying that extension's
+  redirect and the extension's `state`. The extension catches the redirect, checks `state` and
+  sends its params to `link`, which checks the signature again, swaps the code for tokens
+  (`expiring=1`) and reads the store. As with eBay, it writes `linked_accounts` **through the
+  user's own client first**, so the one-store-per-account index and the trial triggers decide
+  (`ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`), and only then upserts `shopify_tokens`.
+  `linked_accounts.platform_user_id` is the numeric store id, and a Shopify row's
+  `listings.platform_user_id` must be too: `shop/redact` deletes by it.
+- **Tokens.** The app was made after 1 April 2026, so Shopify only issues expiring offline tokens:
+  access for 60 minutes, refresh for 90 days, and each refresh returns a new refresh token and
+  retires the old one. Two refreshes at once would leave the row holding a retired token and the
+  seller would have to reconnect. So `accessTokenFor` claims `refreshing_until` (30 seconds) with a
+  conditional update: only the call that claims it refreshes, and the others re-read the row until
+  the new token is there (about 4 seconds, then `busy`). A refresh Shopify refuses answers `reauth`.
+- **Webhooks.** Set on the app's version in the Dev Dashboard, all pointing at `shopify-public`:
+  `app/uninstalled` deletes the store's tokens and keeps the link, so the extension shows
+  Reconnect. The three compliance topics every public app must answer go to the same address:
+  `shop/redact` (48 hours after an uninstall) deletes the store's tokens, link and listings, and
+  the two customer topics have nothing to delete, as SaleLinx keeps no data about a store's
+  customers. Read the body raw before verifying: the HMAC covers its exact bytes.
+- **The App URL is not a page.** Supabase serves a function's HTML as plain text on its own
+  domain, so a GET to `shopify-public` redirects to `SITE_URL`. Before review this has to become a
+  real page, as the app must work from Shopify's admin without the extension.
+- **Unlink** deletes the tokens. The app stays installed in the store until the seller removes it
+  in Shopify's admin.
+- **Errors** are `{ error, code }`: `not_linked` and `reauth` (connect again), `busy` (Shopify
+  throttled, or a refresh in flight), `shop_unavailable` (the store's plan lapsed or Shopify
+  locked it), `bad_signature` / `expired` / `bad_request` (a redirect that doesn't check out),
+  `shopify` (anything else Shopify refused). Each is logged as `user=<uuid> action=<action>
+code=<code>` and nothing else.
+- **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
+  example in Shopify's OAuth docs.
 
 ## Excluded from TypeScript checks
 
