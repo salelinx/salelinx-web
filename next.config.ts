@@ -24,6 +24,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 //
 // The ytimg, cdninstagram, fbcdn and tiktokcdn image hosts are the video
 // thumbnails on /admin/marketing, which each platform serves from its own CDN.
+// ytimg and youtube-nocookie are also the intro video on /get-started.
 //
 // script-src needs 'unsafe-inline' because the App Router injects inline
 // bootstrap scripts; moving to nonces requires wiring them through proxy.ts.
@@ -33,6 +34,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://www.googletagmanager.com https://*.google-analytics.com https://www.google.com https://www.google.co.uk https://ad.doubleclick.net https://i.ytimg.com https://*.cdninstagram.com https://*.fbcdn.net https://*.tiktokcdn.com https://*.tiktokcdn-us.com https://*.tiktokcdn-eu.com",
   "font-src 'self' data:",
+  "frame-src https://www.youtube-nocookie.com",
   "connect-src 'self' https://*.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://ad.doubleclick.net https://stats.g.doubleclick.net",
   "object-src 'none'",
   "base-uri 'self'",
