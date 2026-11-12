@@ -32,6 +32,7 @@
 //   createProduct { product } -> as `product`, read after the create
 //                a crosslist into the store, held to the crosslist allowance.
 //                product: title, description (plain text), vendor, productType,
+//                categoryPath (the source's, to find Shopify's own category),
 //                price, quantity, size (a Size option), tags, photos (fetched
 //                by Shopify), status DRAFT or ACTIVE; stock at the primary location
 //   takeOneOff { productId, key } -> { result, listing, descriptionHtml, quantity, editable }
@@ -64,6 +65,8 @@ import {
   authorizeUrl,
   newProduct,
   newProductInput,
+  pickTaxonomyCategory,
+  taxonomySearchTerms,
   photoFiles,
   productDetail,
   oneOffPlan,
@@ -625,6 +628,28 @@ async function takeOneOff(admin, userId: string, productId: unknown, key: unknow
 // No id: the store's primary location, where a crosslisted product's stock goes.
 const LOCATION_QUERY = '{ location { id } }';
 
+const TAXONOMY_QUERY = `query ($search: String!) {
+  taxonomy {
+    categories(search: $search, first: 25) { nodes { id name fullName isArchived } }
+  }
+}`;
+
+/** Shopify's own category closest to the source (pickTaxonomyCategory), or null. Never fails the
+ *  create: without one the product has its type and no category, as a hand-made one starts. */
+async function findCategory(auth, product): Promise<string | null> {
+  const source = `${product.categoryPath} ${product.productType} ${product.title}`;
+  try {
+    for (const term of taxonomySearchTerms(product.productType, product.categoryPath)) {
+      const data = await adminGraphql(auth.shop, auth.token, TAXONOMY_QUERY, { search: term });
+      const id = pickTaxonomyCategory(data?.taxonomy?.categories?.nodes ?? [], term, source);
+      if (id) return id;
+    }
+  } catch (err) {
+    console.warn('[shopify] category search failed:', err instanceof Error ? err.message : err);
+  }
+  return null;
+}
+
 const CREATE_MUTATION = `mutation ($input: ProductSetInput!) {
   productSet(input: $input, synchronous: true) {
     product { id }
@@ -645,8 +670,9 @@ async function createProduct(admin, userId: string, raw: unknown) {
   if (!location?.id) {
     throw new ShopifyError('Your Shopify store has no location to hold stock', 'shopify', 422);
   }
+  const category = await findCategory(auth, product);
   const data = await adminGraphql(auth.shop, auth.token, CREATE_MUTATION, {
-    input: newProductInput(product, location.id),
+    input: newProductInput(product, location.id, category),
   });
   const refused = refusal(data?.productSet?.userErrors);
   if (refused) throw refused;

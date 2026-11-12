@@ -658,11 +658,17 @@ code=<code>` and nothing else.
   and `newProductInput` makes one `productSet` call of it: the size as the one value of a Size
   option (Shopify's default Title variant without one), the stock tracked at the store's primary
   location (`location` with no id), the photos fetched by Shopify from where the source keeps them.
-  It answers like `product`, read after the create.
+  Shopify's Category is one of its standard categories, picked by id, unlike the free-text product
+  type: `findCategory` searches `taxonomy.categories` for the product type, then the step above it
+  in the source's `categoryPath` (`taxonomySearchTerms`, two searches at most), and
+  `pickTaxonomyCategory` takes the closest fit to the source's words ("Coats & Jackets" over
+  "Bomber Jackets" and the baby range), or none. A failed search leaves the category out rather
+  than failing the create. It answers like `product`, read after the create.
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
   example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
   editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`),
-  `oneOffPlan`, and the crosslist's `newProduct` and `newProductInput`.
+  `oneOffPlan`, and the crosslist's `newProduct`, `newProductInput`, `taxonomySearchTerms` and
+  `pickTaxonomyCategory`.
 
 ## Excluded from TypeScript checks
 

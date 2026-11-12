@@ -394,6 +394,8 @@ export interface NewProduct {
   vendor: string;
   /** The category, in words. */
   productType: string;
+  /** The source's category path ("Women > Outerwear > Jackets"), to find Shopify's own. */
+  categoryPath: string;
   price: number;
   quantity: number;
   /** The one value of a Size option; empty for none. */
@@ -456,6 +458,7 @@ export function newProduct(raw: unknown): NewProduct {
     description: text('description', 60_000),
     vendor: text('vendor', 255),
     productType: text('productType', 255),
+    categoryPath: text('categoryPath', 500),
     price: Math.round(price * 100) / 100,
     quantity,
     size: text('size', 255),
@@ -467,14 +470,16 @@ export function newProduct(raw: unknown): NewProduct {
 }
 
 /** productSet's input for a new product: one variant, with the size as its Size option (Shopify's
- *  own default Title when there is none), and its stock tracked at `locationId`. */
-export function newProductInput(p: NewProduct, locationId: string) {
+ *  own default Title when there is none), its stock tracked at `locationId`, and Shopify's own
+ *  category when one was found (pickTaxonomyCategory). */
+export function newProductInput(p: NewProduct, locationId: string, category?: string | null) {
   const [optionName, value] = p.size ? ['Size', p.size] : ['Title', 'Default Title'];
   return {
     title: p.title,
     descriptionHtml: textToHtml(p.description),
     ...(p.vendor ? { vendor: p.vendor } : {}),
     ...(p.productType ? { productType: p.productType } : {}),
+    ...(category ? { category } : {}),
     status: p.status,
     tags: p.tags,
     productOptions: [{ name: optionName, position: 1, values: [{ name: value }] }],
@@ -488,6 +493,80 @@ export function newProductInput(p: NewProduct, locationId: string) {
     ],
     files: p.photos.map((url) => ({ originalSource: url, contentType: 'IMAGE' })),
   };
+}
+
+// Shopify's Category is one of its own standard categories, picked by id; the product type is
+// free text. A crosslist searches the list for the product type, then the step above it, and
+// takes the closest match, or none.
+
+const STOP_WORDS = new Set(['and', 'the', 'other', 'of', 'for', 'with']);
+
+/** One form for singular and plural: "Jackets" and "jacket" are both "jacket". */
+function stem(w: string): string {
+  if (w.endsWith('ies') && w.length > 4) return `${w.slice(0, -3)}y`;
+  if (/(ss|x|ch|sh)es$/.test(w)) return w.slice(0, -2);
+  if (w.endsWith('s') && !w.endsWith('ss') && w.length > 3) return w.slice(0, -1);
+  return w;
+}
+
+function matchWords(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length > 1 && !STOP_WORDS.has(w))
+      .map(stem),
+  );
+}
+
+/** What to search Shopify's categories for, in order: the product type, then the last two steps
+ *  of the source's path, leaving out a catch-all "Other ...". Two at most. */
+export function taxonomySearchTerms(productType: string, categoryPath: string): string[] {
+  const steps = categoryPath
+    .split('>')
+    .map((s) => s.trim())
+    .filter((s) => s && !/^other\b/i.test(s));
+  const seen = new Set<string>();
+  const terms: string[] = [];
+  for (const term of [productType.trim(), ...steps.slice(-2).reverse()]) {
+    if (!term || seen.has(term.toLowerCase())) continue;
+    seen.add(term.toLowerCase());
+    terms.push(term);
+  }
+  return terms.slice(0, 2);
+}
+
+export interface TaxonomyNode {
+  id: string;
+  name: string;
+  fullName: string;
+  isArchived?: boolean;
+}
+
+/**
+ * The search result that best fits the source, or null. Its own name must hold the searched word
+ * (the search matches anywhere in the path). Each word of its path the source shares counts for
+ * it; each it doesn't, against it, more so in its own name, so "Coats & Jackets" beats "Bomber
+ * Jackets" under it and the baby range beside it.
+ */
+export function pickTaxonomyCategory(
+  nodes: TaxonomyNode[],
+  term: string,
+  sourceText: string,
+): string | null {
+  const want = matchWords(term);
+  const have = matchWords(`${sourceText} ${term}`);
+  let best: { id: string; score: number } | null = null;
+  for (const n of nodes) {
+    if (n.isArchived || !n.id) continue;
+    const name = matchWords(n.name ?? '');
+    if (![...want].some((w) => name.has(w))) continue;
+    let score = 0;
+    for (const w of matchWords(n.fullName ?? '')) score += have.has(w) ? 2 : -0.25;
+    for (const w of name) if (!have.has(w)) score -= 0.5;
+    if (score > 0 && (!best || score > best.score)) best = { id: n.id, score };
+  }
+  return best?.id ?? null;
 }
 
 /** One product read for the editor (the shopify function's PRODUCT_QUERY). What the extension
