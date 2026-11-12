@@ -18,18 +18,24 @@
 //   account {}          -> { shopName, shopDomain, currency }
 //   setStatus { productId, status } -> { status, totalInventory, tracksInventory }
 //                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide
-//   deleteProduct { productId } -> { ok }   for good; one already gone counts as deleted
-//   product { productId } -> { listing, descriptionHtml, quantity, editable, category, tags, options }
-//                (category: Shopify's own, as its path; options: the one variant's,
-//                none with several; the three are for a crosslist out of the store)
-//                one product for the editor: listing as `listings` gives it (up
-//                to 50 photos; its description is Shopify's one-line text, so the
-//                editor reads descriptionHtml), quantity the units available when
-//                SaleLinx can set them, editable { price, quantity, photos }
-//   updateProduct { productId, changes } -> as `product`, read after the save
-//                changes: title, description (plain text), vendor, productType,
-//                price, quantity, photos (addresses in order); a change the
-//                product doesn't allow is refused with 'not_editable'
+//   deleteProduct { productId, variantId? } -> { ok, deleted: 'variant' | 'product' }
+//                for good; with a variant, only it goes unless it is the product's
+//                last. One already gone counts as deleted
+//   product { productId, variantId? }
+//                -> { listing, descriptionHtml, quantity, editable, variant, category, tags, options }
+//                one product for the editor, about one variant: the one named, else
+//                the product's only one (none with several). listing as `listings`
+//                gives it (up to 50 photos, its variantList that one variant; its
+//                description is Shopify's one-line text, so the editor reads
+//                descriptionHtml); quantity the variant's units when SaleLinx can set
+//                them; editable { price, quantity, photos }. category (Shopify's own,
+//                as its path), tags and options (the variant's) are for a crosslist
+//                out of the store
+//   updateProduct { productId, variantId?, changes } -> as `product`, read after the save
+//                changes: title, description (plain text), vendor, productType and
+//                photos (addresses in order) are the product's; price and quantity
+//                the variant's. A change the product doesn't allow is refused with
+//                'not_editable'
 //   uploadPhoto { dataUrl } -> { url }   a new photo, staged in Shopify for the save
 //   createProduct { product } -> as `product`, read after the create
 //                a crosslist into the store, held to the crosslist allowance.
@@ -37,11 +43,12 @@
 //                categoryPath (the source's, to find Shopify's own category),
 //                price, quantity, size (a Size option), tags, photos (fetched
 //                by Shopify), status DRAFT or ACTIVE; stock at the primary location
-//   takeOneOff { productId, key } -> { result, listing, descriptionHtml, quantity, editable }
-//                a linked listing sold elsewhere: one off the product's stock.
+//   takeOneOff { productId, variantId?, key } -> { result, listing, descriptionHtml, quantity, editable, variant }
+//                a linked listing sold elsewhere: one off the variant's stock.
 //                result 'counted', 'sold', 'archived', 'manual' or 'gone' (see takeOneOff)
 //   listings { cursor? } -> { listings, cursor, hasMore }
-//                up to 100 products a call, in Shopify's order; pass the
+//                up to 100 products a call, each with every variant (variantList),
+//                in Shopify's order; pass the
 //                returned cursor back for the next call. Status is Shopify's
 //                own: the extension maps it onto My Listings' statuses.
 //
@@ -80,6 +87,8 @@ import {
   shopIdFromGid,
   textToHtml,
   tokenRequest,
+  variantGid,
+  variantSummary,
   verifiedShop,
 } from '../_shared/shopify.ts';
 
@@ -274,9 +283,18 @@ async function link(admin, userScoped, userId: string, query) {
 
 // ── Listings ───────────────────────────────────────────────────────────────
 
-// 25 products with 8 photos each asks about 550 points of the store's bucket,
-// under Shopify's 1,000-point cap on one query and inside a Standard store's
-// bucket, which refills at 100 points a second.
+// A variant as My Listings takes it (variantSummary): its price, stock, options
+// and own photo.
+const VARIANT_FIELDS = `legacyResourceId
+        title
+        price
+        inventoryQuantity
+        selectedOptions { name value }
+        media(first: 1) { nodes { ... on MediaImage { image { url } } } }`;
+
+// 25 products with 8 photos and their first variant each ask about 800 points
+// of the store's bucket, under Shopify's 1,000-point cap on one query and inside
+// a Standard store's bucket, which refills at 100 points a second.
 const PRODUCTS_QUERY = `query ($cursor: String) {
   products(first: 25, after: $cursor) {
     pageInfo { hasNextPage endCursor }
@@ -295,6 +313,25 @@ const PRODUCTS_QUERY = `query ($cursor: String) {
       priceRangeV2 { minVariantPrice { amount currencyCode } }
       variantsCount { count }
       media(first: 8) { nodes { ... on MediaImage { image { url } } } }
+      variants(first: 1) {
+        nodes {
+          ${VARIANT_FIELDS}
+          inventoryItem { tracked }
+        }
+      }
+    }
+  }
+}`;
+
+// The variants of a page's products that have several. 50 ask about 450 points.
+const VARIANTS_QUERY = `query ($query: String!, $cursor: String) {
+  productVariants(first: 50, after: $cursor, query: $query) {
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      position
+      product { legacyResourceId }
+      ${VARIANT_FIELDS}
+      inventoryItem { tracked }
     }
   }
 }`;
@@ -304,11 +341,39 @@ const PAGES_PER_CALL = 4;
 const LISTINGS_BUDGET_MS = 15_000;
 
 /**
- * A run of product pages. Between pages it waits for the store's bucket to
- * hold the next page's cost, so a big store is read without being throttled.
- * A throttle or failure after the first page ends the run early with the
- * cursor kept, and the extension asks again from there; one on the first page
- * is the call failing.
+ * Every variant of the given products (those with several), in each product's
+ * own order, onto their variantList. False when the call's budget ran out first.
+ */
+async function fillVariants(rows, ask, room): Promise<boolean> {
+  const byProduct = new Map(rows.map((r) => [r.productId, []]));
+  const query = `product_ids:${[...byProduct.keys()].join(',')}`;
+  let after = null;
+  do {
+    if (!(await room())) return false;
+    const data = await ask(VARIANTS_QUERY, { query, cursor: after });
+    const page = data?.productVariants;
+    for (const v of page?.nodes ?? []) {
+      const list = byProduct.get(String(v?.product?.legacyResourceId));
+      const summary = variantSummary(v);
+      if (list && summary) list.push({ position: Number(v.position) || 0, summary });
+    }
+    after = page?.pageInfo?.hasNextPage ? (page.pageInfo.endCursor ?? null) : null;
+  } while (after);
+  for (const r of rows) {
+    const list = byProduct.get(r.productId) ?? [];
+    if (list.length > 0) {
+      r.variantList = list.sort((a, b) => a.position - b.position).map((x) => x.summary);
+    }
+  }
+  return true;
+}
+
+/**
+ * A run of product pages, each with every variant of its products. Between
+ * queries it waits for the store's bucket to hold the next one's cost, so a big
+ * store is read without being throttled. A throttle or failure after the first
+ * page ends the run early with the cursor kept at the page it was on, and the
+ * extension asks again from there; one on the first page is the call failing.
  */
 async function listings(admin, userId: string, cursor: unknown) {
   if (cursor != null && typeof cursor !== 'string') {
@@ -320,27 +385,32 @@ async function listings(admin, userId: string, cursor: unknown) {
   let after = (cursor as string | null) ?? null;
   let hasMore = true;
   let cost = null;
+  const ask = (query: string, variables) =>
+    adminGraphql(auth.shop, auth.token, query, variables, (c) => (cost = c));
+  // Waits for the bucket to hold the next query, or answers false when that would pass the budget.
+  const room = async () => {
+    if (!cost || cost.available >= cost.requested) return true;
+    const waitMs = ((cost.requested - cost.available) / cost.restoreRate) * 1000;
+    if (Date.now() - started + waitMs > LISTINGS_BUDGET_MS) return false;
+    await sleep(waitMs);
+    return true;
+  };
   for (let page = 0; page < PAGES_PER_CALL && hasMore; page++) {
-    if (cost && cost.available < cost.requested) {
-      const waitMs = ((cost.requested - cost.available) / cost.restoreRate) * 1000;
-      if (Date.now() - started + waitMs > LISTINGS_BUDGET_MS) break;
-      await sleep(waitMs);
-    }
-    let data;
+    if (page > 0 && !(await room())) break;
+    let products;
+    let rows;
     try {
-      data = await adminGraphql(
-        auth.shop,
-        auth.token,
-        PRODUCTS_QUERY,
-        { cursor: after },
-        (c) => (cost = c),
-      );
+      products = (await ask(PRODUCTS_QUERY, { cursor: after }))?.products;
+      rows = (products?.nodes ?? []).map((p) => productSummary(auth.shop, p));
+      const several = rows.filter((r) => r.variants > 1);
+      if (several.length > 0 && !(await fillVariants(several, ask, room))) {
+        throw new ShopifyError('Shopify is busy, try again shortly', 'busy', 429);
+      }
     } catch (err) {
       if (page === 0) throw err;
       break;
     }
-    const products = data?.products;
-    for (const p of products?.nodes ?? []) out.push(productSummary(auth.shop, p));
+    out.push(...rows);
     hasMore = products?.pageInfo?.hasNextPage === true;
     after = products?.pageInfo?.endCursor ?? null;
     if (!after) hasMore = false;
@@ -387,23 +457,69 @@ const DELETE_MUTATION = `mutation ($id: ID!) {
   }
 }`;
 
-/** For good: Shopify keeps no copy, and takes the variants and unshared media with it. */
-async function deleteProduct(admin, userId: string, productId: unknown) {
+const VARIANT_OWNER_QUERY = `query ($id: ID!, $variantId: ID!) {
+  product(id: $id) { variantsCount { count } }
+  productVariant(id: $variantId) { product { id } }
+}`;
+
+const VARIANT_DELETE_MUTATION = `mutation ($productId: ID!, $variantsIds: [ID!]!) {
+  productVariantsBulkDelete(productId: $productId, variantsIds: $variantsIds) {
+    product { id }
+    userErrors { field message }
+  }
+}`;
+
+/**
+ * For good: Shopify keeps no copy. A product takes its variants and unshared
+ * media with it. With a variant named, only that variant goes, unless it is the
+ * product's last, when the product goes too. `deleted` says which, so the
+ * extension drops that one row or every row of the product. Deleted already, in
+ * Shopify or by an earlier try, counts as done.
+ */
+async function deleteProduct(admin, userId: string, productId: unknown, variantId: unknown) {
   const id = productGid(productId);
+  const vid = variantId == null ? null : variantGid(variantId);
   const auth = await accessTokenFor(admin, userId);
+  if (vid) {
+    const owner = await adminGraphql(auth.shop, auth.token, VARIANT_OWNER_QUERY, {
+      id,
+      variantId: vid,
+    });
+    if (!owner?.product) return { ok: true, deleted: 'product' };
+    if (owner.productVariant?.product?.id !== id) return { ok: true, deleted: 'variant' };
+    if (Number(owner.product.variantsCount?.count) > 1) {
+      const { productVariantsBulkDelete: res } = await adminGraphql(
+        auth.shop,
+        auth.token,
+        VARIANT_DELETE_MUTATION,
+        { productId: id, variantsIds: [vid] },
+      );
+      const refused = refusal(res?.userErrors);
+      if (refused && refused.code !== 'not_found') throw refused;
+      return { ok: true, deleted: 'variant' };
+    }
+  }
   const { productDelete: res } = await adminGraphql(auth.shop, auth.token, DELETE_MUTATION, { id });
   const refused = refusal(res?.userErrors);
-  // Deleted already, in Shopify or by an earlier try: what was asked for is done.
   if (refused && refused.code !== 'not_found') throw refused;
-  return { ok: true };
+  return { ok: true, deleted: 'product' };
 }
 
 // ── Editing a product ──────────────────────────────────────────────────────
 
-// About 120 points: one variant with its stock levels, and up to 50 photos.
-const PRODUCT_QUERY = `query ($id: ID!) {
-  product(id: $id) {
-    legacyResourceId
+// A variant with its stock levels, for the editor, a take-off and a crosslist.
+const DETAIL_VARIANT_FIELDS = `id
+      ${VARIANT_FIELDS}
+      inventoryItem {
+        id
+        tracked
+        inventoryLevels(first: 2) {
+          nodes { location { id } quantities(names: ["available"]) { quantity } }
+        }
+      }`;
+
+// About 130 points: one variant with its stock levels, and up to 50 photos.
+const PRODUCT_FIELDS = `legacyResourceId
     title
     description
     descriptionHtml
@@ -419,33 +535,44 @@ const PRODUCT_QUERY = `query ($id: ID!) {
     updatedAt
     priceRangeV2 { minVariantPrice { amount currencyCode } }
     variantsCount { count }
-    variants(first: 1) {
-      nodes {
-        id
-        selectedOptions { name value }
-        inventoryItem {
-          id
-          tracked
-          inventoryLevels(first: 2) {
-            nodes { location { id } quantities(names: ["available"]) { quantity } }
-          }
-        }
-      }
-    }
     mediaCount { count }
-    media(first: 50) { nodes { id ... on MediaImage { image { url } } } }
+    media(first: 50) { nodes { id ... on MediaImage { image { url } } } }`;
+
+const PRODUCT_QUERY = `query ($id: ID!) {
+  product(id: $id) {
+    ${PRODUCT_FIELDS}
+    variants(first: 1) { nodes { ${DETAIL_VARIANT_FIELDS} } }
   }
 }`;
 
-async function readProduct(auth, id: string) {
-  const { product } = await adminGraphql(auth.shop, auth.token, PRODUCT_QUERY, {
-    id,
-  });
-  if (!product) {
+const VARIANT_QUERY = `query ($id: ID!, $variantId: ID!) {
+  product(id: $id) { ${PRODUCT_FIELDS} }
+  productVariant(id: $variantId) {
+    product { id }
+    ${DETAIL_VARIANT_FIELDS}
+  }
+}`;
+
+/** The product, about the variant named (a GID), else its only one. */
+async function readProduct(auth, id: string, variantId: string | null = null) {
+  const data = await adminGraphql(
+    auth.shop,
+    auth.token,
+    variantId ? VARIANT_QUERY : PRODUCT_QUERY,
+    variantId ? { id, variantId } : { id },
+  );
+  if (!data?.product) {
     throw new ShopifyError('This product is no longer in your Shopify store', 'not_found', 404);
   }
-  return productDetail(auth.shop, product);
+  if (!variantId) return productDetail(auth.shop, data.product);
+  if (data.productVariant?.product?.id !== id) {
+    throw new ShopifyError('This variant is no longer in your Shopify store', 'not_found', 404);
+  }
+  return productDetail(auth.shop, data.product, data.productVariant);
 }
+
+const optionalVariant = (variantId: unknown): string | null =>
+  variantId == null ? null : variantGid(variantId);
 
 // category, tags and options are for a crosslist out of the store.
 const forEditor = (d) => ({
@@ -453,14 +580,16 @@ const forEditor = (d) => ({
   descriptionHtml: d.descriptionHtml,
   quantity: d.quantity,
   editable: d.editable,
+  variant: d.variant,
   category: d.category,
   tags: d.tags,
   options: d.options,
 });
 
-async function product(admin, userId: string, productId: unknown) {
+async function product(admin, userId: string, productId: unknown, variantId: unknown) {
   const id = productGid(productId);
-  return forEditor(await readProduct(await accessTokenFor(admin, userId), id));
+  const vid = optionalVariant(variantId);
+  return forEditor(await readProduct(await accessTokenFor(admin, userId), id, vid));
 }
 
 const UPDATE_MUTATION = `mutation ($product: ProductUpdateInput!) {
@@ -502,24 +631,31 @@ async function mutate(auth, query: string, variables, key: string) {
 }
 
 /**
- * The editor's save. Checks what the product allows first (one variant for a
- * price, tracked stock at one location for a quantity, photos the editor saw
- * in full), then sends each kind of change as its own call. Answers with the
- * product as it reads afterwards, for the extension's row.
+ * The editor's save. Checks what the product allows first (a variant for a
+ * price, its stock tracked at one location for a quantity, photos the editor saw
+ * in full), then sends each kind of change as its own call. Title, description,
+ * vendor, type and photos are the product's, so they change for every variant;
+ * price and quantity are the variant's. Answers with the product as it reads
+ * afterwards, for the extension's row.
  */
-async function updateProduct(admin, userId: string, productId: unknown, rawChanges: unknown) {
+async function updateProduct(
+  admin,
+  userId: string,
+  productId: unknown,
+  variantId: unknown,
+  rawChanges: unknown,
+) {
   const id = productGid(productId);
+  const vid = optionalVariant(variantId);
   const changes = productEdit(rawChanges);
   const auth = await accessTokenFor(admin, userId);
-  const before = await readProduct(auth, id);
+  const before = await readProduct(auth, id, vid);
   const refuse = (message: string) => new ShopifyError(message, 'not_editable', 422);
   if (changes.price !== undefined && !before.editable.price) {
     throw refuse('This product has variants: set their prices in Shopify');
   }
   if (changes.quantity !== undefined && !before.editable.quantity) {
-    throw refuse(
-      'SaleLinx can only set the stock of a product with one variant, tracked at one location',
-    );
+    throw refuse('SaleLinx can only set the stock of a variant tracked at one location');
   }
   if (changes.photos !== undefined && !before.editable.photos) {
     throw refuse("This product has media SaleLinx can't show: change its photos in Shopify");
@@ -582,24 +718,32 @@ async function updateProduct(admin, userId: string, productId: unknown, rawChang
       'productSet',
     );
   }
-  return forEditor(await readProduct(auth, id));
+  return forEditor(await readProduct(auth, id, vid));
 }
 
 /**
- * A linked listing sold elsewhere: one off this product's stock (oneOffPlan).
+ * A linked listing sold elsewhere: one off this variant's stock (oneOffPlan).
  * `key` names the sale, so a retry of the same one can't take a second unit
  * off. Answers with what happened and the product as it reads afterwards:
  * 'counted' (some left, still for sale), 'sold' (none left), 'archived'
- * (untracked stock), 'manual' (several variants or locations, left alone) or
- * 'gone' (not for sale anyway).
+ * (the only variant, untracked stock), 'manual' (no variant named on a product
+ * with several, several locations, or one of several untracked variants: left
+ * alone) or 'gone' (not for sale anyway).
  */
-async function takeOneOff(admin, userId: string, productId: unknown, key: unknown) {
+async function takeOneOff(
+  admin,
+  userId: string,
+  productId: unknown,
+  variantId: unknown,
+  key: unknown,
+) {
   const id = productGid(productId);
+  const vid = optionalVariant(variantId);
   if (typeof key !== 'string' || !/^[\w:.-]{1,200}$/.test(key)) {
     throw new ShopifyError('Bad key', 'bad_request', 400);
   }
   const auth = await accessTokenFor(admin, userId);
-  const before = await readProduct(auth, id);
+  const before = await readProduct(auth, id, vid);
   const plan = oneOffPlan(before);
   if (plan.kind === 'gone' || plan.kind === 'manual') {
     return { result: plan.kind, ...forEditor(before) };
@@ -628,7 +772,7 @@ async function takeOneOff(admin, userId: string, productId: unknown, key: unknow
       'inventorySetQuantities',
     );
   }
-  const after = await readProduct(auth, id);
+  const after = await readProduct(auth, id, vid);
   const result =
     plan.kind === 'archive' ? 'archived' : (after.quantity ?? 0) > 0 ? 'counted' : 'sold';
   return { result, ...forEditor(after) };
@@ -815,19 +959,25 @@ Deno.serve(async (req: Request) => {
         return json(200, await setStatus(admin, user.id, body.productId, body.status));
 
       case 'deleteProduct':
-        return json(200, await deleteProduct(admin, user.id, body.productId));
+        return json(200, await deleteProduct(admin, user.id, body.productId, body.variantId));
 
       case 'product':
-        return json(200, await product(admin, user.id, body.productId));
+        return json(200, await product(admin, user.id, body.productId, body.variantId));
 
       case 'updateProduct':
-        return json(200, await updateProduct(admin, user.id, body.productId, body.changes));
+        return json(
+          200,
+          await updateProduct(admin, user.id, body.productId, body.variantId, body.changes),
+        );
 
       case 'uploadPhoto':
         return json(200, await uploadPhoto(admin, user.id, body.dataUrl));
 
       case 'takeOneOff':
-        return json(200, await takeOneOff(admin, user.id, body.productId, body.key));
+        return json(
+          200,
+          await takeOneOff(admin, user.id, body.productId, body.variantId, body.key),
+        );
 
       // Posts a crosslist itself, so it is held to the same paywall as
       // resolve-category and the ebay function's add: nothing else on the

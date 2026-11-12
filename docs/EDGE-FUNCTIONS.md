@@ -53,7 +53,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `signup-notify`           | false        | `trg_notify_signup` on `auth.users` (048) POSTs the new user's id; emails staff "New signup" via `_shared/payment-notify.ts`. Unauthenticated, but only announces accounts under 5 minutes old |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
-| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products, status changes, delete. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
+| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
 | `shopify-public`          | false        | The Shopify app's App URL (GET, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
@@ -608,14 +608,19 @@ billing, a page in Shopify's admin, final scopes).
 - **Unlink** deletes the tokens. The app stays installed in the store until the seller removes it
   in Shopify's admin.
 - **Listings** (`listings { cursor? }`) is the store's products for the extension's My Listings:
-  up to four pages of 25 a call, each product with up to 8 photos, in Shopify's order, with the
-  cursor to pass back for the next call (null once there are no more). A page asks about 550 of the
-  store's GraphQL points (Shopify caps one query at 1,000, and a Standard store refills 100 a
-  second), so between pages the call waits for the bucket from `extensions.cost` (`adminGraphql`'s
-  `onCost`), and it stops after 15 seconds with the cursor kept. A throttle or failure after the
-  first page ends the call early the same way; one on the first page is the call failing. Status is
-  Shopify's own (ACTIVE, DRAFT, ARCHIVED, UNLISTED), and `url` is the product in the store's admin;
-  the extension maps the rest (`productSummary` in `_shared/shopify.ts`).
+  up to four pages of 25 a call, each product with up to 8 photos and every variant
+  (`variantList`, `variantSummary`: its own id, title such as "M / Black", options, price, stock
+  and photo), in Shopify's order, with the cursor to pass back for the next call (null once there
+  are no more). Each variant is a row of its own in the extension (the seller's call, 2026-11-12).
+  A page reads each product's first variant, about 800 of the store's GraphQL points (Shopify caps
+  one query at 1,000, and a Standard store refills 100 a second); the products on it with several
+  get the rest from `productVariants` filtered by `product_ids`, 50 a query (`fillVariants`). Before
+  each query the call waits for the bucket from `extensions.cost` (`adminGraphql`'s `onCost`), and
+  it stops after 15 seconds with the cursor kept at the page it was on, so a page and its variants
+  always arrive together. A throttle or failure after the first page ends the call early the same
+  way; one on the first page is the call failing. Status is Shopify's own (ACTIVE, DRAFT, ARCHIVED,
+  UNLISTED), and `url` is the product in the store's admin; the extension maps the rest
+  (`productSummary` in `_shared/shopify.ts`).
 - **Errors** are `{ error, code }`: `not_linked` and `reauth` (connect again), `busy` (Shopify
   throttled, or a refresh in flight), `shop_unavailable` (the store's plan lapsed or Shopify
   locked it), `bad_signature` / `expired` / `bad_request` (a redirect that doesn't check out),
@@ -623,33 +628,43 @@ billing, a page in Shopify's admin, final scopes).
 code=<code>` and nothing else.
 - **Product changes** for My Listings: `setStatus { productId, status }` (ACTIVE, DRAFT or ARCHIVED,
   through `productUpdate`) answers with the product's status and stock, which the extension maps
-  onto its row; `deleteProduct { productId }` (`productDelete`, synchronous) deletes for good, and
-  a product already gone counts as deleted. `productId` is the numeric id (`productGid` checks it);
+  onto its row. Status is the whole product's: Shopify has none per variant.
+  `deleteProduct { productId, variantId? }` deletes for good: with a variant named, only that
+  variant (`productVariantsBulkDelete`), unless it is the product's last, when the product goes
+  (`productDelete`, synchronous); `deleted` answers `variant` or `product`. A variant or product
+  already gone counts as deleted, and a variant no longer on the product never deletes the product.
+  `productId` and `variantId` are numeric ids (`productGid`, `variantGid` check them);
   Shopify's first `userErrors` message comes back as `shopify` (422), or `not_found` (404) for a
   product that is gone (`refusal`).
-- **The editor** (`product`, `updateProduct`, `uploadPhoto`). `product { productId }` reads one
-  product (`productDetail`): the listing, `descriptionHtml` (the listing's `description` is
-  Shopify's one-line text) and what SaleLinx may change, plus what a crosslist out of the store
-  reads: Shopify's own `category` as its path, the `tags`, and the one variant's `options`
-  ("Size: M", none with several variants). Price needs one variant; quantity needs
-  that variant's stock tracked at one location; photos need every media item to be a ready image,
-  50 at most, since the photo save replaces the whole set. With one variant at one location the
-  stock level stands in for the product's `totalInventory`, which Shopify updates a moment after a
-  stock change, so a read straight after a save or `takeOneOff` doesn't report the old count. `updateProduct { productId, changes }`
+- **The editor** (`product`, `updateProduct`, `uploadPhoto`). `product { productId, variantId? }`
+  reads one product about one variant (`productDetail`): the one named (`productVariant`, which
+  must belong to the product, else `not_found`), or the product's only one. It answers with the
+  listing (its `variantList` that one variant), `variant`, `descriptionHtml` (the listing's
+  `description` is Shopify's one-line text) and what SaleLinx may change, plus what a crosslist out
+  of the store reads: Shopify's own `category` as its path, the `tags`, and the variant's `options`
+  ("Size: M"; none for a product with several and none named). Price needs a variant; quantity
+  needs its stock tracked at one location; photos need every media item to be a ready image, 50 at
+  most, since the photo save replaces the whole set. With one location the stock level stands in
+  for the variant's count, and with one variant for the product's `totalInventory`: Shopify updates
+  both a moment after a stock change, so a read straight after a save or `takeOneOff` doesn't
+  report the old count. `updateProduct { productId, variantId?, changes }`
   checks the changes (`productEdit`), reads the product again, refuses what it doesn't allow with
   `not_editable` (422), then sends title, description (plain text made into paragraphs by
-  `textToHtml`), vendor and product type through `productUpdate`, the price through
-  `productVariantsBulkUpdate`, the quantity through `inventorySetQuantities` with
+  `textToHtml`), vendor and product type through `productUpdate` (the product's, so every variant
+  changes), the variant's price through `productVariantsBulkUpdate`, its quantity through
+  `inventorySetQuantities` with
   `changeFromQuantity` (a sale in between makes Shopify refuse) and the photos through
   `productSet` with `files` alone (`photoFiles`: a photo the product has keeps its media id). It
   answers with the product read afterwards. `uploadPhoto { dataUrl }` stages a new photo
   (`stagedUploadsCreate`, then a form POST to Shopify's storage) and answers with the address the
   photo list then carries.
-- **Linked sales** (`takeOneOff { productId, key }`). A listing linked to the product sold on a
-  marketplace, so one comes off the product's stock (`oneOffPlan`): with one variant tracked at one
-  location it's set to one less with `changeFromQuantity`, under the `@idempotent` key the
-  extension names the sale with, so a retry of that sale can't take a second unit off. Untracked
-  stock is archived instead, and several variants or locations are left alone (`manual`). It
+- **Linked sales** (`takeOneOff { productId, variantId?, key }`). A listing linked to the
+  variant sold on a marketplace, so one comes off its stock (`oneOffPlan`): tracked at one location
+  it's set to one less with `changeFromQuantity`, under the `@idempotent` key the extension names
+  the sale with, so a retry of that sale can't take a second unit off. A product's only variant
+  with untracked stock has the product archived instead; one of several is left alone (`manual`),
+  as archiving would take its other variants off sale. Several locations, or no variant named on a
+  product with several, are left alone too. It
   answers with what happened (`counted`, `sold`, `archived`, `manual` or `gone`) and the product
   read afterwards.
 - **Crosslisting into the store** (`createProduct { product }`). Posts a crosslist itself, so it
