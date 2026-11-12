@@ -59,10 +59,21 @@ export function GetStartedInstall({ buttonClassName }: { buttonClassName: string
     emailInstallLink(locale).then((ok) => setStatus(ok ? 'sent' : 'error'));
   }, [isTouch, locale]);
 
+  const video = (
+    <iframe
+      src="https://www.youtube-nocookie.com/embed/ovqbY6k1EvU?rel=0"
+      title="SaleLinx"
+      allow="encrypted-media; picture-in-picture; fullscreen"
+      allowFullScreen
+      className="mt-8 aspect-video w-full rounded-xl"
+    />
+  );
+
   if (!isTouch) {
     return (
       <>
         <p className="mt-3 text-zinc-600 dark:text-zinc-400">{t('subtitle')}</p>
+        {video}
         <InstallExtensionButton label={t('addToChrome')} className={buttonClassName} />
       </>
     );
@@ -71,6 +82,7 @@ export function GetStartedInstall({ buttonClassName }: { buttonClassName: string
   return (
     <>
       <p className="mt-3 text-zinc-600 dark:text-zinc-400">{t('phoneSubtitle')}</p>
+      {video}
       {status === 'sent' && (
         <p className="mt-6 text-sm text-emerald-600 dark:text-emerald-400">{t('phoneSent')}</p>
       )}
