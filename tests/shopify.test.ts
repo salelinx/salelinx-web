@@ -478,6 +478,25 @@ describe('productDetail', () => {
     ...over,
   });
 
+  it('reads the category, tags and the one variant\'s options for a crosslist out', () => {
+    const one = node({
+      category: { fullName: 'Apparel & Accessories > Clothing > Outerwear > Coats & Jackets' },
+      tags: ['Very good', 'Blue'],
+    });
+    one.variants.nodes[0] = {
+      ...one.variants.nodes[0],
+      selectedOptions: [{ name: 'Size', value: 'M' }],
+    } as never;
+    const d = productDetail('s.myshopify.com', one);
+    expect(d.category).toBe('Apparel & Accessories > Clothing > Outerwear > Coats & Jackets');
+    expect(d.tags).toEqual(['Very good', 'Blue']);
+    expect(d.options).toEqual([{ name: 'Size', value: 'M' }]);
+    // Several variants: no one variant's options to give.
+    const many = productDetail('s.myshopify.com', { ...one, variantsCount: { count: 3 } });
+    expect(many.options).toEqual([]);
+    expect(productDetail('s.myshopify.com', node()).category).toBeNull();
+  });
+
   it('takes the stock level as the total, which Shopify updates a moment after a change', () => {
     // Straight after a restock to 1 the product's totalInventory can still say 0, which reads as
     // Sold: the level is what the change wrote.

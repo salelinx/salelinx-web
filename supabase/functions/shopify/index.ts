@@ -19,7 +19,9 @@
 //   setStatus { productId, status } -> { status, totalInventory, tracksInventory }
 //                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide
 //   deleteProduct { productId } -> { ok }   for good; one already gone counts as deleted
-//   product { productId } -> { listing, descriptionHtml, quantity, editable }
+//   product { productId } -> { listing, descriptionHtml, quantity, editable, category, tags, options }
+//                (category: Shopify's own, as its path; options: the one variant's,
+//                none with several; the three are for a crosslist out of the store)
 //                one product for the editor: listing as `listings` gives it (up
 //                to 50 photos; its description is Shopify's one-line text, so the
 //                editor reads descriptionHtml), quantity the units available when
@@ -411,6 +413,8 @@ const PRODUCT_QUERY = `query ($id: ID!) {
     tracksInventory
     vendor
     productType
+    category { fullName }
+    tags
     createdAt
     updatedAt
     priceRangeV2 { minVariantPrice { amount currencyCode } }
@@ -418,6 +422,7 @@ const PRODUCT_QUERY = `query ($id: ID!) {
     variants(first: 1) {
       nodes {
         id
+        selectedOptions { name value }
         inventoryItem {
           id
           tracked
@@ -442,11 +447,15 @@ async function readProduct(auth, id: string) {
   return productDetail(auth.shop, product);
 }
 
+// category, tags and options are for a crosslist out of the store.
 const forEditor = (d) => ({
   listing: d.listing,
   descriptionHtml: d.descriptionHtml,
   quantity: d.quantity,
   editable: d.editable,
+  category: d.category,
+  tags: d.tags,
+  options: d.options,
 });
 
 async function product(admin, userId: string, productId: unknown) {

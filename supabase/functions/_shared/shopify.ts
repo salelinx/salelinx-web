@@ -583,6 +583,11 @@ export interface ProductDetail {
   tracked: boolean;
   stock: { inventoryItemId: string; locationId: string; quantity: number } | null;
   media: { id: string; url: string }[];
+  /** Shopify's own category, as its full path; null when none is set. */
+  category: string | null;
+  tags: string[];
+  /** The one variant's options ("Size: M"); none with several variants. */
+  options: { name: string; value: string }[];
 }
 
 // deno-lint-ignore no-explicit-any
@@ -618,6 +623,16 @@ export function productDetail(shop: string, p: any): ProductDetail {
     tracked: single && item?.tracked === true,
     stock: stock?.locationId ? stock : null,
     media,
+    category: typeof p.category?.fullName === 'string' ? p.category.fullName : null,
+    tags: Array.isArray(p.tags) ? p.tags.filter((t: unknown) => typeof t === 'string') : [],
+    options: single
+      ? (variant.selectedOptions ?? [])
+          .filter(
+            (o: { name?: unknown; value?: unknown }) =>
+              typeof o?.name === 'string' && typeof o?.value === 'string',
+          )
+          .map((o: { name: string; value: string }) => ({ name: o.name, value: o.value }))
+      : [],
   };
 }
 

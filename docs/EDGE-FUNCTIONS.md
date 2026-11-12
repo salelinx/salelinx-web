@@ -629,7 +629,9 @@ code=<code>` and nothing else.
   product that is gone (`refusal`).
 - **The editor** (`product`, `updateProduct`, `uploadPhoto`). `product { productId }` reads one
   product (`productDetail`): the listing, `descriptionHtml` (the listing's `description` is
-  Shopify's one-line text) and what SaleLinx may change. Price needs one variant; quantity needs
+  Shopify's one-line text) and what SaleLinx may change, plus what a crosslist out of the store
+  reads: Shopify's own `category` as its path, the `tags`, and the one variant's `options`
+  ("Size: M", none with several variants). Price needs one variant; quantity needs
   that variant's stock tracked at one location; photos need every media item to be a ready image,
   50 at most, since the photo save replaces the whole set. With one variant at one location the
   stock level stands in for the product's `totalInventory`, which Shopify updates a moment after a
