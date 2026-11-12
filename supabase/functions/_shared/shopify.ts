@@ -223,6 +223,9 @@ export interface ShopifyListingSummary {
   totalInventory: number | null;
   tracksInventory: boolean;
   variants: number;
+  /** Its variants, each a row of its own in My Listings: every one in `listings`, the one asked
+   *  about in `product`. */
+  variantList: ShopifyVariantSummary[];
   photos: string[];
   vendor: string | null;
   productType: string | null;
@@ -234,7 +237,57 @@ export interface ShopifyListingSummary {
   updatedAt: string | null;
 }
 
-/** One node of the products query in the shopify function. */
+/** One variant of a product. Price and stock are its own; everything else is the product's. */
+export interface ShopifyVariantSummary {
+  variantId: string;
+  /** Shopify's name for it, its option values joined ("M / Black"); "Default Title" when the
+   *  product has no options. */
+  title: string;
+  options: { name: string; value: string }[];
+  price: number | null;
+  /** Units available across its locations; null when its stock isn't tracked. */
+  quantity: number | null;
+  tracked: boolean;
+  /** Its own photo, when the seller gave it one. */
+  photo: string | null;
+}
+
+/** "Size: M" pairs, as Shopify names them. */
+// deno-lint-ignore no-explicit-any
+function optionsOf(selected: any): { name: string; value: string }[] {
+  return (Array.isArray(selected) ? selected : [])
+    .filter(
+      (o: { name?: unknown; value?: unknown }) =>
+        typeof o?.name === 'string' && typeof o?.value === 'string',
+    )
+    .map((o: { name: string; value: string }) => ({ name: o.name, value: o.value }));
+}
+
+/** One variant node (VARIANT_FIELDS in the shopify function), or null without an id. */
+// deno-lint-ignore no-explicit-any
+export function variantSummary(v: any): ShopifyVariantSummary | null {
+  const raw = v?.legacyResourceId ?? (typeof v?.id === 'string' ? v.id.split('/').pop() : null);
+  if (raw == null || raw === '') return null;
+  const price = Number(v.price);
+  const tracked = v.inventoryItem?.tracked === true;
+  const quantity = Number(v.inventoryQuantity);
+  const photo = (v.media?.nodes ?? []).find(
+    (m: { image?: { url?: unknown } }) => typeof m?.image?.url === 'string' && m.image.url,
+  )?.image.url;
+  return {
+    variantId: String(raw),
+    title: String(v.title ?? ''),
+    options: optionsOf(v.selectedOptions),
+    price: Number.isFinite(price) && v.price != null ? price : null,
+    quantity: tracked && v.inventoryQuantity != null && Number.isFinite(quantity) ? quantity : null,
+    tracked,
+    photo: photo ?? null,
+  };
+}
+
+/** One node of the products query in the shopify function. Its `variantList` is the variants the
+ *  query read: the first, which is all of them unless the product has several (the function then
+ *  reads the rest). */
 // deno-lint-ignore no-explicit-any
 export function productSummary(shop: string, p: any): ShopifyListingSummary {
   const id = String(p.legacyResourceId);
@@ -249,6 +302,9 @@ export function productSummary(shop: string, p: any): ShopifyListingSummary {
     totalInventory: typeof p.totalInventory === 'number' ? p.totalInventory : null,
     tracksInventory: p.tracksInventory === true,
     variants: Number(p.variantsCount?.count) || 1,
+    variantList: (p.variants?.nodes ?? [])
+      .map(variantSummary)
+      .filter((v: ShopifyVariantSummary | null): v is ShopifyVariantSummary => v !== null),
     photos: (p.media?.nodes ?? [])
       .map((m: { image?: { url?: string } }) => m?.image?.url)
       .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0),
@@ -270,6 +326,14 @@ export function productGid(productId: unknown): string {
     throw new ShopifyError('Bad product id', 'bad_request', 400);
   }
   return `gid://shopify/Product/${productId}`;
+}
+
+/** A variant's numeric id, as the extension holds it, made into its GID. */
+export function variantGid(variantId: unknown): string {
+  if (typeof variantId !== 'string' || !/^\d{1,20}$/.test(variantId)) {
+    throw new ShopifyError('Bad variant id', 'bad_request', 400);
+  }
+  return `gid://shopify/ProductVariant/${variantId}`;
 }
 
 /** Shopify's first refusal, or nothing. `not_found` for a product that is gone. */
@@ -575,31 +639,37 @@ export interface ProductDetail {
   listing: ShopifyListingSummary;
   /** `listing.description` is Shopify's text version, all on one line. */
   descriptionHtml: string;
-  /** Units available, when SaleLinx can set them: one variant, tracked, at one location. */
+  /** The variant's units available, when SaleLinx can set them: tracked, at one location. */
   quantity: number | null;
   editable: { price: boolean; quantity: boolean; photos: boolean };
+  /** The variant the read is about (its GID): the one named, else the product's only one. Null
+   *  for a product with several and none named. */
   variantId: string | null;
-  /** The one variant's stock is tracked. False with several variants. */
+  variant: ShopifyVariantSummary | null;
+  /** That variant's stock is tracked. */
   tracked: boolean;
   stock: { inventoryItemId: string; locationId: string; quantity: number } | null;
   media: { id: string; url: string }[];
   /** Shopify's own category, as its full path; null when none is set. */
   category: string | null;
   tags: string[];
-  /** The one variant's options ("Size: M"); none with several variants. */
+  /** That variant's options ("Size: M"); none without one. */
   options: { name: string; value: string }[];
 }
 
+/** `named` is the variant asked about (the query's `productVariant`, checked to be this
+ *  product's); without one the read is about the product's only variant, if it has one. */
 // deno-lint-ignore no-explicit-any
-export function productDetail(shop: string, p: any): ProductDetail {
+export function productDetail(shop: string, p: any, named?: any): ProductDetail {
   const summary = productSummary(shop, p);
-  const variant = p.variants?.nodes?.[0];
-  const single = Number(p.variantsCount?.count) === 1 && typeof variant?.id === 'string';
-  const item = variant?.inventoryItem;
+  const count = Number(p.variantsCount?.count);
+  const node = named ?? (count === 1 ? p.variants?.nodes?.[0] : null);
+  const chosen = typeof node?.id === 'string' ? node : null;
+  const item = chosen?.inventoryItem;
   const levels = item?.inventoryLevels?.nodes ?? [];
   const available = Number(levels[0]?.quantities?.[0]?.quantity);
   const stock =
-    single && item?.tracked === true && levels.length === 1 && Number.isFinite(available)
+    chosen && item?.tracked === true && levels.length === 1 && Number.isFinite(available)
       ? { inventoryItemId: item.id, locationId: levels[0].location?.id, quantity: available }
       : null;
   const nodes = p.media?.nodes ?? [];
@@ -610,47 +680,47 @@ export function productDetail(shop: string, p: any): ProductDetail {
   // save would drop it: the photos are only editable when the editor sees every one.
   const photos =
     media.length === nodes.length && Number(p.mediaCount?.count ?? nodes.length) === nodes.length;
-  // The product's totalInventory catches up with a stock change a moment later, so a read straight
-  // after one (the editor's save, a linked sale's takeOneOff) still has the old count and would
-  // read as Sold. The level is the count itself: with one, it is the total.
-  const listing = stock ? { ...summary, totalInventory: stock.quantity } : summary;
+  // The product's totalInventory and the variant's inventoryQuantity catch up with a stock change
+  // a moment later, so a read straight after one (the editor's save, a linked sale's takeOneOff)
+  // still has the old count and would read as Sold. The level is the count itself: with one
+  // location it is the variant's, and with one variant the product's too.
+  const own = chosen ? variantSummary(chosen) : null;
+  const variant = own && stock ? { ...own, quantity: stock.quantity } : own;
+  const base = count === 1 && stock ? { ...summary, totalInventory: stock.quantity } : summary;
   return {
-    listing,
+    listing: { ...base, variantList: variant ? [variant] : [] },
     descriptionHtml: String(p.descriptionHtml ?? ''),
     quantity: stock?.quantity ?? null,
-    editable: { price: single, quantity: stock !== null && !!stock.locationId, photos },
-    variantId: single ? variant.id : null,
-    tracked: single && item?.tracked === true,
+    editable: { price: chosen !== null, quantity: stock !== null && !!stock.locationId, photos },
+    variantId: chosen ? chosen.id : null,
+    variant,
+    tracked: item?.tracked === true,
     stock: stock?.locationId ? stock : null,
     media,
     category: typeof p.category?.fullName === 'string' ? p.category.fullName : null,
     tags: Array.isArray(p.tags) ? p.tags.filter((t: unknown) => typeof t === 'string') : [],
-    options: single
-      ? (variant.selectedOptions ?? [])
-          .filter(
-            (o: { name?: unknown; value?: unknown }) =>
-              typeof o?.name === 'string' && typeof o?.value === 'string',
-          )
-          .map((o: { name: string; value: string }) => ({ name: o.name, value: o.value }))
-      : [],
+    options: variant?.options ?? [],
   };
 }
 
-/** What a sale of a linked listing elsewhere does to this product (the seller's rule, 2026-11-11):
- *  one off its stock, so a product with some left stays for sale. */
+/** What a sale of a linked listing elsewhere does to this variant (the seller's rule, 2026-11-11):
+ *  one off its stock, so a variant with some left stays for sale. */
 export type OneOffPlan =
   /** Not for sale: a draft, archived, or no stock left. */
   | { kind: 'gone' }
-  /** Several variants, or stock at several locations: which one sold is the seller's call. */
+  /** No variant named on a product with several, stock at several locations, or untracked stock
+   *  on one of several variants: which one sold, or what to do, is the seller's call. */
   | { kind: 'manual' }
-  /** One variant, stock not tracked: Shopify would never sell it out, so it's archived. */
+  /** The product's only variant, stock not tracked: Shopify would never sell it out, so the
+   *  product is archived. */
   | { kind: 'archive' }
   | { kind: 'take'; inventoryItemId: string; locationId: string; from: number };
 
 export function oneOffPlan(d: ProductDetail): OneOffPlan {
   if (d.listing.status !== 'ACTIVE') return { kind: 'gone' };
   if (!d.variantId) return { kind: 'manual' };
-  if (!d.tracked) return { kind: 'archive' };
+  // Archiving is the whole product's status: it would take the other variants off sale too.
+  if (!d.tracked) return d.listing.variants > 1 ? { kind: 'manual' } : { kind: 'archive' };
   if (!d.stock) return { kind: 'manual' };
   if (d.stock.quantity <= 0) return { kind: 'gone' };
   const { inventoryItemId, locationId, quantity } = d.stock;

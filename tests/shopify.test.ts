@@ -23,6 +23,8 @@ const {
   samePhotos,
   shopIdFromGid,
   textToHtml,
+  variantGid,
+  variantSummary,
   verifiedShop,
   verifyWebhook,
 } = await import('../supabase/functions/_shared/shopify');
@@ -203,6 +205,81 @@ describe('productSummary', () => {
     });
     expect(s.price).toBeNull();
     expect(s.totalInventory).toBeNull();
+  });
+
+  it('carries the variant the query read, as a row of its own', () => {
+    const s = productSummary('test-shop.myshopify.com', {
+      ...node,
+      variants: {
+        nodes: [
+          {
+            legacyResourceId: '4401',
+            title: 'Default Title',
+            price: '24.50',
+            inventoryQuantity: 2,
+            selectedOptions: [{ name: 'Title', value: 'Default Title' }],
+            inventoryItem: { tracked: true },
+            media: { nodes: [] },
+          },
+        ],
+      },
+    });
+    expect(s.variantList).toEqual([
+      {
+        variantId: '4401',
+        title: 'Default Title',
+        options: [{ name: 'Title', value: 'Default Title' }],
+        price: 24.5,
+        quantity: 2,
+        tracked: true,
+        photo: null,
+      },
+    ]);
+    expect(productSummary('test-shop.myshopify.com', node).variantList).toEqual([]);
+  });
+});
+
+describe('variantSummary', () => {
+  it("reads a variant's own price, stock, options and photo", () => {
+    expect(
+      variantSummary({
+        legacyResourceId: '4402',
+        title: 'M / Black',
+        price: '20.00',
+        inventoryQuantity: 3,
+        selectedOptions: [
+          { name: 'Size', value: 'M' },
+          { name: 'Colour', value: 'Black' },
+        ],
+        inventoryItem: { tracked: true },
+        media: { nodes: [{}, { image: { url: 'https://cdn/black.jpg' } }] },
+      }),
+    ).toEqual({
+      variantId: '4402',
+      title: 'M / Black',
+      options: [
+        { name: 'Size', value: 'M' },
+        { name: 'Colour', value: 'Black' },
+      ],
+      price: 20,
+      quantity: 3,
+      tracked: true,
+      photo: 'https://cdn/black.jpg',
+    });
+  });
+
+  it('has no count for untracked stock, and needs an id', () => {
+    const v = variantSummary({ id: 'gid://shopify/ProductVariant/9', inventoryQuantity: 0 });
+    expect(v).toMatchObject({ variantId: '9', quantity: null, tracked: false, price: null });
+    expect(variantSummary({ title: 'M' })).toBeNull();
+  });
+});
+
+describe('variantGid', () => {
+  it('takes only a numeric id', () => {
+    expect(variantGid('4402')).toBe('gid://shopify/ProductVariant/4402');
+    expect(() => variantGid('gid://shopify/ProductVariant/4402')).toThrow('Bad variant id');
+    expect(() => variantGid(4402)).toThrow('Bad variant id');
   });
 });
 
@@ -556,6 +633,51 @@ describe('productDetail', () => {
     expect(productDetail('s', video).editable.photos).toBe(false);
     expect(productDetail('s', node({ mediaCount: { count: 60 } })).editable.photos).toBe(false);
   });
+
+  it("is about the variant named on a product with several: its price, stock and options", () => {
+    const named = {
+      id: 'gid://shopify/ProductVariant/71',
+      legacyResourceId: '71',
+      title: 'L / Grey',
+      price: '22.00',
+      inventoryQuantity: 9,
+      selectedOptions: [
+        { name: 'Size', value: 'L' },
+        { name: 'Colour', value: 'Grey' },
+      ],
+      media: { nodes: [{ image: { url: 'https://cdn/grey.jpg' } }] },
+      inventoryItem: {
+        id: 'gid://shopify/InventoryItem/710',
+        tracked: true,
+        inventoryLevels: {
+          nodes: [{ location: { id: 'gid://shopify/Location/1' }, quantities: [{ quantity: 4 }] }],
+        },
+      },
+    };
+    const d = productDetail(
+      's.myshopify.com',
+      node({ variantsCount: { count: 3 }, totalInventory: 7, tracksInventory: true }),
+      named,
+    );
+    expect(d.variantId).toBe('gid://shopify/ProductVariant/71');
+    expect(d.editable).toEqual({ price: true, quantity: true, photos: true });
+    // The level, not inventoryQuantity, which lags a change as totalInventory does.
+    expect(d.quantity).toBe(4);
+    expect(d.variant).toMatchObject({ variantId: '71', quantity: 4, price: 22, photo: 'https://cdn/grey.jpg' });
+    expect(d.options).toEqual([
+      { name: 'Size', value: 'L' },
+      { name: 'Colour', value: 'Grey' },
+    ]);
+    expect(d.listing.variantList).toEqual([d.variant]);
+    // The product's own total stays the product's.
+    expect(d.listing.totalInventory).toBe(7);
+  });
+
+  it('is about no variant on a product with several and none named', () => {
+    const d = productDetail('s', node({ variantsCount: { count: 3 } }));
+    expect(d.variant).toBeNull();
+    expect(d.listing.variantList).toEqual([]);
+  });
 });
 
 describe('oneOffPlan', () => {
@@ -608,5 +730,13 @@ describe('oneOffPlan', () => {
       'manual',
     );
     expect(oneOffPlan(detail({ stock: null })).kind).toBe('manual');
+  });
+
+  it('takes one off the variant named, and never archives a product with others', () => {
+    const d = detail();
+    const several = { ...d, listing: { ...d.listing, variants: 3 } };
+    expect(oneOffPlan(several).kind).toBe('take');
+    // Archiving is the whole product's status: its other variants would go off sale too.
+    expect(oneOffPlan({ ...several, tracked: false, stock: null }).kind).toBe('manual');
   });
 });
