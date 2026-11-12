@@ -333,6 +333,24 @@ Deno.test('a reply photo goes through the strict checks, both ways', () => {
   assertEquals(fn.includes('!isEbayPhotoUrl(url)'), true);
 });
 
+// eBay retired UploadSiteHostedPictures on 2026-09-30: every listing photo came back unreadable.
+Deno.test("a listing photo goes through the Media API, without a reply photo's checks", () => {
+  const index = source('./index.ts').replace(/\r\n/g, '\n');
+  assertEquals(index.includes('UploadSiteHostedPictures</'), false);
+  assertEquals(index.includes("'X-EBAY-API-CALL-NAME': 'UploadSiteHostedPictures'"), false);
+  const from = index.indexOf('async function uploadPhoto(');
+  const fn = index.slice(from, index.indexOf('\n}\n', from));
+  assertEquals(fn.includes('createImage(auth, photoBlob(dataUrl))'), true);
+  assertEquals(fn.includes('decodeMessagePhoto('), false);
+  const media = index.indexOf('async function createImage(');
+  const create = index.slice(media, index.indexOf('\n}\n', media));
+  assertEquals(create.includes('/commerce/media/v1_beta/image/create_image_from_file'), true);
+  const listing = index.indexOf("case 'uploadPhoto': {");
+  const handler = index.slice(listing, index.indexOf('\n      case ', listing + 1));
+  assertEquals(handler.includes('countMessagePhoto'), false);
+  assertEquals(handler.includes('checkFeatureAllowed'), false);
+});
+
 // The two reads of one answered question, from a real account (2026-11-04), with the text replaced.
 const PHOTO = 'https://i.ebayimg.com/images/a.jpg';
 const answeredInAll = () =>
