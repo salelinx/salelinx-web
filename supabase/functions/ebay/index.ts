@@ -16,7 +16,7 @@
 //   listings   { page }                      -> { listings, hasMore }
 //   item       { itemId }                    -> { item }
 //   revise     { itemId, changes, auction? } -> { ok }
-//   uploadPhoto { dataUrl }                  -> { url }
+//   uploadPhoto { dataUrl }                  -> { url } (for a listing, through the Media API)
 //   uploadMessagePhoto { dataUrl }           -> { url } (for a reply, through the Media API)
 //   end        { itemId, auction? }          -> { ok }
 //   relist     { itemId, auction? }          -> { itemId } (the new listing's id; auction: true
@@ -290,36 +290,18 @@ function photoBlob(dataUrl: string): Blob {
   return new Blob([bytes], { type: m[1] });
 }
 
+/** A listing's photo. eBay retired the Trading API's upload (UploadSiteHostedPictures) on
+ *  2026-09-30, so these go through the Media API as a reply's do; its address works in PictureURL. */
 async function uploadPhoto(auth, dataUrl: string): Promise<string> {
-  const photo = photoBlob(dataUrl);
-  const form = new FormData();
-  form.append(
-    'XML Payload',
-    `<?xml version="1.0" encoding="utf-8"?>` +
-      `<UploadSiteHostedPicturesRequest xmlns="urn:ebay:apis:eBLBaseComponents">` +
-      `<PictureSet>Supersize</PictureSet></UploadSiteHostedPicturesRequest>`,
-  );
-  form.append('image', photo, 'photo');
-  const res = await fetch(`${API_HOST}/ws/api.dll`, {
-    method: 'POST',
-    headers: {
-      'X-EBAY-API-CALL-NAME': 'UploadSiteHostedPictures',
-      'X-EBAY-API-SITEID': String(auth.siteId),
-      'X-EBAY-API-COMPATIBILITY-LEVEL': TRADING_VERSION,
-      'X-EBAY-API-IAF-TOKEN': auth.token,
-    },
-    body: form,
-  });
-  const body = parseTrading('UploadSiteHostedPictures', await res.text());
-  return String(body.SiteHostedPictureDetails.FullURL);
+  return createImage(auth, photoBlob(dataUrl));
 }
 
-/** A photo for a message. eBay's reply call asks for one from the Media API rather than the upload
- *  listings use. It isn't a Trading call, so it leaves the shared daily quota alone, and sell.inventory
- *  is all it needs, which every token has had from the start. */
-async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
+/** Hosts a photo on eBay through the Media API and gives its address. It isn't a Trading call, so it
+ *  leaves the shared daily quota alone, and sell.inventory is all it needs, which every token has had
+ *  from the start. */
+async function createImage(auth, photo: Blob): Promise<string> {
   const form = new FormData();
-  form.append('image', decodeMessagePhoto(dataUrl), 'photo');
+  form.append('image', photo, 'photo');
   const res = await fetch(`${APIM_HOST}/commerce/media/v1_beta/image/create_image_from_file`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${auth.token}` },
@@ -330,7 +312,12 @@ async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
   if (!res.ok || !body?.imageUrl) {
     throw new EbayError(body?.errors?.[0]?.message ?? `eBay photo upload failed (${res.status})`, 'ebay', 502);
   }
-  const url = String(body.imageUrl);
+  return String(body.imageUrl);
+}
+
+/** A photo for a message, under the stricter checks in message-photos.ts. */
+async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
+  const url = await createImage(auth, decodeMessagePhoto(dataUrl));
   // sendMessage only takes eBay's own addresses, so one it wouldn't is worth saying here: by host only.
   if (!isEbayPhotoUrl(url)) {
     throw new EbayError(`eBay gave a photo address we don't accept (${photoHostOf(url)})`, 'ebay', 502);

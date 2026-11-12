@@ -483,6 +483,12 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   Trading call, so it leaves the shared quota alone, and it needs only `sell.inventory`, already on
   every token. eBay removes an unused image after its `expirationDate`, and only says an active
   listing counts as use, so a photo in an old message may stop loading.
+- **Listing photos.** `uploadPhoto` (a crosslist's photos, and one added in the editor) goes through
+  the same Media API upload (`createImage`, shared with reply photos), and its address goes in the
+  listing's `PictureURL`. eBay retired the Trading API's `UploadSiteHostedPictures` on 2026-09-30:
+  from then every call came back unreadable and every crosslist to eBay failed with "No photos could
+  be uploaded to eBay" (found 2026-11-12). Only the upload is shared: a listing photo is a JPEG or
+  PNG up to 12MB (`photoBlob`), with no plan check or hourly count.
 - **Site.** `ebay_tokens.site_id` is the eBay site every listing call goes to, and with it the
   listing's country, currency and categories. A new link starts it on the account's
   registration marketplace, UK when eBay does not say or names a site the function doesn't
