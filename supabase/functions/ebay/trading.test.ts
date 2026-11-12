@@ -23,7 +23,7 @@ import {
   listingCall,
   bestOffersFromResponse,
   respondOfferXml,
-  unshippedOrdersFromResponse,
+  openOrdersFromResponse,
   markShippedXml,
 } from './trading.ts';
 
@@ -646,15 +646,43 @@ const ORDERS = `<?xml version="1.0" encoding="UTF-8"?>
       <Total currencyID="GBP">10.00</Total>
     </Order>
     <Order>
+      <OrderID>12-34567-00003</OrderID>
+      <PaidTime>2026-11-08T09:00:00.000Z</PaidTime>
+      <ShippedTime>2026-11-09T09:00:00.000Z</ShippedTime>
+      <Total currencyID="GBP">12.00</Total>
+      <TransactionArray>
+        <Transaction>
+          <Item><ItemID>110550000003</ItemID><Title>Tee</Title></Item>
+          <TransactionPrice currencyID="GBP">12.00</TransactionPrice>
+          <ShippingDetails><ShipmentTrackingDetails><ShippingCarrierUsed>Royal Mail</ShippingCarrierUsed><ShipmentTrackingNumber>RM123GB</ShipmentTrackingNumber></ShipmentTrackingDetails></ShippingDetails>
+        </Transaction>
+      </TransactionArray>
+    </Order>
+    <Order>
+      <OrderID>12-34567-00004</OrderID>
+      <PaidTime>2026-11-05T09:00:00.000Z</PaidTime>
+      <ShippedTime>2026-11-06T09:00:00.000Z</ShippedTime>
+      <Total currencyID="GBP">12.00</Total>
+      <TransactionArray>
+        <Transaction>
+          <Item><ItemID>110550000004</ItemID><Title>Hat</Title></Item>
+          <ShippingDetails><ShipmentTrackingDetails><ShipmentTrackingNumber>RM456GB</ShipmentTrackingNumber></ShipmentTrackingDetails></ShippingDetails>
+          <ShippingServiceSelected><ShippingPackageInfo><ActualDeliveryTime>2026-11-08T12:00:00.000Z</ActualDeliveryTime></ShippingPackageInfo></ShippingServiceSelected>
+        </Transaction>
+      </TransactionArray>
+    </Order>
+    <Order>
       <OrderID>12-34567-00002</OrderID>
       <Total currencyID="GBP">10.00</Total>
     </Order>
   </OrderArray>
 </GetOrdersResponse>`;
 
-Deno.test('GetOrders keeps only paid orders not yet posted', () => {
-  assertEquals(unshippedOrdersFromResponse(parseTrading('GetOrders', ORDERS)), [
+Deno.test('GetOrders keeps paid orders not yet posted, and labelled ones until delivered', () => {
+  assertEquals(openOrdersFromResponse(parseTrading('GetOrders', ORDERS)), [
     {
+      shippedAt: null,
+      tracking: null,
       orderId: '12-34567-89012',
       paidAt: '2026-11-04T09:00:00.000Z',
       buyer: 'jeans_fan',
@@ -664,6 +692,19 @@ Deno.test('GetOrders keeps only paid orders not yet posted', () => {
       service: 'UK_RoyalMailSecondClassStandard',
       shipBy: '2026-11-06T23:59:59.000Z',
       items: [{ itemId: '110551234567', title: "Levi's 501 W32", quantity: 1, price: 28 }],
+    },
+    {
+      shippedAt: '2026-11-09T09:00:00.000Z',
+      tracking: 'RM123GB',
+      orderId: '12-34567-00003',
+      paidAt: '2026-11-08T09:00:00.000Z',
+      buyer: '',
+      buyerName: '',
+      total: 12,
+      currency: 'GBP',
+      service: null,
+      shipBy: null,
+      items: [{ itemId: '110550000003', title: 'Tee', quantity: 1, price: 12 }],
     },
   ]);
 });
