@@ -111,6 +111,8 @@ const SOURCE_ICONS: Record<string, { path: string; color: string; name: string }
   },
 };
 SOURCE_ICONS.meta = { ...SOURCE_ICONS.facebook, name: "Meta" };
+// Instagram tags its own in-app links utm_source=ig.
+SOURCE_ICONS.ig = SOURCE_ICONS.instagram;
 SOURCE_ICONS["chatgpt.com"] = {
   name: "ChatGPT",
   color: "text-zinc-950",
