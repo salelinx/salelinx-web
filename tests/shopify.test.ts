@@ -10,6 +10,8 @@ const {
   isShopDomain,
   newProduct,
   newProductInput,
+  pickTaxonomyCategory,
+  taxonomySearchTerms,
   oneOffPlan,
   photoFiles,
   productDetail,
@@ -255,6 +257,7 @@ describe('newProduct', () => {
       description: '',
       vendor: '',
       productType: '',
+      categoryPath: '',
       price: 38.5,
       quantity: 1,
       size: '',
@@ -280,6 +283,7 @@ describe('newProductInput', () => {
     description: 'Cropped.\n\nLace panels.',
     vendor: 'Levi',
     productType: 'Jackets',
+    categoryPath: 'Women > Outerwear > Jackets',
     price: 38.5,
     quantity: 2,
     size: 'M',
@@ -320,6 +324,64 @@ describe('newProductInput', () => {
       { optionName: 'Title', name: 'Default Title' },
     ]);
     expect(input).not.toHaveProperty('vendor');
+    expect(input).not.toHaveProperty('category');
+  });
+
+  it("sets Shopify's own category when one was found", () => {
+    expect(newProductInput(product, 'loc', 'gid://shopify/TaxonomyCategory/aa-1-10-2')).toMatchObject({
+      category: 'gid://shopify/TaxonomyCategory/aa-1-10-2',
+    });
+  });
+});
+
+describe("Shopify's own category", () => {
+  it('searches the product type, then the step above it', () => {
+    expect(taxonomySearchTerms('Jackets', 'Women > Clothing > Outerwear > Jackets')).toEqual([
+      'Jackets',
+      'Outerwear',
+    ]);
+    expect(
+      taxonomySearchTerms('T-shirts', 'Men > Tops & t-shirts > T-shirts > Other t-shirts'),
+    ).toEqual(['T-shirts', 'Tops & t-shirts']);
+    expect(taxonomySearchTerms('', '')).toEqual([]);
+  });
+
+  const node = (id: string, fullName: string) => ({
+    id,
+    fullName,
+    name: fullName.split(' > ').pop()!,
+  });
+  const jackets = [
+    node('bomber', 'Apparel & Accessories > Clothing > Outerwear > Coats & Jackets > Bomber Jackets'),
+    node(
+      'baby',
+      'Apparel & Accessories > Clothing > Baby & Toddler Clothing > Baby & Toddler Outerwear > Baby & Toddler Coats & Jackets',
+    ),
+    node('coats', 'Apparel & Accessories > Clothing > Outerwear > Coats & Jackets'),
+    node('life', 'Sporting Goods > Outdoor Recreation > Boating & Water Sports > Life Jackets'),
+  ];
+
+  it('takes the closest fit, not the first result', () => {
+    const source = 'Women > Clothing > Outerwear > Jackets Upcycled cropped lace jacket';
+    expect(pickTaxonomyCategory(jackets, 'Jackets', source)).toBe('coats');
+  });
+
+  it('finds a blouse under Shirts & Tops', () => {
+    const nodes = [node('blouses', 'Apparel & Accessories > Clothing > Shirts & Tops > Blouses')];
+    expect(pickTaxonomyCategory(nodes, 'Blouses', 'Womenswear > Tops > Blouses Silk blouse')).toBe(
+      'blouses',
+    );
+  });
+
+  it('takes none over a poor fit or an archived one', () => {
+    const life = jackets.filter((n) => n.id === 'life');
+    expect(pickTaxonomyCategory(life, 'Jackets', 'Women > Outerwear > Jackets')).toBeNull();
+    const archived = [{ ...jackets[2], isArchived: true }];
+    expect(pickTaxonomyCategory(archived, 'Jackets', 'Women > Outerwear > Jackets')).toBeNull();
+  });
+
+  it('goes by the product type alone when the source has no path', () => {
+    expect(pickTaxonomyCategory(jackets, 'Jackets', '')).toBe('coats');
   });
 });
 
