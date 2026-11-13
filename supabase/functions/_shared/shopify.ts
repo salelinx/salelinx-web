@@ -9,7 +9,17 @@ export const API_VERSION = '2026-10';
 
 // What a store is asked to approve. Adding one later makes every linked store
 // approve again, so ask for what crosslisting and the sync need up front.
-export const SCOPES = 'write_products,write_inventory,read_locations';
+// write_publications (2026-11-13) puts a product on the store's sales channels.
+export const SCOPES = 'write_products,write_inventory,read_locations,write_publications';
+
+/** The permission to read and set a product's sales channels. A store linked before it was asked
+ *  for hasn't granted it until it approves again, and a query naming a channel field would then
+ *  fail whole: check `granted` first. */
+export const PUBLISH_SCOPE = 'write_publications';
+
+/** Whether the scopes a store granted (Shopify's comma list) include `wanted`. */
+export const granted = (scope: string | null | undefined, wanted: string): boolean =>
+  (scope ?? '').split(',').some((s) => s.trim() === wanted);
 
 // Shopify's own rule for a store's permanent address.
 const SHOP_RE = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/;
@@ -346,8 +356,72 @@ export function refusal(userErrors: { message?: string }[] | undefined): Shopify
 
 // ── Editing a product ──────────────────────────────────────────────────────
 
-/** The editor's changes to a product, checked. Price and quantity are the one variant's. */
-export interface ProductEdit {
+export type WeightUnit = 'GRAMS' | 'KILOGRAMS' | 'OUNCES' | 'POUNDS';
+const WEIGHT_UNITS: WeightUnit[] = ['GRAMS', 'KILOGRAMS', 'OUNCES', 'POUNDS'];
+
+/** The rest of Shopify's product page, as `product` reads it: the variant's pricing, inventory and
+ *  shipping, and the product's category, tags, collections and search listing. */
+export interface ProductFields {
+  compareAtPrice: number | null;
+  /** Cost per item, in the store's currency. */
+  cost: number | null;
+  taxable: boolean;
+  sku: string;
+  barcode: string;
+  tracked: boolean;
+  /** Shopify's inventory policy CONTINUE: still sold once none are left. */
+  continueSelling: boolean;
+  /** Requires shipping. */
+  physical: boolean;
+  weight: number | null;
+  weightUnit: WeightUnit;
+  /** ISO 3166-1 alpha-2. */
+  countryOfOrigin: string | null;
+  hsCode: string;
+  /** Shopify's own category: its GID and full path. */
+  category: { id: string; name: string } | null;
+  tags: string[];
+  /** Smart ones hold the product by their own rules, so only the others can be joined or left. */
+  collections: { id: string; title: string; smart: boolean }[];
+  seoTitle: string;
+  seoDescription: string;
+  /** The product's address in the online store, /products/<handle>. */
+  handle: string;
+  /** The variant's options ("Size: M"), each value editable. */
+  options: { name: string; value: string }[];
+  /** The sales channels (publications) the product is on, or null when the store hasn't granted
+   *  PUBLISH_SCOPE, so they weren't read. */
+  channels: string[] | null;
+}
+
+/** A change to ProductFields: the editor's save or a new product. Collections and channels are
+ *  the ids of the product's whole set; a null clears that field. A new product without channels
+ *  goes on the Online Store, as one made in Shopify's admin does. */
+export interface FieldsEdit {
+  compareAtPrice?: number | null;
+  cost?: number | null;
+  taxable?: boolean;
+  sku?: string;
+  barcode?: string;
+  tracked?: boolean;
+  continueSelling?: boolean;
+  physical?: boolean;
+  weight?: { value: number; unit: WeightUnit } | null;
+  countryOfOrigin?: string | null;
+  hsCode?: string;
+  categoryId?: string | null;
+  tags?: string[];
+  collections?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  handle?: string;
+  options?: { name: string; value: string }[];
+  channels?: string[];
+}
+
+/** The editor's changes to a product, checked. Price and quantity are the one variant's, as are
+ *  the variant fields of FieldsEdit. */
+export interface ProductEdit extends FieldsEdit {
   title?: string;
   /** Plain text, as the editor holds it. */
   description?: string;
@@ -357,6 +431,235 @@ export interface ProductEdit {
   quantity?: number;
   /** The photos in order: the product's own image addresses and new ones. */
   photos?: string[];
+}
+
+const MAX_TAGS = 250;
+const CATEGORY_GID = /^gid:\/\/shopify\/TaxonomyCategory\/[a-z]{2}(-\d+)*$/;
+const COLLECTION_GID = /^gid:\/\/shopify\/Collection\/\d{1,20}$/;
+const PUBLICATION_GID = /^gid:\/\/shopify\/Publication\/\d{1,20}$/;
+/** More sales channels than any store has. */
+const MAX_CHANNELS = 50;
+
+/** A FieldsEdit from what the extension sent, onto `out`; `bad` names a field that's wrong. */
+function readFieldsEdit(
+  c: Record<string, unknown>,
+  out: FieldsEdit,
+  bad: (field: string) => ShopifyError,
+): void {
+  const money = (field: 'compareAtPrice' | 'cost') => {
+    const v = c[field];
+    if (v === undefined) return;
+    if (v === null) {
+      out[field] = null;
+      return;
+    }
+    if (typeof v !== 'number' || !Number.isFinite(v) || v < 0 || v >= 1e9) throw bad(field);
+    out[field] = Math.round(v * 100) / 100;
+  };
+  money('compareAtPrice');
+  money('cost');
+  for (const field of ['taxable', 'tracked', 'continueSelling', 'physical'] as const) {
+    const v = c[field];
+    if (v === undefined) continue;
+    if (typeof v !== 'boolean') throw bad(field);
+    out[field] = v;
+  }
+  const text = (
+    field: 'sku' | 'barcode' | 'hsCode' | 'seoTitle' | 'seoDescription' | 'handle',
+    max: number,
+    re?: RegExp,
+  ) => {
+    const v = c[field];
+    if (v === undefined) return;
+    if (typeof v !== 'string' || v.length > max) throw bad(field);
+    const s = v.trim();
+    if (s && re && !re.test(s)) throw bad(field);
+    out[field] = s;
+  };
+  text('sku', 255);
+  text('barcode', 255);
+  // Shopify takes 6 to 13 digits.
+  text('hsCode', 13, /^\d{6,13}$/);
+  text('seoTitle', 255);
+  text('seoDescription', 1000);
+  text('handle', 255, /^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u);
+  if (c.weight !== undefined) {
+    const w = c.weight as { value?: unknown; unit?: unknown } | null;
+    if (w === null) out.weight = null;
+    else if (
+      typeof w !== 'object' ||
+      typeof w.value !== 'number' ||
+      !Number.isFinite(w.value) ||
+      w.value < 0 ||
+      w.value > 2_000_000 ||
+      !WEIGHT_UNITS.includes(w.unit as WeightUnit)
+    ) {
+      throw bad('weight');
+    } else out.weight = { value: w.value, unit: w.unit as WeightUnit };
+  }
+  if (c.countryOfOrigin !== undefined) {
+    const v = c.countryOfOrigin;
+    if (v !== null && (typeof v !== 'string' || !/^[A-Z]{2}$/.test(v))) throw bad('countryOfOrigin');
+    out.countryOfOrigin = v as string | null;
+  }
+  if (c.categoryId !== undefined) {
+    const v = c.categoryId;
+    if (v !== null && (typeof v !== 'string' || !CATEGORY_GID.test(v))) throw bad('categoryId');
+    out.categoryId = v as string | null;
+  }
+  if (c.tags !== undefined) {
+    const tags = c.tags;
+    if (
+      !Array.isArray(tags) ||
+      tags.length > MAX_TAGS ||
+      !tags.every((t) => typeof t === 'string' && t.length <= 255)
+    ) {
+      throw bad('tags');
+    }
+    out.tags = cleanTags(tags as string[]);
+  }
+  if (c.collections !== undefined) {
+    const ids = c.collections;
+    if (
+      !Array.isArray(ids) ||
+      ids.length > 250 ||
+      !ids.every((id) => typeof id === 'string' && COLLECTION_GID.test(id))
+    ) {
+      throw bad('collections');
+    }
+    out.collections = [...new Set(ids as string[])];
+  }
+  if (c.channels !== undefined) {
+    const ids = c.channels;
+    if (
+      !Array.isArray(ids) ||
+      ids.length > MAX_CHANNELS ||
+      !ids.every((id) => typeof id === 'string' && PUBLICATION_GID.test(id))
+    ) {
+      throw bad('channels');
+    }
+    out.channels = [...new Set(ids as string[])];
+  }
+  if (c.options !== undefined) {
+    const list = c.options;
+    if (
+      !Array.isArray(list) ||
+      list.length > 3 ||
+      !list.every(
+        (o) =>
+          typeof o?.name === 'string' &&
+          o.name.length <= 255 &&
+          typeof o?.value === 'string' &&
+          o.value.trim().length > 0 &&
+          o.value.length <= 255,
+      )
+    ) {
+      throw bad('options');
+    }
+    out.options = (list as { name: string; value: string }[]).map((o) => ({
+      name: o.name,
+      value: o.value.trim(),
+    }));
+  }
+}
+
+/** A comma would split one tag into two. */
+const cleanTags = (tags: string[]): string[] => [
+  ...new Set(tags.map((t) => t.replace(/,/g, ' ').trim()).filter(Boolean)),
+];
+
+/** The variant's side of a FieldsEdit, for productVariantsBulkUpdate or productSet's variant. */
+export function variantFieldsInput(e: FieldsEdit): Record<string, unknown> {
+  const v: Record<string, unknown> = {};
+  if (e.compareAtPrice !== undefined) {
+    v.compareAtPrice = e.compareAtPrice === null ? null : e.compareAtPrice.toFixed(2);
+  }
+  if (e.taxable !== undefined) v.taxable = e.taxable;
+  if (e.continueSelling !== undefined) v.inventoryPolicy = e.continueSelling ? 'CONTINUE' : 'DENY';
+  // The whole barcode set; one value is what Shopify's page shows.
+  if (e.barcode !== undefined) v.barcodes = e.barcode ? [{ value: e.barcode }] : [];
+  if (e.options !== undefined) {
+    v.optionValues = e.options.map((o) => ({ optionName: o.name, name: o.value }));
+  }
+  const item: Record<string, unknown> = {};
+  if (e.sku !== undefined) item.sku = e.sku;
+  if (e.cost !== undefined) item.cost = e.cost;
+  if (e.tracked !== undefined) item.tracked = e.tracked;
+  if (e.physical !== undefined) item.requiresShipping = e.physical;
+  if (e.weight !== undefined) {
+    item.measurement = { weight: e.weight ?? { value: 0, unit: 'KILOGRAMS' } };
+  }
+  if (e.countryOfOrigin !== undefined) item.countryCodeOfOrigin = e.countryOfOrigin;
+  if (e.hsCode !== undefined) item.harmonizedSystemCode = e.hsCode || null;
+  if (Object.keys(item).length > 0) v.inventoryItem = item;
+  return v;
+}
+
+/** The product's side of a FieldsEdit (not collections, which an update joins and leaves).
+ *  `seo` takes both lines, so a change to one keeps `before`'s other. */
+export function productFieldsInput(
+  e: FieldsEdit,
+  before?: { seoTitle: string; seoDescription: string },
+): Record<string, unknown> {
+  const p: Record<string, unknown> = {};
+  if (e.categoryId !== undefined) p.category = e.categoryId;
+  if (e.tags !== undefined) p.tags = e.tags;
+  if (e.seoTitle !== undefined || e.seoDescription !== undefined) {
+    p.seo = {
+      title: e.seoTitle ?? before?.seoTitle ?? '',
+      description: e.seoDescription ?? before?.seoDescription ?? '',
+    };
+  }
+  // An empty one would leave the product without an address: Shopify makes one from the title.
+  if (e.handle) p.handle = e.handle;
+  return p;
+}
+
+/** The manual collections to join and leave for `wanted`, the product's whole manual set. */
+export function collectionMoves(
+  wanted: string[],
+  current: { id: string; smart: boolean }[],
+): { join: string[]; leave: string[] } {
+  const manual = current.filter((c) => !c.smart).map((c) => c.id);
+  const smart = new Set(current.filter((c) => c.smart).map((c) => c.id));
+  return {
+    join: wanted.filter((id) => !manual.includes(id) && !smart.has(id)),
+    leave: manual.filter((id) => !wanted.includes(id)),
+  };
+}
+
+/** The sales channels to put the product on and take it off for `wanted`, its whole set. */
+export function channelMoves(
+  wanted: string[],
+  current: string[],
+): { publish: string[]; unpublish: string[] } {
+  return {
+    publish: wanted.filter((id) => !current.includes(id)),
+    unpublish: current.filter((id) => !wanted.includes(id)),
+  };
+}
+
+export interface SalesChannel {
+  id: string;
+  /** The channel's app, as Shopify's Publishing card names it ("Online Store"). */
+  name: string;
+  /** Where the store's own website shows a product. */
+  onlineStore: boolean;
+}
+
+/** The store's sales channels from its app publications (`publications(catalogType: APP)`). Each
+ *  is named by its app: the catalog's own title is an internal one ("Channel Catalog 2572..."). An
+ *  app without a handle is an API token's storefront, not a channel the seller picks. */
+// deno-lint-ignore no-explicit-any
+export function salesChannels(nodes: any[]): SalesChannel[] {
+  return (nodes ?? [])
+    .map((n) => ({ id: n?.id, app: n?.catalog?.apps?.nodes?.[0] }))
+    .filter((n) => typeof n.id === 'string' && typeof n.app?.handle === 'string')
+    .map((n) => ({
+      id: n.id as string,
+      name: String(n.app.title ?? n.app.handle),
+      onlineStore: n.app.handle === 'online_store',
+    }));
 }
 
 const MAX_PHOTOS = 250;
@@ -401,6 +704,7 @@ export function productEdit(raw: unknown): ProductEdit {
     }
     out.photos = list as string[];
   }
+  readFieldsEdit(c, out, bad);
   return out;
 }
 
@@ -470,9 +774,11 @@ export interface NewProduct {
   photos: string[];
   /** DRAFT unless the seller chose to post straight away. */
   status: 'DRAFT' | 'ACTIVE';
+  /** The rest of the product page, as the seller set it in the review or Create listing. Its
+   *  categoryId, when given (null for none), is used in place of the match from categoryPath; its
+   *  tags are `tags` above, and the variant's options are the size. */
+  fields: FieldsEdit;
 }
-
-const MAX_TAGS = 250;
 
 /** The `product` the extension sent, or a `bad_request` naming the first field that's wrong. */
 export function newProduct(raw: unknown): NewProduct {
@@ -517,6 +823,13 @@ export function newProduct(raw: unknown): NewProduct {
   }
   const status = c.status;
   if (status !== 'DRAFT' && status !== 'ACTIVE') throw bad('status');
+  const fields: FieldsEdit = {};
+  if (c.fields !== undefined) {
+    if (!c.fields || typeof c.fields !== 'object') throw bad('fields');
+    readFieldsEdit(c.fields as Record<string, unknown>, fields, bad);
+    delete fields.tags;
+    delete fields.options;
+  }
   return {
     title,
     description: text('description', 60_000),
@@ -526,33 +839,45 @@ export function newProduct(raw: unknown): NewProduct {
     price: Math.round(price * 100) / 100,
     quantity,
     size: text('size', 255),
-    // A comma would split one tag into two.
-    tags: [...new Set((tags as string[]).map((t) => t.replace(/,/g, ' ').trim()).filter(Boolean))],
+    tags: cleanTags(tags as string[]),
     photos: photos as string[],
     status,
+    fields,
   };
 }
 
 /** productSet's input for a new product: one variant, with the size as its Size option (Shopify's
- *  own default Title when there is none), its stock tracked at `locationId`, and Shopify's own
- *  category when one was found (pickTaxonomyCategory). */
+ *  own default Title when there is none), its stock tracked at `locationId` unless the seller
+ *  turned tracking off, Shopify's own category when one was picked or found
+ *  (pickTaxonomyCategory), and the rest of the page as the seller set it (`fields`). */
 export function newProductInput(p: NewProduct, locationId: string, category?: string | null) {
   const [optionName, value] = p.size ? ['Size', p.size] : ['Title', 'Default Title'];
+  const { inventoryItem, ...variantFields } = variantFieldsInput(p.fields) as {
+    inventoryItem?: Record<string, unknown>;
+  };
+  const tracked = p.fields.tracked !== false;
+  // The category is the caller's: the one picked, or the match found for the source.
+  const { category: _picked, ...productFields } = productFieldsInput(p.fields);
   return {
     title: p.title,
     descriptionHtml: textToHtml(p.description),
     ...(p.vendor ? { vendor: p.vendor } : {}),
     ...(p.productType ? { productType: p.productType } : {}),
+    ...productFields,
     ...(category ? { category } : {}),
+    ...(p.fields.collections?.length ? { collections: p.fields.collections } : {}),
     status: p.status,
     tags: p.tags,
     productOptions: [{ name: optionName, position: 1, values: [{ name: value }] }],
     variants: [
       {
+        ...variantFields,
         optionValues: [{ optionName, name: value }],
         price: p.price.toFixed(2),
-        inventoryItem: { tracked: true },
-        inventoryQuantities: [{ locationId, name: 'available', quantity: p.quantity }],
+        inventoryItem: { ...inventoryItem, tracked },
+        ...(tracked
+          ? { inventoryQuantities: [{ locationId, name: 'available', quantity: p.quantity }] }
+          : {}),
       },
     ],
     files: p.photos.map((url) => ({ originalSource: url, contentType: 'IMAGE' })),
@@ -641,7 +966,13 @@ export interface ProductDetail {
   descriptionHtml: string;
   /** The variant's units available, when SaleLinx can set them: tracked, at one location. */
   quantity: number | null;
-  editable: { price: boolean; quantity: boolean; photos: boolean };
+  editable: {
+    price: boolean;
+    quantity: boolean;
+    photos: boolean;
+    variant: boolean;
+    tracked: boolean;
+  };
   /** The variant the read is about (its GID): the one named, else the product's only one. Null
    *  for a product with several and none named. */
   variantId: string | null;
@@ -655,6 +986,60 @@ export interface ProductDetail {
   tags: string[];
   /** That variant's options ("Size: M"); none without one. */
   options: { name: string; value: string }[];
+  /** The rest of the product page, for the editor. The variant's fields are its defaults when the
+   *  read names no variant. */
+  fields: ProductFields;
+}
+
+const num = (v: unknown): number | null => {
+  const n = Number(v);
+  return v != null && v !== '' && Number.isFinite(n) ? n : null;
+};
+
+/** ProductFields from the product node and its chosen variant (DETAIL_VARIANT_FIELDS). */
+// deno-lint-ignore no-explicit-any
+export function productFields(p: any, v: any): ProductFields {
+  const item = v?.inventoryItem ?? {};
+  const weight = item.measurement?.weight;
+  const unit = WEIGHT_UNITS.includes(weight?.unit) ? (weight.unit as WeightUnit) : 'KILOGRAMS';
+  const category =
+    typeof p.category?.id === 'string'
+      ? { id: p.category.id, name: String(p.category.fullName ?? p.category.name ?? '') }
+      : null;
+  return {
+    compareAtPrice: num(v?.compareAtPrice),
+    cost: num(item.unitCost?.amount),
+    taxable: v ? v.taxable !== false : true,
+    sku: typeof item.sku === 'string' ? item.sku : '',
+    barcode: String(v?.barcodes?.nodes?.[0]?.value ?? ''),
+    tracked: v ? item.tracked === true : true,
+    continueSelling: v?.inventoryPolicy === 'CONTINUE',
+    physical: v ? item.requiresShipping !== false : true,
+    // Shopify reads 0 for none.
+    weight: num(weight?.value) || null,
+    weightUnit: unit,
+    countryOfOrigin: typeof item.countryCodeOfOrigin === 'string' ? item.countryCodeOfOrigin : null,
+    hsCode: typeof item.harmonizedSystemCode === 'string' ? item.harmonizedSystemCode : '',
+    category,
+    tags: Array.isArray(p.tags) ? p.tags.filter((t: unknown) => typeof t === 'string') : [],
+    collections: (p.collections?.nodes ?? [])
+      .filter((c: { id?: unknown }) => typeof c?.id === 'string')
+      .map((c: { id: string; title?: string; ruleSet?: unknown }) => ({
+        id: c.id,
+        title: String(c.title ?? ''),
+        smart: c.ruleSet != null,
+      })),
+    seoTitle: String(p.seo?.title ?? ''),
+    seoDescription: String(p.seo?.description ?? ''),
+    handle: String(p.handle ?? ''),
+    options: v ? optionsOf(v.selectedOptions) : [],
+    // Only read with PUBLISH_SCOPE granted: published or scheduled, the channel is the product's.
+    channels: p.resourcePublicationsV2
+      ? (p.resourcePublicationsV2.nodes ?? [])
+          .map((n: { publication?: { id?: unknown } }) => n?.publication?.id)
+          .filter((id: unknown): id is string => typeof id === 'string')
+      : null,
+  };
 }
 
 /** `named` is the variant asked about (the query's `productVariant`, checked to be this
@@ -691,7 +1076,15 @@ export function productDetail(shop: string, p: any, named?: any): ProductDetail 
     listing: { ...base, variantList: variant ? [variant] : [] },
     descriptionHtml: String(p.descriptionHtml ?? ''),
     quantity: stock?.quantity ?? null,
-    editable: { price: chosen !== null, quantity: stock !== null && !!stock.locationId, photos },
+    editable: {
+      price: chosen !== null,
+      quantity: stock !== null && !!stock.locationId,
+      photos,
+      // The variant's own fields (pricing, inventory, shipping, its options) need a variant, and
+      // Shopify says when tracking can't be turned on or off (a bundle, say).
+      variant: chosen !== null,
+      tracked: chosen !== null && item?.trackedEditable?.locked !== true,
+    },
     variantId: chosen ? chosen.id : null,
     variant,
     tracked: item?.tracked === true,
@@ -700,6 +1093,7 @@ export function productDetail(shop: string, p: any, named?: any): ProductDetail 
     category: typeof p.category?.fullName === 'string' ? p.category.fullName : null,
     tags: Array.isArray(p.tags) ? p.tags.filter((t: unknown) => typeof t === 'string') : [],
     options: variant?.options ?? [],
+    fields: productFields(p, chosen),
   };
 }
 

@@ -17,32 +17,50 @@
 //   unlink  {}          -> { ok }
 //   account {}          -> { shopName, shopDomain, currency }
 //   setStatus { productId, status } -> { status, totalInventory, tracksInventory }
-//                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide
+//                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide. Made
+//                ACTIVE on no sales channel, the product goes on the Online Store
 //   deleteProduct { productId, variantId? } -> { ok, deleted: 'variant' | 'product' }
 //                for good; with a variant, only it goes unless it is the product's
 //                last. One already gone counts as deleted
 //   product { productId, variantId? }
-//                -> { listing, descriptionHtml, quantity, editable, variant, category, tags, options }
+//                -> { listing, descriptionHtml, quantity, editable, variant, category, tags, options, fields }
 //                one product for the editor, about one variant: the one named, else
 //                the product's only one (none with several). listing as `listings`
 //                gives it (up to 50 photos, its variantList that one variant; its
 //                description is Shopify's one-line text, so the editor reads
 //                descriptionHtml); quantity the variant's units when SaleLinx can set
-//                them; editable { price, quantity, photos }. category (Shopify's own,
-//                as its path), tags and options (the variant's) are for a crosslist
-//                out of the store
+//                them; editable { price, quantity, photos, variant, tracked }. category
+//                (Shopify's own, as its path), tags and options (the variant's) are for
+//                a crosslist out of the store; fields (ProductFields) the rest of the
+//                product page for the editor
 //   updateProduct { productId, variantId?, changes } -> as `product`, read after the save
-//                changes: title, description (plain text), vendor, productType and
-//                photos (addresses in order) are the product's; price and quantity
-//                the variant's. A change the product doesn't allow is refused with
-//                'not_editable'
+//                changes: title, description (plain text), vendor, productType,
+//                photos (addresses in order), categoryId, tags, collections (the
+//                manual ones' ids, the whole set), channels (the sales channels' ids,
+//                the whole set; needs write_publications), seoTitle, seoDescription
+//                and handle are the product's; price, quantity, compareAtPrice, cost, taxable,
+//                sku, barcode, tracked, continueSelling, physical, weight,
+//                countryOfOrigin, hsCode and options the variant's. A change the
+//                product doesn't allow is refused with 'not_editable'
 //   uploadPhoto { dataUrl } -> { url }   a new photo, staged in Shopify for the save
 //   createProduct { product } -> as `product`, read after the create
 //                a crosslist into the store, held to the crosslist allowance.
 //                product: title, description (plain text), vendor, productType,
 //                categoryPath (the source's, to find Shopify's own category),
 //                price, quantity, size (a Size option), tags, photos (fetched
-//                by Shopify), status DRAFT or ACTIVE; stock at the primary location
+//                by Shopify), status DRAFT or ACTIVE, fields (as updateProduct's,
+//                less tags and options; a categoryId, or null, replaces the match;
+//                channels, else the Online Store); stock at the primary location
+//   categories { search } -> { categories: [{ id, name, fullName }] }
+//                Shopify's standard categories matching the text, for the editor
+//   matchCategory { productType, categoryPath, title } -> { category: { id, name } | null }
+//                the category createProduct would find for a source, so the editor
+//                can show it first
+//   collections {} -> { collections: [{ id, title }] }
+//                the store's manual collections, the ones a product can join
+//   channels {} -> { channels: [{ id, name, onlineStore }] | null }
+//                the store's sales channels; null until it grants write_publications
+//                (a store linked before it was asked for approves it by opening the app)
 //   takeOneOff { productId, variantId?, key } -> { result, listing, descriptionHtml, quantity, editable, variant }
 //                a linked listing sold elsewhere: one off the variant's stock.
 //                result 'counted', 'sold', 'archived', 'manual' or 'gone' (see takeOneOff)
@@ -69,15 +87,22 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
 import { checkCrosslistAllowed } from '../_shared/crosslist-gate.ts';
 import {
+  PUBLISH_SCOPE,
+  type SalesChannel,
   ShopifyError,
   adminGraphql,
   authorizeUrl,
+  channelMoves,
+  collectionMoves,
+  granted,
+  salesChannels,
   newProduct,
   newProductInput,
   pickTaxonomyCategory,
   taxonomySearchTerms,
   photoFiles,
   productDetail,
+  productFieldsInput,
   oneOffPlan,
   productEdit,
   productGid,
@@ -87,6 +112,7 @@ import {
   shopIdFromGid,
   textToHtml,
   tokenRequest,
+  variantFieldsInput,
   variantGid,
   variantSummary,
   verifiedShop,
@@ -129,7 +155,13 @@ function tokenColumns(t) {
   };
 }
 
-async function refresh(admin, userId: string, shop: string, refreshToken: string) {
+async function refresh(
+  admin,
+  userId: string,
+  shop: string,
+  refreshToken: string,
+  scope: string | null,
+): Promise<Auth> {
   try {
     const fresh = await tokenRequest(shop, {
       client_id: env('SHOPIFY_CLIENT_ID'),
@@ -149,11 +181,18 @@ async function refresh(admin, userId: string, shop: string, refreshToken: string
       .eq('user_id', userId);
     // Shopify has already retired the old refresh token, so this link is lost.
     if (error) console.error(`[shopify] user=${userId} refreshed token not saved`);
-    return { shop, token: fresh.access_token };
+    return { shop, token: fresh.access_token, scope: fresh.scope ?? scope };
   } catch (err) {
     await admin.from('shopify_tokens').update({ refreshing_until: null }).eq('user_id', userId);
     throw err;
   }
+}
+
+/** A store's access token and the scopes it granted (Shopify's comma list). */
+interface Auth {
+  shop: string;
+  token: string;
+  scope: string | null;
 }
 
 /**
@@ -161,17 +200,17 @@ async function refresh(admin, userId: string, shop: string, refreshToken: string
  * retires a refresh token the moment it issues the next one, so only the call
  * that claims refreshing_until refreshes; any other waits for its result.
  */
-async function accessTokenFor(admin, userId: string): Promise<{ shop: string; token: string }> {
+async function accessTokenFor(admin, userId: string): Promise<Auth> {
   for (let attempt = 0; attempt < 8; attempt++) {
     const { data: row, error } = await admin
       .from('shopify_tokens')
-      .select('shop_domain, access_token, access_expires_at')
+      .select('shop_domain, access_token, access_expires_at, scope')
       .eq('user_id', userId)
       .maybeSingle();
     if (error) throw new ShopifyError('Token lookup failed', 'unavailable', 500);
     if (!row) throw new ShopifyError('Shopify is not connected', 'not_linked', 409);
     if (new Date(row.access_expires_at).getTime() - Date.now() > 60_000) {
-      return { shop: row.shop_domain, token: row.access_token };
+      return { shop: row.shop_domain, token: row.access_token, scope: row.scope ?? null };
     }
 
     const now = new Date().toISOString();
@@ -184,7 +223,9 @@ async function accessTokenFor(admin, userId: string): Promise<{ shop: string; to
       .or(`refreshing_until.is.null,refreshing_until.lt."${now}"`)
       .select('refresh_token');
     if (claimErr) throw new ShopifyError('Token lookup failed', 'unavailable', 500);
-    if (claimed?.length) return refresh(admin, userId, row.shop_domain, claimed[0].refresh_token);
+    if (claimed?.length) {
+      return refresh(admin, userId, row.shop_domain, claimed[0].refresh_token, row.scope ?? null);
+    }
     await sleep(500);
   }
   throw new ShopifyError('Shopify is busy, try again', 'busy', 503);
@@ -442,6 +483,8 @@ async function setStatus(admin, userId: string, productId: unknown, status: unkn
   });
   const refused = refusal(res?.userErrors);
   if (refused) throw refused;
+  // Posted (or unhidden) on no channel, it would be Active on no page of the store.
+  if (status === 'ACTIVE') await onlineStoreIfNowhere(auth, id, null);
   const p = res?.product ?? {};
   return {
     status: String(p.status ?? status),
@@ -507,18 +550,31 @@ async function deleteProduct(admin, userId: string, productId: unknown, variantI
 
 // ── Editing a product ──────────────────────────────────────────────────────
 
-// A variant with its stock levels, for the editor, a take-off and a crosslist.
+// A variant with its stock levels, for the editor, a take-off and a crosslist,
+// and the rest of its page for the editor (productFields).
 const DETAIL_VARIANT_FIELDS = `id
       ${VARIANT_FIELDS}
+      compareAtPrice
+      taxable
+      inventoryPolicy
+      barcodes(first: 1) { nodes { value } }
       inventoryItem {
         id
         tracked
+        trackedEditable { locked }
+        sku
+        unitCost { amount }
+        requiresShipping
+        measurement { weight { value unit } }
+        countryCodeOfOrigin
+        harmonizedSystemCode
         inventoryLevels(first: 2) {
           nodes { location { id } quantities(names: ["available"]) { quantity } }
         }
       }`;
 
-// About 130 points: one variant with its stock levels, and up to 50 photos.
+// About 160 points: one variant with its stock levels, up to 50 photos and 25
+// collections.
 const PRODUCT_FIELDS = `legacyResourceId
     title
     description
@@ -529,8 +585,11 @@ const PRODUCT_FIELDS = `legacyResourceId
     tracksInventory
     vendor
     productType
-    category { fullName }
+    category { id fullName }
     tags
+    handle
+    seo { title description }
+    collections(first: 25) { nodes { id title ruleSet { appliedDisjunctively } } }
     createdAt
     updatedAt
     priceRangeV2 { minVariantPrice { amount currencyCode } }
@@ -553,12 +612,44 @@ const VARIANT_QUERY = `query ($id: ID!, $variantId: ID!) {
   }
 }`;
 
+// The sales channels the product is on, published or scheduled. Only asked with PUBLISH_SCOPE
+// granted: without it the field is refused and the whole read with it.
+const CHANNEL_FIELDS = `resourcePublicationsV2(first: 50, catalogType: APP, onlyPublished: false) {
+      nodes { publication { id } }
+    }`;
+
+const PRODUCT_QUERY_CHANNELS = `query ($id: ID!) {
+  product(id: $id) {
+    ${PRODUCT_FIELDS}
+    ${CHANNEL_FIELDS}
+    variants(first: 1) { nodes { ${DETAIL_VARIANT_FIELDS} } }
+  }
+}`;
+
+const VARIANT_QUERY_CHANNELS = `query ($id: ID!, $variantId: ID!) {
+  product(id: $id) {
+    ${PRODUCT_FIELDS}
+    ${CHANNEL_FIELDS}
+  }
+  productVariant(id: $variantId) {
+    product { id }
+    ${DETAIL_VARIANT_FIELDS}
+  }
+}`;
+
 /** The product, about the variant named (a GID), else its only one. */
-async function readProduct(auth, id: string, variantId: string | null = null) {
+async function readProduct(auth: Auth, id: string, variantId: string | null = null) {
+  const channels = granted(auth.scope, PUBLISH_SCOPE);
   const data = await adminGraphql(
     auth.shop,
     auth.token,
-    variantId ? VARIANT_QUERY : PRODUCT_QUERY,
+    variantId
+      ? channels
+        ? VARIANT_QUERY_CHANNELS
+        : VARIANT_QUERY
+      : channels
+        ? PRODUCT_QUERY_CHANNELS
+        : PRODUCT_QUERY,
     variantId ? { id, variantId } : { id },
   );
   if (!data?.product) {
@@ -574,7 +665,8 @@ async function readProduct(auth, id: string, variantId: string | null = null) {
 const optionalVariant = (variantId: unknown): string | null =>
   variantId == null ? null : variantGid(variantId);
 
-// category, tags and options are for a crosslist out of the store.
+// category, tags and options are for a crosslist out of the store; fields for
+// the editor.
 const forEditor = (d) => ({
   listing: d.listing,
   descriptionHtml: d.descriptionHtml,
@@ -584,6 +676,7 @@ const forEditor = (d) => ({
   category: d.category,
   tags: d.tags,
   options: d.options,
+  fields: d.fields,
 });
 
 async function product(admin, userId: string, productId: unknown, variantId: unknown) {
@@ -605,6 +698,72 @@ const PRICE_MUTATION = `mutation ($productId: ID!, $variants: [ProductVariantsBu
     userErrors { field message }
   }
 }`;
+
+const PUBLISH_MUTATION = `mutation ($id: ID!, $input: [PublicationInput!]!) {
+  publishablePublish(id: $id, input: $input) {
+    userErrors { field message }
+  }
+}`;
+
+const UNPUBLISH_MUTATION = `mutation ($id: ID!, $input: [PublicationInput!]!) {
+  publishableUnpublish(id: $id, input: $input) {
+    userErrors { field message }
+  }
+}`;
+
+// About 10 points: the store's sales channels, each named by its app.
+const CHANNELS_QUERY = `{
+  publications(first: 50, catalogType: APP) {
+    nodes { id catalog { ... on AppCatalog { apps(first: 1) { nodes { handle title } } } } }
+  }
+}`;
+
+/** The store's sales channels, or null when it hasn't granted PUBLISH_SCOPE. */
+async function salesChannelsOf(auth: Auth): Promise<SalesChannel[] | null> {
+  if (!granted(auth.scope, PUBLISH_SCOPE)) return null;
+  const data = await adminGraphql(auth.shop, auth.token, CHANNELS_QUERY);
+  return salesChannels(data?.publications?.nodes ?? []);
+}
+
+const PRODUCT_CHANNELS_QUERY = `query ($id: ID!) {
+  product(id: $id) { ${CHANNEL_FIELDS} }
+}`;
+
+/** Puts product `id` on these channels and takes it off those. */
+async function moveChannels(auth: Auth, id: string, publish: string[], unpublish: string[]) {
+  const input = (ids: string[]) => ids.map((publicationId) => ({ publicationId }));
+  if (publish.length) {
+    await mutate(auth, PUBLISH_MUTATION, { id, input: input(publish) }, 'publishablePublish');
+  }
+  if (unpublish.length) {
+    await mutate(auth, UNPUBLISH_MUTATION, { id, input: input(unpublish) }, 'publishableUnpublish');
+  }
+}
+
+/**
+ * A product SaleLinx makes or posts goes on the Online Store, as one made in Shopify's admin
+ * does: the API puts it on no channel, so it was Active but on no page of the store. Only a
+ * product on no channel at all: one the seller put on some has their choice kept. Never fails
+ * what it follows (the product is made or posted either way), and does nothing until the store
+ * has granted PUBLISH_SCOPE.
+ */
+async function onlineStoreIfNowhere(auth: Auth, id: string, current: string[] | null) {
+  try {
+    if (current?.length) return;
+    const channels = await salesChannelsOf(auth);
+    const store = channels?.find((c) => c.onlineStore);
+    if (!store) return;
+    let on = current;
+    if (on === null) {
+      const data = await adminGraphql(auth.shop, auth.token, PRODUCT_CHANNELS_QUERY, { id });
+      on = (data?.product?.resourcePublicationsV2?.nodes ?? []).map((n) => n?.publication?.id);
+    }
+    if (on?.length) return;
+    await moveChannels(auth, id, [store.id], []);
+  } catch (err) {
+    console.warn('[shopify] online store publish failed:', err instanceof Error ? err.message : err);
+  }
+}
 
 // changeFromQuantity makes it a compare-and-set: a sale between the read and
 // this write makes Shopify refuse rather than the edit wiping the sale out.
@@ -632,11 +791,13 @@ async function mutate(auth, query: string, variables, key: string) {
 
 /**
  * The editor's save. Checks what the product allows first (a variant for a
- * price, its stock tracked at one location for a quantity, photos the editor saw
- * in full), then sends each kind of change as its own call. Title, description,
- * vendor, type and photos are the product's, so they change for every variant;
- * price and quantity are the variant's. Answers with the product as it reads
- * afterwards, for the extension's row.
+ * price or any variant field, its stock tracked at one location for a quantity,
+ * photos the editor saw in full), then sends each kind of change as its own
+ * call: the product's fields (productUpdate, which joins and leaves collections
+ * too), the variant's (productVariantsBulkUpdate, with its inventory item), the
+ * stock and the photos. The product's fields change for every variant, the
+ * variant's only for it. Answers with the product as it reads afterwards, for the
+ * extension's row.
  */
 async function updateProduct(
   admin,
@@ -660,23 +821,47 @@ async function updateProduct(
   if (changes.photos !== undefined && !before.editable.photos) {
     throw refuse("This product has media SaleLinx can't show: change its photos in Shopify");
   }
+  const variantFields = variantFieldsInput(changes);
+  if (Object.keys(variantFields).length > 0 && !before.editable.variant) {
+    throw refuse('This product has variants: edit each one from its own row');
+  }
+  if (
+    changes.tracked !== undefined &&
+    changes.tracked !== before.fields.tracked &&
+    !before.editable.tracked
+  ) {
+    throw refuse("Shopify doesn't let this variant's stock tracking change");
+  }
+  if (changes.channels !== undefined && before.fields.channels === null) {
+    throw refuse(
+      "Your store hasn't let SaleLinx set sales channels yet: open SaleLinx from your Shopify admin",
+    );
+  }
 
-  const fields: Record<string, string> = {};
+  const fields: Record<string, unknown> = productFieldsInput(changes, before.fields);
   if (changes.title !== undefined) fields.title = changes.title.trim();
   if (changes.description !== undefined) fields.descriptionHtml = textToHtml(changes.description);
   if (changes.vendor !== undefined) fields.vendor = changes.vendor.trim();
   if (changes.productType !== undefined) fields.productType = changes.productType.trim();
+  // The old address keeps working: Shopify forwards it to the new one.
+  if (fields.handle !== undefined) {
+    if (fields.handle === before.fields.handle) delete fields.handle;
+    else fields.redirectNewHandle = true;
+  }
+  if (changes.collections !== undefined) {
+    const { join, leave } = collectionMoves(changes.collections, before.fields.collections);
+    if (join.length) fields.collectionsToJoin = join;
+    if (leave.length) fields.collectionsToLeave = leave;
+  }
   if (Object.keys(fields).length > 0) {
     await mutate(auth, UPDATE_MUTATION, { product: { id, ...fields } }, 'productUpdate');
   }
-  if (changes.price !== undefined) {
+  if (changes.price !== undefined) variantFields.price = changes.price.toFixed(2);
+  if (Object.keys(variantFields).length > 0) {
     await mutate(
       auth,
       PRICE_MUTATION,
-      {
-        productId: id,
-        variants: [{ id: before.variantId, price: changes.price.toFixed(2) }],
-      },
+      { productId: id, variants: [{ id: before.variantId, ...variantFields }] },
       'productVariantsBulkUpdate',
     );
   }
@@ -717,6 +902,10 @@ async function updateProduct(
       },
       'productSet',
     );
+  }
+  if (changes.channels !== undefined && before.fields.channels) {
+    const { publish, unpublish } = channelMoves(changes.channels, before.fields.channels);
+    await moveChannels(auth, id, publish, unpublish);
   }
   return forEditor(await readProduct(auth, id, vid));
 }
@@ -789,18 +978,73 @@ const TAXONOMY_QUERY = `query ($search: String!) {
 
 /** Shopify's own category closest to the source (pickTaxonomyCategory), or null. Never fails the
  *  create: without one the product has its type and no category, as a hand-made one starts. */
-async function findCategory(auth, product): Promise<string | null> {
+async function findCategory(
+  auth,
+  product: { productType: string; categoryPath: string; title: string },
+): Promise<{ id: string; name: string } | null> {
   const source = `${product.categoryPath} ${product.productType} ${product.title}`;
   try {
     for (const term of taxonomySearchTerms(product.productType, product.categoryPath)) {
       const data = await adminGraphql(auth.shop, auth.token, TAXONOMY_QUERY, { search: term });
-      const id = pickTaxonomyCategory(data?.taxonomy?.categories?.nodes ?? [], term, source);
-      if (id) return id;
+      const nodes = data?.taxonomy?.categories?.nodes ?? [];
+      const id = pickTaxonomyCategory(nodes, term, source);
+      if (id) return { id, name: String(nodes.find((n) => n.id === id)?.fullName ?? '') };
     }
   } catch (err) {
     console.warn('[shopify] category search failed:', err instanceof Error ? err.message : err);
   }
   return null;
+}
+
+const text = (v: unknown, max: number): string => {
+  if (v == null) return '';
+  if (typeof v !== 'string' || v.length > max) {
+    throw new ShopifyError('Bad request', 'bad_request', 400);
+  }
+  return v.trim();
+};
+
+/** Shopify's categories whose path holds `search`, for the editor's category box. */
+async function searchCategories(admin, userId: string, search: unknown) {
+  const q = text(search, 100);
+  if (q.length < 2) return { categories: [] };
+  const auth = await accessTokenFor(admin, userId);
+  const data = await adminGraphql(auth.shop, auth.token, TAXONOMY_QUERY, { search: q });
+  return {
+    categories: (data?.taxonomy?.categories?.nodes ?? [])
+      .filter((n) => n?.id && !n.isArchived)
+      .map((n) => ({ id: n.id, name: String(n.name ?? ''), fullName: String(n.fullName ?? '') })),
+  };
+}
+
+/** The category a crosslist would get (findCategory), so the editor can show it before the
+ *  create. */
+async function matchCategory(admin, userId: string, body) {
+  const auth = await accessTokenFor(admin, userId);
+  const category = await findCategory(auth, {
+    productType: text(body?.productType, 255),
+    categoryPath: text(body?.categoryPath, 500),
+    title: text(body?.title, 255),
+  });
+  return { category };
+}
+
+// About 250 points: the store's manual collections, which a product can join.
+// Smart ones choose their products by their own rules.
+const COLLECTIONS_QUERY = `{
+  collections(first: 250, sortKey: TITLE, query: "collection_type:custom") {
+    nodes { id title }
+  }
+}`;
+
+async function manualCollections(admin, userId: string) {
+  const auth = await accessTokenFor(admin, userId);
+  const data = await adminGraphql(auth.shop, auth.token, COLLECTIONS_QUERY);
+  return {
+    collections: (data?.collections?.nodes ?? [])
+      .filter((c) => typeof c?.id === 'string')
+      .map((c) => ({ id: c.id, title: String(c.title ?? '') })),
+  };
 }
 
 const CREATE_MUTATION = `mutation ($input: ProductSetInput!) {
@@ -823,7 +1067,11 @@ async function createProduct(admin, userId: string, raw: unknown) {
   if (!location?.id) {
     throw new ShopifyError('Your Shopify store has no location to hold stock', 'shopify', 422);
   }
-  const category = await findCategory(auth, product);
+  // The seller's pick (null: none), else the closest to the source.
+  const category =
+    product.fields.categoryId !== undefined
+      ? product.fields.categoryId
+      : ((await findCategory(auth, product))?.id ?? null);
   const data = await adminGraphql(auth.shop, auth.token, CREATE_MUTATION, {
     input: newProductInput(product, location.id, category),
   });
@@ -831,6 +1079,17 @@ async function createProduct(admin, userId: string, raw: unknown) {
   if (refused) throw refused;
   const id = data?.productSet?.product?.id;
   if (!id) throw new ShopifyError('Shopify did not create the product', 'shopify', 502);
+  // The channels the seller picked, else the Online Store. A draft goes on them too, as in
+  // Shopify's admin: it shows there once it is Active, posted here or in Shopify.
+  if (product.fields.channels === undefined) await onlineStoreIfNowhere(auth, id, []);
+  else if (granted(auth.scope, PUBLISH_SCOPE)) {
+    try {
+      await moveChannels(auth, id, product.fields.channels, []);
+    } catch (err) {
+      // The product is made: a channel it missed is set in the editor or in Shopify.
+      console.warn('[shopify] channel publish failed:', err instanceof Error ? err.message : err);
+    }
+  }
   return forEditor(await readProduct(auth, id));
 }
 
@@ -978,6 +1237,19 @@ Deno.serve(async (req: Request) => {
           200,
           await takeOneOff(admin, user.id, body.productId, body.variantId, body.key),
         );
+
+      case 'categories':
+        return json(200, await searchCategories(admin, user.id, body.search));
+
+      case 'matchCategory':
+        return json(200, await matchCategory(admin, user.id, body));
+
+      case 'collections':
+        return json(200, await manualCollections(admin, user.id));
+
+      // null: the store hasn't granted PUBLISH_SCOPE yet.
+      case 'channels':
+        return json(200, { channels: await salesChannelsOf(await accessTokenFor(admin, user.id)) });
 
       // Posts a crosslist itself, so it is held to the same paywall as
       // resolve-category and the ebay function's add: nothing else on the
