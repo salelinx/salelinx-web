@@ -7,6 +7,8 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { timingSafeEqual } from "../_shared/security.ts";
 import {
   button,
+  CHROME_LOGO_ATTACHMENT,
+  CHROME_LOGO_CID,
   codeBlock,
   COMPANY_INFO,
   EMAIL_ASSETS,
@@ -14,6 +16,7 @@ import {
   heading,
   paragraph,
 } from "../_shared/email-theme.ts";
+import { STORE_URL } from "../send-install-link/email.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2025-02-24.acacia",
@@ -40,6 +43,7 @@ type Step = {
   body: string[];
   eyebrow?: string;
   cta?: string;
+  url?: string;
 };
 
 const STEPS: Step[] = [
@@ -60,6 +64,36 @@ const STEPS: Step[] = [
     body: [
       "Most sellers start by crosslisting: pick listings on Depop, Vinted or eBay and SaleLinx copies them to another marketplace, photos, category, size and all.",
       "Your 14-day trial is still there if you want to try it.",
+    ],
+  },
+];
+
+const INSTALL_STEPS: Step[] = [
+  {
+    subject: "One step left: add SaleLinx to Chrome",
+    preheader: "Open this on your computer to finish setting up.",
+    title: "Finish setting up SaleLinx",
+    eyebrow: "Getting started",
+    cta: "Add to Chrome",
+    url: STORE_URL,
+    body: [
+      "Your account is ready, but SaleLinx isn't installed yet. It's a Chrome extension, so it runs on a computer rather than a phone.",
+      "Open this email on your computer, add SaleLinx to Chrome, then sign in with the account you made. It takes about a minute.",
+    ],
+  },
+  {
+    subject: "How to install SaleLinx",
+    preheader: "Three steps on your computer.",
+    title: "Installing SaleLinx",
+    eyebrow: "Getting started",
+    cta: "Add to Chrome",
+    url: STORE_URL,
+    body: [
+      "SaleLinx still isn't on your computer, so here's how to get it set up.",
+      "1. On your computer, open this email in Chrome and press Add to Chrome below.",
+      "2. Click the puzzle piece at the top right of Chrome and pin SaleLinx.",
+      "3. Open SaleLinx and sign in with the account you made.",
+      `Stuck? Get help at ${SITE_URL}/help`,
     ],
   },
 ];
@@ -155,14 +189,14 @@ async function send(userId: string, email: string, step: Step, code?: string): P
           codeBlock(code) +
           paragraph(`One use, just for you. Expires in ${CODE_DAYS} days.`, 24)
         : "") +
-      button(PRICING_URL, step.cta ?? "Start free trial"),
+      button(step.url ?? PRICING_URL, step.cta ?? "Start free trial", step.url ? CHROME_LOGO_CID : undefined),
     footerNote: `You're getting this because you signed up for SaleLinx. <a href="${unsubUrl}" style="color:inherit;">Unsubscribe</a>`,
     siteUrl: SITE_URL,
   });
   const offer = code
     ? `\n\n50% off your first month back, on any plan. Code: ${code} (one use, expires in ${CODE_DAYS} days)`
     : "";
-  const text = `${step.body.join("\n\n")}${offer}\n\n${step.cta ?? "Start free trial"}: ${PRICING_URL}\n\nUnsubscribe: ${unsubUrl}\n\n${COMPANY_INFO}`;
+  const text = `${step.body.join("\n\n")}${offer}\n\n${step.cta ?? "Start free trial"}: ${step.url ?? PRICING_URL}\n\nUnsubscribe: ${unsubUrl}\n\n${COMPANY_INFO}`;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -180,7 +214,7 @@ async function send(userId: string, email: string, step: Step, code?: string): P
         "List-Unsubscribe": `<${unsubUrl}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
-      attachments: EMAIL_ASSETS,
+      attachments: step.url ? [...EMAIL_ASSETS, CHROME_LOGO_ATTACHMENT] : EMAIL_ASSETS,
     }),
   });
   if (!res.ok) throw new Error(`resend ${res.status}: ${await res.text()}`);
@@ -216,9 +250,9 @@ Deno.serve(async (req) => {
 
   const now = () => new Date().toISOString();
   const jobs = [
-    ...((trial.data ?? []) as { user_id: string; email: string; step: number }[]).map((r) => ({
+    ...((trial.data ?? []) as { user_id: string; email: string; step: number; installed: boolean }[]).map((r) => ({
       ...r,
-      step: STEPS[r.step],
+      step: (r.installed ? STEPS : INSTALL_STEPS)[r.step],
       record: { step: r.step + 1, last_sent_at: now() },
     })),
     ...((winback.data ?? []) as {

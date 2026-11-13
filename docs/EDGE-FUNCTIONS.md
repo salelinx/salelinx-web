@@ -45,11 +45,10 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `resolve-category`        | false*       | Extension POSTs category lookups on every crosslist, eBay directions included; auth by `getUser(jwt)` + crosslist tier gate + monthly cap |
 | `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
-| `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial (day 1 and day 4) and send one win-back email after a plan or trial ends, with a per-customer one-use 50% first-month promo code; also serves the HMAC-signed unsubscribe link, which sets `trial_nudges.unsubscribed_at` and `marketing_opt_out` in the user's metadata so `/account` shows the emails as off |
+| `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial (day 1 and day 4; install help instead when they have no `device_sessions` row, sent regardless of the marketing answer, 049) and send one win-back email after a plan or trial ends, with a per-customer one-use 50% first-month promo code; also serves the HMAC-signed unsubscribe link, which sets `trial_nudges.unsubscribed_at` and `marketing_opt_out` in the user's metadata so `/account` shows the emails as off |
 | `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), Send Offers to watchers through the Negotiation API (`offerEligible`, `sendOffer`, which checks the plan's `auto_offer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
-| `signup-notify`           | false        | `trg_notify_signup` on `auth.users` (048) POSTs the new user's id; emails staff "New signup" via `_shared/payment-notify.ts`. Unauthenticated, but only announces accounts under 5 minutes old |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
@@ -484,6 +483,12 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   Trading call, so it leaves the shared quota alone, and it needs only `sell.inventory`, already on
   every token. eBay removes an unused image after its `expirationDate`, and only says an active
   listing counts as use, so a photo in an old message may stop loading.
+- **Listing photos.** `uploadPhoto` (a crosslist's photos, and one added in the editor) goes through
+  the same Media API upload (`createImage`, shared with reply photos), and its address goes in the
+  listing's `PictureURL`. eBay retired the Trading API's `UploadSiteHostedPictures` on 2026-09-30:
+  from then every call came back unreadable and every crosslist to eBay failed with "No photos could
+  be uploaded to eBay" (found 2026-11-12). Only the upload is shared: a listing photo is a JPEG or
+  PNG up to 12MB (`photoBlob`), with no plan check or hourly count.
 - **Site.** `ebay_tokens.site_id` is the eBay site every listing call goes to, and with it the
   listing's country, currency and categories. A new link starts it on the account's
   registration marketplace, UK when eBay does not say or names a site the function doesn't
