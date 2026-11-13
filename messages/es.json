@@ -1140,5 +1140,39 @@
     "phoneResend": "Enviar de nuevo",
     "phoneSent": "Te hemos enviado el enlace de instalación. Ábrelo en tu ordenador para añadir SaleLinx a Chrome.",
     "phoneError": "No pudimos enviar el correo. Abre salelinx.com en tu ordenador."
+  },
+  "ShopifyApp": {
+    "loading": "Cargando...",
+    "connectedTitle": "Conectada a SaleLinx",
+    "connectedBody": "{store} está conectada a la cuenta de SaleLinx {account}.",
+    "connectedHint": "Gestiona los productos de esta tienda y publícalos en Depop, Vinted y eBay desde SaleLinx.",
+    "connectTitle": "Conecta {store} a SaleLinx",
+    "connectBody": "SaleLinx publica tus productos en Depop, Vinted y eBay y mantiene tu stock al día en todas partes. Conecta esta tienda a tu cuenta de SaleLinx para empezar.",
+    "connect": "Conectar con SaleLinx",
+    "connectHint": "¿Aún no tienes cuenta de SaleLinx? Crea una, vuelve aquí y pulsa Conectar otra vez.",
+    "getExtension": "Conseguir la extensión de Chrome",
+    "account": "Tu cuenta de SaleLinx",
+    "error": "SaleLinx no ha podido cargar esta tienda. Inténtalo de nuevo en un momento.",
+    "retry": "Reintentar",
+    "outsideTitle": "Abre SaleLinx desde tu panel de Shopify",
+    "outsideBody": "Esta página funciona dentro del panel de tu tienda, en Aplicaciones."
+  },
+  "ShopifyConnect": {
+    "metaTitle": "Conecta tu tienda de Shopify",
+    "title": "Conecta tu tienda de Shopify",
+    "signedOut": "Inicia sesión en SaleLinx para conectar {store} a tu cuenta.",
+    "login": "Iniciar sesión",
+    "signup": "Crear una cuenta",
+    "signupHint": "Cuando hayas creado tu cuenta, abre SaleLinx de nuevo en tu panel de Shopify y pulsa Conectar.",
+    "confirm": "¿Conectar {store} a la cuenta de SaleLinx {email}?",
+    "connect": "Conectar tienda",
+    "connecting": "Conectando...",
+    "done": "{store} está conectada a tu cuenta de SaleLinx.",
+    "back": "Volver a Shopify",
+    "getExtension": "Conseguir la extensión de Chrome",
+    "noCode": "Este enlace ya no funciona. Abre SaleLinx en tu panel de Shopify y pulsa Conectar otra vez.",
+    "alreadyLinked": "Esta tienda está conectada a otra cuenta de SaleLinx. Desconéctala primero desde esa cuenta.",
+    "alreadyTrialed": "Esta tienda ya tuvo una prueba de SaleLinx en otra cuenta.",
+    "failed": "No hemos podido conectar la tienda. Inténtalo de nuevo."
   }
 }

@@ -1140,5 +1140,39 @@
     "phoneResend": "Send it again",
     "phoneSent": "We've emailed you the install link. Open it on your computer to add SaleLinx to Chrome.",
     "phoneError": "We couldn't send the email. Open salelinx.com on your computer instead."
+  },
+  "ShopifyApp": {
+    "loading": "Loading...",
+    "connectedTitle": "Connected to SaleLinx",
+    "connectedBody": "{store} is connected to the SaleLinx account {account}.",
+    "connectedHint": "Manage this store's products and crosslist them to Depop, Vinted and eBay from SaleLinx.",
+    "connectTitle": "Connect {store} to SaleLinx",
+    "connectBody": "SaleLinx crosslists your products to Depop, Vinted and eBay and keeps your stock in step everywhere. Connect this store to your SaleLinx account to start.",
+    "connect": "Connect to SaleLinx",
+    "connectHint": "No SaleLinx account yet? Create one, then come back here and press Connect again.",
+    "getExtension": "Get the Chrome extension",
+    "account": "Your SaleLinx account",
+    "error": "SaleLinx couldn't load this store. Try again in a moment.",
+    "retry": "Try again",
+    "outsideTitle": "Open SaleLinx from your Shopify admin",
+    "outsideBody": "This page works inside your store's admin, under Apps."
+  },
+  "ShopifyConnect": {
+    "metaTitle": "Connect your Shopify store",
+    "title": "Connect your Shopify store",
+    "signedOut": "Log in to SaleLinx to connect {store} to your account.",
+    "login": "Log in",
+    "signup": "Create an account",
+    "signupHint": "Once your account is made, open SaleLinx in your Shopify admin again and press Connect.",
+    "confirm": "Connect {store} to the SaleLinx account {email}?",
+    "connect": "Connect store",
+    "connecting": "Connecting...",
+    "done": "{store} is connected to your SaleLinx account.",
+    "back": "Back to Shopify",
+    "getExtension": "Get the Chrome extension",
+    "noCode": "This link doesn't work any more. Open SaleLinx in your Shopify admin and press Connect again.",
+    "alreadyLinked": "This store is connected to another SaleLinx account. Disconnect it there first.",
+    "alreadyTrialed": "This store has already had a SaleLinx trial on another account.",
+    "failed": "We couldn't connect the store. Try again."
   }
 }
