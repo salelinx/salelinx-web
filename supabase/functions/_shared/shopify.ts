@@ -36,18 +36,23 @@ export const canSetDetails = (scope: string | null | undefined): boolean =>
 export const missingScopes = (scope: string | null | undefined): string[] =>
   SCOPES.split(',').filter((s) => !granted(scope, s));
 
-/** The store's page for the app in its admin. Opening it sends the store to the App URL, which
- *  links again and shows Shopify's approval screen for anything not granted yet. Not an install,
- *  which may only start from the App Store listing. */
+/** The store's page for the app in its admin (the website's app/embed/shopify, framed there).
+ *  Opening it shows Shopify's approval screen for anything not granted yet, and the page takes a
+ *  new token with it. Not an install, which may only start from the App Store listing. */
 export const appAdminUrl = (shop: string, clientId: string): string =>
   `https://${shop}/admin/apps/${clientId}`;
 
 // Shopify's own rule for a store's permanent address.
 const SHOP_RE = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/;
 
-// How old a signed request may be. The extension forwards Shopify's redirects
-// within seconds; the slack is for a slow popup or clock drift.
-const MAX_AGE_SECONDS = 5 * 60;
+// Slack for the clock on an ID token's exp and nbf. The token lives a minute.
+const ID_TOKEN_LEEWAY_SECONDS = 10;
+
+/** How long the app page's connect code works: long enough to make a SaleLinx account first. */
+export const CONNECT_CODE_SECONDS = 60 * 60;
+
+// Kept apart from anything else the client secret signs (webhooks, Shopify's own ID tokens).
+const CONNECT_PREFIX = 'salelinx-shopify-connect.';
 
 export class ShopifyError extends Error {
   /** More for the extension, sent beside `error` and `code` (a `reauth`'s `appUrl`). */
@@ -77,51 +82,7 @@ async function hmacSha256(secret: string, message: string): Promise<Uint8Array> 
   return new Uint8Array(await crypto.subtle.sign('HMAC', key, enc.encode(message)));
 }
 
-const hex = (bytes: Uint8Array) =>
-  Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 const base64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes));
-
-/** The message Shopify signs on a redirect: every param but `hmac` (and the
- *  retired `signature`), sorted by name, in query-string form. */
-export function queryMessage(query: Record<string, string>): string {
-  const params = new URLSearchParams();
-  for (const key of Object.keys(query).sort()) {
-    if (key !== 'hmac' && key !== 'signature') params.append(key, query[key]);
-  }
-  return params.toString();
-}
-
-/**
- * Check a redirect Shopify signed (the App URL on install, and the OAuth
- * callback) and return the store it names. The query arrives from the
- * extension, which copied it out of its popup, so everything is checked here:
- * the signature, its age and the store's address.
- */
-export async function verifiedShop(
-  query: unknown,
-  secret: string,
-  now = Date.now(),
-): Promise<string> {
-  if (!query || typeof query !== 'object')
-    throw new ShopifyError('Missing query', 'bad_request', 400);
-  const q = query as Record<string, unknown>;
-  const flat: Record<string, string> = {};
-  for (const [k, v] of Object.entries(q)) {
-    if (typeof v !== 'string') throw new ShopifyError('Bad query', 'bad_request', 400);
-    flat[k] = v;
-  }
-  if (!flat.hmac) throw new ShopifyError('Unsigned request', 'bad_signature', 400);
-  const expected = hex(await hmacSha256(secret, queryMessage(flat)));
-  if (!(await timingSafeEqual(expected, flat.hmac.toLowerCase()))) {
-    throw new ShopifyError('Bad signature', 'bad_signature', 400);
-  }
-  const ts = Number(flat.timestamp);
-  if (!Number.isFinite(ts) || Math.abs(now / 1000 - ts) > MAX_AGE_SECONDS) {
-    throw new ShopifyError('Request expired', 'expired', 400);
-  }
-  if (!isShopDomain(flat.shop)) throw new ShopifyError('Unknown store', 'bad_request', 400);
-  return flat.shop;
-}
 
 /** A webhook's signature: base64 HMAC-SHA256 of the raw body. */
 export async function verifyWebhook(
@@ -133,22 +94,130 @@ export async function verifyWebhook(
   return timingSafeEqual(base64(await hmacSha256(secret, rawBody)), header);
 }
 
-/** Shopify's OAuth consent page for one store. `redirectUri` must be on the
- *  app's allowed list, or Shopify shows an error instead. */
-export function authorizeUrl(
-  shop: string,
+const base64url = (bytes: Uint8Array) =>
+  base64(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+function fromBase64url(s: string): Uint8Array {
+  const b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+}
+
+// deno-lint-ignore no-explicit-any
+const jsonOf = (part: string): any => JSON.parse(new TextDecoder().decode(fromBase64url(part)));
+
+/**
+ * The store an ID token from App Bridge vouches for. The app's page in the Shopify admin sends
+ * one with each call (`shopify.idToken()`): a JWT signed HS256 with the app's secret, which lives
+ * a minute. Checks the signature, `exp` and `nbf`, that it is for this app (`aud`), and that `iss`
+ * and `dest` name the same store. Anything wrong is `invalid_session`, which the page answers
+ * with a fresh token.
+ */
+export async function verifyIdToken(
+  token: unknown,
   clientId: string,
-  redirectUri: string,
-  state: string,
-): string {
-  const url = new URL(`https://${shop}/admin/oauth/authorize`);
-  url.search = new URLSearchParams({
-    client_id: clientId,
-    scope: SCOPES,
-    redirect_uri: redirectUri,
-    state,
-  }).toString();
-  return url.toString();
+  secret: string,
+  now = Date.now(),
+): Promise<string> {
+  const bad = (why: string) => new ShopifyError(`Invalid session (${why})`, 'invalid_session', 401);
+  if (typeof token !== 'string' || token.length > 4096) throw bad('missing');
+  const parts = token.split('.');
+  if (parts.length !== 3) throw bad('malformed');
+  const [head, body, sig] = parts;
+  // deno-lint-ignore no-explicit-any
+  let header: any, claims: any;
+  try {
+    header = jsonOf(head);
+    claims = jsonOf(body);
+  } catch {
+    throw bad('malformed');
+  }
+  if (header?.alg !== 'HS256') throw bad('alg');
+  const expected = base64url(await hmacSha256(secret, `${head}.${body}`));
+  if (!(await timingSafeEqual(expected, sig))) throw bad('signature');
+  const seconds = now / 1000;
+  if (typeof claims?.exp !== 'number' || claims.exp + ID_TOKEN_LEEWAY_SECONDS < seconds) {
+    throw bad('expired');
+  }
+  if (typeof claims.nbf === 'number' && claims.nbf - ID_TOKEN_LEEWAY_SECONDS > seconds) {
+    throw bad('early');
+  }
+  const audience = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
+  if (!audience.includes(clientId)) throw bad('audience');
+  let iss: string, dest: string;
+  try {
+    iss = new URL(claims.iss).hostname;
+    dest = new URL(claims.dest).hostname;
+  } catch {
+    throw bad('store');
+  }
+  if (iss !== dest || !isShopDomain(dest)) throw bad('store');
+  return dest;
+}
+
+/** The store a connect code names. Display only until `readConnectCode` has checked it. */
+export interface ConnectCode {
+  shopId: string;
+  shopDomain: string;
+  shopName: string | null;
+}
+
+/**
+ * The code the app's Connect button carries to the website, where a signed-in seller connects the
+ * store to their SaleLinx account (the shopify function's claimStore). Signed with the client
+ * secret, so only this function makes one, and only for a store whose ID token it checked. Its
+ * body is base64url JSON the website reads to name the store.
+ */
+export async function connectCode(
+  store: ConnectCode,
+  secret: string,
+  now = Date.now(),
+): Promise<string> {
+  const payload = {
+    s: store.shopId,
+    d: store.shopDomain,
+    n: store.shopName,
+    e: Math.floor(now / 1000) + CONNECT_CODE_SECONDS,
+  };
+  const body = base64url(new TextEncoder().encode(JSON.stringify(payload)));
+  return `${body}.${base64url(await hmacSha256(secret, CONNECT_PREFIX + body))}`;
+}
+
+/** A connect code's store, once its signature and age check out. */
+export async function readConnectCode(
+  code: unknown,
+  secret: string,
+  now = Date.now(),
+): Promise<ConnectCode> {
+  const bad = () => new ShopifyError('Bad connect code', 'bad_request', 400);
+  if (typeof code !== 'string' || code.length > 2048) throw bad();
+  const parts = code.split('.');
+  if (parts.length !== 2 || !parts[0] || !parts[1]) throw bad();
+  const expected = base64url(await hmacSha256(secret, CONNECT_PREFIX + parts[0]));
+  if (!(await timingSafeEqual(expected, parts[1]))) {
+    throw new ShopifyError('Bad connect code', 'bad_signature', 400);
+  }
+  // deno-lint-ignore no-explicit-any
+  let p: any;
+  try {
+    p = jsonOf(parts[0]);
+  } catch {
+    throw bad();
+  }
+  if (typeof p?.e !== 'number' || p.e < now / 1000) {
+    throw new ShopifyError('Connect code expired', 'expired', 400);
+  }
+  if (typeof p.s !== 'string' || !/^\d+$/.test(p.s) || !isShopDomain(p.d)) throw bad();
+  return { shopId: p.s, shopDomain: p.d, shopName: typeof p.n === 'string' ? p.n : null };
+}
+
+/** An account's email as a store's staff see it on the app's page: enough to know which. */
+export function maskEmail(email: string | null | undefined): string | null {
+  if (!email) return null;
+  const at = email.lastIndexOf('@');
+  if (at < 1) return null;
+  const local = email.slice(0, at);
+  return `${local.slice(0, local.length > 2 ? 2 : 1)}\u2022\u2022\u2022${email.slice(at)}`;
 }
 
 export interface ShopifyTokens {
@@ -160,9 +229,10 @@ export interface ShopifyTokens {
 }
 
 /**
- * The token endpoint, for both the first exchange (`code`, with `expiring=1`)
- * and a refresh (`grant_type=refresh_token`). Apps made after April 2026 only
- * get expiring tokens: 60 minutes for access, 90 days for the refresh token.
+ * The token endpoint, for both a token exchange (an App Bridge ID token, with
+ * `expiring=1`) and a refresh (`grant_type=refresh_token`). Apps made after
+ * April 2026 only get expiring tokens: 60 minutes for access, 90 days for the
+ * refresh token.
  */
 export async function tokenRequest(
   shop: string,

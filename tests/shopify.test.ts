@@ -1,6 +1,5 @@
-// Signature checks for the Shopify functions (_shared/shopify.ts). The query
-// fixture is the worked example in Shopify's OAuth docs (client secret
-// "hush"), so a pass means the message is built the way Shopify builds it.
+// The Shopify functions' helpers (_shared/shopify.ts): the signature checks on
+// App Bridge's ID tokens, connect codes and webhooks, and the product mapping.
 
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
@@ -17,11 +16,13 @@ const {
   entryValues,
   appAdminUrl,
   missingScopes,
-  authorizeUrl,
   channelMoves,
+  connectCode,
   collectionMoves,
   granted,
   isShopDomain,
+  maskEmail,
+  readConnectCode,
   salesChannels,
   newProduct,
   newProductInput,
@@ -34,7 +35,6 @@ const {
   productFieldsInput,
   productGid,
   productSummary,
-  queryMessage,
   refusal,
   samePhotos,
   shopIdFromGid,
@@ -42,95 +42,141 @@ const {
   variantFieldsInput,
   variantGid,
   variantSummary,
-  verifiedShop,
+  verifyIdToken,
   verifyWebhook,
 } = await import('../supabase/functions/_shared/shopify');
 
 const SECRET = 'hush';
-const DOCS_QUERY = {
-  code: '0907a61c0c8d55e99db179b68161bc00',
-  hmac: '700e2dadb827fcc8609e9d5ce208b2e9cdaab9df07390d2cbca10d7c328fc4bf',
-  shop: 'some-shop.myshopify.com',
-  state: '0.6784241404160823',
-  timestamp: '1337178173',
-};
-const DOCS_NOW = 1337178173 * 1000;
+const NOW = 1794334871 * 1000;
 
-function signed(query: Record<string, string>, secret = SECRET) {
-  const hmac = createHmac('sha256', secret).update(queryMessage(query)).digest('hex');
-  return { ...query, hmac };
+const b64url = (s: string | Buffer) =>
+  Buffer.from(s).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+/** An ID token as App Bridge hands one over: HS256 with the app's secret. */
+function idToken(
+  claims: Record<string, unknown> = {},
+  { secret = SECRET, alg = 'HS256' }: { secret?: string; alg?: string } = {},
+) {
+  const seconds = NOW / 1000;
+  const head = b64url(JSON.stringify({ alg, typ: 'JWT' }));
+  const body = b64url(
+    JSON.stringify({
+      iss: 'https://salelinx-test-store.myshopify.com/admin',
+      dest: 'https://salelinx-test-store.myshopify.com',
+      aud: 'cid',
+      sub: '42',
+      exp: seconds + 60,
+      nbf: seconds - 1,
+      iat: seconds - 1,
+      jti: 'f8912129-1af6-4cad-9ca3-76b0f7621087',
+      sid: 'aaea182f',
+      ...claims,
+    }),
+  );
+  const sig = b64url(createHmac('sha256', secret).update(`${head}.${body}`).digest());
+  return `${head}.${body}.${sig}`;
 }
 
-describe('queryMessage', () => {
-  it('sorts the params and leaves out hmac and signature', () => {
-    expect(
-      queryMessage({
-        timestamp: '1',
-        shop: 'a.myshopify.com',
-        hmac: 'x',
-        signature: 'y',
-      }),
-    ).toBe('shop=a.myshopify.com&timestamp=1');
-  });
-});
-
-describe('verifiedShop', () => {
-  it("accepts Shopify's documented example", async () => {
-    await expect(verifiedShop(DOCS_QUERY, SECRET, DOCS_NOW)).resolves.toBe(
-      'some-shop.myshopify.com',
-    );
-  });
-
-  it('accepts an App URL install redirect', async () => {
-    const now = 1794334871 * 1000;
-    const query = signed({
-      host: 'YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvc2FsZWxpbngtdGVzdC1zdG9yZQ',
-      shop: 'salelinx-test-store.myshopify.com',
-      timestamp: '1794334871',
-    });
-    await expect(verifiedShop(query, SECRET, now)).resolves.toBe(
+describe('verifyIdToken', () => {
+  it('names the store a good token vouches for', async () => {
+    await expect(verifyIdToken(idToken(), 'cid', SECRET, NOW)).resolves.toBe(
       'salelinx-test-store.myshopify.com',
     );
   });
 
-  it('refuses a changed param', async () => {
+  it('refuses a token signed with another secret, or not HS256', async () => {
     await expect(
-      verifiedShop({ ...DOCS_QUERY, shop: 'other-shop.myshopify.com' }, SECRET, DOCS_NOW),
-    ).rejects.toMatchObject({ code: 'bad_signature' });
+      verifyIdToken(idToken({}, { secret: 'other' }), 'cid', SECRET, NOW),
+    ).rejects.toMatchObject({ code: 'invalid_session', status: 401 });
+    await expect(
+      verifyIdToken(idToken({}, { alg: 'none' }), 'cid', SECRET, NOW),
+    ).rejects.toMatchObject({ code: 'invalid_session' });
   });
 
-  it('refuses the wrong secret and a missing hmac', async () => {
-    await expect(verifiedShop(DOCS_QUERY, 'other', DOCS_NOW)).rejects.toMatchObject({
-      code: 'bad_signature',
-    });
-    const unsigned = Object.fromEntries(Object.entries(DOCS_QUERY).filter(([k]) => k !== 'hmac'));
-    await expect(verifiedShop(unsigned, SECRET, DOCS_NOW)).rejects.toMatchObject({
-      code: 'bad_signature',
-    });
+  it('refuses a token past its minute, or not valid yet, past the clock slack', async () => {
+    const seconds = NOW / 1000;
+    await expect(
+      verifyIdToken(idToken({ exp: seconds - 11 }), 'cid', SECRET, NOW),
+    ).rejects.toMatchObject({ code: 'invalid_session' });
+    await expect(
+      verifyIdToken(idToken({ exp: seconds - 5 }), 'cid', SECRET, NOW),
+    ).resolves.toBe('salelinx-test-store.myshopify.com');
+    await expect(
+      verifyIdToken(idToken({ nbf: seconds + 30 }), 'cid', SECRET, NOW),
+    ).rejects.toMatchObject({ code: 'invalid_session' });
   });
 
-  it('refuses a redirect older than five minutes', async () => {
-    await expect(verifiedShop(DOCS_QUERY, SECRET, DOCS_NOW + 6 * 60_000)).rejects.toMatchObject({
+  it("refuses another app's token and one whose stores don't match", async () => {
+    await expect(verifyIdToken(idToken(), 'other-app', SECRET, NOW)).rejects.toMatchObject({
+      code: 'invalid_session',
+    });
+    await expect(
+      verifyIdToken(idToken({ dest: 'https://other.myshopify.com' }), 'cid', SECRET, NOW),
+    ).rejects.toMatchObject({ code: 'invalid_session' });
+    await expect(
+      verifyIdToken(
+        idToken({ iss: 'https://evil.example.com/admin', dest: 'https://evil.example.com' }),
+        'cid',
+        SECRET,
+        NOW,
+      ),
+    ).rejects.toMatchObject({ code: 'invalid_session' });
+  });
+
+  it('refuses a missing or broken token', async () => {
+    for (const bad of [undefined, '', 'a.b', 'a.b.c', `${idToken()}x`]) {
+      await expect(verifyIdToken(bad, 'cid', SECRET, NOW)).rejects.toMatchObject({
+        code: 'invalid_session',
+      });
+    }
+  });
+});
+
+describe('connect codes', () => {
+  const store = {
+    shopId: '85949972632',
+    shopDomain: 'salelinx-test-store.myshopify.com',
+    shopName: 'Boutique \u00e9t\u00e9',
+  };
+
+  it('names the store it was made for, for an hour', async () => {
+    const code = await connectCode(store, SECRET, NOW);
+    await expect(readConnectCode(code, SECRET, NOW + 59 * 60_000)).resolves.toEqual(store);
+    await expect(readConnectCode(code, SECRET, NOW + 61 * 60_000)).rejects.toMatchObject({
       code: 'expired',
     });
   });
 
-  it('refuses a signed address that is not a myshopify.com store', async () => {
-    const query = signed({ shop: 'evil.example.com', timestamp: '1337178173' });
-    await expect(verifiedShop(query, SECRET, DOCS_NOW)).rejects.toMatchObject({
-      code: 'bad_request',
-    });
+  it('carries the store in a body the website can read', async () => {
+    const code = await connectCode(store, SECRET, NOW);
+    const body = JSON.parse(Buffer.from(code.split('.')[0], 'base64url').toString('utf8'));
+    expect(body).toMatchObject({ s: store.shopId, d: store.shopDomain, n: store.shopName });
   });
 
-  it('refuses a query that is not flat strings', async () => {
-    await expect(
-      verifiedShop({ ...DOCS_QUERY, shop: ['a'] }, SECRET, DOCS_NOW),
-    ).rejects.toMatchObject({
-      code: 'bad_request',
+  it('refuses a changed body, another secret and a broken code', async () => {
+    const code = await connectCode(store, SECRET, NOW);
+    const [, sig] = code.split('.');
+    const other = b64url(JSON.stringify({ s: '1', d: 'other.myshopify.com', n: null, e: 9e9 }));
+    await expect(readConnectCode(`${other}.${sig}`, SECRET, NOW)).rejects.toMatchObject({
+      code: 'bad_signature',
     });
-    await expect(verifiedShop(null, SECRET, DOCS_NOW)).rejects.toMatchObject({
-      code: 'bad_request',
+    await expect(readConnectCode(code, 'other', NOW)).rejects.toMatchObject({
+      code: 'bad_signature',
     });
+    for (const bad of [undefined, '', 'abc', `${code}.x`, '.x']) {
+      await expect(readConnectCode(bad, SECRET, NOW)).rejects.toMatchObject({
+        code: 'bad_request',
+      });
+    }
+  });
+});
+
+describe('maskEmail', () => {
+  it('keeps the start and the domain', () => {
+    expect(maskEmail('seller@example.com')).toBe('se\u2022\u2022\u2022@example.com');
+    expect(maskEmail('ab@example.com')).toBe('a\u2022\u2022\u2022@example.com');
+    expect(maskEmail(null)).toBeNull();
+    expect(maskEmail('no-at-sign')).toBeNull();
   });
 });
 
@@ -155,20 +201,6 @@ describe('helpers', () => {
     expect(isShopDomain('-bad.myshopify.com')).toBe(false);
     expect(isShopDomain('shop.myshopify.com.evil.com')).toBe(false);
     expect(isShopDomain('shop.myshopify.com/admin')).toBe(false);
-  });
-
-  it('builds the consent page for one store', () => {
-    const url = new URL(
-      authorizeUrl('a.myshopify.com', 'cid', 'https://abc.chromiumapp.org/shopify', 'st'),
-    );
-    expect(url.origin + url.pathname).toBe('https://a.myshopify.com/admin/oauth/authorize');
-    expect(Object.fromEntries(url.searchParams)).toEqual({
-      client_id: 'cid',
-      scope:
-        'write_products,write_inventory,read_locations,write_publications,write_metaobjects,write_metaobject_definitions',
-      redirect_uri: 'https://abc.chromiumapp.org/shopify',
-      state: 'st',
-    });
   });
 
   it('takes the number from a Shop GID', () => {

@@ -7,13 +7,11 @@
 // Auth: the signed-in user's Supabase JWT in Authorization.
 //
 // Request body: { action, ...params }
-//   authorizeUrl { query, state, extensionId } -> { url }
-//                query: the App URL's params Shopify sent the popup on install
-//                (shop, host, timestamp, hmac), checked here; url: Shopify's
-//                consent page, redirecting to https://<extensionId>.chromiumapp.org/shopify
-//   link    { query }   -> { shopId, shopName, shopDomain, currency }
-//                query: that redirect's params (code, shop, state, timestamp,
-//                hmac). The extension checks state; this checks the signature.
+//   claimStore { code } -> { shopId, shopName, shopDomain, appUrl }
+//                connects a store to the caller's account. code: the one the app's
+//                page in the store's admin made (shopify-public), which the website's
+//                /shopify/connect or the extension passes on. The store's tokens are
+//                already stored, from when it opened the app
 //   unlink  {}          -> { ok }
 //   account {}          -> { shopName, shopDomain, currency, missingScopes, appUrl }
 //                missingScopes: what SaleLinx asks for that the store hasn't granted;
@@ -84,8 +82,9 @@
 // 'upgrade_required' / 'limit_reached' for a crosslist past the plan,
 // 'not_found' for a product gone from the store, 'not_editable' for an edit
 // the product doesn't allow (see updateProduct),
-// 'bad_signature' / 'expired' / 'bad_request' for a redirect that doesn't
-// check out, 'shopify' for anything else Shopify refused.
+// 'bad_signature' / 'expired' / 'bad_request' for a connect code that doesn't
+// check out, 'ALREADY_LINKED_ELSEWHERE' / 'ALREADY_TRIALED' for a store another
+// account holds or had a trial with, 'shopify' for anything else Shopify refused.
 //
 // Secrets: SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET.
 
@@ -100,7 +99,6 @@ import {
   ShopifyError,
   adminGraphql,
   appAdminUrl,
-  authorizeUrl,
   missingScopes,
   canSetDetails,
   categoryDetails,
@@ -115,6 +113,7 @@ import {
   newProduct,
   newProductInput,
   pickTaxonomyCategory,
+  readConnectCode,
   taxonomySearchTerms,
   photoFiles,
   productDetail,
@@ -127,18 +126,13 @@ import {
   samePhotos,
   shopIdFromGid,
   textToHtml,
-  tokenRequest,
   variantFieldsInput,
   variantGid,
   variantSummary,
-  verifiedShop,
 } from '../_shared/shopify.ts';
+import { type Auth, accessToken, sleep } from '../_shared/shopify-tokens.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
-
-// A refresh normally takes well under a second; a claim older than this is
-// from a call that died mid-refresh, and the next caller may take over.
-const REFRESH_LOCK_MS = 30_000;
 
 const SHOP_QUERY = '{ shop { id name myshopifyDomain currencyCode } }';
 
@@ -155,152 +149,50 @@ function env(name: string): string {
   return v;
 }
 
-const inSeconds = (s: number) => new Date(Date.now() + s * 1000).toISOString();
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 // ── Tokens ─────────────────────────────────────────────────────────────────
 
-function tokenColumns(t) {
-  return {
-    scope: t.scope,
-    access_token: t.access_token,
-    access_expires_at: inSeconds(t.expires_in ?? 3600),
-    refresh_token: t.refresh_token,
-    refresh_expires_at: inSeconds(t.refresh_token_expires_in ?? 90 * 86400),
-    updated_at: new Date().toISOString(),
-  };
-}
-
-async function refresh(
-  admin,
-  userId: string,
-  shop: string,
-  refreshToken: string,
-  scope: string | null,
-): Promise<Auth> {
-  try {
-    const fresh = await tokenRequest(shop, {
-      client_id: env('SHOPIFY_CLIENT_ID'),
-      client_secret: env('SHOPIFY_CLIENT_SECRET'),
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-    });
-    const { error } = await admin
-      .from('shopify_tokens')
-      .update({
-        ...tokenColumns({
-          ...fresh,
-          refresh_token: fresh.refresh_token ?? refreshToken,
-        }),
-        refreshing_until: null,
-      })
-      .eq('user_id', userId);
-    // Shopify has already retired the old refresh token, so this link is lost.
-    if (error) console.error(`[shopify] user=${userId} refreshed token not saved`);
-    return { shop, token: fresh.access_token, scope: fresh.scope ?? scope };
-  } catch (err) {
-    await admin.from('shopify_tokens').update({ refreshing_until: null }).eq('user_id', userId);
-    throw err;
-  }
-}
-
-/** A store's access token and the scopes it granted (Shopify's comma list). */
-interface Auth {
-  shop: string;
-  token: string;
-  scope: string | null;
-}
-
-/**
- * A working access token, refreshed when it has under a minute left. Shopify
- * retires a refresh token the moment it issues the next one, so only the call
- * that claims refreshing_until refreshes; any other waits for its result.
- */
-async function accessTokenFor(admin, userId: string): Promise<Auth> {
-  for (let attempt = 0; attempt < 8; attempt++) {
-    const { data: row, error } = await admin
-      .from('shopify_tokens')
-      .select('shop_domain, access_token, access_expires_at, scope')
-      .eq('user_id', userId)
-      .maybeSingle();
-    if (error) throw new ShopifyError('Token lookup failed', 'unavailable', 500);
-    if (!row) throw new ShopifyError('Shopify is not connected', 'not_linked', 409);
-    if (new Date(row.access_expires_at).getTime() - Date.now() > 60_000) {
-      return { shop: row.shop_domain, token: row.access_token, scope: row.scope ?? null };
-    }
-
-    const now = new Date().toISOString();
-    const { data: claimed, error: claimErr } = await admin
-      .from('shopify_tokens')
-      .update({
-        refreshing_until: new Date(Date.now() + REFRESH_LOCK_MS).toISOString(),
-      })
-      .eq('user_id', userId)
-      .or(`refreshing_until.is.null,refreshing_until.lt."${now}"`)
-      .select('refresh_token');
-    if (claimErr) throw new ShopifyError('Token lookup failed', 'unavailable', 500);
-    if (claimed?.length) {
-      return refresh(admin, userId, row.shop_domain, claimed[0].refresh_token, row.scope ?? null);
-    }
-    await sleep(500);
-  }
-  throw new ShopifyError('Shopify is busy, try again', 'busy', 503);
-}
+/** The user's store's working access token (_shared/shopify-tokens.ts). */
+const accessTokenFor = (admin, userId: string): Promise<Auth> =>
+  accessToken(
+    admin,
+    { column: 'user_id', value: userId },
+    { clientId: env('SHOPIFY_CLIENT_ID'), secret: env('SHOPIFY_CLIENT_SECRET') },
+  );
 
 // ── Linking ────────────────────────────────────────────────────────────────
 
-// The legacy install flow rules out app-wide webhook subscriptions (Shopify
-// refuses them on deploy), so each store is subscribed to app/uninstalled when
-// it links. Shopify drops a store's subscriptions with the install, and a
-// reconnect while still installed finds it taken, which is fine. Best effort:
-// without it an uninstall goes unnoticed until the next call, which then gets
-// 401 and answers reauth anyway.
-const UNINSTALL_MUTATION = `mutation ($topic: WebhookSubscriptionTopic!, $sub: WebhookSubscriptionInput!) {
-  webhookSubscriptionCreate(topic: $topic, webhookSubscription: $sub) {
-    webhookSubscription { id }
-    userErrors { message }
-  }
-}`;
-
-async function subscribeUninstall(shop: string, token: string, userId: string) {
-  try {
-    const { webhookSubscriptionCreate: res } = await adminGraphql(shop, token, UNINSTALL_MUTATION, {
-      topic: 'APP_UNINSTALLED',
-      sub: { uri: `${env('SUPABASE_URL')}/functions/v1/shopify-public` },
-    });
-    if (res?.userErrors?.some((e) => !/taken/i.test(String(e.message)))) {
-      console.warn(`[shopify] user=${userId} uninstall webhook refused`);
-    }
-  } catch (err) {
-    console.warn(
-      `[shopify] user=${userId} uninstall webhook failed code=${err?.code ?? 'unknown'}`,
+/**
+ * Connects a store to the caller's account with the code the app's page made. The store's tokens
+ * are already stored, from when it opened the app, under no account; one held by another account
+ * stays there. One store per account: an earlier store's tokens go, as an unlink would.
+ */
+async function claim(admin, userScoped, userId: string, code: unknown) {
+  const store = await readConnectCode(code, env('SHOPIFY_CLIENT_SECRET'));
+  const { data: row, error } = await admin
+    .from('shopify_tokens')
+    .select('shop_domain, user_id')
+    .eq('shop_id', store.shopId)
+    .maybeSingle();
+  if (error) throw new ShopifyError('Token lookup failed', 'unavailable', 500);
+  // Gone since the page made the code: uninstalled, or unlinked. Opening SaleLinx in the store's
+  // admin makes a new one.
+  if (!row) throw new ShopifyError('Open SaleLinx in your Shopify admin again', 'expired', 409);
+  const elsewhere = () =>
+    new ShopifyError(
+      'This store is connected to another SaleLinx account',
+      'ALREADY_LINKED_ELSEWHERE',
+      409,
     );
-  }
-}
-
-async function link(admin, userScoped, userId: string, query) {
-  const shop = await verifiedShop(query, env('SHOPIFY_CLIENT_SECRET'));
-  if (typeof query.code !== 'string' || !query.code) {
-    throw new ShopifyError('Missing code', 'bad_request', 400);
-  }
-  const tokens = await tokenRequest(shop, {
-    client_id: env('SHOPIFY_CLIENT_ID'),
-    client_secret: env('SHOPIFY_CLIENT_SECRET'),
-    code: query.code,
-    expiring: '1',
-  });
-  if (!tokens.refresh_token) throw new ShopifyError('Shopify sent no refresh token', 'shopify');
-  const { shop: me } = await adminGraphql(shop, tokens.access_token, SHOP_QUERY);
-  const shopId = shopIdFromGid(me.id);
+  if (row.user_id && row.user_id !== userId) throw elsewhere();
 
   // linked_accounts first, through the user's own client, so the one-store-per-
-  // account index and the trial triggers decide before any token is kept.
+  // account index and the trial triggers decide before the store is theirs.
   const { error: linkErr } = await userScoped.from('linked_accounts').upsert(
     {
       user_id: userId,
       platform: 'shopify',
-      platform_user_id: shopId,
-      platform_username: me.name ?? null,
+      platform_user_id: store.shopId,
+      platform_username: store.shopName,
       linked_at: new Date().toISOString(),
     },
     { onConflict: 'user_id,platform' },
@@ -315,26 +207,28 @@ async function link(admin, userScoped, userId: string, query) {
     throw new ShopifyError(linkErr.message ?? 'Link failed', code, 409);
   }
 
-  const { error: tokErr } = await admin.from('shopify_tokens').upsert(
-    {
-      user_id: userId,
-      shop_id: shopId,
-      shop_domain: me.myshopifyDomain ?? shop,
-      ...tokenColumns(tokens),
-      refreshing_until: null,
-    },
-    { onConflict: 'user_id' },
-  );
-  if (tokErr) {
-    console.error(`[shopify] user=${userId} token store failed:`, tokErr.code ?? tokErr.message);
+  const { error: dropErr } = await admin
+    .from('shopify_tokens')
+    .delete()
+    .eq('user_id', userId)
+    .neq('shop_id', store.shopId);
+  if (dropErr) throw new ShopifyError('Could not save the Shopify connection', 'unavailable', 500);
+  const { data: took, error: takeErr } = await admin
+    .from('shopify_tokens')
+    .update({ user_id: userId })
+    .eq('shop_id', store.shopId)
+    .or(`user_id.is.null,user_id.eq.${userId}`)
+    .select('shop_id');
+  if (takeErr) {
+    console.error(`[shopify] user=${userId} claim failed:`, takeErr.code ?? takeErr.message);
     throw new ShopifyError('Could not save the Shopify connection', 'unavailable', 500);
   }
-  await subscribeUninstall(shop, tokens.access_token, userId);
+  if (!took?.length) throw elsewhere();
   return {
-    shopId,
-    shopName: me.name ?? null,
-    shopDomain: me.myshopifyDomain ?? shop,
-    currency: me.currencyCode ?? null,
+    shopId: store.shopId,
+    shopName: store.shopName,
+    shopDomain: row.shop_domain,
+    appUrl: appAdminUrl(row.shop_domain, env('SHOPIFY_CLIENT_ID')),
   };
 }
 
@@ -1483,28 +1377,11 @@ Deno.serve(async (req: Request) => {
 
   try {
     switch (body?.action) {
-      case 'authorizeUrl': {
-        if (typeof body.state !== 'string' || !/^[A-Za-z0-9_-]{16,128}$/.test(body.state)) {
-          return json(400, { error: 'Missing state', code: 'bad_request' });
-        }
-        if (typeof body.extensionId !== 'string' || !/^[a-p]{32}$/.test(body.extensionId)) {
-          return json(400, {
-            error: 'Missing extensionId',
-            code: 'bad_request',
-          });
-        }
-        const shop = await verifiedShop(body.query, env('SHOPIFY_CLIENT_SECRET'));
-        const redirectUri = `https://${body.extensionId}.chromiumapp.org/shopify`;
-        return json(200, {
-          url: authorizeUrl(shop, env('SHOPIFY_CLIENT_ID'), redirectUri, body.state),
-        });
-      }
-
-      case 'link': {
+      case 'claimStore': {
         const userScoped = createClient(supabaseUrl, anonKey, {
           global: { headers: { Authorization: `Bearer ${jwt}` } },
         });
-        return json(200, await link(admin, userScoped, user.id, body.query ?? {}));
+        return json(200, await claim(admin, userScoped, user.id, body.code));
       }
 
       // The app stays installed in the store until the seller removes it there;

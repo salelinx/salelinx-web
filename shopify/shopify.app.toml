@@ -1,17 +1,23 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "1358d2c72523a2584682e156a097d3d1"
-application_url = "https://owaxopwpktmffqsxavsz.supabase.co/functions/v1/shopify-public"
-embedded = false
+# The app's page in the store's admin (app/embed/shopify on the website). It takes the store's
+# tokens with App Bridge's ID token (token exchange), so Shopify's managed install below does the
+# approving, and an install is connected to a SaleLinx account from that page.
+application_url = "https://www.salelinx.com/embed/shopify"
+embedded = true
 name = "SaleLinx"
 
 [webhooks]
 api_version = "2026-10"
 
-  # app/uninstalled can't go here: Shopify refuses app-wide subscriptions while
-  # use_legacy_install_flow is on, so the shopify function subscribes each store
-  # when it links.
-  #
+  # app/uninstalled deletes the store's tokens. Allowed app-wide since the legacy install flow
+  # went (2026-11-13); stores linked before then also have a per-store subscription, so they get
+  # it twice, which is harmless.
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "https://owaxopwpktmffqsxavsz.supabase.co/functions/v1/shopify-public"
+
   # Required of every public app. shop/redact deletes the store's tokens, link
   # and listings; SaleLinx keeps no data about a store's customers.
   [[webhooks.subscriptions]]
@@ -20,12 +26,13 @@ api_version = "2026-10"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+# Shopify asks a store to approve these as it installs, and asks again for any added later the
+# next time the store opens the app.
 scopes = "write_products,write_inventory,read_locations,write_publications,write_metaobjects,write_metaobject_definitions"
 optional_scopes = [ ]
-use_legacy_install_flow = true
+use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [
-  "https://oichfmfogobecihmhlgkfcfbdceomenj.chromiumapp.org/shopify",
-  "https://acnjmgidhnjeoajfgonciolifngejdmi.chromiumapp.org/shopify"
-]
+# Unused: nothing redirects back to the app since the managed install. The configuration still
+# asks for one, and the app's own page is the only address it could be.
+redirect_urls = [ "https://www.salelinx.com/embed/shopify" ]
