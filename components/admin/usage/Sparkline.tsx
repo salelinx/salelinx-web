@@ -66,7 +66,7 @@ export function Sparkline({
           cy={last[1]}
           r={3.5}
           fill="#2563eb"
-          stroke="#ffffff"
+          stroke="var(--admin-surface)"
           strokeWidth={2}
         />
       )}
