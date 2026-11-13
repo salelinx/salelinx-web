@@ -57,7 +57,7 @@ export function ColumnChart({
         x2={width}
         y1={plotBottom + 0.5}
         y2={plotBottom + 0.5}
-        stroke="#e4e4e7"
+        stroke="var(--admin-chart-grid)"
         strokeWidth={1}
       />
       {values.map((v, i) => {
@@ -73,14 +73,14 @@ export function ColumnChart({
             : `M${x} ${plotBottom} V${y + r} a${r} ${r} 0 0 1 ${r} -${r} H${x + colW - r} a${r} ${r} 0 0 1 ${r} ${r} V${plotBottom} Z`;
         return (
           <g key={i}>
-            {d && <path d={d} fill={accent ? "#2563eb" : "#d4d4d8"} />}
+            {d && <path d={d} fill={accent ? "var(--admin-chart-accent)" : "var(--admin-chart-column)"} />}
             <text
               x={x + colW / 2}
               y={y - 4}
               textAnchor="middle"
               fontSize={11}
               fontFamily="var(--font-geist-mono), ui-monospace, monospace"
-              fill={accent ? "#18181b" : "#71717a"}
+              fill={accent ? "var(--admin-chart-label)" : "var(--admin-chart-axis)"}
             >
               {v.toLocaleString("en-US")}
             </text>
@@ -89,7 +89,7 @@ export function ColumnChart({
               y={height - 3}
               textAnchor="middle"
               fontSize={10}
-              fill={accent ? "#18181b" : "#a1a1aa"}
+              fill={accent ? "var(--admin-chart-label)" : "var(--admin-chart-faint)"}
             >
               {labels[i] ?? ""}
             </text>

@@ -3,12 +3,78 @@
 /* Admin console styles. Deliberately forked from app/globals.css: the admin
    area is an internal tool, not the marketing site, so it does NOT inherit the
    marketing dot-grid background, emerald corner-glow, or the hero/landing
-   animation keyframes. This is a flat, dense, dark "console" surface.
+   animation keyframes. This is a flat, dense "console" surface, dark by
+   default with a light option (the theme block at the end of this file).
 
    Tailwind 4 scans all source files for utility classes regardless of which
    CSS file imports it, so every utility is still available here. */
 
 :root {
+  color-scheme: light;
+  /* Light console palette: neutral, high-contrast, no brand glow. Only used
+     when an admin picks Light; dark is the default (end of this file). */
+  --admin-bg: #f7f7f8; /* app canvas */
+  --admin-surface: #ffffff; /* cards, table, sidebar */
+  --admin-border: #e4e4e7; /* zinc-200 hairlines */
+  --admin-foreground: #18181b; /* zinc-900 */
+  --admin-muted: #71717a; /* zinc-500 */
+
+  /* Chart inks, so SVG fills and strokes follow the theme too. */
+  --admin-chart-grid: #e4e4e7;
+  --admin-chart-axis: #71717a;
+  --admin-chart-faint: #a1a1aa;
+  --admin-chart-column: #d4d4d8;
+  --admin-chart-accent: #2563eb;
+  --admin-chart-label: #18181b;
+  --admin-chart-crosshair: #52514e;
+  /* Categorical slots 1-5, light steps (dataviz reference palette). */
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-5: #e87ba4;
+}
+
+@theme inline {
+  --color-background: var(--admin-bg);
+  --color-foreground: var(--admin-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background-color: var(--admin-bg);
+  color: var(--admin-foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Touch screens: iOS Safari zooms into any focused field smaller than 16px
+   and stays zoomed, which on a phone pushes the page off screen mid-search.
+   The console's fields are text-xs / text-sm for desktop density. This sits
+   outside any cascade layer, so it beats those Tailwind utilities without
+   !important. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Theme: dark unless an admin picks Light in the sidebar footer
+   (components/admin/AdminThemeToggle.tsx, Light / Dark / System). The choice
+   lives in localStorage, never a cookie, and the script in
+   app/admin/layout.tsx sets data-admin-theme on <html> before first paint.
+   Keyed on "not light", so with no choice saved, or before the script runs,
+   the console is dark.
+
+   Dark is a palette swap rather than dark: variants: the Tailwind palettes
+   the console uses are mirrored 50<->950 and white maps to the card surface,
+   so components keep light-console classes (bg-white, text-zinc-900). A new
+   colour family (say rose-*) needs its mirror added below or it renders
+   light. Unlayered, so it beats Tailwind's theme layer. */
+
+:root:not([data-admin-theme="light"]) {
   color-scheme: dark;
   --admin-bg: #09090b;
   /* Kept apart from zinc-100 (inverted to #18181b) so hover:bg-zinc-100 still shows on cards. */
@@ -16,6 +82,20 @@
   --admin-border: #27272a;
   --admin-foreground: #fafafa;
   --admin-muted: #a1a1aa;
+
+  --admin-chart-grid: #27272a;
+  --admin-chart-axis: #a1a1aa;
+  --admin-chart-faint: #71717a;
+  --admin-chart-column: #3f3f46;
+  --admin-chart-accent: #3987e5;
+  --admin-chart-label: #fafafa;
+  --admin-chart-crosshair: #c3c2b7;
+  /* The same five hues, stepped for the dark surface. */
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-4: #c98500;
+  --viz-5: #d55181;
 
   /* Palettes mirrored 50<->950 so the light-console utilities render dark. */
   --color-white: var(--admin-surface);
@@ -107,30 +187,4 @@
   --color-orange-800: oklch(90.1% 0.076 70.697);
   --color-orange-900: oklch(95.4% 0.038 75.164);
   --color-orange-950: oklch(98% 0.016 73.684);
-}
-
-@theme inline {
-  --color-background: var(--admin-bg);
-  --color-foreground: var(--admin-foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-body {
-  background-color: var(--admin-bg);
-  color: var(--admin-foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
-}
-
-/* Touch screens: iOS Safari zooms into any focused field smaller than 16px
-   and stays zoomed, which on a phone pushes the page off screen mid-search.
-   The console's fields are text-xs / text-sm for desktop density. This sits
-   outside any cascade layer, so it beats those Tailwind utilities without
-   !important. */
-@media (pointer: coarse) {
-  input,
-  select,
-  textarea {
-    font-size: 16px;
-  }
 }
