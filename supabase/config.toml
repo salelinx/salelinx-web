@@ -95,3 +95,11 @@ verify_jwt = false
 # eBay calls this unauthenticated; POSTs are checked against x-ebay-signature.
 [functions.ebay-account-deletion]
 verify_jwt = false
+
+[functions.shopify]
+verify_jwt = false
+
+# Shopify calls this unauthenticated: the App URL (GET) and webhooks (POST,
+# checked against X-Shopify-Hmac-Sha256).
+[functions.shopify-public]
+verify_jwt = false

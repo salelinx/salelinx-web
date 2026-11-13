@@ -22,6 +22,8 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 - **`ebay`** - the extension's only route to eBay. It has to be server-side: every token exchange and refresh needs the app's client secret, which cannot ship in a .crx, and each user's refresh token is a long-lived credential for their eBay account. Holds both. See "eBay" below.
 - **`ebay-account-deletion`** - eBay will not let a production keyset make calls until it has a public Marketplace Account Deletion endpoint to notify. See "eBay" below.
+- **`shopify`** - the extension's only route to Shopify, server-side for the same reason as `ebay`: the token exchange and every refresh need the app's client secret. See "Shopify" below.
+- **`shopify-public`** - what the Shopify app's page in a store's admin calls (`/app`, with App Bridge's ID token), its Connect address (`/connect`) and the webhooks, none with a SaleLinx session. See "Shopify" below.
 
 ## The nineteen functions
 
@@ -50,6 +52,8 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
+| `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
+| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -104,6 +108,8 @@ supabase functions deploy resolve-category --no-verify-jwt
 supabase functions deploy process-referral-rewards --no-verify-jwt
 supabase functions deploy ebay --no-verify-jwt
 supabase functions deploy ebay-account-deletion --no-verify-jwt
+supabase functions deploy shopify --no-verify-jwt
+supabase functions deploy shopify-public --no-verify-jwt
 ```
 
 ## Secrets
@@ -146,6 +152,9 @@ supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... E
 # Entered in the portal's Marketplace Account Deletion settings as well.
 supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=<32-80 chars>
 supabase secrets set EBAY_DELETION_ENDPOINT='https://<project>.supabase.co/functions/v1/ebay-account-deletion'
+# Shopify (Dev Dashboard > the SaleLinx app > Settings). The secret also signs
+# Shopify's redirects and webhooks, so both functions read it.
+supabase secrets set SHOPIFY_CLIENT_ID=... SHOPIFY_CLIENT_SECRET=...
 # Referrals (docs/REFERRALS.md): the referee first-month-discount coupons
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.
@@ -554,6 +563,234 @@ Gotchas:
 - **`EBAY_ENV=sandbox` switches every host at once** (auth, api, apiz) in both functions and
   in `resolve-category`. Sandbox tokens and production tokens are not interchangeable, so a
   project switched between them needs every user to reconnect.
+
+## Shopify (`shopify`, `shopify-public`)
+
+In progress: no seller can connect yet. The extension hides Shopify behind a dev build flag, and
+the app has no distribution type. The extension side is in
+`../salelinx-app/docs/technical/SHOPIFY.md`, including what's needed before review (Shopify
+billing, a page in Shopify's admin, final scopes).
+
+- **The app.** One Shopify app in the Dev Dashboard, embedded, with Shopify's managed install
+  (since 2026-11-13; until then not embedded, with the legacy install flow and our own OAuth).
+  Shopify asks a store to approve the scopes as it installs, then opens the App URL,
+  `https://www.salelinx.com/embed/shopify` (`app/embed/shopify/route.ts`), framed in the store's
+  admin. The scopes are `SCOPES` in `_shared/shopify.ts` and `scopes` in the toml, which must
+  match; Shopify asks a linked store about one added later the next time it opens the app. The app's settings are kept in `shopify/shopify.app.toml` (made by
+  `shopify app config link`), and `npx @shopify/cli app deploy --path shopify --no-release`
+  turns it into a new app version to release in the Dev Dashboard. A deploy replaces every setting
+  with the file's, so change the file, never only the dashboard, and re-link first if the
+  dashboard was edited.
+- **The app's page** (`app/embed/shopify/route.ts`) loads App Bridge and calls
+  `shopify-public`'s `/app` with `{ action: 'session' }` and a fresh ID token
+  (`shopify.idToken()`, a minute's life) as the bearer. `verifyIdToken` checks it (HS256 with the
+  client secret; `exp` and `nbf` with 10 seconds' slack, `aud` the client id, `iss` and `dest` the
+  same `myshopify.com` store), and anything wrong is `invalid_session` (401), which the page
+  answers with one retry on a new token. The page sends `frame-ancestors` naming the store and
+  `admin.shopify.com` (`'none'` without a store), as App Store review checks. It never signs in to
+  SaleLinx: a page framed in Shopify's admin can't count on `salelinx.com`'s cookies.
+- **Taking the store's tokens** (rule 2.3.2: before anything else). `session` uses the stored
+  tokens while they work and carry every scope, and otherwise swaps the ID token for new ones
+  (`exchangeIdToken`, token exchange with `expiring=1`): on the store's first open, after an
+  uninstall, when Shopify refuses the stored ones, and after the store approved a new scope (only
+  an exchange brings it into a token). The row is keyed by the store (`051_shopify_store_tokens.sql`),
+  with `user_id` empty until an account connects it. A store installed again goes back to the
+  account its `linked_accounts` row names, as an uninstall deletes the tokens and not the link. It
+  answers the store's name, whether an account holds it (`linked`, with that account's email
+  masked, `maskEmail`) and otherwise `connectUrl`.
+- **Connecting it to an account.** There is no store-address box (Shopify's App Store rule
+  2.3.1), so the store comes from Shopify. `connectUrl` is `shopify-public/connect` with a code
+  (`connectCode`: base64url JSON of the store's id, address and name and an expiry an hour on,
+  HMAC-signed with the client secret behind a prefix). Connect sends the whole tab there, and it
+  forwards to the website's `/shopify/connect`. A signed-in seller presses Connect store there,
+  or the extension, which watches the Supabase address (it may read `supabase.co`, not
+  `salelinx.com`), does it at once when it is signed in. Both call the `shopify` function's
+  `claimStore`, which checks the code (`readConnectCode`), refuses a store another account holds
+  (`ALREADY_LINKED_ELSEWHERE`) and, as with eBay, writes `linked_accounts` **through the user's
+  own client first**, so the one-store-per-account index and the trial triggers decide
+  (`ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`). Only then does the row get the user, and an
+  earlier store of theirs loses its tokens, as an unlink would. `linked_accounts.platform_user_id`
+  is the numeric store id, and a Shopify row's `listings.platform_user_id` must be too:
+  `shop/redact` deletes by it.
+- **Approving again.** `account` answers `missingScopes` (`SCOPES` less the stored
+  `shopify_tokens.scope`) and `appUrl` (`appAdminUrl`: `https://<store>/admin/apps/<client id>`),
+  and a `reauth` error carries `appUrl` too (`ShopifyError.details`, sent beside `error` and
+  `code`). The extension's popup opens that page; Shopify shows its approval screen for what is
+  new, and the app's page takes a token with it (`../salelinx-app/docs/technical/SHOPIFY.md`
+  "When the store must approve again").
+- **Tokens.** The app was made after 1 April 2026, so Shopify only issues expiring offline tokens:
+  access for 60 minutes, refresh for 90 days, and each refresh returns a new refresh token and
+  retires the old one, and a token exchange retires every other refresh token for the store. Two
+  at once would leave the row holding a retired token and the seller would have to reconnect. So
+  `_shared/shopify-tokens.ts` claims `refreshing_until` (30 seconds) with a conditional update,
+  for a refresh (`accessToken`, by user for the `shopify` function and by store for the app's
+  page) and an exchange alike: only the call that claims it goes ahead, and the others re-read the
+  row until the new token is there (about 4 seconds, then `busy`). A refresh Shopify refuses
+  answers `reauth`.
+- **Webhooks**, all pointing at `shopify-public` and all in `shopify.app.toml`. `app/uninstalled`
+  deletes the store's tokens and keeps the link, so the extension shows Reconnect. It went in the
+  toml when the legacy install flow did (Shopify refused app-wide subscriptions with it); stores
+  linked before then were also subscribed one by one, so they get it twice, which is harmless.
+  The three compliance topics every public app must answer: `shop/redact` (48 hours after an
+  uninstall) deletes the store's tokens, link and listings, and the two customer topics have
+  nothing to delete, as SaleLinx keeps no data about a store's customers. Read the body raw before
+  verifying: the HMAC covers its exact bytes.
+- **The old App URL.** A GET to `shopify-public` itself still redirects to `SITE_URL`: it was the
+  App URL until 2026-11-13. Supabase serves a function's HTML as plain text on its own domain,
+  which is why the app's page is on the website.
+- **Unlink** deletes the tokens. The app stays installed in the store until the seller removes it
+  in Shopify's admin.
+- **Listings** (`listings { cursor? }`) is the store's products for the extension's My Listings:
+  up to four pages of 25 a call, each product with up to 8 photos and every variant
+  (`variantList`, `variantSummary`: its own id, title such as "M / Black", options, price, stock
+  and photo), in Shopify's order, with the cursor to pass back for the next call (null once there
+  are no more). Each variant is a row of its own in the extension (the seller's call, 2026-11-12).
+  A page reads each product's first variant, about 800 of the store's GraphQL points (Shopify caps
+  one query at 1,000, and a Standard store refills 100 a second); the products on it with several
+  get the rest from `productVariants` filtered by `product_ids`, 50 a query (`fillVariants`). Before
+  each query the call waits for the bucket from `extensions.cost` (`adminGraphql`'s `onCost`), and
+  it stops after 15 seconds with the cursor kept at the page it was on, so a page and its variants
+  always arrive together. A throttle or failure after the first page ends the call early the same
+  way; one on the first page is the call failing. Status is Shopify's own (ACTIVE, DRAFT, ARCHIVED,
+  UNLISTED), and `url` is the product in the store's admin; the extension maps the rest
+  (`productSummary` in `_shared/shopify.ts`).
+- **Errors** are `{ error, code }`: `not_linked` and `reauth` (connect again), `busy` (Shopify
+  throttled, or a refresh in flight), `shop_unavailable` (the store's plan lapsed or Shopify
+  locked it), `bad_signature` / `expired` / `bad_request` (a redirect that doesn't check out),
+  `shopify` (anything else Shopify refused). Each is logged as `user=<uuid> action=<action>
+code=<code>` and nothing else.
+- **Product changes** for My Listings: `setStatus { productId, status }` (ACTIVE, DRAFT or ARCHIVED,
+  through `productUpdate`) answers with the product's status and stock, which the extension maps
+  onto its row. Status is the whole product's: Shopify has none per variant.
+  `deleteProduct { productId, variantId? }` deletes for good: with a variant named, only that
+  variant (`productVariantsBulkDelete`), unless it is the product's last, when the product goes
+  (`productDelete`, synchronous); `deleted` answers `variant` or `product`. A variant or product
+  already gone counts as deleted, and a variant no longer on the product never deletes the product.
+  `productId` and `variantId` are numeric ids (`productGid`, `variantGid` check them);
+  Shopify's first `userErrors` message comes back as `shopify` (422), or `not_found` (404) for a
+  product that is gone (`refusal`).
+- **The editor** (`product`, `updateProduct`, `uploadPhoto`). `product { productId, variantId? }`
+  reads one product about one variant (`productDetail`): the one named (`productVariant`, which
+  must belong to the product, else `not_found`), or the product's only one. It answers with the
+  listing (its `variantList` that one variant), `variant`, `descriptionHtml` (the listing's
+  `description` is Shopify's one-line text) and what SaleLinx may change, plus what a crosslist out
+  of the store reads: Shopify's own `category` as its path, the `tags`, and the variant's `options`
+  ("Size: M"; none for a product with several and none named). Price needs a variant; quantity
+  needs its stock tracked at one location; photos need every media item to be a ready image, 50 at
+  most, since the photo save replaces the whole set. With one location the stock level stands in
+  for the variant's count, and with one variant for the product's `totalInventory`: Shopify updates
+  both a moment after a stock change, so a read straight after a save or `takeOneOff` doesn't
+  report the old count. `updateProduct { productId, variantId?, changes }`
+  checks the changes (`productEdit`), reads the product again, refuses what it doesn't allow with
+  `not_editable` (422), then sends title, description (plain text made into paragraphs by
+  `textToHtml`), vendor and product type through `productUpdate` (the product's, so every variant
+  changes), the variant's price through `productVariantsBulkUpdate`, its quantity through
+  `inventorySetQuantities` with
+  `changeFromQuantity` (a sale in between makes Shopify refuse) and the photos through
+  `productSet` with `files` alone (`photoFiles`: a photo the product has keeps its media id). It
+  answers with the product read afterwards. `uploadPhoto { dataUrl }` stages a new photo
+  (`stagedUploadsCreate`, then a form POST to Shopify's storage) and answers with the address the
+  photo list then carries.
+- **The rest of the product page** (2026-11-12: the seller wanted every field Shopify's own page
+  has). `product` also answers `fields` (`productFields`, `ProductFields` in `_shared/shopify.ts`):
+  the variant's compare-at price, cost, tax, SKU, barcode (the first of `barcodes`; the single
+  `barcode` is deprecated), tracking, inventory policy, shipping, weight, country of origin, HS
+  code and options, and the product's category (id and path), tags, collections (each marked
+  `smart` when it holds the product by its own rules), SEO title and description, and handle.
+  `editable` adds `variant` (the variant fields need one) and `tracked` (off when Shopify's
+  `trackedEditable.locked`). `updateProduct` takes the same fields (`readFieldsEdit` checks them; a null
+  clears one): the product's go with title and the rest through `productUpdate`
+  (`productFieldsInput`; `collectionMoves` makes the manual set into `collectionsToJoin` /
+  `collectionsToLeave`; a new handle sets `redirectNewHandle`), the variant's with its price
+  through `productVariantsBulkUpdate` (`variantFieldsInput`, its inventory item included).
+  `categories { search }` searches Shopify's standard categories for the editor's category box,
+  `matchCategory` answers the category `createProduct` would find for a source (`findCategory`),
+  and `collections` lists the store's manual collections. Not covered: category attributes, which
+  need new scopes (`write_metaobjects` and `write_metaobject_definitions`).
+- **Sales channels** (2026-11-13, scope `write_publications`). The API puts a product it makes on
+  no channel, so it was Active on no page of the store. `createProduct` now puts it on
+  `fields.channels`, else the Online Store, a draft too, as Shopify's admin does; `setStatus` to
+  ACTIVE puts a product on no channel at all on the Online Store (`onlineStoreIfNowhere`, which
+  never fails the call it follows). `product` answers `fields.channels` (the publication ids it is
+  on), `updateProduct` takes `channels` as the whole set (`channelMoves`, then
+  `publishablePublish` / `publishableUnpublish`), and `channels` lists the store's
+  (`publications(catalogType: APP)`, each named by its app; the Online Store is the app handle
+  `online_store`, as the catalog's own title is internal). A store linked before has not granted
+  the scope, and a query naming a channel field would then fail whole, so each of these checks
+  `granted(auth.scope, PUBLISH_SCOPE)` (the stored `shopify_tokens.scope`) first: without it
+  `fields.channels` and `channels` answer null, nothing is published, and a `channels` change is
+  refused. The store grants it by opening the app from its admin, which links again.
+- **Category details** (2026-11-13, scopes `write_metaobjects` and `write_metaobject_definitions`,
+  `DETAILS_SCOPES`). Shopify's category metafields: each detail of a category (Fabric, Neckline)
+  is the standard product metafield `shopify.<key>` (`list.metaobject_reference`), holding
+  entries of a standard metaobject definition, each tied to a taxonomy value.
+  `categoryDetails { categoryId }` reads the category's choice attributes with every value and
+  its constrained standard metafield templates in one query (about 130 points) and keys each
+  attribute by the template of the same name (`categoryDetails()`): the key isn't the
+  attribute's name (Color is `color-pattern`), and Pattern has no template, as it lives in the
+  colour entries.
+  - **Extended attributes.** Some categories have their own copy of a base attribute under
+    another name: Handbags' "Bag/Case closure" is "Bag closure", Watches' "Band color", "Case
+    color" and "Dial color" are "Color" (314 in taxonomy 2026-10, 15 in Apparel & Accessories).
+    The API lists the attribute once, by its base name, while the category's templates carry the
+    extended name and key, so a name match missed them: Watches had no colour at all. The link is
+    Shopify's taxonomy data, generated into `_shared/_generated/shopify-extended-attributes.ts`
+    (`EXTENDED_ATTRIBUTE_BASE`, key to base attribute id) by
+    `scripts/build-shopify-extended-attributes.mjs` from the taxonomy release matching the API
+    version; run it again when the function moves to a newer one. Each such template follows its
+    base attribute, with its values and the template's own name.
+  `product` answers `fields.categoryDetails` (key to taxonomy value ids, read
+  from the product's `shopify` metafields and their entries, `detailEntries()`); `updateProduct`
+  and `createProduct` take the same, each key's whole list. `setCategoryDetails` turns on the
+  standard metafield the first time a store uses a detail (`standardMetafieldDefinitionEnable`;
+  if Shopify wants the entry type on first, `standardMetaobjectDefinitionEnable` of
+  `shopify--<key>` and again) and takes the entry type the metafield's definition names
+  (`metaobject_definition_id`), never one guessed from the key, as an extended detail may hold
+  another type's entries (`detailDefinition`). It reuses the
+  product's entry or the store's entry for that one value, else creates one (`entryFields`: a
+  label and `taxonomy_reference`; a colour's `color_taxonomy_reference` with the Solid pattern,
+  or Shopify refuses it), keeps entries that aren't one standard value (made by hand), and sets
+  the metafield (`metafieldsSet`; an empty list clears it). A key Shopify refuses is reported
+  after the rest land. Gated like the sales channels: without the scopes `categoryDetails` and
+  `fields.categoryDetails` answer null, and a change is refused.
+- **Checking a query before a deploy.** One unknown field fails the whole query and no unit test
+  sees it (the product read once asked for `trackedEditable { editable }`, and every read failed
+  once deployed). Shopify's docs proxy answers introspection without a token
+  (`POST https://shopify.dev/admin-graphql-direct-proxy/2026-10`): validate each query constant
+  with graphql-js, and the builders' variables with `getVariableValues`.
+- **Linked sales** (`takeOneOff { productId, variantId?, key }`). A listing linked to the
+  variant sold on a marketplace, so one comes off its stock (`oneOffPlan`): tracked at one location
+  it's set to one less with `changeFromQuantity`, under the `@idempotent` key the extension names
+  the sale with, so a retry of that sale can't take a second unit off. A product's only variant
+  with untracked stock has the product archived instead; one of several is left alone (`manual`),
+  as archiving would take its other variants off sale. Several locations, or no variant named on a
+  product with several, are left alone too. It
+  answers with what happened (`counted`, `sold`, `archived`, `manual` or `gone`) and the product
+  read afterwards.
+- **Crosslisting into the store** (`createProduct { product }`). Posts a crosslist itself, so it
+  calls `checkCrosslistAllowed` before any Shopify call, as resolve-category and the ebay
+  function's `add` do: nothing else on the server gates a Shopify crosslist. The extension still
+  counts it afterwards. `newProduct` checks what it sent (title, plain-text description, vendor,
+  productType, price, quantity of at least 1, size, tags, https photos, status DRAFT or ACTIVE),
+  and `newProductInput` makes one `productSet` call of it: the size as the one value of a Size
+  option (Shopify's default Title variant without one), the stock tracked at the store's primary
+  location (`location` with no id), the photos fetched by Shopify from where the source keeps them.
+  Shopify's Category is one of its standard categories, picked by id, unlike the free-text product
+  type: `findCategory` searches `taxonomy.categories` for the product type, then the step above it
+  in the source's `categoryPath` (`taxonomySearchTerms`, two searches at most), and
+  `pickTaxonomyCategory` takes the closest fit to the source's words ("Coats & Jackets" over
+  "Bomber Jackets" and the baby range), or none. A failed search leaves the category out rather
+  than failing the create. `fields` carries the rest of the page as the seller set it (as
+  `updateProduct` takes it, less tags and options): onto the variant and the product, a
+  `categoryId` (or null for none) in place of the match, and no stock at the location when
+  tracking is off. It answers like `product`, read after the create.
+- **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
+  example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
+  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`, the
+  page's fields with `variantFieldsInput`, `productFieldsInput` and `collectionMoves`),
+  the sales channels (`granted`, `salesChannels`, `channelMoves`), the category details
+  (`categoryDetails`, `entryValues`, `detailEntries`, `entryFields`), `oneOffPlan`, and the
+  crosslist's `newProduct`, `newProductInput`, `taxonomySearchTerms` and `pickTaxonomyCategory`.
 
 ## Excluded from TypeScript checks
 

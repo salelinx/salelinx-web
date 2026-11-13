@@ -1140,5 +1140,39 @@
     "phoneResend": "Renvoyer",
     "phoneSent": "Nous vous avons envoyé le lien d'installation. Ouvrez-le sur votre ordinateur pour ajouter SaleLinx à Chrome.",
     "phoneError": "Impossible d'envoyer l'e-mail. Ouvrez salelinx.com sur votre ordinateur."
+  },
+  "ShopifyApp": {
+    "loading": "Chargement...",
+    "connectedTitle": "Connecté à SaleLinx",
+    "connectedBody": "{store} est reliée au compte SaleLinx {account}.",
+    "connectedHint": "Gérez les produits de cette boutique et publiez-les sur Depop, Vinted et eBay depuis SaleLinx.",
+    "connectTitle": "Relier {store} à SaleLinx",
+    "connectBody": "SaleLinx publie vos produits sur Depop, Vinted et eBay et garde votre stock à jour partout. Reliez cette boutique à votre compte SaleLinx pour commencer.",
+    "connect": "Relier à SaleLinx",
+    "connectHint": "Pas encore de compte SaleLinx ? Créez-en un, puis revenez ici et appuyez de nouveau sur Relier.",
+    "getExtension": "Obtenir l'extension Chrome",
+    "account": "Votre compte SaleLinx",
+    "error": "SaleLinx n'a pas pu charger cette boutique. Réessayez dans un instant.",
+    "retry": "Réessayer",
+    "outsideTitle": "Ouvrez SaleLinx depuis l'administration Shopify",
+    "outsideBody": "Cette page fonctionne dans l'administration de votre boutique, sous Applications."
+  },
+  "ShopifyConnect": {
+    "metaTitle": "Reliez votre boutique Shopify",
+    "title": "Reliez votre boutique Shopify",
+    "signedOut": "Connectez-vous à SaleLinx pour relier {store} à votre compte.",
+    "login": "Se connecter",
+    "signup": "Créer un compte",
+    "signupHint": "Une fois votre compte créé, ouvrez de nouveau SaleLinx dans l'administration Shopify et appuyez sur Relier.",
+    "confirm": "Relier {store} au compte SaleLinx {email} ?",
+    "connect": "Relier la boutique",
+    "connecting": "Connexion...",
+    "done": "{store} est reliée à votre compte SaleLinx.",
+    "back": "Retour à Shopify",
+    "getExtension": "Obtenir l'extension Chrome",
+    "noCode": "Ce lien ne fonctionne plus. Ouvrez SaleLinx dans l'administration Shopify et appuyez de nouveau sur Relier.",
+    "alreadyLinked": "Cette boutique est reliée à un autre compte SaleLinx. Déliez-la d'abord depuis ce compte.",
+    "alreadyTrialed": "Cette boutique a déjà bénéficié d'un essai SaleLinx sur un autre compte.",
+    "failed": "Impossible de relier la boutique. Réessayez."
   }
 }

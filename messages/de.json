@@ -1140,5 +1140,39 @@
     "phoneResend": "Erneut senden",
     "phoneSent": "Wir haben dir den Installationslink geschickt. Öffne ihn auf deinem Computer, um SaleLinx zu Chrome hinzuzufügen.",
     "phoneError": "Die E-Mail konnte nicht gesendet werden. Öffne salelinx.com auf deinem Computer."
+  },
+  "ShopifyApp": {
+    "loading": "Wird geladen...",
+    "connectedTitle": "Mit SaleLinx verbunden",
+    "connectedBody": "{store} ist mit dem SaleLinx-Konto {account} verbunden.",
+    "connectedHint": "Verwalte die Produkte dieses Shops und stelle sie mit SaleLinx auf Depop, Vinted und eBay ein.",
+    "connectTitle": "{store} mit SaleLinx verbinden",
+    "connectBody": "SaleLinx stellt deine Produkte auf Depop, Vinted und eBay ein und hält deinen Bestand überall aktuell. Verbinde diesen Shop mit deinem SaleLinx-Konto, um loszulegen.",
+    "connect": "Mit SaleLinx verbinden",
+    "connectHint": "Noch kein SaleLinx-Konto? Erstelle eins, komm dann hierher zurück und klicke noch einmal auf Verbinden.",
+    "getExtension": "Chrome-Erweiterung holen",
+    "account": "Dein SaleLinx-Konto",
+    "error": "SaleLinx konnte diesen Shop nicht laden. Versuche es gleich noch einmal.",
+    "retry": "Erneut versuchen",
+    "outsideTitle": "Öffne SaleLinx in deinem Shopify-Adminbereich",
+    "outsideBody": "Diese Seite funktioniert im Adminbereich deines Shops unter Apps."
+  },
+  "ShopifyConnect": {
+    "metaTitle": "Deinen Shopify-Shop verbinden",
+    "title": "Deinen Shopify-Shop verbinden",
+    "signedOut": "Melde dich bei SaleLinx an, um {store} mit deinem Konto zu verbinden.",
+    "login": "Anmelden",
+    "signup": "Konto erstellen",
+    "signupHint": "Wenn dein Konto erstellt ist, öffne SaleLinx noch einmal in deinem Shopify-Adminbereich und klicke auf Verbinden.",
+    "confirm": "{store} mit dem SaleLinx-Konto {email} verbinden?",
+    "connect": "Shop verbinden",
+    "connecting": "Wird verbunden...",
+    "done": "{store} ist mit deinem SaleLinx-Konto verbunden.",
+    "back": "Zurück zu Shopify",
+    "getExtension": "Chrome-Erweiterung holen",
+    "noCode": "Dieser Link funktioniert nicht mehr. Öffne SaleLinx in deinem Shopify-Adminbereich und klicke noch einmal auf Verbinden.",
+    "alreadyLinked": "Dieser Shop ist mit einem anderen SaleLinx-Konto verbunden. Trenne ihn zuerst dort.",
+    "alreadyTrialed": "Dieser Shop hatte schon eine SaleLinx-Testphase mit einem anderen Konto.",
+    "failed": "Der Shop konnte nicht verbunden werden. Versuche es noch einmal."
   }
 }

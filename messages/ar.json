@@ -1140,5 +1140,39 @@
     "phoneResend": "أرسله مرة أخرى",
     "phoneSent": "أرسلنا إليك رابط التثبيت. افتحه على الكمبيوتر لإضافة SaleLinx إلى Chrome.",
     "phoneError": "تعذّر إرسال البريد. افتح salelinx.com على الكمبيوتر بدلاً من ذلك."
+  },
+  "ShopifyApp": {
+    "loading": "جارٍ التحميل...",
+    "connectedTitle": "متصل بـ SaleLinx",
+    "connectedBody": "{store} متصل بحساب SaleLinx {account}.",
+    "connectedHint": "أدِر منتجات هذا المتجر وانشرها على Depop وVinted وeBay من SaleLinx.",
+    "connectTitle": "اربط {store} بـ SaleLinx",
+    "connectBody": "ينشر SaleLinx منتجاتك على Depop وVinted وeBay ويُبقي مخزونك محدّثًا في كل مكان. اربط هذا المتجر بحسابك في SaleLinx للبدء.",
+    "connect": "الربط بـ SaleLinx",
+    "connectHint": "ليس لديك حساب SaleLinx بعد؟ أنشئ حسابًا، ثم عُد إلى هنا واضغط على الربط مرة أخرى.",
+    "getExtension": "احصل على إضافة Chrome",
+    "account": "حسابك في SaleLinx",
+    "error": "تعذّر على SaleLinx تحميل هذا المتجر. حاول مرة أخرى بعد قليل.",
+    "retry": "حاول مرة أخرى",
+    "outsideTitle": "افتح SaleLinx من لوحة إدارة Shopify",
+    "outsideBody": "تعمل هذه الصفحة داخل لوحة إدارة متجرك، ضمن التطبيقات."
+  },
+  "ShopifyConnect": {
+    "metaTitle": "اربط متجرك على Shopify",
+    "title": "اربط متجرك على Shopify",
+    "signedOut": "سجّل الدخول إلى SaleLinx لربط {store} بحسابك.",
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب",
+    "signupHint": "بعد إنشاء حسابك، افتح SaleLinx مرة أخرى في لوحة إدارة Shopify واضغط على الربط.",
+    "confirm": "هل تريد ربط {store} بحساب SaleLinx {email}؟",
+    "connect": "ربط المتجر",
+    "connecting": "جارٍ الربط...",
+    "done": "تم ربط {store} بحسابك في SaleLinx.",
+    "back": "العودة إلى Shopify",
+    "getExtension": "احصل على إضافة Chrome",
+    "noCode": "لم يعد هذا الرابط يعمل. افتح SaleLinx في لوحة إدارة Shopify واضغط على الربط مرة أخرى.",
+    "alreadyLinked": "هذا المتجر مرتبط بحساب SaleLinx آخر. افصله من ذلك الحساب أولًا.",
+    "alreadyTrialed": "حصل هذا المتجر بالفعل على فترة تجريبية من SaleLinx على حساب آخر.",
+    "failed": "تعذّر ربط المتجر. حاول مرة أخرى."
   }
 }
