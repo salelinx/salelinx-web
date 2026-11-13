@@ -991,6 +991,39 @@ describe('category details', () => {
     ]);
   });
 
+  it("gives an extended detail its base attribute's values, under its own name", () => {
+    // From the API on 2026-11-13: each category lists the base attribute once, by its base name.
+    const attr = (id: number, name: string, value: number) => ({
+      id: `gid://shopify/TaxonomyAttribute/${id}`,
+      name,
+      values: { nodes: [{ id: v(value), name: String(value) }] },
+    });
+    const color = attr(1, 'Color', 1);
+    const values = [{ id: v(1), name: '1' }];
+    // Handbags: "Bag closure" is the template "Bag/Case closure".
+    expect(categoryDetails([attr(2958, 'Bag closure', 7)], [template('bag-case-closure', 'Bag/Case closure')])).toEqual(
+      [{ key: 'bag-case-closure', name: 'Bag/Case closure', values: [{ id: v(7), name: '7' }] }],
+    );
+    // Watches: no plain Color, three of its own.
+    expect(
+      categoryDetails(
+        [color],
+        [template('band-color', 'Band color'), template('case-color', 'Case color'), template('dial-color', 'Dial color')],
+      ),
+    ).toEqual([
+      { key: 'band-color', name: 'Band color', values },
+      { key: 'case-color', name: 'Case color', values },
+      { key: 'dial-color', name: 'Dial color', values },
+    ]);
+    // Sunglasses: Color itself first, then the frame's.
+    expect(
+      categoryDetails(
+        [color],
+        [template('eyewear-frame-color', 'Eyewear frame color'), template('color-pattern', 'Color')],
+      ).map((d) => d.key),
+    ).toEqual(['color-pattern', 'eyewear-frame-color']);
+  });
+
   it("reads the values an entry stands for, a colour's included", () => {
     expect(entryValues([{ key: 'label', value: 'Cotton' }, { key: 'taxonomy_reference', value: v(5) }])).toEqual([
       v(5),
