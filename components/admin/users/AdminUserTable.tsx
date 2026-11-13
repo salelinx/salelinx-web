@@ -109,7 +109,14 @@ const SOURCE_ICONS: Record<string, { path: string; color: string; name: string }
     color: "text-[#4285F4]",
     path: "M0 1.637v19.09c0 .9.736 1.636 1.636 1.636h.131a10.4 10.4 0 0 1-.13-1.636 10.3 10.3 0 0 1 1.667-5.64l4.202 7.276h1.128A3.77 3.77 0 0 1 12 16.958a3.77 3.77 0 0 1 3.366 5.406h1.048a4.7 4.7 0 0 0-1.587-5.406h6.83a10.34 10.34 0 0 1 .577 5.406h.13c.9 0 1.636-.737 1.636-1.637V1.637Zm9.273 2.181h5.454a1.09 1.09 0 1 1 0 2.182H9.273a1.09 1.09 0 1 1 0-2.182M12 10.364a10.36 10.36 0 0 1 9.233 5.652H12a4.71 4.71 0 0 0-4.677 4.149L3.91 14.25A10.34 10.34 0 0 1 12 10.364",
   },
+  yahoo: {
+    name: "Yahoo",
+    color: "text-[#6001D2]",
+    path: "M18.86 1.56L14.27 11.87H19.4L24 1.56H18.86M0 6.71L5.15 18.27L3.3 22.44H7.83L14.69 6.71H10.19L7.39 13.44L4.62 6.71H0M15.62 12.87C13.95 12.87 12.71 14.12 12.71 15.58C12.71 17 13.91 18.19 15.5 18.19C17.18 18.19 18.43 16.96 18.43 15.5C18.43 14.03 17.23 12.87 15.62 12.87Z",
+  },
 };
+// Signups before signup-source.ts mapped Yahoo kept the raw host.
+SOURCE_ICONS["search.yahoo.com"] = SOURCE_ICONS.yahoo;
 SOURCE_ICONS.meta = { ...SOURCE_ICONS.facebook, name: "Meta" };
 // Instagram tags its own in-app links utm_source=ig.
 SOURCE_ICONS.ig = SOURCE_ICONS.instagram;
