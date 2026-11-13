@@ -46,6 +46,9 @@ export default async function AdminMarketingPage({
     connected?: string;
     error?: string;
     platform?: string;
+    seen?: string;
+    ig?: string;
+    diag?: string;
   }>;
 }) {
   const supabase = await createServerClient();
