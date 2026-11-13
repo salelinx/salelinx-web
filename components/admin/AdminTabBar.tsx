@@ -136,7 +136,7 @@ export function AdminTabBar({ adminEmail }: { adminEmail: string }) {
           aria-label="All admin sections"
         >
           <div
-            className="absolute inset-0 bg-zinc-900/30"
+            className="absolute inset-0 bg-black/50"
             onClick={close}
             aria-hidden="true"
           />

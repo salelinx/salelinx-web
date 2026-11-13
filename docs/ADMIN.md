@@ -1,6 +1,6 @@
 # Admin console
 
-The internal staff console at `/admin`. It is a dedicated, English-only tool, deliberately kept distinct from the marketing site (its own shell, no Header/Footer, light "console" theme). It is unlinked from the public site - reachable only by typing the URL - and gated to `admin_users` members. Support tickets were the first module; the console is built to grow.
+The internal staff console at `/admin`. It is a dedicated, English-only tool, deliberately kept distinct from the marketing site (its own shell, no Header/Footer, dark "console" theme). It is unlinked from the public site - reachable only by typing the URL - and gated to `admin_users` members. Support tickets were the first module; the console is built to grow.
 
 ## Modules
 
@@ -95,6 +95,7 @@ The console works on a phone. Below Tailwind's `md` breakpoint (768px):
 - **Filter bars swipe sideways** (`overflow-x-auto whitespace-nowrap`, back to `flex-wrap` from `md`) so a dozen filters do not push the rows below the fold.
 - **Support and Users render a card list on phones** and their full tables from `md`. Both are rendered from the same windowed rows, with CSS deciding which shows. Users gets a phone-only Sort dropdown, since its sorting otherwise lives in the table headers. The other tables scroll sideways inside their module.
 - **Form fields are 16px on touch screens** (`admin.css`, `pointer: coarse`). Below that iOS Safari zooms into a focused field and stays zoomed. The rule sits outside any cascade layer so it beats the `text-xs` utilities.
+- **Dark theme is a palette swap** (`admin.css`). The Tailwind palettes the console uses are mirrored 50<->950 and `white` maps to the card surface, so components keep light-console classes (`bg-white`, `text-zinc-900`). A new colour family (say `rose-*`) needs its mirror added there or it renders light.
 - The detail drawers were already `w-full max-w-xl`, so they fill a phone screen; their close buttons are `p-2` for a finger-sized target.
 
 ## Security model

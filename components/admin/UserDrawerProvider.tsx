@@ -140,7 +140,7 @@ export function UserDrawerProvider({
               drawer is an interruption over an unrelated table, so it gets a
               way out that does not require aiming at the close button. */}
           <div
-            className="fixed inset-0 z-10 bg-zinc-900/10"
+            className="fixed inset-0 z-10 bg-black/40"
             onClick={close}
             aria-hidden="true"
           />
