@@ -1144,21 +1144,24 @@ async function categoryDetailsOf(admin, userId: string, categoryId: unknown) {
   };
 }
 
-const DETAIL_DEFINITIONS_QUERY = `query ($type: String!, $identifier: MetafieldDefinitionIdentifierInput!) {
-  metaobjectDefinitionByType(type: $type) { fieldDefinitions { key type { name } } }
-  metafieldDefinition(identifier: $identifier) { id }
+const DETAIL_DEFINITION_QUERY = `query ($identifier: MetafieldDefinitionIdentifierInput!) {
+  metafieldDefinition(identifier: $identifier) { validations { name value } }
+}`;
+
+const ENTRY_DEFINITION_QUERY = `query ($id: ID!) {
+  metaobjectDefinition(id: $id) { type fieldDefinitions { key type { name } } }
 }`;
 
 const ENABLE_ENTRY_TYPE_MUTATION = `mutation ($type: String!) {
   standardMetaobjectDefinitionEnable(type: $type) {
-    metaobjectDefinition { fieldDefinitions { key type { name } } }
+    metaobjectDefinition { type }
     userErrors { field message code }
   }
 }`;
 
 const ENABLE_DETAIL_MUTATION = `mutation ($namespace: String!, $key: String!) {
   standardMetafieldDefinitionEnable(ownerType: PRODUCT, namespace: $namespace, key: $key) {
-    createdDefinition { id }
+    createdDefinition { validations { name value } }
     userErrors { field message code }
   }
 }`;
@@ -1191,37 +1194,49 @@ const DETAILS_DELETE_MUTATION = `mutation ($metafields: [MetafieldIdentifierInpu
   }
 }`;
 
-/** The detail's entry definition (its fields), turning on Shopify's standard ones for it, the
- *  entry type and the product metafield, the first time a store uses that detail. */
+/**
+ * The entry type a detail's values are (its type and fields), turning on Shopify's standard
+ * product metafield for it the first time a store uses that detail. The type is the one the
+ * metafield's definition names (`metaobject_definition_id`), never guessed from the key: an
+ * extended detail such as Band color may hold another type's entries. Turning the metafield on
+ * may need its entry type on first, so that is turned on (`shopify--<key>`) and it is tried again.
+ */
 async function detailDefinition(auth: Auth, key: string) {
-  const type = `shopify--${key}`;
-  const data = await adminGraphql(auth.shop, auth.token, DETAIL_DEFINITIONS_QUERY, {
-    type,
-    identifier: { ownerType: 'PRODUCT', namespace: 'shopify', key },
+  const identifier = { ownerType: 'PRODUCT', namespace: 'shopify', key };
+  const read = async () =>
+    (await adminGraphql(auth.shop, auth.token, DETAIL_DEFINITION_QUERY, { identifier }))
+      ?.metafieldDefinition;
+  const enable = async () =>
+    (await adminGraphql(auth.shop, auth.token, ENABLE_DETAIL_MUTATION, { namespace: 'shopify', key }))
+      ?.standardMetafieldDefinitionEnable;
+  let validations = (await read())?.validations;
+  if (!validations) {
+    let res = await enable();
+    if (!res?.createdDefinition) {
+      await adminGraphql(auth.shop, auth.token, ENABLE_ENTRY_TYPE_MUTATION, {
+        type: `shopify--${key}`,
+      });
+      res = await enable();
+    }
+    validations = res?.createdDefinition?.validations;
+    if (!validations) {
+      // Turned on meanwhile (another save) is as good.
+      const errors = (res?.userErrors ?? []).filter((e) => e?.code !== 'TAKEN');
+      if (errors.length) throw refusal(errors);
+      validations = (await read())?.validations;
+    }
+  }
+  const entryType = (validations ?? []).find((v) => v?.name === 'metaobject_definition_id')?.value;
+  if (typeof entryType !== 'string') {
+    throw new ShopifyError(`shopify.${key} names no entry type`, 'shopify');
+  }
+  const { metaobjectDefinition: def } = await adminGraphql(auth.shop, auth.token, ENTRY_DEFINITION_QUERY, {
+    id: entryType,
   });
-  let fields = data?.metaobjectDefinitionByType?.fieldDefinitions;
-  if (!fields) {
-    const { standardMetaobjectDefinitionEnable: res } = await adminGraphql(
-      auth.shop,
-      auth.token,
-      ENABLE_ENTRY_TYPE_MUTATION,
-      { type },
-    );
-    fields = res?.metaobjectDefinition?.fieldDefinitions;
-    if (!fields) throw refusal(res?.userErrors) ?? new ShopifyError(`No ${type}`, 'shopify');
+  if (typeof def?.type !== 'string' || !Array.isArray(def.fieldDefinitions)) {
+    throw new ShopifyError(`No entry type for ${key}`, 'shopify');
   }
-  if (!data?.metafieldDefinition) {
-    const { standardMetafieldDefinitionEnable: res } = await adminGraphql(
-      auth.shop,
-      auth.token,
-      ENABLE_DETAIL_MUTATION,
-      { namespace: 'shopify', key },
-    );
-    // Turned on meanwhile (another save) is as good.
-    const errors = (res?.userErrors ?? []).filter((e) => e?.code !== 'TAKEN');
-    if (!res?.createdDefinition && errors.length) throw refusal(errors);
-  }
-  return { type, fields };
+  return { type: def.type as string, fields: def.fieldDefinitions };
 }
 
 /**
