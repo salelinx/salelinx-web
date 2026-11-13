@@ -68,6 +68,9 @@ verify_jwt = false
 [functions.marketing-oauth]
 verify_jwt = false
 
+[functions.marketing-publish]
+verify_jwt = false
+
 [functions.process-referral-rewards]
 verify_jwt = false
 
