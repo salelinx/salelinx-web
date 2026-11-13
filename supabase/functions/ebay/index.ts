@@ -35,7 +35,8 @@
 //   sendOffer  { listingId, discountPercentage | price, currency?, message? } -> { sent } (buyers it reached;
 //              gated on auto_offer; refusals come back as negotiation.ts's codes)
 //   conversations { maxAgeDays }           -> { conversations } (buyers' messages, messages.ts)
-//   sendMessage { reply, text, photos? }     -> { ok } (reply: { itemId, parentMessageId, recipientId };
+//   sendMessage { reply, text, photos? }     -> { ok } (reply: { itemId, parentMessageId, recipientId },
+//                                              or { itemId, recipientId, subject } to start one with an order's buyer;
 //                                              photos: addresses from uploadMessagePhoto)
 //
 // Errors: { error, code } with code 'not_linked' or 'reauth' when the user
@@ -96,6 +97,7 @@ import {
   hasUnanswered,
   inboxHeadersQuery,
   memberMessagesQuery,
+  partnerXml,
   replyXml,
   withAnswers,
   withReadState,
@@ -670,8 +672,15 @@ Deno.serve(async (req: Request) => {
 
       case 'sendMessage': {
         // Checked first, so a refused reply spends none of the shared daily quota.
-        const xml = replyXml(body.reply, body.text, body.photos);
-        await trading('AddMemberMessageRTQ', await accessTokenFor(admin, user.id), xml);
+        const first = !body.reply?.parentMessageId;
+        const xml = first
+          ? partnerXml(body.reply, body.text, body.photos)
+          : replyXml(body.reply, body.text, body.photos);
+        await trading(
+          first ? 'AddMemberMessageAAQToPartner' : 'AddMemberMessageRTQ',
+          await accessTokenFor(admin, user.id),
+          xml,
+        );
         return json(200, { ok: true });
       }
 

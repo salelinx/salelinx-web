@@ -225,20 +225,38 @@ function mediaXml(photos: unknown): string {
 
 /** AddMemberMessageRTQ. Never public: left out, a reply's visibility on the listing would be eBay's
  *  call rather than the seller's. A photo can't go alone, as eBay requires the body. */
-export function replyXml(reply, text: unknown, photos?: unknown): string {
-  if (!/^\d+$/.test(String(reply?.itemId))) throw new EbayError('Missing item', 'bad_request');
-  if (!reply?.parentMessageId) throw new EbayError('Missing question', 'bad_request');
-  if (!reply?.recipientId) throw new EbayError('Missing recipient', 'bad_request');
+function messageBody(to, text: unknown): string {
+  if (!/^\d+$/.test(String(to?.itemId))) throw new EbayError('Missing item', 'bad_request');
+  if (!to?.recipientId) throw new EbayError('Missing recipient', 'bad_request');
   const body = typeof text === 'string' ? text.trim() : '';
   if (!body) throw new EbayError('Message is empty', 'bad_request');
   if (body.length > MAX_MESSAGE_CHARS) {
     throw new EbayError(`Message is over ${MAX_MESSAGE_CHARS} characters`, 'bad_request');
   }
+  return body;
+}
+
+export function replyXml(reply, text: unknown, photos?: unknown): string {
+  if (!reply?.parentMessageId) throw new EbayError('Missing question', 'bad_request');
+  const body = messageBody(reply, text);
   return (
     `<ItemID>${reply.itemId}</ItemID><MemberMessage><Body>${esc(body)}</Body>` +
     '<DisplayToPublic>false</DisplayToPublic>' +
     mediaXml(photos) +
     `<ParentMessageID>${esc(reply.parentMessageId)}</ParentMessageID>` +
     `<RecipientID>${esc(reply.recipientId)}</RecipientID></MemberMessage>`
+  );
+}
+
+/** AddMemberMessageAAQToPartner: a first message to the buyer of an order, who has no question to reply to. */
+export function partnerXml(to, text: unknown, photos?: unknown): string {
+  const body = messageBody(to, text);
+  const subject = typeof to?.subject === 'string' ? to.subject.trim().slice(0, 100) : '';
+  if (!subject) throw new EbayError('Missing subject', 'bad_request');
+  return (
+    `<ItemID>${to.itemId}</ItemID><MemberMessage><Body>${esc(body)}</Body>` +
+    '<QuestionType>General</QuestionType>' +
+    mediaXml(photos) +
+    `<RecipientID>${esc(to.recipientId)}</RecipientID><Subject>${esc(subject)}</Subject></MemberMessage>`
   );
 }
