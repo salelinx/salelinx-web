@@ -6,8 +6,15 @@ import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 
 const {
+  DETAILS_SCOPES,
   PUBLISH_SCOPE,
   SCOPES,
+  SOLID_PATTERN,
+  canSetDetails,
+  categoryDetails,
+  detailEntries,
+  entryFields,
+  entryValues,
   appAdminUrl,
   missingScopes,
   authorizeUrl,
@@ -157,7 +164,8 @@ describe('helpers', () => {
     expect(url.origin + url.pathname).toBe('https://a.myshopify.com/admin/oauth/authorize');
     expect(Object.fromEntries(url.searchParams)).toEqual({
       client_id: 'cid',
-      scope: 'write_products,write_inventory,read_locations,write_publications',
+      scope:
+        'write_products,write_inventory,read_locations,write_publications,write_metaobjects,write_metaobject_definitions',
       redirect_uri: 'https://abc.chromiumapp.org/shopify',
       state: 'st',
     });
@@ -908,6 +916,7 @@ describe('productDetail', () => {
       handle: 'hat',
       options: [{ name: 'Size', value: 'M' }],
       channels: null,
+      categoryDetails: null,
     });
     expect(d.editable.tracked).toBe(false);
     // A weight of 0 is Shopify's none.
@@ -925,6 +934,140 @@ describe('productDetail', () => {
     // Not asked (the store hasn't granted write_publications): not "on none".
     expect(productDetail('s', node()).fields.channels).toBeNull();
   });
+
+  it('reads the category details only when they were asked for', () => {
+    const v5 = 'gid://shopify/TaxonomyValue/5';
+    const asked = node({
+      categoryMetafields: {
+        nodes: [
+          {
+            key: 'fabric',
+            type: 'list.metaobject_reference',
+            references: { nodes: [{ id: 'm1', fields: [{ key: 'taxonomy_reference', value: v5 }] }] },
+          },
+        ],
+      },
+    });
+    const d = productDetail('s', asked);
+    expect(d.fields.categoryDetails).toEqual({ fabric: [v5] });
+    expect(d.detailEntries).toEqual({ fabric: { byValue: { [v5]: 'm1' }, other: [] } });
+    const not = productDetail('s', node());
+    expect(not.fields.categoryDetails).toBeNull();
+    expect(not.detailEntries).toBeNull();
+  });
+});
+
+describe('category details', () => {
+  const v = (n: number) => `gid://shopify/TaxonomyValue/${n}`;
+  const template = (key: string, name: string) => ({
+    namespace: 'shopify',
+    key,
+    name,
+    type: { name: 'list.metaobject_reference' },
+  });
+
+  it('asks for both metaobject scopes, and reads only with both', () => {
+    expect(SCOPES.split(',')).toEqual(expect.arrayContaining(DETAILS_SCOPES));
+    expect(canSetDetails(SCOPES)).toBe(true);
+    expect(canSetDetails('write_products,write_metaobjects')).toBe(false);
+    expect(canSetDetails(null)).toBe(false);
+  });
+
+  it("keys each of a category's details by its template, matched by name", () => {
+    const details = categoryDetails(
+      [
+        { id: 'a1', name: 'Color', values: { nodes: [{ id: v(1), name: 'Black' }] } },
+        // Pattern lives in the colour entries: no template, no detail.
+        { id: 'a3', name: 'Pattern', values: { nodes: [{ id: v(2874), name: 'Solid' }] } },
+        { id: 'a2777', name: 'Fabric', values: { nodes: [{ id: v(16980), name: 'Acrylic' }] } },
+        // A generic attribute carries no name or values.
+        { id: 'a9' },
+      ],
+      [template('color-pattern', 'Color'), template('fabric', 'fabric'), { key: 'x', name: 'Other' }],
+    );
+    expect(details).toEqual([
+      { key: 'color-pattern', name: 'Color', values: [{ id: v(1), name: 'Black' }] },
+      { key: 'fabric', name: 'Fabric', values: [{ id: v(16980), name: 'Acrylic' }] },
+    ]);
+  });
+
+  it("reads the values an entry stands for, a colour's included", () => {
+    expect(entryValues([{ key: 'label', value: 'Cotton' }, { key: 'taxonomy_reference', value: v(5) }])).toEqual([
+      v(5),
+    ]);
+    expect(
+      entryValues([
+        { key: 'color_taxonomy_reference', value: JSON.stringify([v(1), v(3)]) },
+        { key: 'pattern_taxonomy_reference', value: SOLID_PATTERN },
+      ]),
+    ).toEqual([v(1), v(3)]);
+    expect(entryValues([{ key: 'taxonomy_reference', value: 'not json [' }])).toEqual([
+      'not json [',
+    ]);
+    expect(entryValues(undefined)).toEqual([]);
+  });
+
+  it("maps a product's entries to their values, and keeps the rest for the save", () => {
+    const entries = detailEntries([
+      {
+        key: 'fabric',
+        type: 'list.metaobject_reference',
+        references: {
+          nodes: [
+            { id: 'm1', fields: [{ key: 'taxonomy_reference', value: v(5) }] },
+            // Made by hand in Shopify: no taxonomy value.
+            { id: 'm2', fields: [{ key: 'label', value: 'Mystery blend' }] },
+          ],
+        },
+      },
+      {
+        key: 'color-pattern',
+        type: 'list.metaobject_reference',
+        references: {
+          nodes: [{ id: 'm3', fields: [{ key: 'color_taxonomy_reference', value: `["${v(1)}","${v(3)}"]` }] }],
+        },
+      },
+      { key: 'something', type: 'single_line_text_field', value: 'x' },
+    ]);
+    expect(entries).toEqual({
+      fabric: { byValue: { [v(5)]: 'm1' }, other: ['m2'] },
+      'color-pattern': { byValue: {}, other: ['m3'] },
+    });
+  });
+
+  it("makes an entry as its definition takes it: a colour is a solid swatch", () => {
+    const colour = [
+      { key: 'label', type: { name: 'single_line_text_field' } },
+      { key: 'color_taxonomy_reference', type: { name: 'list.product_taxonomy_value_reference' } },
+      { key: 'pattern_taxonomy_reference', type: { name: 'product_taxonomy_value_reference' } },
+    ];
+    expect(entryFields(colour, { id: v(1), name: 'Black' })).toEqual([
+      { key: 'label', value: 'Black' },
+      { key: 'color_taxonomy_reference', value: JSON.stringify([v(1)]) },
+      { key: 'pattern_taxonomy_reference', value: SOLID_PATTERN },
+    ]);
+    const fabric = [
+      { key: 'label', type: { name: 'single_line_text_field' } },
+      { key: 'taxonomy_reference', type: { name: 'product_taxonomy_value_reference' } },
+    ];
+    expect(entryFields(fabric, { id: v(5), name: 'Cotton' })).toEqual([
+      { key: 'label', value: 'Cotton' },
+      { key: 'taxonomy_reference', value: v(5) },
+    ]);
+    expect(entryFields([{ key: 'label' }], { id: v(5), name: 'Cotton' })).toBeNull();
+  });
+
+  it('checks the details sent: keys, and taxonomy values only', () => {
+    expect(productEdit({ categoryDetails: { fabric: [v(5), v(5)], neckline: [] } }).categoryDetails).toEqual({
+      fabric: [v(5)],
+      neckline: [],
+    });
+    expect(() => productEdit({ categoryDetails: { 'Bad Key': [v(5)] } })).toThrow(/categoryDetails/);
+    expect(() => productEdit({ categoryDetails: { fabric: ['gid://shopify/Metaobject/1'] } })).toThrow(
+      /categoryDetails/,
+    );
+    expect(() => productEdit({ categoryDetails: [] })).toThrow(/categoryDetails/);
+  });
 });
 
 describe('sales channels', () => {
@@ -936,9 +1079,9 @@ describe('sales channels', () => {
   });
 
   it('names what a store linked before has yet to approve, and where it approves it', () => {
-    expect(missingScopes('write_products,write_inventory,read_locations')).toEqual([
-      PUBLISH_SCOPE,
-    ]);
+    expect(
+      missingScopes('write_products,write_inventory,read_locations,write_publications'),
+    ).toEqual(DETAILS_SCOPES);
     expect(missingScopes(SCOPES)).toEqual([]);
     expect(appAdminUrl('a.myshopify.com', 'cid')).toBe('https://a.myshopify.com/admin/apps/cid');
   });

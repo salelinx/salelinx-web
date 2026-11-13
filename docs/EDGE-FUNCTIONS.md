@@ -695,6 +695,25 @@ code=<code>` and nothing else.
   `granted(auth.scope, PUBLISH_SCOPE)` (the stored `shopify_tokens.scope`) first: without it
   `fields.channels` and `channels` answer null, nothing is published, and a `channels` change is
   refused. The store grants it by opening the app from its admin, which links again.
+- **Category details** (2026-11-13, scopes `write_metaobjects` and `write_metaobject_definitions`,
+  `DETAILS_SCOPES`). Shopify's category metafields: each detail of a category (Fabric, Neckline)
+  is the standard product metafield `shopify.<key>` (`list.metaobject_reference`), holding
+  entries of the standard metaobject definition `shopify--<key>`, each tied to a taxonomy value.
+  `categoryDetails { categoryId }` reads the category's choice attributes with every value and
+  its constrained standard metafield templates in one query (about 130 points) and keys each
+  attribute by the template of the same name (`categoryDetails()`): the key isn't the
+  attribute's name (Color is `color-pattern`), and Pattern has no template, as it lives in the
+  colour entries. `product` answers `fields.categoryDetails` (key to taxonomy value ids, read
+  from the product's `shopify` metafields and their entries, `detailEntries()`); `updateProduct`
+  and `createProduct` take the same, each key's whole list. `setCategoryDetails` turns on the
+  standard entry type and metafield the first time a store uses a detail
+  (`standardMetaobjectDefinitionEnable`, `standardMetafieldDefinitionEnable`), reuses the
+  product's entry or the store's entry for that one value, else creates one (`entryFields`: a
+  label and `taxonomy_reference`; a colour's `color_taxonomy_reference` with the Solid pattern,
+  or Shopify refuses it), keeps entries that aren't one standard value (made by hand), and sets
+  the metafield (`metafieldsSet`; an empty list clears it). A key Shopify refuses is reported
+  after the rest land. Gated like the sales channels: without the scopes `categoryDetails` and
+  `fields.categoryDetails` answer null, and a change is refused.
 - **Checking a query before a deploy.** One unknown field fails the whole query and no unit test
   sees it (the product read once asked for `trackedEditable { editable }`, and every read failed
   once deployed). Shopify's docs proxy answers introspection without a token
@@ -730,7 +749,8 @@ code=<code>` and nothing else.
   example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
   editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`, the
   page's fields with `variantFieldsInput`, `productFieldsInput` and `collectionMoves`),
-  the sales channels (`granted`, `salesChannels`, `channelMoves`), `oneOffPlan`, and the
+  the sales channels (`granted`, `salesChannels`, `channelMoves`), the category details
+  (`categoryDetails`, `entryValues`, `detailEntries`, `entryFields`), `oneOffPlan`, and the
   crosslist's `newProduct`, `newProductInput`, `taxonomySearchTerms` and `pickTaxonomyCategory`.
 
 ## Excluded from TypeScript checks

@@ -40,7 +40,9 @@
 //                changes: title, description (plain text), vendor, productType,
 //                photos (addresses in order), categoryId, tags, collections (the
 //                manual ones' ids, the whole set), channels (the sales channels' ids,
-//                the whole set; needs write_publications), seoTitle, seoDescription
+//                the whole set; needs write_publications), categoryDetails (metafield
+//                key -> taxonomy value ids, each key's whole list; needs the metaobject
+//                scopes), seoTitle, seoDescription
 //                and handle are the product's; price, quantity, compareAtPrice, cost, taxable,
 //                sku, barcode, tracked, continueSelling, physical, weight,
 //                countryOfOrigin, hsCode and options the variant's. A change the
@@ -61,6 +63,9 @@
 //                can show it first
 //   collections {} -> { collections: [{ id, title }] }
 //                the store's manual collections, the ones a product can join
+//   categoryDetails { categoryId } -> { details: [{ key, name, values: [{ id, name }] }] | null }
+//                the category's details (Shopify's category metafields) with their values;
+//                null until the store grants write_metaobjects and write_metaobject_definitions
 //   channels {} -> { channels: [{ id, name, onlineStore }] | null }
 //                the store's sales channels; null until it grants write_publications
 //                (a store linked before it was asked for approves it by opening the app)
@@ -97,9 +102,15 @@ import {
   appAdminUrl,
   authorizeUrl,
   missingScopes,
+  canSetDetails,
+  categoryDetails,
   channelMoves,
   collectionMoves,
+  type DetailEntries,
+  entryFields,
+  entryValues,
   granted,
+  isCategoryGid,
   salesChannels,
   newProduct,
   newProductInput,
@@ -638,39 +649,36 @@ const PRODUCT_FIELDS = `legacyResourceId
     mediaCount { count }
     media(first: 50) { nodes { id ... on MediaImage { image { url } } } }`;
 
-const PRODUCT_QUERY = `query ($id: ID!) {
-  product(id: $id) {
-    ${PRODUCT_FIELDS}
-    variants(first: 1) { nodes { ${DETAIL_VARIANT_FIELDS} } }
-  }
-}`;
-
-const VARIANT_QUERY = `query ($id: ID!, $variantId: ID!) {
-  product(id: $id) { ${PRODUCT_FIELDS} }
-  productVariant(id: $variantId) {
-    product { id }
-    ${DETAIL_VARIANT_FIELDS}
-  }
-}`;
-
 // The sales channels the product is on, published or scheduled. Only asked with PUBLISH_SCOPE
 // granted: without it the field is refused and the whole read with it.
 const CHANNEL_FIELDS = `resourcePublicationsV2(first: 50, catalogType: APP, onlyPublished: false) {
       nodes { publication { id } }
     }`;
 
-const PRODUCT_QUERY_CHANNELS = `query ($id: ID!) {
+// About 500 points: the category details set (Shopify's category metafields) and the entries
+// each holds, which say the taxonomy values. Only asked with DETAILS_SCOPES granted, as a
+// metaobject read is refused without them.
+const DETAIL_FIELDS = `categoryMetafields: metafields(namespace: "shopify", first: 25) {
+      nodes {
+        key
+        type
+        references(first: 20) { nodes { ... on Metaobject { id fields { key value } } } }
+      }
+    }`;
+
+// `extra`: the parts the store has granted the scopes for (CHANNEL_FIELDS, DETAIL_FIELDS).
+const productQuery = (extra: string) => `query ($id: ID!) {
   product(id: $id) {
     ${PRODUCT_FIELDS}
-    ${CHANNEL_FIELDS}
+    ${extra}
     variants(first: 1) { nodes { ${DETAIL_VARIANT_FIELDS} } }
   }
 }`;
 
-const VARIANT_QUERY_CHANNELS = `query ($id: ID!, $variantId: ID!) {
+const variantQuery = (extra: string) => `query ($id: ID!, $variantId: ID!) {
   product(id: $id) {
     ${PRODUCT_FIELDS}
-    ${CHANNEL_FIELDS}
+    ${extra}
   }
   productVariant(id: $variantId) {
     product { id }
@@ -680,17 +688,14 @@ const VARIANT_QUERY_CHANNELS = `query ($id: ID!, $variantId: ID!) {
 
 /** The product, about the variant named (a GID), else its only one. */
 async function readProduct(auth: Auth, id: string, variantId: string | null = null) {
-  const channels = granted(auth.scope, PUBLISH_SCOPE);
+  const extra = [
+    granted(auth.scope, PUBLISH_SCOPE) ? CHANNEL_FIELDS : '',
+    canSetDetails(auth.scope) ? DETAIL_FIELDS : '',
+  ].join('\n');
   const data = await adminGraphql(
     auth.shop,
     auth.token,
-    variantId
-      ? channels
-        ? VARIANT_QUERY_CHANNELS
-        : VARIANT_QUERY
-      : channels
-        ? PRODUCT_QUERY_CHANNELS
-        : PRODUCT_QUERY,
+    variantId ? variantQuery(extra) : productQuery(extra),
     variantId ? { id, variantId } : { id },
   );
   if (!data?.product) {
@@ -878,6 +883,11 @@ async function updateProduct(
       "Your store hasn't let SaleLinx set sales channels yet: open SaleLinx from your Shopify admin",
     );
   }
+  if (changes.categoryDetails !== undefined && !before.detailEntries) {
+    throw refuse(
+      "Your store hasn't let SaleLinx fill in category details yet: open SaleLinx from your Shopify admin",
+    );
+  }
 
   const fields: Record<string, unknown> = productFieldsInput(changes, before.fields);
   if (changes.title !== undefined) fields.title = changes.title.trim();
@@ -947,6 +957,21 @@ async function updateProduct(
   if (changes.channels !== undefined && before.fields.channels) {
     const { publish, unpublish } = channelMoves(changes.channels, before.fields.channels);
     await moveChannels(auth, id, publish, unpublish);
+  }
+  // Last, after any new category: a detail's metafield is the category's.
+  if (changes.categoryDetails !== undefined && before.detailEntries) {
+    const failed = await setCategoryDetails(
+      auth,
+      id,
+      changes.categoryDetails,
+      before.detailEntries,
+    );
+    if (failed.length) {
+      throw new ShopifyError(
+        `Saved, but Shopify didn't take these category details: ${failed.join(', ')}`,
+        'shopify',
+      );
+    }
   }
   return forEditor(await readProduct(auth, id, vid));
 }
@@ -1078,6 +1103,233 @@ const COLLECTIONS_QUERY = `{
   }
 }`;
 
+// ── Category details ───────────────────────────────────────────────────────
+// Shopify's category metafields (_shared/shopify.ts "Category details"). Taxonomy reads are
+// cheap: a whole category with every value asks about 130 points.
+
+const CATEGORY_DETAILS_QUERY = `query ($id: ID!, $subtype: MetafieldDefinitionConstraintSubtypeIdentifier!) {
+  category: node(id: $id) {
+    ... on TaxonomyCategory {
+      attributes(first: 60) {
+        nodes {
+          ... on TaxonomyChoiceListAttribute { id name values(first: 250) { nodes { id name } } }
+        }
+      }
+    }
+  }
+  standardMetafieldDefinitionTemplates(
+    first: 60
+    constraintStatus: CONSTRAINED_ONLY
+    constraintSubtype: $subtype
+  ) {
+    nodes { namespace key name type { name } }
+  }
+}`;
+
+/** A category's details with their values, for the editor; null until the store has granted
+ *  DETAILS_SCOPES. */
+async function categoryDetailsOf(admin, userId: string, categoryId: unknown) {
+  if (!isCategoryGid(categoryId)) throw new ShopifyError('Bad category', 'bad_request', 400);
+  const auth = await accessTokenFor(admin, userId);
+  if (!canSetDetails(auth.scope)) return { details: null };
+  const data = await adminGraphql(auth.shop, auth.token, CATEGORY_DETAILS_QUERY, {
+    id: categoryId,
+    subtype: { key: 'category', value: categoryId },
+  });
+  return {
+    details: categoryDetails(
+      data?.category?.attributes?.nodes ?? [],
+      data?.standardMetafieldDefinitionTemplates?.nodes ?? [],
+    ),
+  };
+}
+
+const DETAIL_DEFINITIONS_QUERY = `query ($type: String!, $identifier: MetafieldDefinitionIdentifierInput!) {
+  metaobjectDefinitionByType(type: $type) { fieldDefinitions { key type { name } } }
+  metafieldDefinition(identifier: $identifier) { id }
+}`;
+
+const ENABLE_ENTRY_TYPE_MUTATION = `mutation ($type: String!) {
+  standardMetaobjectDefinitionEnable(type: $type) {
+    metaobjectDefinition { fieldDefinitions { key type { name } } }
+    userErrors { field message code }
+  }
+}`;
+
+const ENABLE_DETAIL_MUTATION = `mutation ($namespace: String!, $key: String!) {
+  standardMetafieldDefinitionEnable(ownerType: PRODUCT, namespace: $namespace, key: $key) {
+    createdDefinition { id }
+    userErrors { field message code }
+  }
+}`;
+
+// About 250 points: a definition's entries, each with the taxonomy values it stands for.
+const ENTRIES_QUERY = `query ($type: String!) {
+  metaobjects(type: $type, first: 250) { nodes { id fields { key value } } }
+}`;
+
+const VALUE_NAMES_QUERY = `query ($ids: [ID!]!) {
+  nodes(ids: $ids) { ... on TaxonomyValue { id name } }
+}`;
+
+const ENTRY_CREATE_MUTATION = `mutation ($metaobject: MetaobjectCreateInput!) {
+  metaobjectCreate(metaobject: $metaobject) {
+    metaobject { id }
+    userErrors { field message code }
+  }
+}`;
+
+const DETAILS_SET_MUTATION = `mutation ($metafields: [MetafieldsSetInput!]!) {
+  metafieldsSet(metafields: $metafields) {
+    userErrors { field message code }
+  }
+}`;
+
+const DETAILS_DELETE_MUTATION = `mutation ($metafields: [MetafieldIdentifierInput!]!) {
+  metafieldsDelete(metafields: $metafields) {
+    userErrors { field message }
+  }
+}`;
+
+/** The detail's entry definition (its fields), turning on Shopify's standard ones for it, the
+ *  entry type and the product metafield, the first time a store uses that detail. */
+async function detailDefinition(auth: Auth, key: string) {
+  const type = `shopify--${key}`;
+  const data = await adminGraphql(auth.shop, auth.token, DETAIL_DEFINITIONS_QUERY, {
+    type,
+    identifier: { ownerType: 'PRODUCT', namespace: 'shopify', key },
+  });
+  let fields = data?.metaobjectDefinitionByType?.fieldDefinitions;
+  if (!fields) {
+    const { standardMetaobjectDefinitionEnable: res } = await adminGraphql(
+      auth.shop,
+      auth.token,
+      ENABLE_ENTRY_TYPE_MUTATION,
+      { type },
+    );
+    fields = res?.metaobjectDefinition?.fieldDefinitions;
+    if (!fields) throw refusal(res?.userErrors) ?? new ShopifyError(`No ${type}`, 'shopify');
+  }
+  if (!data?.metafieldDefinition) {
+    const { standardMetafieldDefinitionEnable: res } = await adminGraphql(
+      auth.shop,
+      auth.token,
+      ENABLE_DETAIL_MUTATION,
+      { namespace: 'shopify', key },
+    );
+    // Turned on meanwhile (another save) is as good.
+    const errors = (res?.userErrors ?? []).filter((e) => e?.code !== 'TAKEN');
+    if (!res?.createdDefinition && errors.length) throw refusal(errors);
+  }
+  return { type, fields };
+}
+
+/**
+ * Sets the product's category details, each key's whole list of taxonomy values. Each value is
+ * an entry the store holds: the product's own, else one the store has for that value alone, else
+ * a new one. Entries that aren't one standard value (made by hand in Shopify) are kept. Answers
+ * the keys Shopify refused, so the rest still land.
+ */
+async function setCategoryDetails(
+  auth: Auth,
+  productId: string,
+  wanted: Record<string, string[]>,
+  current: DetailEntries,
+): Promise<string[]> {
+  const failed: string[] = [];
+  let names: Record<string, string> | null = null;
+  const nameOf = async (id: string) => {
+    if (!names) {
+      const ids = [...new Set(Object.values(wanted).flat())];
+      const data = await adminGraphql(auth.shop, auth.token, VALUE_NAMES_QUERY, { ids });
+      names = Object.fromEntries(
+        (data?.nodes ?? []).filter((n) => n?.id).map((n) => [n.id, String(n.name ?? '')]),
+      );
+    }
+    return names[id] ?? '';
+  };
+  for (const [key, ids] of Object.entries(wanted)) {
+    const now = current[key] ?? { byValue: {}, other: [] };
+    try {
+      if (!ids.length) {
+        if (now.other.length) {
+          await mutate(
+            auth,
+            DETAILS_SET_MUTATION,
+            {
+              metafields: [
+                {
+                  ownerId: productId,
+                  namespace: 'shopify',
+                  key,
+                  type: 'list.metaobject_reference',
+                  value: JSON.stringify(now.other),
+                },
+              ],
+            },
+            'metafieldsSet',
+          );
+        } else if (Object.keys(now.byValue).length) {
+          await mutate(
+            auth,
+            DETAILS_DELETE_MUTATION,
+            { metafields: [{ ownerId: productId, namespace: 'shopify', key }] },
+            'metafieldsDelete',
+          );
+        }
+        continue;
+      }
+      const missing = ids.filter((v) => !now.byValue[v]);
+      const refs: Record<string, string> = { ...now.byValue };
+      if (missing.length) {
+        const { type, fields } = await detailDefinition(auth, key);
+        const data = await adminGraphql(auth.shop, auth.token, ENTRIES_QUERY, { type });
+        for (const e of data?.metaobjects?.nodes ?? []) {
+          const values = entryValues(e?.fields);
+          if (values.length === 1 && !refs[values[0]]) refs[values[0]] = e.id;
+        }
+        for (const v of missing) {
+          if (refs[v]) continue;
+          const input = entryFields(fields, { id: v, name: await nameOf(v) });
+          if (!input) throw new ShopifyError(`${type} can't hold a taxonomy value`, 'shopify');
+          const { metaobjectCreate: res } = await adminGraphql(
+            auth.shop,
+            auth.token,
+            ENTRY_CREATE_MUTATION,
+            { metaobject: { type, fields: input } },
+          );
+          const refused = refusal(res?.userErrors);
+          if (refused || !res?.metaobject?.id) throw refused ?? new ShopifyError('No entry', 'shopify');
+          refs[v] = res.metaobject.id;
+        }
+      }
+      await mutate(
+        auth,
+        DETAILS_SET_MUTATION,
+        {
+          metafields: [
+            {
+              ownerId: productId,
+              namespace: 'shopify',
+              key,
+              type: 'list.metaobject_reference',
+              value: JSON.stringify([...new Set([...ids.map((v) => refs[v]), ...now.other])]),
+            },
+          ],
+        },
+        'metafieldsSet',
+      );
+    } catch (err) {
+      console.warn(
+        `[shopify] category detail ${key} not set:`,
+        err instanceof Error ? err.message : err,
+      );
+      failed.push(key);
+    }
+  }
+  return failed;
+}
+
 async function manualCollections(admin, userId: string) {
   const auth = await accessTokenFor(admin, userId);
   const data = await adminGraphql(auth.shop, auth.token, COLLECTIONS_QUERY);
@@ -1130,6 +1382,11 @@ async function createProduct(admin, userId: string, raw: unknown) {
       // The product is made: a channel it missed is set in the editor or in Shopify.
       console.warn('[shopify] channel publish failed:', err instanceof Error ? err.message : err);
     }
+  }
+  // The details picked for it; one Shopify refuses is filled in later, the product made either way.
+  if (product.fields.categoryDetails && canSetDetails(auth.scope)) {
+    const failed = await setCategoryDetails(auth, id, product.fields.categoryDetails, {});
+    if (failed.length) console.warn(`[shopify] new product's details not set: ${failed.join(', ')}`);
   }
   return forEditor(await readProduct(auth, id));
 }
@@ -1280,6 +1537,10 @@ Deno.serve(async (req: Request) => {
 
       case 'collections':
         return json(200, await manualCollections(admin, user.id));
+
+      // null: the store hasn't granted DETAILS_SCOPES yet.
+      case 'categoryDetails':
+        return json(200, await categoryDetailsOf(admin, user.id, body.categoryId));
 
       // null: the store hasn't granted PUBLISH_SCOPE yet.
       case 'channels':
