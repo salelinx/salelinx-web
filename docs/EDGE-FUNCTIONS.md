@@ -23,7 +23,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`ebay`** - the extension's only route to eBay. It has to be server-side: every token exchange and refresh needs the app's client secret, which cannot ship in a .crx, and each user's refresh token is a long-lived credential for their eBay account. Holds both. See "eBay" below.
 - **`ebay-account-deletion`** - eBay will not let a production keyset make calls until it has a public Marketplace Account Deletion endpoint to notify. See "eBay" below.
 - **`shopify`** - the extension's only route to Shopify, server-side for the same reason as `ebay`: the token exchange and every refresh need the app's client secret. See "Shopify" below.
-- **`shopify-public`** - the Shopify app's App URL and webhooks, which Shopify calls without a SaleLinx session. See "Shopify" below.
+- **`shopify-public`** - what the Shopify app's page in a store's admin calls (`/app`, with App Bridge's ID token), its Connect address (`/connect`) and the webhooks, none with a SaleLinx session. See "Shopify" below.
 
 ## The nineteen functions
 
@@ -54,7 +54,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `signup-notify`           | false        | `trg_notify_signup` on `auth.users` (048) POSTs the new user's id; emails staff "New signup" via `_shared/payment-notify.ts`. Unauthenticated, but only announces accounts under 5 minutes old |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 | `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
-| `shopify-public`          | false        | The Shopify app's App URL (GET, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
+| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -566,53 +566,73 @@ the app has no distribution type. The extension side is in
 `../salelinx-app/docs/technical/SHOPIFY.md`, including what's needed before review (Shopify
 billing, a page in Shopify's admin, final scopes).
 
-- **The app.** One Shopify app in the Dev Dashboard, not embedded, with the legacy install flow, so
-  an install lands on our App URL (`shopify-public`) and we run the OAuth ourselves. Its allowed
-  redirect URLs are `https://<extension-id>.chromiumapp.org/shopify`, for the Web Store id and each
-  unpacked id in use. The scopes are `SCOPES` in `_shared/shopify.ts`; changing them makes every
-  linked store approve again. The app's settings are kept in `shopify/shopify.app.toml` (made by
+- **The app.** One Shopify app in the Dev Dashboard, embedded, with Shopify's managed install
+  (since 2026-11-13; until then not embedded, with the legacy install flow and our own OAuth).
+  Shopify asks a store to approve the scopes as it installs, then opens the App URL,
+  `https://www.salelinx.com/embed/shopify` (`app/embed/shopify/route.ts`), framed in the store's
+  admin. The scopes are `SCOPES` in `_shared/shopify.ts` and `scopes` in the toml, which must
+  match; Shopify asks a linked store about one added later the next time it opens the app. The app's settings are kept in `shopify/shopify.app.toml` (made by
   `shopify app config link`), and `npx @shopify/cli app deploy --path shopify --no-release`
   turns it into a new app version to release in the Dev Dashboard. A deploy replaces every setting
   with the file's, so change the file, never only the dashboard, and re-link first if the
   dashboard was edited.
-- **Approving again.** A store grants only what it approved at link, and with the legacy install
-  flow Shopify never asks it about a scope added later: that is the app's job. `account` answers
-  `missingScopes` (`SCOPES` less the stored `shopify_tokens.scope`) and `appUrl`
-  (`appAdminUrl`: `https://<store>/admin/apps/<client id>`), and a `reauth` error carries `appUrl`
-  too (`ShopifyError.details`, sent beside `error` and `code`). The extension's popup opens that
-  page; opening the app sends the store to the App URL, the link runs again, Shopify shows its
-  approval screen for what is new, and `link` stores the new scope (`../salelinx-app/docs/technical/SHOPIFY.md`
+- **The app's page** (`app/embed/shopify/route.ts`) loads App Bridge and calls
+  `shopify-public`'s `/app` with `{ action: 'session' }` and a fresh ID token
+  (`shopify.idToken()`, a minute's life) as the bearer. `verifyIdToken` checks it (HS256 with the
+  client secret; `exp` and `nbf` with 10 seconds' slack, `aud` the client id, `iss` and `dest` the
+  same `myshopify.com` store), and anything wrong is `invalid_session` (401), which the page
+  answers with one retry on a new token. The page sends `frame-ancestors` naming the store and
+  `admin.shopify.com` (`'none'` without a store), as App Store review checks. It never signs in to
+  SaleLinx: a page framed in Shopify's admin can't count on `salelinx.com`'s cookies.
+- **Taking the store's tokens** (rule 2.3.2: before anything else). `session` uses the stored
+  tokens while they work and carry every scope, and otherwise swaps the ID token for new ones
+  (`exchangeIdToken`, token exchange with `expiring=1`): on the store's first open, after an
+  uninstall, when Shopify refuses the stored ones, and after the store approved a new scope (only
+  an exchange brings it into a token). The row is keyed by the store (`051_shopify_store_tokens.sql`),
+  with `user_id` empty until an account connects it. A store installed again goes back to the
+  account its `linked_accounts` row names, as an uninstall deletes the tokens and not the link. It
+  answers the store's name, whether an account holds it (`linked`, with that account's email
+  masked, `maskEmail`) and otherwise `connectUrl`.
+- **Connecting it to an account.** There is no store-address box (Shopify's App Store rule
+  2.3.1), so the store comes from Shopify. `connectUrl` is `shopify-public/connect` with a code
+  (`connectCode`: base64url JSON of the store's id, address and name and an expiry an hour on,
+  HMAC-signed with the client secret behind a prefix). Connect sends the whole tab there, and it
+  forwards to the website's `/shopify/connect`. A signed-in seller presses Connect store there,
+  or the extension, which watches the Supabase address (it may read `supabase.co`, not
+  `salelinx.com`), does it at once when it is signed in. Both call the `shopify` function's
+  `claimStore`, which checks the code (`readConnectCode`), refuses a store another account holds
+  (`ALREADY_LINKED_ELSEWHERE`) and, as with eBay, writes `linked_accounts` **through the user's
+  own client first**, so the one-store-per-account index and the trial triggers decide
+  (`ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`). Only then does the row get the user, and an
+  earlier store of theirs loses its tokens, as an unlink would. `linked_accounts.platform_user_id`
+  is the numeric store id, and a Shopify row's `listings.platform_user_id` must be too:
+  `shop/redact` deletes by it.
+- **Approving again.** `account` answers `missingScopes` (`SCOPES` less the stored
+  `shopify_tokens.scope`) and `appUrl` (`appAdminUrl`: `https://<store>/admin/apps/<client id>`),
+  and a `reauth` error carries `appUrl` too (`ShopifyError.details`, sent beside `error` and
+  `code`). The extension's popup opens that page; Shopify shows its approval screen for what is
+  new, and the app's page takes a token with it (`../salelinx-app/docs/technical/SHOPIFY.md`
   "When the store must approve again").
-- **Linking.** There is no store-address box (Shopify's App Store rule 2.3.1), so the store comes
-  from Shopify. The seller opens the install link in the extension's popup and Shopify sends the
-  popup to the App URL with `shop`, `host`, `timestamp` and `hmac`. The extension catches that
-  address and sends its params to `authorizeUrl`, which checks the signature, its age (5 minutes)
-  and the store address, then answers with the store's consent page, carrying that extension's
-  redirect and the extension's `state`. The extension catches the redirect, checks `state` and
-  sends its params to `link`, which checks the signature again, swaps the code for tokens
-  (`expiring=1`) and reads the store. As with eBay, it writes `linked_accounts` **through the
-  user's own client first**, so the one-store-per-account index and the trial triggers decide
-  (`ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`), and only then upserts `shopify_tokens`.
-  `linked_accounts.platform_user_id` is the numeric store id, and a Shopify row's
-  `listings.platform_user_id` must be too: `shop/redact` deletes by it.
 - **Tokens.** The app was made after 1 April 2026, so Shopify only issues expiring offline tokens:
   access for 60 minutes, refresh for 90 days, and each refresh returns a new refresh token and
-  retires the old one. Two refreshes at once would leave the row holding a retired token and the
-  seller would have to reconnect. So `accessTokenFor` claims `refreshing_until` (30 seconds) with a
-  conditional update: only the call that claims it refreshes, and the others re-read the row until
-  the new token is there (about 4 seconds, then `busy`). A refresh Shopify refuses answers `reauth`.
-- **Webhooks**, all pointing at `shopify-public`. `app/uninstalled` deletes the store's tokens
-  and keeps the link, so the extension shows Reconnect. Shopify refuses app-wide subscriptions
-  while the app uses the legacy install flow, so `link` subscribes each store to it through the
-  Admin API (`webhookSubscriptionCreate`); a store that wasn't subscribed still ends up at
-  Reconnect, as its next call gets 401. The three compliance topics every public app must answer
-  are in `shopify.app.toml` (the legacy install flow allows those):
-  `shop/redact` (48 hours after an uninstall) deletes the store's tokens, link and listings, and
-  the two customer topics have nothing to delete, as SaleLinx keeps no data about a store's
-  customers. Read the body raw before verifying: the HMAC covers its exact bytes.
-- **The App URL is not a page.** Supabase serves a function's HTML as plain text on its own
-  domain, so a GET to `shopify-public` redirects to `SITE_URL`. Before review this has to become a
-  real page, as the app must work from Shopify's admin without the extension.
+  retires the old one, and a token exchange retires every other refresh token for the store. Two
+  at once would leave the row holding a retired token and the seller would have to reconnect. So
+  `_shared/shopify-tokens.ts` claims `refreshing_until` (30 seconds) with a conditional update,
+  for a refresh (`accessToken`, by user for the `shopify` function and by store for the app's
+  page) and an exchange alike: only the call that claims it goes ahead, and the others re-read the
+  row until the new token is there (about 4 seconds, then `busy`). A refresh Shopify refuses
+  answers `reauth`.
+- **Webhooks**, all pointing at `shopify-public` and all in `shopify.app.toml`. `app/uninstalled`
+  deletes the store's tokens and keeps the link, so the extension shows Reconnect. It went in the
+  toml when the legacy install flow did (Shopify refused app-wide subscriptions with it); stores
+  linked before then were also subscribed one by one, so they get it twice, which is harmless.
+  The three compliance topics every public app must answer: `shop/redact` (48 hours after an
+  uninstall) deletes the store's tokens, link and listings, and the two customer topics have
+  nothing to delete, as SaleLinx keeps no data about a store's customers. Read the body raw before
+  verifying: the HMAC covers its exact bytes.
+- **The old App URL.** A GET to `shopify-public` itself still redirects to `SITE_URL`: it was the
+  App URL until 2026-11-13. Supabase serves a function's HTML as plain text on its own domain,
+  which is why the app's page is on the website.
 - **Unlink** deletes the tokens. The app stays installed in the store until the seller removes it
   in Shopify's admin.
 - **Listings** (`listings { cursor? }`) is the store's products for the extension's My Listings:
