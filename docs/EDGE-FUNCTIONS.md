@@ -658,6 +658,40 @@ code=<code>` and nothing else.
   answers with the product read afterwards. `uploadPhoto { dataUrl }` stages a new photo
   (`stagedUploadsCreate`, then a form POST to Shopify's storage) and answers with the address the
   photo list then carries.
+- **The rest of the product page** (2026-11-12: the seller wanted every field Shopify's own page
+  has). `product` also answers `fields` (`productFields`, `ProductFields` in `_shared/shopify.ts`):
+  the variant's compare-at price, cost, tax, SKU, barcode (the first of `barcodes`; the single
+  `barcode` is deprecated), tracking, inventory policy, shipping, weight, country of origin, HS
+  code and options, and the product's category (id and path), tags, collections (each marked
+  `smart` when it holds the product by its own rules), SEO title and description, and handle.
+  `editable` adds `variant` (the variant fields need one) and `tracked` (off when Shopify's
+  `trackedEditable.locked`). `updateProduct` takes the same fields (`readFieldsEdit` checks them; a null
+  clears one): the product's go with title and the rest through `productUpdate`
+  (`productFieldsInput`; `collectionMoves` makes the manual set into `collectionsToJoin` /
+  `collectionsToLeave`; a new handle sets `redirectNewHandle`), the variant's with its price
+  through `productVariantsBulkUpdate` (`variantFieldsInput`, its inventory item included).
+  `categories { search }` searches Shopify's standard categories for the editor's category box,
+  `matchCategory` answers the category `createProduct` would find for a source (`findCategory`),
+  and `collections` lists the store's manual collections. Not covered: category attributes, which
+  need new scopes (`write_metaobjects` and `write_metaobject_definitions`).
+- **Sales channels** (2026-11-13, scope `write_publications`). The API puts a product it makes on
+  no channel, so it was Active on no page of the store. `createProduct` now puts it on
+  `fields.channels`, else the Online Store, a draft too, as Shopify's admin does; `setStatus` to
+  ACTIVE puts a product on no channel at all on the Online Store (`onlineStoreIfNowhere`, which
+  never fails the call it follows). `product` answers `fields.channels` (the publication ids it is
+  on), `updateProduct` takes `channels` as the whole set (`channelMoves`, then
+  `publishablePublish` / `publishableUnpublish`), and `channels` lists the store's
+  (`publications(catalogType: APP)`, each named by its app; the Online Store is the app handle
+  `online_store`, as the catalog's own title is internal). A store linked before has not granted
+  the scope, and a query naming a channel field would then fail whole, so each of these checks
+  `granted(auth.scope, PUBLISH_SCOPE)` (the stored `shopify_tokens.scope`) first: without it
+  `fields.channels` and `channels` answer null, nothing is published, and a `channels` change is
+  refused. The store grants it by opening the app from its admin, which links again.
+- **Checking a query before a deploy.** One unknown field fails the whole query and no unit test
+  sees it (the product read once asked for `trackedEditable { editable }`, and every read failed
+  once deployed). Shopify's docs proxy answers introspection without a token
+  (`POST https://shopify.dev/admin-graphql-direct-proxy/2026-10`): validate each query constant
+  with graphql-js, and the builders' variables with `getVariableValues`.
 - **Linked sales** (`takeOneOff { productId, variantId?, key }`). A listing linked to the
   variant sold on a marketplace, so one comes off its stock (`oneOffPlan`): tracked at one location
   it's set to one less with `changeFromQuantity`, under the `@idempotent` key the extension names
@@ -680,12 +714,16 @@ code=<code>` and nothing else.
   in the source's `categoryPath` (`taxonomySearchTerms`, two searches at most), and
   `pickTaxonomyCategory` takes the closest fit to the source's words ("Coats & Jackets" over
   "Bomber Jackets" and the baby range), or none. A failed search leaves the category out rather
-  than failing the create. It answers like `product`, read after the create.
+  than failing the create. `fields` carries the rest of the page as the seller set it (as
+  `updateProduct` takes it, less tags and options): onto the variant and the product, a
+  `categoryId` (or null for none) in place of the match, and no stock at the location when
+  tracking is off. It answers like `product`, read after the create.
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
   example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
-  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`),
-  `oneOffPlan`, and the crosslist's `newProduct`, `newProductInput`, `taxonomySearchTerms` and
-  `pickTaxonomyCategory`.
+  editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`, the
+  page's fields with `variantFieldsInput`, `productFieldsInput` and `collectionMoves`),
+  the sales channels (`granted`, `salesChannels`, `channelMoves`), `oneOffPlan`, and the
+  crosslist's `newProduct`, `newProductInput`, `taxonomySearchTerms` and `pickTaxonomyCategory`.
 
 ## Excluded from TypeScript checks
 

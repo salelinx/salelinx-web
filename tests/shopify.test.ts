@@ -6,8 +6,14 @@ import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 
 const {
+  PUBLISH_SCOPE,
+  SCOPES,
   authorizeUrl,
+  channelMoves,
+  collectionMoves,
+  granted,
   isShopDomain,
+  salesChannels,
   newProduct,
   newProductInput,
   pickTaxonomyCategory,
@@ -16,6 +22,7 @@ const {
   photoFiles,
   productDetail,
   productEdit,
+  productFieldsInput,
   productGid,
   productSummary,
   queryMessage,
@@ -23,6 +30,7 @@ const {
   samePhotos,
   shopIdFromGid,
   textToHtml,
+  variantFieldsInput,
   variantGid,
   variantSummary,
   verifiedShop,
@@ -147,7 +155,7 @@ describe('helpers', () => {
     expect(url.origin + url.pathname).toBe('https://a.myshopify.com/admin/oauth/authorize');
     expect(Object.fromEntries(url.searchParams)).toEqual({
       client_id: 'cid',
-      scope: 'write_products,write_inventory,read_locations',
+      scope: 'write_products,write_inventory,read_locations,write_publications',
       redirect_uri: 'https://abc.chromiumapp.org/shopify',
       state: 'st',
     });
@@ -341,7 +349,24 @@ describe('newProduct', () => {
       tags: ['Very good', 'Blue  navy'],
       photos: [],
       status: 'DRAFT',
+      fields: {},
     });
+  });
+
+  it('takes the rest of the page, less the tags and options it sets itself', () => {
+    const p = newProduct({
+      ...base,
+      fields: {
+        compareAtPrice: 50,
+        sku: ' DJ-1 ',
+        categoryId: null,
+        tags: ['x'],
+        options: [{ name: 'Size', value: 'M' }],
+      },
+    });
+    expect(p.fields).toEqual({ compareAtPrice: 50, sku: 'DJ-1', categoryId: null });
+    expect(() => newProduct({ ...base, fields: { hsCode: '12' } })).toThrow('Bad hsCode');
+    expect(() => newProduct({ ...base, fields: 'x' })).toThrow('Bad fields');
   });
 
   it('refuses what Shopify would, before any call', () => {
@@ -367,6 +392,7 @@ describe('newProductInput', () => {
     tags: ['Very good', 'Blue'],
     photos: ['https://cdn/a.jpg'],
     status: 'ACTIVE' as const,
+    fields: {},
   };
 
   it('puts the size in a Size option, with the stock at the location', () => {
@@ -408,6 +434,138 @@ describe('newProductInput', () => {
     expect(newProductInput(product, 'loc', 'gid://shopify/TaxonomyCategory/aa-1-10-2')).toMatchObject({
       category: 'gid://shopify/TaxonomyCategory/aa-1-10-2',
     });
+  });
+
+  it('carries the rest of the page onto the product and its variant', () => {
+    const input = newProductInput(
+      {
+        ...product,
+        fields: {
+          compareAtPrice: 60,
+          cost: 12,
+          sku: 'DJ-1',
+          barcode: '5012345678900',
+          continueSelling: true,
+          weight: { value: 0.8, unit: 'KILOGRAMS' },
+          countryOfOrigin: 'GB',
+          seoTitle: 'Levi denim jacket',
+          handle: 'levi-denim-jacket',
+          collections: ['gid://shopify/Collection/5'],
+          categoryId: 'gid://shopify/TaxonomyCategory/aa-1',
+        },
+      },
+      'loc',
+      'gid://shopify/TaxonomyCategory/aa-2',
+    );
+    expect(input).toMatchObject({
+      seo: { title: 'Levi denim jacket', description: '' },
+      handle: 'levi-denim-jacket',
+      collections: ['gid://shopify/Collection/5'],
+      // The caller's category, the pick it was given or the match it found.
+      category: 'gid://shopify/TaxonomyCategory/aa-2',
+    });
+    expect(input.variants[0]).toMatchObject({
+      compareAtPrice: '60.00',
+      inventoryPolicy: 'CONTINUE',
+      barcodes: [{ value: '5012345678900' }],
+      price: '38.50',
+      inventoryItem: {
+        tracked: true,
+        cost: 12,
+        sku: 'DJ-1',
+        measurement: { weight: { value: 0.8, unit: 'KILOGRAMS' } },
+        countryCodeOfOrigin: 'GB',
+      },
+    });
+  });
+
+  it('holds no stock at the location when tracking is off', () => {
+    const input = newProductInput({ ...product, fields: { tracked: false } }, 'loc');
+    expect(input.variants[0].inventoryItem).toEqual({ tracked: false });
+    expect(input.variants[0]).not.toHaveProperty('inventoryQuantities');
+  });
+});
+
+describe('the rest of the product page', () => {
+  it('checks each field and clears with null', () => {
+    expect(
+      productEdit({
+        compareAtPrice: null,
+        cost: 4.567,
+        taxable: false,
+        weight: { value: 300, unit: 'GRAMS' },
+        countryOfOrigin: 'IT',
+        hsCode: '620342',
+        categoryId: 'gid://shopify/TaxonomyCategory/aa-1-10-2',
+        tags: ['Blue', 'Blue', 'a, b'],
+        collections: ['gid://shopify/Collection/1', 'gid://shopify/Collection/1'],
+        handle: 'blue-jeans',
+        options: [{ name: 'Size', value: ' 32 ' }],
+      }),
+    ).toEqual({
+      compareAtPrice: null,
+      cost: 4.57,
+      taxable: false,
+      weight: { value: 300, unit: 'GRAMS' },
+      countryOfOrigin: 'IT',
+      hsCode: '620342',
+      categoryId: 'gid://shopify/TaxonomyCategory/aa-1-10-2',
+      tags: ['Blue', 'a  b'],
+      collections: ['gid://shopify/Collection/1'],
+      handle: 'blue-jeans',
+      options: [{ name: 'Size', value: '32' }],
+    });
+    expect(() => productEdit({ taxable: 'yes' })).toThrow('Bad taxable');
+    expect(() => productEdit({ weight: { value: 1, unit: 'STONE' } })).toThrow('Bad weight');
+    expect(() => productEdit({ countryOfOrigin: 'gb' })).toThrow('Bad countryOfOrigin');
+    expect(() => productEdit({ categoryId: 'aa-1' })).toThrow('Bad categoryId');
+    expect(() => productEdit({ collections: ['gid://shopify/Product/1'] })).toThrow(
+      'Bad collections',
+    );
+    expect(() => productEdit({ handle: 'has space' })).toThrow('Bad handle');
+    expect(() => productEdit({ options: [{ name: 'Size', value: ' ' }] })).toThrow('Bad options');
+  });
+
+  it("makes a variant's changes into its bulk update, inventory item and all", () => {
+    expect(
+      variantFieldsInput({
+        compareAtPrice: null,
+        barcode: '',
+        tracked: false,
+        physical: false,
+        weight: null,
+        hsCode: '',
+        options: [{ name: 'Size', value: 'L' }],
+      }),
+    ).toEqual({
+      compareAtPrice: null,
+      barcodes: [],
+      optionValues: [{ optionName: 'Size', name: 'L' }],
+      inventoryItem: {
+        tracked: false,
+        requiresShipping: false,
+        measurement: { weight: { value: 0, unit: 'KILOGRAMS' } },
+        harmonizedSystemCode: null,
+      },
+    });
+    expect(variantFieldsInput({})).toEqual({});
+  });
+
+  it("keeps the other search line when one changes, and never sends an empty address", () => {
+    expect(
+      productFieldsInput({ seoTitle: 'New', handle: '' }, { seoTitle: 'Old', seoDescription: 'D' }),
+    ).toEqual({ seo: { title: 'New', description: 'D' } });
+    expect(productFieldsInput({ categoryId: null, tags: [] })).toEqual({ category: null, tags: [] });
+  });
+
+  it('joins and leaves manual collections only', () => {
+    const current = [
+      { id: 'a', smart: false },
+      { id: 'b', smart: false },
+      { id: 's', smart: true },
+    ];
+    expect(collectionMoves(['b', 'c', 's'], current)).toEqual({ join: ['c'], leave: ['a'] });
+    expect(collectionMoves([], current)).toEqual({ join: [], leave: ['a', 'b'] });
   });
 });
 
@@ -591,7 +749,13 @@ describe('productDetail', () => {
 
   it('lets the editor set price, stock and photos on a simple product', () => {
     const d = productDetail('s.myshopify.com', node());
-    expect(d.editable).toEqual({ price: true, quantity: true, photos: true });
+    expect(d.editable).toEqual({
+      price: true,
+      quantity: true,
+      photos: true,
+      variant: true,
+      tracked: true,
+    });
     expect(d.quantity).toBe(3);
     expect(d.stock).toEqual({
       inventoryItemId: 'gid://shopify/InventoryItem/700',
@@ -660,7 +824,13 @@ describe('productDetail', () => {
       named,
     );
     expect(d.variantId).toBe('gid://shopify/ProductVariant/71');
-    expect(d.editable).toEqual({ price: true, quantity: true, photos: true });
+    expect(d.editable).toEqual({
+      price: true,
+      quantity: true,
+      photos: true,
+      variant: true,
+      tracked: true,
+    });
     // The level, not inventoryQuantity, which lags a change as totalInventory does.
     expect(d.quantity).toBe(4);
     expect(d.variant).toMatchObject({ variantId: '71', quantity: 4, price: 22, photo: 'https://cdn/grey.jpg' });
@@ -677,6 +847,129 @@ describe('productDetail', () => {
     const d = productDetail('s', node({ variantsCount: { count: 3 } }));
     expect(d.variant).toBeNull();
     expect(d.listing.variantList).toEqual([]);
+    expect(d.editable.variant).toBe(false);
+  });
+
+  it("reads the rest of the page: the variant's pricing, stock and shipping, the product's organisation", () => {
+    const full = node({
+      category: { id: 'gid://shopify/TaxonomyCategory/aa-1', fullName: 'Apparel' },
+      tags: ['Blue'],
+      handle: 'hat',
+      seo: { title: 'A hat', description: null },
+      collections: {
+        nodes: [
+          { id: 'gid://shopify/Collection/1', title: 'Hats', ruleSet: null },
+          { id: 'gid://shopify/Collection/2', title: 'New in', ruleSet: { appliedDisjunctively: false } },
+        ],
+      },
+    });
+    full.variants.nodes[0] = {
+      ...full.variants.nodes[0],
+      compareAtPrice: '30.00',
+      taxable: false,
+      inventoryPolicy: 'CONTINUE',
+      barcodes: { nodes: [{ value: '123' }] },
+      selectedOptions: [{ name: 'Size', value: 'M' }],
+      inventoryItem: {
+        ...full.variants.nodes[0].inventoryItem,
+        trackedEditable: { locked: true },
+        sku: 'H-1',
+        unitCost: { amount: '4.5' },
+        requiresShipping: false,
+        measurement: { weight: { value: 250, unit: 'GRAMS' } },
+        countryCodeOfOrigin: 'GB',
+        harmonizedSystemCode: '650500',
+      },
+    } as never;
+    const d = productDetail('s', full);
+    expect(d.fields).toEqual({
+      compareAtPrice: 30,
+      cost: 4.5,
+      taxable: false,
+      sku: 'H-1',
+      barcode: '123',
+      tracked: true,
+      continueSelling: true,
+      physical: false,
+      weight: 250,
+      weightUnit: 'GRAMS',
+      countryOfOrigin: 'GB',
+      hsCode: '650500',
+      category: { id: 'gid://shopify/TaxonomyCategory/aa-1', name: 'Apparel' },
+      tags: ['Blue'],
+      collections: [
+        { id: 'gid://shopify/Collection/1', title: 'Hats', smart: false },
+        { id: 'gid://shopify/Collection/2', title: 'New in', smart: true },
+      ],
+      seoTitle: 'A hat',
+      seoDescription: '',
+      handle: 'hat',
+      options: [{ name: 'Size', value: 'M' }],
+      channels: null,
+    });
+    expect(d.editable.tracked).toBe(false);
+    // A weight of 0 is Shopify's none.
+    expect(productDetail('s', node()).fields.weight).toBeNull();
+  });
+
+  it('reads the sales channels only when they were asked for', () => {
+    const on = node({
+      resourcePublicationsV2: { nodes: [{ publication: { id: 'gid://shopify/Publication/1' } }] },
+    });
+    expect(productDetail('s', on).fields.channels).toEqual(['gid://shopify/Publication/1']);
+    expect(productDetail('s', node({ resourcePublicationsV2: { nodes: [] } })).fields.channels).toEqual(
+      [],
+    );
+    // Not asked (the store hasn't granted write_publications): not "on none".
+    expect(productDetail('s', node()).fields.channels).toBeNull();
+  });
+});
+
+describe('sales channels', () => {
+  it('asks for write_publications and reads whether a store granted it', () => {
+    expect(SCOPES.split(',')).toContain(PUBLISH_SCOPE);
+    expect(granted('write_products, write_publications', PUBLISH_SCOPE)).toBe(true);
+    expect(granted('write_products,read_publications', PUBLISH_SCOPE)).toBe(false);
+    expect(granted(null, PUBLISH_SCOPE)).toBe(false);
+  });
+
+  it("names each channel by its app, the Online Store by its handle, and skips API tokens' storefronts", () => {
+    const app = (handle: string | null, title: string) => ({
+      catalog: { title: 'Channel Catalog 1 e5ef', apps: { nodes: [{ handle, title }] } },
+    });
+    expect(
+      salesChannels([
+        { id: 'gid://shopify/Publication/1', ...app('online_store', 'Online Store') },
+        { id: 'gid://shopify/Publication/2', ...app('pos', 'Point of Sale') },
+        { id: 'gid://shopify/Publication/3', ...app(null, 'development-token') },
+        { id: 'gid://shopify/Publication/4', catalog: null },
+      ]),
+    ).toEqual([
+      { id: 'gid://shopify/Publication/1', name: 'Online Store', onlineStore: true },
+      { id: 'gid://shopify/Publication/2', name: 'Point of Sale', onlineStore: false },
+    ]);
+  });
+
+  it('moves a product onto the channels added and off those taken away', () => {
+    expect(channelMoves(['p1', 'p3'], ['p1', 'p2'])).toEqual({ publish: ['p3'], unpublish: ['p2'] });
+    expect(channelMoves([], [])).toEqual({ publish: [], unpublish: [] });
+  });
+
+  it('checks the channels sent, as the whole set', () => {
+    const ok = ['gid://shopify/Publication/1', 'gid://shopify/Publication/1'];
+    expect(productEdit({ channels: ok }).channels).toEqual(['gid://shopify/Publication/1']);
+    expect(productEdit({ channels: [] }).channels).toEqual([]);
+    expect(() => productEdit({ channels: ['gid://shopify/Collection/1'] })).toThrow(/channels/);
+    expect(() => productEdit({ channels: 'gid://shopify/Publication/1' })).toThrow(/channels/);
+    // A new product keeps them for the create; productSet itself takes none.
+    const p = newProduct({
+      title: 'Hat',
+      price: 5,
+      status: 'DRAFT',
+      fields: { channels: ['gid://shopify/Publication/1'] },
+    });
+    expect(p.fields.channels).toEqual(['gid://shopify/Publication/1']);
+    expect(newProductInput(p, 'gid://shopify/Location/1')).not.toHaveProperty('channels');
   });
 });
 
