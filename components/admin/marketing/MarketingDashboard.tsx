@@ -2,11 +2,17 @@
 
 // /admin/marketing: a card per platform, the top three videos, what is
 // trending, views gained per day, and every video with its numbers. Sync now and Connect call the marketing-sync and
-// marketing-oauth Edge Functions with the admin's session.
+// marketing-oauth Edge Functions with the admin's session. Each video's title
+// opens its detail page (/admin/marketing/videos/...).
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createBrowserClient } from "@/lib/supabase/client";
+import {
+  callFunction,
+  connectNotice,
+  connectPlatform,
+} from "@/components/admin/social/client";
 import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
 import { PLATFORM_THEME, PlatformLogo } from "./PlatformLogo";
 import {
@@ -23,19 +29,22 @@ export type MarketingAccount = {
   synced_at: string | null;
   last_error: string | null;
   logged_in: boolean;
+  scopes: string | null;
 };
 
 const NAMES: Record<MarketingPlatform, string> = {
   youtube: "YouTube",
   instagram: "Instagram",
   tiktok: "TikTok",
+  facebook: "Facebook",
 };
 
-const NOTICES: Record<string, string> = {
-  expired: "That connect link expired or wasn't ours. Try Connect again.",
-  declined: "The login was cancelled, so nothing was connected.",
-  exchange:
-    "The platform refused the login. Check the app's ID, secret and redirect address.",
+// Mirrors POSTING_SCOPE in supabase/functions/_shared/marketing-login.ts.
+const POSTING_SCOPE: Record<MarketingPlatform, string> = {
+  youtube: "youtube.upload",
+  instagram: "instagram_content_publish",
+  tiktok: "video.upload",
+  facebook: "pages_manage_posts",
 };
 
 type SortKey = "published_at" | "views" | "gained7" | "likes" | "comments";
@@ -81,21 +90,6 @@ function Thumb({ v, className }: { v: MarketingVideo; className: string }) {
   );
 }
 
-async function callFunction(name: string, body?: unknown): Promise<Response> {
-  const supabase = createBrowserClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/${name}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${session?.access_token ?? ""}`,
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-}
-
 export function MarketingDashboard({
   report,
   accounts,
@@ -104,7 +98,7 @@ export function MarketingDashboard({
 }: {
   report: MarketingReport;
   accounts: MarketingAccount[];
-  notice: { connected?: string; error?: string; platform?: string };
+  notice: { connected?: string; error?: string; platform?: string; seen?: string; ig?: string; diag?: string };
   loadError: string | null;
 }) {
   const router = useRouter();
@@ -140,17 +134,9 @@ export function MarketingDashboard({
     router.refresh();
   }
 
-  async function connect(platform: "instagram" | "tiktok") {
+  async function connect(platform: MarketingPlatform) {
     setMessage(null);
-    const res = await callFunction("marketing-oauth", { platform }).catch(
-      () => null,
-    );
-    const body = res ? await res.json().catch(() => null) : null;
-    if (!res?.ok || !body?.url) {
-      setMessage(`Couldn't start the ${NAMES[platform]} login.`);
-      return;
-    }
-    window.location.assign(body.url);
+    setMessage(await connectPlatform(platform));
   }
 
   const videos = useMemo(() => {
@@ -184,18 +170,14 @@ export function MarketingDashboard({
   const firstDayOnly =
     report.firstDay === report.daily[report.daily.length - 1]?.day;
 
-  const top = notice.connected
-    ? `${NAMES[notice.connected as MarketingPlatform] ?? notice.connected} connected. Press Sync now to read its videos.`
-    : notice.error
-      ? (NOTICES[notice.error] ?? "Something went wrong connecting.")
-      : null;
+  const top = connectNotice(notice);
 
   return (
     <div className="flex h-full flex-col">
       <header className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
         <h1 className="flex items-center gap-2 text-sm font-semibold">
           <span className="flex -space-x-1">
-            {(["youtube", "instagram", "tiktok"] as const).map((p) => (
+            {(["youtube", "instagram", "tiktok", "facebook"] as const).map((p) => (
               <PlatformLogo key={p} platform={p} size={18} />
             ))}
           </span>
@@ -224,10 +206,10 @@ export function MarketingDashboard({
             </p>
           )}
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             {report.platforms.map((p) => {
               const acc = account(p.platform);
-              const connectable = p.platform !== "youtube";
+              const canPost = !!acc?.scopes?.includes(POSTING_SCOPE[p.platform]);
               return (
                 <section
                   key={p.platform}
@@ -251,20 +233,25 @@ export function MarketingDashboard({
                           </span>
                         )}
                       </h2>
-                      {connectable && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void connect(p.platform as "instagram" | "tiktok")
-                          }
-                          className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white hover:opacity-90"
-                          style={{
-                            background: PLATFORM_THEME[p.platform].accent,
-                          }}
-                        >
-                          {acc?.logged_in ? "Reconnect" : "Connect"}
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => void connect(p.platform)}
+                        title={
+                          p.platform === "youtube"
+                            ? "Stats need only the API key; connecting adds uploads and watch time from YouTube Analytics"
+                            : undefined
+                        }
+                        className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white hover:opacity-90"
+                        style={{
+                          background: PLATFORM_THEME[p.platform].accent,
+                        }}
+                      >
+                        {acc?.logged_in && canPost
+                          ? "Reconnect"
+                          : acc?.logged_in
+                            ? "Reconnect to post"
+                            : "Connect"}
+                      </button>
                     </div>
                     <div className="mt-2 grid grid-cols-3 gap-2">
                       <div title="Followers now, and the change over 30 days">
@@ -305,7 +292,10 @@ export function MarketingDashboard({
                           - last sync failed: {acc.last_error}
                         </span>
                       )}
-                      {connectable && !acc?.logged_in && " - not connected"}
+                      {!acc?.logged_in &&
+                        (p.platform === "youtube"
+                          ? " - not connected for uploads"
+                          : " - not connected")}
                     </p>
                   </div>
                 </section>
@@ -444,7 +434,7 @@ export function MarketingDashboard({
           <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
             <div className="flex flex-wrap items-center gap-2 border-b border-[var(--admin-border)] px-4 py-2.5">
               <h2 className="mr-auto text-sm font-semibold">Videos</h2>
-              {(["all", "youtube", "instagram", "tiktok"] as const).map((f) => (
+              {(["all", "youtube", "instagram", "tiktok", "facebook"] as const).map((f) => (
                 <button
                   key={f}
                   type="button"
@@ -491,6 +481,12 @@ export function MarketingDashboard({
                       </th>
                     ))}
                     <th className="px-3 py-2 text-right font-medium">Shares</th>
+                    <th
+                      className="px-3 py-2 text-right font-medium"
+                      title="Average watch time: Instagram Reels and YouTube (once connected)"
+                    >
+                      Avg watch
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -503,16 +499,27 @@ export function MarketingDashboard({
                         <div className="flex items-center gap-3">
                           <Thumb v={v} className="h-10 w-16" />
                           <div className="min-w-0">
-                            <a
-                              href={v.url ?? undefined}
-                              target="_blank"
-                              rel="noreferrer"
+                            <Link
+                              href={`/admin/marketing/videos/${v.platform}/${encodeURIComponent(v.external_id)}`}
                               className="block truncate text-zinc-900 hover:underline"
                             >
                               {v.title ?? "(untitled)"}
-                            </a>
+                            </Link>
                             <span className="text-xs text-zinc-400">
                               {NAMES[v.platform]}
+                              {v.url && (
+                                <>
+                                  {" · "}
+                                  <a
+                                    href={v.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-zinc-700 hover:underline"
+                                  >
+                                    open
+                                  </a>
+                                </>
+                              )}
                             </span>
                           </div>
                         </div>
@@ -533,9 +540,9 @@ export function MarketingDashboard({
                         {count(v.comments)}
                       </td>
                       <td className="px-3 py-2 text-right font-mono">
-                        {v.platform === "youtube" ? (
+                        {v.platform === "youtube" && v.shares === null ? (
                           <span
-                            title="YouTube's public API doesn't report shares"
+                            title="YouTube's public API doesn't report shares; connect YouTube to read them from YouTube Analytics"
                             className="text-zinc-400"
                           >
                             n/a
@@ -543,6 +550,11 @@ export function MarketingDashboard({
                         ) : (
                           count(v.shares)
                         )}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono text-zinc-600">
+                        {v.avg_watch_seconds === null
+                          ? "-"
+                          : `${v.avg_watch_seconds.toFixed(1)}s`}
                       </td>
                     </tr>
                   ))}

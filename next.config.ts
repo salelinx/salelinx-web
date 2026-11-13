@@ -35,6 +35,9 @@ const CSP = [
   "img-src 'self' data: blob: https://www.googletagmanager.com https://*.google-analytics.com https://www.google.com https://www.google.co.uk https://ad.doubleclick.net https://i.ytimg.com https://*.cdninstagram.com https://*.fbcdn.net https://*.tiktokcdn.com https://*.tiktokcdn-us.com https://*.tiktokcdn-eu.com",
   "font-src 'self' data:",
   "frame-src https://www.youtube-nocookie.com",
+  // The planner's video preview: a blob: URL for a file just picked, or a
+  // signed URL from the private social-media bucket for a saved one.
+  "media-src 'self' blob: https://*.supabase.co",
   "connect-src 'self' https://*.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://ad.doubleclick.net https://stats.g.doubleclick.net",
   "object-src 'none'",
   "base-uri 'self'",
