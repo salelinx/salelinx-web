@@ -19,6 +19,7 @@ const ARRAY_PATHS = new Set([
   'GetBestOffersResponse.ItemBestOffersArray.ItemBestOffers.BestOfferArray.BestOffer',
   'GetOrdersResponse.OrderArray.Order',
   'GetOrdersResponse.OrderArray.Order.TransactionArray.Transaction',
+  'GetOrdersResponse.OrderArray.Order.TransactionArray.Transaction.ShippingDetails.ShipmentTrackingDetails',
 ]);
 
 const xml = new XMLParser({
@@ -575,14 +576,31 @@ export function respondOfferXml(r): { xml?: string; error?: string } {
   return { xml };
 }
 
-/** GetOrders: paid orders the seller hasn't posted yet. eBay sends no photos; the extension has them. */
-export function unshippedOrdersFromResponse(body) {
+const tracking = (o) =>
+  (o.TransactionArray?.Transaction ?? [])
+    .flatMap((t) => t.ShippingDetails?.ShipmentTrackingDetails ?? [])
+    .find((d) => d.ShipmentTrackingNumber)?.ShipmentTrackingNumber ?? null;
+
+const delivered = (o) =>
+  (o.TransactionArray?.Transaction ?? []).some(
+    (t) => t.ShippingServiceSelected?.ShippingPackageInfo?.ActualDeliveryTime,
+  );
+
+/** GetOrders: paid orders not posted yet, or posted with tracking (an eBay label) and not delivered. eBay sends no photos; the extension has them. */
+export function openOrdersFromResponse(body) {
   return (body.OrderArray?.Order ?? [])
-    .filter((o) => o.PaidTime && !o.ShippedTime && o.CancelStatus !== 'CancelComplete')
+    .filter(
+      (o) =>
+        o.PaidTime &&
+        o.CancelStatus !== 'CancelComplete' &&
+        (!o.ShippedTime || (tracking(o) && !delivered(o))),
+    )
     .map((o) => {
       const lines = o.TransactionArray?.Transaction ?? [];
       const total = money(o.Total);
       return {
+        shippedAt: o.ShippedTime ?? null,
+        tracking: tracking(o),
         orderId: String(o.OrderID),
         paidAt: o.PaidTime,
         buyer: o.BuyerUserID ?? '',

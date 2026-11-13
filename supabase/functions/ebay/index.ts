@@ -82,7 +82,7 @@ import {
   linkSiteId,
   bestOffersFromResponse,
   respondOfferXml,
-  unshippedOrdersFromResponse,
+  openOrdersFromResponse,
   markShippedXml,
   QUOTA_MESSAGE,
 } from './trading.ts';
@@ -688,7 +688,7 @@ Deno.serve(async (req: Request) => {
             '<OrderRole>Seller</OrderRole><OrderStatus>Completed</OrderStatus>' +
             '<Pagination><EntriesPerPage>100</EntriesPerPage><PageNumber>1</PageNumber></Pagination>',
         );
-        return json(200, { orders: unshippedOrdersFromResponse(res) });
+        return json(200, { orders: openOrdersFromResponse(res) });
       }
 
       case 'markShipped': {
