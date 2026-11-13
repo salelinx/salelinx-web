@@ -4,6 +4,7 @@
 // tests/shopify.test.ts can run the signature checks under vitest.
 
 import { timingSafeEqual } from './security.ts';
+import { EXTENDED_ATTRIBUTE_BASE } from './_generated/shopify-extended-attributes.ts';
 
 export const API_VERSION = '2026-10';
 
@@ -712,33 +713,50 @@ export interface CategoryDetail {
   values: { id: string; name: string }[];
 }
 
-/** The details a category has: its choice attributes that have a standard metafield. */
+/**
+ * The details a category has: its choice attributes that have a standard metafield, in the
+ * attributes' order. A template of the same name is the attribute's own. An extended one (a
+ * category's own copy of a base attribute under another name: Handbags' "Bag/Case closure",
+ * Watches' "Band color", "Case color" and "Dial color") follows its base attribute, whose values
+ * it takes, named as the template is: the API lists the attribute only by its base name, so the
+ * link is Shopify's taxonomy data (EXTENDED_ATTRIBUTE_BASE).
+ */
 // deno-lint-ignore no-explicit-any
 export function categoryDetails(attributes: any[], templates: any[]): CategoryDetail[] {
-  const keyOf = new Map<string, string>();
+  const own = new Map<string, { key: string; name: string }>();
+  const extended = new Map<string, { key: string; name: string }[]>();
   for (const t of templates ?? []) {
     if (
-      t?.namespace === 'shopify' &&
-      t?.type?.name === 'list.metaobject_reference' &&
-      typeof t.key === 'string' &&
-      typeof t.name === 'string'
+      t?.namespace !== 'shopify' ||
+      t?.type?.name !== 'list.metaobject_reference' ||
+      typeof t.key !== 'string' ||
+      typeof t.name !== 'string'
     ) {
-      keyOf.set(t.name.toLowerCase(), t.key);
+      continue;
+    }
+    const base = EXTENDED_ATTRIBUTE_BASE[t.key];
+    if (base) extended.set(base, [...(extended.get(base) ?? []), { key: t.key, name: t.name }]);
+    else own.set(t.name.toLowerCase(), { key: t.key, name: t.name });
+  }
+  const out: CategoryDetail[] = [];
+  const used = new Set<string>();
+  for (const a of attributes ?? []) {
+    if (typeof a?.name !== 'string' || !Array.isArray(a?.values?.nodes)) continue;
+    const values = a.values.nodes
+      .filter((v: { id?: unknown }) => typeof v?.id === 'string')
+      .map((v: { id: string; name?: unknown }) => ({ id: v.id, name: String(v.name ?? '') }));
+    const mine = own.get(a.name.toLowerCase());
+    const pairs = [
+      ...(mine ? [{ key: mine.key, name: a.name as string }] : []),
+      ...(typeof a.id === 'string' ? (extended.get(a.id) ?? []) : []),
+    ];
+    for (const t of pairs) {
+      if (used.has(t.key)) continue;
+      used.add(t.key);
+      out.push({ key: t.key, name: t.name, values });
     }
   }
-  return (attributes ?? []).flatMap((a) => {
-    const key = typeof a?.name === 'string' ? keyOf.get(a.name.toLowerCase()) : undefined;
-    if (!key || !Array.isArray(a?.values?.nodes)) return [];
-    return [
-      {
-        key,
-        name: a.name as string,
-        values: a.values.nodes
-          .filter((v: { id?: unknown }) => typeof v?.id === 'string')
-          .map((v: { id: string; name?: unknown }) => ({ id: v.id, name: String(v.name ?? '') })),
-      },
-    ];
-  });
+  return out;
 }
 
 /** Solid, the pattern a plain colour's entry carries (`pattern_taxonomy_reference`). */
