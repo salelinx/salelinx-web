@@ -9,8 +9,10 @@ export const API_VERSION = '2026-10';
 
 // What a store is asked to approve. Adding one later makes every linked store
 // approve again, so ask for what crosslisting and the sync need up front.
-// write_publications (2026-11-13) puts a product on the store's sales channels.
-export const SCOPES = 'write_products,write_inventory,read_locations,write_publications';
+// write_publications (2026-11-13) puts a product on the store's sales channels; the metaobject
+// scopes (2026-11-13) fill in its category details (DETAILS_SCOPES).
+export const SCOPES =
+  'write_products,write_inventory,read_locations,write_publications,write_metaobjects,write_metaobject_definitions';
 
 /** The permission to read and set a product's sales channels. A store linked before it was asked
  *  for hasn't granted it until it approves again, and a query naming a channel field would then
@@ -20,6 +22,14 @@ export const PUBLISH_SCOPE = 'write_publications';
 /** Whether the scopes a store granted (Shopify's comma list) include `wanted`. */
 export const granted = (scope: string | null | undefined, wanted: string): boolean =>
   (scope ?? '').split(',').some((s) => s.trim() === wanted);
+
+/** The permissions to fill in a product's category details: each value is a metaobject entry the
+ *  store holds, of one of Shopify's standard definitions, which may need turning on first. As
+ *  with PUBLISH_SCOPE, nothing names a metaobject field until a store has granted both. */
+export const DETAILS_SCOPES = ['write_metaobjects', 'write_metaobject_definitions'];
+
+export const canSetDetails = (scope: string | null | undefined): boolean =>
+  DETAILS_SCOPES.every((s) => granted(scope, s));
 
 /** What SaleLinx asks for that the store hasn't granted: added since it linked. */
 export const missingScopes = (scope: string | null | undefined): string[] =>
@@ -405,6 +415,9 @@ export interface ProductFields {
   /** The sales channels (publications) the product is on, or null when the store hasn't granted
    *  PUBLISH_SCOPE, so they weren't read. */
   channels: string[] | null;
+  /** The category details set, as the standard taxonomy values each holds, by metafield key
+   *  (`fabric`: [Cotton's TaxonomyValue id]); null when the store hasn't granted DETAILS_SCOPES. */
+  categoryDetails: Record<string, string[]> | null;
 }
 
 /** A change to ProductFields: the editor's save or a new product. Collections and channels are
@@ -430,6 +443,8 @@ export interface FieldsEdit {
   handle?: string;
   options?: { name: string; value: string }[];
   channels?: string[];
+  /** Category details to set, each key's whole list of taxonomy values; an empty list clears it. */
+  categoryDetails?: Record<string, string[]>;
 }
 
 /** The editor's changes to a product, checked. Price and quantity are the one variant's, as are
@@ -448,10 +463,19 @@ export interface ProductEdit extends FieldsEdit {
 
 const MAX_TAGS = 250;
 const CATEGORY_GID = /^gid:\/\/shopify\/TaxonomyCategory\/[a-z]{2}(-\d+)*$/;
+
+export const isCategoryGid = (v: unknown): v is string =>
+  typeof v === 'string' && CATEGORY_GID.test(v);
 const COLLECTION_GID = /^gid:\/\/shopify\/Collection\/\d{1,20}$/;
 const PUBLICATION_GID = /^gid:\/\/shopify\/Publication\/\d{1,20}$/;
 /** More sales channels than any store has. */
 const MAX_CHANNELS = 50;
+const TAXONOMY_VALUE_GID = /^gid:\/\/shopify\/TaxonomyValue\/\d{1,20}$/;
+/** A standard category metafield's key: `fabric`, `color-pattern`. */
+const DETAIL_KEY = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+/** More details than any category has, and more values than any detail needs. */
+const MAX_DETAILS = 60;
+const MAX_DETAIL_VALUES = 50;
 
 /** A FieldsEdit from what the extension sent, onto `out`; `bad` names a field that's wrong. */
 function readFieldsEdit(
@@ -553,6 +577,26 @@ function readFieldsEdit(
     }
     out.channels = [...new Set(ids as string[])];
   }
+  if (c.categoryDetails !== undefined) {
+    const d = c.categoryDetails;
+    if (!d || typeof d !== 'object' || Array.isArray(d)) throw bad('categoryDetails');
+    const entries = Object.entries(d as Record<string, unknown>);
+    if (entries.length > MAX_DETAILS) throw bad('categoryDetails');
+    const details: Record<string, string[]> = {};
+    for (const [key, ids] of entries) {
+      if (
+        key.length > 64 ||
+        !DETAIL_KEY.test(key) ||
+        !Array.isArray(ids) ||
+        ids.length > MAX_DETAIL_VALUES ||
+        !ids.every((id) => typeof id === 'string' && TAXONOMY_VALUE_GID.test(id))
+      ) {
+        throw bad('categoryDetails');
+      }
+      details[key] = [...new Set(ids as string[])];
+    }
+    out.categoryDetails = details;
+  }
   if (c.options !== undefined) {
     const list = c.options;
     if (
@@ -650,6 +694,119 @@ export function channelMoves(
     publish: wanted.filter((id) => !current.includes(id)),
     unpublish: current.filter((id) => !wanted.includes(id)),
   };
+}
+
+// ── Category details ─────────────────────────────────────────────────────────
+// Shopify's category metafields: each detail of a category (Fabric, Neckline) is a standard
+// product metafield `shopify.<key>` of type list.metaobject_reference, holding entries of the
+// standard metaobject definition `shopify--<key>`, each tied to a taxonomy value. The key isn't
+// the attribute's name (Color is `color-pattern`), so it comes from the category's standard
+// metafield templates, matched by name; Pattern has no template of its own, as it lives in the
+// colour entries. Docs: SHOPIFY.md "Category details".
+
+export interface CategoryDetail {
+  /** The metafield key, in namespace `shopify`. */
+  key: string;
+  /** The attribute's name, as Shopify's page shows it ("Sleeve length type"). */
+  name: string;
+  values: { id: string; name: string }[];
+}
+
+/** The details a category has: its choice attributes that have a standard metafield. */
+// deno-lint-ignore no-explicit-any
+export function categoryDetails(attributes: any[], templates: any[]): CategoryDetail[] {
+  const keyOf = new Map<string, string>();
+  for (const t of templates ?? []) {
+    if (
+      t?.namespace === 'shopify' &&
+      t?.type?.name === 'list.metaobject_reference' &&
+      typeof t.key === 'string' &&
+      typeof t.name === 'string'
+    ) {
+      keyOf.set(t.name.toLowerCase(), t.key);
+    }
+  }
+  return (attributes ?? []).flatMap((a) => {
+    const key = typeof a?.name === 'string' ? keyOf.get(a.name.toLowerCase()) : undefined;
+    if (!key || !Array.isArray(a?.values?.nodes)) return [];
+    return [
+      {
+        key,
+        name: a.name as string,
+        values: a.values.nodes
+          .filter((v: { id?: unknown }) => typeof v?.id === 'string')
+          .map((v: { id: string; name?: unknown }) => ({ id: v.id, name: String(v.name ?? '') })),
+      },
+    ];
+  });
+}
+
+/** Solid, the pattern a plain colour's entry carries (`pattern_taxonomy_reference`). */
+export const SOLID_PATTERN = 'gid://shopify/TaxonomyValue/2874';
+
+/** A field holding taxonomy values: one GID, or a JSON list of them. */
+function taxonomyIds(value: unknown): string[] {
+  if (typeof value !== 'string' || !value) return [];
+  if (!value.startsWith('[')) return [value];
+  try {
+    const list = JSON.parse(value);
+    return Array.isArray(list) ? list.filter((v) => typeof v === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+/** The taxonomy values an entry stands for: its `taxonomy_reference`, or a colour's
+ *  `color_taxonomy_reference`. The pattern is how it looks, not what it is. */
+export function entryValues(fields: { key?: unknown; value?: unknown }[] | undefined): string[] {
+  return (fields ?? []).flatMap((f) =>
+    f?.key === 'taxonomy_reference' || f?.key === 'color_taxonomy_reference'
+      ? taxonomyIds(f.value)
+      : [],
+  );
+}
+
+/** What each detail set on a product holds: its entries by the one taxonomy value each stands
+ *  for, and the others (made by hand in Shopify, or several colours in one), kept on a save. */
+export type DetailEntries = Record<string, { byValue: Record<string, string>; other: string[] }>;
+
+/** The product's category details from its `shopify` metafields (DETAIL_FIELDS). */
+// deno-lint-ignore no-explicit-any
+export function detailEntries(nodes: any[]): DetailEntries {
+  const out: DetailEntries = {};
+  for (const m of nodes ?? []) {
+    if (m?.type !== 'list.metaobject_reference' || typeof m.key !== 'string') continue;
+    const d = (out[m.key] = { byValue: {} as Record<string, string>, other: [] as string[] });
+    for (const e of m.references?.nodes ?? []) {
+      if (typeof e?.id !== 'string') continue;
+      const values = entryValues(e.fields);
+      if (values.length === 1 && !d.byValue[values[0]]) d.byValue[values[0]] = e.id;
+      else d.other.push(e.id);
+    }
+  }
+  return out;
+}
+
+/** A new entry's fields for one taxonomy value, as the definition takes them: its label, its
+ *  value, and for a colour a solid pattern. Each reference is a list or one, as defined. Null
+ *  when the definition has no field to hold the value. */
+export function entryFields(
+  definition: { key: string; type?: { name?: string } }[],
+  value: { id: string; name: string },
+): { key: string; value: string }[] | null {
+  const field = (key: string) => definition.find((f) => f.key === key);
+  const ref = (key: string, id: string) => {
+    const f = field(key);
+    if (!f) return [];
+    return [{ key, value: f.type?.name?.startsWith('list.') ? JSON.stringify([id]) : id }];
+  };
+  const refs = [...ref('taxonomy_reference', value.id), ...ref('color_taxonomy_reference', value.id)];
+  if (!refs.length) return null;
+  return [
+    ...(field('label') ? [{ key: 'label', value: value.name }] : []),
+    ...refs,
+    ...(field('color_taxonomy_reference') ? ref('pattern_taxonomy_reference', SOLID_PATTERN) : []),
+  ];
 }
 
 export interface SalesChannel {
@@ -1002,6 +1159,8 @@ export interface ProductDetail {
   /** The rest of the product page, for the editor. The variant's fields are its defaults when the
    *  read names no variant. */
   fields: ProductFields;
+  /** The entries behind `fields.categoryDetails`, for the save to reuse and keep; null unread. */
+  detailEntries: DetailEntries | null;
 }
 
 const num = (v: unknown): number | null => {
@@ -1051,6 +1210,15 @@ export function productFields(p: any, v: any): ProductFields {
       ? (p.resourcePublicationsV2.nodes ?? [])
           .map((n: { publication?: { id?: unknown } }) => n?.publication?.id)
           .filter((id: unknown): id is string => typeof id === 'string')
+      : null,
+    // Only read with DETAILS_SCOPES granted.
+    categoryDetails: p.categoryMetafields
+      ? Object.fromEntries(
+          Object.entries(detailEntries(p.categoryMetafields.nodes)).map(([key, d]) => [
+            key,
+            Object.keys(d.byValue),
+          ]),
+        )
       : null,
   };
 }
@@ -1107,6 +1275,7 @@ export function productDetail(shop: string, p: any, named?: any): ProductDetail 
     tags: Array.isArray(p.tags) ? p.tags.filter((t: unknown) => typeof t === 'string') : [],
     options: variant?.options ?? [],
     fields: productFields(p, chosen),
+    detailEntries: p.categoryMetafields ? detailEntries(p.categoryMetafields.nodes) : null,
   };
 }
 
