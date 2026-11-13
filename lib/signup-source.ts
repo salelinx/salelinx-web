@@ -30,6 +30,7 @@ const REFERRERS: [RegExp, string][] = [
   [/(^|\.)google\.[a-z.]+$/, 'google'],
   [/(^|\.)bing\.com$/, 'bing'],
   [/(^|\.)duckduckgo\.com$/, 'duckduckgo'],
+  [/(^|\.)yahoo\.com$/, 'yahoo'],
   [/(^|\.)(instagram\.com|l\.instagram\.com)$/, 'instagram'],
   [/(^|\.)tiktok\.com$/, 'tiktok'],
   [/(^|\.)(youtube\.com|youtu\.be)$/, 'youtube'],
