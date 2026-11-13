@@ -600,6 +600,7 @@ export function openOrdersFromResponse(body) {
       const total = money(o.Total);
       return {
         shippedAt: o.ShippedTime ?? null,
+        cancelPending: o.CancelStatus === 'CancelPending',
         tracking: tracking(o),
         orderId: String(o.OrderID),
         paidAt: o.PaidTime,

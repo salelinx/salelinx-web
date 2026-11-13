@@ -648,6 +648,7 @@ const ORDERS = `<?xml version="1.0" encoding="UTF-8"?>
     <Order>
       <OrderID>12-34567-00003</OrderID>
       <PaidTime>2026-11-08T09:00:00.000Z</PaidTime>
+      <CancelStatus>CancelPending</CancelStatus>
       <ShippedTime>2026-11-09T09:00:00.000Z</ShippedTime>
       <Total currencyID="GBP">12.00</Total>
       <TransactionArray>
@@ -682,6 +683,7 @@ Deno.test('GetOrders keeps paid orders not yet posted, and labelled ones until d
   assertEquals(openOrdersFromResponse(parseTrading('GetOrders', ORDERS)), [
     {
       shippedAt: null,
+      cancelPending: false,
       tracking: null,
       orderId: '12-34567-89012',
       paidAt: '2026-11-04T09:00:00.000Z',
@@ -695,6 +697,7 @@ Deno.test('GetOrders keeps paid orders not yet posted, and labelled ones until d
     },
     {
       shippedAt: '2026-11-09T09:00:00.000Z',
+      cancelPending: true,
       tracking: 'RM123GB',
       orderId: '12-34567-00003',
       paidAt: '2026-11-08T09:00:00.000Z',
