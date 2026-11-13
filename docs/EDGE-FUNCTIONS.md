@@ -698,16 +698,30 @@ code=<code>` and nothing else.
 - **Category details** (2026-11-13, scopes `write_metaobjects` and `write_metaobject_definitions`,
   `DETAILS_SCOPES`). Shopify's category metafields: each detail of a category (Fabric, Neckline)
   is the standard product metafield `shopify.<key>` (`list.metaobject_reference`), holding
-  entries of the standard metaobject definition `shopify--<key>`, each tied to a taxonomy value.
+  entries of a standard metaobject definition, each tied to a taxonomy value.
   `categoryDetails { categoryId }` reads the category's choice attributes with every value and
   its constrained standard metafield templates in one query (about 130 points) and keys each
   attribute by the template of the same name (`categoryDetails()`): the key isn't the
   attribute's name (Color is `color-pattern`), and Pattern has no template, as it lives in the
-  colour entries. `product` answers `fields.categoryDetails` (key to taxonomy value ids, read
+  colour entries.
+  - **Extended attributes.** Some categories have their own copy of a base attribute under
+    another name: Handbags' "Bag/Case closure" is "Bag closure", Watches' "Band color", "Case
+    color" and "Dial color" are "Color" (314 in taxonomy 2026-10, 15 in Apparel & Accessories).
+    The API lists the attribute once, by its base name, while the category's templates carry the
+    extended name and key, so a name match missed them: Watches had no colour at all. The link is
+    Shopify's taxonomy data, generated into `_shared/_generated/shopify-extended-attributes.ts`
+    (`EXTENDED_ATTRIBUTE_BASE`, key to base attribute id) by
+    `scripts/build-shopify-extended-attributes.mjs` from the taxonomy release matching the API
+    version; run it again when the function moves to a newer one. Each such template follows its
+    base attribute, with its values and the template's own name.
+  `product` answers `fields.categoryDetails` (key to taxonomy value ids, read
   from the product's `shopify` metafields and their entries, `detailEntries()`); `updateProduct`
   and `createProduct` take the same, each key's whole list. `setCategoryDetails` turns on the
-  standard entry type and metafield the first time a store uses a detail
-  (`standardMetaobjectDefinitionEnable`, `standardMetafieldDefinitionEnable`), reuses the
+  standard metafield the first time a store uses a detail (`standardMetafieldDefinitionEnable`;
+  if Shopify wants the entry type on first, `standardMetaobjectDefinitionEnable` of
+  `shopify--<key>` and again) and takes the entry type the metafield's definition names
+  (`metaobject_definition_id`), never one guessed from the key, as an extended detail may hold
+  another type's entries (`detailDefinition`). It reuses the
   product's entry or the store's entry for that one value, else creates one (`entryFields`: a
   label and `taxonomy_reference`; a colour's `color_taxonomy_reference` with the Solid pattern,
   or Shopify refuses it), keeps entries that aren't one standard value (made by hand), and sets
