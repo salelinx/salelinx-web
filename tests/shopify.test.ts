@@ -8,6 +8,8 @@ import { describe, expect, it } from 'vitest';
 const {
   PUBLISH_SCOPE,
   SCOPES,
+  appAdminUrl,
+  missingScopes,
   authorizeUrl,
   channelMoves,
   collectionMoves,
@@ -931,6 +933,14 @@ describe('sales channels', () => {
     expect(granted('write_products, write_publications', PUBLISH_SCOPE)).toBe(true);
     expect(granted('write_products,read_publications', PUBLISH_SCOPE)).toBe(false);
     expect(granted(null, PUBLISH_SCOPE)).toBe(false);
+  });
+
+  it('names what a store linked before has yet to approve, and where it approves it', () => {
+    expect(missingScopes('write_products,write_inventory,read_locations')).toEqual([
+      PUBLISH_SCOPE,
+    ]);
+    expect(missingScopes(SCOPES)).toEqual([]);
+    expect(appAdminUrl('a.myshopify.com', 'cid')).toBe('https://a.myshopify.com/admin/apps/cid');
   });
 
   it("names each channel by its app, the Online Store by its handle, and skips API tokens' storefronts", () => {

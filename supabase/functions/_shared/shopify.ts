@@ -21,6 +21,16 @@ export const PUBLISH_SCOPE = 'write_publications';
 export const granted = (scope: string | null | undefined, wanted: string): boolean =>
   (scope ?? '').split(',').some((s) => s.trim() === wanted);
 
+/** What SaleLinx asks for that the store hasn't granted: added since it linked. */
+export const missingScopes = (scope: string | null | undefined): string[] =>
+  SCOPES.split(',').filter((s) => !granted(scope, s));
+
+/** The store's page for the app in its admin. Opening it sends the store to the App URL, which
+ *  links again and shows Shopify's approval screen for anything not granted yet. Not an install,
+ *  which may only start from the App Store listing. */
+export const appAdminUrl = (shop: string, clientId: string): string =>
+  `https://${shop}/admin/apps/${clientId}`;
+
 // Shopify's own rule for a store's permanent address.
 const SHOP_RE = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/;
 
@@ -29,6 +39,9 @@ const SHOP_RE = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/;
 const MAX_AGE_SECONDS = 5 * 60;
 
 export class ShopifyError extends Error {
+  /** More for the extension, sent beside `error` and `code` (a `reauth`'s `appUrl`). */
+  details?: Record<string, unknown>;
+
   constructor(
     message: string,
     public code: string,
