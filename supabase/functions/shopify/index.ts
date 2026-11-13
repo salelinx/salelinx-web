@@ -15,7 +15,10 @@
 //                query: that redirect's params (code, shop, state, timestamp,
 //                hmac). The extension checks state; this checks the signature.
 //   unlink  {}          -> { ok }
-//   account {}          -> { shopName, shopDomain, currency }
+//   account {}          -> { shopName, shopDomain, currency, missingScopes, appUrl }
+//                missingScopes: what SaleLinx asks for that the store hasn't granted;
+//                appUrl: the app's page in the store's admin, where it approves SaleLinx
+//                again (a 'reauth' error carries it too)
 //   setStatus { productId, status } -> { status, totalInventory, tracksInventory }
 //                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide. Made
 //                ACTIVE on no sales channel, the product goes on the Online Store
@@ -91,7 +94,9 @@ import {
   type SalesChannel,
   ShopifyError,
   adminGraphql,
+  appAdminUrl,
   authorizeUrl,
+  missingScopes,
   channelMoves,
   collectionMoves,
   granted,
@@ -320,6 +325,42 @@ async function link(admin, userScoped, userId: string, query) {
     shopDomain: me.myshopifyDomain ?? shop,
     currency: me.currencyCode ?? null,
   };
+}
+
+/**
+ * The linked store, as the extension's connection check reads it: its name, what SaleLinx asks
+ * for that it hasn't granted (missingScopes) and its page for the app in its admin (appUrl),
+ * where the seller approves SaleLinx again. A `reauth` carries the same appUrl: Shopify refused
+ * the token (the refresh token lapsed, say), and opening the app links again. `not_linked` (an
+ * uninstall deleted the tokens) carries none: the app is gone from the store.
+ */
+async function account(admin, userId: string) {
+  let shop: string | null = null;
+  try {
+    const auth = await accessTokenFor(admin, userId);
+    shop = auth.shop;
+    const { shop: me } = await adminGraphql(auth.shop, auth.token, SHOP_QUERY);
+    return {
+      shopName: me.name ?? null,
+      shopDomain: me.myshopifyDomain ?? auth.shop,
+      currency: me.currencyCode ?? null,
+      missingScopes: missingScopes(auth.scope),
+      appUrl: appAdminUrl(auth.shop, env('SHOPIFY_CLIENT_ID')),
+    };
+  } catch (err) {
+    if (err instanceof ShopifyError && err.code === 'reauth') {
+      if (!shop) {
+        const { data } = await admin
+          .from('shopify_tokens')
+          .select('shop_domain')
+          .eq('user_id', userId)
+          .maybeSingle();
+        shop = data?.shop_domain ?? null;
+      }
+      if (shop) err.details = { appUrl: appAdminUrl(shop, env('SHOPIFY_CLIENT_ID')) };
+    }
+    throw err;
+  }
 }
 
 // ── Listings ───────────────────────────────────────────────────────────────
@@ -1201,15 +1242,8 @@ Deno.serve(async (req: Request) => {
         return json(200, { ok: true });
       }
 
-      case 'account': {
-        const auth = await accessTokenFor(admin, user.id);
-        const { shop: me } = await adminGraphql(auth.shop, auth.token, SHOP_QUERY);
-        return json(200, {
-          shopName: me.name ?? null,
-          shopDomain: me.myshopifyDomain ?? auth.shop,
-          currency: me.currencyCode ?? null,
-        });
-      }
+      case 'account':
+        return json(200, await account(admin, user.id));
 
       case 'listings':
         return json(200, await listings(admin, user.id, body.cursor));
@@ -1269,7 +1303,7 @@ Deno.serve(async (req: Request) => {
   } catch (err) {
     if (err instanceof ShopifyError) {
       console.warn(`[shopify] user=${user.id} action=${body?.action} code=${err.code}`);
-      return json(err.status, { error: err.message, code: err.code });
+      return json(err.status, { ...err.details, error: err.message, code: err.code });
     }
     console.error(
       `[shopify] user=${user.id} action=${body?.action}`,

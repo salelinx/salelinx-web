@@ -575,6 +575,14 @@ billing, a page in Shopify's admin, final scopes).
   turns it into a new app version to release in the Dev Dashboard. A deploy replaces every setting
   with the file's, so change the file, never only the dashboard, and re-link first if the
   dashboard was edited.
+- **Approving again.** A store grants only what it approved at link, and with the legacy install
+  flow Shopify never asks it about a scope added later: that is the app's job. `account` answers
+  `missingScopes` (`SCOPES` less the stored `shopify_tokens.scope`) and `appUrl`
+  (`appAdminUrl`: `https://<store>/admin/apps/<client id>`), and a `reauth` error carries `appUrl`
+  too (`ShopifyError.details`, sent beside `error` and `code`). The extension's popup opens that
+  page; opening the app sends the store to the App URL, the link runs again, Shopify shows its
+  approval screen for what is new, and `link` stores the new scope (`../salelinx-app/docs/technical/SHOPIFY.md`
+  "When the store must approve again").
 - **Linking.** There is no store-address box (Shopify's App Store rule 2.3.1), so the store comes
   from Shopify. The seller opens the install link in the extension's popup and Shopify sends the
   popup to the App URL with `shop`, `host`, `timestamp` and `hmac`. The extension catches that
