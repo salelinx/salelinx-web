@@ -394,6 +394,9 @@ The same body may carry `crashes` (014) and `actions` (051): per-day counts of
 each panel action and finished job as ok, failed or empty, forwarded to
 `record_action_health(jsonb)` and read on `/admin/health` under Feature actions.
 
+`npm run test:telemetry` runs the whole path on a local Supabase in Docker (login gate,
+validation, admin read, prune) before a migration or deploy goes live.
+
 Caps: 500 entries and 1,500 actions per batch, 512KB body, 100,000 per individual counter. The
 per-counter cap matters - without it a single client could claim millions of
 calls and dominate the cross-user aggregate on its own.
