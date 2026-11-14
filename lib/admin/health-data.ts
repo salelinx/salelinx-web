@@ -5,6 +5,11 @@ import type {
   CrashHealthRow,
 } from "@/components/admin/health/AdminHealthTable";
 import { rollUpFeatures } from "@/lib/admin/feature-status";
+import {
+  rollUpActions,
+  type ActionHealthRaw,
+  type ActionHealthRow,
+} from "@/lib/admin/action-health";
 import { loadRecentSelfTestSignals } from "@/lib/admin/selftest-data";
 import type { OverrideRow } from "@/components/admin/health/StatusOverrideControls";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
@@ -83,25 +88,33 @@ export async function loadHealthRows(windowHours = 24): Promise<{
   deliveries: ReportDeliveryRow[];
   lastReportAt: string | null;
   crashes: CrashHealthRow[];
+  actions: ActionHealthRow[];
 }> {
   const supabase = await createServerClient();
 
   // Independent reads, so they resolve together.
-  const [healthRes, deliveryRes, overrideRes, crashRes, selfTestSignals] =
-    await Promise.all([
-      supabase.rpc("admin_endpoint_health", {
-        p_window_hours: windowHours,
-        p_baseline_hours: 168,
-      }),
-      supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
-      supabase.rpc("admin_list_status_overrides"),
-      // Extension crash buckets (014_crash_health.sql). 7-day window like deliveries:
-      // "did the new build start throwing" needs a few days of context.
-      supabase.rpc("admin_crash_health", { p_window_hours: 168 }),
-      // Fresh self-test results, folded into the feature rollup below with
-      // escalate-never-clear rules (see feature-status.ts).
-      loadRecentSelfTestSignals(),
-    ]);
+  const [
+    healthRes,
+    deliveryRes,
+    overrideRes,
+    crashRes,
+    actionRes,
+    selfTestSignals,
+  ] = await Promise.all([
+    supabase.rpc("admin_endpoint_health", {
+      p_window_hours: windowHours,
+      p_baseline_hours: 168,
+    }),
+    supabase.rpc("admin_endpoint_health_reports", { p_hours: 168 }),
+    supabase.rpc("admin_list_status_overrides"),
+    // Extension crash buckets (014_crash_health.sql). 7-day window like deliveries:
+    // "did the new build start throwing" needs a few days of context.
+    supabase.rpc("admin_crash_health", { p_window_hours: 168 }),
+    supabase.rpc("admin_action_health", { p_window_hours: 168 }),
+    // Fresh self-test results, folded into the feature rollup below with
+    // escalate-never-clear rules (see feature-status.ts).
+    loadRecentSelfTestSignals(),
+  ]);
 
   // Manual status set on the public page (011_status_overrides.sql). Empty is the normal
   // state - a row here means someone deliberately overrode telemetry.
@@ -110,6 +123,9 @@ export async function loadHealthRows(windowHours = 24): Promise<{
   const { data, error } = healthRes;
   const deliveries = (deliveryRes.data as ReportDeliveryRow[] | null) ?? [];
   const crashes = (crashRes.data as CrashHealthRow[] | null) ?? [];
+  const actions = rollUpActions(
+    (actionRes.data as ActionHealthRaw[] | null) ?? [],
+  );
   // Rows come back newest-first from the RPC.
   const lastReportAt = deliveries[0]?.bucket_hour ?? null;
 
@@ -129,6 +145,7 @@ export async function loadHealthRows(windowHours = 24): Promise<{
       deliveries,
       lastReportAt,
       crashes,
+      actions,
     };
   }
 
@@ -168,5 +185,6 @@ export async function loadHealthRows(windowHours = 24): Promise<{
     deliveries,
     lastReportAt,
     crashes,
+    actions,
   };
 }

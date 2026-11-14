@@ -26,7 +26,9 @@ const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 // endpoints x 7 outcomes an honest client can produce, so it bounds abuse
 // without ever clipping a real report.
 const MAX_ENTRIES = 500;
-const MAX_BODY_BYTES = 256 * 1024;
+const MAX_BODY_BYTES = 512 * 1024;
+// The extension caps its action counters at 1500.
+const MAX_ACTIONS = 1500;
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -111,10 +113,27 @@ Deno.serve(async (req: Request) => {
       })
     : [];
 
+  // Action counters (051_action_health.sql). Optional like crashes: older builds omit them.
+  const actionsRaw = (payload as { actions?: unknown })?.actions;
+  const actions = Array.isArray(actionsRaw)
+    ? actionsRaw.slice(0, MAX_ACTIONS).map((a) => {
+        const row = a as Record<string, unknown>;
+        return {
+          action: row.action,
+          platform: row.platform,
+          outcome: row.outcome,
+          code: row.code,
+          count: row.count,
+          extension_version: row.extension_version,
+          bucket_hour: row.bucket_hour,
+        };
+      })
+    : [];
+
   // A report with neither side is a no-op, not an error - old builds send
   // {entries: []} on quiet days.
-  if (cleaned.length === 0 && crashes.length === 0) {
-    return json({ inserted: 0, crashesInserted: 0 });
+  if (cleaned.length === 0 && crashes.length === 0 && actions.length === 0) {
+    return json({ inserted: 0, crashesInserted: 0, actionsInserted: 0 });
   }
 
   const admin = createClient(supabaseUrl, serviceRoleKey);
@@ -149,6 +168,16 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+  let actionsInserted = 0;
+  if (actions.length > 0) {
+    const { data: actionData, error: actionErr } = await admin.rpc(
+      "record_action_health",
+      { p_batch: actions },
+    );
+    if (actionErr) console.error("record_action_health failed:", actionErr.message);
+    else actionsInserted = (actionData as number | null) ?? 0;
+  }
+
   // Endpoint ingest failure still 500s as before (the extension keeps its
   // counters and retries) - but only after the crash batch got its chance.
   if (endpointErr) {
@@ -179,5 +208,5 @@ Deno.serve(async (req: Request) => {
     if (logErr) console.error("record_endpoint_health_report failed:", logErr.message);
   }
 
-  return json({ inserted, crashesInserted });
+  return json({ inserted, crashesInserted, actionsInserted });
 });

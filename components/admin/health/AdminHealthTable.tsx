@@ -17,6 +17,7 @@ import type {
   ReportDeliveryRow,
 } from "@/lib/admin/health-data";
 import type { FeatureStatus } from "@/lib/admin/feature-status";
+import type { ActionHealthRow } from "@/lib/admin/action-health";
 import { FeatureStatusGrid } from "@/components/admin/health/FeatureStatusGrid";
 import { AdminSection } from "@/components/admin/AdminSection";
 import { AdminRefreshButton } from "@/components/admin/AdminRefreshButton";
@@ -64,6 +65,7 @@ type Props = {
   features: FeatureStatus[];
   overrides: OverrideRow[];
   crashes: CrashHealthRow[];
+  actions: ActionHealthRow[];
   /** Rendered server-side and passed through, so this client component does
    *  not need the self-test data or a second round trip. */
   selfTestRuns: React.ReactNode;
@@ -108,6 +110,7 @@ export function AdminHealthTable({
   features,
   overrides,
   crashes,
+  actions,
   selfTestRuns,
   selfTestSummary,
 }: Props) {
@@ -436,6 +439,75 @@ export function AdminHealthTable({
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </AdminSection>
+
+        <AdminSection
+          storageKey="health-actions"
+          title="Feature actions"
+          summary={
+            actions.length === 0
+              ? "None reported (7d)"
+              : `${actions.filter((a) => a.regressed).length} worse than last version`
+          }
+        >
+          {actions.length === 0 ? (
+            <p className="px-4 py-6 text-sm text-zinc-500">
+              No action results reported in the last 7 days.
+            </p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Action</th>
+                  <th className="px-4 py-2 font-medium">Version</th>
+                  <th className="px-4 py-2 text-right font-medium">Uses</th>
+                  <th className="px-4 py-2 text-right font-medium">Failed</th>
+                  <th className="px-4 py-2 text-right font-medium">Empty</th>
+                  <th className="px-4 py-2 font-medium">Previous</th>
+                  <th className="px-4 py-2 font-medium">Top code</th>
+                </tr>
+              </thead>
+              <tbody>
+                {actions.map((a) => (
+                  <tr
+                    key={`${a.action}|${a.platform}`}
+                    className={`border-t border-[var(--admin-border)] ${a.regressed ? "bg-red-50" : ""}`}
+                  >
+                    <td className="px-4 py-2 font-mono text-xs">
+                      {a.action}
+                      {a.platform && (
+                        <span className="ml-2 rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] uppercase text-zinc-600">
+                          {a.platform}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-500">
+                      {a.version}
+                    </td>
+                    <td className="px-4 py-2 text-right tabular-nums">
+                      {a.uses.toLocaleString("en-US")}
+                    </td>
+                    <td
+                      className={`px-4 py-2 text-right tabular-nums ${a.failedRate > 0 ? "font-semibold text-red-700" : "text-zinc-500"}`}
+                    >
+                      {formatRate(a.failedRate)}
+                    </td>
+                    <td className="px-4 py-2 text-right tabular-nums text-zinc-500">
+                      {formatRate(a.emptyRate)}
+                    </td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-500">
+                      {a.prevVersion
+                        ? `${a.prevVersion}: ${formatRate(a.prevFailedRate)} / ${formatRate(a.prevEmptyRate)}`
+                        : "-"}
+                    </td>
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-500">
+                      {a.topCode ?? "-"}
                     </td>
                   </tr>
                 ))}

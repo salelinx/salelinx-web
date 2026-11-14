@@ -178,6 +178,13 @@ embed whatever user data was being interpolated when the code threw. Prune
 alongside: `SELECT cron.schedule('prune-crash-health', '29 3 * * *', 'SELECT
 public.prune_crash_health()');`
 
+`action_health` (051_action_health.sql) is the same again: a handler or job name,
+platform, outcome (ok, failed, empty), an error code from a closed vocabulary and
+a count per version and day, so the dashboard can show a feature failing for users
+after a release. Never a message, id or title. Prune alongside:
+`SELECT cron.schedule('prune-action-health', '31 3 * * *', 'SELECT
+public.prune_action_health()');`
+
 ### Endpoint health telemetry is not personal data
 
 `endpoint_health` deliberately has **no `user_id` column**. It stores counters
