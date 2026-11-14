@@ -70,6 +70,7 @@ END;
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.record_action_health(jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.record_action_health(jsonb) TO service_role;
 
 -- 90 days, scheduled alongside the other prune jobs:
 -- SELECT cron.schedule('prune-action-health', '31 3 * * *',
@@ -84,6 +85,7 @@ AS $$
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.prune_action_health() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.prune_action_health() TO service_role;
 
 -- One row per action, platform and version, so a release that broke an action shows as its
 -- newest version failing where the one before did not.
