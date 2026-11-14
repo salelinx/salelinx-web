@@ -12,6 +12,7 @@ import {
   MAX_MESSAGE_CHARS,
   MAX_MESSAGE_PHOTOS,
   memberMessagesQuery,
+  partnerXml,
   replyXml,
   withAnswers,
   withReadState,
@@ -519,4 +520,14 @@ Deno.test('nothing about a message is logged', () => {
     source('./index.ts').match(/case 'conversations':[\s\S]*?case 'shippingServices'/)?.[0] ?? '';
   assertEquals(cases.length > 0, true);
   assertEquals(cases.includes('console.'), false);
+});
+
+Deno.test('a first message to an order buyer needs a subject and no question', () => {
+  const to = { itemId: '111222333', recipientId: 'buyer_jo', subject: 'Black <Bag>' };
+  const xml = partnerXml(to, 'Posted today');
+  assertEquals(xml.includes('<QuestionType>General</QuestionType>'), true);
+  assertEquals(xml.includes('<Subject>Black &lt;Bag&gt;</Subject>'), true);
+  assertEquals(xml.includes('ParentMessageID'), false);
+  assertThrows(() => partnerXml({ ...to, subject: ' ' }, 'hi'), EbayError);
+  assertThrows(() => partnerXml({ ...to, recipientId: '' }, 'hi'), EbayError);
 });
