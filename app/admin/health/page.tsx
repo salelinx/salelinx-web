@@ -36,6 +36,7 @@ export default async function AdminHealthPage() {
     features,
     overrides,
     crashes,
+    actions,
   } = await loadHealthRows(24);
 
   // Independent of the telemetry read: a self-test history is useful even when
@@ -59,6 +60,7 @@ export default async function AdminHealthPage() {
       features={features}
       overrides={overrides}
       crashes={crashes}
+      actions={actions}
       selfTestSummary={
         selfTestRuns.length === 0
           ? "none yet"

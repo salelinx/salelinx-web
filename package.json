@@ -12,6 +12,7 @@
     "build:docs-index": "node scripts/build-docs-index.mjs",
     "indexnow": "node scripts/indexnow.mjs",
     "test": "vitest run",
+    "test:telemetry": "node scripts/test-telemetry-local.mjs",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {

@@ -46,7 +46,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `get-referral-discount`   | false        | Public on purpose: returns the referee coupon's terms (percent/amount, duration), never the coupon id     |
 | `process-referral-rewards` | false       | Daily Cron job POSTs here; gated by the `x-referral-cron-secret` shared-secret header                   |
 | `trial-nudge`             | false        | Daily Cron job POSTs here (`x-trial-nudge-secret`) to email signups with no trial (day 1 and day 4; install help instead when they have no `device_sessions` row, sent regardless of the marketing answer, 049) and send one win-back email after a plan or trial ends, with a per-customer one-use 50% first-month promo code; also serves the HMAC-signed unsubscribe link, which sets `trial_nudges.unsubscribed_at` and `marketing_opt_out` in the user's metadata so `/account` shows the emails as off |
-| `report-telemetry`        | false*       | Extension POSTs anonymous endpoint-health counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
+| `report-telemetry`        | false*       | Extension POSTs anonymous endpoint, crash and action counters once a day; `getUser(jwt)` is a spam gate only, the identity is discarded |
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), Send Offers to watchers through the Negotiation API (`offerEligible`, `sendOffer`, which checks the plan's `auto_offer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
@@ -390,7 +390,14 @@ role. That RPC re-validates every field and silently drops malformed entries
 rather than failing the batch, so one bad row from an old build cannot cost us
 the good rows reported alongside it.
 
-Caps: 500 entries per batch, 256KB body, 100,000 per individual counter. The
+The same body may carry `crashes` (014) and `actions` (051): per-day counts of
+each panel action and finished job as ok, failed or empty, forwarded to
+`record_action_health(jsonb)` and read on `/admin/health` under Feature actions.
+
+`npm run test:telemetry` runs the whole path on a local Supabase in Docker (login gate,
+validation, admin read, prune) before a migration or deploy goes live.
+
+Caps: 500 entries and 1,500 actions per batch, 512KB body, 100,000 per individual counter. The
 per-counter cap matters - without it a single client could claim millions of
 calls and dominate the cross-user aggregate on its own.
 
