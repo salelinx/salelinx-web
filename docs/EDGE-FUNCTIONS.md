@@ -57,7 +57,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 | `ebay-web`                | false*       | The `ebay` function's code for the website's eBay page (`/ebay/connect`), which links eBay with `client: 'web'`; auth by `getUser(jwt)` |
 | `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
-| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
+| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token: the session, and the store's products with each variant's eBay listing), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -618,6 +618,17 @@ billing, a page in Shopify's admin, final scopes).
   (`ebay: { linked, username, reconnect }`; `reconnect` is a link whose tokens are gone), and
   Connect eBay opens the website's eBay page in a new tab ("eBay" above, with `return` and the
   masked `account`), then checks again when the seller comes back to the tab.
+- **The app's product list.** For a store an account holds, the page lists its products (Polaris
+  `s-table`, 20 a page, newest changes first, cursor pages, a title search), a row per variant
+  with its Shopify status, price and stock, and the eBay listing it is linked to. `/app`'s
+  `products` reads them with the store's token (`PAGE_PRODUCTS_QUERY` in
+  `_shared/shopify-app-page.ts`, 20 variants a product, about 460 points) and finds each variant's
+  eBay listing in the account's cloud rows, the way the extension links them
+  (`_shared/link-groups.ts`: a `grp_<anchor>` key, whose anchor counts as a member, or an
+  old-style partner id). A variant's row id is `shopify_<product>_<variant>`. The search keeps
+  only letters, digits, `'` and `-` of each word and asks for `title:<word>*`, so typing can't
+  become a filter. Ids go into PostgREST `in` lists only when they match `SAFE_LISTING_ID`, in
+  chunks of 100. An eBay address is passed on only when it is a listing page on an eBay site.
 - **Taking the store's tokens** (rule 2.3.2: before anything else). `session` uses the stored
   tokens while they work and carry every scope, and otherwise swaps the ID token for new ones
   (`exchangeIdToken`, token exchange with `expiring=1`): on the store's first open, after an

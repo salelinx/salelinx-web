@@ -13,6 +13,11 @@
 //                  account's email, masked; connectUrl, when no account does, is
 //                  where Connect goes; ebay, for a connected store, that
 //                  account's eBay connection ({ linked, username, reconnect }).
+//                  { action: 'products', cursor?, query? } -> { currency,
+//                  products, cursor }: a page of the store's products, newest
+//                  changes first, each variant with the eBay listing it is
+//                  linked to (_shared/shopify-app-page.ts); 'store_not_connected'
+//                  (409) until an account holds the store.
 //                  Errors { error, code }: 'invalid_session'
 //                  (401) when the page should fetch a fresh ID token and retry.
 //   GET  /connect  Connect's address: sends the tab on to the website's
@@ -57,6 +62,19 @@ import {
   sleep,
   tokenColumns,
 } from '../_shared/shopify-tokens.ts';
+import {
+  type EbayRow,
+  type LinkRow,
+  SAFE_LISTING_ID,
+  ebayLookup,
+  ebayPartners,
+} from '../_shared/link-groups.ts';
+import {
+  PAGE_PRODUCTS_QUERY,
+  pageProduct,
+  productSearchQuery,
+  variantRowId,
+} from '../_shared/shopify-app-page.ts';
 
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://www.salelinx.com';
 
@@ -204,6 +222,93 @@ async function session(admin, idToken: string) {
   };
 }
 
+// ── The product list ───────────────────────────────────────────────────────
+
+// Ids per PostgREST filter list, to keep each request's address short.
+const LOOKUP_CHUNK = 100;
+
+/**
+ * Each of these Shopify rows' eBay listing, from the account's cloud rows: the links the extension
+ * made (a crosslist, Link, Create listing), read the way it reads them. A Shopify row has to be
+ * saved to be linked, so only saved rows with a link count.
+ */
+async function linkedEbay(admin, userId: string, rowIds: string[]): Promise<Map<string, EbayRow>> {
+  const wanted = new Set(rowIds);
+  const { data, error } = await admin
+    .from('listings')
+    .select('id, link_id')
+    .eq('user_id', userId)
+    .eq('platform', 'shopify')
+    .not('link_id', 'is', null);
+  if (error) throw new ShopifyError('Listings lookup failed', 'unavailable', 500);
+  const rows: LinkRow[] = (data ?? []).filter((r: LinkRow) => wanted.has(r.id));
+  if (rows.length === 0) return new Map();
+  const { linkIds, ids } = ebayLookup(rows);
+  const ebayRows: EbayRow[] = [];
+  const lists = [
+    ...chunks(linkIds).map((c) => `link_id.in.(${c.join(',')})`),
+    ...chunks(ids).map((c) => `id.in.(${c.join(',')})`),
+  ];
+  for (const filter of lists) {
+    const { data: found, error: ebayErr } = await admin
+      .from('listings')
+      .select('id, link_id, status, url')
+      .eq('user_id', userId)
+      .eq('platform', 'ebay')
+      .or(filter);
+    if (ebayErr) throw new ShopifyError('Listings lookup failed', 'unavailable', 500);
+    ebayRows.push(...(found ?? []));
+  }
+  return ebayPartners(rows, ebayRows);
+}
+
+function chunks(values: string[]): string[][] {
+  const out = [];
+  for (let i = 0; i < values.length; i += LOOKUP_CHUNK) out.push(values.slice(i, i + LOOKUP_CHUNK));
+  return out;
+}
+
+/**
+ * A page of the store's products for the app's page, each variant with its eBay listing. Only for
+ * a store an account holds, as links and eBay belong to the account.
+ */
+async function products(admin, idToken: string, body) {
+  const c = creds();
+  const shop = await verifyIdToken(idToken, c.clientId, c.secret);
+  if (body.cursor != null && (typeof body.cursor !== 'string' || body.cursor.length > 512)) {
+    throw new ShopifyError('Bad cursor', 'bad_request', 400);
+  }
+  const { data: row, error } = await admin
+    .from('shopify_tokens')
+    .select('user_id')
+    .eq('shop_domain', shop)
+    .maybeSingle();
+  if (error) throw new ShopifyError('Token lookup failed', 'unavailable', 500);
+  if (!row?.user_id) {
+    throw new ShopifyError('Connect the store to a SaleLinx account first', 'store_not_connected', 409);
+  }
+  const auth = await accessToken(admin, { column: 'shop_domain', value: shop }, c);
+  const data = await adminGraphql(auth.shop, auth.token, PAGE_PRODUCTS_QUERY, {
+    cursor: body.cursor ?? null,
+    query: productSearchQuery(body.query),
+  });
+  const nodes = data?.products?.nodes ?? [];
+  const rowIds = nodes
+    .flatMap((p) =>
+      (p?.variants?.nodes ?? []).map((v) =>
+        variantRowId(String(p?.legacyResourceId), String(v?.legacyResourceId)),
+      ),
+    )
+    .filter((id) => SAFE_LISTING_ID.test(id));
+  const ebay = await linkedEbay(admin, row.user_id, rowIds);
+  const page = data?.products?.pageInfo;
+  return {
+    currency: data?.shop?.currencyCode ?? null,
+    products: nodes.map((p) => pageProduct(p, ebay)).filter(Boolean),
+    cursor: page?.hasNextPage ? (page.endCursor ?? null) : null,
+  };
+}
+
 async function app(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (req.method !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -215,11 +320,15 @@ async function app(req: Request): Promise<Response> {
   } catch {
     return json(400, { error: 'Invalid JSON', code: 'bad_request' });
   }
-  if (body?.action !== 'session') {
-    return json(400, { error: `Unknown action: ${String(body?.action)}`, code: 'bad_request' });
-  }
   try {
-    return json(200, await session(adminClient(), idToken));
+    switch (body?.action) {
+      case 'session':
+        return json(200, await session(adminClient(), idToken));
+      case 'products':
+        return json(200, await products(adminClient(), idToken, body));
+      default:
+        return json(400, { error: `Unknown action: ${String(body?.action)}`, code: 'bad_request' });
+    }
   } catch (err) {
     if (err instanceof ShopifyError) {
       if (err.code !== 'invalid_session') console.warn(`[shopify-public] app code=${err.code}`);
