@@ -24,7 +24,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 //
 // The ytimg, cdninstagram, fbcdn and tiktokcdn image hosts are the video
 // thumbnails on /admin/marketing, which each platform serves from its own CDN.
-// ytimg and youtube-nocookie are also the intro video on /get-started.
+// ytimg and youtube-nocookie are also the videos on the homepage and /get-started.
 //
 // script-src needs 'unsafe-inline' because the App Router injects inline
 // bootstrap scripts; moving to nonces requires wiring them through proxy.ts.
