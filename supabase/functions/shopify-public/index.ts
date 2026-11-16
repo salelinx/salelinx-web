@@ -62,13 +62,7 @@ import {
   sleep,
   tokenColumns,
 } from '../_shared/shopify-tokens.ts';
-import {
-  type EbayRow,
-  type LinkRow,
-  SAFE_LISTING_ID,
-  ebayLookup,
-  ebayPartners,
-} from '../_shared/link-groups.ts';
+import { SAFE_LISTING_ID, linkedEbayRows } from '../_shared/link-groups.ts';
 import {
   PAGE_PRODUCTS_QUERY,
   pageProduct,
@@ -224,50 +218,6 @@ async function session(admin, idToken: string) {
 
 // ── The product list ───────────────────────────────────────────────────────
 
-// Ids per PostgREST filter list, to keep each request's address short.
-const LOOKUP_CHUNK = 100;
-
-/**
- * Each of these Shopify rows' eBay listing, from the account's cloud rows: the links the extension
- * made (a crosslist, Link, Create listing), read the way it reads them. A Shopify row has to be
- * saved to be linked, so only saved rows with a link count.
- */
-async function linkedEbay(admin, userId: string, rowIds: string[]): Promise<Map<string, EbayRow>> {
-  const wanted = new Set(rowIds);
-  const { data, error } = await admin
-    .from('listings')
-    .select('id, link_id')
-    .eq('user_id', userId)
-    .eq('platform', 'shopify')
-    .not('link_id', 'is', null);
-  if (error) throw new ShopifyError('Listings lookup failed', 'unavailable', 500);
-  const rows: LinkRow[] = (data ?? []).filter((r: LinkRow) => wanted.has(r.id));
-  if (rows.length === 0) return new Map();
-  const { linkIds, ids } = ebayLookup(rows);
-  const ebayRows: EbayRow[] = [];
-  const lists = [
-    ...chunks(linkIds).map((c) => `link_id.in.(${c.join(',')})`),
-    ...chunks(ids).map((c) => `id.in.(${c.join(',')})`),
-  ];
-  for (const filter of lists) {
-    const { data: found, error: ebayErr } = await admin
-      .from('listings')
-      .select('id, link_id, status, url')
-      .eq('user_id', userId)
-      .eq('platform', 'ebay')
-      .or(filter);
-    if (ebayErr) throw new ShopifyError('Listings lookup failed', 'unavailable', 500);
-    ebayRows.push(...(found ?? []));
-  }
-  return ebayPartners(rows, ebayRows);
-}
-
-function chunks(values: string[]): string[][] {
-  const out = [];
-  for (let i = 0; i < values.length; i += LOOKUP_CHUNK) out.push(values.slice(i, i + LOOKUP_CHUNK));
-  return out;
-}
-
 /**
  * A page of the store's products for the app's page, each variant with its eBay listing. Only for
  * a store an account holds, as links and eBay belong to the account.
@@ -300,7 +250,12 @@ async function products(admin, idToken: string, body) {
       ),
     )
     .filter((id) => SAFE_LISTING_ID.test(id));
-  const ebay = await linkedEbay(admin, row.user_id, rowIds);
+  let ebay;
+  try {
+    ebay = await linkedEbayRows(admin, row.user_id, rowIds);
+  } catch {
+    throw new ShopifyError('Listings lookup failed', 'unavailable', 500);
+  }
   const page = data?.products?.pageInfo;
   return {
     currency: data?.shop?.currencyCode ?? null,

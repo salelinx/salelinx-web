@@ -42,6 +42,51 @@ export function ebayLookup(rows: LinkRow[]): { linkIds: string[]; ids: string[] 
   };
 }
 
+// Ids per PostgREST filter list, to keep each request's address short.
+const LOOKUP_CHUNK = 100;
+
+const chunks = (values: string[]): string[][] => {
+  const out: string[][] = [];
+  for (let i = 0; i < values.length; i += LOOKUP_CHUNK) out.push(values.slice(i, i + LOOKUP_CHUNK));
+  return out;
+};
+
+/**
+ * Each of these Shopify rows' eBay listing, from the account's cloud rows (service role, so every
+ * read names the user). A Shopify row has to be saved to be linked, so only saved rows with a link
+ * count. Throws on a failed read: not knowing isn't "not on eBay".
+ */
+// deno-lint-ignore no-explicit-any
+export async function linkedEbayRows(admin: any, userId: string, rowIds: string[]): Promise<Map<string, EbayRow>> {
+  const wanted = new Set(rowIds);
+  const { data, error } = await admin
+    .from('listings')
+    .select('id, link_id')
+    .eq('user_id', userId)
+    .eq('platform', 'shopify')
+    .not('link_id', 'is', null);
+  if (error) throw new Error('Listings lookup failed');
+  const rows: LinkRow[] = (data ?? []).filter((r: LinkRow) => wanted.has(r.id));
+  if (rows.length === 0) return new Map();
+  const { linkIds, ids } = ebayLookup(rows);
+  const ebayRows: EbayRow[] = [];
+  const lists = [
+    ...chunks(linkIds).map((c) => `link_id.in.(${c.join(',')})`),
+    ...chunks(ids).map((c) => `id.in.(${c.join(',')})`),
+  ];
+  for (const filter of lists) {
+    const { data: found, error: ebayErr } = await admin
+      .from('listings')
+      .select('id, link_id, status, url')
+      .eq('user_id', userId)
+      .eq('platform', 'ebay')
+      .or(filter);
+    if (ebayErr) throw new Error('Listings lookup failed');
+    ebayRows.push(...(found ?? []));
+  }
+  return ebayPartners(rows, ebayRows);
+}
+
 /** Each row's eBay listing, from the eBay rows `ebayLookup` named. A live one wins over an ended one. */
 export function ebayPartners(rows: LinkRow[], ebayRows: EbayRow[]): Map<string, EbayRow> {
   const out = new Map<string, EbayRow>();

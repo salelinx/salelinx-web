@@ -56,6 +56,13 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 
 Since migration `016_usage_hour_buckets.sql` the same call also upserts an hour bucket (`YYYY-MM-DDTHH`, UTC, derived from `now()` on the server) for the admin console's hour-resolution usage ranges. The caller-named bucket is still the one caps are enforced against and the one the return value reports; callers cannot name an hour bucket themselves (the shape is rejected). Hour rows are purged after 60 days and sit outside the 2000-row per-user cap. See `docs/ADMIN.md` "Hour buckets".
 
+### `increment_usage_counter_for(user_id, feature, period_key, delta)`
+
+The same counting for a named user, for the server only (`054_increment_usage_for.sql`: only
+`service_role` may run it). The ebay function's `shopifyListing` counts a crosslist with it, as the
+Shopify app's page that asks for one has no SaleLinx login, so no `auth.uid()`. Same checks, hour
+bucket and event row as the call above.
+
 Since migration `017_usage_events.sql` the call also inserts one row into `usage_events` (user, feature, delta, server timestamp), the source for the admin console's trailing-window presets (last 5 minutes to last 72 hours). Rows live 7 days, at most 2000 per user per rolling hour are recorded, and nothing gates on them. See `docs/ADMIN.md` "Usage events".
 
 ## How the two sides use this

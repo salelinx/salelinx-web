@@ -55,7 +55,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), Send Offers to watchers through the Negotiation API (`offerEligible`, `sendOffer`, which checks the plan's `auto_offer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
-| `ebay-web`                | false*       | The `ebay` function's code for the website's eBay page (`/ebay/connect`), which links eBay with `client: 'web'`; auth by `getUser(jwt)` |
+| `ebay-web`                | false*       | The `ebay` function's code for the website: its eBay page (`/ebay/connect`), which links eBay with `client: 'web'` (auth by `getUser(jwt)`), and the Shopify app's page, which lists a store's product on eBay (`shopifyItem`, `shopifyListing`; auth by App Bridge's ID token, see "eBay from Shopify") |
 | `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
 | `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token: the session, and the store's products with each variant's eBay listing), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
@@ -570,6 +570,32 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   keeps its own call rate down (no 5-minute poll for eBay, at most one poll every 15
   minutes), so a burst of `code=quota` warnings in the logs is the sign the limit needs
   raising with eBay.
+- **eBay from Shopify** (`ebay/shopify-listing.ts`). The Shopify app's page in a store's admin
+  lists the store's products on eBay with no extension (App Store rule 1.1.11), calling `ebay-web`
+  with App Bridge's ID token, as it has no SaleLinx login. The handler tells that token from a
+  login by its issuer (`isShopifyIdToken`), checks it (`verifyIdToken`) and acts for the account
+  the store is connected to (`shopify_tokens.user_id`; none is `store_not_connected`), through
+  `SHOPIFY_PAGE_ACTIONS` only (`categories`, `aspects`, `conditions`, `shippingServices`,
+  `shopifyItem`, `shopifyListing`; anything else is 403 `not_allowed`). Never linking: that takes
+  the seller's own login (`/ebay/connect`). Never the plain `add` either: `shopifyListing` reads the
+  variant from the store itself (`SHOPIFY_VARIANT_QUERY`, the store's token), so the page only says
+  which one, and the title, price, quantity, category, condition and specifics it sends.
+  - `shopifyItem` answers the variant, the eBay site and currency, how it will be posted and
+    whether it is already linked to an eBay listing (`linkedEbayRows`, any state; listing again
+    is 409 `already_on_ebay`, as a second couldn't join the link group).
+  - The setup is found as the extension finds it (`create-ebay.ts` `ebayListingSetup`): the setup
+    it saved for the account (`user_settings.preferences.ebayPostage`), else postage, returns and
+    location copied from one of the seller's live eBay listings (the cloud rows, as `add`'s
+    `templateItemId`), else none and the page asks for postage, which is then saved the same way.
+  - `shopifyListing` with `verifyOnly` is the fee check: the store's own photo addresses, and
+    eBay's complaints about them dropped, as the extension's. A real one runs `checkCrosslistAllowed`
+    with the service role (which is why every read there names the user), hosts each photo on eBay
+    from its address (Media API `create_image_from_url`: eBay fetches it, no Trading quota, the
+    CDN asked for 1600px), posts it, then counts it (`increment_usage_counter_for`, `054`) and links
+    it: the eBay row joins the variant's group, or the two start one keyed by the first id, as
+    `joinGroup` would, and the variant's row is written only if it has none (the extension's save
+    fills it in, and never writes `link_id`). Counting, linking and saving postage never fail the
+    answer once the listing is live; `linked` says whether the link was made.
 - **Account deletion.** `ebay-account-deletion` is registered in the eBay developer portal.
   GET answers eBay's challenge with sha256(challenge + `EBAY_DELETION_VERIFICATION_TOKEN` +
   `EBAY_DELETION_ENDPOINT`), so the endpoint secret must match the registered URL exactly.
@@ -629,6 +655,11 @@ billing, a page in Shopify's admin, final scopes).
   only letters, digits, `'` and `-` of each word and asks for `title:<word>*`, so typing can't
   become a filter. Ids go into PostgREST `in` lists only when they match `SAFE_LISTING_ID`, in
   chunks of 100. An eBay address is passed on only when it is a listing page on an eBay site.
+  A row not on eBay has List on eBay when the account's eBay is connected: a form on the page
+  (title, an eBay category suggested from the title or searched, condition, the category's
+  required specifics guessed from the vendor and the variant's options, price, quantity, and
+  postage when there is no setup) whose Check eBay fee must pass before List on eBay unlocks; any
+  change locks it again. See "eBay from Shopify" above.
 - **Taking the store's tokens** (rule 2.3.2: before anything else). `session` uses the stored
   tokens while they work and carry every scope, and otherwise swaps the ID token for new ones
   (`exchangeIdToken`, token exchange with `expiring=1`): on the store's first open, after an

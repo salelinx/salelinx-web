@@ -3,6 +3,23 @@
 
 import type { EbayRow } from './link-groups.ts';
 
+/**
+ * Whether a bearer token is App Bridge's (the app's page) rather than a SaleLinx login, by who
+ * issued it: a store's admin. Only a guess at which check to run; verifyIdToken decides.
+ */
+export function isShopifyIdToken(token: unknown): boolean {
+  if (typeof token !== 'string' || token.length > 4096) return false;
+  const body = token.split('.')[1];
+  if (!body) return false;
+  try {
+    const json = atob(body.replace(/-/g, '+').replace(/_/g, '/'));
+    const iss = JSON.parse(json)?.iss;
+    return typeof iss === 'string' && /^https:\/\/[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com\/admin$/.test(iss);
+  } catch {
+    return false;
+  }
+}
+
 /** Products a page of the list holds. */
 export const PAGE_PRODUCTS = 20;
 

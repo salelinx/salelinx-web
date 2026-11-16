@@ -6,8 +6,10 @@
 // Connect sends the whole tab to the website to pick the account (shopify-public /connect, then
 // /shopify/connect), and Connect eBay opens the website's eBay page in a new tab: a page framed in
 // Shopify's admin can't count on salelinx.com's cookies, so it never signs in here. For a store an
-// account holds, it lists the store's products, each variant with where it is on eBay. Built with
-// Shopify's Polaris web components, so it looks like the rest of the admin.
+// account holds, it lists the store's products, each variant with where it is on eBay, and lists
+// one on eBay from a short form (the ebay-web function's shopifyItem and shopifyListing, which act
+// for the store's account with the page's ID token). Built with Shopify's Polaris web components,
+// so it looks like the rest of the admin.
 //
 // Sets its own headers: next.config.ts leaves /embed/* out of the site-wide DENY, and Shopify
 // wants frame-ancestors naming the store and admin.shopify.com, never a wildcard.
@@ -123,12 +125,68 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
       <s-table-body id="productRows"></s-table-body>
     </s-table>
   </s-section>
+  <s-section id="lister" hidden>
+    <s-stack gap="base">
+      <s-stack direction="inline" gap="base" alignItems="center">
+        <s-thumbnail id="lThumb" size="small"></s-thumbnail>
+        <s-stack gap="none">
+          <s-text id="lName" type="strong"></s-text>
+          <s-text id="lVariant" color="subdued"></s-text>
+        </s-stack>
+      </s-stack>
+      <s-banner id="lProblem" tone="critical" hidden>
+        <s-stack id="lProblemText" gap="small-200"></s-stack>
+      </s-banner>
+      <s-stack id="lLoading" direction="inline" gap="base" alignItems="center">
+        <s-spinner></s-spinner>
+        <s-text id="lLoadingText"></s-text>
+      </s-stack>
+      <s-stack id="lForm" gap="base" hidden>
+        <s-text-field id="lTitle" maxLength="80"></s-text-field>
+        <s-stack direction="inline" gap="base" alignItems="end">
+          <s-text-field id="lCatSearch"></s-text-field>
+          <s-button id="lCatFind"></s-button>
+        </s-stack>
+        <s-select id="lCategory"></s-select>
+        <s-paragraph id="lCatNone" hidden><s-text id="lCatNoneText" color="subdued"></s-text></s-paragraph>
+        <s-select id="lCondition"></s-select>
+        <s-stack id="lSpecifics" gap="base"></s-stack>
+        <s-stack direction="inline" gap="base">
+          <s-number-field id="lPrice" min="0.01" step="0.01"></s-number-field>
+          <s-number-field id="lQuantity" min="1" step="1" inputMode="numeric"></s-number-field>
+        </s-stack>
+        <s-paragraph id="lPriceNote" hidden><s-text id="lPriceNoteText" color="subdued"></s-text></s-paragraph>
+        <s-paragraph><s-text id="lSetupText" color="subdued"></s-text></s-paragraph>
+        <s-stack id="lPostage" gap="base" hidden>
+          <s-select id="lService"></s-select>
+          <s-stack direction="inline" gap="base">
+            <s-number-field id="lCost" min="0" step="0.01"></s-number-field>
+            <s-text-field id="lPostcode" maxLength="20"></s-text-field>
+          </s-stack>
+          <s-select id="lReturns">
+            <s-option id="lReturnsNone" value=""></s-option>
+            <s-option id="lReturns14" value="14"></s-option>
+            <s-option id="lReturns30" value="30"></s-option>
+          </s-select>
+        </s-stack>
+        <s-stack id="lFees" gap="small-200" hidden></s-stack>
+      </s-stack>
+      <s-stack direction="inline" gap="base">
+        <s-button id="lBack"></s-button>
+        <s-button id="lCheck" hidden></s-button>
+        <s-button id="lPost" variant="primary" hidden disabled></s-button>
+      </s-stack>
+    </s-stack>
+  </s-section>
 </s-page>
 <script>
 (() => {
   const S = ${inScript(STRINGS[locale])};
   const LANGUAGE = ${inScript(languageTag)};
   const API = ${inScript(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/shopify-public/app`)};
+  // eBay for the store's account: the ebay function's code under its own name, which the
+  // extension doesn't call.
+  const EBAY_API = ${inScript(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/ebay-web`)};
   // The website's eBay page in the admin's language, on whichever site serves this page.
   const EBAY_PAGE = location.origin + ${inScript(`${localePathPrefix(locale)}/ebay/connect`)};
   const ADMIN_URL = ${inScript(shop ? `https://${shop}/admin/apps/${CLIENT_ID}` : '')};
@@ -169,21 +227,49 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
   $('products').setAttribute('heading', S.productsTitle);
   $('productSearch').setAttribute('label', S.productsSearch);
   $('productSearch').setAttribute('placeholder', S.productsSearch);
+  $('lister').setAttribute('heading', S.listOnEbay);
+  say('lLoadingText', S.lLoading);
+  $('lTitle').setAttribute('label', S.lTitleLabel);
+  $('lCatSearch').setAttribute('label', S.lCatSearch);
+  say('lCatFind', S.lCatFind);
+  $('lCategory').setAttribute('label', S.lCategory);
+  say('lCatNoneText', S.lCategoryNone);
+  $('lCondition').setAttribute('label', S.lCondition);
+  $('lCondition').setAttribute('placeholder', S.lChoose);
+  $('lPrice').setAttribute('label', S.lPrice);
+  $('lQuantity').setAttribute('label', S.lQuantity);
+  $('lService').setAttribute('label', S.lService);
+  $('lService').setAttribute('placeholder', S.lChoose);
+  $('lCost').setAttribute('label', S.lCost);
+  $('lPostcode').setAttribute('label', S.lPostcode);
+  $('lReturns').setAttribute('label', S.lReturns);
+  say('lReturnsNone', S.lReturnsNone);
+  say('lReturns14', S.lReturns14);
+  say('lReturns30', S.lReturns30);
+  say('lBack', S.lBack);
+  say('lCheck', S.lCheck);
+  say('lPost', S.lPost);
 
   // A fresh ID token each call: one lives a minute. invalid_session means it went stale on the
-  // way, so one more try with a new one.
-  async function call(payload, retry = true) {
+  // way, so one more try with a new one. A refusal carries its code and the server's words.
+  async function call(payload, retry = true, url = API) {
     const token = await shopify.idToken();
-    const res = await fetch(API, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
       body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
-    if (res.status === 401 && data.code === 'invalid_session' && retry) return call(payload, false);
-    if (!res.ok) throw new Error(data.code || String(res.status));
+    if (res.status === 401 && data.code === 'invalid_session' && retry) return call(payload, false, url);
+    if (!res.ok) {
+      const err = new Error(data.code || String(res.status));
+      err.code = data.code || '';
+      err.detail = typeof data.error === 'string' ? data.error : '';
+      throw err;
+    }
     return data;
   }
+  const ebayCall = (payload) => call(payload, true, EBAY_API);
 
   let last = null;
   // Set while the eBay tab is open, so coming back to this one checks again.
@@ -278,8 +364,13 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     );
   }
 
-  function ebayCell(v) {
-    if (!v.ebay) return el('s-text', { color: 'subdued' }, S.ebayNotListed);
+  function ebayCell(p, v) {
+    if (!v.ebay) {
+      if (!last || !last.ebay || !last.ebay.linked) return el('s-text', { color: 'subdued' }, S.ebayNotListed);
+      const button = el('s-button', { variant: 'secondary' }, S.listOnEbay);
+      button.addEventListener('click', () => openLister(p, v));
+      return button;
+    }
     const [tone, key] = EBAY[v.ebay.state] || EBAY.ended;
     const cell = el('s-stack', { direction: 'inline', gap: 'small-200', alignItems: 'center' }, el('s-badge', { tone }, S[key]));
     if (v.ebay.url) cell.append(el('s-link', { href: v.ebay.url, target: '_blank' }, S.ebayView));
@@ -299,7 +390,7 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
             el('s-table-cell', {}, el('s-badge', { tone }, key ? S[key] : p.status)),
             el('s-table-cell', {}, money(v.price, data.currency)),
             el('s-table-cell', {}, v.quantity == null ? S.stockUntracked : String(v.quantity)),
-            el('s-table-cell', {}, ebayCell(v)),
+            el('s-table-cell', {}, ebayCell(p, v)),
           ),
         );
       });
@@ -357,6 +448,282 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     }, 400);
   });
   $('productsRetry').addEventListener('click', loadProducts);
+
+  // ── Listing on eBay ───────────────────────────────────────────────────────
+
+  // The variant on the form, as the ebay function read it from the store.
+  let listing = null;
+  let services = null;
+
+  // eBay's refusals worth naming in the seller's words; anything else eBay said is passed on as
+  // it is (eBay's own wording), and the rest is a plain failure.
+  const REFUSALS = {
+    upgrade_required: 'lUpgrade',
+    limit_reached: 'lLimit',
+    already_on_ebay: 'lAlready',
+    postage_needed: 'lPostageNeeded',
+    not_linked: 'lReconnect',
+    reauth: 'lReconnect',
+    photos: 'lPhotos',
+  };
+  function refusalText(err) {
+    if (err && REFUSALS[err.code]) return S[REFUSALS[err.code]];
+    if (err && (err.code === 'ebay' || err.code === 'quota' || err.code === 'bad_request') && err.detail) {
+      return err.detail;
+    }
+    return S.lFailed;
+  }
+
+  function listerProblem(lines) {
+    $('lProblemText').replaceChildren(...lines.map((line) => el('s-text', {}, line)));
+    show('lProblem', lines.length > 0);
+  }
+
+  // A check is for what was on the form then: a change asks for another.
+  function changed() {
+    flag($('lPost'), 'disabled', true);
+    show('lFees', false);
+  }
+  const watch = (node) => {
+    node.addEventListener('input', changed);
+    node.addEventListener('change', changed);
+  };
+  for (const id of ['lTitle', 'lCategory', 'lCondition', 'lPrice', 'lQuantity', 'lService', 'lCost', 'lPostcode', 'lReturns']) {
+    watch($(id));
+  }
+
+  // What the store's own product says for a detail eBay asks about: brand, size, colour, type.
+  function guessFor(aspect, item) {
+    const name = aspect.name.toLowerCase();
+    const option = (...names) => {
+      const hit = item.options.find((o) => names.includes(o.name.toLowerCase()));
+      return hit ? hit.value : null;
+    };
+    let guess = null;
+    if (name === 'brand') guess = item.vendor;
+    else if (name.startsWith('size')) guess = option('size', 'taille', 'talla', 'größe', 'grösse');
+    else if (name === 'colour' || name === 'color' || name === 'main colour' || name === 'main color') {
+      guess = option('color', 'colour', 'couleur', 'farbe', 'color principal');
+    } else if (name === 'type' || name === 'product type') guess = item.productType;
+    else if (name === 'material') guess = option('material', 'matière', 'material principal');
+    if (!guess) return '';
+    if (aspect.freeText) return guess;
+    const hit = aspect.values.find((v) => v.toLowerCase() === String(guess).toLowerCase());
+    return hit || '';
+  }
+
+  async function loadCategory(categoryId) {
+    changed();
+    $('lCondition').replaceChildren();
+    $('lSpecifics').replaceChildren();
+    if (!categoryId) return;
+    let conditions, aspects;
+    try {
+      [conditions, aspects] = await Promise.all([
+        ebayCall({ action: 'conditions', categoryId }),
+        ebayCall({ action: 'aspects', categoryId }),
+      ]);
+    } catch (err) {
+      listerProblem([refusalText(err)]);
+      return;
+    }
+    const list = conditions.conditions || [];
+    for (const c of list) $('lCondition').append(el('s-option', { value: String(c.id) }, c.name));
+    $('lCondition').value = list.length === 1 ? String(list[0].id) : '';
+    for (const a of (aspects.aspects || []).filter((x) => x.required)) {
+      const guess = guessFor(a, listing.item);
+      let field;
+      if (!a.freeText && a.values.length > 0 && a.values.length <= 500) {
+        field = el('s-select', { label: a.name, placeholder: S.lChoose });
+        for (const v of a.values) field.append(el('s-option', { value: v }, v));
+      } else {
+        field = el('s-text-field', { label: a.name, maxLength: '65' });
+      }
+      field.dataset.aspect = a.name;
+      watch(field);
+      $('lSpecifics').append(field);
+      field.value = guess;
+    }
+  }
+
+  async function findCategories(words) {
+    changed();
+    show('lCatNone', false);
+    const select = $('lCategory');
+    select.replaceChildren();
+    let found;
+    try {
+      found = (await ebayCall({ action: 'categories', q: words })).categories || [];
+    } catch (err) {
+      listerProblem([refusalText(err)]);
+      return;
+    }
+    for (const c of found) select.append(el('s-option', { value: c.id }, c.path));
+    show('lCatNone', found.length === 0);
+    select.value = found.length ? found[0].id : '';
+    await loadCategory(found.length ? found[0].id : '');
+  }
+
+  async function showPostage(setup) {
+    show('lPostage', setup.kind === 'none');
+    if (setup.kind === 'saved') say('lSetupText', fill(S.lSetupSaved, { postcode: setup.postcode || '' }));
+    else if (setup.kind === 'template') say('lSetupText', fill(S.lSetupTemplate, { title: setup.templateTitle || '' }));
+    else say('lSetupText', S.lSetupNone);
+    if (setup.kind !== 'none' || services) return;
+    try {
+      services = (await ebayCall({ action: 'shippingServices' })).services || [];
+    } catch (err) {
+      listerProblem([refusalText(err)]);
+      return;
+    }
+    for (const s of services) $('lService').append(el('s-option', { value: s.id }, s.name));
+  }
+
+  function closeLister() {
+    listing = null;
+    show('lister', false);
+    show('products', true);
+  }
+
+  async function openLister(p, v) {
+    show('products', false);
+    show('lister', true);
+    listerProblem([]);
+    show('lForm', false);
+    show('lLoading', true);
+    show('lCheck', false);
+    show('lPost', false);
+    flag($('lPost'), 'disabled', true);
+    show('lFees', false);
+    show('lPriceNote', false);
+    say('lName', p.title);
+    say('lVariant', v.title || '');
+    if (p.image) $('lThumb').setAttribute('src', p.image);
+    else $('lThumb').removeAttribute('src');
+    $('lThumb').setAttribute('alt', p.title);
+    let r;
+    try {
+      r = await ebayCall({ action: 'shopifyItem', productId: p.productId, variantId: v.variantId });
+    } catch (err) {
+      show('lLoading', false);
+      listerProblem([refusalText(err)]);
+      return;
+    }
+    show('lLoading', false);
+    if (r.listed) {
+      listerProblem([S.lAlready]);
+      return;
+    }
+    listing = { item: r.item, currency: r.currency, setup: r.setup };
+    const item = r.item;
+    $('lTitle').value = item.title.slice(0, 80);
+    $('lCatSearch').value = '';
+    $('lPrice').setAttribute('suffix', r.currency);
+    $('lPrice').value = item.price != null ? String(item.price) : '';
+    $('lQuantity').value = String(item.quantity && item.quantity > 0 ? item.quantity : 1);
+    if (item.currency && item.currency !== r.currency && item.price != null) {
+      say('lPriceNoteText', fill(S.lPriceNote, { price: money(item.price, item.currency), currency: r.currency }));
+      show('lPriceNote', true);
+    }
+    show('lForm', true);
+    show('lCheck', true);
+    show('lPost', true);
+    await showPostage(r.setup);
+    await findCategories(item.title);
+  }
+
+  // The form as the ebay function takes it, or null with what is missing said.
+  function formValues() {
+    const specifics = {};
+    let unfilled = false;
+    for (const field of $('lSpecifics').children) {
+      const value = String(field.value || '').trim();
+      if (value) specifics[field.dataset.aspect] = value;
+      else unfilled = true;
+    }
+    const values = {
+      productId: listing.item.productId,
+      variantId: listing.item.variantId,
+      title: String($('lTitle').value || '').trim(),
+      categoryId: String($('lCategory').value || ''),
+      conditionId: String($('lCondition').value || ''),
+      specifics,
+      price: Number($('lPrice').value),
+      quantity: Number($('lQuantity').value),
+    };
+    if (listing.setup.kind === 'none') {
+      values.postage = {
+        service: String($('lService').value || ''),
+        cost: Number($('lCost').value),
+        returnsDays: Number($('lReturns').value) || null,
+      };
+      values.postcode = String($('lPostcode').value || '').trim();
+    }
+    const conditions = $('lCondition').children.length > 0;
+    const postageMissing =
+      listing.setup.kind === 'none' &&
+      (!values.postage.service || !(values.postage.cost >= 0) || $('lCost').value === '' || !values.postcode);
+    if (unfilled || !values.title || !values.categoryId || (conditions && !values.conditionId) || !(values.price > 0) || postageMissing) {
+      listerProblem([S.lMissing]);
+      return null;
+    }
+    return values;
+  }
+
+  $('lCatFind').addEventListener('click', () => {
+    const words = String($('lCatSearch').value || '').trim();
+    if (words.length >= 2) findCategories(words);
+  });
+  $('lCategory').addEventListener('change', (event) => loadCategory(event.currentTarget.value));
+  $('lBack').addEventListener('click', closeLister);
+
+  $('lCheck').addEventListener('click', async () => {
+    if (!listing) return;
+    const values = formValues();
+    if (!values) return;
+    listerProblem([]);
+    flag($('lCheck'), 'loading', true);
+    let verdict;
+    try {
+      verdict = await ebayCall({ action: 'shopifyListing', verifyOnly: true, ...values });
+    } catch (err) {
+      flag($('lCheck'), 'loading', false);
+      listerProblem([refusalText(err)]);
+      return;
+    }
+    flag($('lCheck'), 'loading', false);
+    if (!verdict.ok) {
+      listerProblem([S.lRefused, ...verdict.errors]);
+      return;
+    }
+    const fees = (verdict.fees || []).map((f) => el('s-text', {}, f.name + ': ' + money(f.amount, verdict.currency)));
+    $('lFees').replaceChildren(
+      el('s-text', { type: 'strong' }, fees.length ? S.lFees : S.lNoFees),
+      ...fees,
+    );
+    show('lFees', true);
+    flag($('lPost'), 'disabled', false);
+  });
+
+  $('lPost').addEventListener('click', async () => {
+    if (!listing) return;
+    const values = formValues();
+    if (!values) return;
+    listerProblem([]);
+    flag($('lPost'), 'loading', true);
+    try {
+      await ebayCall({ action: 'shopifyListing', ...values });
+    } catch (err) {
+      flag($('lPost'), 'loading', false);
+      flag($('lPost'), 'disabled', true);
+      listerProblem([refusalText(err)]);
+      return;
+    }
+    flag($('lPost'), 'loading', false);
+    shopify.toast.show(S.lListed);
+    closeLister();
+    loadProducts();
+  });
 
   // ── Loading ───────────────────────────────────────────────────────────────
 

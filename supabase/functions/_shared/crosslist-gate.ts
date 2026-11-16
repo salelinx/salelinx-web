@@ -13,6 +13,9 @@
 //
 // Reads go through the caller's user-scoped client on purpose, so the "own
 // read" RLS policies apply and this can only ever see the caller's own rows.
+// The one exception is the Shopify app's page (ebay function, shopifyListing),
+// which has no SaleLinx login and passes the service role: so every read also
+// names the user itself.
 
 import { isSubscriptionEntitled } from './entitlement.ts';
 
@@ -44,6 +47,9 @@ export async function checkCrosslistAllowed(userScoped: any, userId: string, tag
     .select(
       'tier_id, tier_version, status, first_paid_at, past_due_since, stripe_subscription_id, current_period_end',
     )
+    // RLS already limits a user-scoped client to the caller's rows; the service
+    // role (the Shopify app's page) is limited by this alone.
+    .eq('user_id', userId)
     .in('status', ENTITLED_STATUSES)
     .order('created_at', { ascending: false })
     .limit(1)
