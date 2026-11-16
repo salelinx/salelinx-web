@@ -1157,7 +1157,18 @@
     "error": "SaleLinx couldn't load this store. Try again in a moment.",
     "retry": "Try again",
     "outsideTitle": "Open SaleLinx from your Shopify admin",
-    "outsideBody": "This page works inside your store's admin, under Apps."
+    "outsideBody": "This page works inside your store's admin, under Apps.",
+    "ebayIntro": "Connect your eBay account to list this store's products on eBay.",
+    "ebayConnect": "Connect eBay",
+    "ebayReconnect": "Connect eBay again",
+    "ebayReconnectBody": "eBay stopped accepting SaleLinx's sign-in for this account. Connect it again to keep listing on eBay.",
+    "ebayConnected": "Connected as {username}.",
+    "ebayConnectedNoName": "Your eBay account is connected.",
+    "ebayConnectedBadge": "Connected",
+    "ebayNotConnectedBadge": "Not connected",
+    "ebayReconnectBadge": "Needs reconnecting",
+    "ebayWaiting": "Finish connecting eBay in the new tab, then come back here.",
+    "ebayCheck": "Check again"
   },
   "ShopifyConnect": {
     "metaTitle": "Connect your Shopify store",
@@ -1176,5 +1187,27 @@
     "alreadyLinked": "This store is connected to another SaleLinx account. Disconnect it there first.",
     "alreadyTrialed": "This store has already had a SaleLinx trial on another account.",
     "failed": "We couldn't connect the store. Try again."
+  },
+  "EbayConnect": {
+    "metaTitle": "Connect eBay",
+    "title": "Connect eBay",
+    "signedOut": "Log in to SaleLinx to connect your eBay account.",
+    "login": "Log in",
+    "signup": "Create an account",
+    "confirm": "Connect an eBay account to the SaleLinx account {email}. eBay will ask you to sign in.",
+    "otherAccount": "You're logged in as {email}, but the Shopify store is connected to {account}. Log in with that account first, or eBay will be connected to this one.",
+    "connect": "Connect eBay",
+    "tryAgain": "Try again",
+    "starting": "Opening eBay...",
+    "linking": "Connecting your eBay account...",
+    "done": "The eBay account {username} is connected to SaleLinx.",
+    "doneNoName": "Your eBay account is connected to SaleLinx.",
+    "doneHint": "You can close this tab and go back to Shopify.",
+    "back": "Back to Shopify",
+    "declined": "eBay sign-in was cancelled, so nothing was connected.",
+    "expired": "This eBay sign-in couldn't be finished. Start again.",
+    "alreadyLinked": "That eBay account is connected to another SaleLinx account. Disconnect it there first.",
+    "alreadyTrialed": "That eBay account has already had a SaleLinx trial on another account.",
+    "failed": "We couldn't connect eBay. Try again."
   }
 }

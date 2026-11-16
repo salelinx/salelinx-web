@@ -1157,7 +1157,18 @@
     "error": "SaleLinx n'a pas pu charger cette boutique. Réessayez dans un instant.",
     "retry": "Réessayer",
     "outsideTitle": "Ouvrez SaleLinx depuis l'administration Shopify",
-    "outsideBody": "Cette page fonctionne dans l'administration de votre boutique, sous Applications."
+    "outsideBody": "Cette page fonctionne dans l'administration de votre boutique, sous Applications.",
+    "ebayIntro": "Connectez votre compte eBay pour mettre en vente les produits de cette boutique sur eBay.",
+    "ebayConnect": "Connecter eBay",
+    "ebayReconnect": "Reconnecter eBay",
+    "ebayReconnectBody": "eBay n'accepte plus la connexion de SaleLinx pour ce compte. Reconnectez-le pour continuer à vendre sur eBay.",
+    "ebayConnected": "Connecté en tant que {username}.",
+    "ebayConnectedNoName": "Votre compte eBay est connecté.",
+    "ebayConnectedBadge": "Connecté",
+    "ebayNotConnectedBadge": "Non connecté",
+    "ebayReconnectBadge": "À reconnecter",
+    "ebayWaiting": "Terminez la connexion à eBay dans le nouvel onglet, puis revenez ici.",
+    "ebayCheck": "Vérifier à nouveau"
   },
   "ShopifyConnect": {
     "metaTitle": "Reliez votre boutique Shopify",
@@ -1176,5 +1187,27 @@
     "alreadyLinked": "Cette boutique est reliée à un autre compte SaleLinx. Déliez-la d'abord depuis ce compte.",
     "alreadyTrialed": "Cette boutique a déjà bénéficié d'un essai SaleLinx sur un autre compte.",
     "failed": "Impossible de relier la boutique. Réessayez."
+  },
+  "EbayConnect": {
+    "metaTitle": "Connecter eBay",
+    "title": "Connecter eBay",
+    "signedOut": "Connectez-vous à SaleLinx pour connecter votre compte eBay.",
+    "login": "Se connecter",
+    "signup": "Créer un compte",
+    "confirm": "Connectez un compte eBay au compte SaleLinx {email}. eBay vous demandera de vous identifier.",
+    "otherAccount": "Vous êtes connecté en tant que {email}, mais la boutique Shopify est reliée à {account}. Connectez-vous d'abord avec ce compte, sinon eBay sera connecté à celui-ci.",
+    "connect": "Connecter eBay",
+    "tryAgain": "Réessayer",
+    "starting": "Ouverture d'eBay...",
+    "linking": "Connexion de votre compte eBay...",
+    "done": "Le compte eBay {username} est connecté à SaleLinx.",
+    "doneNoName": "Votre compte eBay est connecté à SaleLinx.",
+    "doneHint": "Vous pouvez fermer cet onglet et revenir sur Shopify.",
+    "back": "Retour à Shopify",
+    "declined": "La connexion à eBay a été annulée, rien n'a été connecté.",
+    "expired": "Cette connexion à eBay n'a pas pu aboutir. Recommencez.",
+    "alreadyLinked": "Ce compte eBay est connecté à un autre compte SaleLinx. Déconnectez-le d'abord depuis ce compte.",
+    "alreadyTrialed": "Ce compte eBay a déjà bénéficié d'un essai SaleLinx sur un autre compte.",
+    "failed": "Impossible de connecter eBay. Réessayez."
   }
 }

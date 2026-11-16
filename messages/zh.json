@@ -1157,7 +1157,18 @@
     "error": "SaleLinx 无法加载这家店铺。请稍后再试。",
     "retry": "重试",
     "outsideTitle": "请从 Shopify 后台打开 SaleLinx",
-    "outsideBody": "此页面需要在店铺后台的“应用”中打开。"
+    "outsideBody": "此页面需要在店铺后台的“应用”中打开。",
+    "ebayIntro": "连接你的 eBay 账户，即可将这家店铺的商品发布到 eBay。",
+    "ebayConnect": "连接 eBay",
+    "ebayReconnect": "重新连接 eBay",
+    "ebayReconnectBody": "eBay 已不再接受 SaleLinx 对此账户的登录。请重新连接，以便继续在 eBay 上发布商品。",
+    "ebayConnected": "已以 {username} 的身份连接。",
+    "ebayConnectedNoName": "你的 eBay 账户已连接。",
+    "ebayConnectedBadge": "已连接",
+    "ebayNotConnectedBadge": "未连接",
+    "ebayReconnectBadge": "需要重新连接",
+    "ebayWaiting": "请在新标签页中完成 eBay 连接，然后回到这里。",
+    "ebayCheck": "再次检查"
   },
   "ShopifyConnect": {
     "metaTitle": "连接你的 Shopify 店铺",
@@ -1176,5 +1187,27 @@
     "alreadyLinked": "这家店铺已连接到另一个 SaleLinx 账户。请先在那个账户中断开连接。",
     "alreadyTrialed": "这家店铺已在另一个账户中使用过 SaleLinx 试用。",
     "failed": "无法连接店铺。请重试。"
+  },
+  "EbayConnect": {
+    "metaTitle": "连接 eBay",
+    "title": "连接 eBay",
+    "signedOut": "登录 SaleLinx 以连接你的 eBay 账户。",
+    "login": "登录",
+    "signup": "创建账户",
+    "confirm": "将 eBay 账户连接到 SaleLinx 账户 {email}。eBay 会要求你登录。",
+    "otherAccount": "你当前以 {email} 登录，但这家 Shopify 店铺连接的是 {account}。请先用那个账户登录，否则 eBay 会连接到当前账户。",
+    "connect": "连接 eBay",
+    "tryAgain": "重试",
+    "starting": "正在打开 eBay...",
+    "linking": "正在连接你的 eBay 账户...",
+    "done": "eBay 账户 {username} 已连接到 SaleLinx。",
+    "doneNoName": "你的 eBay 账户已连接到 SaleLinx。",
+    "doneHint": "你可以关闭此标签页，回到 Shopify。",
+    "back": "返回 Shopify",
+    "declined": "eBay 登录已取消，没有连接任何账户。",
+    "expired": "这次 eBay 登录无法完成。请重新开始。",
+    "alreadyLinked": "这个 eBay 账户已连接到另一个 SaleLinx 账户。请先在那个账户中断开连接。",
+    "alreadyTrialed": "这个 eBay 账户已在另一个账户中使用过 SaleLinx 试用。",
+    "failed": "无法连接 eBay。请重试。"
   }
 }

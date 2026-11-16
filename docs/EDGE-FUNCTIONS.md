@@ -150,8 +150,11 @@ supabase secrets set ALLOWED_ORIGIN='https://www.salelinx.com'
 # Store id (oichfmfogobecihmhlgkfcfbdceomenj), EBAY_RUNAME for any other (the
 # unpacked dev build). Further dev copies (each unpacked folder has its own id) go in
 # EBAY_RUNAMES as JSON, checked first: '{"<extension-id>":"<RuName>"}'.
+# EBAY_RUNAME_WEB is the website's eBay page: accept URL https://www.salelinx.com/ebay/connect,
+# declined URL https://www.salelinx.com/ebay/connect?declined=1 (a branch preview's address
+# while testing before the page is live).
 # EBAY_ENV=sandbox switches both eBay functions to the sandbox hosts.
-supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... EBAY_RUNAME_STORE=...
+supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... EBAY_RUNAME_STORE=... EBAY_RUNAME_WEB=...
 # Entered in the portal's Marketplace Account Deletion settings as well.
 supabase secrets set EBAY_DELETION_VERIFICATION_TOKEN=<32-80 chars>
 supabase secrets set EBAY_DELETION_ENDPOINT='https://<project>.supabase.co/functions/v1/ebay-account-deletion'
@@ -479,7 +482,13 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   and catches the redirect to `https://<extension-id>.chromiumapp.org/ebay`; `link` swaps the
   code for tokens. eBay only redirects to a RuName's accept URL, and each accept URL names
   one extension id, so `link` uses `EBAY_RUNAME_STORE` when the caller sends the Chrome Web
-  Store id and `EBAY_RUNAME` for anything else. It writes `linked_accounts` **through the
+  Store id and `EBAY_RUNAME` for anything else. The website links too, on its eBay page
+  (`app/[locale]/ebay/connect`, `components/EbayConnect.tsx`), which the Shopify app's page opens:
+  it sends `client: 'web'`, which picks `EBAY_RUNAME_WEB`, whose accept URL is that page. The
+  page starts and finishes the sign-in with the seller's own website login (the state it sends is
+  kept in the tab's `sessionStorage` and checked on the way back), so an eBay account only ever
+  joins the account signed in on that browser. A link someone else made can't attach a seller's
+  eBay to theirs, which a return to an address with no login could. It writes `linked_accounts` **through the
   user's own client first**, so RLS, the one-shop-per-account unique index and the trial
   triggers (006) decide before any token is kept (their refusals come back as
   `ALREADY_TRIALED` / `ALREADY_LINKED_ELSEWHERE`). Only then does the service role upsert
@@ -598,7 +607,12 @@ billing, a page in Shopify's admin, final scopes).
   same `myshopify.com` store), and anything wrong is `invalid_session` (401), which the page
   answers with one retry on a new token. The page sends `frame-ancestors` naming the store and
   `admin.shopify.com` (`'none'` without a store), as App Store review checks. It never signs in to
-  SaleLinx: a page framed in Shopify's admin can't count on `salelinx.com`'s cookies.
+  SaleLinx: a page framed in Shopify's admin can't count on `salelinx.com`'s cookies. It is built
+  with Shopify's Polaris web components (`polaris-2.js`, after App Bridge), so it looks like the
+  admin. For a store an account holds, `session` also answers that account's eBay connection
+  (`ebay: { linked, username, reconnect }`; `reconnect` is a link whose tokens are gone), and
+  Connect eBay opens the website's eBay page in a new tab ("eBay" above, with `return` and the
+  masked `account`), then checks again when the seller comes back to the tab.
 - **Taking the store's tokens** (rule 2.3.2: before anything else). `session` uses the stored
   tokens while they work and carry every scope, and otherwise swaps the ID token for new ones
   (`exchangeIdToken`, token exchange with `expiring=1`): on the store's first open, after an

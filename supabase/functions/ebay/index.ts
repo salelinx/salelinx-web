@@ -7,9 +7,10 @@
 // Auth: the signed-in user's Supabase JWT in Authorization.
 //
 // Request body: { action, ...params }
-//   consentUrl { state }                     -> { url } (eBay's sign-in always asks for the account: prompt=login)
-//   link       { code }                      -> { userId, username, marketplace, siteKept }
-//                (marketplace is the site listings go to; siteKept when a reconnect kept the seller's pick)
+//   consentUrl { state, client? }            -> { url } (eBay's sign-in always asks for the account: prompt=login)
+//   link       { code, client? }             -> { userId, username, marketplace, siteKept }
+//                (marketplace is the site listings go to; siteKept when a reconnect kept the seller's pick;
+//                client 'web' is the website's eBay page, which eBay returns to instead of an extension)
 //   unlink     {}                            -> { ok }
 //   account    {}                            -> { accountType, marketplace } (accountType 'INDIVIDUAL' or 'BUSINESS')
 //   setMarketplace { marketplace }           -> { marketplace } (the eBay site listings go to, e.g. 'EBAY_GB')
@@ -51,6 +52,7 @@
 // Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
 // EBAY_RUNAME_STORE (Chrome Web Store extension), EBAY_RUNAMES (optional JSON
 // of extension id -> RuName for other dev copies, checked first),
+// EBAY_RUNAME_WEB (the website's eBay page, /ebay/connect),
 // EBAY_ENV ('sandbox' for the sandbox hosts, anything else is production).
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
@@ -138,8 +140,10 @@ function json(status: number, body: unknown): Response {
 
 const STORE_EXTENSION_ID = 'oichfmfogobecihmhlgkfcfbdceomenj';
 
-// eBay only redirects to a RuName's accept URL, which names one extension id.
-function runame(extensionId: unknown): string {
+// eBay only redirects to a RuName's accept URL, which names one extension id, or the website's own
+// eBay page (client 'web': app/[locale]/ebay/connect, which the Shopify app's page sends a seller to).
+function runame(extensionId: unknown, client?: unknown): string {
+  if (client === 'web') return env('EBAY_RUNAME_WEB');
   const mapped = JSON.parse(Deno.env.get('EBAY_RUNAMES') || '{}')[String(extensionId)];
   if (typeof mapped === 'string') return mapped;
   return env(extensionId === STORE_EXTENSION_ID ? 'EBAY_RUNAME_STORE' : 'EBAY_RUNAME');
@@ -354,11 +358,11 @@ async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
 
 // ── Linking ────────────────────────────────────────────────────────────────
 
-async function link(admin, userScoped, userId: string, code: string, extensionId: unknown) {
+async function link(admin, userScoped, userId: string, code: string, extensionId: unknown, client: unknown) {
   const tokens = await tokenRequest({
     grant_type: 'authorization_code',
     code,
-    redirect_uri: runame(extensionId),
+    redirect_uri: runame(extensionId, client),
   });
   const res = await fetch(`${APIZ_HOST}/commerce/identity/v1/user/`, {
     headers: { Authorization: `Bearer ${tokens.access_token}` },
@@ -458,7 +462,7 @@ Deno.serve(async (req: Request) => {
         const url = new URL(`${AUTH_HOST}/oauth2/authorize`);
         url.search = new URLSearchParams({
           client_id: env('EBAY_CLIENT_ID'),
-          redirect_uri: runame(body.extensionId),
+          redirect_uri: runame(body.extensionId, body.client),
           response_type: 'code',
           scope: SCOPES,
           state: body.state,
@@ -475,7 +479,7 @@ Deno.serve(async (req: Request) => {
         const userScoped = createClient(supabaseUrl, anonKey, {
           global: { headers: { Authorization: `Bearer ${jwt}` } },
         });
-        return json(200, await link(admin, userScoped, user.id, body.code, body.extensionId));
+        return json(200, await link(admin, userScoped, user.id, body.code, body.extensionId, body.client));
       }
 
       case 'account': {

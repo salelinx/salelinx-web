@@ -5,13 +5,15 @@
 //   POST /app      The app's page in the Shopify admin (the website's
 //                  app/embed/shopify), with an App Bridge ID token in
 //                  Authorization. { action: 'session' } -> { shopName,
-//                  shopDomain, linked, account, connectUrl }: the store's
+//                  shopDomain, linked, account, connectUrl, ebay }: the store's
 //                  tokens are taken (token exchange) the first time it opens
 //                  the app, and again when Shopify has refused the stored ones
 //                  or the store has approved new permissions since. linked says
 //                  whether a SaleLinx account holds the store, account that
 //                  account's email, masked; connectUrl, when no account does, is
-//                  where Connect goes. Errors { error, code }: 'invalid_session'
+//                  where Connect goes; ebay, for a connected store, that
+//                  account's eBay connection ({ linked, username, reconnect }).
+//                  Errors { error, code }: 'invalid_session'
 //                  (401) when the page should fetch a fresh ID token and retry.
 //   GET  /connect  Connect's address: sends the tab on to the website's
 //                  /shopify/connect with the code, where a signed-in seller
@@ -134,6 +136,28 @@ async function exchange(admin, shop: string, idToken: string, c: ShopifyCreds, r
   }
 }
 
+/**
+ * The account's eBay connection, for the app's page. An eBay link with no tokens means eBay refused
+ * them (or they were deleted), so the seller must connect it again.
+ */
+async function ebayConnection(admin, userId: string) {
+  const [link, tokens] = await Promise.all([
+    admin
+      .from('linked_accounts')
+      .select('platform_username')
+      .eq('user_id', userId)
+      .eq('platform', 'ebay')
+      .maybeSingle(),
+    admin.from('ebay_tokens').select('user_id').eq('user_id', userId).maybeSingle(),
+  ]);
+  if (link.error || tokens.error) throw new ShopifyError('eBay lookup failed', 'unavailable', 500);
+  return {
+    linked: !!link.data && !!tokens.data,
+    username: link.data?.platform_username ?? null,
+    reconnect: !!link.data && !tokens.data,
+  };
+}
+
 async function session(admin, idToken: string) {
   const c = creds();
   const shop = await verifyIdToken(idToken, c.clientId, c.secret);
@@ -173,6 +197,7 @@ async function session(admin, idToken: string) {
     shopDomain,
     linked: !!store.userId,
     account,
+    ebay: store.userId ? await ebayConnection(admin, store.userId) : null,
     connectUrl: code
       ? `${Deno.env.get('SUPABASE_URL')}/functions/v1/shopify-public/connect?code=${encodeURIComponent(code)}`
       : null,

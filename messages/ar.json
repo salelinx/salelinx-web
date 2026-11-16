@@ -1157,7 +1157,18 @@
     "error": "تعذّر على SaleLinx تحميل هذا المتجر. حاول مرة أخرى بعد قليل.",
     "retry": "حاول مرة أخرى",
     "outsideTitle": "افتح SaleLinx من لوحة إدارة Shopify",
-    "outsideBody": "تعمل هذه الصفحة داخل لوحة إدارة متجرك، ضمن التطبيقات."
+    "outsideBody": "تعمل هذه الصفحة داخل لوحة إدارة متجرك، ضمن التطبيقات.",
+    "ebayIntro": "اربط حسابك على eBay لعرض منتجات هذا المتجر على eBay.",
+    "ebayConnect": "ربط eBay",
+    "ebayReconnect": "ربط eBay مرة أخرى",
+    "ebayReconnectBody": "لم يعد eBay يقبل تسجيل دخول SaleLinx لهذا الحساب. اربطه مرة أخرى لمواصلة العرض على eBay.",
+    "ebayConnected": "متصل باسم {username}.",
+    "ebayConnectedNoName": "حسابك على eBay متصل.",
+    "ebayConnectedBadge": "متصل",
+    "ebayNotConnectedBadge": "غير متصل",
+    "ebayReconnectBadge": "يحتاج إلى إعادة الربط",
+    "ebayWaiting": "أكمل ربط eBay في علامة التبويب الجديدة، ثم عد إلى هنا.",
+    "ebayCheck": "تحقق مرة أخرى"
   },
   "ShopifyConnect": {
     "metaTitle": "اربط متجرك على Shopify",
@@ -1176,5 +1187,27 @@
     "alreadyLinked": "هذا المتجر مرتبط بحساب SaleLinx آخر. افصله من ذلك الحساب أولًا.",
     "alreadyTrialed": "حصل هذا المتجر بالفعل على فترة تجريبية من SaleLinx على حساب آخر.",
     "failed": "تعذّر ربط المتجر. حاول مرة أخرى."
+  },
+  "EbayConnect": {
+    "metaTitle": "ربط eBay",
+    "title": "ربط eBay",
+    "signedOut": "سجّل الدخول إلى SaleLinx لربط حسابك على eBay.",
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب",
+    "confirm": "اربط حسابًا على eBay بحساب SaleLinx {email}. سيطلب منك eBay تسجيل الدخول.",
+    "otherAccount": "أنت مسجّل الدخول باسم {email}، لكن متجر Shopify مرتبط بـ {account}. سجّل الدخول بذلك الحساب أولًا، وإلا فسيُربط eBay بهذا الحساب.",
+    "connect": "ربط eBay",
+    "tryAgain": "حاول مرة أخرى",
+    "starting": "جارٍ فتح eBay...",
+    "linking": "جارٍ ربط حسابك على eBay...",
+    "done": "تم ربط حساب eBay {username} بـ SaleLinx.",
+    "doneNoName": "تم ربط حسابك على eBay بـ SaleLinx.",
+    "doneHint": "يمكنك إغلاق علامة التبويب هذه والعودة إلى Shopify.",
+    "back": "العودة إلى Shopify",
+    "declined": "أُلغي تسجيل الدخول إلى eBay، لذا لم يُربط أي شيء.",
+    "expired": "تعذّر إكمال تسجيل الدخول هذا إلى eBay. ابدأ من جديد.",
+    "alreadyLinked": "حساب eBay هذا مرتبط بحساب SaleLinx آخر. افصله من ذلك الحساب أولًا.",
+    "alreadyTrialed": "حصل حساب eBay هذا بالفعل على فترة تجريبية من SaleLinx على حساب آخر.",
+    "failed": "تعذّر ربط eBay. حاول مرة أخرى."
   }
 }
