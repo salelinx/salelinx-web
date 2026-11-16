@@ -74,6 +74,9 @@ async function save(platform: Platform, account: SyncedAccount, day: string) {
         url: v.url,
         thumbnail_url: v.thumbnailUrl,
         published_at: v.publishedAt,
+        // 054_social_tags.sql. Tags are never sent, so a sync can't wipe them.
+        duration_seconds: v.durationSeconds ?? null,
+        caption: v.caption ?? null,
       })),
     );
     if (vErr) throw new Error(`videos: ${vErr.message}`);

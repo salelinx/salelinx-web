@@ -61,7 +61,7 @@ export async function syncYouTube(
   const videos = [];
   for (let i = 0; i < ids.length; i += 50) {
     const batch = await getJson(
-      `${base}/videos?part=snippet,statistics&id=${ids.slice(i, i + 50).join(",")}&key=${apiKey}`,
+      `${base}/videos?part=snippet,statistics,contentDetails&id=${ids.slice(i, i + 50).join(",")}&key=${apiKey}`,
     );
     videos.push(...parseYouTubeVideos(batch.items ?? []));
   }
@@ -173,9 +173,10 @@ export async function syncFacebook(
   const full =
     "id,description,created_time,permalink_url,picture,likes.summary(true).limit(0),comments.summary(true).limit(0)";
   const basic = "id,description,created_time,permalink_url,picture";
+  // Each refusal drops a step: first the length, then the likes and comments.
   // deno-lint-ignore no-explicit-any
   const items: any[] = [];
-  for (const fields of [full, basic]) {
+  for (const fields of [`${full},length`, full, basic]) {
     items.length = 0;
     try {
       let next: string | null =
@@ -230,7 +231,7 @@ export async function syncTikTok(token: string): Promise<SyncedAccount> {
   let cursor: number | undefined;
   while (videos.length < MAX_VIDEOS) {
     const page = await getJson(
-      "https://open.tiktokapis.com/v2/video/list/?fields=id,title,video_description,create_time,cover_image_url,share_url,view_count,like_count,comment_count,share_count",
+      "https://open.tiktokapis.com/v2/video/list/?fields=id,title,video_description,duration,create_time,cover_image_url,share_url,view_count,like_count,comment_count,share_count",
       {
         method: "POST",
         headers: { ...auth, "Content-Type": "application/json" },

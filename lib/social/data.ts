@@ -5,7 +5,10 @@
 import type { createServerClient } from "@/lib/supabase/server";
 import type { MarketingVideoRow } from "@/lib/admin/marketing";
 import { videoCurve, type VideoCurve } from "./experiments";
+import { videoKey } from "./overview";
 import { SOCIAL_PLATFORMS, type HourlyRow, type SocialPlatform } from "./types";
+
+export { videoKey };
 
 type Client = Awaited<ReturnType<typeof createServerClient>>;
 
@@ -25,8 +28,6 @@ export async function selectAll<T>(
     if ((res.data?.length ?? 0) < PAGE) return { data, error: null };
   }
 }
-
-export const videoKey = (platform: string, id: string) => `${platform}:${id}`;
 
 /** Every hourly snapshot of the given videos, oldest first. */
 export async function loadHourly(

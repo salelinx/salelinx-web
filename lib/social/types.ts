@@ -69,6 +69,11 @@ export type SocialPostRow = {
   experiment_id: string | null;
   variant: string | null;
   notes: string | null;
+  // 054_social_tags.sql; absent until that migration runs. Raw JSON: read it
+  // through cleanTags() in lib/social/tags.ts.
+  tags?: unknown;
+  // The file's length in seconds, read in the browser on upload.
+  media_seconds?: number | null;
   created_at: string;
   updated_at: string;
 };
