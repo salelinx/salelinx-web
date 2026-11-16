@@ -4,6 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { InstallExtensionButton } from '@/components/InstallExtensionButton';
+import { YouTubeVideo } from '@/components/YouTubeVideo';
 
 // Touch-first devices (phones, tablets) cannot install Chrome extensions.
 const TOUCH = '(hover: none) and (pointer: coarse)';
@@ -43,7 +44,6 @@ export function GetStartedInstall({ buttonClassName }: { buttonClassName: string
   const locale = useLocale();
   const isTouch = useSyncExternalStore(subscribe, () => matchMedia(TOUCH).matches, () => false);
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-  const [playing, setPlaying] = useState(false);
 
   function send() {
     setStatus('sending');
@@ -60,27 +60,7 @@ export function GetStartedInstall({ buttonClassName }: { buttonClassName: string
     emailInstallLink(locale).then((ok) => setStatus(ok ? 'sent' : 'error'));
   }, [isTouch, locale]);
 
-  const video = playing ? (
-    <iframe
-      src="https://www.youtube-nocookie.com/embed/ovqbY6k1EvU?rel=0&autoplay=1"
-      title="SaleLinx"
-      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-      allowFullScreen
-      className="mt-8 aspect-video w-full rounded-xl"
-    />
-  ) : (
-    <button
-      type="button"
-      onClick={() => setPlaying(true)}
-      aria-label="Play video"
-      className="group mt-8 grid aspect-video w-full place-items-center rounded-xl bg-cover bg-center"
-      style={{ backgroundImage: 'url(https://i.ytimg.com/vi/ovqbY6k1EvU/maxresdefault.jpg)' }}
-    >
-      <span className="grid h-16 w-16 place-items-center rounded-full bg-black/70 text-white transition group-hover:bg-black">
-        <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-      </span>
-    </button>
-  );
+  const video = <YouTubeVideo id="ovqbY6k1EvU" label="Play video" className="mt-8 rounded-xl" />;
 
   if (!isTouch) {
     return (

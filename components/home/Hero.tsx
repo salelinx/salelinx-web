@@ -7,6 +7,7 @@ import { InstallExtensionButton } from "@/components/InstallExtensionButton";
 import { isSignedIn } from "@/lib/auth/session";
 import { RollingPhrase } from "./RollingPhrase";
 import { HeroGrid } from "./HeroGrid";
+import { YouTubeVideo } from "@/components/YouTubeVideo";
 
 // Sizes chosen so each wordmark's cap-height optically matches the
 // surrounding text. depop's viewBox is tight to letter bounds, so 0.85em
@@ -73,7 +74,7 @@ export async function Hero() {
         <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_1.5px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)]" />
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 py-10 text-center">
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-6 py-10 text-center">
         {/* The box keeps the old 3D canvas size so the hero spacing is
             unchanged; the mark fills about as much of it as the 3D one did. */}
         <div aria-hidden className="flex h-28 w-28 shrink-0 items-center justify-center sm:h-48 sm:w-48">
@@ -137,6 +138,14 @@ export async function Hero() {
             />
           </div>
           <p className="mt-3 text-[11px] text-zinc-500 sm:mt-4 sm:text-sm dark:text-zinc-400">{t("ctaNote")}</p>
+        </Reveal>
+
+        <Reveal delay={420} className="mt-10 w-full max-w-3xl sm:mt-12">
+          <YouTubeVideo
+            id="9jv2Ppa6iNM"
+            label={t("videoLabel")}
+            className="rounded-2xl shadow-2xl ring-1 ring-black/10 dark:ring-white/10"
+          />
         </Reveal>
       </div>
 
