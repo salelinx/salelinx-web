@@ -39,11 +39,12 @@ export async function checkFeatureAllowed(
 ): Promise<FeatureGate> {
   const { data: sub, error: subErr } = await userScoped
     .from('subscriptions')
-    // stripe_subscription_id, shopify_shop_id and current_period_end are what
-    // let isSubscriptionEntitled expire a comp row and never a billed one.
-    .select(
-      'tier_id, tier_version, status, first_paid_at, past_due_since, stripe_subscription_id, shopify_shop_id, current_period_end',
-    )
+    // Every column: stripe_subscription_id, shopify_shop_id and
+    // current_period_end are what let isSubscriptionEntitled expire a comp row
+    // and never a billed one. `*` rather than a list, so this works before and
+    // after migration 057 adds shopify_shop_id: a list naming a missing column
+    // fails the whole read, and with it every gated action.
+    .select('*')
     .eq('user_id', userId)
     .in('status', ENTITLED_STATUSES)
     .order('created_at', { ascending: false })

@@ -939,9 +939,10 @@ code=<code>` and nothing else.
   - **Cancelling** (`cancelStorePlan`, for account deletion, not called yet):
     `appSubscriptionCancel` with `deferCancellation: false` and `prorate: false`, which needs the
     client's View financials permission.
-  - **Order.** Apply 057 before deploying any function or building the extension from this
-    branch: `feature-gate`, `crosslist-gate` and the extension select `shopify_shop_id`, and a
-    select naming a missing column fails.
+  - **Order.** The readers (`feature-gate`, `crosslist-gate`, the website and the extension)
+    select `*`, so they work before and after 057, whatever is deployed first; a list naming a
+    missing column would fail the whole read. Apply 057 before setting the billing secrets, as
+    the sync writes the column (until then its errors only leave billing off the app's page).
   - **The Partner API queries aren't checked against a schema**, as Shopify's docs proxy has no
     Partner API. Their fields are from Shopify's reference pages for `activeSubscription` and
     `appSubscriptionCancel`: run them once in the Partner API client's GraphiQL explorer (Dev

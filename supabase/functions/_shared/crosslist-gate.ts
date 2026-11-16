@@ -44,10 +44,10 @@ export async function checkCrosslistAllowed(userScoped: any, userId: string, tag
     // stripe_subscription_id and current_period_end are what let
     // isSubscriptionEntitled expire a comp row. Without both, a comped month
     // would keep crosslisting working after the website said it had ended.
-    // shopify_shop_id keeps a Shopify-billed row from reading as a comp.
-    .select(
-      'tier_id, tier_version, status, first_paid_at, past_due_since, stripe_subscription_id, shopify_shop_id, current_period_end',
-    )
+    // shopify_shop_id keeps a Shopify-billed row from reading as a comp. Every
+    // column rather than a list, so this works before and after migration 057
+    // adds it: a list naming a missing column fails the whole read.
+    .select('*')
     // RLS already limits a user-scoped client to the caller's rows; the service
     // role (the Shopify app's page) is limited by this alone.
     .eq('user_id', userId)

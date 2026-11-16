@@ -23,8 +23,9 @@
 -- canceled on the same row, and Shopify keeps each store's trial history
 -- itself, so there is no per-subscription id to key on.
 --
--- Apply this before deploying any function or building an extension that
--- selects the column: a select naming a column that does not exist fails.
+-- The readers select `*` (the gates, the website, the extension), so deploys
+-- and extension builds work before and after this. Apply it before setting
+-- the Shopify billing secrets, as the plan sync writes the column.
 --
 -- One transaction, so a step that fails on live changes nothing.
 
