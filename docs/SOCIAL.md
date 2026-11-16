@@ -4,14 +4,15 @@ The admin console's Social group: SaleLinx's own YouTube, Instagram, TikTok and 
 
 | Page | Route | What it does |
 | --- | --- | --- |
-| Stats | `/admin/marketing` | Every recent post against our typical one (the index), the period's health, each platform, and every video with its tags (see "Stats" and "Tags" below, and `docs/ADMIN.md` "Marketing"). Each title opens the video's own page. |
+| Stats > Overview | `/admin/marketing` | Every recent post against our typical one (the index), the period's health, each platform, and every video with its tags (see "Stats" and "Tags" below, and `docs/ADMIN.md` "Marketing"). Each title opens the video's own page. |
 | Video | `/admin/marketing/videos/<platform>/<id>` | Every lifetime figure the platform gives, views at 1h / 6h / 24h / 3d / 7d against our typical video there, the first-week curve, views gained per day, and the experiments it is in. |
 | Planner | `/admin/marketing/planner` | Upload a video, write each platform's caption and options, pick a time. `marketing-publish` posts it. |
 | Experiments | `/admin/marketing/experiments` | A/B tests: tag videos A to E, compare them at the same age within each platform. |
+| Stats > Totals, Posts, Compare, Timing, Engagement, Growth, Lifecycle | `/admin/marketing/insights/*` | The rest of the Stats dropdown: the deeper read of the same snapshots, one page per question. See "Stats pages" below. |
 
 It is company data about our own channels, like `042_marketing.sql`: no `user_id`, nothing for the ROPA or the deletion runbook. Who did what is in `admin_audit_log`.
 
-It lives in this repo, not its own, because it leans on everything the console already has: admin login, MFA (AAL2), the audit log, the stored platform logins, the stats tables and the Edge Function gate. A separate app would have to copy all of that. The boundary is kept tight so it could still be lifted out: `lib/social/`, `components/admin/social/`, `app/admin/marketing/`, the `marketing-*` functions and migrations 042, 052, 053 and 054.
+It lives in this repo, not its own, because it leans on everything the console already has: admin login, MFA (AAL2), the audit log, the stored platform logins, the stats tables and the Edge Function gate. A separate app would have to copy all of that. The boundary is kept tight so it could still be lifted out: `lib/social/`, `components/admin/social/`, `components/admin/insights/`, `app/admin/marketing/`, the `marketing-*` functions and migrations 042, 052, 053 and 054.
 
 ## One-time setup
 
@@ -98,6 +99,32 @@ What is in each video, so we can later say why one beat another.
 - **Where:** the planner's editor ("What's in this video", saved straight after the post), or Stats (Add tags or Edit tags on a row, and "Tag untagged videos" to step through the rest). A post that has started posting can't be saved in the planner any more, so tag it from Stats.
 - **Read automatically**, never stored: the length (the planner file's, read by the browser into `social_posts.media_seconds`, or the sync's `marketing_videos.duration_seconds`: YouTube, TikTok and Facebook give it, Instagram doesn't), the posting slot in UK time (morning 6 to 11, midday 11 to 3, afternoon 3 to 6, evening 6 to 10, late), and what the caption does: its size, a question, hashtags, a call to action (the planner caption, or the sync's `marketing_videos.caption`).
 
+## Stats pages
+
+Stats is a dropdown in the sidebar's Social group (`children` in `lib/admin/modules.ts`). Its Overview, the page described under "Stats" above, answers "is this post better than usual"; the pages under it are the rest: totals, rates, followers, timing, how views arrive and why some posts do better. Their routes sit under `/admin/marketing/insights/` and their code under `components/admin/insights/`, the name they were built under. No new tables or migrations: every page reads the same snapshots as Stats through one loader, `lib/social/load.ts`, and the arithmetic is `lib/social/insights.ts` and `lib/social/compare.ts`, tested in `tests/social-insights.test.ts`.
+
+| Page | Route | What it shows |
+| --- | --- | --- |
+| Totals | `/admin/marketing/insights` | Ten tiles (views, engagements, engagement rate, likes, comments, shares, saves, watch time, followers gained, videos posted), each against the period before with a daily sparkline; views gained per day stacked by platform; the platform split; where the period's views came from (posts made in it or older ones); the posts that gained most. |
+| Posts | `/insights/posts` | Every video, one row per platform copy, with every figure we hold: lifetime counts, gained in the period, views per day, views at 1h/6h/24h/3d/7d, half-life, both index ages, every rate, watch figures, subscribers, gap since the previous post. Column sets (Overview, Early views, Engagement, Watch, Everything), any header sorts, filters for when it was posted, tag and title, and Download CSV with every column. |
+| Compare | `/insights/compare` | Group posts by one of 17 things (platform, length, day, time of day, gap since the previous post, caption length, question, hashtags, call to action, opening, style, topic, sound, the three flags, planner or not) and pick one of 13 measures. Each group is a row of dots with its median, lift against every other post and a verdict; then any two groups head to head, and the clearest differences across every dimension at once. |
+| Timing | `/insights/timing` | Day by time of day heatmap of the median index (UK time, cells under 3 posts greyed), the best slots, the same by day, by hour and by time since the previous post, then when we actually post and posts per week. |
+| Engagement | `/insights/engagement` | Rates per platform from what the period gained, the rolling 7-day engagement rate, the mix of likes, comments, shares and saves, every post on any rate, the top five on each, and watched and average watch by platform and by length. |
+| Growth | `/insights/growth` | Followers per platform with the period's change, followers over time (each platform on its own scale, since their sizes differ too much to share an axis), net followers per day, total audience, views per follower won, lifetime views over time, and YouTube subscribers by video. |
+| Lifecycle | `/insights/lifecycle` | How much of a first week's views has arrived by each age, the half-life, typical views at each age, how well views at 1h, 6h, 24h and 3 days rank posts the way their first week does (Spearman), views by post age in weeks, new posts against the back catalogue, and older posts still gaining. |
+
+The period (7, 30 or 90 days) and platform switches in the header are shared by every one of these pages and remembered in this browser (localStorage `slx-insights`, never a cookie). Compare and Timing use every post, with their own "posted in" filter, rather than the period.
+
+How the figures are worked out:
+
+- **Gains.** Platforms report lifetime counts, so a period's views (and likes, comments, shares, saves, watch time, subscribers) are the sum of each video's day-on-day differences, clamped at zero since a platform sometimes recounts down. A video's first snapshot counts in full only if it went up after daily tracking began; an older video's first row holds views from before we were watching. `HISTORY_DAYS` (181) is loaded, enough for 90 days against the 90 before.
+- **Coverage.** Daily tracking began on 25 Oct 2026, so a period reaching back before then is measured from the 26th, and the header says so; a comparison with a period that has no figures shows none rather than a fake change. Followers count from the first figure inside the period when there is none before it.
+- **Rates need 100 views,** per post and per platform, as on Stats; that includes watched, so a 4-view video watched to the end doesn't top a list.
+- **Never pool raw views across platforms.** Compare refuses a raw-views measure with All platforms selected and offers the index instead; rates and the index can pool.
+- **Compare's verdict** reuses the experiments' permutation test (`permutationP`), on a log scale for views and the index: "Real difference" under p 0.05, "Leaning" under 0.2, "No clear difference" otherwise, "Too few posts" under 3 a side. Biggest differences runs every group on every dimension, so some "leaning" results are luck; the page says so and points to Experiments. A two-value dimension is listed once, from the winning side.
+- **"May be the reason."** When 80% or more of a group share something that half or fewer of the other posts do (all TikTok, all talking head), Compare names it, since then the two effects can't be told apart.
+- **Half-life** interpolates between neighbouring measured ages only. A video known only at 7 days has none, rather than the 3.5 days a straight line from zero would always give. The build-up curve plots an age only when at least 3 posts have it and 7 days.
+
 ## Detailed stats
 
 `marketing-sync` now also saves, per video per day (`052_social.sql` columns on `marketing_video_stats`):
@@ -131,6 +158,10 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 | Schema, RPCs, bucket, queue | `supabase/migrations/052_social.sql` (Facebook added to the platform checks in `053_social_facebook.sql`) |
 | Tags, length, caption, age points view | `supabase/migrations/054_social_tags.sql` |
 | Index and overview arithmetic | `lib/social/overview.ts` |
+| Stats pages arithmetic (gains, windows, rates, lifecycle, formatting) | `lib/social/insights.ts` |
+| Compare (dimensions, measures, verdict, "may be the reason") | `lib/social/compare.ts` |
+| Loader shared by the Stats pages past Overview | `lib/social/load.ts` |
+| Those pages and their charts | `app/admin/marketing/insights/**`, `components/admin/insights/*` |
 | Tags, automatic tags | `lib/social/tags.ts` |
 | Publisher | `supabase/functions/marketing-publish/` (`index.ts` handler, `platforms.ts` per-platform steps, `plan.ts` pure decisions) |
 | Shared login renewal | `supabase/functions/_shared/marketing-login.ts` |
@@ -149,4 +180,4 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 - A calendar view (the planner is a list grouped by what each post needs).
 - Resuming a large upload across runs; a run that times out mid-upload fails the post for a manual Retry.
 - Recording which TikTok sound or Instagram audio a post used, which is often the real variable.
-- A "Why it works" view: each tag's middle post on the index, greyed under about four posts, and a warning when two tags nearly always go together (so their effects can't be told apart).
+- Starting an experiment straight from a Compare finding (Compare links to Experiments; the variants are still set up by hand).

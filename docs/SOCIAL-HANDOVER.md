@@ -7,7 +7,7 @@ Written 16 Nov 2026.
 ## Where things are
 
 - **Branch:** `feat/social-stats-index`, cut from `main` at `0f6f976` (the PR #296 merge). No PR yet.
-- **What is on it (built, all checks passed):**
+- **What is on it (built, all checks passed), from the desktop:**
   - Migration `054_social_tags.sql`: `tags` on `social_posts` and `marketing_videos`, `media_seconds` on posts, `duration_seconds` and `caption` on videos, the `marketing_video_age_points` view, and the `admin_set_social_tags()` RPC. Tested on a local Postgres (admin reads and tags; non-admins, AAL1 and anon are refused).
   - Stats overview at `/admin/marketing`: every post as an index against our typical post on the same platform at 24 hours or 7 days, a Health table, By platform, the posts table with per-platform badges, and Accounts at the bottom.
   - Tagging: the Planner's post editor has "What's in this video"; Stats can tag any video, and "Tag untagged videos" steps through the rest. Length, UK posting slot and caption traits are tagged automatically.
@@ -33,33 +33,25 @@ npm run dev                 # sign in, MFA, open http://localhost:3000/admin/mar
 - **Tests on Windows:** `tests/blog-content.test.ts` fails locally because of CRLF line endings. Unrelated; everything else passes.
 - **Deno check:** run it on a copy of `supabase/functions/` outside the repo, or it trips on `node_modules`.
 
-## Live state, not confirmed
+## Live state (checked 16 Nov, late)
 
-1. **Is 054 applied?** In the SQL editor: `select to_regclass('public.marketing_video_age_points');` returns the name if it is. Until it is, Stats shows a notice and tags cannot save.
-2. **Was `marketing-sync` redeployed after 054?** `npx supabase functions deploy marketing-sync --no-verify-jwt --project-ref owaxopwpktmffqsxavsz`. **Order matters:** deployed before 054, it fails for every platform because it writes 054's columns.
+1. **054 is applied:** `marketing_video_age_points` exists.
+2. **`marketing-sync` was redeployed after 054 and has run:** `duration_seconds` and `caption` are filling in (all Facebook, nearly all TikTok and YouTube; Instagram gives no length).
 3. **TikTok secrets** `TIKTOK_CLIENT_KEY` and `TIKTOK_CLIENT_SECRET` were set again on 16 Nov (the sandbox app's). The client secret was pasted into a chat, so consider generating a new one in the TikTok developer portal and setting it again.
-4. Still open from PR #296: the 5-minute `marketing-publish` Cron job and the 1 GB Storage upload limit.
+4. Still open from PR #296, not checked: the 5-minute `marketing-publish` Cron job and the 1 GB Storage upload limit.
 
-## Next task: rework the Stats page (not started)
+## Done on the laptop: more Stats pages, under a Stats dropdown
 
-The user looked at the new Stats page and said, in short: it is hard to understand; clean it up, no fluff; good-looking stats and figures; split it into separate sidebar sections if needed; detailed, useful information; be able to compare things and A/B test.
+The direction changed: instead of reworking the Stats page, the user asked for a separate sidebar section with different stats, split into subsections, "as much data and analytics as possible". Built on this branch, not yet committed when written:
 
-Proposed plan (agreed direction, not yet shown to the user):
+- **Stats is now a dropdown in Social** (`children` in `lib/admin/modules.ts`, rendered by `AdminNavList` in `components/admin/AdminSidebar.tsx`): Overview (the existing Stats page, unchanged), then Totals, Posts, Compare, Timing, Engagement, Growth and Lifecycle, under `/admin/marketing/insights`. They first went in as a separate "Social insights" group; the user asked for them inside Social with Stats as the dropdown instead. Planner and Experiments are unchanged.
+- **One loader** `lib/social/load.ts`; arithmetic in `lib/social/insights.ts` and `lib/social/compare.ts`, tested in `tests/social-insights.test.ts`. No migration.
+- **Charts** in `components/admin/insights/charts.tsx` (stacked columns that also go negative, lines with a crosshair, dot strips, heatmap, columns round 1.0x, segmented bar), drawn at the container's width, on the `--viz-*` and `--admin-chart-*` variables. Platforms keep fixed slots: YouTube 1, Instagram 2, TikTok 3, Facebook 4 (validated for colour blindness in both themes).
+- **`permutationP`** now draws only the smaller side when it samples (partial Fisher-Yates), so Compare can test dozens of groups quickly. Same test; sampled p-values on Experiments can move by sampling noise.
+- Checked with screenshots in light and dark and at phone width, from a temporary ungated route fed a read-only snapshot of the live tables (deleted afterwards, never committed).
+- Docs: `docs/SOCIAL.md` "Stats pages", `docs/ADMIN.md` modules table and the dropdown note under "Routing & layout".
 
-**Sidebar, Social group** (`lib/admin/modules.ts`): Overview, Posts, Compare, Timing, Experiments, Planner, Accounts. Each is its own route under `/admin/marketing/`.
-
-1. **Overview** (`/admin/marketing`): a row of figure tiles (views gained, posts, typical post index, watched %, shares per 1k, followers gained), each with the change against the previous period and a sparkline. One chart of views gained per day, stacked by platform. The period's top 5 posts with thumbnails. No explanatory paragraphs: definitions go in tooltips.
-2. **Posts** (`/admin/marketing/posts`): the full table. Every column sortable by its header; filters for platform, tag and date; search. Raw views at 24 hours and 7 days next to the index badge.
-3. **Compare** (`/admin/marketing/compare`): the "why it works" page. Pick a "group by" (platform, length, day, time slot, caption length, question, hashtags, call to action, opening, style, topic, sound, face, hook text, collab) and a measure (index at 24h or 7d, views, watched %, shares, saves or subscribers per 1k). One row per group: number of posts, median, a dot per post, the median bar, the lift against everything else, and a verdict from `permutationP` in `lib/social/experiments.ts` ("real difference", "leaning", "too few posts"; it cannot reach p < 0.05 with fewer than 4 a side). Also a direct A against B pick. Never pool raw views across platforms; the index can pool.
-4. **Timing** (`/admin/marketing/timing`): day by time-slot heatmap of the median index, with the post count in each cell and cells under 3 posts greyed.
-5. **Experiments:** keep the logic; restyle the results to match (big figures, lift, verdict badge, a dot per video, the curves). Nice to have: start an experiment from a Compare finding.
-6. **Accounts** (`/admin/marketing/accounts`): connect and reconnect, sync status, followers over time per platform (`marketing_account_stats`), lifetime views. This moves out of the Stats page.
-
-**How to build it:**
-- Move the loading in `app/admin/marketing/page.tsx` into a shared server loader (for example `lib/social/load.ts`) so each route reads the same data through `assembleVideos()`.
-- Put the grouping maths in a pure `lib/social/compare.ts` with tests, next to `tests/social-overview.test.ts`.
-- Charts follow the admin chart variables (`--admin-chart-*`, `--viz-*`), since hard-coded hex does not follow the light/dark switch. Keep the blue/orange index scale in `components/admin/social/IndexBadge.tsx`.
-- Show screenshots in light and dark before calling it done. The admin pages need a signed-in MFA admin, so the last session used a temporary ungated preview route with made-up data (and deleted it afterwards).
+Ideas not built: start an experiment from a Compare finding; a calendar of posts; a "fatigue" view (does a topic decline the more often we post it).
 
 ## Decisions already made
 
