@@ -1,8 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ADMIN_MODULES, isModuleActive } from "@/lib/admin/modules";
+import {
+  ADMIN_MODULES,
+  isModuleActive,
+  type AdminModule,
+} from "@/lib/admin/modules";
 import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 import {
   NeedsReplyTriangle,
@@ -48,9 +53,45 @@ export function AdminSidebar({ adminEmail }: Props) {
   );
 }
 
+// One link row, for a module or a page inside a dropdown.
+function NavLink({
+  mod,
+  active,
+  row,
+  onNavigate,
+  badge,
+}: {
+  mod: AdminModule;
+  active: boolean;
+  row: string;
+  onNavigate?: () => void;
+  badge?: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={mod.href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={
+        active
+          ? `flex items-center rounded-md bg-zinc-900 font-medium text-white ${row}`
+          : `flex items-center rounded-md text-zinc-700 hover:bg-zinc-100 ${row}`
+      }
+    >
+      {mod.label}
+      {badge}
+    </Link>
+  );
+}
+
 // The module list itself. `touch` gives each row a finger-sized target for the
 // phone sheet; `onNavigate` lets that sheet close itself on a tap, including a
 // tap on the page already open (which changes no pathname).
+//
+// A module with `children` is a dropdown: it opens on its own when one of its
+// pages is the current one, and a click opens or closes it. That choice lasts
+// while the console stays loaded (the sidebar lives in the layout), not across
+// a reload.
 export function AdminNavList({
   touch = false,
   onNavigate,
@@ -60,7 +101,9 @@ export function AdminNavList({
 }) {
   const pathname = usePathname();
   const { count: needsReply } = useNeedsReply();
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
   const row = touch ? "px-3 py-2.5 text-[15px]" : "px-3 py-1.5 text-sm";
+  const childRow = touch ? "px-3 py-2 text-[15px]" : "px-2.5 py-1 text-[13px]";
 
   return (
     <ul className="space-y-0.5">
@@ -96,29 +139,78 @@ export function AdminNavList({
           );
         }
 
+        if (mod.children) {
+          const open = toggled[mod.key] ?? active;
+          const listId = `admin-nav-${mod.key}`;
+          return (
+            <li key={mod.key} className={gapClass}>
+              {heading}
+              <button
+                type="button"
+                aria-expanded={open}
+                aria-controls={listId}
+                onClick={() => setToggled({ ...toggled, [mod.key]: !open })}
+                className={`flex w-full items-center rounded-md hover:bg-zinc-100 ${
+                  active ? "font-medium text-zinc-900" : "text-zinc-700"
+                } ${row}`}
+              >
+                {mod.label}
+                <svg
+                  viewBox="0 0 16 16"
+                  aria-hidden
+                  className={`ml-auto h-3.5 w-3.5 shrink-0 text-zinc-400 transition-transform ${
+                    open ? "rotate-90" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M6 3.5 10.5 8 6 12.5" />
+                </svg>
+              </button>
+              {open && (
+                <ul
+                  id={listId}
+                  className="mt-0.5 mb-1 ml-3 space-y-0.5 border-l border-[var(--admin-border)] pl-1.5"
+                >
+                  {mod.children.map((child) => (
+                    <li key={child.key}>
+                      <NavLink
+                        mod={child}
+                        active={isModuleActive(child, pathname)}
+                        row={childRow}
+                        onNavigate={onNavigate}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        }
+
         return (
           <li key={mod.key} className={gapClass}>
             {heading}
-            <Link
-              href={mod.href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={
-                active
-                  ? `flex items-center rounded-md bg-zinc-900 font-medium text-white ${row}`
-                  : `flex items-center rounded-md text-zinc-700 hover:bg-zinc-100 ${row}`
+            <NavLink
+              mod={mod}
+              active={active}
+              row={row}
+              onNavigate={onNavigate}
+              badge={
+                mod.key === "support" &&
+                needsReply > 0 && (
+                  <NeedsReplyTriangle
+                    count={needsReply}
+                    className={`ml-auto h-4 w-4 shrink-0 ${
+                      active ? "text-amber-400" : "text-amber-600"
+                    }`}
+                  />
+                )
               }
-            >
-              {mod.label}
-              {mod.key === "support" && needsReply > 0 && (
-                <NeedsReplyTriangle
-                  count={needsReply}
-                  className={`ml-auto h-4 w-4 shrink-0 ${
-                    active ? "text-amber-400" : "text-amber-600"
-                  }`}
-                />
-              )}
-            </Link>
+            />
           </li>
         );
       })}

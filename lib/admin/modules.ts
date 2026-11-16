@@ -5,7 +5,8 @@
 // placeholders so the planned shape of the console is visible while the
 // section is still being built. All registered modules are live: Support,
 // Users, Finance, Search, Configuration (tier limits, feature flags, roadmap), the Social group
-// (Stats, Planner, Experiments), the Analytics group
+// (Stats as a dropdown of Overview, Totals, Posts, Compare, Timing,
+// Engagement, Growth and Lifecycle; Planner; Experiments), the Analytics group
 // (Feature adoption, Extension usage, Web usage, Endpoint health, Storage),
 // Audit log.
 
@@ -24,6 +25,10 @@ export type AdminModule = {
   // under one heading; modules without one sit at the top level. Keep the
   // members of a section adjacent in this list, since grouping is by run.
   section?: string;
+  // A dropdown: the entry opens and closes a nested list of these pages
+  // rather than linking anywhere itself (its href is only the fallback), and
+  // reads as active whenever one of them is. Children take no section.
+  children?: AdminModule[];
 };
 
 export const ADMIN_MODULES: AdminModule[] = [
@@ -52,18 +57,35 @@ export const ADMIN_MODULES: AdminModule[] = [
     enabled: true,
   },
 
-  // Social: our own YouTube, Instagram and TikTok (docs/SOCIAL.md). Stats is
-  // the views and followers marketing-sync reads, plus each video's detail
-  // page; Planner schedules posts that marketing-publish sends; Experiments
-  // compares variants at the same age.
+  // Social: our own YouTube, Instagram, TikTok and Facebook (docs/SOCIAL.md).
+  // Stats is a dropdown: Overview is each post against our typical one (plus
+  // each video's detail page), and the pages under it are the deeper read of
+  // the same snapshots, one per question. Planner schedules posts that
+  // marketing-publish sends; Experiments compares variants at the same age.
   {
-    key: "marketing",
+    key: "stats",
     label: "Stats",
     href: "/admin/marketing",
-    also: ["/admin/marketing/videos"],
     enabled: true,
-    exact: true,
     section: "Social",
+    children: [
+      {
+        key: "marketing",
+        label: "Overview",
+        href: "/admin/marketing",
+        also: ["/admin/marketing/videos"],
+        enabled: true,
+        exact: true,
+      },
+      // `exact` so Totals doesn't light up on the pages under its path.
+      { key: "insights", label: "Totals", href: "/admin/marketing/insights", enabled: true, exact: true },
+      { key: "insights-posts", label: "Posts", href: "/admin/marketing/insights/posts", enabled: true },
+      { key: "insights-compare", label: "Compare", href: "/admin/marketing/insights/compare", enabled: true },
+      { key: "insights-timing", label: "Timing", href: "/admin/marketing/insights/timing", enabled: true },
+      { key: "insights-engagement", label: "Engagement", href: "/admin/marketing/insights/engagement", enabled: true },
+      { key: "insights-growth", label: "Growth", href: "/admin/marketing/insights/growth", enabled: true },
+      { key: "insights-lifecycle", label: "Lifecycle", href: "/admin/marketing/insights/lifecycle", enabled: true },
+    ],
   },
   {
     key: "social-planner",
@@ -136,11 +158,12 @@ export const ADMIN_MODULES: AdminModule[] = [
 // Whether a module's nav entry should read as the current page. Shared by the
 // desktop sidebar and the phone tab bar so the two never disagree.
 export function isModuleActive(mod: AdminModule, pathname: string): boolean {
+  if (mod.children) return mod.children.some((c) => isModuleActive(c, pathname));
   const under = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
   // `exact` holds for the module's own href; its `also` paths still match
-  // everything under them (Stats lights up on a video's detail page but not
-  // on the Planner beside it).
+  // everything under them (Stats' Overview lights up on a video's detail page
+  // but not on the Planner beside it).
   if (mod.exact) return pathname === mod.href || (mod.also ?? []).some(under);
   return (mod.also ?? [mod.href]).concat(mod.href).some(under);
 }
