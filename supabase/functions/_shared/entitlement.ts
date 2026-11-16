@@ -20,12 +20,14 @@
 //                            has passed means the conversion event never
 //                            landed, not that the trial runs forever.
 //
-// A comp row is one with no stripe_subscription_id: a support comp or a
-// redeemed creator code (migration 021), granted by hand rather than billed.
-// Those are the only rows whose period end is a deadline. On a Stripe-managed
-// row it is a renewal date the webhook keeps moving, and enforcing it would cut
-// off paying customers in the gap between a renewal and its webhook. Comp rows
-// written before this rule have a null period end and stay open-ended.
+// A comp row is one with no stripe_subscription_id and no shopify_shop_id: a
+// support comp or a redeemed creator code (migration 021), granted by hand
+// rather than billed. Those are the only rows whose period end is a deadline.
+// On a billed row it is a renewal date the biller keeps moving (Stripe through
+// its webhook, Shopify through the plan sync, migration 057), and enforcing it
+// would cut off paying customers in the gap between a renewal and the write
+// that records it. Comp rows written before this rule have a null period end
+// and stay open-ended.
 //
 // The two past_due cases look identical in the database and are completely
 // different in kind:
@@ -52,8 +54,10 @@ export type EntitlementInput = {
   first_paid_at: string | null;
   /** When the current run of failed payments started. */
   past_due_since: string | null;
-  /** Null means a comp row, granted by hand rather than billed by Stripe. */
+  /** Null (with no shopify_shop_id) means a comp row, granted by hand rather than billed. */
   stripe_subscription_id?: string | null;
+  /** The store's id when Shopify bills this row rather than Stripe (migration 057). */
+  shopify_shop_id?: string | null;
   /** On a comp row, the moment the grant runs out. */
   current_period_end?: string | null;
 };
@@ -65,9 +69,14 @@ export type EntitlementInput = {
  * a billed one, so an undefined value means "not asked" and keeps the old
  * behaviour. Guessing the other way would read a paying customer's renewal
  * date as a deadline and cut them off at the end of every month.
+ *
+ * A Shopify-billed row (migration 057) has no Stripe id either, so a caller
+ * that selects stripe_subscription_id must select shopify_shop_id too, or that
+ * row reads as a comp.
  */
 function compExpired(sub: EntitlementInput, now: number): boolean {
   if (sub.stripe_subscription_id !== null) return false;
+  if (sub.shopify_shop_id) return false;
   return past(sub.current_period_end, now);
 }
 

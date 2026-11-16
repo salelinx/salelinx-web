@@ -29,6 +29,7 @@ type Case = {
     first_paid_at: string | null;
     past_due_since: string | null;
     stripe_subscription_id?: string | null;
+    shopify_shop_id?: string | null;
     current_period_end?: string | null;
   };
   entitled: boolean;
@@ -245,6 +246,71 @@ const CASES: Case[] = [
       first_paid_at: null,
       past_due_since: null,
       stripe_subscription_id: null,
+      current_period_end: daysAgo(1),
+    },
+    entitled: false,
+  },
+  // Shopify-billed rows (migration 057) have no Stripe id either. Their period
+  // end is a renewal date the plan sync keeps moving, so it is never a
+  // deadline, exactly as on a Stripe row.
+  {
+    name: "Shopify row whose period end has passed (sync lag)",
+    sub: {
+      status: "active",
+      first_paid_at: daysAgo(40),
+      past_due_since: null,
+      stripe_subscription_id: null,
+      shopify_shop_id: "12345",
+      current_period_end: daysAgo(1),
+    },
+    entitled: true,
+  },
+  {
+    name: "Shopify trial inside its 14 days",
+    sub: {
+      status: "trialing",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      shopify_shop_id: "12345",
+      current_period_end: daysAhead(10),
+    },
+    entitled: true,
+  },
+  // The trial rule still holds: the sync has not seen it convert yet.
+  {
+    name: "Shopify trial past its end",
+    sub: {
+      status: "trialing",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      shopify_shop_id: "12345",
+      current_period_end: daysAgo(1),
+    },
+    entitled: false,
+  },
+  {
+    name: "Shopify row that has ended",
+    sub: {
+      status: "canceled",
+      first_paid_at: daysAgo(40),
+      past_due_since: null,
+      stripe_subscription_id: null,
+      shopify_shop_id: "12345",
+      current_period_end: daysAhead(5),
+    },
+    entitled: false,
+  },
+  // Both ids selected and both null is a comp, as before.
+  {
+    name: "comp row with a null shopify_shop_id, month is up",
+    sub: {
+      status: "active",
+      first_paid_at: null,
+      past_due_since: null,
+      stripe_subscription_id: null,
+      shopify_shop_id: null,
       current_period_end: daysAgo(1),
     },
     entitled: false,

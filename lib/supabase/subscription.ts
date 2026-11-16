@@ -6,6 +6,8 @@ export type SubscriptionRow = {
   user_id: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  /** The store's id when Shopify bills this row rather than Stripe (migration 057). */
+  shopify_shop_id: string | null;
   tier_id: string;
   tier_version: number;
   status: "active" | "past_due" | "canceled" | "incomplete" | "trialing";
@@ -97,12 +99,13 @@ export const GRACE_DAYS = 7;
  * on its own.
  */
 /**
- * A comp row (no Stripe subscription) past its end date. An undefined id means
+ * A comp row (billed by neither Stripe nor Shopify) past its end date. An undefined id means
  * a caller that did not select the column, which keeps the old behaviour rather
  * than reading a paying customer's renewal date as a deadline.
  */
 function compExpired(sub: SubscriptionRow, now: number): boolean {
   if (sub.stripe_subscription_id !== null) return false;
+  if (sub.shopify_shop_id) return false;
   return past(sub.current_period_end, now);
 }
 

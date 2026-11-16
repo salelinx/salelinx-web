@@ -209,6 +209,8 @@ This only applies to comp rows. On a Stripe-managed row the period end is a rene
 
 Any caller that wants the rule must select **both** `stripe_subscription_id` and `current_period_end`. A caller that selects neither keeps the old behaviour rather than reading an absent field as "comp row"; that is why `resolve-category` and the extension's `utils/cloud/subscription.ts` both had their selects widened in the same change. The extension caches its subscription blob for up to an hour, so a comp can outlive its end date there by that much.
 
+**Shopify-billed rows** (`057_shopify_billing.sql`) have no Stripe id either, so `shopify_shop_id` is the other half of the test: a comp is a row with neither id. A caller that selects `stripe_subscription_id` for the rule must select `shopify_shop_id` too, or a Shopify row past its billing cycle's end reads as an expired comp. `feature-gate`, `crosslist-gate` and the extension's `utils/cloud/subscription.ts` select it, and `lib/supabase/subscription.ts` selects `*`. How those rows are written is in `EDGE-FUNCTIONS.md` "Shopify billing".
+
 ## Creator codes (021_creator_codes.sql)
 
 One-time codes that comp a tier for a fixed number of months, handed out for creator outreach (the tooling that generates them lives in `Marketing/youtube-research`).
