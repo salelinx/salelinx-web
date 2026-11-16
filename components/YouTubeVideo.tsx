@@ -8,7 +8,7 @@ export function YouTubeVideo({ id, label, className }: { id: string; label: stri
 
   return playing ? (
     <iframe
-      src={`https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=1`}
+      src={`https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=1&cc_load_policy=0`}
       title={label}
       allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
       allowFullScreen
