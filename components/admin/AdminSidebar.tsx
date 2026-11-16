@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_MODULES, isModuleActive } from "@/lib/admin/modules";
+import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 import {
   NeedsReplyTriangle,
   useNeedsReply,
@@ -128,6 +129,9 @@ export function AdminNavList({
 export function AdminNavFooter({ adminEmail }: { adminEmail: string }) {
   return (
     <div className="border-t border-[var(--admin-border)] p-3">
+      <div className="mb-2">
+        <AdminThemeToggle />
+      </div>
       {adminEmail && (
         <p
           className="mb-2 truncate font-mono text-xs text-zinc-500"

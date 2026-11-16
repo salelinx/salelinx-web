@@ -54,7 +54,7 @@ export function Sparkline({
         <path
           d={d}
           fill="none"
-          stroke="#a1a1aa"
+          stroke="var(--admin-chart-faint)"
           strokeWidth={2}
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -65,7 +65,7 @@ export function Sparkline({
           cx={last[0]}
           cy={last[1]}
           r={3.5}
-          fill="#2563eb"
+          fill="var(--admin-chart-accent)"
           stroke="var(--admin-surface)"
           strokeWidth={2}
         />

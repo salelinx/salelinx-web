@@ -25,6 +25,12 @@ export const PLATFORM_THEME: Record<
     tint: "rgba(37, 244, 238, 0.07)",
     bar: "linear-gradient(90deg, #25F4EE, #000000, #FE2C55)",
   },
+  facebook: {
+    name: "Facebook",
+    accent: "#0866FF",
+    tint: "rgba(8, 102, 255, 0.06)",
+    bar: "#0866FF",
+  },
 };
 
 export function PlatformLogo({
@@ -48,6 +54,23 @@ export function PlatformLogo({
           d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"
         />
         <path fill="#FFFFFF" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+      </svg>
+    );
+  }
+  if (platform === "facebook") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        role="img"
+        aria-label="Facebook"
+      >
+        <circle cx="12" cy="12" r="12" fill="#0866FF" />
+        <path
+          fill="#fff"
+          d="M16.671 15.469 17.203 12h-3.328V9.749c0-.949.465-1.874 1.956-1.874h1.513V4.922s-1.374-.234-2.686-.234c-2.741 0-4.533 1.66-4.533 4.668V12H7.078v3.469h3.047v8.385a12.09 12.09 0 0 0 3.75 0v-8.385z"
+        />
       </svg>
     );
   }

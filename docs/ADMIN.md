@@ -1,6 +1,6 @@
 # Admin console
 
-The internal staff console at `/admin`. It is a dedicated, English-only tool, deliberately kept distinct from the marketing site (its own shell, no Header/Footer, dark "console" theme). It is unlinked from the public site - reachable only by typing the URL - and gated to `admin_users` members. Support tickets were the first module; the console is built to grow.
+The internal staff console at `/admin`. It is a dedicated, English-only tool, deliberately kept distinct from the marketing site (its own shell, no Header/Footer, dark "console" theme by default, with a light option). It is unlinked from the public site - reachable only by typing the URL - and gated to `admin_users` members. Support tickets were the first module; the console is built to grow.
 
 ## Modules
 
@@ -8,7 +8,9 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | --- | --- | --- | --- |
 | Home (overview) | `/admin` | Live | Summary cards (open/needs-reply tickets, subscriber + per-tier counts), the latest successful payments (read from Stripe via `admin-list-payments`, see "Latest payments" below) and recent audit activity. |
 | Finance | `/admin/finance` | Live | Money (MRR, revenue this month against last, kept after fees, refunds) and customers (paying, trials, new, cancelled, net change, cancellation rate), a 12-month revenue chart and MRR by plan, all in GBP as Stripe settled it. Read via `admin-finance-stats`, see "Finance" below. |
-| Marketing | `/admin/marketing` | Live, read-only (plus Connect / Sync now) | Followers, views gained over 7 and 30 days per platform, the top three videos (by views, likes or engagement per view), the five trending by views gained in the last day, views gained per day, and every video on SaleLinx's YouTube, Instagram and TikTok with its numbers. From daily snapshots written by `marketing-sync`, see "Marketing" below. |
+| Social: Stats | `/admin/marketing` | Live, read-only (plus Connect / Sync now) | Followers, views gained over 7 and 30 days per platform, the top three videos (by views, likes or engagement per view), the five trending by views gained in the last day, views gained per day, and every video on SaleLinx's YouTube, Instagram and TikTok with its numbers; each title opens the video's own page (`/admin/marketing/videos/<platform>/<id>`). From daily snapshots written by `marketing-sync`, see "Marketing" below. |
+| Social: Planner | `/admin/marketing/planner` | Live, read/write | Upload a video, write each platform's caption and options, schedule it or post now; `marketing-publish` posts it (YouTube, Instagram and our Facebook Page directly, TikTok to the app's inbox). See `docs/SOCIAL.md`. |
+| Social: Experiments | `/admin/marketing/experiments` | Live, read/write | A/B tests across our videos, compared at the same age within each platform, with a permutation-test verdict. See `docs/SOCIAL.md`. |
 | Search | `/admin/search` | Live, read-only | Every sitemap URL (with its hreflang alternates) and every page Google reports, with clicks, impressions, CTR and average position over 7, 28 or 90 days from the Search Console API. A Searches tab lists the searches the site showed for, each with its top page and a brand tag (salelinx in the search), from two queries (by search, and by search and page) so the totals are Google's own. Sitemap pages Google has never shown sit at zero; Google pages missing from the sitemap are tagged. Read server-side in `app/admin/search/page.tsx` with `GOOGLE_SERVICE_ACCOUNT_JSON` (a service account added as a user on the Search Console property) and `GSC_SITE_URL` (default `sc-domain:salelinx.com`); the page checks `is_admin()` itself because the layout gate renders in parallel with it. |
 | Support | `/admin/support` | Live | Triage + reply to tickets (read/write). |
 | Users | `/admin/users` | Live, read/write | Roster + per-user detail (dropdown filters for status, tier, cancellation, last active, linked, version, country, browser, source and device; signup source column with brand icons and filter with per-source counts, from `signup_source` in user metadata, migration 030; share the short links in `next.config.ts` `SHORT_LINKS` (`/tt`, `/yt`, ...), which redirect with `utm_source` set, rather than raw utm URLs; country column from `country` in auth app metadata, migration 031, set by `proxy.ts` from `x-vercel-ip-country` on signed-in visits; browser column and filter with per-browser counts, parsed from the freshest install's `device_sessions.user_agent`, migration 035; device column (phone, tablet or computer icon) and filter, the device of the first visit that led to signup, from `signup_source.device`, migration 039, blank for accounts created before it and for UK/EEA/Swiss visitors who did not accept cookies; extension signups record source `extension` and device computer, which `components/ExtensionSignupSource.tsx` replaces with a site visit recorded before the signup; subscription + tier, linked marketplace accounts, devices, listings + storage, usage vs caps for a selectable period (all time by default, this period, the usage pages' trailing windows from last 5 minutes to last 72 hours, last 7 / 30 days; caps and percent only on the current-period view), ticket count, admin badge; the drawer also shows the panel's theme, animations and language, which the extension saves to `user_settings.preferences.panel`, migration 045, a dash until that account's extension has saved them). See "User observability" below. The detail drawer can edit the user's subscription (tier / version / status) via `admin_set_user_subscription` (audit-logged), change a customer's paid plan in Stripe via the `admin-change-plan` Edge Function (step-up reauth, audit-logged), and delete the account via the `admin-delete-user` Edge Function (step-up reauth, audit-logged, GDPR runbook). |
@@ -46,6 +48,7 @@ Consequences:
 | `/admin` home dashboard | `app/admin/page.tsx` + `components/admin/AdminDashboard.tsx` |
 | Support module | `app/admin/support/page.tsx` + `components/admin/support/*` |
 | Users module | `app/admin/users/page.tsx` + `components/admin/users/*` |
+| Social group (Stats, Planner, Experiments, video pages) | `app/admin/marketing/**` + `components/admin/marketing/*` + `components/admin/social/*` + `lib/social/*`; see `docs/SOCIAL.md` |
 | Configuration | One sidebar entry (`also` in `lib/admin/modules.ts` lights it on all three paths); `app/admin/(configuration)/layout.tsx` adds the tab bar (`components/admin/ConfigurationTabs.tsx`). A route group, so the URLs below are unchanged. The Subscriptions page was removed: Users filters by plan and its drawer shows and edits the subscription. |
 | Tier limits module | `app/admin/(configuration)/tiers/page.tsx` + `components/admin/tiers/*` |
 | Feature flags module | `app/admin/(configuration)/flags/page.tsx` + `components/admin/flags/*` |
@@ -85,6 +88,15 @@ Consequences:
 | Subscription write RPC | migration `009_admin_console.sql` |
 | Users observability widening (linked accounts, devices, listings, storage) | migration `009_admin_console.sql` |
 
+### Theme
+
+Dark by default. Light, Dark or System can be picked in the sidebar footer (the phone More sheet shows the same footer), in `components/admin/AdminThemeToggle.tsx`.
+
+- **Stored in localStorage** (`slx-admin-theme`), never a cookie, so it stays out of the privacy policy's cookie inventory; it is this browser's preference only. System follows the OS, including a change while the page is open.
+- **Applied before first paint** by the inline script in `app/admin/layout.tsx` (`ADMIN_THEME_SCRIPT` in `lib/admin/theme.ts`), which sets `data-admin-theme` on `<html>`; `suppressHydrationWarning` on `<html>` covers that attribute. The CSP already allows inline scripts. `admin.css` is dark unless the attribute says `light`, so with nothing saved, or before the script runs, the console is dark.
+- **Dark is a palette swap, not `dark:` classes.** The block at the end of `app/admin/admin.css` mirrors the Tailwind palettes the console uses 50<->950 and maps `white` to the card surface, so components keep light-console classes (`bg-white`, `text-zinc-900`) and a pale badge with dark text becomes a deep one with light text. A new module gets both themes for free as long as it sticks to Tailwind colour classes and the `--admin-*` variables. A new colour family (say `rose-*`) needs its mirror added there or it renders light.
+- **Charts** use `--admin-chart-*` (grid, axis, faint, column, accent, label, crosshair) and `--viz-1` to `--viz-5` (the categorical slots, with their own dark steps) instead of hex, so SVG fills and strokes follow the theme. Brand colours (platform logos, signup-source icons) stay as they are.
+
 ### Phones
 
 The console works on a phone. Below Tailwind's `md` breakpoint (768px):
@@ -95,7 +107,6 @@ The console works on a phone. Below Tailwind's `md` breakpoint (768px):
 - **Filter bars swipe sideways** (`overflow-x-auto whitespace-nowrap`, back to `flex-wrap` from `md`) so a dozen filters do not push the rows below the fold.
 - **Support and Users render a card list on phones** and their full tables from `md`. Both are rendered from the same windowed rows, with CSS deciding which shows. Users gets a phone-only Sort dropdown, since its sorting otherwise lives in the table headers. The other tables scroll sideways inside their module.
 - **Form fields are 16px on touch screens** (`admin.css`, `pointer: coarse`). Below that iOS Safari zooms into a focused field and stays zoomed. The rule sits outside any cascade layer so it beats the `text-xs` utilities.
-- **Dark theme is a palette swap** (`admin.css`). The Tailwind palettes the console uses are mirrored 50<->950 and `white` maps to the card surface, so components keep light-console classes (`bg-white`, `text-zinc-900`). A new colour family (say `rose-*`) needs its mirror added there or it renders light.
 - The detail drawers were already `w-full max-w-xl`, so they fill a phone screen; their close buttons are `p-2` for a finger-sized target.
 
 ## Security model
@@ -216,17 +227,19 @@ See `docs/EDGE-FUNCTIONS.md` for deploy and `docs/STRIPE.md` for the billing flo
 
 ### Marketing (`marketing-sync` and `marketing-oauth` Edge Functions)
 
+The planner, publisher, experiments and deeper stats built on this are in `docs/SOCIAL.md`.
+
 `/admin/marketing` shows SaleLinx's own YouTube, Instagram and TikTok: our accounts, not users', so nothing here is personal data (`042_marketing.sql`). The stats tables are admin-readable under RLS; `marketing_accounts` holds the Instagram and TikTok logins and has no policies, so admins read it through `admin_marketing_accounts()`, which leaves the tokens out.
 
 - **`marketing-sync`** saves one row per video per day (`marketing_video_stats`) and each account's followers (`marketing_account_stats`). An hourly dashboard Cron job (`0 * * * *`, so today's numbers are at most an hour old) calls it with the `x-marketing-cron-secret` header (`MARKETING_SECRET`); **Sync now** calls it with the admin's JWT. A second run in a day overwrites that day.
   - YouTube: public stats through the Data API with `YOUTUBE_API_KEY` for `YOUTUBE_CHANNEL_HANDLE` (default `@salelinx`). About a dozen quota units a sync, against 10,000 a day. The Data API has no share count, so YouTube's Shares column reads n/a.
-  - Instagram: Instagram API with Instagram Login. Posts with likes and comments, plus views and shares from each of the newest 100 posts' insights. The 60-day token is renewed a week before it runs out.
+  - Instagram: the Instagram API through the SaleLinx Facebook Page it is linked to (Meta no longer gives new apps Instagram Login), with the Page's token, which does not expire. Posts with likes and comments, plus views, shares, reach, saves and Reels watch time from each of the newest 100 posts' insights. See `docs/SOCIAL.md`.
   - TikTok: Display API (`video.list`, `user.info`). The day-long access token is renewed from the year-long refresh token on each run.
   - Each platform fails on its own: its error lands in `marketing_accounts.last_error` and shows on its card; a platform never connected is skipped.
 - **`marketing-oauth`** is the Connect button's login. A POST with the admin's JWT returns the platform's login page with a state signed by `MARKETING_SECRET` (10 minutes); the platform sends the browser back to this function's URL, which exchanges the code and stores the login, then redirects to `/admin/marketing`. That URL (`https://<project>.supabase.co/functions/v1/marketing-oauth`) is the redirect address registered in the Meta and TikTok apps.
 - **Thumbnails** load from each platform's own image CDN, which the site CSP's `img-src` allows (`next.config.ts`); without them every thumbnail is a broken image.
 - **Growth** comes from comparing snapshots (`lib/admin/marketing.ts`, tested by `tests/marketing.test.ts`). A video only gets a 7- or 30-day gain once there is a snapshot from before the window, or if it was posted inside it; otherwise its lifetime views would read as this week's. Where some videos have no gain yet, the platform total shows a trailing `+`.
-- Secrets: `YOUTUBE_API_KEY`, `YOUTUBE_CHANNEL_HANDLE` (optional), `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, `MARKETING_SECRET`, and `SITE_URL` (already set for checkout).
+- Secrets: `YOUTUBE_API_KEY`, `YOUTUBE_CHANNEL_HANDLE` (optional), `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET` (the YouTube login, for uploads and YouTube Analytics), `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET` (the Meta app's own, for the Page login), `FACEBOOK_LOGIN_CONFIG_ID` and `FACEBOOK_PAGE_ID` (both optional, see `docs/SOCIAL.md`), `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, `MARKETING_SECRET`, and `SITE_URL` (already set for checkout).
 
 ### Finance (`admin-finance-stats` Edge Function)
 

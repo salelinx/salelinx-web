@@ -1,15 +1,22 @@
 // deno-lint-ignore-file
 // marketing-sync: saves today's numbers for every video on SaleLinx's YouTube,
-// Instagram and TikTok, plus each account's followers, for /admin/marketing.
+// Instagram, TikTok and Facebook Page, plus each account's followers, for
+// /admin/marketing.
 // One row per video per day, so a second run in a day overwrites that day.
 //
 // Called by the hourly dashboard Cron job with the x-marketing-cron-secret
 // header (MARKETING_SECRET), or by an admin's "Sync now" with their JWT (same
 // getUser + AAL2 + admin_users gate as the other admin functions).
 //
-// YouTube reads public stats with YOUTUBE_API_KEY for YOUTUBE_CHANNEL_HANDLE.
-// Instagram and TikTok use the logins marketing-oauth stored, renewed here
-// before they expire; a platform that was never connected is skipped.
+// YouTube reads public stats with YOUTUBE_API_KEY for YOUTUBE_CHANNEL_HANDLE,
+// plus watch time and the rest from YouTube Analytics once YouTube is
+// connected. Instagram and TikTok use the logins marketing-oauth stored,
+// renewed before they expire (_shared/marketing-login.ts); a platform that was
+// never connected is skipped.
+//
+// Every run also saves a timestamped snapshot of each video under 8 days old
+// (marketing_video_hourly, 052_social.sql), which is what experiments compare
+// at the same age.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
@@ -17,9 +24,10 @@ import {
   timingSafeEqual,
 } from "../_shared/security.ts";
 import { requireAdmin } from "../_shared/admin-gate.ts";
+import { freshLogin } from "../_shared/marketing-login.ts";
 import {
-  refreshInstagram,
-  refreshTikTok,
+  fetchYouTubeAnalytics,
+  syncFacebook,
   syncInstagram,
   syncTikTok,
   syncYouTube,
@@ -41,27 +49,11 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-type AccountRow = {
-  access_token: string | null;
-  access_expires_at: string | null;
-  refresh_token: string | null;
-};
+// Videos younger than this get a snapshot on every run, enough to read views
+// at 7 days old.
+const HOURLY_FOR_MS = 8 * DAY_MS;
 
-async function loadLogin(platform: Platform): Promise<AccountRow | null> {
-  const { data } = await admin
-    .from("marketing_accounts")
-    .select("access_token, access_expires_at, refresh_token")
-    .eq("platform", platform)
-    .maybeSingle();
-  return data?.access_token ? (data as AccountRow) : null;
-}
-
-async function save(
-  platform: Platform,
-  account: SyncedAccount,
-  day: string,
-  tokens: Record<string, unknown>,
-) {
+async function save(platform: Platform, account: SyncedAccount, day: string) {
   const now = new Date().toISOString();
   const { error: accErr } = await admin.from("marketing_accounts").upsert({
     platform,
@@ -69,7 +61,6 @@ async function save(
     external_id: account.externalId,
     synced_at: now,
     last_error: null,
-    ...tokens,
   });
   if (accErr) throw new Error(`accounts: ${accErr.message}`);
 
@@ -95,9 +86,33 @@ async function save(
         likes: v.likes,
         comments: v.comments,
         shares: v.shares,
+        reach: v.reach ?? null,
+        saves: v.saves ?? null,
+        watch_seconds: v.watchSeconds ?? null,
+        avg_watch_seconds: v.avgWatchSeconds ?? null,
+        avg_view_pct: v.avgViewPct ?? null,
+        subscribers_gained: v.subscribersGained ?? null,
       })),
     );
     if (sErr) throw new Error(`stats: ${sErr.message}`);
+
+    const young = batch.filter(
+      (v) => v.publishedAt && Date.now() - Date.parse(v.publishedAt) < HOURLY_FOR_MS,
+    );
+    if (young.length) {
+      const { error: hErr } = await admin.from("marketing_video_hourly").upsert(
+        young.map((v) => ({
+          platform,
+          external_id: v.externalId,
+          captured_at: now,
+          views: v.views,
+          likes: v.likes,
+          comments: v.comments,
+          shares: v.shares,
+        })),
+      );
+      if (hErr) throw new Error(`hourly: ${hErr.message}`);
+    }
   }
 
   if (account.followers !== null) {
@@ -120,53 +135,36 @@ async function syncPlatform(platform: Platform, day: string): Promise<string> {
       const key = Deno.env.get("YOUTUBE_API_KEY");
       if (!key) return "skipped: YOUTUBE_API_KEY not set";
       const handle = Deno.env.get("YOUTUBE_CHANNEL_HANDLE") ?? "@salelinx";
-      await save(platform, await syncYouTube(key, handle), day, {});
-      return "ok";
+      const account = await syncYouTube(key, handle);
+      let note = "";
+      // Analytics is extra: without the login, or if it fails, the public
+      // numbers are still saved.
+      try {
+        const login = await freshLogin(admin, "youtube");
+        if (login) {
+          const analytics = await fetchYouTubeAnalytics(login.token);
+          for (const v of account.videos) {
+            const a = analytics.get(v.externalId);
+            if (a) Object.assign(v, a);
+          }
+        }
+      } catch (err) {
+        note = ` (analytics failed: ${(err as Error).message})`;
+        console.error("[marketing-sync] youtube analytics failed:", (err as Error).message);
+      }
+      await save(platform, account, day);
+      return `ok${note}`;
     }
 
-    const login = await loadLogin(platform);
+    const login = await freshLogin(admin, platform);
     if (!login) return "skipped: not connected";
-    const expires = login.access_expires_at
-      ? Date.parse(login.access_expires_at)
-      : 0;
-    const tokens: Record<string, unknown> = {};
-    let token = login.access_token!;
-
-    if (platform === "instagram") {
-      // Renewed a week ahead, so a few missed days of Cron can't let it lapse.
-      if (expires - Date.now() < 7 * DAY_MS) {
-        const next = await refreshInstagram({
-          accessToken: token,
-          accessExpiresAt: login.access_expires_at,
-        });
-        token = next.accessToken;
-        Object.assign(tokens, {
-          access_token: token,
-          access_expires_at: next.accessExpiresAt,
-        });
-      }
-      await save(platform, await syncInstagram(token), day, tokens);
-    } else {
-      if (expires - Date.now() < 60 * 60 * 1000) {
-        const next = await refreshTikTok(
-          {
-            accessToken: token,
-            accessExpiresAt: login.access_expires_at,
-            refreshToken: login.refresh_token,
-          },
-          Deno.env.get("TIKTOK_CLIENT_KEY") ?? "",
-          Deno.env.get("TIKTOK_CLIENT_SECRET") ?? "",
-        );
-        token = next.accessToken;
-        Object.assign(tokens, {
-          access_token: token,
-          access_expires_at: next.accessExpiresAt,
-          refresh_token: next.refreshToken,
-          refresh_expires_at: next.refreshExpiresAt,
-        });
-      }
-      await save(platform, await syncTikTok(token), day, tokens);
-    }
+    const account =
+      platform === "instagram"
+        ? await syncInstagram(login.token, login.externalId ?? "")
+        : platform === "facebook"
+          ? await syncFacebook(login.token, login.externalId ?? "me")
+          : await syncTikTok(login.token);
+    await save(platform, account, day);
     return "ok";
   } catch (err) {
     const message = (err as Error).message;
@@ -196,7 +194,7 @@ Deno.serve(async (req) => {
 
   const day = new Date().toISOString().slice(0, 10);
   const results: Record<string, string> = {};
-  for (const platform of ["youtube", "instagram", "tiktok"] as const) {
+  for (const platform of ["youtube", "instagram", "tiktok", "facebook"] as const) {
     results[platform] = await syncPlatform(platform, day);
   }
   return json({ day, results });

@@ -7,6 +7,7 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminTabBar } from "@/components/admin/AdminTabBar";
 import { UserDrawerProvider } from "@/components/admin/UserDrawerProvider";
 import { NeedsReplyProvider } from "@/components/admin/NeedsReplyProvider";
+import { ADMIN_THEME_SCRIPT } from "@/lib/admin/theme";
 import "./admin.css";
 
 // Top-level, non-localized admin console. It is a SIBLING of app/[locale]/ so
@@ -75,10 +76,17 @@ export default async function AdminLayout({
   }
 
   return (
+    // suppressHydrationWarning: the head script sets data-admin-theme on
+    // <html> before React hydrates, which would otherwise read as a mismatch.
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Light / dark choice applied before first paint (lib/admin/theme.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: ADMIN_THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full">
         {/* Lets any module open the user detail drawer from an email, without
             navigating away from the table you are looking at. Read-only there;

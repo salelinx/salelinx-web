@@ -4,7 +4,8 @@
 // Modules marked `enabled: false` render in the sidebar as disabled
 // placeholders so the planned shape of the console is visible while the
 // section is still being built. All registered modules are live: Support,
-// Users, Finance, Marketing, Configuration (tier limits, feature flags, roadmap), the Analytics group
+// Users, Finance, Search, Configuration (tier limits, feature flags, roadmap), the Social group
+// (Stats, Planner, Experiments), the Analytics group
 // (Feature adoption, Extension usage, Web usage, Endpoint health, Storage),
 // Audit log.
 
@@ -39,8 +40,6 @@ export const ADMIN_MODULES: AdminModule[] = [
   { key: "users", label: "Users", href: "/admin/users", enabled: true },
   // Revenue, MRR and customer counts, read from Stripe (admin-finance-stats).
   { key: "finance", label: "Finance", href: "/admin/finance", enabled: true },
-  // Views and followers on our YouTube, Instagram and TikTok (marketing-sync).
-  { key: "marketing", label: "Marketing", href: "/admin/marketing", enabled: true },
   // Clicks and impressions per sitemap page, from Google Search Console.
   { key: "search", label: "Search", href: "/admin/search", enabled: true },
   // Tier limits, feature flags and the public roadmap, as tabs of one page
@@ -51,6 +50,34 @@ export const ADMIN_MODULES: AdminModule[] = [
     href: "/admin/tiers",
     also: ["/admin/flags", "/admin/roadmap"],
     enabled: true,
+  },
+
+  // Social: our own YouTube, Instagram and TikTok (docs/SOCIAL.md). Stats is
+  // the views and followers marketing-sync reads, plus each video's detail
+  // page; Planner schedules posts that marketing-publish sends; Experiments
+  // compares variants at the same age.
+  {
+    key: "marketing",
+    label: "Stats",
+    href: "/admin/marketing",
+    also: ["/admin/marketing/videos"],
+    enabled: true,
+    exact: true,
+    section: "Social",
+  },
+  {
+    key: "social-planner",
+    label: "Planner",
+    href: "/admin/marketing/planner",
+    enabled: true,
+    section: "Social",
+  },
+  {
+    key: "social-experiments",
+    label: "Experiments",
+    href: "/admin/marketing/experiments",
+    enabled: true,
+    section: "Social",
   },
 
   // Analytics: the read-only "what is the extension doing" views. A landing
@@ -109,8 +136,11 @@ export const ADMIN_MODULES: AdminModule[] = [
 // Whether a module's nav entry should read as the current page. Shared by the
 // desktop sidebar and the phone tab bar so the two never disagree.
 export function isModuleActive(mod: AdminModule, pathname: string): boolean {
-  if (mod.exact) return pathname === mod.href;
   const under = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
+  // `exact` holds for the module's own href; its `also` paths still match
+  // everything under them (Stats lights up on a video's detail page but not
+  // on the Planner beside it).
+  if (mod.exact) return pathname === mod.href || (mod.also ?? []).some(under);
   return (mod.also ?? [mod.href]).concat(mod.href).some(under);
 }

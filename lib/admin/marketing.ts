@@ -1,12 +1,13 @@
 // /admin/marketing arithmetic: growth from the daily snapshots marketing-sync
 // writes. Pure, so tests can run it without a database.
 
-export type MarketingPlatform = "youtube" | "instagram" | "tiktok";
+export type MarketingPlatform = "youtube" | "instagram" | "tiktok" | "facebook";
 
 export const MARKETING_PLATFORMS: MarketingPlatform[] = [
   "youtube",
   "instagram",
   "tiktok",
+  "facebook",
 ];
 
 export type MarketingVideoRow = {
@@ -26,6 +27,13 @@ export type MarketingStatRow = {
   likes: number | null;
   comments: number | null;
   shares: number | null;
+  // Lifetime figures only some platforms give (052_social.sql).
+  reach?: number | null;
+  saves?: number | null;
+  watch_seconds?: number | null;
+  avg_watch_seconds?: number | null;
+  avg_view_pct?: number | null;
+  subscribers_gained?: number | null;
 };
 
 export type MarketingFollowerRow = {
@@ -39,6 +47,7 @@ export type MarketingVideo = MarketingVideoRow & {
   likes: number | null;
   comments: number | null;
   shares: number | null;
+  avg_watch_seconds: number | null;
   // Views gained in the last day / 7 days; null until there is a snapshot from before then.
   gained1: number | null;
   gained7: number | null;
@@ -126,6 +135,7 @@ export function buildMarketingReport(input: {
       likes: latest?.likes ?? null,
       comments: latest?.comments ?? null,
       shares: latest?.shares ?? null,
+      avg_watch_seconds: latest?.avg_watch_seconds ?? null,
       gained1: gainedSince(snaps, from1, v.published_at),
       gained7: gainedSince(snaps, from7, v.published_at),
     };
