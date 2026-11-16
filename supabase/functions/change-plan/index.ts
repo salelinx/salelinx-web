@@ -105,8 +105,10 @@ Deno.serve(async (req) => {
   }
 
   let requestedTier: string | undefined;
+  let waiver = false;
   try {
     const body = await req.json().catch(() => ({}));
+    waiver = (body as { waiver?: unknown })?.waiver === true;
     const raw = (body as { tierId?: unknown })?.tierId;
     if (raw !== undefined && typeof raw !== "string") {
       return json({ error: "bad_tier_id" }, 400);
@@ -186,7 +188,12 @@ Deno.serve(async (req) => {
 
   // Ending the trial is what actually starts the money. Stripe bills the
   // first period immediately when trial_end moves to now.
-  if (isTrialing) update.trial_end = "now";
+  // The trial is the cooling-off period, so paying early needs a waiver.
+  if (isTrialing) {
+    if (!waiver) return json({ error: "waiver_required" }, 400);
+    update.trial_end = "now";
+    update.metadata = { refund_waiver_at: new Date().toISOString() };
+  }
 
   // Nothing to do: already on this tier and already paying. Report it rather
   // than making a no-op Stripe write.

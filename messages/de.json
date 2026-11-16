@@ -529,6 +529,7 @@
     "declinedBody": "Deine Karte wurde abgelehnt, dein Tarif bleibt unverändert. Aktualisiere deine Karte und versuche es erneut.",
     "updateCard": "Karte aktualisieren",
     "tryAgain": "Erneut versuchen",
+    "endTrialWaiver": "Ich möchte, dass mein Plan jetzt beginnt. Mir ist bewusst, dass ich mit Beginn mein Widerrufsrecht und den Anspruch auf Erstattung verliere und dass Zahlungen nicht erstattet werden.",
     "endTrialCta": "{price} zahlen und starten",
     "cancel": "Abbrechen",
     "downgradeViaPortal": "Fuer einen niedrigeren Tarif nutze Abo verwalten auf deiner Kontoseite."
@@ -859,7 +860,7 @@
     "comingSoon": "Bald verfügbar",
     "startStarterNow": "Starter jetzt starten",
     "perMonth": "/Mon.",
-    "vatNote": "Die angezeigten Preise sind der Endpreis, den du zahlst. Es wird keine Mehrwertsteuer hinzugefügt. Jederzeit kündbar. Kündigst du vor Ende deiner 14-tägigen kostenlosen Testphase, zahlst du nichts; Zahlungen nach der Testphase werden nicht erstattet.",
+    "vatNote": "Die angezeigten Preise sind der Endpreis, den du zahlst. Es wird keine Mehrwertsteuer hinzugefügt. Jederzeit kündbar. Kündigst du vor Ende deiner 14-tägigen kostenlosen Testphase, zahlst du nichts. Zahlungen werden nicht erstattet.",
     "ebayNote": "Auf eBay deckt SaleLinx heute Crosslisten und Meine Inserate ab. Die übrigen Funktionen laufen auf Depop und Vinted, eBay-Unterstützung folgt.",
     "unlimited": "Unbegrenzt",
     "cloudStorage": "Cloud-Speicher",

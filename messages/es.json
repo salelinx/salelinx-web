@@ -529,6 +529,7 @@
     "declinedBody": "Tu tarjeta ha sido rechazada, así que tu plan no ha cambiado. Actualiza tu tarjeta e inténtalo de nuevo.",
     "updateCard": "Actualizar tarjeta",
     "tryAgain": "Reintentar",
+    "endTrialWaiver": "Quiero que mi plan empiece ahora. Entiendo que pierdo mi derecho de desistimiento y de reembolso en cuanto empieza, y que los pagos no son reembolsables.",
     "endTrialCta": "Pagar {price} y empezar",
     "cancel": "Cancelar",
     "downgradeViaPortal": "Para cambiar a un plan inferior, usa Gestionar suscripcion en la pagina de tu cuenta."
@@ -859,7 +860,7 @@
     "comingSoon": "Próximamente",
     "startStarterNow": "Empezar Starter ahora",
     "perMonth": "/mes",
-    "vatNote": "Los precios mostrados son el precio final que pagas. No se añade IVA. Cancela cuando quieras. Si cancelas antes de que termine tu prueba gratuita de 14 días, no pagas nada; los pagos posteriores a la prueba no son reembolsables.",
+    "vatNote": "Los precios mostrados son el precio final que pagas. No se añade IVA. Cancela cuando quieras. Si cancelas antes de que termine tu prueba gratuita de 14 días, no pagas nada. Los pagos no son reembolsables.",
     "ebayNote": "En eBay, SaleLinx cubre hoy Crosslist y Mis anuncios. Las demás funciones están disponibles en Depop y Vinted, y pronto llegarán a eBay.",
     "unlimited": "Ilimitado",
     "cloudStorage": "Almacenamiento en la nube",
