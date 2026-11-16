@@ -160,6 +160,22 @@ export function tiktokNext(
   }
 }
 
+const norm = (s: string) => s.replace(/\s+/g, " ").trim();
+
+/** The id of the Studio-scheduled post among the account's recent videos, matched on its caption. */
+export function studioMatch(
+  videos: { id?: string | number; video_description?: string; create_time?: number }[],
+  caption: string,
+  scheduledInStudioAt: string,
+): string | null {
+  const from = Date.parse(scheduledInStudioAt) / 1000 - HOUR;
+  const want = norm(caption).slice(0, 60);
+  const v = videos.find(
+    (v) => (v.create_time ?? 0) >= from && want !== "" && norm(v.video_description ?? "").startsWith(want),
+  );
+  return v?.id != null ? String(v.id) : null;
+}
+
 /** An Instagram container's status_code, given when it was made. */
 export function instagramNext(
   statusCode: string | undefined,
