@@ -4,7 +4,7 @@ client_id = "1358d2c72523a2584682e156a097d3d1"
 # The app's page in the store's admin (app/embed/shopify on the website). It takes the store's
 # tokens with App Bridge's ID token (token exchange), so Shopify's managed install below does the
 # approving, and an install is connected to a SaleLinx account from that page.
-application_url = "https://www.salelinx.com/embed/shopify"
+application_url = "https://salelinx.com/embed/shopify"
 embedded = true
 name = "SaleLinx"
 
@@ -42,4 +42,4 @@ use_legacy_install_flow = false
 [auth]
 # Unused: nothing redirects back to the app since the managed install. The configuration still
 # asks for one, and the app's own page is the only address it could be.
-redirect_urls = [ "https://www.salelinx.com/embed/shopify" ]
+redirect_urls = [ "https://salelinx.com/embed/shopify" ]

@@ -153,9 +153,10 @@ supabase secrets set ALLOWED_ORIGIN='https://www.salelinx.com'
 # Store id (oichfmfogobecihmhlgkfcfbdceomenj), EBAY_RUNAME for any other (the
 # unpacked dev build). Further dev copies (each unpacked folder has its own id) go in
 # EBAY_RUNAMES as JSON, checked first: '{"<extension-id>":"<RuName>"}'.
-# EBAY_RUNAME_WEB is the website's eBay page: accept URL https://www.salelinx.com/ebay/connect,
-# declined URL https://www.salelinx.com/ebay/connect?declined=1 (a branch preview's address
-# while testing before the page is live).
+# EBAY_RUNAME_WEB is the website's eBay page: accept URL https://salelinx.com/ebay/connect,
+# declined URL https://salelinx.com/ebay/connect?declined=1 (a branch preview's address
+# while testing before the page is live). salelinx.com, not www: the page keeps its state in
+# the tab's sessionStorage, and www only redirects there.
 # EBAY_ENV=sandbox switches both eBay functions to the sandbox hosts.
 supabase secrets set EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... EBAY_RUNAME=... EBAY_RUNAME_STORE=... EBAY_RUNAME_WEB=...
 # Entered in the portal's Marketplace Account Deletion settings as well.
@@ -625,7 +626,7 @@ billing, a page in Shopify's admin, final scopes).
 - **The app.** One Shopify app in the Dev Dashboard, embedded, with Shopify's managed install
   (since 2026-11-13; until then not embedded, with the legacy install flow and our own OAuth).
   Shopify asks a store to approve the scopes as it installs, then opens the App URL,
-  `https://www.salelinx.com/embed/shopify` (`app/embed/shopify/route.ts`), framed in the store's
+  `https://salelinx.com/embed/shopify` (`app/embed/shopify/route.ts`), framed in the store's
   admin. The scopes are `SCOPES` in `_shared/shopify.ts` and `scopes` in the toml, which must
   match; Shopify asks a linked store about one added later the next time it opens the app. The app's settings are kept in `shopify/shopify.app.toml` (made by
   `shopify app config link`), and `npx @shopify/cli app deploy --path shopify --no-release`
