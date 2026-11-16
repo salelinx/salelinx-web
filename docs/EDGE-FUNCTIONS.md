@@ -57,7 +57,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 | `ebay-web`                | false*       | The `ebay` function's code for the website: its eBay page (`/ebay/connect`), which links eBay with `client: 'web'` (auth by `getUser(jwt)`), and the Shopify app's page, which lists a store's product on eBay (`shopifyItem`, `shopifyListing`; auth by App Bridge's ID token, see "eBay from Shopify") |
 | `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
-| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token: the session, and the store's products with each variant's eBay listing), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
+| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token: the session with the account's plan, and the store's products with each variant's eBay listing), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -165,6 +165,12 @@ supabase secrets set EBAY_DELETION_ENDPOINT='https://<project>.supabase.co/funct
 # Shopify (Dev Dashboard > the SaleLinx app > Settings). The secret also signs
 # Shopify's redirects and webhooks, so both functions read it.
 supabase secrets set SHOPIFY_CLIENT_ID=... SHOPIFY_CLIENT_SECRET=...
+# Shopify billing ("Shopify billing" below): the number in the Partner
+# Dashboard's address, a Partner API client's token (Dev Dashboard >
+# Organization settings > Users > Security, with Manage apps and View
+# financials) and the app's number in the Partner Dashboard. The app's page
+# leaves billing out until all three are set.
+supabase secrets set SHOPIFY_PARTNER_ID=... SHOPIFY_PARTNER_TOKEN=... SHOPIFY_APP_ID=...
 # Referrals (docs/REFERRALS.md): the referee first-month-discount coupons
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.
@@ -645,7 +651,9 @@ billing, a page in Shopify's admin, final scopes).
   admin. For a store an account holds, `session` also answers that account's eBay connection
   (`ebay: { linked, username, reconnect }`; `reconnect` is a link whose tokens are gone), and
   Connect eBay opens the website's eBay page in a new tab ("eBay" above, with `return` and the
-  masked `account`), then checks again when the seller comes back to the tab.
+  masked `account`), then checks again when the seller comes back to the tab. Once billing is
+  set up, `session` also answers `billing`, for the page's plan section ("Shopify billing"
+  below).
 - **The app's product list.** For a store an account holds, the page lists its products (Polaris
   `s-table`, 20 a page, newest changes first, cursor pages, a title search), a row per variant
   with its Shopify status, price and stock, and the eBay listing it is linked to. `/app`'s
@@ -730,7 +738,9 @@ billing, a page in Shopify's admin, final scopes).
   row until the new token is there (about 4 seconds, then `busy`). A refresh Shopify refuses
   answers `reauth`.
 - **Webhooks**, all pointing at `shopify-public` and all in `shopify.app.toml`. `app/uninstalled`
-  deletes the store's tokens and keeps the link, so the extension shows Reconnect.
+  deletes the store's tokens and keeps the link, so the extension shows Reconnect. It also reads
+  the store's plan again (`syncAfterUninstall`): the store's subscription row ends if Shopify no
+  longer bills it, or when the Partner API can't be asked.
   `inventory_levels/update` ends a sold-out variant's eBay listing ("Sold out on Shopify" above). It went in the
   toml when the legacy install flow did (Shopify refused app-wide subscriptions with it); stores
   linked before then were also subscribed one by one, so they get it twice, which is harmless.
@@ -887,6 +897,55 @@ code=<code>` and nothing else.
   `updateProduct` takes it, less tags and options): onto the variant and the product, a
   `categoryId` (or null for none) in place of the match, and no stock at the location when
   tracking is off. It answers like `product`, read after the create.
+- **Shopify billing** (`_shared/shopify-billing.ts`, migration `057_shopify_billing.sql`, built
+  2026-11-16, not live). Shopify App Pricing, set up in the Partner Dashboard: monthly Starter
+  $9.99, Pro $18.99 and Business $31.99, plan handles `starter`, `pro` and `business` (the tier
+  ids), a 14-day trial on Starter. The extension side, and the setup steps, are
+  `../salelinx-app/docs/technical/SHOPIFY.md` "Billing".
+  - **Who pays where.** Stripe for anyone who was a SaleLinx customer before connecting a store;
+    Shopify only for a merchant who found SaleLinx in the App Store first. A store's plan is never
+    written over a live Stripe plan (`liveStripeRow`: active, trialing or past_due, and not a
+    trial past its end), and the extension can't connect a store without a plan, so its users
+    are Stripe customers or comps by then.
+  - **The row.** One `subscriptions` row per store, keyed by `shopify_shop_id` (the store's
+    number, as `shopify_tokens.shop_id`), with no Stripe ids (a CHECK). A row with neither id is a
+    comp, and the entitlement rule (all three copies) treats only that period end as a deadline,
+    so a Shopify row's `current_period_end` is a renewal date. `status` is `trialing` while
+    `trialEndsAt` is ahead (the period end is the trial's), else `active` (the billing cycle's
+    end); no subscription ends the row (`canceled`), which is kept. `first_paid_at` is stamped
+    the first time it is seen past its trial. Every read stamps `updated_at`, which is also the
+    cache. The upsert is on the store, so a store that moves to another account takes its plan.
+  - **No webhooks.** App Pricing sends none for subscription changes after 2026-04-28, so the plan
+    is read with the Partner API's `activeSubscription(appId, shopId)`
+    (`https://partners.shopify.com/<Partner ID>/api/2026-10/graphql.json`,
+    `X-Shopify-Access-Token`, 4 requests a second per client): when the app's page opens
+    (`session`, cached 5 minutes), with `fresh: true` after the welcome link (at most every 5
+    seconds a store), when a store is connected (`claimStore` in `shopify`), and on
+    `app/uninstalled`. Whether an uninstall cancels the subscription isn't documented, so the
+    plan is read then rather than assumed gone. A regular sync of the Partner API's `events`
+    (`SUBSCRIPTION_*`, `RELATIONSHIP_UNINSTALLED`) is still to come.
+  - **`session.billing`**, for a connected store once the three secrets are set (null until then,
+    and when Shopify can't be asked): `{ plan, doubleBilled, planPageUrl }`. `plan` is the
+    account's current plan (`tierId`, `status`, `periodEnd`, `cancelAtPeriodEnd`, and
+    `paidThrough`: `stripe`, `shopify` or `comp`), or null. `doubleBilled` is a live Stripe plan
+    while Shopify bills the store too. `planPageUrl` is Shopify's plan page,
+    `https://admin.shopify.com/store/<store>/charges/<app handle>/pricing_plans`, the handle from
+    the session's `currentAppInstallation { app { handle } }`.
+  - **The page's plan section.** No plan: Choose a plan, which opens Shopify's plan page in the
+    whole tab. A Shopify plan: its trial or renewal date and Manage in Shopify. A Stripe plan:
+    "paid on salelinx.com". Double billed: a warning and Manage in Shopify. Each plan's welcome
+    link (the app's page) comes back with `plan_handle`, and the page asks again with `fresh`
+    every 6 seconds, up to 4 times, until the plan shows.
+  - **Cancelling** (`cancelStorePlan`, for account deletion, not called yet):
+    `appSubscriptionCancel` with `deferCancellation: false` and `prorate: false`, which needs the
+    client's View financials permission.
+  - **Order.** Apply 057 before deploying any function or building the extension from this
+    branch: `feature-gate`, `crosslist-gate` and the extension select `shopify_shop_id`, and a
+    select naming a missing column fails.
+  - **The Partner API queries aren't checked against a schema**, as Shopify's docs proxy has no
+    Partner API. Their fields are from Shopify's reference pages for `activeSubscription` and
+    `appSubscriptionCancel`: run them once in the Partner API client's GraphiQL explorer (Dev
+    Dashboard) before relying on them.
 - **Tests.** `tests/shopify.test.ts` runs the signature checks under vitest, against the worked
   example in Shopify's OAuth docs, plus `productSummary`, `productGid`, `refusal` and the
   editor's checks (`productEdit`, `textToHtml`, `photoFiles`, `samePhotos`, `productDetail`, the
@@ -894,6 +953,10 @@ code=<code>` and nothing else.
   the sales channels (`granted`, `salesChannels`, `channelMoves`), the category details
   (`categoryDetails`, `entryValues`, `detailEntries`, `entryFields`), `oneOffPlan`, and the
   crosslist's `newProduct`, `newProductInput`, `taxonomySearchTerms` and `pickTaxonomyCategory`.
+  `tests/shopify-billing.test.ts` covers billing's `storePlan`, `liveStripeRow`, `planWrite`,
+  `currentPlan`, `paidThrough` and `planPageUrl`, and `tests/shopify-embed-page.test.ts` renders
+  the app's page in each locale and checks that its script parses and finds every string it
+  reads.
 
 ## Excluded from TypeScript checks
 

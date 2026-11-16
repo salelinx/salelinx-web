@@ -131,6 +131,7 @@ import {
   variantSummary,
 } from '../_shared/shopify.ts';
 import { type Auth, accessToken, sleep } from '../_shared/shopify-tokens.ts';
+import { billingConfigured, syncStorePlan } from '../_shared/shopify-billing.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -224,6 +225,15 @@ async function claim(admin, userScoped, userId: string, code: unknown) {
     throw new ShopifyError('Could not save the Shopify connection', 'unavailable', 500);
   }
   if (!took?.length) throw elsewhere();
+  // A store already paying through Shopify brings its plan to the account, unless the account
+  // pays through Stripe (_shared/shopify-billing.ts). Best effort: the app's page reads it again.
+  if (billingConfigured()) {
+    try {
+      await syncStorePlan(admin, store.shopId, userId);
+    } catch (err) {
+      console.warn(`[shopify] user=${userId} plan sync failed code=${err?.code ?? 'error'}`);
+    }
+  }
   return {
     shopId: store.shopId,
     shopName: store.shopName,
