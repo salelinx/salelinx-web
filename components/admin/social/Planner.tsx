@@ -23,6 +23,7 @@ import {
   type SocialTargetRow,
 } from "@/lib/social/types";
 import { useClientNow } from "@/lib/admin/use-client-now";
+import { cleanTags, tagOptions } from "@/lib/social/tags";
 import { callFunction, connectNotice, connectPlatform, megabytes } from "./client";
 import { PostEditor, editorFromPost, newEditor, type EditorState } from "./PostEditor";
 import { LocalTime } from "./LocalTime";
@@ -355,6 +356,7 @@ export function Planner({
           initial={editing}
           experiments={experiments.filter((e) => e.status === "running" || e.id === editing.experimentId)}
           accounts={accounts}
+          tagOptions={tagOptions(posts.map((p) => cleanTags(p.tags)))}
           onClose={() => setEditing(null)}
           onSaved={async (msg, postNow) => {
             setEditing(null);

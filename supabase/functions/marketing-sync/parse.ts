@@ -20,6 +20,10 @@ export type SyncedVideo = {
   avgWatchSeconds?: number | null;
   avgViewPct?: number | null;
   subscribersGained?: number | null;
+  // 054_social_tags.sql: the length (YouTube, TikTok and Facebook give it,
+  // Instagram does not) and the whole caption, for Stats' automatic tags.
+  durationSeconds?: number | null;
+  caption?: string | null;
 };
 
 /** What YouTube Analytics adds per video, keyed by video id. */
@@ -67,11 +71,33 @@ const firstLine = (text: unknown): string | null => {
   return line ? line.slice(0, 200) : null;
 };
 
-/** videos.list items (part=snippet,statistics). YouTube has no share count. */
+/** The whole caption, trimmed to what marketing_videos.caption holds. */
+const fullText = (text: unknown): string | null => {
+  const t = String(text ?? "").trim();
+  return t ? t.slice(0, 5000) : null;
+};
+
+/** A positive length in seconds, or null. */
+const seconds = (v: unknown): number | null => {
+  const n = num(v);
+  return n !== null && n > 0 ? Math.round(n * 10) / 10 : null;
+};
+
+/** YouTube's ISO 8601 duration (PT1M5S) in seconds. P0D, a live stream, is null. */
+export function isoDurationSeconds(iso: unknown): number | null {
+  const m = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/.exec(String(iso ?? ""));
+  if (!m) return null;
+  const [, d, h, min, s] = m;
+  return seconds(Number(d ?? 0) * 86400 + Number(h ?? 0) * 3600 + Number(min ?? 0) * 60 + Number(s ?? 0));
+}
+
+/** videos.list items (part=snippet,statistics,contentDetails). YouTube has no share count. */
 export function parseYouTubeVideos(items: Json[]): SyncedVideo[] {
   return items.map((v) => ({
     externalId: v.id,
     title: v.snippet?.title ?? null,
+    durationSeconds: isoDurationSeconds(v.contentDetails?.duration),
+    caption: fullText(v.snippet?.description),
     url: `https://www.youtube.com/watch?v=${v.id}`,
     thumbnailUrl:
       v.snippet?.thumbnails?.medium?.url ??
@@ -95,6 +121,7 @@ export function parseInstagramMedia(
     return {
       externalId: m.id,
       title: firstLine(m.caption),
+      caption: fullText(m.caption),
       url: m.permalink ?? null,
       // A video's media_url is the file; its thumbnail_url is the still.
       thumbnailUrl:
@@ -181,6 +208,9 @@ export function parseFacebookReels(
     return {
       externalId: id,
       title: firstLine(v.description ?? v.title),
+      caption: fullText(v.description),
+      // The Video node's length, in seconds; only asked for when the API allows.
+      durationSeconds: seconds(v.length),
       url: link,
       thumbnailUrl: v.picture ?? null,
       publishedAt: fbTime(v.created_time),
@@ -200,6 +230,8 @@ export function parseTikTokVideos(videos: Json[]): SyncedVideo[] {
   return videos.map((v) => ({
     externalId: String(v.id),
     title: firstLine(v.title || v.video_description),
+    caption: fullText(v.video_description || v.title),
+    durationSeconds: seconds(v.duration),
     url: v.share_url ?? null,
     thumbnailUrl: v.cover_image_url ?? null,
     publishedAt: v.create_time

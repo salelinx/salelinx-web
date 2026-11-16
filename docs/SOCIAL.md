@@ -4,14 +4,14 @@ The admin console's Social group: SaleLinx's own YouTube, Instagram, TikTok and 
 
 | Page | Route | What it does |
 | --- | --- | --- |
-| Stats | `/admin/marketing` | Followers, views gained, top and trending videos, every video with its numbers (see `docs/ADMIN.md` "Marketing"). Each title opens the video's own page. |
+| Stats | `/admin/marketing` | Every recent post against our typical one (the index), the period's health, each platform, and every video with its tags (see "Stats" and "Tags" below, and `docs/ADMIN.md` "Marketing"). Each title opens the video's own page. |
 | Video | `/admin/marketing/videos/<platform>/<id>` | Every lifetime figure the platform gives, views at 1h / 6h / 24h / 3d / 7d against our typical video there, the first-week curve, views gained per day, and the experiments it is in. |
 | Planner | `/admin/marketing/planner` | Upload a video, write each platform's caption and options, pick a time. `marketing-publish` posts it. |
 | Experiments | `/admin/marketing/experiments` | A/B tests: tag videos A to E, compare them at the same age within each platform. |
 
 It is company data about our own channels, like `042_marketing.sql`: no `user_id`, nothing for the ROPA or the deletion runbook. Who did what is in `admin_audit_log`.
 
-It lives in this repo, not its own, because it leans on everything the console already has: admin login, MFA (AAL2), the audit log, the stored platform logins, the stats tables and the Edge Function gate. A separate app would have to copy all of that. The boundary is kept tight so it could still be lifted out: `lib/social/`, `components/admin/social/`, `app/admin/marketing/`, the `marketing-*` functions and migrations 042 and 052.
+It lives in this repo, not its own, because it leans on everything the console already has: admin login, MFA (AAL2), the audit log, the stored platform logins, the stats tables and the Edge Function gate. A separate app would have to copy all of that. The boundary is kept tight so it could still be lifted out: `lib/social/`, `components/admin/social/`, `app/admin/marketing/`, the `marketing-*` functions and migrations 042, 052, 053 and 054.
 
 ## One-time setup
 
@@ -28,6 +28,7 @@ It lives in this repo, not its own, because it leans on everything the console a
 7. **Deploy** `marketing-oauth`, `marketing-sync` and `marketing-publish` (all `--no-verify-jwt`).
 8. **Reconnect all of them**, on the Stats tab or with the platform buttons in the Planner header. Older logins lack the posting scopes; their button reads "Reconnect to post" (Stats) or "Reconnect" (Planner). The login returns to the page it started from, including a local dev server: `marketing-oauth` signs the return address into its state and only accepts our site or `http://localhost:<port>`, under `/admin/marketing`. The platform's own redirect address stays the deployed function's URL, so connecting from localhost still needs `marketing-oauth` deployed.
 9. **Cron job.** A dashboard Cron job every 5 minutes (`*/5 * * * *`) POSTs to `marketing-publish` with the `x-marketing-cron-secret` header, the same `MARKETING_SECRET` as `marketing-sync`'s hourly job.
+10. **Apply `054_social_tags.sql`, then redeploy `marketing-sync`.** In that order: the function writes 054's `duration_seconds` and `caption` columns, so deployed first it fails every platform's sync. Until 054 runs, Stats shows no index and tags can't be saved.
 
 ## How posting works
 
@@ -79,6 +80,24 @@ When a platform goes live, `marketing-publish` adds the video to `marketing_vide
 - The status check follows it after that: `inbox` until posted, then `published` once TikTok gives the public post id. 7 days in the inbox without a post fails it.
 - If the tap gets old, the way to full automation is an already-audited posting service called from `stepTikTok`; the platform steps in `marketing-publish/platforms.ts` are built to be swapped.
 
+## Stats
+
+The overview at `/admin/marketing` leads with the **index**: a video's views at 24 hours or 7 days divided by our typical video on the same platform at the same age. 1.0x is typical, 2x twice as good. Raw views mislead three ways: older videos have had longer, each platform counts a view its own way (YouTube changed how it counts Shorts views in March 2025), and a good month lifts everything. The index cancels all three, so a TikTok and a Facebook post can sit on one chart.
+
+- **Typical** is the median of the platform's 30 most recent videos with a number at that age, not counting the video being scored, and needs at least 3 of them. Medians throughout, so one viral post can't move it.
+- **Views at an age** come from the `marketing_video_age_points` view (054): per video and age, the snapshot just before and just after it, from the hourly rows (first 8 days) and the daily rows (a finished day's row is taken as 23:00 UTC, its last sync; today's is skipped). `valueAtAge()` interpolates with the experiments' gap rule, so a video from before hourly rows existed has a 7-day number but no 24-hour one. The view returns about five rows per video, where reading the hourly rows directly would be tens of thousands.
+- **Top to bottom:** a sentence for the period and every post as a dot on a line per platform; **Health**, the middle post on five measures against the period before (typical post, watched, shares, saves and subscribers per 1,000 views; saves are Instagram's and subscribers YouTube's, since the others don't report them per video); **By platform**; **Posts**, one row per planner post with its platforms side by side, or per lone video, with tags; and **Accounts** (followers, Connect, views per day) at the bottom, since totals only go up.
+- The period (7, 30 or 90 days) and the age (24 hours or 7 days) are switches. Everything is worked out in the browser from what the page loads: 60 days of daily stats and every video's age points.
+- Arithmetic: `lib/social/overview.ts`, tested in `tests/social-overview.test.ts`.
+
+## Tags
+
+What is in each video, so we can later say why one beat another.
+
+- **Picked:** one opening, style and sound, up to five topics, and three flags (face on screen, words on the first frame, made with a seller). Short fixed lists plus New for our own values, stored as the labels themselves (`lib/social/tags.ts`). A planner post keeps its tags on `social_posts.tags`, covering all its platforms; a video that never went through the planner keeps its own on `marketing_videos.tags`. Both are written only by `admin_set_social_tags()`, which is audited, works at any stage, posted or not, and leaves `updated_at` alone so tagging doesn't reorder the planner.
+- **Where:** the planner's editor ("What's in this video", saved straight after the post), or Stats (Add tags or Edit tags on a row, and "Tag untagged videos" to step through the rest). A post that has started posting can't be saved in the planner any more, so tag it from Stats.
+- **Read automatically**, never stored: the length (the planner file's, read by the browser into `social_posts.media_seconds`, or the sync's `marketing_videos.duration_seconds`: YouTube, TikTok and Facebook give it, Instagram doesn't), the posting slot in UK time (morning 6 to 11, midday 11 to 3, afternoon 3 to 6, evening 6 to 10, late), and what the caption does: its size, a question, hashtags, a call to action (the planner caption, or the sync's `marketing_videos.caption`).
+
 ## Detailed stats
 
 `marketing-sync` now also saves, per video per day (`052_social.sql` columns on `marketing_video_stats`):
@@ -110,6 +129,9 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 | Concern | File |
 | --- | --- |
 | Schema, RPCs, bucket, queue | `supabase/migrations/052_social.sql` (Facebook added to the platform checks in `053_social_facebook.sql`) |
+| Tags, length, caption, age points view | `supabase/migrations/054_social_tags.sql` |
+| Index and overview arithmetic | `lib/social/overview.ts` |
+| Tags, automatic tags | `lib/social/tags.ts` |
 | Publisher | `supabase/functions/marketing-publish/` (`index.ts` handler, `platforms.ts` per-platform steps, `plan.ts` pure decisions) |
 | Shared login renewal | `supabase/functions/_shared/marketing-login.ts` |
 | Logins, scopes, YouTube connect | `supabase/functions/marketing-oauth/index.ts` |
@@ -127,3 +149,4 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 - A calendar view (the planner is a list grouped by what each post needs).
 - Resuming a large upload across runs; a run that times out mid-upload fails the post for a manual Retry.
 - Recording which TikTok sound or Instagram audio a post used, which is often the real variable.
+- A "Why it works" view: each tag's middle post on the index, greyed under about four posts, and a warning when two tags nearly always go together (so their effects can't be told apart).

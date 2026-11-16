@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase/server";
+import { cleanTags, type SocialTags } from "@/lib/social/tags";
 import type { ExperimentMetric, ExperimentVariant, SocialPlatform } from "@/lib/social/types";
 
 // Server actions behind the Planner and Experiments pages. Every write goes
@@ -107,6 +108,35 @@ export async function retrySocialTarget(
     p_post_id: postId,
     p_platform: platform,
   });
+  refresh();
+  return { ok: result.ok, error: result.error };
+}
+
+/**
+ * What is in a video (054_social_tags.sql): a planner post's tags, shared by
+ * its platforms, or one lone video's. Allowed at any stage, posted or not.
+ * mediaSeconds is the planner file's length, when the browser could read it.
+ */
+export async function setSocialTags(input: {
+  postId: string | null;
+  platform: SocialPlatform | null;
+  externalId: string | null;
+  tags: SocialTags;
+  mediaSeconds?: number | null;
+}): Promise<SocialResult> {
+  if (!input.postId && !(input.platform && input.externalId)) return { ok: false, error: "nothing_to_tag" };
+  const seconds =
+    typeof input.mediaSeconds === "number" && Number.isFinite(input.mediaSeconds) && input.mediaSeconds > 0
+      ? Math.min(36000, Math.round(input.mediaSeconds * 10) / 10)
+      : null;
+  const { result } = await run("admin_set_social_tags", {
+    p_post_id: input.postId,
+    p_platform: input.postId ? null : input.platform,
+    p_external_id: input.postId ? null : input.externalId,
+    p_tags: cleanTags(input.tags),
+    p_media_seconds: input.postId ? seconds : null,
+  });
+  revalidatePath("/admin/marketing");
   refresh();
   return { ok: result.ok, error: result.error };
 }

@@ -9,8 +9,10 @@ import { PlatformLogo, PLATFORM_THEME } from "@/components/admin/marketing/Platf
 import {
   discardSocialUpload,
   saveSocialPost,
+  setSocialTags,
   type PostDraft,
 } from "@/app/admin/marketing/actions";
+import { autoTags, cleanTags, type SocialTags, type TagGroupKey } from "@/lib/social/tags";
 import {
   canPost,
   PLATFORM_NAMES,
@@ -31,6 +33,7 @@ import {
 } from "@/lib/social/validate";
 import { useClientNow } from "@/lib/admin/use-client-now";
 import { megabytes, signedUrl, uploadPath, uploadToBucket } from "./client";
+import { TagChips, TagEditor } from "./TagEditor";
 
 type TargetForm = {
   enabled: boolean;
@@ -57,6 +60,10 @@ export type EditorState = {
   variant: string | null;
   notes: string;
   targets: Record<SocialPlatform, TargetForm>;
+  // What is in the video (054_social_tags.sql), saved after the post itself.
+  tags: SocialTags;
+  // The file's length, read from the preview once it loads.
+  mediaSeconds: number | null;
 };
 
 const blankTarget = (enabled = false): TargetForm => ({
@@ -99,6 +106,8 @@ export function newEditor(accounts: SocialAccount[]): EditorState {
       tiktok: blankTarget(ready("tiktok")),
       facebook: blankTarget(ready("facebook")),
     },
+    tags: {},
+    mediaSeconds: null,
   };
 }
 
@@ -132,8 +141,12 @@ export function editorFromPost(p: SocialPost): EditorState {
     variant: p.variant,
     notes: p.notes ?? "",
     targets,
+    tags: cleanTags(p.tags),
+    mediaSeconds: p.media_seconds === null || p.media_seconds === undefined ? null : Number(p.media_seconds),
   };
 }
+
+const sameTags = (a: SocialTags, b: SocialTags) => JSON.stringify(cleanTags(a)) === JSON.stringify(cleanTags(b));
 
 const tagList = (tags: string) =>
   tags
@@ -181,12 +194,14 @@ export function PostEditor({
   initial,
   experiments,
   accounts,
+  tagOptions,
   onClose,
   onSaved,
 }: {
   initial: EditorState;
   experiments: SocialExperimentRow[];
   accounts: SocialAccount[];
+  tagOptions: Record<TagGroupKey, string[]>;
   onClose: () => void;
   onSaved: (message: string, postNow: boolean) => void | Promise<void>;
 }) {
@@ -234,7 +249,8 @@ export function PostEditor({
     const ref: FileRef = { path, bytes: file.size, type: file.type || null, label: file.name };
     if (kind === "video") {
       setPreview(URL.createObjectURL(file));
-      setS((prev) => ({ ...prev, media: ref, name: prev.name || file.name.replace(/\.[^.]+$/, "") }));
+      // The preview's metadata fills in the new file's length.
+      setS((prev) => ({ ...prev, media: ref, mediaSeconds: null, name: prev.name || file.name.replace(/\.[^.]+$/, "") }));
     } else {
       setS((prev) => ({ ...prev, cover: ref }));
     }
@@ -302,11 +318,24 @@ export function PostEditor({
 
     setBusy(true);
     const res = await saveSocialPost(draft);
-    setBusy(false);
     if (!res.ok) {
+      setBusy(false);
       setProblems([res.error ?? "Saving failed."]);
       return;
     }
+    // Tags and length go through their own call, which works at any stage.
+    let tagNote = "";
+    if (res.id && (!sameTags(s.tags, initial.tags) || (s.mediaSeconds !== null && s.mediaSeconds !== initial.mediaSeconds))) {
+      const tagged = await setSocialTags({
+        postId: res.id,
+        platform: null,
+        externalId: null,
+        tags: s.tags,
+        mediaSeconds: s.mediaSeconds,
+      });
+      if (!tagged.ok) tagNote = ` The tags didn't save (${tagged.error ?? "unknown error"}).`;
+    }
+    setBusy(false);
     // Uploads replaced before saving, and the saved post's old files if they
     // were swapped out; discardSocialUpload keeps anything a post still uses.
     await discard([
@@ -316,7 +345,7 @@ export function PostEditor({
     ]);
     fresh.current = [];
     await onSaved(
-      mode === "draft" ? "Saved as a draft." : mode === "now" ? "Saved." : "Scheduled.",
+      (mode === "draft" ? "Saved as a draft." : mode === "now" ? "Saved." : "Scheduled.") + tagNote,
       mode === "now",
     );
   }
@@ -349,7 +378,22 @@ export function PostEditor({
           <div className="space-y-2">
             <span className="text-xs font-medium text-zinc-600">Video</span>
             {preview && (
-              <video src={preview} controls muted playsInline className="max-h-72 rounded-md bg-black" />
+              <video
+                src={preview}
+                controls
+                muted
+                playsInline
+                className="max-h-72 rounded-md bg-black"
+                onLoadedMetadata={(e) => {
+                  const d = e.currentTarget.duration;
+                  if (Number.isFinite(d) && d > 0)
+                    setS((prev) =>
+                      prev.mediaSeconds !== null && Math.abs(prev.mediaSeconds - d) < 0.5
+                        ? prev
+                        : { ...prev, mediaSeconds: Math.round(d * 10) / 10 },
+                    );
+                }}
+              />
             )}
             <div className="flex flex-wrap items-center gap-2">
               <label className="cursor-pointer rounded-md border border-[var(--admin-border)] px-2.5 py-1 text-xs text-zinc-700 hover:text-zinc-900">
@@ -486,6 +530,28 @@ export function PostEditor({
               </section>
             );
           })}
+
+          <section className="space-y-3 rounded-lg border border-[var(--admin-border)] px-3 py-3">
+            <div className="space-y-1">
+              <h3 className="text-xs font-medium text-zinc-900">What&apos;s in this video</h3>
+              <p className="text-xs text-zinc-500">
+                Stats uses these to work out why one post beats another. They cover every platform, and you can change
+                them after it&apos;s posted. Dashed ones are read automatically.
+              </p>
+              <TagChips
+                picked={[]}
+                auto={autoTags({
+                  publishedAt: fromLocalInput(s.when),
+                  seconds: s.mediaSeconds,
+                  caption:
+                    (["tiktok", "instagram", "facebook", "youtube"] as const)
+                      .map((p) => (s.targets[p].enabled ? s.targets[p].caption : ""))
+                      .find((c) => c.trim()) ?? null,
+                })}
+              />
+            </div>
+            <TagEditor value={s.tags} onChange={(tags) => setS((prev) => ({ ...prev, tags }))} options={tagOptions} />
+          </section>
 
           <div className="grid grid-cols-2 gap-2">
             <label className="space-y-1">
