@@ -8,8 +8,11 @@
 // Shopify's admin can't count on salelinx.com's cookies, so it never signs in here. For a store an
 // account holds, it lists the store's products, each variant with where it is on eBay, and lists
 // one on eBay from a short form (the ebay-web function's shopifyItem and shopifyListing, which act
-// for the store's account with the page's ID token). Built with Shopify's Polaris web components,
-// so it looks like the rest of the admin.
+// for the store's account with the page's ID token). Its plan section shows the account's plan
+// and opens Shopify's plan page to pick or manage one; the plan's welcome link comes back here
+// with ?plan_handle, and the page asks for the plan afresh until Shopify shows it (shopify-public,
+// _shared/shopify-billing.ts). Built with Shopify's Polaris web components, so it looks like the
+// rest of the admin.
 //
 // Sets its own headers: next.config.ts leaves /embed/* out of the site-wide DENY, and Shopify
 // wants frame-ancestors naming the store and admin.shopify.com, never a wildcard.
@@ -91,6 +94,18 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
         <s-button id="connect" variant="primary" hidden></s-button>
         <s-button id="account" href="${SITE_URL}/account" target="_blank" hidden></s-button>
         <s-button id="extension" href="${CHROME_WEB_STORE_URL}" target="_blank" hidden></s-button>
+      </s-stack>
+    </s-stack>
+  </s-section>
+  <s-section id="plan" hidden>
+    <s-badge id="planBadge" slot="supplemental"></s-badge>
+    <s-stack gap="base">
+      <s-paragraph id="planBody"></s-paragraph>
+      <s-banner id="planDouble" tone="warning" hidden><span id="planDoubleText"></span></s-banner>
+      <s-paragraph id="planChecking" hidden><s-text id="planCheckingText" color="subdued"></s-text></s-paragraph>
+      <s-stack direction="inline" gap="base">
+        <s-button id="planChoose" variant="primary" hidden></s-button>
+        <s-button id="planManage" hidden></s-button>
       </s-stack>
     </s-stack>
   </s-section>
@@ -190,6 +205,10 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
   // The website's eBay page in the admin's language, on whichever site serves this page.
   const EBAY_PAGE = location.origin + ${inScript(`${localePathPrefix(locale)}/ebay/connect`)};
   const ADMIN_URL = ${inScript(shop ? `https://${shop}/admin/apps/${CLIENT_ID}` : '')};
+  // Shopify's plan page sends the merchant back with the plan's handle (its welcome link).
+  const PLAN_PICKED = new URLSearchParams(location.search).has('plan_handle');
+  // Plan names are names, as on the website's account page.
+  const TIER_NAMES = { starter: 'Starter', pro: 'Pro', business: 'Business' };
   const $ = (id) => document.getElementById(id);
   const fill = (text, values) => text.replace(/\\{(\\w+)\\}/g, (m, k) => (k in values ? values[k] : m));
   const show = (id, on) => { $(id).hidden = !on; };
@@ -218,6 +237,11 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
   say('extension', S.getExtension);
   say('ebayCheck', S.ebayCheck);
   say('ebayWaitingText', S.ebayWaiting);
+  $('plan').setAttribute('heading', S.planTitle);
+  say('planChoose', S.planChoose);
+  say('planManage', S.planManage);
+  say('planDoubleText', S.planDouble);
+  say('planCheckingText', S.planChecking);
   say('productsRetry', S.retry);
   say('colProduct', S.colProduct);
   say('colStatus', S.colStatus);
@@ -318,6 +342,70 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     show('ebayWaiting', waitingForEbay);
     show('ebayCheck', waitingForEbay);
     flag($('ebayCheck'), 'loading', false);
+  }
+
+  // ── Plan ──────────────────────────────────────────────────────────────────
+
+  // Shopify's plan page can send the merchant back before the Partner API shows the plan, so the
+  // page asks again a few times, 6 seconds apart (the server reads afresh at most every 5).
+  let planPicked = PLAN_PICKED;
+  let planTries = 0;
+  let checkingPlan = false;
+
+  const tierName = (id) => TIER_NAMES[id] || (id ? id.charAt(0).toUpperCase() + id.slice(1) : '');
+
+  function day(iso) {
+    const t = Date.parse(iso || '');
+    if (Number.isNaN(t)) return '';
+    try {
+      return new Intl.DateTimeFormat(LANGUAGE, { dateStyle: 'medium' }).format(t);
+    } catch {
+      return new Date(t).toDateString();
+    }
+  }
+
+  // What the plan says, and its badge: the plan's own words when Shopify bills it, where it is
+  // paid otherwise.
+  function planWords(p) {
+    if (!p) return [S.planNone, 'warning', S.planBadgeNone];
+    const date = day(p.periodEnd);
+    const values = { plan: tierName(p.tierId), date };
+    const trial = p.status === 'trialing';
+    const badge = trial ? ['info', S.planBadgeTrial] : ['success', S.planBadgeActive];
+    if (p.cancelAtPeriodEnd && date) return [fill(S.planEnding, values), 'warning', S.planBadgeEnding];
+    if (p.paidThrough === 'stripe') return [fill(S.planStripe, values), ...badge];
+    if (p.paidThrough === 'comp') return [fill(S.planComp, values), ...badge];
+    if (!date) return [fill(S.planShopifyNoDate, values), ...badge];
+    return [fill(trial ? S.planTrial : S.planShopify, values), ...badge];
+  }
+
+  function showPlan(s) {
+    const b = s.linked ? s.billing : null;
+    show('plan', !!b);
+    if (!b) return;
+    const p = b.plan;
+    const [words, tone, badgeText] = planWords(p);
+    const badge = $('planBadge');
+    badge.setAttribute('tone', tone);
+    badge.textContent = badgeText;
+    say('planBody', words);
+    show('planDouble', !!b.doubleBilled);
+    show('planChecking', checkingPlan);
+    show('planChoose', !p && !checkingPlan && !!b.planPageUrl);
+    flag($('planChoose'), 'loading', false);
+    show('planManage', !!b.planPageUrl && (b.doubleBilled || (!!p && p.paidThrough === 'shopify')));
+  }
+
+  // After the welcome link: until the plan shows, or the tries run out.
+  function planRecheck(s) {
+    checkingPlan = !!(s.linked && s.billing && !s.billing.plan) && planTries < 4;
+    showPlan(s);
+    if (!checkingPlan) {
+      planPicked = false;
+      return;
+    }
+    planTries++;
+    setTimeout(load, 6000);
   }
 
   // ── Products ──────────────────────────────────────────────────────────────
@@ -735,7 +823,7 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     flag($('ebayCheck'), 'loading', true);
     let s;
     try {
-      s = await call({ action: 'session' });
+      s = await call({ action: 'session', fresh: planPicked });
     } catch {
       show('loading', false);
       flag($('ebayCheck'), 'loading', false);
@@ -747,6 +835,8 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     show('loading', false);
     showStore(s);
     showEbay(s);
+    if (planPicked) planRecheck(s);
+    else showPlan(s);
     show('products', !!s.linked);
     if (s.linked && !productsLoaded) loadProducts();
   }
@@ -757,6 +847,16 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     if (!last || !last.connectUrl) return;
     flag($('connect'), 'loading', true);
     open(last.connectUrl, '_top');
+  });
+  // Shopify's plan page, in the whole tab: it is part of the admin, not of this page.
+  $('planChoose').addEventListener('click', () => {
+    if (!last || !last.billing || !last.billing.planPageUrl) return;
+    flag($('planChoose'), 'loading', true);
+    open(last.billing.planPageUrl, '_top');
+  });
+  $('planManage').addEventListener('click', () => {
+    if (!last || !last.billing || !last.billing.planPageUrl) return;
+    open(last.billing.planPageUrl, '_top');
   });
   $('ebayConnect').addEventListener('click', () => {
     const url = new URL(EBAY_PAGE);
