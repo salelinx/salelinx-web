@@ -21,6 +21,7 @@ import { EmailPreferencesCard } from "@/components/EmailPreferencesCard";
 import { marketingChoice } from "@/lib/marketing-choice";
 import { ReferralsCard } from "@/components/ReferralsCard";
 import { isAuthUnreachable } from "@/lib/supabase/auth-errors";
+import { shopifyAppAdminUrl } from "@/lib/shopify-app";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -86,6 +87,14 @@ export default async function AccountPage({ params, searchParams }: Props) {
         .eq("user_id", user.id)
         .maybeSingle(),
     ]);
+  // A plan Shopify bills (migration 057) is managed from the app's page in the
+  // store's admin. No address (the app uninstalled, or the function not there
+  // yet) leaves the note without its button.
+  let shopifyAppUrl: string | null = null;
+  if (subscription?.shopify_shop_id) {
+    const { data: domain } = await supabase.rpc("my_shopify_store_domain");
+    shopifyAppUrl = shopifyAppAdminUrl(typeof domain === "string" ? domain : null);
+  }
   const entitled = isEntitled(subscription);
   const emailChoice = marketingChoice(user.user_metadata);
   const trialDaysLeft = trialDaysRemaining(subscription);
@@ -261,6 +270,23 @@ export default async function AccountPage({ params, searchParams }: Props) {
                     secondary={subscription.status === "trialing"}
                   />
                 </div>
+              </div>
+            )}
+            {subscription.shopify_shop_id && (
+              <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/10">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {t("shopifyBilledBody")}
+                </p>
+                {shopifyAppUrl && (
+                  <a
+                    href={shopifyAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-block rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
+                  >
+                    {t("manageInShopify")}
+                  </a>
+                )}
               </div>
             )}
           </>

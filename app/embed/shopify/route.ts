@@ -24,12 +24,8 @@ import es from '@/messages/es.json';
 import fr from '@/messages/fr.json';
 import zh from '@/messages/zh.json';
 import { CHROME_WEB_STORE_URL, SITE_URL, localePathPrefix } from '@/lib/site';
-
-// App Bridge's API key, the app's public client id (shopify/shopify.app.toml).
-const CLIENT_ID = '1358d2c72523a2584682e156a097d3d1';
-
-// Shopify's own rule for a store's permanent address.
-const SHOP_RE = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/;
+// App Bridge's API key is the app's public client id.
+import { SHOPIFY_CLIENT_ID as CLIENT_ID, SHOP_RE } from '@/lib/shopify-app';
 
 // A language tag as Shopify sends it ("en-GB"), for formatting prices.
 const LANGUAGE_TAG_RE = /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8}){0,2}$/;

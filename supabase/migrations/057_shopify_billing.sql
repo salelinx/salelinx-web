@@ -132,4 +132,24 @@ $$;
 REVOKE ALL ON FUNCTION public.redeem_creator_code(TEXT) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.redeem_creator_code(TEXT) TO authenticated;
 
+-- =============================================================================
+-- my_shopify_store_domain: the caller's own store, for the account page
+-- =============================================================================
+-- shopify_tokens is service-role only. The account page links a Shopify-billed
+-- account to the app's page in its store's admin, which needs the store's
+-- address; nothing else of the row leaves, and only the caller's own.
+
+CREATE OR REPLACE FUNCTION public.my_shopify_store_domain()
+RETURNS TEXT
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT t.shop_domain FROM public.shopify_tokens t WHERE t.user_id = auth.uid();
+$$;
+
+REVOKE ALL ON FUNCTION public.my_shopify_store_domain() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.my_shopify_store_domain() TO authenticated;
+
 COMMIT;

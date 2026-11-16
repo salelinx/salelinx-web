@@ -330,6 +330,8 @@
     "pastDueNote": "Un paiement récent a échoué. Mettez à jour votre moyen de paiement ci-dessous pour ne pas perdre l'accès.",
     "scheduledCancel": "Annulation prévue le {date}. Vous pouvez reprendre à tout moment avant cette date via Gérer l'abonnement.",
     "managePortalBody": "Mettez à jour votre forfait, changez de moyen de paiement, téléchargez vos factures ou annulez depuis le portail de facturation Stripe.",
+    "shopifyBilledBody": "Votre forfait est facturé via Shopify. Modifiez-le ou annulez-le depuis SaleLinx dans l'administration de votre boutique Shopify.",
+    "manageInShopify": "Gérer dans Shopify",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "Essai",

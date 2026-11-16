@@ -330,6 +330,8 @@
     "pastDueNote": "فشلت عملية دفع أخيرة. حدّث طريقة الدفع أدناه لتجنب فقدان الوصول.",
     "scheduledCancel": "مجدول للإلغاء في {date}. يمكنك الاستئناف في أي وقت قبل ذلك عبر إدارة الاشتراك.",
     "managePortalBody": "حدّث خطتك، أو غيّر طريقة الدفع، أو نزّل الفواتير، أو ألغِ الاشتراك من بوابة الفوترة في Stripe.",
+    "shopifyBilledBody": "تتم فوترة خطتك عبر Shopify. غيّرها أو ألغها من SaleLinx في لوحة إدارة Shopify.",
+    "manageInShopify": "الإدارة في Shopify",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "فترة تجريبية",

@@ -128,9 +128,11 @@ Deno.serve(async (req) => {
 
   // One subscription per user. Ordering matters because a user who cancelled
   // and re-subscribed has more than one row, so .single() would error.
+  // Every column, for shopify_shop_id: `*` works before and after migration
+  // 057 adds it, where a list naming it would fail every checkout until then.
   const { data: existing, error: subErr } = await supabase
     .from("subscriptions")
-    .select("stripe_customer_id, status")
+    .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   if (subErr) {
@@ -138,7 +140,16 @@ Deno.serve(async (req) => {
   }
 
   const rows = existing ?? [];
-  if (rows.some((r) => LIVE_STATUSES.includes(r.status))) {
+  const live = rows.filter((r) => LIVE_STATUSES.includes(r.status));
+  // Billed through Shopify (migration 057): that plan is managed on Shopify's
+  // plan page, and a Stripe checkout here would bill the account twice.
+  if (live.some((r) => r.shopify_shop_id)) {
+    return json(
+      { error: "Your plan is billed through Shopify", code: "shopify_billed" },
+      409,
+    );
+  }
+  if (live.length > 0) {
     return json({ error: "You already have an active subscription" }, 409);
   }
 

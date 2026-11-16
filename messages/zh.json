@@ -330,6 +330,8 @@
     "pastDueNote": "最近一次扣款失败。请在下方更新支付方式，以免失去使用权限。",
     "scheduledCancel": "已安排在 {date} 取消。在那之前，你可以随时通过“管理订阅”恢复。",
     "managePortalBody": "在 Stripe 的账单门户中更新套餐、更换支付方式、下载发票或取消订阅。",
+    "shopifyBilledBody": "你的套餐通过 Shopify 扣费。请在 Shopify 后台的 SaleLinx 中更改或取消。",
+    "manageInShopify": "在 Shopify 中管理",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "试用",

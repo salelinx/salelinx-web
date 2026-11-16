@@ -936,6 +936,11 @@ code=<code>` and nothing else.
     "paid on salelinx.com". Double billed: a warning and Manage in Shopify. Each plan's welcome
     link (the app's page) comes back with `plan_handle`, and the page asks again with `fresh`
     every 6 seconds, up to 4 times, until the plan shows.
+  - **The website.** `/account` shows a Shopify plan as billed through Shopify, and Manage in
+    Shopify opens the app's page in the store's admin (`my_shopify_store_domain()` in 057 gives
+    the caller their own store's address; `lib/shopify-app.ts`). `create-checkout-session`
+    answers 409 `shopify_billed` for an account with a live Shopify row, which `SubscribeButton`
+    sends to `/account` rather than to Stripe's portal.
   - **Cancelling** (`cancelStorePlan`, for account deletion, not called yet):
     `appSubscriptionCancel` with `deferCancellation: false` and `prorate: false`, which needs the
     client's View financials permission.

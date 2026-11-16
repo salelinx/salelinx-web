@@ -330,6 +330,8 @@
     "pastDueNote": "Un pago reciente falló. Actualiza tu método de pago abajo para no perder el acceso.",
     "scheduledCancel": "Cancelación programada para el {date}. Puedes reanudarla en cualquier momento antes de esa fecha desde Gestionar suscripción.",
     "managePortalBody": "Actualiza tu plan, cambia tu método de pago, descarga facturas o cancela desde el portal de facturación de Stripe.",
+    "shopifyBilledBody": "Tu plan se factura a través de Shopify. Cámbialo o cancélalo desde SaleLinx en el panel de administración de Shopify.",
+    "manageInShopify": "Gestionar en Shopify",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "Prueba",

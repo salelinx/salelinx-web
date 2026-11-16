@@ -330,6 +330,8 @@
     "pastDueNote": "A recent payment failed. Update your payment method below to avoid losing access.",
     "scheduledCancel": "Scheduled to cancel on {date}. You can resume any time before then via Manage subscription.",
     "managePortalBody": "Update your plan, change your payment method, download invoices, or cancel in Stripe's billing portal.",
+    "shopifyBilledBody": "Your plan is billed through Shopify. Change or cancel it from SaleLinx in your Shopify admin.",
+    "manageInShopify": "Manage in Shopify",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "Trial",
