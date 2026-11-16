@@ -629,7 +629,9 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     show('lCheck', true);
     show('lPost', true);
     await showPostage(r.setup);
-    await findCategories(item.title);
+    // The product type leads: a title alone can mislead eBay's suggester ("The Complete
+    // Snowboard" came back as a DVD box set).
+    await findCategories([item.productType, item.title].filter(Boolean).join(' ').slice(0, 100));
   }
 
   // The form as the ebay function takes it, or null with what is missing said.
