@@ -25,6 +25,9 @@ const DOT: Record<IndexTone, string> = {
 
 export const indexDotClass = (x: number) => DOT[indexTone(x)];
 
+/** The badge's fill and text, for cells that carry an index (the Timing heatmap). */
+export const indexCellClass = (x: number) => BADGE[indexTone(x)];
+
 /** Text colour for a change: up is blue, down orange, nothing grey. */
 export const changeClass = (x: number | null) =>
   x === null || Math.abs(x) < 1e-9 ? "text-zinc-500" : x > 0 ? "text-blue-700" : "text-orange-700";

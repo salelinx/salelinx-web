@@ -165,16 +165,20 @@ export function permutationP(a: number[], b: number[]): number {
       tried++;
     }
   } else {
+    // A random split only needs the smaller side drawn: shuffle just that
+    // many places (a partial Fisher-Yates), so Compare can test dozens of
+    // groups of a few hundred posts without stalling the page.
     const rand = mulberry32(n * 7919 + k);
     const pool = [...all];
+    const small = Math.min(k, n - k);
     for (; tried < 20000; tried++) {
-      for (let i = n - 1; i > 0; i--) {
-        const j = Math.floor(rand() * (i + 1));
+      let sumSmall = 0;
+      for (let i = 0; i < small; i++) {
+        const j = i + Math.floor(rand() * (n - i));
         [pool[i], pool[j]] = [pool[j], pool[i]];
+        sumSmall += pool[i];
       }
-      let sumA = 0;
-      for (let i = 0; i < k; i++) sumA += pool[i];
-      if (diff(sumA) >= observed) extreme++;
+      if (diff(small === k ? sumSmall : total - sumSmall) >= observed) extreme++;
     }
   }
   return extreme / tried;
