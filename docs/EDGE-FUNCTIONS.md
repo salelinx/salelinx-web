@@ -476,7 +476,8 @@ Until step 4 lands, the tables still ship in the .crx; they just aren't read at 
 The extension never calls eBay itself. Every eBay request goes through `ebay`, which holds
 the keyset (`EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET`) and each user's tokens, and speaks
 eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
-`trading.test.ts` under Deno). The extension side is in
+`trading.test.ts` under Deno; the tokens and the calls themselves in `api.ts`, which
+`shopify-public` imports too). The extension side is in
 `../salelinx-app/docs/technical/EBAY.md`.
 
 - **Linking.** `consentUrl` returns eBay's consent page (with `prompt=login`, so eBay always asks
@@ -610,8 +611,8 @@ Gotchas:
   refuses a refresh asking for a scope the user never consented to, so every existing link
   would fail until the user reconnects. The list already asks for more than is used today,
   for that reason.
-- **`EBAY_ENV=sandbox` switches every host at once** (auth, api, apiz) in both functions and
-  in `resolve-category`. Sandbox tokens and production tokens are not interchangeable, so a
+- **`EBAY_ENV=sandbox` switches every host at once** (auth, api, apiz) in both functions, in
+  `shopify-public`'s sold-out webhook (`ebay/api.ts`) and in `resolve-category`. Sandbox tokens and production tokens are not interchangeable, so a
   project switched between them needs every user to reconnect.
 
 ## Shopify (`shopify`, `shopify-public`)
@@ -660,6 +661,35 @@ billing, a page in Shopify's admin, final scopes).
   required specifics guessed from the vendor and the variant's options, price, quantity, and
   postage when there is no setup) whose Check eBay fee must pass before List on eBay unlocks; any
   change locks it again. See "eBay from Shopify" above.
+- **Sold out on Shopify** (`inventory_levels/update`, `_shared/shopify-sold-out.ts`). A variant
+  with none left ends its linked eBay listing at once, with no browser open: the extension only
+  sees the sale on its next Shopify poll (up to 15 minutes, and only while it runs), which leaves
+  time for a second buyer on eBay. The toml's `filter = "available:<=0"` has Shopify send only a
+  location's count reaching 0 or below. The rules are the extension's takedown
+  (`../salelinx-app/docs/technical/LINKING.md` "When a linked listing sells"), for eBay only:
+  - Sold out is what the extension's poll reads as Sold: an active product (not a draft,
+    archived or unlisted one), stock tracked, none left at any location (`SOLD_OUT_QUERY` reads
+    every variant holding the item). The item's id comes from `admin_graphql_api_id`, a string,
+    as the plain `inventory_item_id` is a JSON number that loses digits past 2^53.
+  - The group is read as `findLinkedMembers` reads it (`groupFilter`), deleted members left out.
+    A Restocker count above one anywhere in it leaves everything up (`hasStockLeft`), and only
+    eBay members the cloud has as `active` are ended. The plan must include `account_linking`
+    (`checkFeatureAllowed` with the service role, which is why its reads name the user).
+  - One `GetItem` each (whether it is still live, and an auction), then `EndFixedPriceItem` or
+    `EndItem` with `NotAvailable`, and the cloud row goes to `hidden`, as the extension's
+    takedown writes it (Deleted in My Listings, still relistable); a Restocker count on it goes to 0
+    and off across the group. Unlike the extension's, a listing showing more than one still
+    ends: Shopify's count is the group's stock, and List on eBay copies it into the eBay
+    quantity, which no Shopify sale counts down.
+  - Not covered: Depop and Vinted (they need the seller's tab, so the extension still takes
+    them down when its poll sees the sale), the extension's per-device off switch (not in the
+    cloud), and a corner notice (the listing just reads Deleted).
+  - A failure a retry could fix answers 500, and Shopify sends it again (up to 8 times over 4
+    hours). A listing that already ended reads as gone, so a second run ends nothing twice.
+    eBay refusing the end, or no eBay or Shopify connection, answers 200.
+  - The eBay calls are the `ebay` function's own (`ebay/api.ts`: each user's tokens and the
+    Trading API, in a file of their own so `shopify-public` can import them). Deploying
+    `shopify-public` doesn't change the `ebay` function.
 - **Taking the store's tokens** (rule 2.3.2: before anything else). `session` uses the stored
   tokens while they work and carry every scope, and otherwise swaps the ID token for new ones
   (`exchangeIdToken`, token exchange with `expiring=1`): on the store's first open, after an
@@ -699,7 +729,8 @@ billing, a page in Shopify's admin, final scopes).
   row until the new token is there (about 4 seconds, then `busy`). A refresh Shopify refuses
   answers `reauth`.
 - **Webhooks**, all pointing at `shopify-public` and all in `shopify.app.toml`. `app/uninstalled`
-  deletes the store's tokens and keeps the link, so the extension shows Reconnect. It went in the
+  deletes the store's tokens and keeps the link, so the extension shows Reconnect.
+  `inventory_levels/update` ends a sold-out variant's eBay listing ("Sold out on Shopify" above). It went in the
   toml when the legacy install flow did (Shopify refused app-wide subscriptions with it); stores
   linked before then were also subscribed one by one, so they get it twice, which is harmless.
   The three compliance topics every public app must answer: `shop/redact` (48 hours after an

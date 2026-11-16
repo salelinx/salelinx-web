@@ -31,12 +31,16 @@
 //                  subscribed in shopify/shopify.app.toml:
 //        app/uninstalled          deletes that store's tokens; the link stays,
 //                                 so the extension asks the seller to reconnect
+//        inventory_levels/update  (only a location's count reaching 0 or below)
+//                                 a variant with none left ends its linked eBay
+//                                 listing (_shared/shopify-sold-out.ts)
 //        shop/redact              (48 hours after an uninstall) deletes the
 //                                 store's tokens, link and listings
 //        customers/data_request,  nothing to do: SaleLinx keeps no data about
 //        customers/redact         a store's customers
 //
-// Secrets: SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET, SITE_URL.
+// Secrets: SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET, SITE_URL, and the ebay
+// function's EBAY_CLIENT_ID, EBAY_CLIENT_SECRET and EBAY_ENV (ebay/api.ts).
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
 
@@ -69,6 +73,22 @@ import {
   productSearchQuery,
   variantRowId,
 } from '../_shared/shopify-app-page.ts';
+import {
+  type MemberRow,
+  MEMBER_COLUMNS,
+  SOLD_OUT_QUERY,
+  ebayToEnd,
+  ebayVerdict,
+  groupFilter,
+  groupMembers,
+  hasStockLeft,
+  inventoryItemGid,
+  mightBeSoldOut,
+  soldOutRowIds,
+} from '../_shared/shopify-sold-out.ts';
+import { checkFeatureAllowed } from '../_shared/feature-gate.ts';
+import { accessTokenFor, trading } from '../ebay/api.ts';
+import { EbayError, esc, itemFromResponse, listingCall } from '../ebay/trading.ts';
 
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://www.salelinx.com';
 
@@ -294,6 +314,127 @@ async function app(req: Request): Promise<Response> {
   }
 }
 
+// ── A variant sold out ─────────────────────────────────────────────────────
+
+/** Nothing a retry would change: the eBay or Shopify connection gone, or (`refusal`) eBay refusing
+ *  a listing call, which says why in its answer. */
+const settled = (err, refusal = false) =>
+  (err instanceof EbayError &&
+    (['not_linked', 'reauth'].includes(err.code) || (refusal && err.code === 'ebay'))) ||
+  (err instanceof ShopifyError && ['not_linked', 'reauth'].includes(err.code));
+
+/**
+ * The variant's linked eBay listing ended, as the extension's takedown ends it when its poll sees
+ * the sale (_shared/shopify-sold-out.ts has the rules). True when Shopify should send the webhook
+ * again, as something failed that a retry could fix.
+ */
+async function endLinkedEbay(admin, userId: string, rowId: string): Promise<boolean> {
+  const { data: row, error } = await admin
+    .from('listings')
+    .select(MEMBER_COLUMNS)
+    .eq('user_id', userId)
+    .eq('id', rowId)
+    .maybeSingle();
+  if (error) return true;
+  // A Shopify row has to be saved to the cloud to be linked.
+  if (!row) return false;
+  const filter = groupFilter(rowId, row.link_id);
+  if (!filter) return false;
+  const { data: found, error: groupErr } = await admin
+    .from('listings')
+    .select(MEMBER_COLUMNS)
+    .eq('user_id', userId)
+    .or(filter);
+  if (groupErr) return true;
+  const members: MemberRow[] = groupMembers(rowId, found ?? []);
+  const toEnd = ebayToEnd(members);
+  if (toEnd.length === 0) return false;
+  if (hasStockLeft([row, ...members])) {
+    console.log(`[shopify-public] sold out: user=${userId} restock count left, eBay stays up`);
+    return false;
+  }
+  // Ending listings by itself is linking's, as in the extension.
+  const gate = await checkFeatureAllowed(admin, userId, 'account_linking', 'shopify-public');
+  if (!gate.ok) return gate.status === 500;
+
+  let retry = false;
+  try {
+    const auth = await accessTokenFor(admin, userId);
+    for (const member of toEnd) {
+      const itemId = esc(member.platform_listing_id);
+      try {
+        // One call against the shared quota, for whether it is still live and an auction.
+        const item = itemFromResponse(
+          await trading('GetItem', auth, `<ItemID>${itemId}</ItemID><DetailLevel>ReturnAll</DetailLevel>`),
+        );
+        if (ebayVerdict(item) === 'gone') continue;
+        await trading(
+          listingCall('end', !!item.auction),
+          auth,
+          `<ItemID>${itemId}</ItemID><EndingReason>NotAvailable</EndingReason>`,
+        );
+        // Ended rather than removed: it stays on My Listings (Deleted, as a linked row is saved)
+        // and can be relisted.
+        const { error: statusErr } = await admin
+          .from('listings')
+          .update({ status: 'hidden' })
+          .eq('user_id', userId)
+          .eq('id', member.id);
+        if (statusErr) console.warn(`[shopify-public] sold out: user=${userId} status write failed`);
+        // The Restocker's count goes to 0 and off across the group, as the extension's does.
+        if (member.restock_enabled) {
+          await admin
+            .from('listings')
+            .update({ restock_quantity: 0, restock_enabled: false })
+            .eq('user_id', userId)
+            .in('id', [row.id, ...members.map((m) => m.id)]);
+        }
+        console.log(`[shopify-public] sold out: user=${userId} ended eBay ${member.id}`);
+      } catch (err) {
+        if (!settled(err, true)) retry = true;
+        console.warn(
+          `[shopify-public] sold out: user=${userId} eBay ${member.id} not ended code=${err?.code ?? 'error'}`,
+        );
+      }
+    }
+  } catch (err) {
+    // No eBay connection to end it with.
+    if (!settled(err)) throw err;
+  }
+  return retry;
+}
+
+/**
+ * inventory_levels/update: a location's count changed, and Shopify only sends one reaching 0 or
+ * below (shopify.app.toml). Each of the item's variants with none left anywhere ends its linked
+ * eBay listing, with no browser open. True when Shopify should send it again.
+ */
+async function inventoryUpdate(admin, shop: string, payload): Promise<boolean> {
+  const itemId = inventoryItemGid(payload);
+  if (!itemId || !mightBeSoldOut(payload)) return false;
+  const { data: store, error } = await admin
+    .from('shopify_tokens')
+    .select('user_id')
+    .eq('shop_domain', shop)
+    .maybeSingle();
+  if (error) return true;
+  // A store no account holds has no links.
+  if (!store?.user_id) return false;
+  try {
+    const auth = await accessToken(admin, { column: 'shop_domain', value: shop }, creds());
+    const data = await adminGraphql(auth.shop, auth.token, SOLD_OUT_QUERY, { id: itemId });
+    let retry = false;
+    for (const rowId of soldOutRowIds(data)) {
+      if (await endLinkedEbay(admin, store.user_id, rowId)) retry = true;
+    }
+    return retry;
+  } catch (err) {
+    if (settled(err)) return false;
+    console.error('[shopify-public] sold out:', err instanceof Error ? err.message : err);
+    return true;
+  }
+}
+
 // ── Webhooks ───────────────────────────────────────────────────────────────
 
 async function webhook(req: Request): Promise<Response> {
@@ -337,6 +478,16 @@ async function webhook(req: Request): Promise<Response> {
       console.error(`[shopify-public] topic=${topic} delete failed`);
       return text(500, 'Retry');
     }
+  } else if (topic === 'inventory_levels/update') {
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      return text(400, 'Bad body');
+    }
+    // Shopify sends it again on anything but a 2xx, up to 8 times over 4 hours; a listing that
+    // already ended is left alone, so a second run ends nothing twice.
+    if (await inventoryUpdate(admin, shopDomain, payload)) return text(500, 'Retry');
   }
 
   // Shopify retries anything but a 2xx, so every verified topic answers ok.

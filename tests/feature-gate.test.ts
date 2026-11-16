@@ -158,6 +158,13 @@ describe('checkFeatureAllowed', () => {
     ).toEqual(REFUSED);
   });
 
+  it("reads only the user's own subscription, whatever client it is given", async () => {
+    const client = fakeClient({ subscriptions: { data: active }, tier_limits: includes });
+    await checkFeatureAllowed(client, 'u1', 'messages', 'test');
+    expect(client.filters.subscriptions).toContainEqual(['user_id', 'u1']);
+    expect(client.filters.admin_users).toContainEqual(['user_id', 'u1']);
+  });
+
   it('lets an admin through with no plan', async () => {
     expect(await allowed({ admin_users: { data: { user_id: 'u1' } } })).toEqual({ ok: true });
   });

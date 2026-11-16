@@ -18,6 +18,13 @@ api_version = "2026-10"
   topics = [ "app/uninstalled" ]
   uri = "https://owaxopwpktmffqsxavsz.supabase.co/functions/v1/shopify-public"
 
+  # A location's stock count reaching 0 or below: shopify-public ends the eBay listing linked to
+  # a variant with none left anywhere. The filter keeps a store's other stock changes away.
+  [[webhooks.subscriptions]]
+  topics = [ "inventory_levels/update" ]
+  uri = "https://owaxopwpktmffqsxavsz.supabase.co/functions/v1/shopify-public"
+  filter = "available:<=0"
+
   # Required of every public app. shop/redact deletes the store's tokens, link
   # and listings; SaleLinx keeps no data about a store's customers.
   [[webhooks.subscriptions]]
