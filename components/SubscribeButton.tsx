@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { openBillingPortal } from "@/components/ManageSubscriptionButton";
@@ -39,7 +39,9 @@ export function SubscribeButton({
   planName,
 }: Props) {
   const t = useTranslations("Subscribe");
+  const locale = useLocale();
   const [loading, setLoading] = useState(false);
+  const [waiver, setWaiver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [declined, setDeclined] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -83,7 +85,7 @@ export function SubscribeButton({
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ priceId, withTrial }),
+          body: JSON.stringify({ priceId, withTrial, locale }),
         },
       );
 
@@ -141,7 +143,7 @@ export function SubscribeButton({
             "Content-Type": "application/json",
             Authorization: `Bearer ${session?.access_token}`,
           },
-          body: JSON.stringify(tierId ? { tierId } : {}),
+          body: JSON.stringify({ tierId, waiver }),
         },
       );
       if (!res.ok) {
@@ -194,6 +196,7 @@ export function SubscribeButton({
           onClose={() => {
             setLoading(false);
             setDeclined(false);
+            setWaiver(false);
           }}
           className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-black/10 bg-white p-6 text-left text-zinc-900 shadow-xl scale-95 opacity-0 transition-all transition-discrete duration-200 ease-out backdrop:bg-black/0 backdrop:transition-all backdrop:transition-discrete backdrop:duration-200 open:scale-100 open:opacity-100 open:backdrop:bg-black/40 starting:open:scale-95 starting:open:opacity-0 starting:open:backdrop:bg-black/0 motion-reduce:transition-none dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-100"
         >
@@ -203,6 +206,15 @@ export function SubscribeButton({
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             {t("endTrialBody", { plan: planName ?? "", price: price ?? "" })}
           </p>
+          <label className="mt-4 flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={waiver}
+              onChange={(e) => setWaiver(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>{t("endTrialWaiver")}</span>
+          </label>
           {declined && (
             <div
               role="alert"
@@ -252,7 +264,7 @@ export function SubscribeButton({
             <button
               type="button"
               onClick={startPlan}
-              disabled={loading}
+              disabled={loading || !waiver}
               className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             >
               {loading

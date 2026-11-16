@@ -35,6 +35,17 @@ const TRIAL_DAYS = 14;
 // send them to the Customer Portal instead of creating a second one.
 const LIVE_STATUSES = ["active", "trialing", "past_due", "unpaid", "paused"];
 
+const TERMS_URL = `${SITE_URL}/legal/terms`;
+// Waiving the cooling-off period needs express consent.
+const WAIVER: Record<string, string> = {
+  en: `I want my plan to start now. I understand that I lose my right to cancel and get a refund once it starts, and that payments are non-refundable ([terms](${TERMS_URL})).`,
+  fr: `Je veux que mon forfait commence maintenant. Je comprends que je perds mon droit de rétractation et de remboursement dès qu'il commence, et que les paiements ne sont pas remboursables ([conditions](${TERMS_URL})).`,
+  es: `Quiero que mi plan empiece ahora. Entiendo que pierdo mi derecho de desistimiento y de reembolso en cuanto empieza, y que los pagos no son reembolsables ([condiciones](${TERMS_URL})).`,
+  de: `Ich möchte, dass mein Plan jetzt beginnt. Mir ist bewusst, dass ich mit Beginn mein Widerrufsrecht und den Anspruch auf Erstattung verliere und dass Zahlungen nicht erstattet werden ([Bedingungen](${TERMS_URL})).`,
+  ar: `أريد أن تبدأ خطتي الآن. أفهم أنني أفقد حقي في الإلغاء واسترداد المبلغ بمجرد بدئها، وأن المدفوعات غير قابلة للاسترداد ([الشروط](${TERMS_URL})).`,
+  zh: `我希望我的方案立即开始。我明白方案一旦开始，我将失去取消并获得退款的权利，且所有付款均不予退款（[条款](${TERMS_URL})）。`,
+};
+
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -88,8 +99,9 @@ Deno.serve(async (req) => {
 
   let priceId: unknown;
   let withTrial: unknown;
+  let locale: unknown;
   try {
-    ({ priceId, withTrial } = await req.json());
+    ({ priceId, withTrial, locale } = await req.json());
   } catch {
     return json({ error: "Invalid request body" }, 400);
   }
@@ -210,7 +222,14 @@ Deno.serve(async (req) => {
             trial_period_days: TRIAL_DAYS,
           },
         }
-      : {}),
+      : {
+          consent_collection: { terms_of_service: "required" },
+          custom_text: {
+            terms_of_service_acceptance: {
+              message: WAIVER[locale as string] ?? WAIVER.en,
+            },
+          },
+        }),
   });
 
   return json({ url: session.url }, 200);

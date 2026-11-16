@@ -529,6 +529,7 @@
     "declinedBody": "你的银行卡被拒，套餐未更改。请更新银行卡后重试。",
     "updateCard": "更新银行卡",
     "tryAgain": "重试",
+    "endTrialWaiver": "我希望我的方案立即开始。我明白方案一旦开始，我将失去取消并获得退款的权利，且所有付款均不予退款。",
     "endTrialCta": "支付 {price} 并开始",
     "cancel": "取消",
     "downgradeViaPortal": "如需降级，请在账户页面使用“管理订阅”。"
@@ -859,7 +860,7 @@
     "comingSoon": "即将推出",
     "startStarterNow": "立即开通 Starter",
     "perMonth": "/月",
-    "vatNote": "显示的价格就是你最终支付的金额，不额外收取增值税。可随时取消。在 14 天免费试用结束前取消，你无需支付任何费用；试用结束后的付款不予退款。",
+    "vatNote": "显示的价格就是你最终支付的金额，不额外收取增值税。可随时取消。在 14 天免费试用结束前取消，你无需支付任何费用。所有付款均不予退款。",
     "ebayNote": "目前在 eBay 上，SaleLinx 支持跨平台上架和「我的商品」。其他功能适用于 Depop 和 Vinted，eBay 支持即将推出。",
     "unlimited": "无限",
     "cloudStorage": "云端存储",
