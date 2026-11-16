@@ -17,9 +17,10 @@ import {
 // SaleLinx login, so an eBay account only ever joins the account signed in on this browser: a link
 // someone else made can't connect a seller's eBay to theirs. The Shopify app's page in a store's
 // admin opens it in a new tab, with `return` (the way back to it) and `account` (the store's
-// account, masked, to warn about a different login). The ebay function's consentUrl and link take
-// client 'web', which picks EBAY_RUNAME_WEB, whose accept URL is this page. See
-// docs/EDGE-FUNCTIONS.md "eBay".
+// account, masked, to warn about a different login). It calls `ebay-web`, the ebay function's code
+// under its own name, so nothing deployed for this page reaches the extension's `ebay`. Its
+// consentUrl and link take client 'web', which picks EBAY_RUNAME_WEB, whose accept URL is this
+// page. See docs/EDGE-FUNCTIONS.md "eBay".
 
 const PRIMARY =
   'inline-flex items-center justify-center rounded-full bg-black px-7 py-3.5 text-base font-medium text-white transition hover:bg-zinc-800 disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-zinc-200';
@@ -66,7 +67,7 @@ const readSaved = (): Saved => {
 };
 const noChanges = () => () => {};
 
-/** The ebay function as the signed-in seller, or null when no one is signed in. */
+/** The ebay-web function as the signed-in seller, or null when no one is signed in. */
 async function ebayCall(
   body: Record<string, unknown>,
 ): Promise<{ ok: boolean; body: Record<string, unknown> } | null> {
@@ -74,7 +75,7 @@ async function ebayCall(
     data: { session },
   } = await createBrowserClient().auth.getSession();
   if (!session) return null;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/ebay`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/ebay-web`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

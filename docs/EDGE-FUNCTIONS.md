@@ -23,6 +23,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 - **`process-referral-rewards`** - grants referral rewards (Stripe balance credits) on a daily schedule. Needs `STRIPE_SECRET_KEY` and the service role; invoked by a dashboard Cron job, never by browsers. See `docs/REFERRALS.md`.
 - **`ebay`** - the extension's only route to eBay. It has to be server-side: every token exchange and refresh needs the app's client secret, which cannot ship in a .crx, and each user's refresh token is a long-lived credential for their eBay account. Holds both. See "eBay" below.
 - **`ebay-account-deletion`** - eBay will not let a production keyset make calls until it has a public Marketplace Account Deletion endpoint to notify. See "eBay" below.
+- **`ebay-web`** - the `ebay` function's code under its own name (`ebay-web/index.ts` only imports `../ebay/index.ts`), for the website's eBay page. Deploying it reaches no one using the extension, which calls `ebay`. See "eBay" below.
 - **`shopify`** - the extension's only route to Shopify, server-side for the same reason as `ebay`: the token exchange and every refresh need the app's client secret. See "Shopify" below.
 - **`shopify-public`** - what the Shopify app's page in a store's admin calls (`/app`, with App Bridge's ID token), its Connect address (`/connect`) and the webhooks, none with a SaleLinx session. See "Shopify" below.
 
@@ -54,6 +55,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `report-selftest`         | false*       | Extension POSTs one admin endpoint self-test run; `getUser(jwt)` identifies the caller, then `admin_users` is re-checked with the service role |
 | `ebay`                    | false*       | Extension's only route to eBay: OAuth link, My Listings poll, item read, revise / end / relist, photo upload, crosslist `add` (with a verify-only fee check; a real add runs the crosslist paywall), postage and policies, seller registration (`privileges`), categories, conditions, item specifics, view counts, buyers' Best Offers and the seller's answer (`offers`, `respondOffer`), Send Offers to watchers through the Negotiation API (`offerEligible`, `sendOffer`, which checks the plan's `auto_offer`), orders waiting to be posted and marking one posted (`orders`, `markShipped`), messages (`conversations`, `sendMessage`, `uploadMessagePhoto`). Tokens live in `ebay_tokens` (service role only); auth by `getUser(jwt)` |
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
+| `ebay-web`                | false*       | The `ebay` function's code for the website's eBay page (`/ebay/connect`), which links eBay with `client: 'web'`; auth by `getUser(jwt)` |
 | `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
 | `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
@@ -111,6 +113,7 @@ supabase functions deploy resolve-category --no-verify-jwt
 supabase functions deploy process-referral-rewards --no-verify-jwt
 supabase functions deploy ebay --no-verify-jwt
 supabase functions deploy ebay-account-deletion --no-verify-jwt
+supabase functions deploy ebay-web --no-verify-jwt
 supabase functions deploy shopify --no-verify-jwt
 supabase functions deploy shopify-public --no-verify-jwt
 ```
@@ -485,6 +488,8 @@ eBay's Trading API (XML; parsing and building live in `trading.ts`, tested by
   Store id and `EBAY_RUNAME` for anything else. The website links too, on its eBay page
   (`app/[locale]/ebay/connect`, `components/EbayConnect.tsx`), which the Shopify app's page opens:
   it sends `client: 'web'`, which picks `EBAY_RUNAME_WEB`, whose accept URL is that page. The
+  page calls `ebay-web`, the same code under its own name, so a deploy for the page never reaches
+  the extension's `ebay`; `ebay` gets the change only when it is deployed itself. The
   page starts and finishes the sign-in with the seller's own website login (the state it sends is
   kept in the tab's `sessionStorage` and checked on the way back), so an eBay account only ever
   joins the account signed in on that browser. A link someone else made can't attach a seller's

@@ -99,6 +99,9 @@ verify_jwt = false
 [functions.ebay-account-deletion]
 verify_jwt = false
 
+[functions.ebay-web]
+verify_jwt = false
+
 [functions.shopify]
 verify_jwt = false
 
