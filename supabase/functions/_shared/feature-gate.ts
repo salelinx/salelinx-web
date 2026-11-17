@@ -3,7 +3,9 @@
 // user can patch. Follows the same plan rules as crosslist-gate.ts.
 //
 // Reads go through the caller's user-scoped client on purpose, so the "own read"
-// RLS policies apply and this can only ever see the caller's own rows.
+// RLS policies apply and this can only ever see the caller's own rows. Every read
+// also names the user, as shopify-public's sold-out webhook has no caller and
+// passes the service role.
 
 import { isSubscriptionEntitled } from './entitlement.ts';
 
@@ -37,11 +39,13 @@ export async function checkFeatureAllowed(
 ): Promise<FeatureGate> {
   const { data: sub, error: subErr } = await userScoped
     .from('subscriptions')
-    // stripe_subscription_id and current_period_end are what let
-    // isSubscriptionEntitled expire a comp row.
-    .select(
-      'tier_id, tier_version, status, first_paid_at, past_due_since, stripe_subscription_id, current_period_end',
-    )
+    // Every column: stripe_subscription_id, shopify_shop_id and
+    // current_period_end are what let isSubscriptionEntitled expire a comp row
+    // and never a billed one. `*` rather than a list, so this works before and
+    // after migration 058 adds shopify_shop_id: a list naming a missing column
+    // fails the whole read, and with it every gated action.
+    .select('*')
+    .eq('user_id', userId)
     .in('status', ENTITLED_STATUSES)
     .order('created_at', { ascending: false })
     .limit(1)

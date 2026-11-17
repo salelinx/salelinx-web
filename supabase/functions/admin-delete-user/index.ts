@@ -6,7 +6,9 @@
 //   1. Storage objects under listing-images/{userId}/ (DB cascade does not
 //      touch Storage)
 //   2. The Stripe customer(s) - deletion cancels any active subscription;
-//      Stripe retains invoices for tax law, which the privacy policy discloses
+//      Stripe retains invoices for tax law, which the privacy policy discloses.
+//      Then any plan Shopify still bills for one of the user's stores,
+//      cancelled at once (_shared/shopify-billing.ts)
 //   3. The auth.users row - ON DELETE CASCADE then removes listings,
 //      platform_credentials, user_settings, linked_accounts, subscriptions,
 //      usage_counters, user_storage, support_tickets, and replies
@@ -29,6 +31,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const BUCKET = "listing-images";
 
 import { corsHeaders as sharedCorsHeaders } from "../_shared/security.ts";
+import { cancelAccountStorePlans } from "../_shared/shopify-billing.ts";
 
 const corsHeaders = sharedCorsHeaders();
 
@@ -178,6 +181,17 @@ Deno.serve(async (req) => {
     }
   }
 
+  // 2b. Shopify plans (migration 058). Shopify bills a store for SaleLinx until
+  // its subscription is cancelled, whatever happens to the account, so each one
+  // still billed is cancelled here. Like Stripe's, a failure stops the deletion.
+  let shopifyCancelled = 0;
+  try {
+    shopifyCancelled = await cancelAccountStorePlans(admin, userId);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return json({ error: `shopify: ${msg}` }, 500);
+  }
+
   // 3. The auth user - cascades every user-owned row.
   const { error: delErr } = await admin.auth.admin.deleteUser(userId);
   if (delErr) return json({ error: `deleteUser: ${delErr.message}` }, 500);
@@ -193,6 +207,7 @@ Deno.serve(async (req) => {
     metadata: {
       storage_objects: paths.length,
       stripe_customers: stripeDeleted,
+      shopify_plans: shopifyCancelled,
       account_created_at: targetUser.user.created_at,
     },
   });
@@ -202,5 +217,6 @@ Deno.serve(async (req) => {
     ok: true,
     storage_objects: paths.length,
     stripe_customers: stripeDeleted,
+    shopify_plans: shopifyCancelled,
   });
 });

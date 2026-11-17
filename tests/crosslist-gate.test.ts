@@ -69,6 +69,18 @@ describe('checkCrosslistAllowed', () => {
     expect(client.filters.usage_counters).toContainEqual(['feature', 'crosslist']);
   });
 
+  it("reads only the user's own subscription, whatever client it is given", async () => {
+    const client = fakeClient({
+      subscriptions: { data: activePro },
+      tier_limits: { data: { limits: { crosslists_per_month: 3500 } } },
+      usage_counters: { data: { count: 10 } },
+    });
+    await checkCrosslistAllowed(client, 'u1', 'test');
+    expect(client.filters.subscriptions).toContainEqual(['user_id', 'u1']);
+    expect(client.filters.admin_users).toContainEqual(['user_id', 'u1']);
+    expect(client.filters.usage_counters).toContainEqual(['user_id', 'u1']);
+  });
+
   it('refuses a plan that has used its monthly cap', async () => {
     const client = fakeClient({
       subscriptions: { data: activePro },

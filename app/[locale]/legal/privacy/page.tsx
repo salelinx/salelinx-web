@@ -28,13 +28,13 @@ export async function generateMetadata({
   });
 }
 
-const LAST_UPDATED = "14 November 2026";
+const LAST_UPDATED = "17 November 2026";
 
 const SECTIONS: LegalSection[] = [
   {
     heading: "Who we are",
     paragraphs: [
-      "SaleLinx Ltd (\"SaleLinx\", \"we\", \"us\") is a company registered in England and Wales, company number 17351832, with registered office at 34 Sussex Place, London, W2 2TH. We provide a browser extension and the website salelinx.com that help resellers manage, cross-list, and automate tasks for their own listings on Depop, Vinted and eBay.",
+      "SaleLinx Ltd (\"SaleLinx\", \"we\", \"us\") is a company registered in England and Wales, company number 17351832, with registered office at 34 Sussex Place, London, W2 2TH. We provide a browser extension and the website salelinx.com that help resellers manage, cross-list, and automate tasks for their own listings on Depop, Vinted and eBay, and in their own Shopify store.",
       "For the personal data we hold about you as an account holder, SaleLinx Ltd is the data controller. For any privacy question or request, contact us at support@salelinx.com.",
     ],
   },
@@ -43,8 +43,9 @@ const SECTIONS: LegalSection[] = [
     bullets: [
       "Your Depop and Vinted session credentials never leave your browser. The extension acts through the marketplace sessions already signed in on your device.",
       "eBay works differently. If you connect eBay, you sign in on eBay's own page and eBay gives us a token to act on your listings. We store that token on our servers and your eBay requests pass through them. We never see your eBay password.",
+      "Shopify works like eBay: if you install the SaleLinx app in your Shopify store, Shopify gives us a token to act on your store's products. We never see your Shopify password, and we never read your store's customers or orders.",
       "We only store listing content on our servers when you turn on cloud sync or backup features.",
-      "Payments are handled by Stripe. We never see or store your card details.",
+      "Payments are handled by Stripe, or by Shopify if you subscribe through the SaleLinx app in Shopify. We never see or store your card details.",
       "We do not sell or share your data with advertisers or data brokers, and we do not collect your browsing history.",
       "Details about your buyers (names, delivery details on shipping labels) are processed on your device. They reach our systems in only three cases: if you use the email shipping labels feature, they are passed through to deliver your email; if you connect eBay, eBay includes buyer details with the sales it sends when SaleLinx loads your eBay listings, and our servers discard them straight away; and if you use Messages with eBay, your conversations with eBay members pass through our servers between eBay and your device. They are never stored.",
     ],
@@ -53,9 +54,10 @@ const SECTIONS: LegalSection[] = [
     heading: "Information we collect",
     paragraphs: [
       "Account information. When you create a SaleLinx account we collect your email address and a password, or, if you choose Sign in with Google, the email address and basic profile of your Google account instead of a password. Passwords are hashed by our authentication provider (Supabase); we cannot read them.",
-      "Subscription and billing information. Checkout and card processing are handled by Stripe. We store your subscription tier, billing status, and renewal date. We do not receive or store card numbers.",
+      "Subscription and billing information. Checkout and card processing are handled by Stripe, or by Shopify if you subscribe through the SaleLinx app in Shopify, which bills you on your Shopify invoice. We store your subscription tier, billing status, and renewal date, and for a plan Shopify bills, your store's ID. We do not receive or store card numbers.",
       "Listing content (optional). If you enable cloud sync or image backup, the listings you select (titles, descriptions, prices, attributes, and photos) are stored in our database and storage so you can restore and relist them. If you never enable these features, your listing data stays on your device.",
       "eBay connection (optional). If you connect an eBay account, eBay gives us your eBay user ID, username and registration site, and access and refresh tokens that let SaleLinx act on your eBay listings. The keys SaleLinx uses to talk to eBay are held on our servers, so the eBay actions you take in the extension (loading your listings and sales, editing, ending, relisting or creating listings, uploading photos, reading view counts, reading and sending your eBay messages, and reading your eBay business policies and whether you sell as a business or private seller) pass through our servers to eBay. We do not keep the listing content of these requests unless you turn on cloud sync, and we never keep your eBay messages. If you save postage settings for crosslisting to eBay, including the postcode your items are sent from, we store them with your account. We keep the tokens until you unlink eBay, eBay tells us you have closed your eBay account, or you delete your SaleLinx account. eBay's own privacy notice covers what eBay does with your data.",
+      "Shopify connection (optional). If you install the SaleLinx app in a Shopify store and connect it to your SaleLinx account, Shopify gives us the store's ID, name and address (its myshopify.com domain), and access tokens that let SaleLinx work with the store. The permissions you approve when you install the app cover only products, stock levels, store locations, sales channels and product category details: SaleLinx cannot read your store's customers or orders. The Shopify actions you take in SaleLinx (loading your products, editing them, crosslisting into or out of your store, taking one off a product's stock when it sells elsewhere, and listing a product on eBay from the SaleLinx page in your Shopify admin) pass through our servers to Shopify. When you list a product on eBay from that page, we save both listings (title, description, price, photos and status) with your account, so SaleLinx can show that they are linked. When a linked product's stock runs out, Shopify tells our servers which item ran out, and we end the eBay listing linked to it. We keep the tokens until you uninstall the app or unlink the store. When you uninstall the app, we delete the tokens straight away, and when Shopify asks us to, 48 hours later, we delete the store's connection to your account and any listings saved from it. Shopify's own privacy policy covers what Shopify does with your data.",
       "Usage counters. We record counts of feature actions (for example crosslists per month or refreshes per day) so we can enforce the limits of your plan, understand which features are used, and investigate problems when you contact support. These are numbers only, not the content of the actions.",
       "Support messages. If you open a support ticket or email us, we keep the message and your email address so we can reply. Tickets submitted through the site also record your browser version (the user agent string) so we can reproduce technical problems.",
       "Extension settings. Preferences you set in the extension, such as bot pacing, your marketplace choice and any settings presets you name and save, are stored with your account so they follow you to other devices. They contain no listing, buyer or message content and are deleted with your account.",
@@ -89,6 +91,7 @@ const SECTIONS: LegalSection[] = [
     bullets: [
       "Your browsing history or activity on any site other than Depop, Vinted and eBay pages where the extension runs.",
       "Your marketplace passwords, or your Depop and Vinted session credentials.",
+      "Your Shopify store's customers and orders.",
       "Advertising identifiers or analytics profiles for ad targeting.",
     ],
   },
@@ -97,7 +100,7 @@ const SECTIONS: LegalSection[] = [
     bullets: [
       "To provide and operate the service, including authentication, cloud sync, and restoring your data across devices.",
       "To enforce the usage limits of your subscription plan.",
-      "To process subscription payments and manage your plan (via Stripe).",
+      "To process subscription payments and manage your plan (via Stripe, or Shopify for a plan billed through Shopify).",
       "To send service emails such as email verification, password resets, payment issues, and replies to your support tickets (via Resend).",
       "To send occasional emails about SaleLinx itself, such as a reminder to start your free trial or an offer to come back after your plan ends. We ask whether you want these when you create your account, or the first time you sign in if you were never asked, and we only send them if you said yes. You can change your answer at any time under Email preferences on your account page, and every one of these emails has an unsubscribe link that takes effect immediately. We never send marketing about anyone else's products.",
       "To fix bugs and improve the product.",
@@ -120,6 +123,7 @@ const SECTIONS: LegalSection[] = [
     bullets: [
       "Supabase: authentication, database, and file storage (account data, subscription status, usage counters, and cloud-synced listings and images).",
       "Stripe: subscription payments and invoicing.",
+      "Shopify: billing for plans you take out through the SaleLinx app in Shopify, on your Shopify invoice.",
       "Resend: transactional email delivery (account and support emails, and shipping label emails you choose to send, which can include label PDFs containing buyer delivery details).",
       "Vercel: hosting for the salelinx.com website, and Vercel Web Analytics, which counts page views without cookies (see the Cookies section).",
       "Google (Sign in with Google): if you choose to sign in with Google, Google processes your sign-in to authenticate you and shares your Google account email and basic profile with us. This happens only when you use the Google sign-in option, is necessary to provide that sign-in method, and is separate from analytics cookies and cookie consent.",
@@ -135,7 +139,7 @@ const SECTIONS: LegalSection[] = [
     paragraphs: [
       "We keep your account data for as long as your account exists. Cloud-synced listings and images can be removed at any time from within the extension, which deletes them from our storage.",
       "Support tickets and their replies are deleted 24 months after the ticket is closed.",
-      "To delete your account and all associated data, use the Delete account section on your account page; deletion takes effect immediately. You can also email support@salelinx.com from your account email address and we will complete the deletion within 30 days. Either way, records we are legally required to keep (for example invoices) are retained.",
+      "To delete your account and all associated data, use the Delete account section on your account page; deletion takes effect immediately. You can also email support@salelinx.com from your account email address and we will complete the deletion within 30 days. Either way, records we are legally required to keep (for example invoices) are retained. If Shopify bills you for a SaleLinx plan, deleting your account also cancels that plan.",
       "When an account is deleted we keep, for 24 months, a one-way scrambled code made from its email address (never the address itself), with when the account was created and deleted, its plan, country and how you found us. This lets us keep a record of closed accounts and recognise an account that is deleted and created again to get around our trial rules. We cannot turn the code back into an email address.",
     ],
   },
