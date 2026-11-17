@@ -922,7 +922,7 @@ code=<code>` and nothing else.
     is read with the Partner API's `activeSubscription(appId, shopId)`
     (`https://partners.shopify.com/<Partner ID>/api/2026-10/graphql.json`,
     `X-Shopify-Access-Token`, 4 requests a second per client): when the app's page opens
-    (`session`, cached 5 minutes), with `fresh: true` after the welcome link (at most every 5
+    (`session`, cached 5 minutes for a live plan and 15 seconds with none), with `fresh: true` after the welcome link (at most every 5
     seconds a store), when a store is connected (`claimStore` in `shopify`), and on
     `app/uninstalled`. Whether an uninstall cancels the subscription isn't documented, so the
     plan is read then rather than assumed gone.
@@ -948,7 +948,8 @@ code=<code>` and nothing else.
     whole tab. A Shopify plan: its trial or renewal date and Manage in Shopify. A Stripe plan:
     "paid on salelinx.com". Double billed: a warning and Manage in Shopify. Each plan's welcome
     link (the app's page) comes back with `plan_handle`, and the page asks again with `fresh`
-    every 6 seconds, up to 4 times, until the plan shows.
+    every 6 seconds, up to 4 times, until the plan shows. It does the same within 10 minutes of
+    Choose a plan (a mark in `sessionStorage`), in case the way back carries no `plan_handle`.
   - **The website.** `/account` shows a Shopify plan as billed through Shopify, and Manage in
     Shopify opens the app's page in the store's admin (`my_shopify_store_domain()` in 057 gives
     the caller their own store's address; `lib/shopify-app.ts`). `create-checkout-session`

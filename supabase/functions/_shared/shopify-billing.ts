@@ -30,8 +30,14 @@ export const SHOPIFY_TIERS = ['starter', 'pro', 'business'] as const;
 /** Statuses a biller still owns. Mirrors redeem_creator_code (migration 057). */
 const LIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
 
-/** How long a store's plan, once read, stands in for the Partner API (4 requests a second). */
+/** How long a store's live plan, once read, stands in for the Partner API (4 requests a second). */
 export const PLAN_CACHE_MS = 5 * 60 * 1000;
+
+/**
+ * The same for a store with no live plan: it is the one about to pick a plan, and Shopify's plan
+ * page may send it back without plan_handle, so its read goes stale far sooner.
+ */
+export const NO_PLAN_CACHE_MS = 15 * 1000;
 
 /**
  * The shortest gap between two forced reads of one store. The welcome link forces one, and the
@@ -369,7 +375,9 @@ export async function syncStorePlan(
     recentReads.get(shopId)?.at ?? 0,
   );
   const age = now - lastRead;
-  const reread = opts.fresh ? age >= FRESH_READ_MS : age >= PLAN_CACHE_MS;
+  const cacheMs =
+    existing && LIVE_STATUSES.has(existing.status) ? PLAN_CACHE_MS : NO_PLAN_CACHE_MS;
+  const reread = opts.fresh ? age >= FRESH_READ_MS : age >= cacheMs;
 
   let plan: StorePlan | null | undefined;
   if (reread) {

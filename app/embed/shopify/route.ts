@@ -201,8 +201,18 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
   // The website's eBay page in the admin's language, on whichever site serves this page.
   const EBAY_PAGE = location.origin + ${inScript(`${localePathPrefix(locale)}/ebay/connect`)};
   const ADMIN_URL = ${inScript(shop ? `https://${shop}/admin/apps/${CLIENT_ID}` : '')};
-  // Shopify's plan page sends the merchant back with the plan's handle (its welcome link).
-  const PLAN_PICKED = new URLSearchParams(location.search).has('plan_handle');
+  // Shopify's plan page sends the merchant back with the plan's handle (its welcome link). Choose a
+  // plan also leaves a mark for ten minutes, in case the way back carries no plan_handle.
+  const PICKING_KEY = 'salelinxPlanPicking';
+  const pickedLately = () => {
+    try {
+      const at = Number(sessionStorage.getItem(PICKING_KEY));
+      return at > 0 && Date.now() - at < 10 * 60 * 1000;
+    } catch {
+      return false;
+    }
+  };
+  const PLAN_PICKED = new URLSearchParams(location.search).has('plan_handle') || pickedLately();
   // Plan names are names, as on the website's account page.
   const TIER_NAMES = { starter: 'Starter', pro: 'Pro', business: 'Business' };
   const $ = (id) => document.getElementById(id);
@@ -398,6 +408,9 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     showPlan(s);
     if (!checkingPlan) {
       planPicked = false;
+      try {
+        sessionStorage.removeItem(PICKING_KEY);
+      } catch {}
       return;
     }
     planTries++;
@@ -848,6 +861,9 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
   $('planChoose').addEventListener('click', () => {
     if (!last || !last.billing || !last.billing.planPageUrl) return;
     flag($('planChoose'), 'loading', true);
+    try {
+      sessionStorage.setItem(PICKING_KEY, String(Date.now()));
+    } catch {}
     open(last.billing.planPageUrl, '_top');
   });
   $('planManage').addEventListener('click', () => {
