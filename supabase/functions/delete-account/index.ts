@@ -411,7 +411,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 2b. Shopify plans (migration 057). Shopify bills a store for SaleLinx until
+  // 2b. Shopify plans (migration 058). Shopify bills a store for SaleLinx until
   // its subscription is cancelled, whatever happens to the account, so each one
   // still billed is cancelled here. Like Stripe's, a failure stops the deletion.
   let shopifyCancelled = 0;

@@ -138,7 +138,7 @@ async function main() {
     `  stripe customer:    ${sub?.stripe_customer_id ?? 'none'}${sub ? ` (${sub.tier_id}, ${sub.status})` : ''}`,
   );
 
-  // A plan Shopify bills (migration 057) is cancelled through the Partner API,
+  // A plan Shopify bills (migration 058) is cancelled through the Partner API,
   // whose token only the Edge Functions hold, so this script leaves those
   // accounts to the admin console, which cancels it.
   const { data: allSubs } = await supabase

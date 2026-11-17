@@ -141,7 +141,7 @@ Deno.serve(async (req) => {
 
   const rows = existing ?? [];
   const live = rows.filter((r) => LIVE_STATUSES.includes(r.status));
-  // Billed through Shopify (migration 057): that plan is managed on Shopify's
+  // Billed through Shopify (migration 058): that plan is managed on Shopify's
   // plan page, and a Stripe checkout here would bill the account twice.
   if (live.some((r) => r.shopify_shop_id)) {
     return json(

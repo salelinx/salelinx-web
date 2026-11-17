@@ -1,5 +1,5 @@
 // Shopify billing: what a store pays for SaleLinx under Shopify App Pricing, and the account's
-// subscriptions row that carries it (migration 057). docs/EDGE-FUNCTIONS.md "Shopify billing".
+// subscriptions row that carries it (migration 058). docs/EDGE-FUNCTIONS.md "Shopify billing".
 //
 // Who pays where. Stripe for everyone who was a SaleLinx customer before connecting a store; only
 // a merchant who found SaleLinx in the App Store first pays through Shopify. So a store's plan is
@@ -27,7 +27,7 @@ export const PARTNER_API_VERSION = '2026-10';
 /** The Partner Dashboard plan handles, each one a tier id. */
 export const SHOPIFY_TIERS = ['starter', 'pro', 'business'] as const;
 
-/** Statuses a biller still owns. Mirrors redeem_creator_code (migration 057). */
+/** Statuses a biller still owns. Mirrors redeem_creator_code (migration 058). */
 const LIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
 
 /** How long a store's live plan, once read, stands in for the Partner API (4 requests a second). */
@@ -304,7 +304,7 @@ export async function cancelStorePlan(shopId: string): Promise<void> {
  */
 // deno-lint-ignore no-explicit-any
 export async function cancelAccountStorePlans(admin: any, userId: string): Promise<number> {
-  // Every column, so this works before migration 057 too (no store ids then).
+  // Every column, so this works before migration 058 too (no store ids then).
   const { data, error } = await admin.from('subscriptions').select('*').eq('user_id', userId);
   if (error) throw new ShopifyError('Subscription lookup failed', 'unavailable', 500);
   const shops = [

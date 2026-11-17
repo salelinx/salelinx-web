@@ -6,7 +6,7 @@ export type SubscriptionRow = {
   user_id: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
-  /** The store's id when Shopify bills this row rather than Stripe (migration 057). */
+  /** The store's id when Shopify bills this row rather than Stripe (migration 058). */
   shopify_shop_id: string | null;
   tier_id: string;
   tier_version: number;

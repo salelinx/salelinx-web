@@ -87,7 +87,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
         .eq("user_id", user.id)
         .maybeSingle(),
     ]);
-  // A plan Shopify bills (migration 057) is managed from the app's page in the
+  // A plan Shopify bills (migration 058) is managed from the app's page in the
   // store's admin. No address (the app uninstalled, or the function not there
   // yet) leaves the note without its button.
   let shopifyAppUrl: string | null = null;

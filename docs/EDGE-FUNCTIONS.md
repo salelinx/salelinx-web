@@ -708,7 +708,7 @@ billing, a page in Shopify's admin, final scopes).
   tokens while they work and carry every scope, and otherwise swaps the ID token for new ones
   (`exchangeIdToken`, token exchange with `expiring=1`): on the store's first open, after an
   uninstall, when Shopify refuses the stored ones, and after the store approved a new scope (only
-  an exchange brings it into a token). The row is keyed by the store (`051_shopify_store_tokens.sql`),
+  an exchange brings it into a token). The row is keyed by the store (`056_shopify_store_tokens.sql`),
   with `user_id` empty until an account connects it. A store installed again goes back to the
   account its `linked_accounts` row names, as an uninstall deletes the tokens and not the link. It
   answers the store's name, whether an account holds it (`linked`, with that account's email
@@ -902,7 +902,7 @@ code=<code>` and nothing else.
   `updateProduct` takes it, less tags and options): onto the variant and the product, a
   `categoryId` (or null for none) in place of the match, and no stock at the location when
   tracking is off. It answers like `product`, read after the create.
-- **Shopify billing** (`_shared/shopify-billing.ts`, migration `057_shopify_billing.sql`, built
+- **Shopify billing** (`_shared/shopify-billing.ts`, migration `058_shopify_billing.sql`, built
   2026-11-16, not live). Shopify App Pricing, set up in the Partner Dashboard: monthly Starter
   $9.99, Pro $18.99 and Business $31.99, plan handles `starter`, `pro` and `business` (the tier
   ids), a 14-day trial on Starter. The extension side, and the setup steps, are
@@ -970,7 +970,7 @@ code=<code>` and nothing else.
     with a Shopify plan row.
   - **Order.** The readers (`feature-gate`, `crosslist-gate`, the website and the extension)
     select `*`, so they work before and after 057, whatever is deployed first; a list naming a
-    missing column would fail the whole read. Apply 057 before setting the billing secrets, as
+    missing column would fail the whole read. Apply 058 before setting the billing secrets, as
     the sync writes the column (until then its errors only leave billing off the app's page).
   - **The Partner API queries aren't checked against a schema**, as Shopify's docs proxy has no
     Partner API. Their fields are from Shopify's reference pages for `activeSubscription` and

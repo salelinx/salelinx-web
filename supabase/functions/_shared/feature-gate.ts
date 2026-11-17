@@ -42,7 +42,7 @@ export async function checkFeatureAllowed(
     // Every column: stripe_subscription_id, shopify_shop_id and
     // current_period_end are what let isSubscriptionEntitled expire a comp row
     // and never a billed one. `*` rather than a list, so this works before and
-    // after migration 057 adds shopify_shop_id: a list naming a missing column
+    // after migration 058 adds shopify_shop_id: a list naming a missing column
     // fails the whole read, and with it every gated action.
     .select('*')
     .eq('user_id', userId)

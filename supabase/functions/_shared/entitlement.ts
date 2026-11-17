@@ -24,7 +24,7 @@
 // support comp or a redeemed creator code (migration 021), granted by hand
 // rather than billed. Those are the only rows whose period end is a deadline.
 // On a billed row it is a renewal date the biller keeps moving (Stripe through
-// its webhook, Shopify through the plan sync, migration 057), and enforcing it
+// its webhook, Shopify through the plan sync, migration 058), and enforcing it
 // would cut off paying customers in the gap between a renewal and the write
 // that records it. Comp rows written before this rule have a null period end
 // and stay open-ended.
@@ -56,7 +56,7 @@ export type EntitlementInput = {
   past_due_since: string | null;
   /** Null (with no shopify_shop_id) means a comp row, granted by hand rather than billed. */
   stripe_subscription_id?: string | null;
-  /** The store's id when Shopify bills this row rather than Stripe (migration 057). */
+  /** The store's id when Shopify bills this row rather than Stripe (migration 058). */
   shopify_shop_id?: string | null;
   /** On a comp row, the moment the grant runs out. */
   current_period_end?: string | null;
@@ -70,7 +70,7 @@ export type EntitlementInput = {
  * behaviour. Guessing the other way would read a paying customer's renewal
  * date as a deadline and cut them off at the end of every month.
  *
- * A Shopify-billed row (migration 057) has no Stripe id either, so a caller
+ * A Shopify-billed row (migration 058) has no Stripe id either, so a caller
  * that selects stripe_subscription_id must select shopify_shop_id too, or that
  * row reads as a comp.
  */

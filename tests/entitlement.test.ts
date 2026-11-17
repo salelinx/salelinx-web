@@ -250,7 +250,7 @@ const CASES: Case[] = [
     },
     entitled: false,
   },
-  // Shopify-billed rows (migration 057) have no Stripe id either. Their period
+  // Shopify-billed rows (migration 058) have no Stripe id either. Their period
   // end is a renewal date the plan sync keeps moving, so it is never a
   // deadline, exactly as on a Stripe row.
   {
