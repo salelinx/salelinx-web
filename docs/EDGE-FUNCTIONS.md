@@ -669,8 +669,10 @@ billing, a page in Shopify's admin, final scopes).
   become a filter. Ids go into PostgREST `in` lists only when they match `SAFE_LISTING_ID`, in
   chunks of 100. An eBay address is passed on only when it is a listing page on an eBay site.
   A row not on eBay has List on eBay when the account's eBay is connected: a form on the page
-  (title, an eBay category suggested from the title or searched, condition, the category's
-  required specifics guessed from the vendor and the variant's options, price, quantity, and
+  (title, an eBay category suggested from one plain word for what it is, Shopify's standard
+  category, else its product type, else the title, or searched, condition, the category's
+  required specifics guessed from the vendor and the variant's options, where eBay takes any
+  text but suggests values, those to pick from with Other to type one, price, quantity, and
   postage when there is no setup) whose Check eBay fee must pass before List on eBay unlocks; any
   change locks it again. See "eBay from Shopify" above.
 - **Sold out on Shopify** (`inventory_levels/update`, `_shared/shopify-sold-out.ts`). A variant

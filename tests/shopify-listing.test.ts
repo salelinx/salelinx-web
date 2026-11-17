@@ -60,6 +60,7 @@ describe('shopifyItem', () => {
         description: 'Warm',
         vendor: 'Nike',
         productType: 'Hoodies',
+        category: { name: 'Hoodies & Sweatshirts' },
         status: 'ACTIVE',
         variantsCount: { count: 2 },
         media: {
@@ -83,6 +84,7 @@ describe('shopifyItem', () => {
       description: 'Warm',
       vendor: 'Nike',
       productType: 'Hoodies',
+      category: 'Hoodies & Sweatshirts',
       status: 'ACTIVE',
       price: 25,
       currency: 'USD',
@@ -93,6 +95,12 @@ describe('shopifyItem', () => {
       ],
       photos: ['https://cdn.shopify.com/v.jpg', 'https://cdn.shopify.com/a.jpg'],
     });
+  });
+
+  it('reads no category for a product the store never gave one', () => {
+    const product = { ...data.productVariant.product, category: null };
+    const none = { ...data, productVariant: { ...data.productVariant, product } };
+    expect(shopifyItem(none, '1')?.category).toBeNull();
   });
 
   it("refuses a variant of another product, so the page can't list someone else's", () => {

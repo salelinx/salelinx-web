@@ -35,6 +35,7 @@ export const SHOPIFY_VARIANT_QUERY = `query ($id: ID!) {
       description
       vendor
       productType
+      category { name }
       status
       variantsCount { count }
       media(first: 12) { nodes { ... on MediaImage { image { url } } } }
@@ -55,6 +56,8 @@ export interface ShopifyItem {
   description: string;
   vendor: string | null;
   productType: string | null;
+  /** The last level of Shopify's standard category for it ("Snowboards"), when the store set one. */
+  category: string | null;
   /** Shopify's ACTIVE, DRAFT or ARCHIVED. */
   status: string;
   price: number | null;
@@ -94,6 +97,7 @@ export function shopifyItem(data: any, productId: string): ShopifyItem | null {
     description: String(p.description ?? ''),
     vendor: p.vendor || null,
     productType: p.productType || null,
+    category: typeof p.category?.name === 'string' && p.category.name ? p.category.name : null,
     status: String(p.status ?? ''),
     price: v.price != null && Number.isFinite(price) ? price : null,
     currency: data?.shop?.currencyCode ?? null,

@@ -426,6 +426,14 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
   let productsSeq = 0;
   let productsLoaded = false;
 
+  // eBay names a fee in one word (InsertionFee): the usual one in the admin's language, others as
+  // words (BoldFee to "Bold fee").
+  function feeName(name) {
+    if (name === 'InsertionFee') return S.lFeeInsertion;
+    const words = String(name).replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+    return words.charAt(0).toUpperCase() + words.slice(1);
+  }
+
   function money(amount, currency) {
     if (amount == null) return '';
     try {
@@ -609,6 +617,37 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     return hit || '';
   }
 
+  const OTHER = '__other';
+
+  // A detail eBay takes any text for but has usual values for (Colour): those to pick from, and
+  // Other with a box for anything else. The store's own word lands on its match, or in the box.
+  function suggestField(a, guess) {
+    const pick = el('s-select', { label: a.name, placeholder: S.lChoose });
+    for (const v of a.values) pick.append(el('s-option', { value: v }, v));
+    pick.append(el('s-option', { value: OTHER }, S.lOther));
+    const own = el('s-text-field', { label: fill(S.lOtherValue, { name: a.name }), maxLength: '65' });
+    const box = el('s-stack', { gap: 'small-200' }, pick, own);
+    box.dataset.aspect = a.name;
+    box.dataset.suggest = '1';
+    const hit = guess ? a.values.find((v) => v.toLowerCase() === String(guess).toLowerCase()) : null;
+    pick.value = hit || (guess ? OTHER : '');
+    own.value = hit ? '' : guess;
+    own.hidden = pick.value !== OTHER;
+    pick.addEventListener('change', () => {
+      own.hidden = pick.value !== OTHER;
+    });
+    watch(pick);
+    watch(own);
+    return box;
+  }
+
+  // A detail's value: what was typed or picked, or with Other the box's text.
+  function specificValue(field) {
+    if (field.dataset.suggest !== '1') return field.value;
+    const [pick, own] = field.children;
+    return pick.value === OTHER ? own.value : pick.value;
+  }
+
   async function loadCategory(categoryId) {
     changed();
     $('lCondition').replaceChildren();
@@ -630,6 +669,10 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     for (const a of (aspects.aspects || []).filter((x) => x.required)) {
       const guess = guessFor(a, listing.item);
       let field;
+      if (a.freeText && a.values.length > 0 && a.values.length <= 500) {
+        $('lSpecifics').append(suggestField(a, guess));
+        continue;
+      }
       if (!a.freeText && a.values.length > 0 && a.values.length <= 500) {
         field = el('s-select', { label: a.name, placeholder: S.lChoose });
         for (const v of a.values) field.append(el('s-option', { value: v }, v));
@@ -726,10 +769,11 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     show('lCheck', true);
     show('lPost', true);
     await showPostage(r.setup);
-    // The product type alone when the store gives one: eBay's suggester weighs the whole query,
-    // and "snowboard The Complete Snowboard" still came back as a DVD box set where "snowboard"
-    // finds Snowboards. The title only for a product with no type.
-    await findCategories(String(item.productType || item.title).slice(0, 100));
+    // One plain word for what it is, as eBay's suggester weighs the whole query: "snowboard The
+    // Complete Snowboard" came back as a DVD box set where "snowboard" finds Snowboards. Shopify's
+    // standard category first, as the store's own product type can be as vague as "accessories"
+    // (ski wax went to Hair Accessories); the title only when the store gives neither.
+    await findCategories(String(item.category || item.productType || item.title).slice(0, 100));
   }
 
   // The form as the ebay function takes it, or null with what is missing said.
@@ -737,7 +781,7 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     const specifics = {};
     let unfilled = false;
     for (const field of $('lSpecifics').children) {
-      const value = String(field.value || '').trim();
+      const value = String(specificValue(field) || '').trim();
       if (value) specifics[field.dataset.aspect] = value;
       else unfilled = true;
     }
@@ -796,7 +840,7 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
       listerProblem([S.lRefused, ...verdict.errors]);
       return;
     }
-    const fees = (verdict.fees || []).map((f) => el('s-text', {}, f.name + ': ' + money(f.amount, verdict.currency)));
+    const fees = (verdict.fees || []).map((f) => el('s-text', {}, feeName(f.name) + ': ' + money(f.amount, verdict.currency)));
     $('lFees').replaceChildren(
       el('s-text', { type: 'strong' }, fees.length ? S.lFees : S.lNoFees),
       ...fees,
