@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
   // One subscription per user. Ordering matters because a user who cancelled
   // and re-subscribed has more than one row, so .single() would error.
   // Every column, for shopify_shop_id: `*` works before and after migration
-  // 057 adds it, where a list naming it would fail every checkout until then.
+  // 058 adds it, where a list naming it would fail every checkout until then.
   const { data: existing, error: subErr } = await supabase
     .from("subscriptions")
     .select("*")
@@ -151,6 +151,30 @@ Deno.serve(async (req) => {
   }
   if (live.length > 0) {
     return json({ error: "You already have an active subscription" }, 409);
+  }
+
+  // An account that holds a Shopify store pays through Shopify: App Store requirement 1.2.1
+  // lets no charge a Shopify merchant makes for the app go round Shopify's billing. A seller
+  // already paying here was answered above by their live row, so only a new plan stops here;
+  // the account page sends it to the app's page in the store's admin to pick one.
+  const { data: storeDomain, error: storeErr } = await supabase.rpc(
+    "my_shopify_store_domain",
+  );
+  if (storeErr) {
+    console.error(
+      "[create-checkout-session] store check failed:",
+      storeErr.message,
+    );
+    return json({ error: "Store check failed" }, 500);
+  }
+  if (typeof storeDomain === "string" && storeDomain) {
+    return json(
+      {
+        error: "Choose your plan from SaleLinx in your Shopify admin",
+        code: "shopify_store",
+      },
+      409,
+    );
   }
 
   // The trial is OPT-IN. The trial card and the Starter card post the same

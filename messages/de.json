@@ -333,6 +333,8 @@
     "managePortalBody": "Aktualisiere dein Paket, ändere deine Zahlungsmethode, lade Rechnungen herunter oder kündige im Stripe-Abrechnungsportal.",
     "shopifyBilledBody": "Dein Paket wird über Shopify abgerechnet. Ändere oder kündige es über SaleLinx in deinem Shopify-Adminbereich.",
     "manageInShopify": "In Shopify verwalten",
+    "shopifyNoPlanBody": "Dieses Konto ist mit deinem Shopify-Shop verbunden, daher wird sein Paket über Shopify abgerechnet. Wähle es über SaleLinx in deinem Shopify-Adminbereich.",
+    "choosePlanInShopify": "Paket in Shopify wählen",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "Testphase",

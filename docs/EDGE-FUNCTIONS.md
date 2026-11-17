@@ -953,10 +953,14 @@ code=<code>` and nothing else.
     every 6 seconds, up to 4 times, until the plan shows. It does the same within 10 minutes of
     Choose a plan (a mark in `sessionStorage`), in case the way back carries no `plan_handle`.
   - **The website.** `/account` shows a Shopify plan as billed through Shopify, and Manage in
-    Shopify opens the app's page in the store's admin (`my_shopify_store_domain()` in 057 gives
-    the caller their own store's address; `lib/shopify-app.ts`). `create-checkout-session`
-    answers 409 `shopify_billed` for an account with a live Shopify row, which `SubscribeButton`
-    sends to `/account` rather than to Stripe's portal.
+    Shopify opens the app's page in the store's admin (`my_shopify_store_domain()` in 058 gives
+    the caller their own store's address; `lib/shopify-app.ts`). An account that holds a store
+    but has no plan, or an ended one, is offered Choose a plan in Shopify (the same page) in
+    place of the free trial and the pricing page. `create-checkout-session` answers 409
+    `shopify_billed` for an account with a live Shopify row, and 409 `shopify_store` for one
+    that holds a store with no live plan (App Store requirement 1.2.1: a store's merchant pays
+    through Shopify); `SubscribeButton` sends both to `/account` rather than to Stripe. A
+    seller already paying on Stripe keeps it, as their live row answers first.
   - **The extension.** Its cached plan says who bills it (`billed_by`), and for `shopify` its
     upgrade and Manage links ask the `shopify` function's `planPage` (Shopify's plan page, from
     the store's token and the app's handle), falling back to the app's page in the store's
@@ -969,7 +973,7 @@ code=<code>` and nothing else.
     does. `scripts/delete-user-account.mjs` can't reach the Partner API, so it refuses an account
     with a Shopify plan row.
   - **Order.** The readers (`feature-gate`, `crosslist-gate`, the website and the extension)
-    select `*`, so they work before and after 057, whatever is deployed first; a list naming a
+    select `*`, so they work before and after 058, whatever is deployed first; a list naming a
     missing column would fail the whole read. Apply 058 before setting the billing secrets, as
     the sync writes the column (until then its errors only leave billing off the app's page).
   - **The Partner API queries aren't checked against a schema**, as Shopify's docs proxy has no

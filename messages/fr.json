@@ -333,6 +333,8 @@
     "managePortalBody": "Mettez à jour votre forfait, changez de moyen de paiement, téléchargez vos factures ou annulez depuis le portail de facturation Stripe.",
     "shopifyBilledBody": "Votre forfait est facturé via Shopify. Modifiez-le ou annulez-le depuis SaleLinx dans l'administration de votre boutique Shopify.",
     "manageInShopify": "Gérer dans Shopify",
+    "shopifyNoPlanBody": "Ce compte est relié à votre boutique Shopify, son forfait est donc facturé via Shopify. Choisissez-le depuis SaleLinx dans l'administration de votre boutique Shopify.",
+    "choosePlanInShopify": "Choisir un forfait dans Shopify",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "Essai",

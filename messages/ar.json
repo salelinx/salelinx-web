@@ -333,6 +333,8 @@
     "managePortalBody": "حدّث خطتك، أو غيّر طريقة الدفع، أو نزّل الفواتير، أو ألغِ الاشتراك من بوابة الفوترة في Stripe.",
     "shopifyBilledBody": "تتم فوترة خطتك عبر Shopify. غيّرها أو ألغها من SaleLinx في لوحة إدارة Shopify.",
     "manageInShopify": "الإدارة في Shopify",
+    "shopifyNoPlanBody": "هذا الحساب مرتبط بمتجرك على Shopify، لذلك تتم فوترة خطته عبر Shopify. اخترها من SaleLinx في لوحة إدارة Shopify.",
+    "choosePlanInShopify": "اختر خطة في Shopify",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "فترة تجريبية",

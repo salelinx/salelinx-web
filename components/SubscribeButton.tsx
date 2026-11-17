@@ -90,11 +90,15 @@ export function SubscribeButton({
       );
 
       if (res.status === 409) {
-        // Billed through Shopify: the account page says where that plan is managed.
+        // Billed through Shopify, or the account holds a Shopify store with no plan yet: the
+        // account page says where that plan is managed or picked.
         const refusal = (await res.json().catch(() => null)) as {
           code?: string;
         } | null;
-        if (refusal?.code === "shopify_billed") {
+        if (
+          refusal?.code === "shopify_billed" ||
+          refusal?.code === "shopify_store"
+        ) {
           router.push("/account");
           return;
         }
