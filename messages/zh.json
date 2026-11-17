@@ -333,6 +333,8 @@
     "managePortalBody": "在 Stripe 的账单门户中更新套餐、更换支付方式、下载发票或取消订阅。",
     "shopifyBilledBody": "你的套餐通过 Shopify 扣费。请在 Shopify 后台的 SaleLinx 中更改或取消。",
     "manageInShopify": "在 Shopify 中管理",
+    "shopifyNoPlanBody": "此账户已关联你的 Shopify 店铺，因此套餐通过 Shopify 扣费。请在 Shopify 后台的 SaleLinx 中选择套餐。",
+    "choosePlanInShopify": "在 Shopify 中选择套餐",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "试用",

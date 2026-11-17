@@ -333,6 +333,8 @@
     "managePortalBody": "Update your plan, change your payment method, download invoices, or cancel in Stripe's billing portal.",
     "shopifyBilledBody": "Your plan is billed through Shopify. Change or cancel it from SaleLinx in your Shopify admin.",
     "manageInShopify": "Manage in Shopify",
+    "shopifyNoPlanBody": "This account is connected to your Shopify store, so its plan is billed through Shopify. Choose one from SaleLinx in your Shopify admin.",
+    "choosePlanInShopify": "Choose a plan in Shopify",
     "dateFallback": "-",
     "tierLabel": {
       "trial": "Trial",
