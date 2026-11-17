@@ -152,3 +152,10 @@ const POSTING_SCOPE: Record<SocialPlatform, string> = {
 export function canPost(account: SocialAccount | undefined): boolean {
   return !!account?.logged_in && !!account.scopes?.includes(POSTING_SCOPE[account.platform]);
 }
+
+/**
+ * A planner card's picture: the platform's own thumbnail once a copy is live
+ * (its CDN is in the CSP's img-src), else the uploaded file itself, played
+ * paused at its first second (Storage is in media-src but not img-src).
+ */
+export type PostThumb = { kind: "image" | "video"; url: string };
