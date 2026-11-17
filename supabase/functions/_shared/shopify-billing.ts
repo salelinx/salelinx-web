@@ -9,7 +9,8 @@
 //
 // App Pricing sends no webhooks for subscription changes after 2026-04-28. The plan is read from
 // the Partner API's activeSubscription whenever it matters: the app's page opening, a store being
-// connected to an account, the welcome link after a plan is chosen, and an uninstall. Plans are set
+// connected to an account, the welcome link after a plan is chosen, an uninstall, and an hourly
+// sweep of the live Shopify rows (syncDueStores). Plans are set
 // in the Partner Dashboard with the handles starter, pro and business, which are SaleLinx's tier
 // ids, so a handle is the tier.
 //
@@ -169,6 +170,21 @@ export function planWrite(
     past_due_since: null,
     updated_at: stamp,
   };
+}
+
+/**
+ * What to write for a store's plan, given whether Stripe still owns the account's plan. Never a
+ * live Shopify plan over a live Stripe one, so nobody pays twice for one account; ending a
+ * Shopify row whose plan has gone is always written.
+ */
+export function writeFor(
+  plan: StorePlan | null,
+  existing: SubscriptionRow | null,
+  stripeLive: boolean,
+  now = new Date(),
+): Record<string, unknown> | null {
+  if (stripeLive && plan) return null;
+  return planWrite(plan, existing, now);
 }
 
 /**
@@ -362,8 +378,8 @@ export async function syncStorePlan(
   }
 
   const stripe = liveStripeRow(rows, now);
-  if (plan !== undefined && !stripe) {
-    const write = planWrite(plan, existing, new Date(now));
+  if (plan !== undefined) {
+    const write = writeFor(plan, existing, !!stripe, new Date(now));
     if (write) {
       // Upserted on the store, so a store that moved to another account takes its plan along.
       const { data, error } = await admin
@@ -403,6 +419,98 @@ export async function syncStorePlan(
       : null,
     doubleBilled: !!stripe && storeBilled,
   };
+}
+
+// ── The hourly sweep ──────────────────────────────────────────────────────
+
+/** How many stores one run reads at most. */
+export const SYNC_BATCH = 120;
+
+/**
+ * The gap between two stores in a run: well under the Partner API's 4 requests a second, which
+ * leaves room for the app's page and account deletions meanwhile. 120 stores take about a minute.
+ */
+export const SYNC_GAP_MS = 500;
+
+/** A live row read this recently waits for a later run, unless its period end has passed. */
+export const SYNC_FRESH_MS = 6 * 60 * 60 * 1000;
+
+/** A row whose period end has passed is read at most this often, as Shopify may lag behind it. */
+export const SYNC_LAPSED_MS = 50 * 60 * 1000;
+
+/**
+ * The rows a run reads, most urgent first: those whose period end has gone by (a trial converting
+ * or ending, a renewal, a cancellation taking effect), then the least lately read. One per store.
+ */
+export function dueStores(
+  lapsed: SubscriptionRow[],
+  stale: SubscriptionRow[],
+  limit = SYNC_BATCH,
+): SubscriptionRow[] {
+  const seen = new Set<string>();
+  const due: SubscriptionRow[] = [];
+  for (const row of [...lapsed, ...stale]) {
+    if (!row.shopify_shop_id || seen.has(row.shopify_shop_id)) continue;
+    seen.add(row.shopify_shop_id);
+    due.push(row);
+    if (due.length >= limit) break;
+  }
+  return due;
+}
+
+export interface SweepResult {
+  read: number;
+  failed: number;
+  /** Why the run ended early: `busy` (Shopify throttled it) or `billing_not_configured`. */
+  stopped: string | null;
+}
+
+/**
+ * The hourly sweep (shopify-public POST /sync). App Pricing sends no webhooks for subscription
+ * changes, so a plan changed or cancelled in Shopify while nobody opens the app, or a trial that
+ * converts, is only seen by reading it again. Live Shopify rows only: a merchant who picks a plan
+ * again comes back through the app's page (the welcome link), which reads it then.
+ */
+// deno-lint-ignore no-explicit-any
+export async function syncDueStores(admin: any, now = Date.now()): Promise<SweepResult> {
+  const live = [...LIVE_STATUSES];
+  const rows = () =>
+    admin
+      .from('subscriptions')
+      .select(SUBSCRIPTION_COLUMNS)
+      .not('shopify_shop_id', 'is', null)
+      .in('status', live);
+  const [lapsedRes, staleRes] = await Promise.all([
+    rows()
+      .lt('current_period_end', new Date(now).toISOString())
+      .lt('updated_at', new Date(now - SYNC_LAPSED_MS).toISOString())
+      .order('current_period_end', { ascending: true })
+      .limit(SYNC_BATCH),
+    rows()
+      .lt('updated_at', new Date(now - SYNC_FRESH_MS).toISOString())
+      .order('updated_at', { ascending: true })
+      .limit(SYNC_BATCH),
+  ]);
+  if (lapsedRes.error || staleRes.error) {
+    throw new ShopifyError('Subscription lookup failed', 'unavailable', 500);
+  }
+  const due = dueStores(lapsedRes.data ?? [], staleRes.data ?? []);
+  let read = 0;
+  let failed = 0;
+  for (const [i, row] of due.entries()) {
+    if (i > 0) await new Promise((r) => setTimeout(r, SYNC_GAP_MS));
+    try {
+      await syncStorePlan(admin, row.shopify_shop_id as string, row.user_id, { fresh: true });
+      read += 1;
+    } catch (err) {
+      const code = errCode(err);
+      // Nothing more this run would get through: the next run carries on, stalest first.
+      if (code === 'busy' || code === 'billing_not_configured') return { read, failed, stopped: code };
+      failed += 1;
+      console.warn(`[shopify-billing] sweep shop=${row.shopify_shop_id} failed code=${code}`);
+    }
+  }
+  return { read, failed, stopped: null };
 }
 
 /**

@@ -57,7 +57,7 @@ Twelve Supabase Edge Functions live in `supabase/functions/`. They run on Supaba
 | `ebay-account-deletion`   | false        | eBay Marketplace Account Deletion endpoint: GET answers the challenge, signed POSTs delete that eBay account's tokens, link and listings |
 | `ebay-web`                | false*       | The `ebay` function's code for the website: its eBay page (`/ebay/connect`), which links eBay with `client: 'web'` (auth by `getUser(jwt)`), and the Shopify app's page, which lists a store's product on eBay (`shopifyItem`, `shopifyListing`; auth by App Bridge's ID token, see "eBay from Shopify") |
 | `shopify`                 | false*       | Extension's only route to Shopify (in progress): consent page, link, unlink, store details, products and their variants, the editor, status changes, delete, linked sales, crosslists into the store. Tokens live in `shopify_tokens` (service role only); auth by `getUser(jwt)` |
-| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token: the session with the account's plan, and the store's products with each variant's eBay listing), its Connect address (`/connect`, redirects to the site) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
+| `shopify-public`          | false        | The Shopify app's page calls (`/app`, an App Bridge ID token: the session with the account's plan, and the store's products with each variant's eBay listing), its Connect address (`/connect`, redirects to the site), the hourly plan sweep (`/sync`, an hourly Cron job with `x-shopify-sync-secret`) and webhooks (signed POSTs: uninstall, and the three compliance topics) |
 
 \*`verify_jwt` is false because the Supabase gateway's built-in JWT check only supports HS256, and our project issues ES256 tokens. Each authed function calls `supabase.auth.getUser()` in the handler and returns 401 if null - Supabase's user endpoint validates ES256 correctly, so auth is still enforced. The three `admin-*` functions additionally require the (already-validated) JWT's `aal` claim to be `aal2` (MFA verified this session, mirroring `is_admin()` in 003_support.sql) and `admin_users` membership via the service role.
 
@@ -171,6 +171,9 @@ supabase secrets set SHOPIFY_CLIENT_ID=... SHOPIFY_CLIENT_SECRET=...
 # financials) and the app's number in the Partner Dashboard. The app's page
 # leaves billing out until all three are set.
 supabase secrets set SHOPIFY_PARTNER_ID=... SHOPIFY_PARTNER_TOKEN=... SHOPIFY_APP_ID=...
+# The hourly dashboard Cron job's x-shopify-sync-secret header, for
+# shopify-public/sync ("Shopify billing" below).
+supabase secrets set SHOPIFY_SYNC_SECRET='<random-string, 32+ bytes>'
 # Referrals (docs/REFERRALS.md): the referee first-month-discount coupons
 # (created by hand in the Stripe dashboard, test + live) and the shared secret
 # the daily Cron job sends in x-referral-cron-secret.
@@ -922,8 +925,18 @@ code=<code>` and nothing else.
     (`session`, cached 5 minutes), with `fresh: true` after the welcome link (at most every 5
     seconds a store), when a store is connected (`claimStore` in `shopify`), and on
     `app/uninstalled`. Whether an uninstall cancels the subscription isn't documented, so the
-    plan is read then rather than assumed gone. A regular sync of the Partner API's `events`
-    (`SUBSCRIPTION_*`, `RELATIONSHIP_UNINSTALLED`) is still to come.
+    plan is read then rather than assumed gone.
+  - **The hourly sweep** (`POST shopify-public/sync`, `syncDueStores`). An hourly dashboard
+    Cron job (`0 * * * *`) POSTs with the `x-shopify-sync-secret` header (`SHOPIFY_SYNC_SECRET`).
+    It reads the live Shopify rows again, one `activeSubscription` each, 500 ms apart and at
+    most 120 a run: first those whose period end has passed (a trial converting or ending, a
+    renewal, a cancellation taking effect; again after 50 minutes), then the least lately read
+    (after 6 hours). A throttle or a refused token ends the run early; the next carries on,
+    stalest first. Ended rows are left alone: a merchant who picks a plan again comes back
+    through the welcome link. It re-reads each plan rather than reading the Partner API's
+    `events`, whose filter fields couldn't be checked against a schema, and a read can't miss
+    an event. A live Stripe plan is never written over, but a Shopify row whose plan has gone
+    is ended even then (`writeFor`).
   - **`session.billing`**, for a connected store once the three secrets are set (null until then,
     and when Shopify can't be asked): `{ plan, doubleBilled, planPageUrl }`. `plan` is the
     account's current plan (`tierId`, `status`, `periodEnd`, `cancelAtPeriodEnd`, and

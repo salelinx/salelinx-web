@@ -31,6 +31,11 @@
 //                  extension watches this address, as it may read supabase.co
 //                  and not salelinx.com, and connects the store itself when
 //                  the extension is signed in.
+//   POST /sync     The hourly dashboard Cron job, with x-shopify-sync-secret
+//                  (SHOPIFY_SYNC_SECRET): reads again the live plans Shopify
+//                  bills, as App Pricing sends no webhooks for their changes
+//                  (syncDueStores in _shared/shopify-billing.ts). -> { read,
+//                  failed, stopped }
 //   GET  /         The App URL until 2026-11-13: sent to the website.
 //   POST /         Webhooks, verified against X-Shopify-Hmac-Sha256, all
 //                  subscribed in shopify/shopify.app.toml:
@@ -48,13 +53,13 @@
 //
 // Secrets: SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET, SITE_URL, the ebay
 // function's EBAY_CLIENT_ID, EBAY_CLIENT_SECRET and EBAY_ENV (ebay/api.ts), and
-// for billing SHOPIFY_PARTNER_ID, SHOPIFY_PARTNER_TOKEN and SHOPIFY_APP_ID
-// (_shared/shopify-billing.ts).
+// for billing SHOPIFY_PARTNER_ID, SHOPIFY_PARTNER_TOKEN, SHOPIFY_APP_ID and the
+// sweep's SHOPIFY_SYNC_SECRET (_shared/shopify-billing.ts).
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/security.ts';
+import { corsHeaders, timingSafeEqual } from '../_shared/security.ts';
 import {
   ShopifyError,
   adminGraphql,
@@ -100,6 +105,7 @@ import {
   billingConfigured,
   planPageUrl,
   syncAfterUninstall,
+  syncDueStores,
   syncStorePlan,
 } from '../_shared/shopify-billing.ts';
 import { accessTokenFor, trading } from '../ebay/api.ts';
@@ -554,11 +560,33 @@ async function webhook(req: Request): Promise<Response> {
   return text(200, 'ok');
 }
 
+// ── The plan sweep ─────────────────────────────────────────────────────────
+
+/** POST /sync from the hourly dashboard Cron job: the live plans Shopify bills, read again. */
+async function sync(req: Request): Promise<Response> {
+  if (req.method !== 'POST') return text(405, 'Method not allowed');
+  const secret = Deno.env.get('SHOPIFY_SYNC_SECRET') ?? '';
+  const presented = req.headers.get('x-shopify-sync-secret') ?? '';
+  if (!secret || !(await timingSafeEqual(presented, secret))) return text(401, 'Unauthorized');
+  if (!billingConfigured()) return json(200, { read: 0, failed: 0, stopped: 'billing_not_configured' });
+  try {
+    const result = await syncDueStores(adminClient());
+    console.log(
+      `[shopify-public] sync read=${result.read} failed=${result.failed} stopped=${result.stopped ?? '-'}`,
+    );
+    return json(200, result);
+  } catch (err) {
+    console.error('[shopify-public] sync', err instanceof Error ? err.message : err);
+    return json(500, { error: 'Sync failed' });
+  }
+}
+
 // ── Handler ────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
   if (url.pathname.endsWith('/app')) return app(req);
+  if (url.pathname.endsWith('/sync')) return sync(req);
   if (req.method === 'GET' && url.pathname.endsWith('/connect')) {
     const code = url.searchParams.get('code') ?? '';
     const target = new URL('/shopify/connect', SITE_URL);
