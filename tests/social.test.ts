@@ -9,7 +9,7 @@ import {
   videoCurve,
   type ExperimentMember,
 } from "../lib/social/experiments";
-import { hashtagCount, scheduleProblems, targetProblems } from "../lib/social/validate";
+import { hashtagCount, postWarnings, scheduleProblems, targetProblems } from "../lib/social/validate";
 import {
   facebookNext,
   instagramNext,
@@ -238,6 +238,19 @@ describe("planner checks", () => {
         nowMs: T0,
       }),
     ).toEqual(["That time has passed. Pick a later one, or use Post now."]);
+  });
+
+  it("names the actual problem once the file's length and frame are known", () => {
+    const base = { platforms: ["facebook" as const], mediaBytes: 1, scheduledAt: null, now: T0 };
+    expect(postWarnings(base)).toEqual(["Facebook Reels must be vertical (9:16) and 3 to 90 seconds long."]);
+    expect(postWarnings({ ...base, seconds: 42, width: 1080, height: 1920 })).toEqual([]);
+    expect(postWarnings({ ...base, seconds: 120, width: 1920, height: 1080 })).toEqual([
+      "Facebook Reels must be 3 to 90 seconds long; this video is 120 seconds.",
+      "This video isn't vertical, and Facebook Reels must be 9:16.",
+    ]);
+    expect(postWarnings({ ...base, platforms: ["youtube"], seconds: 200 })).toEqual([
+      "Over 3 minutes, so YouTube treats it as a normal video rather than a Short.",
+    ]);
   });
 });
 
