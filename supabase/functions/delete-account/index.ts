@@ -17,7 +17,9 @@
 //       1. Storage objects under listing-images/{userId}/ (DB cascade does
 //          not touch Storage)
 //       2. The Stripe customer(s) - deletion cancels any active subscription;
-//          Stripe retains invoices for tax law, which the policy discloses
+//          Stripe retains invoices for tax law, which the policy discloses.
+//          Then any plan Shopify still bills for one of the account's
+//          stores, cancelled at once (_shared/shopify-billing.ts)
 //       3. The auth.users row - ON DELETE CASCADE then removes every
 //          user-owned row (listings, credentials, settings, linked accounts,
 //          subscriptions, usage, storage, tickets, replies, referrals)
@@ -42,6 +44,7 @@
 
 import Stripe from "https://esm.sh/stripe@17.0.0?target=deno";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { cancelAccountStorePlans } from "../_shared/shopify-billing.ts";
 import {
   button,
   COMPANY_INFO,
@@ -408,17 +411,29 @@ Deno.serve(async (req) => {
     }
   }
 
+  // 2b. Shopify plans (migration 057). Shopify bills a store for SaleLinx until
+  // its subscription is cancelled, whatever happens to the account, so each one
+  // still billed is cancelled here. Like Stripe's, a failure stops the deletion.
+  let shopifyCancelled = 0;
+  try {
+    shopifyCancelled = await cancelAccountStorePlans(admin, userId);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return json({ error: `shopify: ${msg}` }, 500);
+  }
+
   // 3. The auth user - cascades every user-owned row.
   const { error: delErr } = await admin.auth.admin.deleteUser(userId);
   if (delErr) return json({ error: `deleteUser: ${delErr.message}` }, 500);
 
   console.log(
-    `[delete-account] self-delete complete: ${paths.length} storage objects, ${stripeDeleted} stripe customers`,
+    `[delete-account] self-delete complete: ${paths.length} storage objects, ${stripeDeleted} stripe customers, ${shopifyCancelled} shopify plans`,
   );
 
   return json({
     ok: true,
     storage_objects: paths.length,
     stripe_customers: stripeDeleted,
+    shopify_plans: shopifyCancelled,
   });
 });

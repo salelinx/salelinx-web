@@ -11,7 +11,7 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Activity | Data | Data subjects | Legal basis | Where stored | Retention |
 | --- | --- | --- | --- | --- | --- |
 | Accounts and auth | Email, hashed password, locale, sign-in timestamps | Users | Contract | Supabase `auth.users` | Life of account |
-| Subscriptions | Stripe customer/subscription IDs, tier, status, period end, latest card decline code | Users | Contract | Supabase `subscriptions`, Stripe | Life of account; invoices kept by Stripe for tax law |
+| Subscriptions | Stripe customer/subscription IDs or the Shopify store id (a plan Shopify bills), tier, status, period end, latest card decline code | Users | Contract | Supabase `subscriptions`, Stripe | Life of account; invoices kept by Stripe for tax law |
 | Usage metering and feature activity | Per-feature integer counts per period. Originally tier-metered counters only; 002_billing_tiers.sql registers ~28 additional non-metered activity counters (offers, chat replies, labels, photo edits, cloud sync actions, ...) for the admin usage console, currently inert until the extension sends them | Users | Contract (plan limits); legitimate interest (product analytics, support debugging) for the non-metered counters | Supabase `usage_counters` | Rows untouched for 14 months purged nightly (002_billing_tiers.sql); the server-derived hour-bucket rows (016_usage_hour_buckets.sql) purged after 60 days; rest, life of account |
 | Usage events | One row per usage increment: feature, the call's delta, server timestamp (017_usage_events.sql), for the admin console's trailing-window views (last 5 minutes to 72 hours) | Users | Legitimate interest (product analytics, support debugging) | Supabase `usage_events` (no client policies; SECURITY DEFINER functions only) | 7 days, purged hourly; cascades on account deletion |
 | Cloud sync (opt-in) | Listing content: titles, descriptions, prices, attributes, photos, enriched marketplace payloads | Users | Contract | Supabase `listings` + `listing-images` bucket | Until user disables sync or deletes account |
@@ -245,7 +245,7 @@ Google-only accounts, which have no password; the emailed link is their
 step-up), then a confirmation link emailed to the account address (60-minute
 expiry), then a final confirm on `/account/delete-confirm`. It runs the `delete-account` Edge
 Function, which performs the same steps as the staff paths below (storage,
-Stripe customer, auth user) with no staff involvement. Because staff are not
+Stripe customer, Shopify plan, auth user) with no staff involvement. Because staff are not
 notified, sweep the `support@salelinx.com` inbox periodically for threads
 whose senders no longer have accounts (the manual follow-up in step 3 below
 has no trigger for self-serve deletions).
@@ -260,7 +260,9 @@ Trigger: user emails a deletion request from their account email address
    ask them to confirm from that address).
 2. Delete via either path (both run the same steps: storage objects, the
    Stripe customer - cancels any subscription; Stripe keeps invoices for tax
-   law, which the policy discloses - then the auth user, which cascades all
+   law, which the policy discloses - then any plan Shopify still bills for one
+   of the user's stores, cancelled through Shopify's Partner API, then the auth
+   user, which cascades all
    user-owned rows including tickets, `ebay_tokens` and `shopify_tokens`; the
    grant on eBay's or Shopify's side is useless without the tokens, and the user
    can revoke it in their eBay account or by uninstalling the app in Shopify):
@@ -271,6 +273,9 @@ Trigger: user emails a deletion request from their account email address
    - **Script:** dry run `node scripts/delete-user-account.mjs user@example.com`,
      then re-run with `--execute`. Requires `SUPABASE_SERVICE_ROLE_KEY` in the
      environment or `.env.local` (dashboard > Settings > API; never commit it).
+     It can't cancel a Shopify plan (only the Edge Functions hold the Partner
+     API token), so it refuses an account with a Shopify plan row: use the
+     admin console for those.
 3. Manual follow-ups neither path can do:
    - Delete the user's threads from the `support@salelinx.com` inbox.
    - If they emailed other addresses, purge those too.

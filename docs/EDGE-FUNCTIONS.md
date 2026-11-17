@@ -945,9 +945,13 @@ code=<code>` and nothing else.
     upgrade and Manage links ask the `shopify` function's `planPage` (Shopify's plan page, from
     the store's token and the app's handle), falling back to the app's page in the store's
     admin, then to the salelinx.com page.
-  - **Cancelling** (`cancelStorePlan`, for account deletion, not called yet):
-    `appSubscriptionCancel` with `deferCancellation: false` and `prorate: false`, which needs the
-    client's View financials permission.
+  - **Cancelling on account deletion.** `delete-account` and `admin-delete-user` call
+    `cancelAccountStorePlans` after the Stripe step: each store the account has a plan row for is
+    read, and cancelled (`cancelStorePlan`: `appSubscriptionCancel` with
+    `deferCancellation: false` and `prorate: false`, which needs the client's View financials
+    permission) only while Shopify still bills it. A failure stops the deletion, as Stripe's
+    does. `scripts/delete-user-account.mjs` can't reach the Partner API, so it refuses an account
+    with a Shopify plan row.
   - **Order.** The readers (`feature-gate`, `crosslist-gate`, the website and the extension)
     select `*`, so they work before and after 057, whatever is deployed first; a list naming a
     missing column would fail the whole read. Apply 057 before setting the billing secrets, as

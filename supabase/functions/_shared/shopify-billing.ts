@@ -273,6 +273,34 @@ export async function cancelStorePlan(shopId: string): Promise<void> {
   }
 }
 
+/**
+ * Account deletion (delete-account, admin-delete-user): each store this account has a plan row
+ * for is read, and cancelled at once while Shopify still bills it, as the account's Stripe
+ * customers are deleted. Reading first means a plan that already ended asks Shopify to cancel
+ * nothing. Throws when a read or a cancel fails, so the caller stops before deleting an account
+ * Shopify could still bill. Answers how many it cancelled.
+ */
+// deno-lint-ignore no-explicit-any
+export async function cancelAccountStorePlans(admin: any, userId: string): Promise<number> {
+  // Every column, so this works before migration 057 too (no store ids then).
+  const { data, error } = await admin.from('subscriptions').select('*').eq('user_id', userId);
+  if (error) throw new ShopifyError('Subscription lookup failed', 'unavailable', 500);
+  const shops = [
+    ...new Set(
+      ((data ?? []) as Partial<SubscriptionRow>[])
+        .map((r) => r.shopify_shop_id)
+        .filter((id): id is string => !!id),
+    ),
+  ];
+  let cancelled = 0;
+  for (const shopId of shops) {
+    if ((await readStorePlan(shopId)) === null) continue;
+    await cancelStorePlan(shopId);
+    cancelled += 1;
+  }
+  return cancelled;
+}
+
 // ── The sync ───────────────────────────────────────────────────────────────
 
 // Stores read lately that hold no row to remember the read on: no plan, or no account yet. Per
