@@ -738,9 +738,9 @@ export function Planner({
             <p className="text-xs leading-relaxed text-zinc-400">
               Posting runs every 5 minutes. YouTube uploads an hour early and
               goes public on time by itself; Instagram and Facebook post at the
-              time; TikTok lands in the app&apos;s inbox at the time for you to
-              post, because TikTok only lets audited apps post publicly and does
-              not audit tools for your own accounts. Times are in your own time
+              time; TikTok posts are scheduled in TikTok Studio each week, and
+              any it missed land in the app&apos;s inbox at the time for you to
+              post. Times are in your own time
               zone. Keys: N new post, T today, arrows to step.
             </p>
           </div>

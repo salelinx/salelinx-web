@@ -15,6 +15,7 @@ import {
   instagramNext,
   instagramTrialParams,
   retryIn,
+  studioMatch,
   tiktokChunks,
   tiktokNext,
   youtubeChunks,
@@ -321,5 +322,21 @@ describe("deeper stats parsing", () => {
       new Map([["1", { views: 10, reach: 8, saved: 2, ig_reels_avg_watch_time: 4321 }]]),
     );
     expect(v).toMatchObject({ reach: 8, saves: 2, avgWatchSeconds: 4.3, watchSeconds: null });
+  });
+});
+
+describe("studioMatch", () => {
+  it("finds the scheduled post by caption, posted after it was scheduled", () => {
+    const at = "2026-11-16T12:00:00Z";
+    const t = Date.parse(at) / 1000;
+    const caption = "Ever sold the same thing on two apps? \u{1F62C}\n#reseller #depop";
+    const videos = [
+      { id: 1, video_description: caption, create_time: t - 5 * 86400 },
+      { id: 2, video_description: "Something else", create_time: t + 86400 },
+      { id: 3, video_description: "Ever sold the same thing on two apps?  \u{1F62C} #reseller #depop", create_time: t + 86400 },
+    ];
+    expect(studioMatch(videos, caption, at)).toBe("3");
+    expect(studioMatch(videos.slice(0, 2), caption, at)).toBeNull();
+    expect(studioMatch(videos, "", at)).toBeNull();
   });
 });

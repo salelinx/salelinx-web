@@ -10,6 +10,7 @@ import {
   instagramNext,
   instagramTrialParams,
   tiktokChunks,
+  studioMatch,
   tiktokNext,
   youtubeChunks,
   youtubeStatus,
@@ -405,6 +406,26 @@ export async function stepTikTok(t: Claimed, ctx: Ctx): Promise<Outcome> {
     Authorization: `Bearer ${ctx.token}`,
     "Content-Type": "application/json; charset=UTF-8",
   };
+
+  if (t.job.studio_at) {
+    const list = await call(`${TT}/video/list/?fields=id,video_description,create_time`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({ max_count: 20 }),
+    });
+    const id = studioMatch(list.data?.videos ?? [], t.caption ?? "", t.job.studio_at);
+    if (id)
+      return {
+        status: "published",
+        externalId: id,
+        url: ctx.handle ? `https://www.tiktok.com/${ctx.handle}/video/${id}` : null,
+        publishedAt: new Date(ctx.now).toISOString(),
+        job: { ...t.job, note: null },
+      };
+    if (ctx.now - Date.parse(t.scheduled_at) > 6 * 3600_000)
+      return { status: "failed", error: "Scheduled in TikTok Studio but not live 6 hours after its time. Check TikTok Studio.", job: t.job };
+    return { status: "processing", job: t.job, checkInSeconds: 15 * 60 };
+  }
 
   if (t.status === "pending") {
     const media = await ctx.media();
