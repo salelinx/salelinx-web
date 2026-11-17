@@ -90,6 +90,18 @@ export function SubscribeButton({
       );
 
       if (res.status === 409) {
+        // Billed through Shopify, or the account holds a Shopify store with no plan yet: the
+        // account page says where that plan is managed or picked.
+        const refusal = (await res.json().catch(() => null)) as {
+          code?: string;
+        } | null;
+        if (
+          refusal?.code === "shopify_billed" ||
+          refusal?.code === "shopify_store"
+        ) {
+          router.push("/account");
+          return;
+        }
         // Already subscribed: plan changes happen in the Customer Portal.
         const portal = await fetch(
           `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-portal-session`,

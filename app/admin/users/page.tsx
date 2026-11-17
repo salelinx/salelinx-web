@@ -17,13 +17,22 @@ export default async function AdminUsersPage() {
   //
   // Tier configs (public-read) let the detail drawer show usage against caps
   // without another round-trip per open. Passed down to the table.
-  const [usersRes, deletedRes, tiers] = await Promise.all([
+  const [usersRes, deletedRes, hiddenRes, tiers] = await Promise.all([
     supabase.rpc("admin_list_users"),
     supabase.rpc("admin_list_deleted_accounts"),
+    supabase.from("admin_hidden_users").select("user_id"),
     getTierConfigs(),
   ]);
   const users = (usersRes.data as AdminUserRow[] | null) ?? [];
   const deleted = (deletedRes.data as AdminDeletedAccount[] | null) ?? [];
+  const hidden = (hiddenRes.data ?? []).map((r) => r.user_id as string);
 
-  return <AdminUserTable initialUsers={users} deletedAccounts={deleted} tiers={tiers} />;
+  return (
+    <AdminUserTable
+      initialUsers={users}
+      deletedAccounts={deleted}
+      hiddenUserIds={hidden}
+      tiers={tiers}
+    />
+  );
 }

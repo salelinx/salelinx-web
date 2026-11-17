@@ -56,6 +56,13 @@ SELECT public.increment_usage_counter('crosslist', '2026-04', 1);
 
 Since migration `016_usage_hour_buckets.sql` the same call also upserts an hour bucket (`YYYY-MM-DDTHH`, UTC, derived from `now()` on the server) for the admin console's hour-resolution usage ranges. The caller-named bucket is still the one caps are enforced against and the one the return value reports; callers cannot name an hour bucket themselves (the shape is rejected). Hour rows are purged after 60 days and sit outside the 2000-row per-user cap. See `docs/ADMIN.md` "Hour buckets".
 
+### `increment_usage_counter_for(user_id, feature, period_key, delta)`
+
+The same counting for a named user, for the server only (`057_increment_usage_for.sql`: only
+`service_role` may run it). The ebay function's `shopifyListing` counts a crosslist with it, as the
+Shopify app's page that asks for one has no SaleLinx login, so no `auth.uid()`. Same checks, hour
+bucket and event row as the call above.
+
 Since migration `017_usage_events.sql` the call also inserts one row into `usage_events` (user, feature, delta, server timestamp), the source for the admin console's trailing-window presets (last 5 minutes to last 72 hours). Rows live 7 days, at most 2000 per user per rolling hour are recorded, and nothing gates on them. See `docs/ADMIN.md` "Usage events".
 
 ## How the two sides use this
@@ -201,6 +208,8 @@ A comp row is a `subscriptions` row with no `stripe_subscription_id`: a support 
 This only applies to comp rows. On a Stripe-managed row the period end is a renewal date the webhook keeps moving, and enforcing it would lock out paying customers in the gap between a renewal and its webhook landing. Comp rows written before 021 have a null period end and stay open-ended, so nothing already granted changed.
 
 Any caller that wants the rule must select **both** `stripe_subscription_id` and `current_period_end`. A caller that selects neither keeps the old behaviour rather than reading an absent field as "comp row"; that is why `resolve-category` and the extension's `utils/cloud/subscription.ts` both had their selects widened in the same change. The extension caches its subscription blob for up to an hour, so a comp can outlive its end date there by that much.
+
+**Shopify-billed rows** (`058_shopify_billing.sql`) have no Stripe id either, so `shopify_shop_id` is the other half of the test: a comp is a row with neither id. A caller that selects `stripe_subscription_id` for the rule must select `shopify_shop_id` too, or a Shopify row past its billing cycle's end reads as an expired comp. `feature-gate`, `crosslist-gate`, `lib/supabase/subscription.ts` and the extension's `utils/cloud/subscription.ts` all select `*`, which also keeps them working before the migration is applied. How those rows are written is in `EDGE-FUNCTIONS.md` "Shopify billing".
 
 ## Creator codes (021_creator_codes.sql)
 

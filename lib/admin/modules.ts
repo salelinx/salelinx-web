@@ -85,6 +85,7 @@ export const ADMIN_MODULES: AdminModule[] = [
       { key: "insights-engagement", label: "Engagement", href: "/admin/marketing/insights/engagement", enabled: true },
       { key: "insights-growth", label: "Growth", href: "/admin/marketing/insights/growth", enabled: true },
       { key: "insights-lifecycle", label: "Lifecycle", href: "/admin/marketing/insights/lifecycle", enabled: true },
+      { key: "stats-original", label: "Original", href: "/admin/marketing/original", enabled: true },
     ],
   },
   {

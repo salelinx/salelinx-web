@@ -21,6 +21,7 @@ import { EmailPreferencesCard } from "@/components/EmailPreferencesCard";
 import { marketingChoice } from "@/lib/marketing-choice";
 import { ReferralsCard } from "@/components/ReferralsCard";
 import { isAuthUnreachable } from "@/lib/supabase/auth-errors";
+import { shopifyAppAdminUrl } from "@/lib/shopify-app";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -86,6 +87,16 @@ export default async function AccountPage({ params, searchParams }: Props) {
         .eq("user_id", user.id)
         .maybeSingle(),
     ]);
+  // The app's page in the admin of the store this account holds (migration 058),
+  // or null when it holds none (or the app is uninstalled). A plan Shopify bills is
+  // managed there, and an account that holds a store but has no plan picks one
+  // there too: App Store requirement 1.2.1 keeps a store's merchant on Shopify's
+  // billing, so it is never offered Stripe (create-checkout-session refuses it).
+  // A seller already paying on Stripe keeps it.
+  const { data: domain } = await supabase.rpc("my_shopify_store_domain");
+  const shopifyAppUrl = shopifyAppAdminUrl(
+    typeof domain === "string" ? domain : null,
+  );
   const entitled = isEntitled(subscription);
   const emailChoice = marketingChoice(user.user_metadata);
   const trialDaysLeft = trialDaysRemaining(subscription);
@@ -157,17 +168,33 @@ export default async function AccountPage({ params, searchParams }: Props) {
         <h2 className="text-xl font-semibold">{t("currentPlanTitle")}</h2>
 
         {!subscription ? (
-          <>
-            <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-              {t("noSubscriptionBody")}
-            </p>
-            <Link
-              href="/pricing"
-              className="mt-4 inline-block rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
-            >
-              {t("startTrial")}
-            </Link>
-          </>
+          shopifyAppUrl ? (
+            <>
+              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                {t("shopifyNoPlanBody")}
+              </p>
+              <a
+                href={shopifyAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
+              >
+                {t("choosePlanInShopify")}
+              </a>
+            </>
+          ) : (
+            <>
+              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                {t("noSubscriptionBody")}
+              </p>
+              <Link
+                href="/pricing"
+                className="mt-4 inline-block rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
+              >
+                {t("startTrial")}
+              </Link>
+            </>
+          )
         ) : (
           <>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
@@ -222,18 +249,29 @@ export default async function AccountPage({ params, searchParams }: Props) {
               subscription.status !== "trialing" && (
                 <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
                   <p>{t("lockedNote")}</p>
-                  <Link
-                    href="/pricing"
-                    className="mt-3 inline-block rounded-full bg-amber-900 px-4 py-2 text-xs font-medium text-amber-50 dark:bg-amber-200 dark:text-amber-950"
-                  >
-                    {t("seePricing")}
-                  </Link>
+                  {shopifyAppUrl ? (
+                    <a
+                      href={shopifyAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-block rounded-full bg-amber-900 px-4 py-2 text-xs font-medium text-amber-50 dark:bg-amber-200 dark:text-amber-950"
+                    >
+                      {t("choosePlanInShopify")}
+                    </a>
+                  ) : (
+                    <Link
+                      href="/pricing"
+                      className="mt-3 inline-block rounded-full bg-amber-900 px-4 py-2 text-xs font-medium text-amber-50 dark:bg-amber-200 dark:text-amber-950"
+                    >
+                      {t("seePricing")}
+                    </Link>
+                  )}
                 </div>
               )}
             {subscription.cancel_at_period_end &&
               subscription.status !== "canceled" && (
                 <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                  {t("scheduledCancel", {
+                  {t(subscription.shopify_shop_id ? "scheduledCancelShopify" : "scheduledCancel", {
                     date: formatDate(subscription.current_period_end),
                   })}
                 </p>
@@ -261,6 +299,23 @@ export default async function AccountPage({ params, searchParams }: Props) {
                     secondary={subscription.status === "trialing"}
                   />
                 </div>
+              </div>
+            )}
+            {subscription.shopify_shop_id && (
+              <div className="mt-6 border-t border-black/10 pt-5 dark:border-white/10">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {t("shopifyBilledBody")}
+                </p>
+                {shopifyAppUrl && (
+                  <a
+                    href={shopifyAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-block rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black"
+                  >
+                    {t("manageInShopify")}
+                  </a>
+                )}
               </div>
             )}
           </>

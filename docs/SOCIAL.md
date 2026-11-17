@@ -6,7 +6,7 @@ The admin console's Social group: SaleLinx's own YouTube, Instagram, TikTok and 
 | --- | --- | --- |
 | Stats > Overview | `/admin/marketing` | Every recent post against our typical one (the index), the period's health, each platform, and every video with its tags (see "Stats" and "Tags" below, and `docs/ADMIN.md` "Marketing"). Each title opens the video's own page. |
 | Video | `/admin/marketing/videos/<platform>/<id>` | Every lifetime figure the platform gives, views at 1h / 6h / 24h / 3d / 7d against our typical video there, the first-week curve, views gained per day, and the experiments it is in. |
-| Planner | `/admin/marketing/planner` | Upload a video, write each platform's caption and options, pick a time. `marketing-publish` posts it. |
+| Planner | `/admin/marketing/planner` | The plan as a week, a month or a list, with failures and TikTok inbox items at the top and drafts beside it. Upload a video, write one caption (or one per platform), pick a time, and `marketing-publish` posts it. See "Planner" below. |
 | Experiments | `/admin/marketing/experiments` | A/B tests: tag videos A to E, compare them at the same age within each platform. |
 | Stats > Totals, Posts, Compare, Timing, Engagement, Growth, Lifecycle | `/admin/marketing/insights/*` | The rest of the Stats dropdown: the deeper read of the same snapshots, one page per question. See "Stats pages" below. |
 
@@ -81,6 +81,18 @@ When a platform goes live, `marketing-publish` adds the video to `marketing_vide
 - The status check follows it after that: `inbox` until posted, then `published` once TikTok gives the public post id. 7 days in the inbox without a post fails it.
 - **Studio scheduling.** `Marketing/tiktok/studio-scheduler/schedule.js` runs weekly on Lewis's Mac. It uploads each pending TikTok post due in the next 10 days into TikTok Studio's own scheduler through a signed-in Chrome, then sets the target to `processing` with `job.studio_at`. TikTok then posts it on time. `stepTikTok` skips the inbox for those and looks for the live video in `video/list` by caption, failing it 6 hours after its time if none appears. Anything the script missed still goes to the inbox as above.
 
+## Planner
+
+A content calendar in the style of Buffer, Later and Metricool, all on `lib/social/calendar.ts` (pure, tested in `tests/social-calendar.test.ts`).
+
+- **Views.** Week (day columns, the default), Month and List (by day, upcoming first, earlier posts folded away). The view and a platform filter are remembered in this browser (localStorage `slx-planner`, never a cookie). Times and days are the viewer's own time zone; the calendar renders only once the browser has a clock, so it never disagrees with the server's render.
+- **A post's state** comes from its platforms: draft, scheduled (nothing started), posting (some platform has started), needs you (a failure or a TikTok in the inbox, listed in the panel at the top with Retry and Copy caption) and live (every platform published). Each card's platform marks stay grey until that copy is live and are ringed red or amber when it needs a person.
+- **Click** a post nobody has started on to edit it. Once a platform has started, the post can't be edited (052's save refuses it), so clicking opens a side panel instead: each platform's status, note, caption, link out, Stats link, Retry, and Copy as new post.
+- **Drag** a scheduled post to another day to move it there at the same time (saved straight away, with Undo); drag a draft onto a day to open it at that day. Past days take no drops. Posts that have started can't be dragged.
+- **The editor** is a two-column dialog with a phone preview. One caption is shared by every platform unless a platform is given its own ("Write one just for TikTok"); each platform tab shows its own limit. The YouTube title, visibility, tags and Instagram's Trial Reel option sit under it. "When" offers the next free slot and our usual times, which are any clock time two or more scheduled posts use (09:00, 13:00, 18:00 until there are), and lists what else is on that day. The checklist under the preview shows live what still stops it being scheduled; Post now asks for a second click instead of a browser dialog. The video's length and frame are read in the browser, so the Facebook (3 to 90 seconds, vertical) and YouTube Short (3 minutes) warnings name the actual problem.
+- **Card pictures:** a live copy's platform thumbnail from `marketing_videos` (vertical platforms first), else the uploaded file itself as a paused video from a 6-hour signed link, loaded only as it scrolls into view. Storage is in the CSP's `media-src` but not `img-src`, which is why the file is shown as a video and a saved cover is fetched into a blob URL.
+- **Keys:** N new post, T today, left and right arrows step a week or month.
+
 ## Stats
 
 The overview at `/admin/marketing` leads with the **index**: a video's views at 24 hours or 7 days divided by our typical video on the same platform at the same age. 1.0x is typical, 2x twice as good. Raw views mislead three ways: older videos have had longer, each platform counts a view its own way (YouTube changed how it counts Shorts views in March 2025), and a good month lifts everything. The index cancels all three, so a TikTok and a Facebook post can sit on one chart.
@@ -112,6 +124,7 @@ Stats is a dropdown in the sidebar's Social group (`children` in `lib/admin/modu
 | Engagement | `/insights/engagement` | Rates per platform from what the period gained, the rolling 7-day engagement rate, the mix of likes, comments, shares and saves, every post on any rate, the top five on each, and watched and average watch by platform and by length. |
 | Growth | `/insights/growth` | Followers per platform with the period's change, followers over time (each platform on its own scale, since their sizes differ too much to share an axis), net followers per day, total audience, views per follower won, lifetime views over time, and YouTube subscribers by video. |
 | Lifecycle | `/insights/lifecycle` | How much of a first week's views has arrived by each age, the half-life, typical views at each age, how well views at 1h, 6h, 24h and 3 days rank posts the way their first week does (Spearman), views by post age in weeks, new posts against the back catalogue, and older posts still gaining. |
+| Original | `/admin/marketing/original` | The Stats page from before the Overview replaced it: a card per platform, the top three videos, what is trending, views gained per day and every video. `components/admin/marketing/OriginalDashboard.tsx`, read straight from the snapshots rather than through the loader. |
 
 The period (7, 30 or 90 days) and platform switches in the header are shared by every one of these pages and remembered in this browser (localStorage `slx-insights`, never a cookie). Compare and Timing use every post, with their own "posted in" filter, rather than the period.
 
@@ -169,15 +182,17 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 | Deeper stats, hourly rows | `supabase/functions/marketing-sync/` |
 | Types (mirror `plan.ts` options by hand) | `lib/social/types.ts` |
 | Experiment arithmetic | `lib/social/experiments.ts` |
-| Planner limits | `lib/social/validate.ts` |
+| Planner limits and warnings | `lib/social/validate.ts` |
+| Planner calendar arithmetic (weeks, months, states, usual times, free slots) | `lib/social/calendar.ts` |
 | Loaders | `lib/social/data.ts` |
 | Server actions | `app/admin/marketing/actions.ts` |
 | Pages | `app/admin/marketing/{planner,experiments,videos/[platform]/[id]}/page.tsx` |
-| UI | `components/admin/social/*` |
+| UI | `components/admin/social/*` (planner: `Planner.tsx` shell, `PlannerViews.tsx` week/month/list, `PlannerCard.tsx`, `PostSheet.tsx`, `PostEditor.tsx` with `PostPreview.tsx`) |
 
 ## Not done yet
 
-- A calendar view (the planner is a list grouped by what each post needs).
+- Best times to post on the planner itself: Timing on Stats has the heatmap, but the editor's shortcuts only know our usual times.
+- Dragging to a new time within a day (the calendar moves posts between days and keeps the clock time).
 - Resuming a large upload across runs; a run that times out mid-upload fails the post for a manual Retry.
 - Recording which TikTok sound or Instagram audio a post used, which is often the real variable.
 - Starting an experiment straight from a Compare finding (Compare links to Experiments; the variants are still set up by hand).

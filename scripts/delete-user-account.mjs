@@ -138,9 +138,26 @@ async function main() {
     `  stripe customer:    ${sub?.stripe_customer_id ?? 'none'}${sub ? ` (${sub.tier_id}, ${sub.status})` : ''}`,
   );
 
+  // A plan Shopify bills (migration 058) is cancelled through the Partner API,
+  // whose token only the Edge Functions hold, so this script leaves those
+  // accounts to the admin console, which cancels it.
+  const { data: allSubs } = await supabase
+    .from('subscriptions')
+    .select('*')
+    .eq('user_id', user.id);
+  const shopifyPlans = (allSubs ?? [])
+    .filter((s) => s.shopify_shop_id)
+    .map((s) => `store ${s.shopify_shop_id} (${s.tier_id}, ${s.status})`);
+  console.log(`  shopify plans:      ${shopifyPlans.length ? shopifyPlans.join(', ') : 'none'}`);
+
   if (!execute) {
     console.log('\nDry run only. Re-run with --execute to delete.');
     return;
+  }
+  if (shopifyPlans.length > 0) {
+    fail(
+      'Shopify bills this account. Delete it from the admin console instead, which cancels the Shopify plan.',
+    );
   }
 
   // 1. Storage (not covered by DB cascade)

@@ -61,16 +61,30 @@ export function postWarnings(input: {
   mediaBytes: number | null;
   scheduledAt: string | null;
   now: number;
+  // The file's length and frame, once the browser has read them.
+  seconds?: number | null;
+  width?: number | null;
+  height?: number | null;
 }): string[] {
   const out: string[] = [];
+  const seconds = input.seconds ?? null;
+  const shape = input.width && input.height ? input.height / input.width : null;
   if (
     input.platforms.includes("instagram") &&
     input.mediaBytes !== null &&
     input.mediaBytes > LIMITS.instagramBytes
   )
     out.push("Instagram may refuse Reels over 300 MB.");
-  if (input.platforms.includes("facebook"))
-    out.push("Facebook Reels must be vertical (9:16) and 3 to 90 seconds long.");
+  if (input.platforms.includes("facebook")) {
+    if (seconds === null && shape === null)
+      out.push("Facebook Reels must be vertical (9:16) and 3 to 90 seconds long.");
+    if (seconds !== null && (seconds < 3 || seconds > 90))
+      out.push(`Facebook Reels must be 3 to 90 seconds long; this video is ${Math.round(seconds)} seconds.`);
+    if (shape !== null && shape < 1.7)
+      out.push("This video isn't vertical, and Facebook Reels must be 9:16.");
+  }
+  if (input.platforms.includes("youtube") && seconds !== null && seconds > 180)
+    out.push("Over 3 minutes, so YouTube treats it as a normal video rather than a Short.");
   if (input.platforms.includes("tiktok"))
     out.push(
       "TikTok arrives in the app's inbox at this time. Open TikTok, tap the notification, paste the caption and post.",

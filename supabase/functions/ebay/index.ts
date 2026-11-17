@@ -4,12 +4,16 @@
 // OAuth tokens (public.ebay_tokens, service role only) and speaks the Trading
 // API on the user's behalf, returning plain JSON.
 //
-// Auth: the signed-in user's Supabase JWT in Authorization.
+// Auth: the signed-in user's Supabase JWT in Authorization, or, from the
+// Shopify app's page in a store's admin, App Bridge's ID token for the store:
+// that acts for the account the store is connected to, through
+// SHOPIFY_PAGE_ACTIONS only (shopify-listing.ts).
 //
 // Request body: { action, ...params }
-//   consentUrl { state }                     -> { url } (eBay's sign-in always asks for the account: prompt=login)
-//   link       { code }                      -> { userId, username, marketplace, siteKept }
-//                (marketplace is the site listings go to; siteKept when a reconnect kept the seller's pick)
+//   consentUrl { state, client? }            -> { url } (eBay's sign-in always asks for the account: prompt=login)
+//   link       { code, client? }             -> { userId, username, marketplace, siteKept }
+//                (marketplace is the site listings go to; siteKept when a reconnect kept the seller's pick;
+//                client 'web' is the website's eBay page, which eBay returns to instead of an extension)
 //   unlink     {}                            -> { ok }
 //   account    {}                            -> { accountType, marketplace } (accountType 'INDIVIDUAL' or 'BUSINESS')
 //   setMarketplace { marketplace }           -> { marketplace } (the eBay site listings go to, e.g. 'EBAY_GB')
@@ -34,6 +38,13 @@
 //   offerEligible {}                         -> { listingIds } (listings with watchers eBay will take a seller offer on)
 //   sendOffer  { listingId, discountPercentage | price, currency?, message? } -> { sent } (buyers it reached;
 //              gated on auto_offer; refusals come back as negotiation.ts's codes)
+//   shopifyItem { productId, variantId }     -> { item, marketplace, currency, setup, listed } (the
+//                                              Shopify app's page: a store's variant, read from the store)
+//   shopifyListing { productId, variantId, verifyOnly?, title, categoryId, conditionId, specifics,
+//                    price, quantity, postage?, postcode? }
+//                                            -> a fee check's verdict, or { itemId, url, linked } (the
+//                                              Shopify app's page: lists the variant, counts it as a
+//                                              crosslist and links it in the cloud)
 //   conversations { maxAgeDays }           -> { conversations } (buyers' messages, messages.ts)
 //   sendMessage { reply, text, photos? }     -> { ok } (reply: { itemId, parentMessageId, recipientId },
 //                                              or { itemId, recipientId, subject } to start one with an order's buyer;
@@ -51,13 +62,15 @@
 // Secrets: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, EBAY_RUNAME (dev extension),
 // EBAY_RUNAME_STORE (Chrome Web Store extension), EBAY_RUNAMES (optional JSON
 // of extension id -> RuName for other dev copies, checked first),
+// EBAY_RUNAME_WEB (the website's eBay page, /ebay/connect),
+// SHOPIFY_CLIENT_ID and SHOPIFY_CLIENT_SECRET (the Shopify app's page),
 // EBAY_ENV ('sandbox' for the sandbox hosts, anything else is production).
 
 // @ts-nocheck - this file runs under Deno, not the website's TS config.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders as sharedCorsHeaders } from '../_shared/security.ts';
-import { checkCrosslistAllowed } from '../_shared/crosslist-gate.ts';
+import { checkCrosslistAllowed, monthKey } from '../_shared/crosslist-gate.ts';
 import { checkFeatureAllowed } from '../_shared/feature-gate.ts';
 import {
   countMessagePhoto,
@@ -103,26 +116,44 @@ import {
   withReadState,
 } from './messages.ts';
 import { eligibleIdsFromResponse, offerErrorCode, sendOfferBody } from './negotiation.ts';
+import {
+  API_HOST,
+  SANDBOX,
+  SCOPES,
+  accessTokenFor,
+  env,
+  inSeconds,
+  tokenRequest,
+  trading,
+  tradingText,
+} from './api.ts';
+import { ShopifyError, adminGraphql, verifyIdToken } from '../_shared/shopify.ts';
+import { accessToken as shopifyAccessToken } from '../_shared/shopify-tokens.ts';
+import { isShopifyIdToken } from '../_shared/shopify-app-page.ts';
+import { linkedEbayRows } from '../_shared/link-groups.ts';
+import {
+  EBAY_CURRENCY,
+  MAX_EBAY_PHOTOS,
+  SHOPIFY_PAGE_ACTIONS,
+  SHOPIFY_VARIANT_QUERY,
+  ebayItemUrl,
+  ebayPhotoSource,
+  linkKey,
+  postageOf,
+  postcodeOf,
+  savedSetup,
+  setupToSave,
+  shopifyItem,
+  shopifyRowStatus,
+  specificsOf,
+  textToEbayHtml,
+} from './shopify-listing.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
-const SANDBOX = Deno.env.get('EBAY_ENV') === 'sandbox';
 const AUTH_HOST = SANDBOX ? 'https://auth.sandbox.ebay.com' : 'https://auth.ebay.com';
-const API_HOST = SANDBOX ? 'https://api.sandbox.ebay.com' : 'https://api.ebay.com';
 const APIZ_HOST = SANDBOX ? 'https://apiz.sandbox.ebay.com' : 'https://apiz.ebay.com';
 const APIM_HOST = SANDBOX ? 'https://apim.sandbox.ebay.com' : 'https://apim.ebay.com';
-
-// sell.inventory and sell.account are for crosslisting, asked for now so
-// linked users do not have to consent a second time when it ships.
-const SCOPES = [
-  'https://api.ebay.com/oauth/api_scope',
-  'https://api.ebay.com/oauth/api_scope/sell.inventory',
-  'https://api.ebay.com/oauth/api_scope/sell.account',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.analytics.readonly',
-].join(' ');
-
-const TRADING_VERSION = '1451';
 
 const SITE_IDS: Record<string, number> = {
   EBAY_US: 0, EBAY_CA: 2, EBAY_GB: 3, EBAY_AU: 15, EBAY_AT: 16, EBAY_FR: 71,
@@ -138,98 +169,16 @@ function json(status: number, body: unknown): Response {
 
 const STORE_EXTENSION_ID = 'oichfmfogobecihmhlgkfcfbdceomenj';
 
-// eBay only redirects to a RuName's accept URL, which names one extension id.
-function runame(extensionId: unknown): string {
+// eBay only redirects to a RuName's accept URL, which names one extension id, or the website's own
+// eBay page (client 'web': app/[locale]/ebay/connect, which the Shopify app's page sends a seller to).
+function runame(extensionId: unknown, client?: unknown): string {
+  if (client === 'web') return env('EBAY_RUNAME_WEB');
   const mapped = JSON.parse(Deno.env.get('EBAY_RUNAMES') || '{}')[String(extensionId)];
   if (typeof mapped === 'string') return mapped;
   return env(extensionId === STORE_EXTENSION_ID ? 'EBAY_RUNAME_STORE' : 'EBAY_RUNAME');
 }
 
-function env(name: string): string {
-  const v = Deno.env.get(name);
-  if (!v) throw new EbayError(`${name} not configured`, 'not_configured', 500);
-  return v;
-}
-
-// ── OAuth ──────────────────────────────────────────────────────────────────
-
-async function tokenRequest(params: Record<string, string>) {
-  const basic = btoa(`${env('EBAY_CLIENT_ID')}:${env('EBAY_CLIENT_SECRET')}`);
-  const res = await fetch(`${API_HOST}/identity/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${basic}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams(params),
-  });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    // invalid_grant: the refresh token was revoked or expired.
-    const code = body.error === 'invalid_grant' ? 'reauth' : 'ebay';
-    throw new EbayError(body.error_description ?? `eBay token error ${res.status}`, code);
-  }
-  return body as {
-    access_token: string;
-    expires_in: number;
-    refresh_token?: string;
-    refresh_token_expires_in?: number;
-  };
-}
-
-const inSeconds = (s: number) => new Date(Date.now() + s * 1000).toISOString();
-
-async function accessTokenFor(admin, userId: string): Promise<{ token: string; siteId: number }> {
-  const { data: row, error } = await admin
-    .from('ebay_tokens')
-    .select('access_token, access_expires_at, refresh_token, site_id')
-    .eq('user_id', userId)
-    .maybeSingle();
-  if (error) throw new EbayError('Token lookup failed', 'unavailable', 500);
-  if (!row) throw new EbayError('eBay is not connected', 'not_linked', 409);
-
-  if (new Date(row.access_expires_at).getTime() - Date.now() > 60_000) {
-    return { token: row.access_token, siteId: row.site_id };
-  }
-  const fresh = await tokenRequest({
-    grant_type: 'refresh_token',
-    refresh_token: row.refresh_token,
-    scope: SCOPES,
-  });
-  await admin
-    .from('ebay_tokens')
-    .update({
-      access_token: fresh.access_token,
-      access_expires_at: inSeconds(fresh.expires_in),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', userId);
-  return { token: fresh.access_token, siteId: row.site_id };
-}
-
 // ── Trading API ────────────────────────────────────────────────────────────
-
-async function trading(call: string, auth: { token: string; siteId: number }, inner: string) {
-  return parseTrading(call, await tradingText(call, auth, inner));
-}
-
-async function tradingText(call: string, auth: { token: string; siteId: number }, inner: string) {
-  const res = await fetch(`${API_HOST}/ws/api.dll`, {
-    method: 'POST',
-    headers: {
-      'X-EBAY-API-CALL-NAME': call,
-      'X-EBAY-API-SITEID': String(auth.siteId),
-      'X-EBAY-API-COMPATIBILITY-LEVEL': TRADING_VERSION,
-      'X-EBAY-API-IAF-TOKEN': auth.token,
-      'Content-Type': 'text/xml',
-    },
-    body:
-      `<?xml version="1.0" encoding="utf-8"?>` +
-      `<${call}Request xmlns="urn:ebay:apis:eBLBaseComponents">` +
-      `<ErrorLanguage>en_GB</ErrorLanguage>${inner}</${call}Request>`,
-  });
-  return res.text();
-}
 
 const PAGE_SIZE = 200;
 
@@ -354,11 +303,11 @@ async function uploadMessagePhoto(auth, dataUrl: string): Promise<string> {
 
 // ── Linking ────────────────────────────────────────────────────────────────
 
-async function link(admin, userScoped, userId: string, code: string, extensionId: unknown) {
+async function link(admin, userScoped, userId: string, code: string, extensionId: unknown, client: unknown) {
   const tokens = await tokenRequest({
     grant_type: 'authorization_code',
     code,
-    redirect_uri: runame(extensionId),
+    redirect_uri: runame(extensionId, client),
   });
   const res = await fetch(`${APIZ_HOST}/commerce/identity/v1/user/`, {
     headers: { Authorization: `Bearer ${tokens.access_token}` },
@@ -422,6 +371,200 @@ async function link(admin, userScoped, userId: string, code: string, extensionId
   };
 }
 
+// ── The Shopify app's page ─────────────────────────────────────────────────
+
+/** The account the store an App Bridge ID token names is connected to. */
+async function shopifyPageCaller(admin, token: string) {
+  const shop = await verifyIdToken(token, env('SHOPIFY_CLIENT_ID'), env('SHOPIFY_CLIENT_SECRET'));
+  const { data, error } = await admin
+    .from('shopify_tokens')
+    .select('user_id, shop_id')
+    .eq('shop_domain', shop)
+    .maybeSingle();
+  if (error) throw new EbayError('Store lookup failed', 'unavailable', 500);
+  if (!data?.user_id) {
+    throw new EbayError('Connect the store to a SaleLinx account first', 'store_not_connected', 409);
+  }
+  return { userId: data.user_id, shop, shopId: String(data.shop_id) };
+}
+
+/** The variant the page names, read from the store itself: the page only says which one. */
+async function readShopifyItem(admin, page, body) {
+  const productId = String(body.productId ?? '');
+  const variantId = String(body.variantId ?? '');
+  if (!/^\d{1,20}$/.test(productId) || !/^\d{1,20}$/.test(variantId)) {
+    throw new EbayError('Missing product', 'bad_request', 400);
+  }
+  const creds = { clientId: env('SHOPIFY_CLIENT_ID'), secret: env('SHOPIFY_CLIENT_SECRET') };
+  const auth = await shopifyAccessToken(admin, { column: 'shop_domain', value: page.shop }, creds);
+  const data = await adminGraphql(auth.shop, auth.token, SHOPIFY_VARIANT_QUERY, {
+    id: `gid://shopify/ProductVariant/${variantId}`,
+  });
+  const item = shopifyItem(data, productId);
+  if (!item) throw new EbayError('That product is not in the store', 'not_found', 404);
+  return item;
+}
+
+/** The variant's linked eBay listing, in any state, or null. */
+async function ebayPartnerOf(admin, userId: string, rowId: string) {
+  try {
+    return (await linkedEbayRows(admin, userId, [rowId])).get(rowId) ?? null;
+  } catch {
+    throw new EbayError('Listings lookup failed', 'unavailable', 500);
+  }
+}
+
+/**
+ * How the listing is posted, found as the extension finds it (create-ebay.ts ebayListingSetup):
+ * the setup it saved for the account, else postage copied from one of the seller's live eBay
+ * listings, else nothing, and the page asks for postage.
+ */
+async function shopifyListingSetup(admin, userId: string) {
+  const { data: settings } = await admin
+    .from('user_settings')
+    .select('preferences')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const saved = savedSetup(settings?.preferences?.ebayPostage);
+  if (saved) return { kind: 'saved', ...saved };
+  const me = await ebayIdentity(admin, userId);
+  let query = admin
+    .from('listings')
+    .select('platform_listing_id, title')
+    .eq('user_id', userId)
+    .eq('platform', 'ebay')
+    .eq('status', 'active');
+  if (me.userId) query = query.eq('platform_user_id', me.userId);
+  const { data: template } = await query
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (template && /^\d{1,20}$/.test(String(template.platform_listing_id))) {
+    return {
+      kind: 'template',
+      templateItemId: String(template.platform_listing_id),
+      templateTitle: template.title ?? null,
+    };
+  }
+  return { kind: 'none' };
+}
+
+/** Hosts a photo on eBay from its address, which eBay fetches itself (the Media API, not Trading). */
+async function createImageFromUrl(auth, imageUrl: string): Promise<string> {
+  const res = await fetch(`${APIM_HOST}/commerce/media/v1_beta/image/create_image_from_url`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${auth.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageUrl }),
+  });
+  let body = await res.json().catch(() => ({}));
+  if (res.status === 429) throw new EbayError(QUOTA_MESSAGE, 'quota', 429);
+  // The image's address, or where to read it: eBay names the new image in Location.
+  const location = res.headers.get('Location');
+  if (res.ok && !body?.imageUrl && location?.startsWith(`${APIM_HOST}/commerce/media/`)) {
+    const read = await fetch(location, { headers: { Authorization: `Bearer ${auth.token}` } });
+    body = await read.json().catch(() => ({}));
+  }
+  if (!res.ok || !body?.imageUrl) {
+    throw new EbayError(body?.errors?.[0]?.message ?? `eBay photo upload failed (${res.status})`, 'ebay', 502);
+  }
+  return String(body.imageUrl);
+}
+
+/** Counts a listing from the page as a crosslist, as the extension counts its own afterwards. */
+async function countShopifyCrosslist(admin, userId: string) {
+  const { error } = await admin.rpc('increment_usage_counter_for', {
+    p_user_id: userId,
+    p_feature: 'crosslist',
+    p_period_key: monthKey(),
+  });
+  if (error) console.warn(`[ebay] user=${userId} action=shopifyListing code=count_failed`);
+}
+
+/** Keeps postage typed on the page as the account's eBay setup, as the extension saves its own. */
+async function saveShopifyPostage(admin, userId: string, postcode: string, postage) {
+  const { data, error } = await admin
+    .from('user_settings')
+    .select('preferences')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) return;
+  const preferences = { ...(data?.preferences ?? {}), ebayPostage: setupToSave(postcode, postage) };
+  await admin.from('user_settings').upsert({ user_id: userId, preferences }, { onConflict: 'user_id' });
+}
+
+/**
+ * Saves the new eBay listing to the cloud linked to the Shopify variant it came from, as the
+ * extension's crosslist does, so My Listings shows them linked and a sale takes the other down.
+ * The variant's own row is written only when it has none: the extension's save fills it in later,
+ * and a save never writes link_id. False when it couldn't link (an old-style link, the row cap).
+ */
+async function linkShopifyListing(admin, userId: string, page, item, ebay): Promise<boolean> {
+  const { data: existing, error } = await admin
+    .from('listings')
+    .select('id, link_id')
+    .eq('user_id', userId)
+    .eq('id', item.rowId)
+    .maybeSingle();
+  if (error) return false;
+  const ebayRowId = `ebay_${ebay.itemId}`;
+  const link = linkKey(item.rowId, existing?.link_id ?? null, ebayRowId);
+  if (!link) return false;
+  const now = Date.now();
+  const times = { last_synced_at: now, created_at: now, updated_at: now };
+  const { error: ebayErr } = await admin.from('listings').upsert(
+    {
+      ...times,
+      id: ebayRowId,
+      user_id: userId,
+      platform: 'ebay',
+      platform_listing_id: ebay.itemId,
+      platform_user_id: ebay.ebayUserId ?? null,
+      title: ebay.title,
+      description: '',
+      price: ebay.price,
+      currency: ebay.currency,
+      photos: ebay.photos,
+      status: 'active',
+      url: ebay.url,
+      link_id: link.key,
+    },
+    { onConflict: 'user_id,id' },
+  );
+  if (ebayErr) {
+    console.warn(`[ebay] user=${userId} action=shopifyListing code=link_failed`);
+    return false;
+  }
+  const { error: rowErr } = existing
+    ? link.setOnShopify
+      ? await admin
+          .from('listings')
+          .update({ link_id: link.key })
+          .eq('user_id', userId)
+          .eq('id', item.rowId)
+      : { error: null }
+    : await admin.from('listings').insert({
+        ...times,
+        id: item.rowId,
+        user_id: userId,
+        platform: 'shopify',
+        platform_listing_id: `${item.productId}_${item.variantId}`,
+        platform_user_id: page.shopId,
+        title: item.title,
+        description: item.description,
+        price: item.price ?? 0,
+        currency: item.currency ?? 'GBP',
+        photos: item.photos,
+        status: shopifyRowStatus(item.status, item.quantity),
+        brand: item.vendor,
+        size: item.variantTitle,
+        category: item.productType,
+        url: `https://${page.shop}/admin/products/${item.productId}/variants/${item.variantId}`,
+        link_id: link.key,
+      });
+  if (rowErr) console.warn(`[ebay] user=${userId} action=shopifyListing code=link_failed`);
+  return !rowErr;
+}
+
 // ── Handler ────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -438,17 +581,36 @@ Deno.serve(async (req: Request) => {
   if (!supabaseUrl || !anonKey || !serviceKey) return json(500, { error: 'Supabase env missing' });
 
   const admin = createClient(supabaseUrl, serviceKey);
-  const {
-    data: { user },
-    error: userErr,
-  } = await admin.auth.getUser(jwt);
-  if (userErr || !user) return json(401, { error: userErr?.message ?? 'Invalid session' });
+  // The Shopify app's page in a store's admin has no SaleLinx login, only App Bridge's ID token for
+  // the store. It acts for the account the store is connected to, through SHOPIFY_PAGE_ACTIONS only:
+  // never linking, which takes the seller's own login (the website's /ebay/connect).
+  let user;
+  let shopifyPage = null;
+  if (isShopifyIdToken(jwt)) {
+    try {
+      shopifyPage = await shopifyPageCaller(admin, jwt);
+    } catch (err) {
+      const known = err instanceof EbayError || err instanceof ShopifyError;
+      return json(known ? err.status : 502, {
+        error: known ? err.message : 'Store lookup failed',
+        code: known ? err.code : 'unavailable',
+      });
+    }
+    user = { id: shopifyPage.userId };
+  } else {
+    const { data, error: userErr } = await admin.auth.getUser(jwt);
+    if (userErr || !data?.user) return json(401, { error: userErr?.message ?? 'Invalid session' });
+    user = data.user;
+  }
 
   let body;
   try {
     body = await req.json();
   } catch {
     return json(400, { error: 'Invalid JSON' });
+  }
+  if (shopifyPage && !SHOPIFY_PAGE_ACTIONS.has(body?.action)) {
+    return json(403, { error: 'Not available from Shopify', code: 'not_allowed' });
   }
 
   try {
@@ -458,7 +620,7 @@ Deno.serve(async (req: Request) => {
         const url = new URL(`${AUTH_HOST}/oauth2/authorize`);
         url.search = new URLSearchParams({
           client_id: env('EBAY_CLIENT_ID'),
-          redirect_uri: runame(body.extensionId),
+          redirect_uri: runame(body.extensionId, body.client),
           response_type: 'code',
           scope: SCOPES,
           state: body.state,
@@ -475,7 +637,7 @@ Deno.serve(async (req: Request) => {
         const userScoped = createClient(supabaseUrl, anonKey, {
           global: { headers: { Authorization: `Bearer ${jwt}` } },
         });
-        return json(200, await link(admin, userScoped, user.id, body.code, body.extensionId));
+        return json(200, await link(admin, userScoped, user.id, body.code, body.extensionId, body.client));
       }
 
       case 'account': {
@@ -648,6 +810,132 @@ Deno.serve(async (req: Request) => {
         return json(200, { itemId: String(res.ItemID) });
       }
 
+      case 'shopifyItem': {
+        const item = await readShopifyItem(admin, shopifyPage, body);
+        const auth = await accessTokenFor(admin, user.id);
+        const marketplace = MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB';
+        const [setup, partner] = await Promise.all([
+          shopifyListingSetup(admin, user.id),
+          ebayPartnerOf(admin, user.id, item.rowId),
+        ]);
+        return json(200, {
+          item,
+          marketplace,
+          currency: EBAY_CURRENCY[marketplace] ?? 'GBP',
+          setup: {
+            kind: setup.kind,
+            postcode: setup.postcode ?? null,
+            templateTitle: setup.templateTitle ?? null,
+          },
+          listed: !!partner,
+        });
+      }
+
+      case 'shopifyListing': {
+        const item = await readShopifyItem(admin, shopifyPage, body);
+        // One eBay listing a variant: a second couldn't join its link group.
+        if (await ebayPartnerOf(admin, user.id, item.rowId)) {
+          return json(409, { error: 'This product is already on eBay', code: 'already_on_ebay' });
+        }
+        const verifyOnly = body.verifyOnly === true;
+        const setup = await shopifyListingSetup(admin, user.id);
+        let typed = null;
+        if (setup.kind === 'none') {
+          const postage = postageOf(body.postage);
+          const postcode = postcodeOf(body.postcode);
+          if (!postage || !postcode) {
+            return json(400, { error: 'Enter your postage first', code: 'postage_needed' });
+          }
+          typed = { postage, postcode };
+        }
+        const price = Number(body.price);
+        if (!(price > 0) || price > 1_000_000) {
+          return json(400, { error: 'Missing price', code: 'bad_request' });
+        }
+        // Checked before any eBay call, so a refused request spends none of the shared quota.
+        if (!verifyOnly) {
+          const gate = await checkCrosslistAllowed(admin, user.id, 'ebay');
+          if (!gate.ok) return json(gate.status, gate.body);
+        }
+        const auth = await accessTokenFor(admin, user.id);
+        const marketplace = MARKETPLACE_BY_SITE[auth.siteId] ?? 'EBAY_GB';
+        const currency = EBAY_CURRENCY[marketplace] ?? 'GBP';
+        const sources = item.photos.map(ebayPhotoSource).filter(Boolean).slice(0, MAX_EBAY_PHOTOS);
+        // A fee check sends the store's own addresses, as the extension's does, and drops eBay's
+        // complaints about them; a real listing hosts each on eBay first, three at a time.
+        let photos = sources;
+        if (!verifyOnly) {
+          photos = [];
+          for (let i = 0; i < sources.length; i += 3) {
+            const done = await Promise.all(
+              sources.slice(i, i + 3).map((u) => createImageFromUrl(auth, u).catch(() => null)),
+            );
+            photos.push(...done.filter(Boolean));
+          }
+          if (photos.length === 0) {
+            return json(502, { error: 'No photos could be added to eBay', code: 'photos' });
+          }
+        }
+        const quantity = Number(body.quantity);
+        const title = typeof body.title === 'string' && body.title.trim() ? body.title.trim() : item.title;
+        const conditionId = Number(body.conditionId);
+        const listing = {
+          title: title.slice(0, 80),
+          description: textToEbayHtml(item.description || item.title),
+          categoryId: String(body.categoryId ?? ''),
+          ...(Number.isInteger(conditionId) && conditionId > 0 ? { conditionId } : {}),
+          specifics: specificsOf(body.specifics),
+          price: Math.round(price * 100) / 100,
+          quantity: Number.isInteger(quantity) && quantity > 0 && quantity <= 10_000 ? quantity : 1,
+          photos,
+          postcode: typed?.postcode ?? setup.postcode ?? '',
+          ...(typed
+            ? { postage: typed.postage }
+            : setup.postage
+              ? { postage: setup.postage }
+              : setup.policies
+                ? { policies: setup.policies }
+                : {}),
+        };
+        // No saved setup: postage, returns and location from one of the seller's listings, as `add` does.
+        if (setup.kind === 'template') {
+          const text = await tradingText(
+            'GetItem',
+            auth,
+            `<ItemID>${setup.templateItemId}</ItemID><DetailLevel>ReturnAll</DetailLevel>`,
+          );
+          const template = parseTrading('GetItem', text).Item ?? {};
+          listing.copiedShipping = shippingFromItemXml(text);
+          listing.postcode = template.PostalCode || '';
+        }
+        const built = addItemXml(listing, marketplace);
+        if (built.error) return json(400, { error: built.error, code: 'bad_request' });
+        if (verifyOnly) {
+          const verdict = verifyFromResponse(await tradingText(listingCall('verify', false), auth, built.xml));
+          const errors = verdict.errors.filter((e) => !/picture|photo|image/i.test(e));
+          return json(200, { ...verdict, ok: errors.length === 0, errors, currency });
+        }
+        const res = await trading(listingCall('add', false), auth, built.xml);
+        const itemId = String(res.ItemID);
+        const url = ebayItemUrl(marketplace, itemId);
+        // It is live: nothing after this may fail the answer.
+        const me = await ebayIdentity(admin, user.id).catch(() => ({}));
+        const [, linked] = await Promise.all([
+          countShopifyCrosslist(admin, user.id).catch(() => {}),
+          linkShopifyListing(admin, user.id, shopifyPage, item, {
+            itemId,
+            url,
+            title: listing.title,
+            price: listing.price,
+            currency,
+            photos,
+            ebayUserId: me.userId,
+          }).catch(() => false),
+          typed ? saveShopifyPostage(admin, user.id, typed.postcode, typed.postage).catch(() => {}) : null,
+        ]);
+        return json(200, { itemId, url, linked });
+      }
+
       case 'conversations': {
         const auth = await accessTokenFor(admin, user.id);
         const me = await ebayIdentity(admin, user.id);
@@ -790,7 +1078,7 @@ Deno.serve(async (req: Request) => {
         return json(400, { error: `Unknown action: ${String(body?.action)}` });
     }
   } catch (err) {
-    if (err instanceof EbayError) {
+    if (err instanceof EbayError || err instanceof ShopifyError) {
       console.warn(`[ebay] user=${user.id} action=${body?.action} code=${err.code}`);
       return json(err.status, { error: err.message, code: err.code });
     }
