@@ -329,6 +329,7 @@
     "planVersion": "Paketversion",
     "pastDueNote": "Eine kürzliche Zahlung ist fehlgeschlagen. Aktualisiere unten deine Zahlungsmethode, um den Zugriff nicht zu verlieren.",
     "scheduledCancel": "Kündigung geplant am {date}. Du kannst jederzeit vorher über Abonnement verwalten wieder fortfahren.",
+    "scheduledCancelShopify": "Dein Paket endet am {date}. Um es zu behalten, wähle über SaleLinx in deinem Shopify-Adminbereich erneut ein Paket.",
     "managePortalBody": "Aktualisiere dein Paket, ändere deine Zahlungsmethode, lade Rechnungen herunter oder kündige im Stripe-Abrechnungsportal.",
     "shopifyBilledBody": "Dein Paket wird über Shopify abgerechnet. Ändere oder kündige es über SaleLinx in deinem Shopify-Adminbereich.",
     "manageInShopify": "In Shopify verwalten",

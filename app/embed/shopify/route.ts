@@ -726,9 +726,10 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     show('lCheck', true);
     show('lPost', true);
     await showPostage(r.setup);
-    // The product type leads: a title alone can mislead eBay's suggester ("The Complete
-    // Snowboard" came back as a DVD box set).
-    await findCategories([item.productType, item.title].filter(Boolean).join(' ').slice(0, 100));
+    // The product type alone when the store gives one: eBay's suggester weighs the whole query,
+    // and "snowboard The Complete Snowboard" still came back as a DVD box set where "snowboard"
+    // finds Snowboards. The title only for a product with no type.
+    await findCategories(String(item.productType || item.title).slice(0, 100));
   }
 
   // The form as the ebay function takes it, or null with what is missing said.

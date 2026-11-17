@@ -329,6 +329,7 @@
     "planVersion": "إصدار الخطة",
     "pastDueNote": "فشلت عملية دفع أخيرة. حدّث طريقة الدفع أدناه لتجنب فقدان الوصول.",
     "scheduledCancel": "مجدول للإلغاء في {date}. يمكنك الاستئناف في أي وقت قبل ذلك عبر إدارة الاشتراك.",
+    "scheduledCancelShopify": "تنتهي خطتك في {date}. للاحتفاظ بها، اختر خطة مرة أخرى من SaleLinx في لوحة إدارة Shopify.",
     "managePortalBody": "حدّث خطتك، أو غيّر طريقة الدفع، أو نزّل الفواتير، أو ألغِ الاشتراك من بوابة الفوترة في Stripe.",
     "shopifyBilledBody": "تتم فوترة خطتك عبر Shopify. غيّرها أو ألغها من SaleLinx في لوحة إدارة Shopify.",
     "manageInShopify": "الإدارة في Shopify",
