@@ -1218,6 +1218,7 @@
     "lCategoryNone": "eBay no ha encontrado ninguna categoría. Prueba con otras palabras.",
     "lCondition": "Estado",
     "lChoose": "Elegir",
+    "lRequired": "Rellena este campo",
     "lOther": "Otro",
     "lOtherValue": "{name} (escríbelo)",
     "lFeeInsertion": "Tarifa de inserción",

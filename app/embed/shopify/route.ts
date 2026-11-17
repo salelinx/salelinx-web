@@ -590,8 +590,17 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     show('lFees', false);
   }
   const watch = (node) => {
-    node.addEventListener('input', changed);
-    node.addEventListener('change', changed);
+    const edited = () => {
+      node.removeAttribute('error');
+      changed();
+    };
+    node.addEventListener('input', edited);
+    node.addEventListener('change', edited);
+  };
+  // A field left empty says so under itself (Polaris's own error line) until it is changed.
+  const mark = (node, missing) => {
+    if (missing) node.setAttribute('error', S.lRequired);
+    else node.removeAttribute('error');
   };
   for (const id of ['lTitle', 'lCategory', 'lCondition', 'lPrice', 'lQuantity', 'lService', 'lCost', 'lPostcode', 'lReturns']) {
     watch($(id));
@@ -641,6 +650,13 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
     return box;
   }
 
+  // The part of a detail to fill in: the field, or a list's pick, or its box after Other.
+  function specificTarget(field) {
+    if (field.dataset.suggest !== '1') return field;
+    const [pick, own] = field.children;
+    return pick.value === OTHER ? own : pick;
+  }
+
   // A detail's value: what was typed or picked, or with Other the box's text.
   function specificValue(field) {
     if (field.dataset.suggest !== '1') return field.value;
@@ -650,6 +666,7 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
 
   async function loadCategory(categoryId) {
     changed();
+    $('lCondition').removeAttribute('error');
     $('lCondition').replaceChildren();
     $('lSpecifics').replaceChildren();
     if (!categoryId) return;
@@ -779,11 +796,11 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
   // The form as the ebay function takes it, or null with what is missing said.
   function formValues() {
     const specifics = {};
-    let unfilled = false;
+    const details = [];
     for (const field of $('lSpecifics').children) {
       const value = String(specificValue(field) || '').trim();
       if (value) specifics[field.dataset.aspect] = value;
-      else unfilled = true;
+      details.push([specificTarget(field), !value]);
     }
     const values = {
       productId: listing.item.productId,
@@ -804,11 +821,23 @@ ${shop ? '<script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></scr
       values.postcode = String($('lPostcode').value || '').trim();
     }
     const conditions = $('lCondition').children.length > 0;
-    const postageMissing =
-      listing.setup.kind === 'none' &&
-      (!values.postage.service || !(values.postage.cost >= 0) || $('lCost').value === '' || !values.postcode);
-    if (unfilled || !values.title || !values.categoryId || (conditions && !values.conditionId) || !(values.price > 0) || postageMissing) {
+    const postage = listing.setup.kind === 'none';
+    // In the order they sit on the form, so the first one missing is the one shown.
+    const fields = [
+      [$('lTitle'), !values.title],
+      [$('lCategory'), !values.categoryId],
+      [$('lCondition'), conditions && !values.conditionId],
+      ...details,
+      [$('lPrice'), !(values.price > 0)],
+      [$('lService'), postage && !values.postage.service],
+      [$('lCost'), postage && ($('lCost').value === '' || !(values.postage.cost >= 0))],
+      [$('lPostcode'), postage && !values.postcode],
+    ];
+    for (const [node, missing] of fields) mark(node, missing);
+    const first = fields.find(([, missing]) => missing);
+    if (first) {
       listerProblem([S.lMissing]);
+      first[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
       return null;
     }
     return values;

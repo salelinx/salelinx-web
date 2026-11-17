@@ -1218,6 +1218,7 @@
     "lCategoryNone": "eBay 没有找到相应的类目。请换个说法试试。",
     "lCondition": "物品状况",
     "lChoose": "请选择",
+    "lRequired": "请填写此项",
     "lOther": "其他",
     "lOtherValue": "{name}（自行填写）",
     "lFeeInsertion": "刊登费",

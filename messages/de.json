@@ -1218,6 +1218,7 @@
     "lCategoryNone": "eBay hat keine Kategorie gefunden. Versuche andere Wörter.",
     "lCondition": "Zustand",
     "lChoose": "Auswählen",
+    "lRequired": "Bitte ausfüllen",
     "lOther": "Andere",
     "lOtherValue": "{name} (eingeben)",
     "lFeeInsertion": "Angebotsgebühr",

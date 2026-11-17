@@ -1218,6 +1218,7 @@
     "lCategoryNone": "لم يجد eBay أي فئة لذلك. جرّب كلمات أخرى.",
     "lCondition": "الحالة",
     "lChoose": "اختر",
+    "lRequired": "املأ هذا الحقل",
     "lOther": "أخرى",
     "lOtherValue": "{name} (اكتبها)",
     "lFeeInsertion": "رسوم الإدراج",

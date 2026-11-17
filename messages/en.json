@@ -1218,6 +1218,7 @@
     "lCategoryNone": "eBay found no category for that. Try other words.",
     "lCondition": "Condition",
     "lChoose": "Choose",
+    "lRequired": "Fill this in",
     "lOther": "Other",
     "lOtherValue": "{name} (type it)",
     "lFeeInsertion": "Insertion fee",
