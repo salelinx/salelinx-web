@@ -188,3 +188,39 @@ body {
   --color-orange-900: oklch(95.4% 0.038 75.164);
   --color-orange-950: oklch(98% 0.016 73.684);
 }
+
+/* Planner motion: a short rise for dialogs and toasts, a fade for backdrops
+   and a slide for side sheets. Off for anyone who asks for less motion. */
+@keyframes slx-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+}
+@keyframes slx-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes slx-slide {
+  from {
+    opacity: 0.3;
+    transform: translateX(28px);
+  }
+}
+.slx-pop {
+  animation: slx-pop 170ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.slx-fade {
+  animation: slx-fade 170ms ease-out;
+}
+.slx-slide {
+  animation: slx-slide 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .slx-pop,
+  .slx-fade,
+  .slx-slide {
+    animation: none;
+  }
+}
