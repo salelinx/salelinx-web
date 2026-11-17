@@ -941,6 +941,10 @@ code=<code>` and nothing else.
     the caller their own store's address; `lib/shopify-app.ts`). `create-checkout-session`
     answers 409 `shopify_billed` for an account with a live Shopify row, which `SubscribeButton`
     sends to `/account` rather than to Stripe's portal.
+  - **The extension.** Its cached plan says who bills it (`billed_by`), and for `shopify` its
+    upgrade and Manage links ask the `shopify` function's `planPage` (Shopify's plan page, from
+    the store's token and the app's handle), falling back to the app's page in the store's
+    admin, then to the salelinx.com page.
   - **Cancelling** (`cancelStorePlan`, for account deletion, not called yet):
     `appSubscriptionCancel` with `deferCancellation: false` and `prorate: false`, which needs the
     client's View financials permission.

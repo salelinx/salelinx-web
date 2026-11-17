@@ -17,6 +17,11 @@
 //                missingScopes: what SaleLinx asks for that the store hasn't granted;
 //                appUrl: the app's page in the store's admin, where it approves SaleLinx
 //                again (a 'reauth' error carries it too)
+//   planPage {}         -> { url }
+//                Shopify's plan page for the store, where a plan Shopify bills is
+//                picked, changed or cancelled (_shared/shopify-billing.ts); null when
+//                Shopify gives no app handle. The extension's upgrade links open it
+//                for a Shopify-billed account
 //   setStatus { productId, status } -> { status, totalInventory, tracksInventory }
 //                status ACTIVE, DRAFT or ARCHIVED: Post draft, Hide and Unhide. Made
 //                ACTIVE on no sales channel, the product goes on the Online Store
@@ -131,7 +136,7 @@ import {
   variantSummary,
 } from '../_shared/shopify.ts';
 import { type Auth, accessToken, sleep } from '../_shared/shopify-tokens.ts';
-import { billingConfigured, syncStorePlan } from '../_shared/shopify-billing.ts';
+import { billingConfigured, planPageUrl, syncStorePlan } from '../_shared/shopify-billing.ts';
 
 const CORS_HEADERS = sharedCorsHeaders();
 
@@ -276,6 +281,22 @@ async function account(admin, userId: string) {
     }
     throw err;
   }
+}
+
+// The app's handle names it in Shopify's plan page address.
+const PLAN_PAGE_QUERY = '{ shop { myshopifyDomain } currentAppInstallation { app { handle } } }';
+
+/** Shopify's plan page for the linked store (planPageUrl), read with the store's token. */
+async function planPage(admin, userId: string) {
+  const auth = await accessTokenFor(admin, userId);
+  const { shop: me, currentAppInstallation } = await adminGraphql(
+    auth.shop,
+    auth.token,
+    PLAN_PAGE_QUERY,
+  );
+  return {
+    url: planPageUrl(me?.myshopifyDomain ?? auth.shop, currentAppInstallation?.app?.handle),
+  };
 }
 
 // ── Listings ───────────────────────────────────────────────────────────────
@@ -1403,6 +1424,9 @@ Deno.serve(async (req: Request) => {
 
       case 'account':
         return json(200, await account(admin, user.id));
+
+      case 'planPage':
+        return json(200, await planPage(admin, user.id));
 
       case 'listings':
         return json(200, await listings(admin, user.id, body.cursor));
