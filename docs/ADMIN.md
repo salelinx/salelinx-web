@@ -544,6 +544,11 @@ plus the search box). Two cuts worth knowing:
   (paid at least once, under 7 days past due, migration `020`), and folding a
   billing problem in with healthy customers hides it.
 
+- **Hidden.** The drawer's Hide button adds the user to `admin_hidden_users`
+  (migration `059`, admin-only RLS through `is_admin()`). The roster leaves
+  hidden users out by default; the Hidden filter shows them again. Display
+  only: counts elsewhere in the console still include them.
+
 Sorting the Tier column ranks by that same ladder, highest first, rather than
 alphabetically (which put business first and trial last). The Status column is
 sortable too, entitled accounts first. Both break ties on email so the order is
