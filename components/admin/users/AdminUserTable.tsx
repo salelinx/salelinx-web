@@ -51,6 +51,7 @@ const AdminUserDetail = dynamic(
 type Props = {
   initialUsers: AdminUserRow[];
   deletedAccounts: AdminDeletedAccount[];
+  hiddenUserIds: string[];
   tiers: TierConfig[];
 };
 
@@ -257,8 +258,10 @@ const PLATFORM_LOGO: Record<LinkedPlatform, string> = {
   ebay: "/ebay-logo.svg",
 };
 
-export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) {
+export function AdminUserTable({ initialUsers, deletedAccounts, hiddenUserIds, tiers }: Props) {
   const [users, setUsers] = useState<AdminUserRow[]>(initialUsers);
+  const [hiddenIds, setHiddenIds] = useState(() => new Set(hiddenUserIds));
+  const [hiddenFilter, setHiddenFilter] = useState<string>("shown");
   const [search, setSearch] = useState("");
   const [tier, setTier] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
@@ -288,6 +291,7 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
     (browser !== "all" ? 1 : 0) +
     (device !== "all" ? 1 : 0) +
     (version !== "all" ? 1 : 0) +
+    (hiddenFilter !== "shown" ? 1 : 0) +
     (search.trim() ? 1 : 0);
 
   function clearFilters() {
@@ -301,10 +305,25 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
     setBrowser("all");
     setDevice("all");
     setVersion("all");
+    setHiddenFilter("shown");
     setSearch("");
   }
 
   const supabase = createBrowserClient();
+
+  async function setHidden(userId: string, hide: boolean) {
+    const table = supabase.from("admin_hidden_users");
+    const { error } = hide
+      ? await table.insert({ user_id: userId })
+      : await table.delete().eq("user_id", userId);
+    if (error) throw new Error(error.message);
+    setHiddenIds((prev) => {
+      const next = new Set(prev);
+      if (hide) next.add(userId);
+      else next.delete(userId);
+      return next;
+    });
+  }
 
   // The roster is snapshotted into state so the detail drawer can apply its
   // subscription edits and deletions without a refetch. That also means a
@@ -414,6 +433,9 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
     const filtered = users.filter((u) => {
+      if (hiddenFilter !== "all" && hiddenIds.has(u.user_id) !== (hiddenFilter === "hidden")) {
+        return false;
+      }
       const effectiveTier = u.tier_id ?? "none";
       if (tier === "any") {
         if (effectiveTier === "none") return false;
@@ -517,7 +539,7 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
       }
     });
     return sorted;
-  }, [users, search, tier, status, cancelling, platform, activity, source, country, browser, device, version, newestVersion, sortKey, now]);
+  }, [users, hiddenIds, hiddenFilter, search, tier, status, cancelling, platform, activity, source, country, browser, device, version, newestVersion, sortKey, now]);
 
   // Cap how many rows reach the DOM. Filtering/sorting above still runs over
   // the whole set, so this bounds rendering only (see use-windowed-rows.ts).
@@ -659,6 +681,16 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
         <FilterSelect label="Browser" value={browser} options={browserOptions} onChange={setBrowser} />
         <FilterSelect label="Source" value={source} options={sourceOptions} onChange={setSource} />
         <FilterSelect label="Device" value={device} options={deviceOptions} onChange={setDevice} />
+        <FilterSelect
+          label="Hidden"
+          value={hiddenFilter}
+          options={[
+            ["shown", "Not hidden"],
+            ["hidden", `Hidden (${hiddenIds.size})`],
+            ["all", "All"],
+          ]}
+          onChange={setHiddenFilter}
+        />
         {activeFilters > 0 && (
           <button
             type="button"
@@ -907,6 +939,8 @@ export function AdminUserTable({ initialUsers, deletedAccounts, tiers }: Props) 
               ),
             )
           }
+          hidden={hiddenIds.has(selected.user_id)}
+          onHiddenChange={(hide) => setHidden(selected.user_id, hide)}
           onDeleted={(userId) => {
             setUsers((prev) => prev.filter((u) => u.user_id !== userId));
             setSelectedId(null);

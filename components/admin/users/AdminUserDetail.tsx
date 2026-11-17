@@ -78,6 +78,8 @@ type Props = {
     status: string,
   ) => void;
   onDeleted: (userId: string) => void;
+  hidden?: boolean;
+  onHiddenChange?: (hide: boolean) => Promise<void>;
 };
 
 const STATUS_OPTIONS = [
@@ -154,8 +156,25 @@ export function AdminUserDetail({
   onClose,
   onSubscriptionChange,
   onDeleted,
+  hidden = false,
+  onHiddenChange,
 }: Props) {
   const supabase = createBrowserClient();
+  const [hiding, setHiding] = useState(false);
+  const [hideFailed, setHideFailed] = useState(false);
+
+  async function toggleHidden() {
+    if (!onHiddenChange) return;
+    setHiding(true);
+    setHideFailed(false);
+    try {
+      await onHiddenChange(!hidden);
+    } catch {
+      setHideFailed(true);
+    } finally {
+      setHiding(false);
+    }
+  }
   const [detail, setDetail] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -490,14 +509,29 @@ export function AdminUserDetail({
             </span>
           )}
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="-mr-2 shrink-0 rounded p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-          aria-label="Close detail"
-        >
-          x
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {!readOnly && onHiddenChange && (
+            <button
+              type="button"
+              onClick={toggleHidden}
+              disabled={hiding}
+              className={
+                "rounded-md border border-[var(--admin-border)] px-2.5 py-1 text-xs font-medium hover:bg-zinc-100 disabled:opacity-50 " +
+                (hideFailed ? "text-red-600" : "text-zinc-600")
+              }
+            >
+              {hideFailed ? "Failed, retry" : hidden ? "Unhide" : "Hide"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="-mr-2 rounded p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+            aria-label="Close detail"
+          >
+            x
+          </button>
+        </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto p-4">
