@@ -22,9 +22,15 @@
 //                       exchanged for a login, stored in marketing_accounts,
 //                       and the browser goes back to that page.
 //
+// TikTok has two logins. "tiktok" (TikTok for Developers, Login Kit) reads
+// stats, because its view counts are live. "tiktok_business" (TikTok API for
+// Business, migration 060) posts publicly; its stats run 24 to 48 hours late.
+// Connecting the posting login also proves the public bucket to TikTok
+// (_shared/tiktok-business.ts), which it needs before it will fetch a video.
+//
 // This function's URL is the redirect address registered in the Meta app
-// (Instagram login and Facebook login), the TikTok app and the Google Cloud
-// OAuth client.
+// (Instagram login and Facebook login), both TikTok apps and the Google
+// Cloud OAuth client.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
@@ -32,6 +38,13 @@ import {
   timingSafeEqual,
 } from "../_shared/security.ts";
 import { requireAdmin } from "../_shared/admin-gate.ts";
+import {
+  appCredentials,
+  exchangeCode,
+  provePublicBucket,
+  TIKTOK_BUSINESS_SCOPES,
+  ttBusiness,
+} from "../_shared/tiktok-business.ts";
 
 const corsHeaders = sharedCorsHeaders();
 const admin = createClient(
@@ -46,14 +59,19 @@ const SITE_URL = (Deno.env.get("SITE_URL") ?? "https://salelinx.com").replace(
 const REDIRECT_URI = `${Deno.env.get("SUPABASE_URL")}/functions/v1/marketing-oauth`;
 const STATE_TTL_MS = 10 * 60 * 1000;
 
-type Platform = "youtube" | "instagram" | "tiktok" | "facebook";
+// tiktok_business is TikTok's posting login, a row of its own.
+type Platform = "youtube" | "instagram" | "tiktok" | "facebook" | "tiktok_business";
 
 const isPlatform = (p: unknown): p is Platform =>
-  p === "youtube" || p === "instagram" || p === "tiktok" || p === "facebook";
+  p === "youtube" ||
+  p === "instagram" ||
+  p === "tiktok" ||
+  p === "facebook" ||
+  p === "tiktok_business";
 
 const FB = "https://graph.facebook.com/v24.0";
 
-const SCOPES: Record<Exclude<Platform, "instagram">, string> = {
+const SCOPES: Record<Exclude<Platform, "instagram" | "tiktok_business">, string> = {
   youtube: [
     "https://www.googleapis.com/auth/youtube.upload",
     "https://www.googleapis.com/auth/youtube.readonly",
@@ -187,6 +205,22 @@ function authorizeUrl(platform: Platform, state: string): string {
       })
     );
   }
+  if (platform === "tiktok_business") {
+    // The portal's "TikTok account holder authorization URL" exactly (no
+    // trailing slash, same order), plus our state: the Business app's App ID
+    // is the client_key. The Login Kit form below, with the slash, gets
+    // "correct the following: scope" for this app (Nov 2026).
+    return (
+      "https://www.tiktok.com/v2/auth/authorize?" +
+      new URLSearchParams({
+        client_key: appCredentials().app_id,
+        scope: TIKTOK_BUSINESS_SCOPES,
+        response_type: "code",
+        redirect_uri: REDIRECT_URI,
+        state,
+      })
+    );
+  }
   return (
     "https://www.tiktok.com/v2/auth/authorize/?" +
     new URLSearchParams({
@@ -222,6 +256,19 @@ async function postForm(
 }
 
 class WrongChannel extends Error {}
+class WrongTikTok extends Error {}
+
+/**
+ * The platform's own refusal on the way back (OAuth's error parameter, such
+ * as invalid_scope): a short code, nothing personal. Cancel on the platform's
+ * page is access_denied, which reads as declined.
+ */
+function refusal(params: URLSearchParams): string {
+  const reported = (params.get("error") ?? "").replace(/[^\w.-]/g, "").slice(0, 60);
+  if (!reported) return "";
+  if (reported === "access_denied") return "error=declined";
+  return `error=refused&diag=${reported}`;
+}
 
 // deno-lint-ignore no-explicit-any
 async function getJson(url: string): Promise<any> {
@@ -251,7 +298,9 @@ type AccountRow = Record<string, unknown> & { platform: Platform };
 // diag: a one-line account of what the Meta login returned (token type,
 // counts, Meta's errors), shown on the admin page when a Page or Instagram
 // account is missing. Asset ids and counts only: nothing personal.
-type Exchanged = { rows: AccountRow[]; pagesSeen?: number; diag?: string };
+// warning: saved, but something still stands in the way of posting (an error
+// code for the admin page, with diag saying what).
+type Exchanged = { rows: AccountRow[]; pagesSeen?: number; diag?: string; warning?: string };
 
 type Grants = {
   type: string;
@@ -426,8 +475,63 @@ async function exchangeMeta(code: string): Promise<Exchanged> {
   return { rows, pagesSeen: pages.length, diag };
 }
 
+/**
+ * TikTok's posting login. Posts go wherever it points, so it must be our
+ * account: the one the stats login already reads, else TIKTOK_HANDLE, else
+ * the first one connected. Then the public bucket is proved to TikTok, which
+ * it needs before it will fetch a video from there.
+ */
+async function exchangeTikTokBusiness(code: string): Promise<Exchanged> {
+  const token = await exchangeCode(code, REDIRECT_URI);
+  // Without the username there is no telling whose account this is, so a
+  // failure here stops the connect rather than risk posting elsewhere.
+  const profile = await ttBusiness("GET", "/business/get/", {
+    token: token.access_token,
+    query: { business_id: token.open_id, fields: JSON.stringify(["username", "display_name"]) },
+  });
+  const username = String(profile?.username ?? "").replace(/^@/, "");
+  if (!username) throw new Error("TikTok gave no username for that login");
+
+  const { data: known } = await admin
+    .from("marketing_accounts")
+    .select("platform, handle")
+    .in("platform", ["tiktok", "tiktok_business"]);
+  const expected = (
+    known?.find((r) => r.platform === "tiktok")?.handle ??
+    Deno.env.get("TIKTOK_HANDLE") ??
+    known?.find((r) => r.platform === "tiktok_business")?.handle ??
+    ""
+  )
+    .replace(/^@/, "")
+    .toLowerCase();
+  if (expected && username.toLowerCase() !== expected) throw new WrongTikTok(username);
+
+  const now = Date.now();
+  const rows: AccountRow[] = [{
+    platform: "tiktok_business",
+    external_id: token.open_id,
+    handle: username ? `@${username}` : null,
+    access_token: token.access_token,
+    access_expires_at: new Date(now + token.expires_in * 1000).toISOString(),
+    refresh_token: token.refresh_token,
+    refresh_expires_at: new Date(now + token.refresh_token_expires_in * 1000).toISOString(),
+    scopes: token.scope ?? TIKTOK_BUSINESS_SCOPES,
+  }];
+
+  const proof = await provePublicBucket(admin).catch((err) => ({
+    proved: false,
+    note: (err as Error).message,
+  }));
+  if (!proof.proved) {
+    console.error("[marketing-oauth] tiktok bucket not proved:", proof.note);
+    return { rows, warning: "tiktok_unproved", diag: proof.note.slice(0, 300) };
+  }
+  return { rows };
+}
+
 async function exchange(platform: Platform, code: string): Promise<Exchanged> {
   if (platform === "facebook" || platform === "instagram") return exchangeMeta(code);
+  if (platform === "tiktok_business") return exchangeTikTokBusiness(code);
   if (platform === "youtube") {
     const body = await postForm("https://oauth2.googleapis.com/token", {
       client_id: Deno.env.get("YOUTUBE_CLIENT_ID") ?? "",
@@ -521,14 +625,18 @@ Deno.serve(async (req) => {
   if (req.method === "GET") {
     const params = new URL(req.url).searchParams;
     const state = await readState(params.get("state") ?? "");
-    if (!state) return backToAdmin("error=expired");
+    // Checked before the state: a platform reports some refusals (TikTok's
+    // invalid_scope after a sign-in) with no state at all.
+    if (!state) return backToAdmin(refusal(params) || "error=expired");
     const { platform, returnTo } = state;
-    const code = params.get("code");
+    // TikTok's Business docs name it auth_code in places; the login page sends code.
+    const code = params.get("code") ?? params.get("auth_code");
     // Declined on the platform's page, or an error it reported.
-    if (!code) return backToAdmin(`error=declined&platform=${platform}`, returnTo);
+    if (!code)
+      return backToAdmin(`${refusal(params) || "error=declined"}&platform=${platform}`, returnTo);
     try {
       const now = new Date().toISOString();
-      const { rows, pagesSeen, diag } = await exchange(platform, code);
+      const { rows, pagesSeen, diag, warning } = await exchange(platform, code);
       const why = diag ? `&diag=${encodeURIComponent(diag)}` : "";
       if (rows.length) {
         const { error } = await admin
@@ -550,15 +658,20 @@ Deno.serve(async (req) => {
             : `error=facebook_page&platform=${platform}&seen=${pagesSeen ?? 0}${why}`,
           returnTo,
         );
+      if (warning) return backToAdmin(`error=${warning}&platform=${platform}${why}`, returnTo);
       return backToAdmin(`connected=${platform}`, returnTo);
     } catch (err) {
       if (err instanceof WrongChannel)
         return backToAdmin(`error=wrong_channel&platform=${platform}`, returnTo);
-      console.error(
-        `[marketing-oauth] ${platform} exchange failed:`,
-        (err as Error).message,
-      );
-      return backToAdmin(`error=exchange&platform=${platform}`, returnTo);
+      if (err instanceof WrongTikTok)
+        return backToAdmin(`error=wrong_tiktok&platform=${platform}`, returnTo);
+      const message = (err as Error).message;
+      console.error(`[marketing-oauth] ${platform} exchange failed:`, message);
+      // TikTok's Business answers carry a code and message worth showing;
+      // they hold nothing personal.
+      const why =
+        platform === "tiktok_business" ? `&diag=${encodeURIComponent(message.slice(0, 300))}` : "";
+      return backToAdmin(`error=exchange&platform=${platform}${why}`, returnTo);
     }
   }
 

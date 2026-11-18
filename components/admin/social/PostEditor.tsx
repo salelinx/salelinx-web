@@ -46,7 +46,9 @@ import {
 import {
   canPost,
   PLATFORM_NAMES,
+  postingAccount,
   SOCIAL_PLATFORMS,
+  tiktokDirect,
   type InstagramOptions,
   type SocialAccount,
   type SocialExperimentRow,
@@ -87,6 +89,9 @@ type TargetForm = {
   notifySubscribers: boolean;
   trial: NonNullable<InstagramOptions["trial"]>;
   shareToFeed: boolean;
+  // TikTok's labels, sent when it posts publicly (TikTok API for Business).
+  brandOrganic: boolean;
+  aiGenerated: boolean;
 };
 
 type FileRef = {
@@ -126,6 +131,8 @@ const blankTarget = (enabled = false): TargetForm => ({
   notifySubscribers: true,
   trial: "off",
   shareToFeed: true,
+  brandOrganic: false,
+  aiGenerated: false,
 });
 
 const allLinked = (): Record<SocialPlatform, boolean> => ({
@@ -140,8 +147,7 @@ const fromLocalInput = (v: string) =>
 
 /** A blank post, with the platforms that can post already ticked. */
 export function newEditor(accounts: SocialAccount[], when = ""): EditorState {
-  const ready = (p: SocialPlatform) =>
-    canPost(accounts.find((a) => a.platform === p));
+  const ready = (p: SocialPlatform) => canPost(postingAccount(accounts, p));
   return {
     id: null,
     name: "",
@@ -182,6 +188,8 @@ export function editorFromPost(p: SocialPost): EditorState {
       notifySubscribers: t.options.notifySubscribers ?? true,
       trial: t.options.trial ?? "off",
       shareToFeed: t.options.shareToFeed ?? true,
+      brandOrganic: t.options.brandOrganic ?? false,
+      aiGenerated: t.options.aiGenerated ?? false,
     };
   }
   // The shared caption is the one most platforms use; the rest keep their own.
@@ -272,7 +280,7 @@ function problemsBeforePosting(
       ),
     ),
     ...enabled
-      .filter((p) => !canPost(accounts.find((a) => a.platform === p)))
+      .filter((p) => !canPost(postingAccount(accounts, p)))
       .map(
         (p) =>
           `${PLATFORM_NAMES[p]} can't post yet: Connect or Reconnect it in the planner header.`,
@@ -448,6 +456,7 @@ export function PostEditor({
           seconds: s.mediaSeconds,
           width: dims?.width ?? null,
           height: dims?.height ?? null,
+          tiktokDirect: tiktokDirect(accounts),
         });
 
   // A saved video plays from a signed link; a fresh pick sets its own blob URL.
@@ -626,7 +635,9 @@ export function PostEditor({
               }
             : p === "instagram"
               ? { trial: t.trial, shareToFeed: t.shareToFeed }
-              : {};
+              : p === "tiktok"
+                ? { brandOrganic: t.brandOrganic, aiGenerated: t.aiGenerated }
+                : {};
         return {
           platform: p,
           title: p === "youtube" ? t.title : "",
@@ -839,7 +850,7 @@ export function PostEditor({
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {SOCIAL_PLATFORMS.map((p) => {
                   const on = s.targets[p].enabled;
-                  const acc = accounts.find((a) => a.platform === p);
+                  const acc = postingAccount(accounts, p);
                   const ready = canPost(acc);
                   return (
                     <button
@@ -1227,13 +1238,16 @@ export function PostEditor({
               {enabled.includes("tiktok") &&
                 (activeTab === "tiktok" || activeTab === "all") && (
                   <p className="mt-2 text-xs text-zinc-400">
-                    TikTok&apos;s copy goes to the app&apos;s inbox, so you
-                    paste its caption there.
+                    {tiktokDirect(accounts)
+                      ? "TikTok posts this caption publicly by itself. Hashtags show as plain text there."
+                      : "TikTok's copy goes to the app's inbox, so you paste its caption there."}
                   </p>
                 )}
             </section>
 
-            {(s.targets.youtube.enabled || s.targets.instagram.enabled) && (
+            {(s.targets.youtube.enabled ||
+              s.targets.instagram.enabled ||
+              (s.targets.tiktok.enabled && tiktokDirect(accounts))) && (
               <section className="space-y-3">
                 <Label>Platform settings</Label>
                 {s.targets.youtube.enabled && (
@@ -1337,6 +1351,35 @@ export function PostEditor({
                         Also show in the feed grid
                       </Toggle>
                     )}
+                  </div>
+                )}
+                {s.targets.tiktok.enabled && tiktokDirect(accounts) && (
+                  <div className="space-y-3 rounded-xl border border-[var(--admin-border)] p-3.5">
+                    <p className="flex items-center gap-2 text-sm font-medium text-zinc-900">
+                      <PlatformLogo platform="tiktok" size={16} /> TikTok
+                    </p>
+                    <div className="flex flex-wrap gap-x-5 gap-y-2">
+                      <Toggle
+                        checked={s.targets.tiktok.brandOrganic}
+                        onChange={(v) =>
+                          setTarget("tiktok", { brandOrganic: v })
+                        }
+                      >
+                        Label as promotional content
+                      </Toggle>
+                      <Toggle
+                        checked={s.targets.tiktok.aiGenerated}
+                        onChange={(v) =>
+                          setTarget("tiktok", { aiGenerated: v })
+                        }
+                      >
+                        Label as AI-generated
+                      </Toggle>
+                    </div>
+                    <p className="text-xs text-zinc-400">
+                      TikTok shows these labels on the post. The AI label
+                      can&apos;t be taken off once it&apos;s posted.
+                    </p>
                   </div>
                 )}
               </section>

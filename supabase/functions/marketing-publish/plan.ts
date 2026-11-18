@@ -25,6 +25,14 @@ export type InstagramOptions = {
   trial?: "off" | "manual" | "auto";
 };
 
+/** TikTok posted through TikTok API for Business: the labels TikTok shows. */
+export type TikTokOptions = {
+  // "Promotional content": we are promoting our own business.
+  brandOrganic?: boolean;
+  // "Creator labeled as AI-generated"; cannot be removed once posted.
+  aiGenerated?: boolean;
+};
+
 const MiB = 1024 * 1024;
 
 /** A byte range to send, both ends inclusive, as HTTP ranges are. */
@@ -158,6 +166,69 @@ export function tiktokNext(
     default:
       return { kind: "wait", status: "processing", checkInSeconds: 120 };
   }
+}
+
+/**
+ * TikTok API for Business's /business/publish/status/ answer for a public
+ * post, given when it was sent (job.sent_at). TikTok downloads the video
+ * (PROCESSING_DOWNLOAD), then PUBLISH_COMPLETE; the post id can follow up to
+ * 3 minutes later, and only for a post that is public.
+ */
+export function tiktokBusinessNext(
+  data: { status?: string; reason?: string; post_ids?: (string | number)[] },
+  sentAt: string | undefined,
+  now: number,
+): Next {
+  const ageS = sentAt ? (now - Date.parse(sentAt)) / 1000 : 0;
+  switch (data.status) {
+    case "PUBLISH_COMPLETE": {
+      const id = data.post_ids?.[0];
+      if (id !== undefined && id !== null && String(id) !== "")
+        return { kind: "published", externalId: String(id) };
+      if (ageS > HOUR / 2)
+        return {
+          kind: "published",
+          externalId: null,
+          note: "Posted, but TikTok never gave the post's id (it may not be public). Add it to experiments by hand.",
+        };
+      return { kind: "wait", status: "processing", checkInSeconds: 60 };
+    }
+    case "FAILED":
+      return { kind: "failed", error: `TikTok: ${data.reason ?? "failed"}` };
+    case "SEND_TO_USER_INBOX":
+      // Only drafts go here, and we never send one.
+      return {
+        kind: "failed",
+        error: "TikTok sent this to the app's inbox as a draft instead of posting it. Post it from the app.",
+      };
+    default:
+      if (ageS > 2 * HOUR)
+        return { kind: "failed", error: "TikTok was still fetching the video after 2 hours." };
+      return { kind: "wait", status: "processing", checkInSeconds: 60 };
+  }
+}
+
+/** TikTok's post_info for a public post. */
+export function tiktokPostInfo(caption: string | null, options: TikTokOptions) {
+  return {
+    caption: caption ?? "",
+    is_brand_organic: options.brandOrganic ?? false,
+    is_ai_generated: options.aiGenerated ?? false,
+    disable_comment: false,
+    disable_duet: false,
+    disable_stitch: false,
+  };
+}
+
+/**
+ * Where the public copy of a post's video goes (060's social-public bucket):
+ * the post's id, so a retry replaces it rather than leaving another behind.
+ */
+export function publicCopyPath(postId: string, mediaPath: string): string {
+  const name = mediaPath.split("/").pop() ?? "";
+  const dot = name.lastIndexOf(".");
+  const ext = dot > 0 ? name.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, "") : "";
+  return `tiktok/${postId}.${ext || "mp4"}`;
 }
 
 const norm = (s: string) => s.replace(/\s+/g, " ").trim();

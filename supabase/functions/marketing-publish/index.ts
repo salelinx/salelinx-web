@@ -25,13 +25,16 @@ import {
   canPost,
   freshLogin,
   type FreshLogin,
+  type LoginKey,
   type MarketingPlatform,
 } from "../_shared/marketing-login.ts";
-import { retryIn, titleFrom, type Chunk } from "./plan.ts";
+import { PUBLIC_BUCKET } from "../_shared/tiktok-business.ts";
+import { publicCopyPath, retryIn, titleFrom, type Chunk } from "./plan.ts";
 import {
   stepFacebook,
   stepInstagram,
   stepTikTok,
+  stepTikTokBusiness,
   stepYouTube,
   Transient,
   type Claimed,
@@ -103,6 +106,38 @@ async function openMedia(path: string, type: string | null): Promise<Media> {
 }
 
 const coverType = (path: string) => (path.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg");
+
+/**
+ * A public copy of the video for TikTok to fetch (060's social-public bucket),
+ * copied inside Storage, so nothing passes through this function. Named by
+ * the post, so a retry replaces it.
+ */
+async function publicCopy(t: Claimed): Promise<{ url: string; path: string }> {
+  const path = publicCopyPath(t.post_id, t.media_path!);
+  await admin.storage.from(PUBLIC_BUCKET).remove([path]);
+  const { error } = await admin.storage
+    .from(BUCKET)
+    .copy(t.media_path!, path, { destinationBucket: PUBLIC_BUCKET });
+  if (error) throw new Transient(`couldn't make TikTok's copy of the video: ${error.message}`);
+  return { url: admin.storage.from(PUBLIC_BUCKET).getPublicUrl(path).data.publicUrl, path };
+}
+
+async function dropPublicCopy(path: string | undefined) {
+  if (!path) return;
+  const { error } = await admin.storage.from(PUBLIC_BUCKET).remove([path]);
+  if (error) console.error("[marketing-publish] remove TikTok copy:", error.message);
+}
+
+/**
+ * Which TikTok route a target takes. Anything already on its way keeps its
+ * route; a new post goes through TikTok API for Business when the posting
+ * login can post, and to the app's inbox otherwise.
+ */
+function tiktokRoute(t: Claimed, businessReady: boolean): "business" | "inbox" {
+  if (t.job.share_id) return "business";
+  if (t.job.publish_id || t.job.studio_at || t.status !== "pending") return "inbox";
+  return businessReady ? "business" : "inbox";
+}
 
 async function updateTarget(t: Claimed, fields: Record<string, unknown>) {
   const { error } = await admin
@@ -201,26 +236,38 @@ async function backOff(t: Claimed, message: string) {
   });
 }
 
-async function runOne(t: Claimed, logins: Map<MarketingPlatform, FreshLogin | null>): Promise<string> {
-  if (!logins.has(t.platform)) {
-    logins.set(t.platform, await freshLogin(admin, t.platform).catch((err) => {
-      console.error(`[marketing-publish] ${t.platform} login:`, err.message);
-      return null;
-    }));
+async function runOne(t: Claimed, logins: Map<LoginKey, FreshLogin | null>): Promise<string> {
+  const load = async (key: LoginKey) => {
+    if (!logins.has(key)) {
+      logins.set(key, await freshLogin(admin, key).catch((err) => {
+        console.error(`[marketing-publish] ${key} login:`, err.message);
+        return null;
+      }));
+    }
+    return logins.get(key) ?? null;
+  };
+
+  // TikTok posts publicly through its posting login when that is connected.
+  let key: LoginKey = t.platform;
+  if (t.platform === "tiktok") {
+    const business = await load("tiktok_business");
+    const ready = !!business && canPost("tiktok_business", business.scopes);
+    if (tiktokRoute(t, ready) === "business") key = "tiktok_business";
   }
-  const login = logins.get(t.platform);
-  const name = NAMES[t.platform];
+  const login = await load(key);
+  const name = key === "tiktok_business" ? "TikTok posting" : NAMES[t.platform];
+  const where = key === "tiktok_business" ? "with the TikTok button in the planner" : "on the Stats tab";
   if (!login) {
     await save(t, {
       status: "failed",
-      error: `${name} isn't connected, or its login could not be renewed. Connect it on the Stats tab.`,
+      error: `${name} isn't connected, or its login could not be renewed. Connect it ${where}.`,
     });
     return "failed: not connected";
   }
-  if (!canPost(t.platform, login.scopes)) {
+  if (!canPost(key, login.scopes)) {
     await save(t, {
       status: "failed",
-      error: `${name}'s login can't post. Press Reconnect on the Stats tab, then Retry.`,
+      error: `${name}'s login can't post. Reconnect it ${where}, then Retry.`,
     });
     return "failed: no posting scope";
   }
@@ -236,6 +283,8 @@ async function runOne(t: Claimed, logins: Map<MarketingPlatform, FreshLogin | nu
     now: Date.now(),
     media: () => openMedia(t.media_path!, t.media_type),
     cover: () => (t.cover_path ? openMedia(t.cover_path, coverType(t.cover_path)) : Promise.resolve(null)),
+    publicCopy: () => publicCopy(t),
+    dropPublicCopy,
     markSending: () =>
       updateTarget(t, { status: "sending", attempts: t.attempts + 1, error: null }),
   };
@@ -248,7 +297,9 @@ async function runOne(t: Claimed, logins: Map<MarketingPlatform, FreshLogin | nu
           ? await stepInstagram(t, ctx)
           : t.platform === "facebook"
             ? await stepFacebook(t, ctx)
-            : await stepTikTok(t, ctx);
+            : key === "tiktok_business"
+              ? await stepTikTokBusiness(t, ctx)
+              : await stepTikTok(t, ctx);
     await save(t, outcome);
     return outcome.status;
   } catch (err) {
@@ -286,7 +337,7 @@ Deno.serve(async (req) => {
     return json({ error: "claim_failed" }, 500);
   }
 
-  const logins = new Map<MarketingPlatform, FreshLogin | null>();
+  const logins = new Map<LoginKey, FreshLogin | null>();
   const results: { post_id: string; platform: string; result: string }[] = [];
   for (const t of (data ?? []) as Claimed[]) {
     if (t.status === "pending" && Date.now() - started > START_BUDGET_MS) {

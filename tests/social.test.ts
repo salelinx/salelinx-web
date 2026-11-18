@@ -14,13 +14,17 @@ import {
   facebookNext,
   instagramNext,
   instagramTrialParams,
+  publicCopyPath,
   retryIn,
   studioMatch,
+  tiktokBusinessNext,
   tiktokChunks,
   tiktokNext,
+  tiktokPostInfo,
   youtubeChunks,
   youtubeStatus,
 } from "../supabase/functions/marketing-publish/plan";
+import { proofContents } from "../supabase/functions/_shared/tiktok-business";
 import {
   parseFacebookReels,
   parseInstagramMedia,
@@ -338,5 +342,62 @@ describe("studioMatch", () => {
     expect(studioMatch(videos, caption, at)).toBe("3");
     expect(studioMatch(videos.slice(0, 2), caption, at)).toBeNull();
     expect(studioMatch(videos, "", at)).toBeNull();
+  });
+});
+
+describe("TikTok API for Business posting", () => {
+  const sent = new Date(T0).toISOString();
+
+  it("waits while TikTok fetches the video, and gives up after 2 hours", () => {
+    expect(tiktokBusinessNext({ status: "PROCESSING_DOWNLOAD" }, sent, T0 + 60_000)).toMatchObject({
+      kind: "wait",
+      status: "processing",
+    });
+    expect(tiktokBusinessNext({ status: "PROCESSING_DOWNLOAD" }, sent, T0 + 3 * H).kind).toBe("failed");
+  });
+
+  it("publishes with the first post id, waiting a while for one to appear", () => {
+    expect(tiktokBusinessNext({ status: "PUBLISH_COMPLETE", post_ids: ["7350"] }, sent, T0)).toEqual({
+      kind: "published",
+      externalId: "7350",
+    });
+    expect(tiktokBusinessNext({ status: "PUBLISH_COMPLETE", post_ids: [] }, sent, T0 + 5 * 60_000).kind).toBe(
+      "wait",
+    );
+    const late = tiktokBusinessNext({ status: "PUBLISH_COMPLETE" }, sent, T0 + H);
+    expect(late).toMatchObject({ kind: "published", externalId: null });
+  });
+
+  it("fails with TikTok's reason, and on a draft sent to the inbox", () => {
+    expect(tiktokBusinessNext({ status: "FAILED", reason: "frame_rate_check_failed" }, sent, T0)).toEqual({
+      kind: "failed",
+      error: "TikTok: frame_rate_check_failed",
+    });
+    expect(tiktokBusinessNext({ status: "SEND_TO_USER_INBOX" }, sent, T0).kind).toBe("failed");
+  });
+
+  it("sends the caption and labels, off unless asked for", () => {
+    expect(tiktokPostInfo(null, {})).toMatchObject({
+      caption: "",
+      is_brand_organic: false,
+      is_ai_generated: false,
+    });
+    expect(tiktokPostInfo("Hi #depop", { brandOrganic: true, aiGenerated: true })).toMatchObject({
+      caption: "Hi #depop",
+      is_brand_organic: true,
+      is_ai_generated: true,
+    });
+  });
+
+  it("names the public copy after the post, so a retry replaces it", () => {
+    expect(publicCopyPath("abc", "videos/1-clip.MOV")).toBe("tiktok/abc.mov");
+    expect(publicCopyPath("abc", "videos/no-extension")).toBe("tiktok/abc.mp4");
+  });
+
+  it("tries a bare signature both as it is and as TikTok's verification line", () => {
+    expect(proofContents("abc123")).toEqual(["abc123", "tiktok-developers-site-verification=abc123"]);
+    expect(proofContents(" tiktok-developers-site-verification=abc123 ")).toEqual([
+      "tiktok-developers-site-verification=abc123",
+    ]);
   });
 });

@@ -24,7 +24,10 @@ It lives in this repo, not its own, because it leans on everything the console a
    - Set the OAuth consent screen's publishing status to **In production**. In Testing, Google's refresh tokens expire after 7 days and posting stops. An unverified app in production shows a warning on the consent screen, which is fine for our own login.
    - `supabase secrets set YOUTUBE_CLIENT_ID=... YOUTUBE_CLIENT_SECRET=...`
 4. **Instagram is set up with Facebook (step 6).** Meta stopped offering Instagram Login to new apps in 2026 ("API setup with Instagram login is not available for newer apps"; the dashboard offers "Unified login" instead), so Instagram is reached through the SaleLinx Facebook Page it is linked to, with that Page's token. Link the Instagram professional account to the Page first (the Page's Linked accounts, or Meta Business Suite). `INSTAGRAM_APP_ID` and `INSTAGRAM_APP_SECRET` are no longer read.
-5. **TikTok.** Add the Content Posting API product to the TikTok app and the `video.upload` scope (Upload to inbox). Direct Post (`video.publish`) is not used; see "TikTok" below.
+5. **TikTok.** Add the Content Posting API product to the TikTok for Developers app and the `video.upload` scope (Upload to inbox), for stats and the inbox fallback. To post publicly, also (see "TikTok" below):
+   - In the TikTok API for Business app, set the TikTok account holder redirect URL to the `marketing-oauth` URL.
+   - `supabase secrets set TIKTOK_BUSINESS_APP_ID=... TIKTOK_BUSINESS_SECRET=...` (My Apps > App Detail).
+   - Apply `060_social_tiktok_posting.sql`, deploy `marketing-oauth` and `marketing-publish`, then press TikTok in the Planner header and log in as the SaleLinx TikTok.
 6. **Facebook and Instagram (migration `053_social_facebook.sql` first).** One Meta app with the **Manage everything on your Page** and **Manage messaging & content on Instagram** use cases, between them granting `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `read_insights`, `instagram_basic`, `instagram_content_publish` and `instagram_manage_insights`. Add the `marketing-oauth` URL to Facebook Login for Business's valid OAuth redirect URIs (the Instagram use case's Unified login page has the same field). Then `supabase secrets set FACEBOOK_APP_ID=... FACEBOOK_APP_SECRET=...`, the app's ID and secret from App settings > Basic. A Business-type app logs in through a Facebook Login for Business configuration rather than a scope list: create one with those permissions and both asset types (Pages and Instagram accounts) and set `FACEBOOK_LOGIN_CONFIG_ID`. A user access token is the expected type; a system-user one also works, since the code keeps it as it is when it cannot be swapped for a long-lived one. The configuration also grants `instagram_manage_comments`, `instagram_manage_messages`, `ads_read` and `ads_management`, by choice, for features to come; nothing reads them today. That makes the stored Page token more powerful than posting needs (it could read DMs and change ads), which is one more reason it stays in `marketing_accounts` with no RLS policies. Whoever connects must manage the SaleLinx Page; if their login manages several Pages and none is clearly SaleLinx, set `FACEBOOK_PAGE_ID`.
 7. **Deploy** `marketing-oauth`, `marketing-sync` and `marketing-publish` (all `--no-verify-jwt`).
 8. **Reconnect all of them**, on the Stats tab or with the platform buttons in the Planner header. Older logins lack the posting scopes; their button reads "Reconnect to post" (Stats) or "Reconnect" (Planner). The login returns to the page it started from, including a local dev server: `marketing-oauth` signs the return address into its state and only accepts our site or `http://localhost:<port>`, under `/admin/marketing`. The platform's own redirect address stays the deployed function's URL, so connecting from localhost still needs `marketing-oauth` deployed.
@@ -42,7 +45,7 @@ Each post has one row per platform in `social_post_targets`, with its own captio
 | `pending` | Waiting for its time |
 | `sending` | An irreversible call is in flight (upload, publish) |
 | `processing` | The platform has the file and is working on it; the next run checks again |
-| `inbox` | TikTok: in the app's inbox, waiting for someone to tap Post |
+| `inbox` | TikTok without its posting login: in the app's inbox, waiting for someone to tap Post |
 | `published` | Live. `external_id` is the video's id on the platform |
 | `failed` | See `error`. Retry puts it back to `pending` |
 
@@ -76,10 +79,24 @@ When a platform goes live, `marketing-publish` adds the video to `marketing_vide
 
 ### TikTok
 
-- **Inbox, not direct.** Unaudited apps can only Direct Post privately, to an account set to private. TikTok's content sharing guidelines list "a utility tool to help upload contents to the account(s) you or your team manages" as not acceptable, so an audit for this tool would be refused. Instead, at the scheduled time the video is uploaded to the TikTok app's inbox (`video.upload`); TikTok notifies the account, and someone opens it, pastes the caption (the planner has Copy caption) and posts. About 30 seconds by hand, and the post can be public.
-- The inbox API takes no caption, which is why the TikTok caption field says it is for pasting.
-- The status check follows it after that: `inbox` until posted, then `published` once TikTok gives the public post id. 7 days in the inbox without a post fails it.
-- **Studio scheduling.** `Marketing/tiktok/studio-scheduler/schedule.js` runs weekly on Lewis's Mac. It uploads each pending TikTok post due in the next 10 days into TikTok Studio's own scheduler through a signed-in Chrome, then sets the target to `processing` with `job.studio_at`. TikTok then posts it on time. `stepTikTok` skips the inbox for those and looks for the live video in `video/list` by caption, failing it 6 hours after its time if none appears. Anything the script missed still goes to the inbox as above.
+TikTok has **two logins**, two rows in `marketing_accounts`:
+
+| Login | App | Does |
+| --- | --- | --- |
+| `tiktok` | TikTok for Developers (Login Kit, Display API), `TIKTOK_CLIENT_KEY` / `TIKTOK_CLIENT_SECRET` | Reads stats; the inbox fallback below. Connected from Stats. |
+| `tiktok_business` (migration 060) | TikTok API for Business, "SaleLinx Marketing" (approved 18 Nov 2026), `TIKTOK_BUSINESS_APP_ID` / `TIKTOK_BUSINESS_SECRET` | Posts publicly. Connected with the TikTok button in the Planner header. |
+
+Stats stays on the first because the Business API reports views, likes and shares 24 to 48 hours late, and Stats needs each video's views at 24 hours.
+
+**Posting publicly (the posting login).** At the scheduled time `marketing-publish` copies the video, inside Storage, into the public `social-public` bucket as `tiktok/<post id>.<ext>`, and sends that address to `/business/video/publish/` with the caption and the post's labels (promotional content, AI-generated; the editor's TikTok settings). TikTok fetches the file itself, so nothing passes through the function. The next runs check `/business/publish/status/` until `PUBLISH_COMPLETE` gives the post id (up to 3 minutes later), then delete the copy. Publishing has no idempotency key: a refusal with a TikTok error code fails the post safely, but a lost answer fails it with "check TikTok", never a blind retry. TikTok allows 15 API posts a day per account, 3 seconds to 10 minutes, up to 1 GB; the planner warns on length.
+
+**Why a public bucket.** TikTok only fetches a `video_url` under an address the app has proved it owns. Supabase signed URLs cannot be proved (the proof file would need a token as well), so `social-public` exists for this alone: no policies, so nothing lists it; paths are the post's UUID; each copy lives only until TikTok has it. Connecting the posting login proves it, through `_shared/tiktok-business.ts`: it adds the bucket's URL prefix as a URL property (`/business/property/add/`, with the app's ID and secret, no login), writes the proof file TikTok names at the bucket's root, and asks TikTok to check (`/business/property/verify/`). Already proved, it stops at the list. If it fails, the Planner says so after connecting, and pressing the button again retries.
+
+**The posting login must be our account.** `marketing-oauth` reads the login's username (`/business/get/`) and refuses one that differs from the stats login's handle (or `TIKTOK_HANDLE`, before there is one), since posts go wherever it points. It asks for every scope the app was approved for, because TikTok refuses a login that names only some of them; posting uses only `video.publish` and the username. The rest (`comment.list` and `comment.list.manage` among them) are held but unused, and a feature that reads comments needs its `docs/GDPR.md` entry first.
+
+**Without the posting login: the inbox.** The old way still runs for anything already started that way, and for new posts while the posting login is not connected. At the scheduled time the video is uploaded to the TikTok app's inbox with the stats login (`video.upload`); TikTok notifies the account, and someone opens it, pastes the caption (the planner has Copy caption) and posts. The inbox API takes no caption. The status check follows it: `inbox` until posted, then `published` once TikTok gives the public post id; 7 days in the inbox without a post fails it. (That app can't post publicly: TikTok for Developers only lets audited apps Direct Post, and its guidelines rule out auditing "a utility tool to help upload contents to the account(s) you or your team manages".)
+
+**Studio scheduling.** `Marketing/tiktok/studio-scheduler/schedule.js` runs weekly on Lewis's Mac. It uploads each pending TikTok post due in the next 10 days into TikTok Studio's own scheduler through a signed-in Chrome, then sets the target to `processing` with `job.studio_at`. TikTok then posts it on time. `stepTikTok` looks for those in `video/list` by caption instead, failing one 6 hours after its time if none appears. **Stop the script once the posting login is connected**: it takes posts before `marketing-publish` does, so they would never use the API, and anything it posted by hand alongside would go up twice.
 
 ## Planner
 
@@ -170,6 +187,7 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 | --- | --- |
 | Schema, RPCs, bucket, queue | `supabase/migrations/052_social.sql` (Facebook added to the platform checks in `053_social_facebook.sql`) |
 | Tags, length, caption, age points view | `supabase/migrations/054_social_tags.sql` |
+| TikTok's posting login, the public bucket | `supabase/migrations/060_social_tiktok_posting.sql`, `supabase/functions/_shared/tiktok-business.ts` |
 | Index and overview arithmetic | `lib/social/overview.ts` |
 | Stats pages arithmetic (gains, windows, rates, lifecycle, formatting) | `lib/social/insights.ts` |
 | Compare (dimensions, measures, verdict, "may be the reason") | `lib/social/compare.ts` |

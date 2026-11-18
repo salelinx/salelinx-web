@@ -94,6 +94,8 @@ const PLATFORM_LABEL = {
   instagram: "Instagram",
   tiktok: "TikTok",
   facebook: "Facebook",
+  // TikTok's posting login (060_social_tiktok_posting.sql).
+  tiktok_business: "TikTok posting",
 } as const;
 
 /**
@@ -117,11 +119,17 @@ export async function connectPlatform(
 const CONNECT_ERRORS: Record<string, string> = {
   expired: "That connect link expired or wasn't ours. Try Connect again.",
   declined: "The login was cancelled, so nothing was connected.",
+  // invalid_scope: the app asked for a permission the platform hasn't granted it.
+  refused: "The platform's login page refused the request, so nothing was connected.",
   exchange: "The platform refused the login. Check the app's ID, secret and redirect address.",
   wrong_channel:
     "That Google login is for a different YouTube channel. Connect again and pick the SaleLinx channel.",
   no_instagram:
     "Connected Facebook, but the SaleLinx Page has no Instagram account linked. Link them (Page settings > Linked accounts, or Meta Business Suite), then press Instagram again.",
+  wrong_tiktok:
+    "That TikTok login is for a different account from the one Stats reads. Connect again, logged in as the SaleLinx TikTok.",
+  tiktok_unproved:
+    "TikTok posting connected, but TikTok hasn't accepted our video address yet, so it can't fetch videos. Press the TikTok button again to retry.",
 };
 
 /** Why no Facebook Page came back, from how many Pages the login could see. */
@@ -141,6 +149,8 @@ export function connectNotice(notice: {
   diag?: string;
 }): string | null {
   const details = notice.diag ? ` Details: ${notice.diag}` : "";
+  if (notice.connected === "tiktok_business")
+    return "TikTok posting connected. TikTok posts now go up publicly at their time.";
   if (notice.connected) {
     const name = PLATFORM_LABEL[notice.connected as keyof typeof PLATFORM_LABEL] ?? notice.connected;
     return `${name} connected. Press Sync now on Stats to read its videos.`;
