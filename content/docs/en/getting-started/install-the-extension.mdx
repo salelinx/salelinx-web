@@ -5,7 +5,7 @@ export const metadata = {
   category: 'getting-started',
   slug: 'install-the-extension',
   order: 1,
-  updated: '2026-10-16',
+  updated: '2026-11-17',
   tags: ['install', 'setup', 'chrome'],
   marketplaces: [],
   status: 'published',
@@ -29,13 +29,14 @@ Chrome will ask you to confirm the permissions the extension needs. Click
 **Add extension** to continue.
 
 <Callout variant="tip" title="What the permissions mean">
-SaleLinx asks for access to Depop, to the Vinted country sites it
-supports, and to eBay&rsquo;s sites. On Depop and Vinted it uses that access
-to read your own listings, orders and messages, and to list, edit and relist
-items for you through the same connections the marketplace&rsquo;s own
-website uses. On eBay it shows the panel, and your eBay listings are reached
-through eBay&rsquo;s official connection, which you approve when you link
-eBay. It also talks to a few supporting services: the SaleLinx cloud (your
+SaleLinx asks for access to Depop and to the Vinted country sites it
+supports. On Depop and Vinted it uses that access to read your own
+listings, orders and messages, and to list, edit and relist items for you
+through the same connections the marketplace&rsquo;s own website uses.
+Access to eBay&rsquo;s sites isn&rsquo;t asked for at install: Chrome asks
+when you link eBay, and you can skip it. On eBay that access shows the
+panel and saves eBay drafts, and your eBay listings are reached through
+eBay&rsquo;s official connection, which you approve when you link eBay. It also talks to a few supporting services: the SaleLinx cloud (your
 account and backups), the marketplaces&rsquo; photo servers, and the
 shipping label provider. The SaleLinx panel only appears on Depop, Vinted
 and eBay pages.
@@ -77,13 +78,14 @@ Click it to open the panel. The panel lives on Depop, Vinted and eBay pages
 only; it does not open from the toolbar icon.
 
 On eBay, the panel appears on ebay.co.uk, ebay.com, .de, .fr, .it, .es, .ie,
-.nl, .at, .com.au and .ca.
+.nl, .at, .com.au and .ca, once you&rsquo;ve let SaleLinx run on eBay&rsquo;s
+sites.
 
 If you already had Depop, Vinted or eBay tabs open before installing, reload
 them once so the button appears.
 
 There&rsquo;s also a keyboard shortcut: **Alt+S** opens and closes the panel
-while you are on a Depop or Vinted tab. It does nothing on other sites. If
+while you are on a Depop, Vinted or eBay tab. If
 another extension already uses Alt+S, set your own shortcut under
 `chrome://extensions/shortcuts`, or open **Settings** in the panel and click
 **Change** next to **Panel shortcut**.
@@ -93,15 +95,16 @@ another extension already uses Alt+S, set your own shortcut under
 The first time you open the panel, it walks you through two screens:
 
 1. **Welcome to SaleLinx.** If your account doesn&rsquo;t have a plan yet,
-   click **Start free trial**. This opens the pricing page on salelinx.com,
-   where you start your 14-day trial (sign in there with the same account
-   if asked; a card is required, but nothing is charged during the trial).
-   When you&rsquo;re done, come back to the panel and click **Already have a
-   plan? Refresh**.
+   click **Start free trial**. This opens checkout in a new tab, where you
+   start your 14-day trial (a card is required, but nothing is charged
+   during the trial). To start on Pro instead, click **Get Pro**. When
+   you&rsquo;re done, come back to the panel: it checks for your plan by
+   itself, or click **Already have a plan? Refresh**.
 2. **Link your shops.** Under **I sell on**, pick any of Depop, Vinted and
    eBay, then click **Link** next to each account. If a row shows **Log in**
    instead, you are not signed in to that marketplace in this browser yet.
-   eBay links through eBay&rsquo;s own sign-in page instead.
+   eBay links through eBay&rsquo;s own sign-in page instead. When the shops
+   you picked are linked, click **Continue**.
 
 After that the panel opens on **My Listings**. The full linking walkthrough
 is in [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).

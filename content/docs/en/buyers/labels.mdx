@@ -1,32 +1,33 @@
 export const metadata = {
   title: 'Labels',
   description:
-    'Print or email merged PDF shipping labels for your sold Depop and Vinted orders, manage Vinted orders, and leave Vinted feedback in bulk.',
+    'Print or email merged PDF shipping labels for your sold Depop, Vinted and eBay orders, buy eBay labels, manage orders, and leave Vinted feedback in bulk.',
   category: 'buyers',
   slug: 'labels',
   order: 3,
-  updated: '2026-10-16',
-  tags: ['shipping', 'labels', 'pdf', 'feedback'],
-  marketplaces: ['depop', 'vinted'],
+  updated: '2026-11-17',
+  tags: ['shipping', 'labels', 'pdf', 'feedback', 'ebay'],
+  marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
 };
 
 # Labels
 
-The **Labels** tab gathers your sold orders from Depop and Vinted
-and turns the labels you pick into one PDF you can print or email,
-instead of opening each order in the marketplace and saving labels
-one at a time. The same tab lets you order labels for, extend or
-cancel Vinted orders, and leave Vinted feedback on completed sales
-in bulk. Labels don&rsquo;t cover eBay orders yet; eBay is on the
-&ldquo;Coming soon&rdquo; list.
+The **Labels** tab gathers your sold orders from Depop, Vinted and
+eBay and turns the labels you pick into one PDF you can print or
+email, instead of opening each order in the marketplace and saving
+labels one at a time. The same tab lets you order labels for, extend
+or cancel Vinted orders, buy labels for and mark posted eBay orders,
+and leave Vinted feedback on completed sales in bulk.
 
 ## What it shows
 
 The tab has two lists:
 
-1. Orders to ship, at the top: Depop sales awaiting shipment and
-   Vinted sales waiting for you to post them.
+1. Orders to ship, at the top: Depop sales awaiting shipment, Vinted
+   sales waiting for you to post them, and eBay orders waiting to be
+   posted. eBay orders appear once eBay is linked and switched on in
+   **Settings &rarr; Marketplaces**.
 2. **Completed orders**, below: completed Vinted sales that you can
    still leave feedback on. See Vinted feedback further down.
 
@@ -34,22 +35,25 @@ Each order card shows the item photo and title, the buyer, the
 price, how long ago it sold and the carrier. Orders with several
 items list each one underneath. Vinted orders also show a countdown
 to the posting deadline, estimated as five working days from the
-sale, which turns into **Overdue** once that passes.
+sale, which turns into **Overdue** once that passes. eBay orders show
+the same countdown, using eBay&rsquo;s own post-by date.
 
 Above the list:
 
-- Platform chips (All, Depop and Vinted) with a count on each.
+- Platform chips (All, Depop, Vinted and eBay) with a count on each.
 - A carrier dropdown (**All providers** by default) showing each
   carrier&rsquo;s logo and how many orders use it, so you can pull
   up just the Evri pile before a drop-off run.
 - A search box that matches the item title or the buyer.
 - The refresh button.
 
-Changing the platform or carrier filter clears your selection.
+The list shows 20 orders a page, or 50 or 100 if you change it.
+Changing the platform or carrier filter, the page or the page size
+clears your selection.
 
 A **Pending payout** card adds up the price of the orders still to
-ship in the current view, per currency, with a Depop and Vinted
-split when both have orders.
+ship in the current view, per currency, split by marketplace when
+more than one has orders.
 
 Depop leaves sold orders marked as awaiting shipment indefinitely,
 so orders whose label has expired are hidden rather than left in
@@ -75,6 +79,8 @@ Click the refresh button to load everything again.
 - **Needs label** on a Depop order: create the label on Depop. There
   is no order-label button for Depop orders in SaleLinx. Once the
   label exists, refresh the tab.
+- **Needs label** on an eBay order: click **Get label**. See eBay
+  labels below.
 
 ## Selecting orders
 
@@ -82,9 +88,9 @@ Click a card, or its checkbox, to select it. Click again to deselect.
 Only cards with a label ready can be selected for printing. The
 toolbar shows how many are selected.
 
-**Select all** selects every visible order with a label ready,
-respecting the current filters and search, so you can do the
-day&rsquo;s shipping in one selection.
+**Select ready labels** selects every order on the current page with
+a label ready, respecting the current filters and search, so you can
+do the day&rsquo;s shipping in one selection.
 
 ## Printing labels
 
@@ -101,6 +107,12 @@ and the number of labels, like `labels-13-Oct-2026-3`.
 
 If a label can&rsquo;t be downloaded, SaleLinx leaves it out and
 merges the rest, so check the page count against your selection.
+
+The first time you print or email a Depop label, a **Download Depop
+labels** window asks to let SaleLinx read your Depop shipping
+labels. Click **Allow**, then allow it in the prompt Chrome shows.
+You only need to do this once. If you don&rsquo;t allow it, the
+Depop labels are left out and the rest are merged.
 
 Vinted labels that come on a full A4 sheet (Evri, InPost and Relay)
 are cropped to the label itself, so you don&rsquo;t waste a page per
@@ -140,7 +152,39 @@ your address on Vinted** instead: Vinted needs your address and
 phone number before it can make a label. Add them in your Vinted
 settings and try again.
 
-## Managing Vinted orders
+## eBay labels
+
+eBay orders that still need a label have a **Get label** button. It
+opens **Get eBay label**, which prices the postage services eBay
+offers for your parcel:
+
+1. Pick the **Parcel size** (**Letter**, **Large letter**, **Small
+   parcel**, **Medium parcel** or **Large parcel**; it starts on
+   **Small parcel**) and enter the **Weight (g)**. SaleLinx remembers
+   both for that order.
+2. The window shows what the buyer paid for postage, then the
+   services that take the parcel, with the buyer&rsquo;s choice first
+   (marked **Buyer&rsquo;s pick**) and the cheapest after it. Five show
+   at first; **Show all** lists the rest, and **Search services**
+   narrows them. If a service costs more than the buyer paid, the
+   window says by how much.
+3. Pick a service and click **Buy label** (the button shows the
+   price). eBay charges you for the label, not SaleLinx.
+
+Once it&rsquo;s bought, a **Label bought** notice appears and the
+order is ready to print from the list with **Print Labels**. If eBay
+needs you to confirm the payment, the window says so and you
+haven&rsquo;t been charged yet. Click **Open eBay**, confirm it there,
+then refresh the tab.
+
+**Mark posted**, in the same window, tells eBay and the buyer the
+order is on its way. Add the **Carrier** and a **Tracking number
+(optional)** if you have them.
+
+Getting prices and buying a label go through your eBay account in
+the browser, so keep a tab open on your eBay site, signed in.
+
+## Managing orders
 
 ### Extend the posting deadline
 
@@ -158,12 +202,15 @@ to post this. Thanks for your patience!&rdquo;
 
 ### Cancel an order
 
-Vinted orders that haven&rsquo;t shipped have a **Cancel** button.
-It opens **Cancel order**, where you choose one of Vinted&rsquo;s
-cancellation reasons. Some reasons let you add a note for the
-buyer. Click **Cancel order** to confirm, or **Keep order** to back
-out. The buyer is notified and refunded. Cancelling isn&rsquo;t
-available for Depop orders.
+Vinted and eBay orders that haven&rsquo;t shipped have a **Cancel**
+button. It opens **Cancel this order?**, where you choose one of the
+marketplace&rsquo;s cancellation reasons. Some Vinted reasons let you
+add a note for the buyer. Click **Cancel order** to confirm, or
+**Keep order** to back out. The buyer is notified and refunded.
+Cancelling isn&rsquo;t available for Depop orders.
+
+An eBay cancellation waits for eBay to confirm it. Until then the
+card shows **Cancel pending**: don&rsquo;t post the item.
 
 ### Message the buyer
 
@@ -172,12 +219,6 @@ the [Messages](/docs/buyers/messages) tab. Vinted orders open the
 exact conversation. Depop orders are matched by the item and the
 buyer. If the chat can&rsquo;t be found, SaleLinx says **No chat
 found** and suggests a longer date range in Messages.
-
-### Select in My Listings
-
-**Select in My Listings** switches to the My Listings tab with the
-items from your selected orders already selected, so you can relist
-them in a couple of clicks. It works with orders from either list.
 
 ## Emailing labels
 

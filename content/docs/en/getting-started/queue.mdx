@@ -5,7 +5,7 @@ export const metadata = {
   category: 'getting-started',
   slug: 'queue',
   order: 4,
-  updated: '2026-10-16',
+  updated: '2026-11-17',
   tags: ['queue', 'pacing', 'rate-limits', 'breaks', 'pause'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -14,10 +14,10 @@ export const metadata = {
 # The queue
 
 Most of the work SaleLinx does for you on Depop and Vinted goes through the
-queue: Grow runs, Refresh, Relist, Crosslist, Shop Designer, Price Drops
-(listed in the queue as **Auto Markdown**), Auto-Offers, CSV import, and
-bulk actions from **My Listings** such as editing, deleting or posting
-drafts.
+queue: Grow runs, Refresh, Relist, Crosslist, Create listing (listed in
+the queue as **Create Listing**), Shop Designer, Price Drops (listed in the
+queue as **Auto Markdown**), Send Offers, CSV import, and bulk actions from
+**My Listings** such as editing (**Edit**), deleting or posting drafts.
 
 Each run waits its turn, and the requests it sends are spaced out like a
 person using the site. Marketplaces limit how fast an account can act, and
@@ -162,11 +162,11 @@ handles it in steps:
    `12/50`).
 
 If a run stopped early, wait a while before starting it again, and consider
-a smaller run or the **Careful** preset that Grow, Refresh and Relist offer.
-Restarting straight away is likely to hit the limit again.
+a smaller run or the **Careful** preset that Grow, Refresh, Relist and
+Crosslist offer. Restarting straight away is likely to hit the limit again.
 
-**Auto-Offers** works slightly differently. When Vinted limits how fast
-offers can be sent, the Auto-Offers task goes **On hold** and carries on by
+**Send Offers** works slightly differently. When Vinted limits how fast
+offers can be sent, the Send Offers task goes **On hold** and carries on by
 itself once the marketplace lets offers through again.
 
 If a marketplace refuses access outright, rather than asking SaleLinx to slow
@@ -200,22 +200,24 @@ marketplace, keep at least one tab for it open. It can be in any window and
 doesn&rsquo;t need to be the tab you&rsquo;re looking at, and the panel
 itself can be closed.
 
-Panel tabs that work with one marketplace only (**Refresh** and **Shop
-Designer** for Depop, **Auto-Offers** for Vinted) say so when no browser tab
-for it is open: &ldquo;This feature needs a Vinted tab. Open one in any
-window and it will unlock here.&rdquo; Click **Open Vinted** (or **Open
-Depop**) and the panel tab unlocks as soon as the page loads. Crosslist
-needs a tab for each of Depop and Vinted you&rsquo;ve linked: &ldquo;Open
-every marketplace you crosslist between.&rdquo;
+When a panel tab needs a marketplace that has no browser tab open, a popup
+says so, for example &ldquo;Open Depop so you can crosslist here.&rdquo;
+Click **Open** and the panel tab carries on as soon as the page loads.
+Crosslist needs a tab for each of Depop and Vinted you&rsquo;re
+crosslisting between.
 
 ## eBay works differently
 
-SaleLinx reaches eBay through its own server and eBay&rsquo;s official
-connection, not through a browser tab. eBay never needs a tab open, and
-the planned breaks and rate-limit waits on this page don&rsquo;t apply to
-eBay requests. A run that includes eBay listings, such as a crosslist or
-an edit from **My Listings**, still appears in the queue and waits its turn
-like any other.
+SaleLinx reaches most of eBay through its own server and eBay&rsquo;s
+official connection, not through a browser tab, and the planned breaks and
+rate-limit waits on this page don&rsquo;t apply to eBay requests. A run that
+includes eBay listings, such as a crosslist or an edit from **My
+Listings**, still appears in the queue and waits its turn like any other.
+
+A few things are done in your eBay account in the browser instead, and need
+a tab open on your eBay site, signed in: saving eBay drafts (from Crosslist,
+Create listing or a relist saved as a draft) and getting or buying eBay
+shipping labels.
 
 ## Closing the panel, the tab or the browser
 
@@ -232,11 +234,14 @@ like any other.
 
 ## Other entries in the queue
 
-Two kinds of entry aren&rsquo;t runs you started yourself:
+Three kinds of entry aren&rsquo;t runs you queued yourself:
 
 - **Saving to Cloud** appears while SaleLinx copies listing details into
   your [cloud backup](/docs/inventory/cloud-sync). It steps aside while a
   queued task runs, and has its own pause, resume and cancel buttons.
+- **Updating Listings** appears while **Update** in My Listings re-reads
+  your listings. It starts straight away rather than waiting its turn, and
+  has no buttons.
 - **Auto Refresh**, shown as **Scheduled** with a countdown, is your next
   scheduled [Auto-refresh](/docs/inventory/refresh). Its &times; turns the
   schedule off.

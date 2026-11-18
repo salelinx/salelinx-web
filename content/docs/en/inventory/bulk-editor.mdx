@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Bulk editor',
   description:
-    'Bulk actions for selected listings in My Listings: edit fields and photos, discount, duplicate, post, hide, back up, link, crosslist, export, delete, relist.',
+    'Bulk actions for selected listings in My Listings: edit fields and photos, discount, duplicate, post drafts, hide, back up, link, crosslist, export, delete, relist.',
   category: 'inventory',
   slug: 'bulk-editor',
   order: 1.5,
-  updated: '2026-10-16',
+  updated: '2026-11-17',
   tags: ['bulk edit', 'listings', 'photos', 'discount', 'delete', 'relist', 'ebay'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -32,14 +32,18 @@ clears the selection. The rest depend on what you&rsquo;ve selected:
 
 - **Discount** - at least one active Depop listing.
 - **Crosslist** - every listing is active and on the same marketplace.
-- **Relist** - at least one sold listing that was saved to the cloud.
-- **Post** - every listing is a draft.
+- **Relist** - at least one sold or deleted listing that was saved to the
+  cloud.
+- **Post draft** - at least one listing is a draft.
+- **Create listing** - one row is selected and it holds a draft. See
+  [My Listings](/docs/inventory/listings).
 - **Hide** or **Unhide** - every listing is an active or hidden Vinted
   listing.
 
-When the selection includes an eBay listing, **Duplicate**,
-**Crosslist** and **Relist** don&rsquo;t appear there. **Link** still
-does, and eBay has its own relist in the Relist tab.
+When the selection includes an eBay listing, **Crosslist** doesn&rsquo;t
+appear and **Duplicate** is greyed out (&ldquo;eBay listings can&rsquo;t be
+duplicated. Deselect them to duplicate the rest.&rdquo;). **Link** and
+**Relist** still work with eBay.
 
 **Plans.** **Save to Cloud** and **Update Cloud** are part of the Pro and
 Business plans and show a padlock on lower plans. **Relist** and **Link**
@@ -67,8 +71,11 @@ one by hand, or make the same change to many at once with **Bulk Edit**.
    - On an eBay card: title, description, price, quantity, photos,
      category, condition, item specifics and offer settings. See
      [My Listings](/docs/inventory/listings) for the eBay details.
-3. Click **Save Changes**. The edits are queued and sent to the
-   marketplaces in the background.
+3. With several listings selected, the editor opens on a list of them:
+   click one to edit it, then **Done** to go back to the list. Click
+   **Queue edits** (or **Save Changes** when you&rsquo;re editing a single
+   listing). The edits are queued and sent to the marketplaces in the
+   background.
 
 On Depop the brand has to be one Depop recognises. If it isn&rsquo;t, the
 editor says so: pick one from the list, or leave it empty for no brand.
@@ -82,16 +89,18 @@ shows two cards per row. Click anywhere on a card to tick it.
 
 1. In the editor, click **Bulk Edit**. A panel opens on the right.
 2. Pick a **Field**: **Price**, **Title**, **Description**, **Brand**,
-   **Condition**, **Colour**, **Size**, **Quantity**, **Category**,
-   **Parcel size**, **Status** or **Image**.
+   **Condition**, **Colour**, **Size**, **Quantity**, **Allow offers**
+   (when eBay listings are in the editor), **Category**, **Parcel size**,
+   **Status** or **Image**.
 3. Enter or choose the new value.
 4. Click **Apply** to change only the cards you&rsquo;ve ticked, or **All**
    to change every card in the editor.
-5. Check the cards, then click **Save Changes**.
+5. Check the cards, then click **Queue edits**.
 
 Bulk changes only land where they make sense. **Title** and **Parcel size**
 skip Depop cards, **Quantity** skips Vinted cards, eBay cards only take
-**Price**, **Title**, **Description** and **Quantity**, and a category only
+**Price**, **Title**, **Description**, **Quantity** and **Allow offers**
+(which turns eBay offers on or off), and a category only
 applies to cards from its own marketplace (the list offers both Depop and
 Vinted categories). Changing the category clears the size, because sizes
 depend on the category. If nothing in the editor can take the value, the
@@ -101,9 +110,6 @@ panel says **No eligible items for this field**.
 **Decrease by**, **Increase by %** or **Decrease by %**. Each mode works
 from the price the card is currently showing, so applying it twice stacks.
 A card whose price would fall to zero or below is left alone.
-
-From version 1.1.12, the Price field can raise or lower prices by an amount
-or a percentage. In version 1.1.11 it can only set a new price.
 
 ### Status
 
@@ -115,13 +121,14 @@ The status chip on each card offers the moves that listing can make:
   so this sets the stock to zero, which Depop treats as sold. Depop locks
   sold listings, so this can&rsquo;t be undone; relisting is the only way
   back.
-- **eBay** - **Unlist** ends an active listing. An **Unlisted** listing
-  offers **Relist**, which puts it back on sale; edit it once it&rsquo;s
-  live.
+- **eBay** - **End listing** ends an active listing. An **Unlisted**
+  listing offers **Relist**, which puts it back on sale; edit it once
+  it&rsquo;s live.
 
 In **Bulk Edit**, use the **Status** field for Vinted listings. It offers
 **Active**, **Hidden** and **Publish** (for Vinted drafts), and each card
-only takes a move it can make. To publish Depop drafts, use **Post**.
+only takes a move it can make. To publish Depop drafts, use **Post
+draft**.
 
 ### Photos
 
@@ -205,9 +212,10 @@ before they&rsquo;re sent, start from the Crosslist tab instead. If the
 selection is bigger than what&rsquo;s left of your monthly allowance, only
 that many are queued and the panel tells you.
 
-From version 1.1.12 every copy is saved as a draft. In version 1.1.11 the
-Crosslist tab&rsquo;s **Auto-post** switch decided whether copies were
-published straight away.
+Every copy is saved as a draft. On a plan with cloud sync, the original
+and its copy are also backed up and linked, unless you last switched
+**Back up to the cloud** or **Link to the original** off under **For every
+item** in the Crosslist tab&rsquo;s review.
 
 ## Duplicate
 
@@ -215,22 +223,23 @@ published straight away.
 The originals aren&rsquo;t touched.
 
 1. Click **Duplicate**.
-2. If every selected row is a linked pair, choose **Depop only**,
-   **Vinted only** or **Both**.
+2. If every selected row is linked, the **Linked listings** window asks
+   which of the linked listings to duplicate. Pick the marketplaces.
 3. If the selection includes sold Vinted listings that weren&rsquo;t saved
    to the cloud, SaleLinx warns that only a partial draft can be made for
    them and you may need to fill in some details. Click **Continue** to go
    ahead.
 
-The drafts appear in the grid with the **Draft** status. Use **Post** to
-publish them.
+The drafts appear in the grid with the **Draft** status. Use **Post
+draft** to publish them.
 
 ## Post drafts
 
-**Post** appears when every selected listing is a draft, on either
-marketplace.
+**Post draft** appears when the selection includes a draft, on any
+marketplace. Only the drafts are posted.
 
-1. Click **Post**. The **Post drafts** window opens.
+1. Click **Post draft**. The **Post drafts** window opens, with a tick on
+   each draft. Untick one to leave it as a draft.
 2. Choose **Post all now**, or **Schedule posts** and pick an interval
    between posts (1, 5, 10 or 30 minutes, or type your own).
 3. Click **Start**.
@@ -252,8 +261,8 @@ reports how many succeeded.
 **Cloud** opens a small menu:
 
 - **Save to Cloud** - backs up the details and photos of the selected
-  listings to your SaleLinx account. Only active listings can be saved;
-  others are skipped and the panel tells you how many.
+  listings to your SaleLinx account. Only active and draft listings can be
+  saved; others are skipped and the panel tells you how many.
 - **Update Cloud** - re-sends the latest details and photos of listings
   that are already saved. Use it after editing a listing on the marketplace.
 - **Remove from Cloud** - deletes the saved details and photo backups for
@@ -265,20 +274,30 @@ while they save. See [Cloud sync](/docs/inventory/cloud-sync).
 
 ## Link and Unlink
 
-**Link** pairs a Depop listing with its Vinted twin so SaleLinx knows
-they&rsquo;re the same item. That is what the
-[Restocker](/docs/automate/restocker) works from. A linked pair then shows as
-one row with both logos.
+**Link** joins the same item&rsquo;s listings on different marketplaces so
+SaleLinx knows they&rsquo;re one item. That is what the
+[Restocker](/docs/automate/restocker) works from. Linked listings then show
+as one row, with a line for each marketplace.
 
-1. Select exactly two listings: one from Depop and one from Vinted.
-2. Make sure both are active or sold, and both are saved to the cloud (and
-   have finished saving). Drafts can&rsquo;t be linked from here.
-3. Click **Link**. If the two are set up in the Restocker with different
-   restock counts, choose which count both should use.
+1. Select two or three listings, one on each marketplace you want to link:
+   any of Depop, Vinted and eBay. To add a third marketplace to listings
+   that are already linked, select their row and the new listing.
+2. Make sure each one is active, sold or a draft, and saved to the cloud
+   (and has finished saving).
+3. Click **Link**. If the listings are set up in the Restocker with
+   different restock counts, choose which count they should all use.
 
-To undo it, select the linked row; the button reads **Unlink**. If the pair
-is tracked by the Restocker, SaleLinx tells you both listings will stay
-tracked on their own.
+If the selection doesn&rsquo;t fit, the panel says why, for example
+&ldquo;Pick one listing on each marketplace you want to link: two or three
+of Depop, Vinted and eBay.&rdquo;
+
+To undo it, select the linked row; the button reads **Unlink**. Unlinking
+two listings happens straight away. For several links at once, or listings
+linked on all three marketplaces, the **Unlink these listings?** window
+opens first: untick a link to leave it as it is, or turn a marketplace off
+to keep its listing linked to the others, then click **Unlink** with the
+number of links. If the listings are tracked by the Restocker, SaleLinx
+tells you they will stay tracked on their own.
 
 To find matching pairs across your whole catalogue, use the
 [Linking tab](/docs/automate/linking).
@@ -302,35 +321,32 @@ Listings instead.
    way and the backups stay, so you can relist the items later.
 3. Click **Delete** to confirm.
 
-If you&rsquo;ve selected a whole linked pair, the confirmation shows a card
-for each side instead. Each side has its listing ticked and its
-**Cloud backup** unticked. Untick a listing to keep that side live, for
-example to delete only the Vinted copy and keep selling on Depop. Tick a
-**Cloud backup** to remove that backup too. Ticking only a backup removes
-the backup and leaves the listing up.
+If you&rsquo;ve selected a whole linked row, the confirmation lists each
+marketplace instead, with a **Listing** tick and a **Cloud** tick:
+&ldquo;Tick what should go. Listings are ticked; cloud backups are
+not.&rdquo; Untick a listing to keep it live, for example to delete only
+the Vinted copy and keep selling on Depop. Tick a **Cloud** box to remove
+that backup too. Ticking only a backup removes the backup and leaves the
+listing up.
 
 ## Relist sold items
 
-**Relist** appears when the selection includes a sold listing that was
-saved to the cloud before it sold. It recreates the item from the cloud
-copy as a new listing on the same marketplace. To relist active listings
-instead, use the [Relist tab](/docs/inventory/relist).
+**Relist** appears when the selection includes a sold or deleted listing
+that was saved to the cloud. It recreates the item from the cloud copy as a
+new listing on the same marketplace, eBay included. To relist active
+listings instead, use the [Relist tab](/docs/inventory/relist).
 
-1. Click **Relist** and choose how:
-   - **Quick relist** reposts with the recommended settings.
-   - **Relist with config** lets you set photo, title, description and
-     price changes first.
-2. If every selected row is a linked pair, choose **Depop only**,
-   **Vinted only** or **Both**.
-3. Choose where the cloud save goes:
-   - **Move to the new listing** carries its link, restock settings and
-     saved details over to the new listing. This is the usual choice.
-   - **Keep on the sold item** leaves that record where it is.
-4. For **Quick relist**, choose **Relist to post** to publish it now or
-   **Relist as draft** to publish it yourself later. For
-   **Relist with config**, set your changes in the **Relist Confirmation**
-   window (it has its own save-as-draft option) and click
-   **Confirm Relist**.
+1. Click **Relist**. The **Relist Confirmation** window opens.
+2. Under **Marketplaces**, pick which of a linked row&rsquo;s marketplaces
+   to relist on.
+3. Under **Changes**, keep **Recommended**, or pick **Adjust** to set
+   your own photo, title, description and price changes.
+4. Under **Cloud save**, choose where the cloud save goes:
+   - **Move to new** carries its link, restock settings and saved details
+     over to the new listing. This is the usual choice.
+   - **Keep on sold** leaves that record where it is.
+5. Turn on **Save as draft** to publish it yourself later, then click
+   **Relist** (or **Relist as drafts**).
 
 ## Related
 

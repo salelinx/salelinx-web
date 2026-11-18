@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'cloud-sync',
   order: 8,
-  updated: '2026-10-16',
+  updated: '2026-11-17',
   tags: ['cloud', 'sync', 'backup', 'storage'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -30,13 +30,13 @@ settle.
   signed into your SaleLinx account.
 - **Backup** - if a listing is removed from the marketplace, your
   cloud copy still has the photos and details.
-- **Relist sold items** - select a sold item that was saved to cloud
-  in My Listings and choose **Relist**. It goes back up as a live
+- **Relist sold items** - select a sold or deleted item that was saved
+  to cloud in My Listings and choose **Relist**. It goes back up as a live
   listing or a draft, with its photos and details intact, even after
   the marketplace has stopped showing it. See
   [Relist](/docs/inventory/relist).
 - **Linking and the Restocker** - a [link](/docs/automate/linking)
-  between a Depop and a Vinted listing is stored on their cloud
+  between listings on Depop, Vinted and eBay is stored on their cloud
   copies, and the [Restocker](/docs/automate/restocker) reposts from
   the cloud copy. Both only work on saved listings.
 
@@ -52,18 +52,26 @@ Everything happens in the **My Listings** tab.
   linked row has one switch per marketplace, so you can see which side
   is saved. Switch it on to save. A spinner shows while it saves, and
   the row can&rsquo;t be selected until the save finishes. Switch it
-  off to remove the cloud copy.
+  off to remove the cloud copy. On a linked listing that also unlinks
+  it, so SaleLinx asks first (**Turn off and unlink**).
 - **Several listings** - select the rows, click **Cloud** in the
   toolbar, and choose **Save to Cloud**, **Remove from Cloud** or
   **Update Cloud**. **Remove from Cloud** asks you to confirm first.
   See [Bulk editor](/docs/inventory/bulk-editor) for the rest of the
   toolbar.
 
-Only active listings can be saved from My Listings. Sold and draft
-listings in a selection are skipped, though one that is already saved
-can still be removed. The Linking tab&rsquo;s **Save to cloud** picker
-can also save sold listings, because a sold item can still be part of
-a linked pair.
+Active and draft listings can be saved from My Listings. Sold and
+deleted listings in a selection are skipped, though one that is already
+saved can still be removed.
+
+Some listings are saved for you:
+
+- **New drafts** made by [Crosslist](/docs/inventory/crosslist) or
+  [Create listing](/docs/inventory/listings) with **Back up to the
+  cloud** on, which it is to start with. Crosslist saves the original
+  as well.
+- **Listings you link** in the [Linking tab](/docs/automate/linking),
+  which saves them as it links them.
 
 The cloud filter button above the grid switches between showing all
 listings, only cloud-saved ones, and only the ones that aren&rsquo;t
@@ -101,7 +109,7 @@ fails, the existing cloud copy is kept.
 Removing a listing from the cloud deletes its cloud copy and photo
 backups. The listing on the marketplace and its row in My Listings
 are untouched. It also switches off restock tracking for that listing
-and removes its link to a partner listing, because both of those live
+and unlinks it from its other marketplaces, because both of those live
 on the cloud copy.
 
 ## What gets stored where
@@ -145,10 +153,8 @@ aren&rsquo;t affected, and there is nothing you need to do: the message
 clears by
 itself as soon as SaleLinx can reach its servers again.
 
-From version 1.1.12 this screen covers the whole panel until the
-connection is back, with a **Close SaleLinx** button to close the
-panel. In earlier versions the same message shows as a banner at the
-top of the panel.
+The screen covers the whole panel until the connection is back, with a
+**Close SaleLinx** button to close the panel.
 
 ## Plan and access
 
@@ -171,7 +177,7 @@ listings from the cloud frees space.
   switches live.
 - [Bulk editor](/docs/inventory/bulk-editor) - save, update or remove
   many listings at once.
-- [Linking](/docs/automate/linking) - pair saved listings across
+- [Linking](/docs/automate/linking) - link saved listings across
   Depop, Vinted and eBay.
 - [Restocker](/docs/automate/restocker) - reposts from the cloud copy
   when an item sells.
