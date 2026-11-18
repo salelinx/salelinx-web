@@ -18,6 +18,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Configuration: Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Configuration: Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Configuration: Roadmap | `/admin/roadmap` | Live, read/write | Edit the public roadmap shown on `/roadmap` and at the bottom of the homepage (`roadmap_items`, migrations `032_roadmap_items.sql` + `033_roadmap_sync_main.sql`): create, copy, edit, hide, archive, delete, reorder within a column, move between Exploring / Building / Shipped. English copy required, other locales optional. See "Roadmap" below. |
+| Configuration: Announcements | `/admin/announcements` | Live, read/write | Messages shown in users' SaleLinx extension (`announcements`, migration `060_announcements.sql`): an info or warning banner in the panel, a critical popup then red banner, with an optional allowlisted button. Create, edit, end now, delete; target by plan, marketplace, version range and signed in, and schedule a start and end. English copy required, French, Spanish and German optional. See "Announcements" below. |
 | Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for a selectable period (current period by default; last 5 / 15 / 30 minutes, last 1 / 2 / 12 / 24 / 48 / 72 hours, last 7 / 30 days, all time, or a custom from/to range of UTC hours via `?range=` / `?from=&to=` URL params; the resolver also still accepts day-shaped `?from=YYYY-MM-DD&to=YYYY-MM-DD` for old links, but the picker only offers hours), grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. On the current-period view the five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); range views drop caps/percent because caps are per-period. Day ranges sum day buckets plus every month bucket touched, and monthly counters only exist as month buckets, so a range partially covering a month includes that whole month's count for them. Trailing presets (`?range=` with one of `5m`, `15m`, `30m`, `1h`, `2h`, `12h`, `24h`, `48h`, `72h`) are exact windows ending now, answered from `usage_events` (migration 017; see "Usage events" below), so "last hour" at 15:42 is 14:42 to 15:42. Custom hour ranges (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, UTC) sum the server-derived hour buckets only, which are exact for every counter but exist only from `HOUR_EPOCH` and for `HOUR_RETENTION_DAYS` (60 days) in `lib/admin/period.ts`; a request outside that window is clamped and the header shows a "(clamped)" marker with the reason. See "Hour buckets" below. The rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
 | Analytics dashboard | `/admin/analytics` | Live, read-only | Landing page for the Analytics sidebar group: a grid of one-glance boxes fixed to the current month (last month as comparison), each linking to the module with the detail. Boxes: Top features (three most used by distinct users, with share of active users, actions, change vs last month), Top users (three most active accounts by total actions, with tier, features touched and top feature; emails resolved for just those ids), Active users (six-month column chart of distinct active users, `components/admin/analytics/ColumnChart.tsx`, with delta vs last month and the prior three-month average), Movers (largest gains and drops in users per feature vs last month, `featureMovers` in `lib/admin/adoption.ts`), Churn watch (paying users with `cancel_at_period_end` set, and paying users with no extension activity for 30+ days judged by `usage_counters.updated_at`; `lib/admin/retention.ts`, tested in `tests/retention.test.ts`), Signup funnel (accounts, linked a shop, ran an action, paying, each as a share of all accounts), Marketplace health (broken / degraded feature counts from the same `loadHealthRows(24)` the health module uses). The page reads usage rows once via `loadAnalyticsSource` and folds them for every usage-derived box; it is `force-dynamic`. Add a box by loading its data in the page's `Promise.all` and dropping a component into the grid (`components/admin/analytics/AdminAnalyticsDashboard.tsx`). |
 | Feature adoption | `/admin/usage/features` | Live, read-only | The per-feature cut of the same extension counters. Three kinds of window: a run of whole months (one / 3 / 6 / all time via `?months=`, anchored by `?to=YYYY-MM`), the same exact trailing presets as the usage pages (`?range=5m` to `72h`, read from `usage_events`), or a custom UTC hour range (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, read from the hour buckets). In every kind each of the 28 roster features shows distinct users, share of a selectable base (`?base=active` users with any extension activity, `paid`, or `all` accounts), change in users against the preceding window of equal length, actions, median actions per user, and a 6-month sparkline of users. A second table splits adoption by plan, greying out cells the plan cannot use (via the counter-to-gate map in `lib/admin/adoption.ts`). The sparkline is per month for month windows and per hour for hour ranges; trailing presets have no per-bucket breakdown, so it is hidden for them. Months before 26 Aug 2026 are flagged as unmeasured for the activity counters. Windows reaching before the hour or event epochs are clamped with a "(clamped)" marker. See "Feature adoption" below. |
@@ -27,7 +28,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Audit log | `/admin/audit` | Live, read-only | Every admin mutation, newest first; reads `admin_audit_log` directly. |
 | Storage | `/admin/storage` | Live, read-only | Per-user cloud storage bytes vs tier cap, from the `user_storage` gauge (migration `004_storage_quota.sql`). |
 
-Finance / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), Roadmap, and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier, roadmap and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, the Stripe plan change below, which bills the customer, and account deletion).
+Finance / Usage / Storage / Audit are **read-only**: no mutations, no step-up reauth, no `log_admin_action` writes. Support, the two tier edit modules (Tier limits / Feature flags), Roadmap, Announcements, and the Users subscription edit mutate data; every mutation lands in the audit log (Support logs client-side via `log_admin_action`, the tier, roadmap, announcement and subscription RPCs log server-side inside the function). Tier and subscription edits are reversible (the audit entry records the old value), so they use a confirm step, not step-up reauth; reauth stays reserved for destructive/irreversible actions (currently: ticket delete, the Stripe plan change below, which bills the customer, and account deletion).
 
 ## Routing & layout
 
@@ -50,10 +51,11 @@ Consequences:
 | Support module | `app/admin/support/page.tsx` + `components/admin/support/*` |
 | Users module | `app/admin/users/page.tsx` + `components/admin/users/*` |
 | Social group (the Stats dropdown, Planner, Experiments, video pages) | `app/admin/marketing/**` + `components/admin/marketing/*` + `components/admin/social/*` + `components/admin/insights/*` + `lib/social/*`; see `docs/SOCIAL.md` |
-| Configuration | One sidebar entry (`also` in `lib/admin/modules.ts` lights it on all three paths); `app/admin/(configuration)/layout.tsx` adds the tab bar (`components/admin/ConfigurationTabs.tsx`). A route group, so the URLs below are unchanged. The Subscriptions page was removed: Users filters by plan and its drawer shows and edits the subscription. |
+| Configuration | One sidebar entry (`also` in `lib/admin/modules.ts` lights it on all four paths); `app/admin/(configuration)/layout.tsx` adds the tab bar (`components/admin/ConfigurationTabs.tsx`). A route group, so the URLs below are unchanged. The Subscriptions page was removed: Users filters by plan and its drawer shows and edits the subscription. |
 | Tier limits module | `app/admin/(configuration)/tiers/page.tsx` + `components/admin/tiers/*` |
 | Feature flags module | `app/admin/(configuration)/flags/page.tsx` + `components/admin/flags/*` |
 | Roadmap module | `app/admin/(configuration)/roadmap/page.tsx` + `actions.ts` + `components/admin/roadmap/AdminRoadmap.tsx`; types and footer logic in `lib/roadmap/types.ts` (tested in `tests/roadmap.test.ts`), loaders in `lib/roadmap/data.ts` |
+| Announcements module | `app/admin/(configuration)/announcements/page.tsx` + `actions.ts` + `components/admin/announcements/AdminAnnouncements.tsx`; types and pure helpers (button URL allowlist, version checks, audience summary, draft validation) in `lib/announcements/types.ts` (tested in `tests/announcements.test.ts`), loader in `lib/announcements/data.ts` |
 | Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/AdminUserUsageGroups.tsx` |
 | Extension feature roster | `lib/admin/extension-features.ts` (keep in step with salelinx-app usage-tracking.ts) |
 | Analytics dashboard | `app/admin/analytics/page.tsx` + `components/admin/analytics/AdminAnalyticsDashboard.tsx` (boxes live in that file until one outgrows it) |
@@ -335,6 +337,93 @@ meant every column move was a deploy.
   paths, so a change shows on the next page load.
 - **No personal data.** The table has no actor column; who changed what lives
   in `admin_audit_log`. Nothing to add to the ROPA or the deletion runbook.
+
+## Announcements
+
+`/admin/announcements` (a Configuration tab) writes the messages users see in
+their SaleLinx extension: "Vinted crosslisting is broken, we're on it",
+"please update to 1.6.2", planned maintenance. Migration
+`060_announcements.sql`. The extension draws and targets them; this module
+stores them.
+
+- **Where they show.** Info and warning are a banner in the panel. Critical is
+  shown once as a popup, then as a red banner, and puts a red "!" on the
+  toolbar icon. Warning and critical also show as a small card by the launcher
+  tile while the panel is closed. Plain text only (the extension escapes it),
+  with at most one button.
+- **Storage.** One `announcements` row each. `title`, `body` and the optional
+  `cta_label` are JSONB keyed by the extension's locales (en, fr, es, de, not
+  the website's six); English is required and a blank locale falls back to
+  English. Caps after trimming: title 120, body 600, button label 40, button
+  URL 500. `cta_label` and `cta_url` are both set or both null (a table CHECK).
+  Audience: `audience_tiers` (trial, starter, pro, business, and `none` for
+  signed in with no live plan) and `audience_platforms` (depop, vinted, ebay; a
+  user matches with any of them switched on), each empty for everyone, plus an
+  inclusive `min_version` / `max_version` and `signed_in_only`. `ends_at` null
+  means until an admin ends it.
+- **Live now, Scheduled, Ended.** Worked out from the times, never stored. End
+  now sets `ends_at` to now, a scheduled one included (it then never starts),
+  which is why `ends_at > starts_at` is checked on save rather than by the
+  table. The page reads everything not ended plus the 20 most recently ended.
+- **Dismissals and revision.** The extension remembers a dismissal per id and
+  `revision`. `revision` goes up only when an admin saves with "Show again to
+  people who dismissed it", so fixing a typo does not bring a dismissed message
+  back.
+- **How the extension reads them.** `announcements` is not public: its only
+  RLS policy is `is_admin()`. The extension calls `active_announcements()`
+  (SECURITY DEFINER, granted to anon and authenticated, because signed-out
+  users need a "login is broken" notice too), which returns every row not yet
+  ended that starts within the next day, so a scheduled one can be held and
+  shown on time, and leaves out `created_by` and `created_at`.
+- **Why a signal table.** The push is Realtime `postgres_changes`, which checks
+  RLS against the new row. Subscribed to `announcements` itself, the extension
+  could never be told anything (the table is admin-only), and a public table
+  whose policy hid ended rows would still never deliver the update that ends a
+  message. So a statement-level trigger on `announcements` bumps
+  `announcement_signal`, a one-row counter that everyone can read and nobody
+  can write, in the `supabase_realtime` publication, and the extension refetches
+  `active_announcements()` when it changes. Every write bumps it, edits in the
+  SQL editor included. Each install waits a random 0 to 15 seconds before
+  refetching, so they do not all hit Supabase in the same second: users with
+  the extension open see a change within about 15 seconds, everyone else on
+  their next marketplace page load.
+- **Button URL allowlist.** `announcement_cta_url_ok()` in SQL, mirrored by
+  `ctaUrlOk()` in `lib/announcements/types.ts` for instant feedback in the
+  editor (`tests/announcements.test.ts` checks the two market lists match),
+  and enforced again by the extension before it opens anything. https only, at
+  most 500 characters, printable ASCII only (no whitespace, control characters
+  or non-ASCII), no `@` (login details), no backslash (a browser reads `\` as
+  `/`, so `https://evil.com\.salelinx.com` would open evil.com), no port, plain
+  DNS labels, and a host of salelinx.com or any subdomain of it,
+  chromewebstore.google.com, depop.com, www.depop.com, `www.vinted.` plus
+  co.uk, fr, de, com, es, it, pl, nl, be, pt, at, se, dk, fi, cz, ro, sk, hu,
+  lt or ie, or `www.ebay.` plus co.uk, com, de, fr, it, es, ie, nl, at, com.au
+  or ca. The TS helper also parses the URL and checks the protocol, login,
+  port and hostname a browser sees. Changing the list means changing all three:
+  the SQL function (in a new migration), the TS mirror and the extension.
+- **Writes.** `admin_save_announcement` (create or edit; `p_is_new` says which,
+  as on the roadmap; trims, drops blank locales, validates everything and
+  returns `{ok: true, id}`, or `{ok: false, error}` with `invalid_severity`,
+  `invalid_title`, `invalid_body`, `invalid_cta`, `invalid_cta_url`,
+  `invalid_audience`, `invalid_version` (bad format, or the lowest above the
+  highest), `invalid_schedule`, `not_found` or `id_taken`),
+  `admin_end_announcement` and `admin_delete_announcement`. All re-check
+  `is_admin()` (raising `not authorized`, like the roadmap RPCs) and log the
+  whole old and new rows, minus `created_by` (`announcement.create` /
+  `announcement.update` / `announcement.end` / `announcement.delete`), so
+  every change, a delete included, is reversible from the audit log. That is
+  why delete asks for a confirm and not step-up reauth, as on the roadmap.
+- **Security checklist.** Writes only through the `is_admin()`-gated SECURITY
+  DEFINER RPCs (neither table has a client write policy or grant); every
+  mutation calls `log_admin_action`; delete is reversible from the log, so a
+  confirm rather than `requireReauth()`; the console reads with the admin's own
+  session through the `is_admin()` policy; the one read open to everyone,
+  `active_announcements()`, exposes nothing admin-only; the internal helpers
+  (`announcement_cta_url_ok`, `announcement_clean_text`, the trigger function)
+  are revoked from every client role.
+- **Personal data.** Only `created_by`, the authoring admin's id, `ON DELETE
+  SET NULL` like `status_overrides.set_by` (see `docs/GDPR.md`). Never returned
+  by the public read, never in audit metadata.
 
 ## Rendering performance
 
