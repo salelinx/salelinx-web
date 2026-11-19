@@ -422,10 +422,12 @@ export function PostEditor({
   });
   // Files uploaded in this editor and not yet saved, deleted if they never are.
   const fresh = useRef<string[]>([]);
+  const pickedFile = useRef<File | null>(null);
+  const [volume, setVolume] = useState(1);
 
   const enabled = SOCIAL_PLATFORMS.filter((p) => s.targets[p].enabled);
   const experiment = experiments.find((e) => e.id === s.experimentId) ?? null;
-  const dirty = JSON.stringify(s) !== JSON.stringify(initial);
+  const dirty = volume !== 1 || JSON.stringify(s) !== JSON.stringify(initial);
   // The editor only opens after hydration, so the clock is always there.
   const nowMs = now ?? 0;
   const scheduledAt = fromLocalInput(s.when);
@@ -548,6 +550,7 @@ export function PostEditor({
       label: file.name,
     };
     if (kind === "video") {
+      pickedFile.current = file;
       setPreview(URL.createObjectURL(file));
       setDims(null);
       // The preview's metadata fills in the new file's length.
@@ -573,6 +576,47 @@ export function PostEditor({
           ? prev
           : { ...prev, mediaSeconds: Math.round(d * 10) / 10 },
       );
+  }
+
+  async function bakeVolume(media: FileRef): Promise<FileRef | null> {
+    const name = media.label ?? fileName(media.path);
+    const show = (progress: number) =>
+      setUpload({ kind: "video", progress, name });
+    show(0);
+    setFailures([]);
+    try {
+      let source: Blob | null = pickedFile.current;
+      if (!source) {
+        const url = await signedUrl(media.path);
+        const res = url ? await fetch(url) : null;
+        if (!res?.ok) throw new Error("couldn't read the saved video");
+        source = await res.blob();
+      }
+      const { withVolume } = await import("./volume");
+      const blob = await withVolume(source, volume, (p) => show(p / 2));
+      const file = new File([blob], `${name.replace(/\.[^.]+$/, "")}.mp4`, {
+        type: "video/mp4",
+      });
+      const path = uploadPath("videos", file.name);
+      await uploadToBucket(file, path, (p) => show(0.5 + p / 2));
+      fresh.current.push(path);
+      pickedFile.current = file;
+      const ref: FileRef = {
+        path,
+        bytes: file.size,
+        type: file.type,
+        label: media.label,
+      };
+      setPreview(URL.createObjectURL(file));
+      setVolume(1);
+      setS((prev) => ({ ...prev, media: ref }));
+      return ref;
+    } catch (err) {
+      setFailures([`Changing the volume failed: ${(err as Error).message}`]);
+      return null;
+    } finally {
+      setUpload(null);
+    }
   }
 
   function dropFile(e: DragEvent) {
@@ -602,12 +646,18 @@ export function PostEditor({
       }
     }
 
+    let media = s.media;
+    if (media && volume !== 1) {
+      media = await bakeVolume(media);
+      if (!media) return;
+    }
+
     const draft: PostDraft = {
       id: s.id,
       name: s.name,
-      media_path: s.media?.path ?? null,
-      media_bytes: s.media?.bytes ?? null,
-      media_type: s.media?.type ?? null,
+      media_path: media?.path ?? null,
+      media_bytes: media?.bytes ?? null,
+      media_type: media?.type ?? null,
       cover_path: s.cover?.path ?? null,
       schedule: mode !== "draft",
       scheduled_at: at,
@@ -665,9 +715,9 @@ export function PostEditor({
     // were swapped out; discardSocialUpload keeps anything a post still uses.
     await discard([
       ...fresh.current.filter(
-        (p) => p !== s.media?.path && p !== s.cover?.path,
+        (p) => p !== media?.path && p !== s.cover?.path,
       ),
-      initial.media?.path !== s.media?.path ? initial.media?.path : undefined,
+      initial.media?.path !== media?.path ? initial.media?.path : undefined,
       initial.cover?.path !== s.cover?.path ? initial.cover?.path : undefined,
     ]);
     fresh.current = [];
@@ -1557,6 +1607,8 @@ export function PostEditor({
               title={s.targets.youtube.title}
               caption={shownCaption}
               onMeta={onVideoMeta}
+              volume={volume}
+              onVolume={setVolume}
             />
             <Checks
               checklist={checklist}

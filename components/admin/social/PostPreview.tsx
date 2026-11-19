@@ -5,6 +5,7 @@
 // purpose (no app's own screen copied); it is for catching a caption that is
 // too long to read over the video, or a frame that crops badly.
 
+import { useEffect, useRef, useState } from "react";
 import { PlatformLogo } from "@/components/admin/marketing/PlatformLogo";
 import { PLATFORM_NAMES, type SocialPlatform } from "@/lib/social/types";
 
@@ -45,6 +46,8 @@ export function PostPreview({
   title,
   caption,
   onMeta,
+  volume,
+  onVolume,
 }: {
   platforms: SocialPlatform[];
   platform: SocialPlatform | null;
@@ -54,12 +57,44 @@ export function PostPreview({
   title: string;
   caption: string;
   onMeta?: (video: HTMLVideoElement) => void;
+  volume: number;
+  onVolume: (v: number) => void;
 }) {
   const shown =
     platform && platforms.includes(platform)
       ? platform
       : (platforms[0] ?? null);
   const text = shown === "youtube" ? title || caption : caption;
+  const [sound, setSound] = useState(false);
+  const video = useRef<HTMLVideoElement | null>(null);
+  // A gain node rather than video.volume, which stops at 100%.
+  const audio = useRef<{ ctx: AudioContext; gain: GainNode } | null>(null);
+  const wired = useRef(new WeakSet<HTMLVideoElement>());
+
+  function wire() {
+    const v = video.current;
+    if (!v || !audio.current || wired.current.has(v)) return;
+    audio.current.ctx.createMediaElementSource(v).connect(audio.current.gain);
+    wired.current.add(v);
+  }
+
+  function toggleSound() {
+    if (!audio.current) {
+      const ctx = new AudioContext();
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+      gain.connect(ctx.destination);
+      audio.current = { ctx, gain };
+    }
+    wire();
+    setSound((s) => !s);
+  }
+
+  useEffect(() => {
+    if (audio.current) audio.current.gain.gain.value = volume;
+  }, [volume]);
+
+  useEffect(() => () => void audio.current?.ctx.close(), []);
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
@@ -92,9 +127,14 @@ export function PostPreview({
         {videoUrl ? (
           <video
             key={videoUrl}
+            ref={(v) => {
+              video.current = v;
+              wire();
+            }}
             src={videoUrl}
+            crossOrigin="anonymous"
             autoPlay
-            muted
+            muted={!sound}
             loop
             playsInline
             onLoadedMetadata={(e) => onMeta?.(e.currentTarget)}
@@ -109,6 +149,31 @@ export function PostPreview({
           <span className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-black/40 px-1.5 py-1 backdrop-blur-sm">
             <PlatformLogo platform={shown} size={12} />
           </span>
+        )}
+        {videoUrl && (
+          <button
+            type="button"
+            onClick={toggleSound}
+            aria-pressed={sound}
+            aria-label={sound ? "Mute" : "Unmute"}
+            title={sound ? "Mute" : "Unmute"}
+            className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-black/60"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+              <path d={sound ? "M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" : "m22 9-6 6M16 9l6 6"} />
+            </svg>
+          </button>
         )}
         <div className="absolute bottom-16 right-2 flex flex-col gap-2.5">
           <Bubble d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z" />
@@ -127,6 +192,28 @@ export function PostPreview({
           </p>
         </div>
       </div>
+      {videoUrl && (
+        <label className="mx-auto flex max-w-[250px] items-center gap-2 text-[11px] text-zinc-500">
+          Volume
+          <input
+            type="range"
+            min={0}
+            max={2}
+            step={0.05}
+            value={volume}
+            onChange={(e) => onVolume(Number(e.target.value))}
+            className="min-w-0 flex-1 accent-zinc-900"
+          />
+          <span className="w-9 text-right tabular-nums">
+            {Math.round(volume * 100)}%
+          </span>
+        </label>
+      )}
+      {volume !== 1 && (
+        <p className="text-center text-[11px] leading-snug text-zinc-500">
+          Saving uploads a copy at this volume.
+        </p>
+      )}
       <p className="text-center text-[11px] leading-snug text-zinc-400">
         Roughly how it looks. Each app crops the edges and cuts captions short
         in its own way.
