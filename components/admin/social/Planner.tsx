@@ -462,6 +462,19 @@ export function Planner({
               {running ? "Checking" : "Check now"}
             </span>
           </button>
+          <a
+            href="salelinx-tiktok://schedule"
+            onClick={() =>
+              push(
+                "Scheduling TikTok posts in TikTok Studio. Each shows as processing once it's in.",
+              )
+            }
+            title="Puts every pending TikTok post due in the next 10 days into TikTok Studio's scheduler. Runs on the Mac with TikTok Studio Scheduler.app installed."
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--admin-border)] px-2.5 py-1.5 text-xs text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900"
+          >
+            <PlatformLogo platform="tiktok" size={14} />
+            <span className="hidden sm:inline">Schedule in Studio</span>
+          </a>
           <button
             type="button"
             onClick={() => create()}
@@ -738,9 +751,9 @@ export function Planner({
             <p className="text-xs leading-relaxed text-zinc-400">
               Posting runs every 5 minutes. YouTube uploads an hour early and
               goes public on time by itself; Instagram and Facebook post at the
-              time; TikTok posts are scheduled in TikTok Studio each week, and
-              any it missed land in the app&apos;s inbox at the time for you to
-              post. Times are in your own time
+              time; TikTok posts are scheduled in TikTok Studio every morning at
+              8 (or now, with Schedule in Studio), and any it missed land in the
+              app&apos;s inbox at the time for you to post. Times are in your own time
               zone. Keys: N new post, T today, arrows to step.
             </p>
           </div>
