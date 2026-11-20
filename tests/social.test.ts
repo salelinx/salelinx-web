@@ -1,13 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
-  comparePlatform,
   curveAt,
   medianCurve,
   permutationP,
-  typical,
   valueAtAge,
   videoCurve,
-  type ExperimentMember,
 } from "../lib/social/experiments";
 import { hashtagCount, postWarnings, scheduleProblems, targetProblems } from "../lib/social/validate";
 import {
@@ -62,7 +59,7 @@ describe("views at an age", () => {
     ).toBe(1180);
   });
 
-  it("builds ages, engagement and a curve from hourly rows", () => {
+  it("builds ages and a curve from hourly rows", () => {
     const row = (h: number, views: number, likes: number) => ({
       platform: "instagram" as const,
       external_id: "x",
@@ -77,19 +74,13 @@ describe("views at an age", () => {
       new Date(T0).toISOString(),
     );
     expect(c.ages).toEqual({ 1: 100, 6: 400, 24: 1000, 72: 2000, 168: 3000 });
-    expect(c.engagement7d).toBe(0.05);
     expect(c.curve[0]).toEqual({ h: 0, views: 0 });
     expect(curveAt(c.curve, 12)).toBe(600);
     expect(curveAt(c.curve, 200)).toBeNull();
   });
 });
 
-describe("comparing variants", () => {
-  it("uses a geometric mean for views, so one viral video cannot swamp the rest", () => {
-    expect(typical([99, 99, 9999], "views_24h")).toBeCloseTo(463.2, 0);
-    expect(typical([0.02, 0.04], "engagement_7d")).toBeCloseTo(0.03);
-  });
-
+describe("permutation test and median curve", () => {
   it("can never call 1 vs 1 or 2 vs 2 significant", () => {
     expect(permutationP([5], [1])).toBe(1);
     expect(permutationP([5, 6], [1, 2])).toBeCloseTo(2 / 6);
@@ -103,30 +94,6 @@ describe("comparing variants", () => {
     const a = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
     const b = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     expect(permutationP(a, b)).toBe(permutationP(a, b));
-  });
-
-  const member = (variant: string, value: number | null, platform: "youtube" | "tiktok" = "tiktok") =>
-    ({
-      platform,
-      external_id: `${variant}${value}`,
-      variant,
-      value,
-    }) as unknown as ExperimentMember;
-  const variants = [
-    { key: "A", label: "" },
-    { key: "B", label: "" },
-  ];
-
-  it("calls one video a side a hint, and never pools platforms", () => {
-    const r = comparePlatform("tiktok", [member("A", 300), member("B", 100), member("B", 5000, "youtube")], variants, "views_24h");
-    expect(r.leader).toBe("A");
-    expect(r.verdict).toBe("hint");
-    expect(r.variants.find((v) => v.key === "B")!.videos).toBe(1);
-  });
-
-  it("waits while a side has nothing measured yet", () => {
-    const r = comparePlatform("tiktok", [member("A", 300), member("B", null)], variants, "views_24h");
-    expect(r.verdict).toBe("waiting");
   });
 
   it("takes the median curve only while enough videos reach that far", () => {

@@ -31,7 +31,6 @@ export function VideoDetail({
   daily,
   curve,
   benchmark,
-  experiments,
   loadError,
 }: {
   video: MarketingVideoRow;
@@ -39,7 +38,6 @@ export function VideoDetail({
   daily: { day: string; views: number }[];
   curve: VideoCurve;
   benchmark: { curve: { h: number; views: number }[]; ages: Record<string, number | null>; videos: number };
-  experiments: { id: string; name: string; variant: string }[];
   loadError: string | null;
 }) {
   const [maxHours, setMaxHours] = useState(72);
@@ -106,20 +104,6 @@ export function VideoDetail({
                     </div>
                   ))}
               </dl>
-              {experiments.length > 0 && (
-                <p className="text-xs text-zinc-500">
-                  In{" "}
-                  {experiments.map((e, i) => (
-                    <span key={e.id}>
-                      {i > 0 && ", "}
-                      <Link href={`/admin/marketing/experiments?id=${e.id}`} className="text-zinc-900 hover:underline">
-                        {e.name}
-                      </Link>{" "}
-                      as {e.variant}
-                    </span>
-                  ))}
-                </p>
-              )}
             </div>
           </section>
 

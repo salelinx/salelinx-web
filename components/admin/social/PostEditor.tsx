@@ -50,7 +50,6 @@ import {
   SOCIAL_PLATFORMS,
   type InstagramOptions,
   type SocialAccount,
-  type SocialExperimentRow,
   type SocialPlatform,
   type SocialPost,
   type YouTubeOptions,
@@ -104,8 +103,6 @@ export type EditorState = {
   cover: FileRef | null;
   // A datetime-local value, in the viewer's time zone.
   when: string;
-  experimentId: string | null;
-  variant: string | null;
   notes: string;
   targets: Record<SocialPlatform, TargetForm>;
   // The caption every linked platform uses.
@@ -149,8 +146,6 @@ export function newEditor(accounts: SocialAccount[], when = ""): EditorState {
     media: null,
     cover: null,
     when,
-    experimentId: null,
-    variant: null,
     notes: "",
     targets: {
       youtube: blankTarget(ready("youtube")),
@@ -209,8 +204,6 @@ export function editorFromPost(p: SocialPost): EditorState {
       ? { path: p.cover_path, bytes: null, type: null }
       : null,
     when: p.scheduled_at ? toLocalInput(new Date(p.scheduled_at)) : "",
-    experimentId: p.experiment_id,
-    variant: p.variant,
     notes: p.notes ?? "",
     targets,
     shared,
@@ -278,9 +271,6 @@ function problemsBeforePosting(
         (p) =>
           `${PLATFORM_NAMES[p]} can't post yet: Connect or Reconnect it in the planner header.`,
       ),
-    ...(s.experimentId && !s.variant
-      ? ["Pick which variant this post is."]
-      : []),
   ];
 }
 
@@ -375,7 +365,6 @@ function Toggle({
 
 export function PostEditor({
   initial,
-  experiments,
   accounts,
   posts,
   bestHours,
@@ -386,7 +375,6 @@ export function PostEditor({
   onDelete,
 }: {
   initial: EditorState;
-  experiments: SocialExperimentRow[];
   accounts: SocialAccount[];
   // Every planned post, for the time shortcuts and "also that day".
   posts: SocialPost[];
@@ -420,7 +408,6 @@ export function PostEditor({
   );
   const [open, setOpen] = useState({
     tags: !initial.id,
-    experiment: !!initial.experimentId,
     notes: !!initial.notes,
   });
   // Files uploaded in this editor and not yet saved, deleted if they never are.
@@ -429,7 +416,6 @@ export function PostEditor({
   const [volume, setVolume] = useState(1);
 
   const enabled = SOCIAL_PLATFORMS.filter((p) => s.targets[p].enabled);
-  const experiment = experiments.find((e) => e.id === s.experimentId) ?? null;
   const dirty = volume !== 1 || JSON.stringify(s) !== JSON.stringify(initial);
   // The editor only opens after hydration, so the clock is always there.
   const nowMs = now ?? 0;
@@ -664,8 +650,6 @@ export function PostEditor({
       cover_path: s.cover?.path ?? null,
       schedule: mode !== "draft",
       scheduled_at: at,
-      experiment_id: s.experimentId,
-      variant: s.variant,
       notes: s.notes,
       targets: enabled.map((p) => {
         const t = s.targets[p];
@@ -1529,63 +1513,6 @@ export function PostEditor({
                     onChange={(tags) => setS((prev) => ({ ...prev, tags }))}
                     options={tagOptions}
                   />
-                </div>
-              </Fold>
-              <Fold
-                title="Experiment"
-                summary={
-                  experiment
-                    ? `${experiment.name}, variant ${s.variant ?? "?"}`
-                    : experiments.length
-                      ? "None"
-                      : "No experiments running"
-                }
-                open={open.experiment}
-                onToggle={() =>
-                  setOpen({ ...open, experiment: !open.experiment })
-                }
-              >
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="space-y-1">
-                    <span className="text-xs text-zinc-600">Experiment</span>
-                    <select
-                      className={field}
-                      value={s.experimentId ?? ""}
-                      onChange={(e) =>
-                        setS({
-                          ...s,
-                          experimentId: e.target.value || null,
-                          variant: e.target.value ? (s.variant ?? "A") : null,
-                        })
-                      }
-                    >
-                      <option value="">None</option>
-                      {experiments.map((e) => (
-                        <option key={e.id} value={e.id}>
-                          {e.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  {experiment && (
-                    <label className="space-y-1">
-                      <span className="text-xs text-zinc-600">Variant</span>
-                      <select
-                        className={field}
-                        value={s.variant ?? ""}
-                        onChange={(e) =>
-                          setS({ ...s, variant: e.target.value || null })
-                        }
-                      >
-                        {experiment.variants.map((v) => (
-                          <option key={v.key} value={v.key}>
-                            {v.key}
-                            {v.label ? `: ${v.label}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
                 </div>
               </Fold>
               <Fold

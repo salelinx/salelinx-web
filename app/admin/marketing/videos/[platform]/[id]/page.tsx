@@ -26,7 +26,7 @@ export default async function AdminVideoPage({
   const id = decodeURIComponent(rawId);
   const supabase = await createServerClient();
 
-  const [videoRes, statsRes, recentRes, membershipRes] = await Promise.all([
+  const [videoRes, statsRes, recentRes] = await Promise.all([
     supabase.from("marketing_videos").select("*").eq("platform", platform).eq("external_id", id).maybeSingle(),
     supabase
       .from("marketing_video_stats")
@@ -42,11 +42,6 @@ export default async function AdminVideoPage({
       .not("published_at", "is", null)
       .order("published_at", { ascending: false })
       .limit(BENCHMARK_VIDEOS),
-    supabase
-      .from("social_experiment_videos")
-      .select("variant, experiment:social_experiments(id, name)")
-      .eq("platform", platform)
-      .eq("external_id", id),
   ]);
   const video = videoRes.data as MarketingVideoRow | null;
   if (!video) notFound();
@@ -64,15 +59,8 @@ export default async function AdminVideoPage({
     views: s.views !== null && stats[i].views !== null ? Math.max(0, s.views - stats[i].views!) : 0,
   }));
 
-  const memberships = ((membershipRes.data ?? []) as unknown as {
-    variant: string;
-    experiment: { id: string; name: string } | null;
-  }[])
-    .filter((m) => m.experiment)
-    .map((m) => ({ id: m.experiment!.id, name: m.experiment!.name, variant: m.variant }));
-
   const loadError =
-    videoRes.error?.message ?? statsRes.error?.message ?? recentRes.error?.message ?? membershipRes.error?.message ?? hourly.error;
+    videoRes.error?.message ?? statsRes.error?.message ?? recentRes.error?.message ?? hourly.error;
 
   return (
     <VideoDetail
@@ -87,7 +75,6 @@ export default async function AdminVideoPage({
         ),
         videos: others.length,
       }}
-      experiments={memberships}
       loadError={loadError}
     />
   );

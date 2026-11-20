@@ -1,608 +1,78 @@
-"use client";
-
-// /admin/marketing/experiments: a list of A/B tests and, for the one picked,
-// its setup, the result per platform, the views curves and every member
-// video. Results are worked out here from the curves the page loaded, so
-// changing the metric shows its effect before saving.
-
-import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { PlatformLogo } from "@/components/admin/marketing/PlatformLogo";
-import {
-  deleteSocialExperiment,
-  saveSocialExperiment,
-  setExperimentVideo,
-  type ExperimentDraft,
-} from "@/app/admin/marketing/actions";
-import type { MarketingVideoRow } from "@/lib/admin/marketing";
-import type { Brief, RuleProgress } from "@/lib/social/brief";
+import type { AutoTest, Brief } from "@/lib/social/brief";
 import { formatIndex } from "@/lib/social/overview";
-import {
-  AGES_H,
-  comparePlatform,
-  METRIC_HOURS,
-  metricValue,
-  type ExperimentMember,
-  type PlatformResult,
-  type VideoCurve,
-} from "@/lib/social/experiments";
-import {
-  METRIC_LABELS,
-  PLATFORM_NAMES,
-  SOCIAL_PLATFORMS,
-  type ExperimentMetric,
-  type ExperimentVideoRow,
-  type SocialExperimentRow,
-} from "@/lib/social/types";
-import { VARIANT_COLORS, ViewsCurveChart } from "./ViewsCurveChart";
+import { PLATFORM_NAMES } from "@/lib/social/types";
 
-const KEYS = ["A", "B", "C", "D", "E"];
+const pct = (lift: number | null) => `${Math.round((lift ?? 0) * 100)}%`;
 
-export type RuleDimension = { key: string; label: string; values: string[] };
-
-const blank = (): ExperimentDraft => ({
-  id: null,
-  name: "",
-  hypothesis: "",
-  metric: "views_24h",
-  variants: [
-    { key: "A", label: "" },
-    { key: "B", label: "" },
-  ],
-  status: "running",
-  winner: null,
-  conclusion: "",
-  dimension: null,
-  startsOn: null,
-  target: 8,
-});
-
-const toDraft = (e: SocialExperimentRow): ExperimentDraft => ({
-  id: e.id,
-  name: e.name,
-  hypothesis: e.hypothesis ?? "",
-  metric: e.metric,
-  variants: e.variants,
-  status: e.status,
-  winner: e.winner,
-  conclusion: e.conclusion ?? "",
-  dimension: e.dimension ?? null,
-  startsOn: e.starts_at?.slice(0, 10) ?? null,
-  target: e.target_per_variant ?? 8,
-});
-
-const count = (n: number | null) => (n === null ? "-" : Math.round(n).toLocaleString("en-GB"));
-const pct = (n: number | null) => (n === null ? "-" : `${(n * 100).toFixed(1)}%`);
-const metricText = (n: number | null, metric: ExperimentMetric) =>
-  metric === "engagement_7d" ? pct(n) : count(n);
-const ageLabel = (h: number) => (h < 24 ? `${h}h` : `${h / 24}d`);
-
-function Verdict({ r, metric, label }: { r: PlatformResult; metric: ExperimentMetric; label: (k: string) => string }) {
-  const lift = r.lift === null ? "" : ` by ${Math.round(r.lift * 100)}%`;
-  const age = METRIC_LABELS[metric].toLowerCase();
-  if (r.verdict === "waiting")
-    return <p className="text-zinc-500">Waiting for at least two variants to have {age}.</p>;
-  if (r.verdict === "hint")
-    return (
-      <p>
-        <strong>{label(r.leader!)}</strong> is ahead{lift}. With one video on a side this is a hint, not a
-        result; post the test again (4 or more each) to know.
-      </p>
-    );
-  if (r.verdict === "inconclusive")
-    return (
-      <p>
-        <strong>{label(r.leader!)}</strong> is ahead{lift}, but a gap this size turns up by chance{" "}
-        {Math.round(r.p! * 100)}% of the time with these videos. Keep testing.
-      </p>
-    );
-  return (
-    <p>
-      <strong>{label(r.leader!)}</strong> wins{lift}. A gap this size turns up by chance only{" "}
-      {Math.max(1, Math.round(r.p! * 100))}% of the time.
-    </p>
-  );
+function result(t: AutoTest) {
+  const make = t.needs.length ? ` Make ${t.needs.join(" and ")}.` : "";
+  if (t.status === "winner") return <span className="font-medium text-emerald-700">{t.leader} wins by {pct(t.lift)}</span>;
+  if (t.status === "even") return "No clear difference";
+  if (t.status === "leaning") return `${t.leader} ahead by ${pct(t.lift)}, not sure yet.${make}`;
+  return `Testing.${make}`;
 }
 
-const field =
-  "w-full rounded-md border border-[var(--admin-border)] bg-white px-2.5 py-1.5 text-sm text-zinc-900 focus:border-zinc-400 focus:outline-none";
-
-export function Experiments({
-  experiments,
-  members,
-  videos,
-  curves,
-  selectedId,
-  loadError,
-  dimensions,
-  rules,
-  brief,
-}: {
-  experiments: SocialExperimentRow[];
-  members: ExperimentVideoRow[];
-  videos: MarketingVideoRow[];
-  curves: Record<string, VideoCurve>;
-  selectedId: string | null;
-  loadError: string | null;
-  dimensions: RuleDimension[];
-  rules: Record<string, { progress: RuleProgress; warnings: string[] }>;
-  brief: Brief;
-}) {
-  const router = useRouter();
-  const [selected, setSelected] = useState<string | null>(selectedId ?? experiments[0]?.id ?? null);
-  const current = experiments.find((e) => e.id === selected) ?? null;
-  const [draft, setDraft] = useState<ExperimentDraft>(current ? toDraft(current) : blank());
-  const [message, setMessage] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [maxHours, setMaxHours] = useState(72);
-  const [search, setSearch] = useState("");
-  const [addAs, setAddAs] = useState("A");
-
-  // A different experiment picked, or fresh rows after a save: reset the form
-  // during render (React's pattern for state that follows a prop).
-  const formKey = `${selected}:${current?.updated_at ?? ""}`;
-  const [shownKey, setShownKey] = useState(formKey);
-  if (formKey !== shownKey) {
-    setShownKey(formKey);
-    setDraft(current ? toDraft(current) : blank());
-  }
-
-  const label = (key: string) => {
-    const v = draft.variants.find((x) => x.key === key);
-    return v?.label ? `${key}: ${v.label}` : key;
-  };
-
-  const mine: ExperimentMember[] = useMemo(() => {
-    if (!draft.id) return [];
-    return members
-      .filter((m) => m.experiment_id === draft.id)
-      .map((m) => {
-        const v = videos.find((x) => x.platform === m.platform && x.external_id === m.external_id);
-        const curve = curves[`${m.platform}:${m.external_id}`] ?? {
-          ages: { 1: null, 6: null, 24: null, 72: null, 168: null },
-          engagement7d: null,
-          curve: [],
-        };
-        return {
-          platform: m.platform,
-          external_id: m.external_id,
-          variant: m.variant,
-          title: v?.title ?? null,
-          url: v?.url ?? null,
-          thumbnail_url: v?.thumbnail_url ?? null,
-          published_at: v?.published_at ?? null,
-          ...curve,
-          value: metricValue(curve, draft.metric),
-        };
-      });
-  }, [draft.id, draft.metric, members, videos, curves]);
-
-  const platforms = SOCIAL_PLATFORMS.filter((p) => mine.some((m) => m.platform === p));
-  const results = platforms.map((p) => comparePlatform(p, mine, draft.variants, draft.metric));
-
-  const candidates = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return [];
-    return videos
-      .filter((v) => !mine.some((m) => m.platform === v.platform && m.external_id === v.external_id))
-      .filter((v) => (v.title ?? "").toLowerCase().includes(q) || v.external_id === q)
-      .slice(0, 12);
-  }, [search, videos, mine]);
-
-  async function save() {
-    setBusy(true);
-    const res = await saveSocialExperiment(draft);
-    setBusy(false);
-    if (!res.ok) return setMessage(res.error ?? "Saving failed.");
-    setMessage("Saved.");
-    if (!draft.id && res.id) setSelected(res.id);
-    router.refresh();
-  }
-
-  async function remove() {
-    if (!draft.id || !window.confirm(`Delete "${draft.name}"? The videos and their stats stay.`)) return;
-    const res = await deleteSocialExperiment(draft.id);
-    setMessage(res.ok ? "Deleted." : (res.error ?? "Delete failed."));
-    setSelected(experiments.find((e) => e.id !== draft.id)?.id ?? null);
-    router.refresh();
-  }
-
-  async function place(platform: ExperimentMember["platform"], id: string, variant: string | null) {
-    if (!draft.id) return;
-    const res = await setExperimentVideo(draft.id, platform, id, variant);
-    if (!res.ok) setMessage(res.error ?? "Couldn't change that video.");
-    router.refresh();
-  }
-
-  const setVariant = (key: string, change: Partial<ExperimentDraft["variants"][number]>) =>
-    setDraft({ ...draft, variants: draft.variants.map((v) => (v.key === key ? { ...v, ...change } : v)) });
-  const dimension = dimensions.find((d) => d.key === draft.dimension);
-  const rule = draft.id ? rules[draft.id] : undefined;
-
+export function Experiments({ brief, loadError }: { brief: Brief; loadError: string | null }) {
   return (
-    <div className="flex h-full flex-col">
-      <header className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-2">
-        <h1 className="text-sm font-semibold">Experiments</h1>
-        <button
-          type="button"
-          onClick={() => {
-            setSelected(null);
-            setDraft(blank());
-          }}
-          className="ml-auto rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-zinc-700"
-        >
-          New experiment
-        </button>
-      </header>
+    <div className="mx-auto max-w-5xl space-y-3 p-4">
+      <h1 className="text-sm font-semibold">Experiments</h1>
+      {loadError && (
+        <p className="rounded-md border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-2 text-sm text-zinc-700">
+          Couldn&apos;t load: {loadError}
+        </p>
+      )}
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-auto md:flex-row md:overflow-hidden">
-        <nav className="shrink-0 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] md:w-64 md:overflow-auto md:border-b-0 md:border-r">
-          {experiments.length === 0 && !loadError && (
-            <p className="px-4 py-4 text-xs text-zinc-500">
-              No experiments yet. Make one, then tag planner posts or existing videos as A or B.
-            </p>
-          )}
-          <ul>
-            {experiments.map((e) => (
-              <li key={e.id}>
-                <button
-                  type="button"
-                  onClick={() => setSelected(e.id)}
-                  className={`block w-full border-b border-[var(--admin-border)] px-4 py-2.5 text-left text-sm ${
-                    e.id === selected ? "bg-zinc-100 font-medium text-zinc-900" : "text-zinc-700 hover:bg-zinc-50"
-                  }`}
-                >
-                  {e.name}
-                  <span className="block text-xs font-normal text-zinc-500">
-                    {e.status === "concluded"
-                      ? `Concluded${e.winner ? `, ${e.winner} won` : ""}`
-                      : rules[e.id]?.progress.ready
-                        ? "Result ready"
-                        : "Running"}{" "}
-                    · {members.filter((m) => m.experiment_id === e.id).length} videos
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      <BriefCard brief={brief} />
 
-        <div className="min-h-0 flex-1 md:overflow-auto">
-          <div className="mx-auto max-w-5xl space-y-3 p-4">
-            {(message || loadError) && (
-              <p className="rounded-md border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-2 text-sm text-zinc-700">
-                {loadError ? `Couldn't load: ${loadError}` : message}
-              </p>
-            )}
-
-            <BriefCard brief={brief} />
-
-            <section className="space-y-3 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
-              <div className="grid gap-3 md:grid-cols-2">
-                <label className="block space-y-1">
-                  <span className="text-xs font-medium text-zinc-600">Name</span>
-                  <input className={field} value={draft.name} maxLength={200} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="Hook: question vs result first" />
-                </label>
-                <label className="block space-y-1">
-                  <span className="text-xs font-medium text-zinc-600">Decided by</span>
-                  <select className={field} value={draft.metric} onChange={(e) => setDraft({ ...draft, metric: e.target.value as ExperimentMetric })}>
-                    {(Object.keys(METRIC_LABELS) as ExperimentMetric[]).map((m) => (
-                      <option key={m} value={m}>
-                        {METRIC_LABELS[m]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <label className="block space-y-1">
-                <span className="text-xs font-medium text-zinc-600">What we think will happen</span>
-                <textarea className={`${field} min-h-14`} value={draft.hypothesis ?? ""} onChange={(e) => setDraft({ ...draft, hypothesis: e.target.value })} />
-              </label>
-              <div className="grid gap-3 md:grid-cols-3">
-                <label className="block space-y-1">
-                  <span className="text-xs font-medium text-zinc-600">Videos in it</span>
-                  <select
-                    className={field}
-                    value={draft.dimension ?? ""}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        dimension: e.target.value || null,
-                        startsOn: draft.startsOn ?? new Date().toISOString().slice(0, 10),
-                        variants: draft.variants.map((v) => ({ key: v.key, label: v.label })),
-                      })
-                    }
-                  >
-                    <option value="">Picked by hand</option>
-                    {dimensions.map((d) => (
-                      <option key={d.key} value={d.key}>
-                        Everything posted, by {d.label.toLowerCase()}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {draft.dimension && (
-                  <>
-                    <label className="block space-y-1">
-                      <span className="text-xs font-medium text-zinc-600">Counting posts from</span>
-                      <input type="date" className={field} value={draft.startsOn ?? ""} onChange={(e) => setDraft({ ...draft, startsOn: e.target.value || null })} />
-                    </label>
-                    <label className="block space-y-1">
-                      <span className="text-xs font-medium text-zinc-600">Posts per variant, per platform</span>
-                      <input type="number" min={2} max={100} className={field} value={draft.target} onChange={(e) => setDraft({ ...draft, target: Math.min(100, Math.max(2, Number(e.target.value) || 8)) })} />
-                    </label>
-                  </>
-                )}
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs font-medium text-zinc-600">Variants</span>
-                {draft.variants.map((v) => (
-                  <div key={v.key} className="flex items-center gap-2">
-                    <span className="w-6 text-center font-semibold" style={{ color: VARIANT_COLORS[v.key] }}>
-                      {v.key}
-                    </span>
-                    {dimension && (
-                      <select className={field} value={v.value ?? ""} onChange={(e) => setVariant(v.key, { value: e.target.value })}>
-                        <option value="">Pick a value</option>
-                        {dimension.values.map((x) => (
-                          <option key={x} value={x}>
-                            {x}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    <input className={field} value={v.label} onChange={(e) => setVariant(v.key, { label: e.target.value })} placeholder="What is different about it" />
-                  </div>
-                ))}
-                <div className="flex gap-3 text-xs">
-                  {draft.variants.length < 5 && (
-                    <button type="button" onClick={() => setDraft({ ...draft, variants: [...draft.variants, { key: KEYS[draft.variants.length], label: "", ...(dimension ? { value: "" } : {}) }] })} className="text-zinc-600 hover:text-zinc-900">
-                      Add variant
-                    </button>
-                  )}
-                  {draft.variants.length > 2 && (
-                    <button type="button" onClick={() => setDraft({ ...draft, variants: draft.variants.slice(0, -1) })} className="text-zinc-500 hover:text-red-700">
-                      Remove {draft.variants[draft.variants.length - 1].key}
-                    </button>
-                  )}
-                </div>
-              </div>
-              {draft.id && (
-                <div className="grid gap-3 md:grid-cols-3">
-                  <label className="block space-y-1">
-                    <span className="text-xs font-medium text-zinc-600">Status</span>
-                    <select className={field} value={draft.status} onChange={(e) => setDraft({ ...draft, status: e.target.value as ExperimentDraft["status"] })}>
-                      <option value="running">Running</option>
-                      <option value="concluded">Concluded</option>
-                    </select>
-                  </label>
-                  {draft.status === "concluded" && (
-                    <>
-                      <label className="block space-y-1">
-                        <span className="text-xs font-medium text-zinc-600">Winner</span>
-                        <select className={field} value={draft.winner ?? ""} onChange={(e) => setDraft({ ...draft, winner: e.target.value || null })}>
-                          <option value="">No clear winner</option>
-                          {draft.variants.map((v) => (
-                            <option key={v.key} value={v.key}>
-                              {label(v.key)}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="block space-y-1 md:col-span-3">
-                        <span className="text-xs font-medium text-zinc-600">What we learned</span>
-                        <textarea className={`${field} min-h-14`} value={draft.conclusion ?? ""} onChange={(e) => setDraft({ ...draft, conclusion: e.target.value })} />
-                      </label>
-                    </>
-                  )}
-                </div>
-              )}
-              <div className="flex gap-2">
-                <button type="button" disabled={busy} onClick={() => void save()} className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50">
-                  {busy ? "Saving..." : draft.id ? "Save" : "Create"}
-                </button>
-                {draft.id && (
-                  <button type="button" onClick={() => void remove()} className="rounded-md border border-[var(--admin-border)] px-3 py-1.5 text-xs text-zinc-500 hover:text-red-700">
-                    Delete
-                  </button>
-                )}
-              </div>
-            </section>
-
-            {draft.id && (
-              <>
-                {rule && (
-                  <section className="space-y-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
-                    <p className="font-medium">
-                      {rule.progress.ready
-                        ? "Result ready: every variant has enough measured posts."
-                        : `Runs itself: each post from ${draft.startsOn} joins the variant its ${dimension?.label.toLowerCase() ?? "value"} matches.`}
-                    </p>
-                    <p className="flex flex-wrap gap-x-4 text-xs text-zinc-600">
-                      {rule.progress.variants.map((v) => (
-                        <span key={v.key}>
-                          <strong style={{ color: VARIANT_COLORS[v.key] }}>{v.key}</strong> {v.measured} of {rule.progress.target} measured
-                          {v.posted > v.measured && `, ${v.posted - v.measured} waiting`}
-                        </span>
-                      ))}
-                    </p>
-                    {rule.warnings.map((w) => (
-                      <p key={w} className="text-xs text-amber-700">
-                        Also differs: {w}
-                      </p>
-                    ))}
-                  </section>
-                )}
-                {results.map((r) => {
-                  const lines = mine
-                    .filter((m) => m.platform === r.platform)
-                    .map((m) => ({
-                      id: `${m.platform}:${m.external_id}`,
-                      label: `${m.variant} ${m.title ?? m.external_id}`,
-                      series: m.variant,
-                      curve: m.curve,
-                    }));
-                  return (
-                    <section key={r.platform} className="space-y-3 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="mr-auto flex items-center gap-2 font-semibold">
-                          <PlatformLogo platform={r.platform} size={18} />
-                          {PLATFORM_NAMES[r.platform]}
-                        </h2>
-                        {[72, 168].map((h) => (
-                          <button
-                            key={h}
-                            type="button"
-                            onClick={() => setMaxHours(h)}
-                            className={`rounded-full border px-2.5 py-0.5 text-xs ${
-                              maxHours === h ? "border-zinc-900 bg-zinc-900 text-white" : "border-[var(--admin-border)] text-zinc-500 hover:text-zinc-900"
-                            }`}
-                          >
-                            First {h === 72 ? "3 days" : "7 days"}
-                          </button>
-                        ))}
-                      </div>
-                      <Verdict r={r} metric={draft.metric} label={label} />
-                      <div className="flex flex-wrap gap-2">
-                        {r.variants.map((v) => (
-                          <div key={v.key} className="min-w-28 rounded-md border border-[var(--admin-border)] px-3 py-2" style={{ borderTopColor: VARIANT_COLORS[v.key], borderTopWidth: 3 }}>
-                            <p className="text-xs text-zinc-500">{label(v.key)}</p>
-                            <p className="text-lg font-semibold tabular-nums">{metricText(v.typical, draft.metric)}</p>
-                            <p className="text-xs text-zinc-400">
-                              {v.measured} of {v.videos} measured
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                      <ViewsCurveChart
-                        lines={lines}
-                        maxHours={maxHours}
-                        legend={draft.variants
-                          .filter((v) => lines.some((l) => l.series === v.key))
-                          .map((v) => ({ series: v.key, label: label(v.key) }))}
-                      />
-                    </section>
-                  );
-                })}
-
-                <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
-                  <div className="flex flex-wrap items-center gap-2 border-b border-[var(--admin-border)] px-4 py-2.5">
-                    <h2 className="mr-auto text-sm font-semibold">Videos in this test</h2>
-                    <span className="text-xs text-zinc-500">
-                      {METRIC_LABELS[draft.metric]} decides; the typical value is a geometric mean, so one viral video does not swamp the rest.
-                    </span>
-                  </div>
-                  {mine.length === 0 ? (
-                    <p className="px-4 py-6 text-sm text-zinc-500">
-                      No videos yet. Tag a planner post with this experiment, or add a video below.
-                    </p>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="text-left text-xs text-zinc-500">
-                          <tr>
-                            <th className="px-4 py-2 font-medium">Video</th>
-                            <th className="px-3 py-2 font-medium">Variant</th>
-                            {AGES_H.map((h) => (
-                              <th key={h} className={`px-3 py-2 text-right font-medium ${METRIC_HOURS[draft.metric] === h && draft.metric !== "engagement_7d" ? "text-zinc-900" : ""}`}>
-                                {ageLabel(h)}
-                              </th>
-                            ))}
-                            <th className={`px-3 py-2 text-right font-medium ${draft.metric === "engagement_7d" ? "text-zinc-900" : ""}`}>Eng. 7d</th>
-                            <th className="px-3 py-2" />
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {mine.map((m) => (
-                            <tr key={`${m.platform}:${m.external_id}`} className="border-t border-[var(--admin-border)]">
-                              <td className="max-w-xs px-4 py-2">
-                                <div className="flex items-center gap-2">
-                                  <PlatformLogo platform={m.platform} size={14} />
-                                  <Link href={`/admin/marketing/videos/${m.platform}/${encodeURIComponent(m.external_id)}`} className="truncate text-zinc-900 hover:underline">
-                                    {m.title ?? m.external_id}
-                                  </Link>
-                                </div>
-                              </td>
-                              <td className="px-3 py-2">
-                                {draft.dimension ? (
-                                  <span className="text-xs font-semibold" style={{ color: VARIANT_COLORS[m.variant] }}>
-                                    {m.variant}
-                                  </span>
-                                ) : (
-                                <select
-                                  value={m.variant}
-                                  onChange={(e) => void place(m.platform, m.external_id, e.target.value)}
-                                  className="rounded border border-[var(--admin-border)] bg-white px-1.5 py-0.5 text-xs"
-                                  style={{ color: VARIANT_COLORS[m.variant] }}
-                                >
-                                  {draft.variants.map((v) => (
-                                    <option key={v.key} value={v.key}>
-                                      {v.key}
-                                    </option>
-                                  ))}
-                                </select>
-                                )}
-                              </td>
-                              {AGES_H.map((h) => (
-                                <td key={h} className="px-3 py-2 text-right font-mono text-xs">
-                                  {count(m.ages[h])}
-                                </td>
-                              ))}
-                              <td className="px-3 py-2 text-right font-mono text-xs">{pct(m.engagement7d)}</td>
-                              <td className="px-3 py-2 text-right">
-                                {!draft.dimension && (
-                                  <button type="button" onClick={() => void place(m.platform, m.external_id, null)} className="text-xs text-zinc-400 hover:text-red-700">
-                                    remove
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                  <div className="space-y-2 border-t border-[var(--admin-border)] px-4 py-3">
-                    {!draft.dimension && (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <input className={`${field} min-w-40 flex-1 sm:w-72 sm:flex-none`} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Find a video to add by title" />
-                      <span className="text-xs text-zinc-500">as</span>
-                      <select value={addAs} onChange={(e) => setAddAs(e.target.value)} className="rounded border border-[var(--admin-border)] bg-white px-1.5 py-1 text-xs">
-                        {draft.variants.map((v) => (
-                          <option key={v.key} value={v.key}>
-                            {v.key}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    )}
-                    {!draft.dimension && candidates.map((v) => (
-                      <button
-                        key={`${v.platform}:${v.external_id}`}
-                        type="button"
-                        onClick={() => {
-                          void place(v.platform, v.external_id, addAs);
-                          setSearch("");
-                        }}
-                        className="flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm hover:bg-zinc-50"
-                      >
-                        <PlatformLogo platform={v.platform} size={14} />
-                        <span className="truncate">{v.title ?? v.external_id}</span>
-                        <span className="ml-auto shrink-0 text-xs text-zinc-400">{v.published_at?.slice(0, 10)}</span>
-                      </button>
-                    ))}
-                    <p className="text-xs text-zinc-400">
-                      Early numbers (1h to 7d) exist only for videos tracked hourly from when they went up, which is
-                      every video since this feature shipped. Older videos show dashes there.
-                    </p>
-                  </div>
-                </section>
-              </>
-            )}
-          </div>
+      <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] text-sm">
+        <div className="p-4 pb-2">
+          <h2 className="font-semibold">Tests running themselves</h2>
+          <p className="mt-1 text-xs text-zinc-500">
+            For each tag, our two most posted options head to head on views at 24 hours against our usual, over the
+            last 90 days. Tags fill in automatically, so posting is all a test needs. Dig deeper in{" "}
+            <Link href="/admin/marketing/insights/compare" className="text-zinc-900 underline">
+              Compare
+            </Link>
+            .
+          </p>
         </div>
-      </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs text-zinc-500">
+              <tr className="border-y border-[var(--admin-border)]">
+                <th className="px-4 py-2 font-medium">Test</th>
+                <th className="px-3 py-2 text-right font-medium">A</th>
+                <th className="px-3 py-2 text-right font-medium">B</th>
+                <th className="px-4 py-2 font-medium">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brief.experiments.map((t) => (
+                <tr key={t.key} className="border-b border-[var(--admin-border)] last:border-b-0">
+                  <td className="px-4 py-2">
+                    <span className="text-zinc-500">{t.dimension}:</span> {t.a.value} vs {t.b.value}
+                  </td>
+                  {[t.a, t.b].map((s) => (
+                    <td key={s.value} className="px-3 py-2 text-right tabular-nums">
+                      {s.median === null ? "-" : formatIndex(s.median)}
+                      <span className="block text-xs text-zinc-500">{s.posts} posts</span>
+                    </td>
+                  ))}
+                  <td className="px-4 py-2 text-zinc-700">{result(t)}</td>
+                </tr>
+              ))}
+              {brief.experiments.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-3 text-xs text-zinc-500">
+                    Nothing to test yet: no tag has two options with posts measured at 24 hours.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
@@ -612,8 +82,8 @@ const hourText = (ukHour: number) => `${String(ukHour).padStart(2, "0")}:00`;
 function BriefCard({ brief }: { brief: Brief }) {
   const { week } = brief;
   return (
-    <details open className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
-      <summary className="cursor-pointer font-semibold">This week</summary>
+    <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
+      <h2 className="font-semibold">This week</h2>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-zinc-700">
         <li>
           {week.uploads} uploads across platforms in the last 7 days
@@ -621,21 +91,17 @@ function BriefCard({ brief }: { brief: Brief }) {
           {week.best && ` Best: "${week.best.title}" on ${PLATFORM_NAMES[week.best.platform]} (${formatIndex(week.best.index)}).`}
           {week.worst && ` Weakest: "${week.worst.title}" (${formatIndex(week.worst.index)}).`}
         </li>
-        {brief.experiments.map((e) => (
-          <li key={e.id}>
-            {e.name}: {e.ready ? "result ready, open it to read the verdict." : `make ${e.needs.join(" and ") || "nothing more, waiting on stats"}.`}
-          </li>
-        ))}
         {brief.working.map((w) => (
           <li key={`${w.dimension}:${w.value}`}>
             {w.dimension} {w.value}: {w.lift >= 0 ? "+" : ""}
-            {Math.round(w.lift * 100)}% at 24 hours over 90 days{w.often && ` (but most of them are also ${w.often})`}.
+            {Math.round(w.lift * 100)}% against everything else at 24 hours over 90 days
+            {w.often && ` (but most of them are also ${w.often})`}.
           </li>
         ))}
         {brief.bestHours.length > 0 && (
           <li>Best hours to post (UK): {brief.bestHours.map((h) => hourText(h.hour)).join(", ")}.</li>
         )}
       </ul>
-    </details>
+    </section>
   );
 }

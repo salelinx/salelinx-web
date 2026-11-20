@@ -40,7 +40,6 @@ export type ViewProps = {
   anchor: Date;
   today: Date;
   nowMs: number;
-  experimentName: (id: string | null) => string | null;
   dragging: string | null;
   onDragState: (id: string | null) => void;
   onOpen: (p: SocialPost) => void;
@@ -318,7 +317,6 @@ export function MonthView(props: ViewProps) {
 
 function ListRow({ post, props }: { post: SocialPost; props: ViewProps }) {
   const tone = toneOf(post);
-  const exp = props.experimentName(post.experiment_id);
   return (
     <li>
       <div
@@ -348,11 +346,6 @@ function ListRow({ post, props }: { post: SocialPost; props: ViewProps }) {
             >
               {tone.label}
             </span>
-            {exp && (
-              <span className="rounded bg-violet-50 px-1.5 py-0.5 text-[11px] text-violet-700">
-                {exp} · {post.variant}
-              </span>
-            )}
           </div>
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             {sortedTargets(post).map((t) => (

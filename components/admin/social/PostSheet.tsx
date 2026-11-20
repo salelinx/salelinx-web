@@ -165,7 +165,6 @@ export function PostSheet({
   thumb,
   nowMs,
   today,
-  experimentName,
   onClose,
   onRetry,
   onCopyCaption,
@@ -177,7 +176,6 @@ export function PostSheet({
   thumb: PostThumb | undefined;
   nowMs: number;
   today: Date;
-  experimentName: string | null;
   onClose: () => void;
   onRetry: (post: SocialPost, platform: SocialPlatform) => void;
   onCopyCaption: (caption: string) => void;
@@ -254,14 +252,6 @@ export function PostSheet({
               />
             )}
             <dl className="min-w-0 space-y-2 text-xs">
-              {experimentName && (
-                <div>
-                  <dt className="text-zinc-400">Experiment</dt>
-                  <dd className="text-violet-700">
-                    {experimentName} · {post.variant}
-                  </dd>
-                </div>
-              )}
               {(post.media_bytes || post.media_seconds) && (
                 <div>
                   <dt className="text-zinc-400">Video</dt>

@@ -5,9 +5,9 @@ The admin console's Social group: SaleLinx's own YouTube, Instagram, TikTok and 
 | Page | Route | What it does |
 | --- | --- | --- |
 | Stats > Overview | `/admin/marketing` | Every recent post against our typical one (the index), the period's health, each platform, and every video with its tags (see "Stats" and "Tags" below, and `docs/ADMIN.md` "Marketing"). Each title opens the video's own page. |
-| Video | `/admin/marketing/videos/<platform>/<id>` | Every lifetime figure the platform gives, views at 1h / 6h / 24h / 3d / 7d against our typical video there, the first-week curve, views gained per day, and the experiments it is in. |
+| Video | `/admin/marketing/videos/<platform>/<id>` | Every lifetime figure the platform gives, views at 1h / 6h / 24h / 3d / 7d against our typical video there, the first-week curve and views gained per day. |
 | Planner | `/admin/marketing/planner` | The plan as a week, a month or a list, with failures and TikTok inbox items at the top and drafts beside it. Upload a video, write one caption (or one per platform), pick a time, and `marketing-publish` posts it. See "Planner" below. |
-| Experiments | `/admin/marketing/experiments` | A/B tests: tag videos A to E, compare them at the same age within each platform. |
+| Experiments | `/admin/marketing/experiments` | Tests that run themselves: each tag's two most posted options head to head at 24 hours. |
 | Stats > Totals, Posts, Compare, Timing, Engagement, Growth, Lifecycle | `/admin/marketing/insights/*` | The rest of the Stats dropdown: the deeper read of the same snapshots, one page per question. See "Stats pages" below. |
 
 It is company data about our own channels, like `042_marketing.sql`: no `user_id`, nothing for the ROPA or the deletion runbook. Who did what is in `admin_audit_log`.
@@ -30,7 +30,7 @@ It lives in this repo, not its own, because it leans on everything the console a
 8. **Reconnect all of them**, on the Stats tab or with the platform buttons in the Planner header. Older logins lack the posting scopes; their button reads "Reconnect to post" (Stats) or "Reconnect" (Planner). The login returns to the page it started from, including a local dev server: `marketing-oauth` signs the return address into its state and only accepts our site or `http://localhost:<port>`, under `/admin/marketing`. The platform's own redirect address stays the deployed function's URL, so connecting from localhost still needs `marketing-oauth` deployed.
 9. **Cron job.** A dashboard Cron job every 5 minutes (`*/5 * * * *`) POSTs to `marketing-publish` with the `x-marketing-cron-secret` header, the same `MARKETING_SECRET` as `marketing-sync`'s hourly job.
 10. **Apply `054_social_tags.sql`, then redeploy `marketing-sync`.** In that order: the function writes 054's `duration_seconds` and `caption` columns, so deployed first it fails every platform's sync. Until 054 runs, Stats shows no index and tags can't be saved.
-11. **Apply `061_social_auto.sql`** for automatic tags, rule experiments and the brief. Until it runs, Experiments can't save and `npm run social:tag` writes nothing.
+11. **Apply `061_social_auto.sql`** for automatic tags and the brief. Until it runs, the brief isn't saved and `npm run social:tag` writes nothing.
 
 ## How posting works
 
@@ -49,7 +49,7 @@ Each post has one row per platform in `social_post_targets`, with its own captio
 
 **Never posting twice is the rule everything else bends to.** A run that dies in `sending` is not retried: the next claim fails it with "Check the platform before retrying: it may have posted". Network errors and 5xx before anything irreversible are retried 3 times (2, 4, 8 minutes). Once a platform has started, the post can no longer be edited, only copied or deleted. Deleting removes our plan, never the live video.
 
-When a platform goes live, `marketing-publish` adds the video to `marketing_videos` straight away, so it shows on Stats and joins its experiment without waiting for the next sync.
+When a platform goes live, `marketing-publish` adds the video to `marketing_videos` straight away, so it shows on Stats without waiting for the next sync.
 
 ### YouTube
 
@@ -136,7 +136,7 @@ How the figures are worked out:
 - **Coverage.** Daily tracking began on 25 Oct 2026, so a period reaching back before then is measured from the 26th, and the header says so; a comparison with a period that has no figures shows none rather than a fake change. Followers count from the first figure inside the period when there is none before it.
 - **Rates need 100 views,** per post and per platform, as on Stats; that includes watched, so a 4-view video watched to the end doesn't top a list.
 - **Never pool raw views across platforms.** Compare refuses a raw-views measure with All platforms selected and offers the index instead; rates and the index can pool.
-- **Compare's verdict** reuses the experiments' permutation test (`permutationP`), on a log scale for views and the index: "Real difference" under p 0.05, "Leaning" under 0.2, "No clear difference" otherwise, "Too few posts" under 3 a side. Biggest differences runs every group on every dimension, so some "leaning" results are luck; the page says so and points to Experiments. A two-value dimension is listed once, from the winning side.
+- **Compare's verdict** reuses the experiments' permutation test (`permutationP`), on a log scale for views and the index: "Real difference" under p 0.05, "Leaning" under 0.2, "No clear difference" otherwise, "Too few posts" under 3 a side. Biggest differences runs every group on every dimension, so some "leaning" results are luck; the page says so. A two-value dimension is listed once, from the winning side.
 - **"May be the reason."** When 80% or more of a group share something that half or fewer of the other posts do (all TikTok, all talking head), Compare names it, since then the two effects can't be told apart.
 - **Half-life** interpolates between neighbouring measured ages only. A video known only at 7 days has none, rather than the 3.5 days a straight line from zero would always give. The build-up curve plots an age only when at least 3 posts have it and 7 days.
 
@@ -157,22 +157,17 @@ Every sync also writes a timestamped row to `marketing_video_hourly` for each vi
 
 ## Experiments
 
-An experiment names what it tests, its variants (A to E, each with a label), and the metric that decides: views at 1h, 6h, 24h, 3 days or 7 days, or engagement (likes, comments and shares per view) at 7 days. Videos join it by being tagged in the planner (they join once live) or added by title on the experiment page.
+Nothing is set up by hand. For each Compare dimension except platform, source and gap, the page takes the two values with the most posts scored at 24 hours over the last 90 days and puts them head to head on the index at 24 hours (Compare's `compareTwo`, so posts tagged with both are left out). Tags come from `npm run social:tag`, so posting is all a test needs. Worked out in `lib/social/brief.ts`, tested in `tests/social-brief.test.ts`:
 
-The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.ts`:
+- **Winner** when Compare's verdict is real (p under 0.05), **leaning** under 0.2, **no clear difference** once both sides have 8 posts, otherwise **testing**. Leaning and testing say how many more posts each side needs to reach 8.
+- **Lift** is the leader's median over the other's.
+- The views arithmetic (same age, interpolated between snapshots, a gap too wide to trust gives no number) is in `lib/social/experiments.ts`, tested in `tests/social.test.ts`.
 
-- **Same age, same platform.** A video's views at an age are interpolated between its hourly snapshots, with zero at posting. A gap too wide to trust (over 2 hours, or a quarter of the age) gives no number, so a video first tracked at 30 hours has no 1-hour figure. Platforms are never pooled.
-- **Typical value** per variant is a geometric mean for views (one viral video should not swamp three ordinary ones) and a plain mean for engagement.
-- **Verdict** comes from a permutation test between the top two variants on log views: how often a random relabelling of the same videos splits them at least as far apart. It assumes nothing about how views are distributed, and with few videos it simply cannot get small: 1 vs 1 is always "a hint, not a result", and it takes 4 videos per variant before a difference can show as real (p under 0.05).
-- Conclude an experiment by setting its status, winner and what we learned; that stays with it.
-
-### Rule experiments
-
-"Videos in it: everything posted, by format" (any Compare dimension but platform and source) turns an experiment into one that runs itself (061's `dimension`, `starts_at`, `target_per_variant`). Each variant names a value, and every video posted from the start date (midnight UTC) whose value matches exactly one variant is in it, worked out on the page (`lib/social/brief.ts`, tested in `tests/social-brief.test.ts`), so there is nothing to add by hand and the planner doesn't offer it. It shows how many measured posts each variant has against the target (the fewest on any platform it is on), "Result ready" once all reach it, and a warning when one variant is mostly something else too (all evening, say), which the test may be measuring instead.
+The manual experiments (052's `social_experiments` and `social_experiment_videos`, and 061's rule columns) are no longer read or written. A post's `experiment_id` and `variant` are always saved empty.
 
 ### Brief
 
-The "This week" card on Experiments: last week's posts against our usual, what each running rule experiment still needs, up to three real Compare findings on the index at 24 hours over 90 days, and the three UK hours whose posts have done best (at least 3 posts each). Opening the page saves it to `social_brief` (one row, 061). The planner's editor offers those hours as green "best for views" chips, in the viewer's own time, and Trend Remix reads it before writing a script (its `REMIX-PROMPT.md`, Phase 3). It is not emailed: the page and the planner are where it gets used, and an email needs a cron and a sender for one reader.
+The "This week" card on Experiments: last week's posts against our usual, up to three real Compare findings on the index at 24 hours over 90 days, and the three UK hours whose posts have done best (at least 3 posts each). Opening the page saves it, with the tests as `experiments`, to `social_brief` (one row, 061). The planner's editor offers those hours as green "best for views" chips, in the viewer's own time, and Trend Remix reads it before writing a script (its `REMIX-PROMPT.md`, Phase 3, using `experiments[].needs` and `working`). It is not emailed: the page and the planner are where it gets used, and an email needs a cron and a sender for one reader.
 
 ## Files
 
@@ -180,7 +175,7 @@ The "This week" card on Experiments: last week's posts against our usual, what e
 | --- | --- |
 | Schema, RPCs, bucket, queue | `supabase/migrations/052_social.sql` (Facebook added to the platform checks in `053_social_facebook.sql`) |
 | Tags, length, caption, age points view | `supabase/migrations/054_social_tags.sql` |
-| Automatic tags, rule experiments, brief | `supabase/migrations/061_social_auto.sql`, `lib/social/brief.ts`, `scripts/social-tag.mjs` |
+| Automatic tags, experiments, brief | `supabase/migrations/061_social_auto.sql`, `lib/social/brief.ts`, `scripts/social-tag.mjs` |
 | Index and overview arithmetic | `lib/social/overview.ts` |
 | Stats pages arithmetic (gains, windows, rates, lifecycle, formatting) | `lib/social/insights.ts` |
 | Compare (dimensions, measures, verdict, "may be the reason") | `lib/social/compare.ts` |
@@ -205,4 +200,3 @@ The "This week" card on Experiments: last week's posts against our usual, what e
 - Dragging to a new time within a day (the calendar moves posts between days and keeps the clock time).
 - Resuming a large upload across runs; a run that times out mid-upload fails the post for a manual Retry.
 - Recording which TikTok sound or Instagram audio a post used, which is often the real variable.
-- Starting an experiment straight from a Compare finding (Compare links to Experiments; the variants are still set up by hand).

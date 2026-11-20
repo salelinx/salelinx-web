@@ -43,7 +43,6 @@ import {
   SOCIAL_PLATFORMS,
   type PostThumb,
   type SocialAccount,
-  type SocialExperimentRow,
   type SocialPlatform,
   type SocialPost,
 } from "@/lib/social/types";
@@ -90,8 +89,6 @@ function draftAt(p: SocialPost, at: Date): PostDraft {
     cover_path: p.cover_path,
     schedule: p.status !== "draft",
     scheduled_at: at.toISOString(),
-    experiment_id: p.experiment_id,
-    variant: p.variant,
     notes: p.notes,
     targets: p.targets.map((t) => ({
       platform: t.platform,
@@ -109,7 +106,6 @@ const typing = (el: EventTarget | null) =>
 
 export function Planner({
   posts,
-  experiments,
   accounts,
   thumbs,
   bestHours,
@@ -117,7 +113,6 @@ export function Planner({
   notice,
 }: {
   posts: SocialPost[];
-  experiments: SocialExperimentRow[];
   accounts: SocialAccount[];
   thumbs: Record<string, PostThumb>;
   // UK hours whose posts do best at 24 hours, from the weekly brief.
@@ -186,16 +181,6 @@ export function Planner({
     ? (shown.find((p) => p.id === sheetId) ?? null)
     : null;
 
-  const experimentName = (id: string | null) =>
-    experiments.find((e) => e.id === id)?.name ?? null;
-
-  const nextVariant = (post: SocialPost) => {
-    const exp = experiments.find((e) => e.id === post.experiment_id);
-    const keys = exp?.variants.map((v) => v.key) ?? ["A", "B"];
-    const i = keys.indexOf(post.variant ?? "A");
-    return keys[(i + 1) % keys.length];
-  };
-
   async function runPublisher() {
     setRunning(true);
     const res = await callFunction("marketing-publish").catch(() => null);
@@ -232,8 +217,7 @@ export function Planner({
         ...editorFromPost(p),
         id: null,
         when: "",
-        name: `${p.name} (${nextVariant(p)})`,
-        variant: p.experiment_id ? nextVariant(p) : null,
+        name: `${p.name} (copy)`,
       },
       source: null,
     });
@@ -401,7 +385,6 @@ export function Planner({
   const viewProps: Omit<ViewProps, "anchor" | "today" | "nowMs"> = {
     posts: filtered,
     thumbs,
-    experimentName,
     dragging,
     onDragState: setDragging,
     onOpen: open,
@@ -767,10 +750,6 @@ export function Planner({
         <PostEditor
           key={editing.state.id ?? "new"}
           initial={editing.state}
-          experiments={experiments.filter(
-            (e) =>
-              (e.status === "running" && !e.dimension) || e.id === editing.state.experimentId,
-          )}
           accounts={accounts}
           posts={shown}
           bestHours={bestHours}
@@ -803,7 +782,6 @@ export function Planner({
           thumb={thumbs[sheetPost.id]}
           nowMs={now}
           today={today}
-          experimentName={experimentName(sheetPost.experiment_id)}
           onClose={() => setSheetId(null)}
           onRetry={(p, platform) => void retry(p, platform)}
           onCopyCaption={copyCaption}

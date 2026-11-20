@@ -1,6 +1,4 @@
-// Server-side loaders shared by the Experiments page and a video's detail
-// page. Everything is read with the admin's own session, under the
-// is_admin() policies from 042_marketing.sql and 052_social.sql.
+// Read with the admin's own session, under 042's and 052's is_admin() policies.
 
 import type { createServerClient } from "@/lib/supabase/server";
 import type { MarketingVideoRow } from "@/lib/admin/marketing";
