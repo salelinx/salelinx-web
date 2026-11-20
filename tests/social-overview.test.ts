@@ -49,6 +49,8 @@ describe("tags", () => {
     expect(cleanTags(null)).toEqual({});
     expect(cleanTags(["a"])).toEqual({});
     expect(cleanTags({ opening: "x".repeat(60) }).opening).toHaveLength(40);
+    expect(cleanTags({ madeWith: "Trend Remix", by: "auto" })).toEqual({ madeWith: "Trend Remix", by: "auto" });
+    expect(cleanTags({ by: "someone" })).toEqual({});
   });
 
   it("counts a video as tagged only when something besides the flags is set", () => {

@@ -150,18 +150,30 @@ export type ExperimentDraft = {
   status: "running" | "concluded";
   winner: string | null;
   conclusion: string | null;
+  dimension: string | null;
+  // YYYY-MM-DD, from midnight UTC.
+  startsOn: string | null;
+  target: number;
 };
 
 export async function saveSocialExperiment(draft: ExperimentDraft): Promise<SocialResult> {
+  const rule = !!draft.dimension;
   const { result } = await run("admin_save_social_experiment", {
     p_id: draft.id,
     p_name: draft.name.trim() || "Untitled experiment",
     p_hypothesis: draft.hypothesis?.trim() || null,
     p_metric: draft.metric,
-    p_variants: draft.variants.map((v) => ({ key: v.key, label: v.label.trim() })),
+    p_variants: draft.variants.map((v) => ({
+      key: v.key,
+      label: v.label.trim(),
+      ...(rule ? { value: v.value ?? "" } : {}),
+    })),
     p_status: draft.status,
     p_winner: draft.status === "concluded" ? draft.winner : null,
     p_conclusion: draft.conclusion?.trim() || null,
+    p_dimension: draft.dimension,
+    p_starts_at: rule && draft.startsOn ? `${draft.startsOn}T00:00:00Z` : null,
+    p_target_per_variant: draft.target,
   });
   refresh();
   return { ok: result.ok, error: result.error, id: result.id as string | undefined };

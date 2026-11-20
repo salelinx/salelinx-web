@@ -30,6 +30,7 @@ It lives in this repo, not its own, because it leans on everything the console a
 8. **Reconnect all of them**, on the Stats tab or with the platform buttons in the Planner header. Older logins lack the posting scopes; their button reads "Reconnect to post" (Stats) or "Reconnect" (Planner). The login returns to the page it started from, including a local dev server: `marketing-oauth` signs the return address into its state and only accepts our site or `http://localhost:<port>`, under `/admin/marketing`. The platform's own redirect address stays the deployed function's URL, so connecting from localhost still needs `marketing-oauth` deployed.
 9. **Cron job.** A dashboard Cron job every 5 minutes (`*/5 * * * *`) POSTs to `marketing-publish` with the `x-marketing-cron-secret` header, the same `MARKETING_SECRET` as `marketing-sync`'s hourly job.
 10. **Apply `054_social_tags.sql`, then redeploy `marketing-sync`.** In that order: the function writes 054's `duration_seconds` and `caption` columns, so deployed first it fails every platform's sync. Until 054 runs, Stats shows no index and tags can't be saved.
+11. **Apply `061_social_auto.sql`** for automatic tags, rule experiments and the brief. Until it runs, Experiments can't save and `npm run social:tag` writes nothing.
 
 ## How posting works
 
@@ -107,9 +108,10 @@ The overview at `/admin/marketing` leads with the **index**: a video's views at 
 
 What is in each video, so we can later say why one beat another.
 
-- **Picked:** one opening, style and sound, up to five topics, and three flags (face on screen, words on the first frame, made with a seller). Short fixed lists plus New for our own values, stored as the labels themselves (`lib/social/tags.ts`). A planner post keeps its tags on `social_posts.tags`, covering all its platforms; a video that never went through the planner keeps its own on `marketing_videos.tags`. Both are written only by `admin_set_social_tags()`, which is audited, works at any stage, posted or not, and leaves `updated_at` alone so tagging doesn't reorder the planner.
+- **Picked:** one made-with, format, opening, style and sound, up to five topics, and three flags (face on screen, words on the first frame, made with a seller). Short fixed lists plus New for our own values, stored as the labels themselves (`lib/social/tags.ts`). A planner post keeps its tags on `social_posts.tags`, covering all its platforms; a video that never went through the planner keeps its own on `marketing_videos.tags`. Both are written only by `admin_set_social_tags()`, which is audited, works at any stage, posted or not, and leaves `updated_at` alone so tagging doesn't reorder the planner.
 - **Where:** the planner's editor ("What's in this video", saved straight after the post), or Stats (Add tags or Edit tags on a row, and "Tag untagged videos" to step through the rest). A post that has started posting can't be saved in the planner any more, so tag it from Stats.
 - **Read automatically**, never stored: the length (the planner file's, read by the browser into `social_posts.media_seconds`, or the sync's `marketing_videos.duration_seconds`: YouTube, TikTok and Facebook give it, Instagram doesn't), the posting slot in UK time (morning 6 to 11, midday 11 to 3, afternoon 3 to 6, evening 6 to 10, late), and what the caption does: its size, a question, hashtags, a call to action (the planner caption, or the sync's `marketing_videos.caption`).
+- **Automatic:** `npm run social:tag` (Lewis's Mac: needs `supabase login` and the `claude` CLI) shows Claude each untagged posted video's thumbnail, title and caption and writes the tags it picks from `lib/social/tag-lists.json` through `social_set_auto_tags()` (061, service role). Those tags carry `by: "auto"`; the script only ever rewrites auto ones, and any change in the tag editor makes them `by: "you"`. Made-with isn't guessed: a planner file named `*-remix-*` is Trend Remix. Lone copies of one video sharing a title and day are asked about once. `--dry` prints, `--limit N` caps the run (40).
 
 ## Stats pages
 
@@ -164,12 +166,21 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 - **Verdict** comes from a permutation test between the top two variants on log views: how often a random relabelling of the same videos splits them at least as far apart. It assumes nothing about how views are distributed, and with few videos it simply cannot get small: 1 vs 1 is always "a hint, not a result", and it takes 4 videos per variant before a difference can show as real (p under 0.05).
 - Conclude an experiment by setting its status, winner and what we learned; that stays with it.
 
+### Rule experiments
+
+"Videos in it: everything posted, by format" (any Compare dimension but platform and source) turns an experiment into one that runs itself (061's `dimension`, `starts_at`, `target_per_variant`). Each variant names a value, and every video posted from the start date (midnight UTC) whose value matches exactly one variant is in it, worked out on the page (`lib/social/brief.ts`, tested in `tests/social-brief.test.ts`), so there is nothing to add by hand and the planner doesn't offer it. It shows how many measured posts each variant has against the target (the fewest on any platform it is on), "Result ready" once all reach it, and a warning when one variant is mostly something else too (all evening, say), which the test may be measuring instead.
+
+### Brief
+
+The "This week" card on Experiments: last week's posts against our usual, what each running rule experiment still needs, up to three real Compare findings on the index at 24 hours over 90 days, and the three UK hours whose posts have done best (at least 3 posts each). Opening the page saves it to `social_brief` (one row, 061). The planner's editor offers those hours as green "best for views" chips, in the viewer's own time, and Trend Remix reads it before writing a script (its `REMIX-PROMPT.md`, Phase 3). It is not emailed: the page and the planner are where it gets used, and an email needs a cron and a sender for one reader.
+
 ## Files
 
 | Concern | File |
 | --- | --- |
 | Schema, RPCs, bucket, queue | `supabase/migrations/052_social.sql` (Facebook added to the platform checks in `053_social_facebook.sql`) |
 | Tags, length, caption, age points view | `supabase/migrations/054_social_tags.sql` |
+| Automatic tags, rule experiments, brief | `supabase/migrations/061_social_auto.sql`, `lib/social/brief.ts`, `scripts/social-tag.mjs` |
 | Index and overview arithmetic | `lib/social/overview.ts` |
 | Stats pages arithmetic (gains, windows, rates, lifecycle, formatting) | `lib/social/insights.ts` |
 | Compare (dimensions, measures, verdict, "may be the reason") | `lib/social/compare.ts` |
@@ -191,7 +202,6 @@ The arithmetic is in `lib/social/experiments.ts`, tested in `tests/social.test.t
 
 ## Not done yet
 
-- Best times to post on the planner itself: Timing on Stats has the heatmap, but the editor's shortcuts only know our usual times.
 - Dragging to a new time within a day (the calendar moves posts between days and keeps the clock time).
 - Resuming a large upload across runs; a run that times out mid-upload fails the post for a manual Retry.
 - Recording which TikTok sound or Instagram audio a post used, which is often the real variable.

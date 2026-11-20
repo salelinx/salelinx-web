@@ -1,8 +1,9 @@
 // What is in a video, so Stats can later say why one post beat another. Two
 // kinds:
 //
-// - Picked when planning (or afterwards on Stats): opening, style, topics,
-//   sound and three yes/no flags. Stored as JSON on social_posts (a planner
+// - Picked when planning (or afterwards on Stats), or filled in by
+//   scripts/social-tag.mjs and Trend Remix: the groups in tag-lists.json and
+//   three yes/no flags. Stored as JSON on social_posts (a planner
 //   post, shared by all its platforms) or marketing_videos (a video that never
 //   went through the planner), written only through admin_set_social_tags()
 //   (054_social_tags.sql). Values are the labels themselves, so a custom one
@@ -13,8 +14,11 @@
 // Pure, so tests can run it (tests/social-overview.test.ts).
 
 import { hashtagCount } from "./validate";
+import lists from "./tag-lists.json";
 
 export type SocialTags = {
+  madeWith?: string;
+  format?: string;
   opening?: string;
   style?: string;
   topics?: string[];
@@ -22,53 +26,25 @@ export type SocialTags = {
   face?: boolean;
   hookText?: boolean;
   collab?: boolean;
+  // "auto" until a person changes them; scripts/social-tag.mjs only ever fills auto ones.
+  by?: "auto" | "you";
 };
 
-export type TagGroupKey = "opening" | "style" | "topics" | "sound";
+export type TagGroupKey = "madeWith" | "format" | "opening" | "style" | "topics" | "sound";
 export type TagFlagKey = "face" | "hookText" | "collab";
 
-export const TAG_GROUPS: {
+// Shared with scripts/social-tag.mjs, which can't import TypeScript.
+export const TAG_GROUPS = lists.groups as {
   key: TagGroupKey;
   label: string;
   hint: string;
   multi: boolean;
   options: string[];
-}[] = [
-  {
-    key: "opening",
-    label: "Opening",
-    hint: "the first two seconds",
-    multi: false,
-    options: ["Demo first", "Question", "Bold claim", "Face to camera", "Before and after"],
-  },
-  {
-    key: "style",
-    label: "Style",
-    hint: "how it is filmed",
-    multi: false,
-    options: ["Screen recording", "Talking head", "Text on screen", "Time-lapse"],
-  },
-  {
-    key: "topics",
-    label: "Topic",
-    hint: "pick any",
-    multi: true,
-    options: ["Crosslisting", "Offers", "Shipping", "Fees and money", "Selling tips"],
-  },
-  {
-    key: "sound",
-    label: "Sound",
-    hint: "",
-    multi: false,
-    options: ["Original voiceover", "Trending sound", "Library music", "No sound"],
-  },
-];
+}[];
 
-export const TAG_FLAGS: { key: TagFlagKey; label: string }[] = [
-  { key: "face", label: "Face on screen" },
-  { key: "hookText", label: "Words on the first frame" },
-  { key: "collab", label: "Made with a seller" },
-];
+export const TAG_FLAGS = lists.flags as { key: TagFlagKey; label: string }[];
+
+const SINGLE_KEYS = TAG_GROUPS.filter((g) => !g.multi).map((g) => g.key as Exclude<TagGroupKey, "topics">);
 
 export const TAG_MAX_LENGTH = 40;
 export const TAG_MAX_TOPICS = 5;
@@ -83,7 +59,7 @@ const cleanText = (v: unknown): string | undefined => {
 export function cleanTags(input: unknown): SocialTags {
   const src = input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
   const out: SocialTags = {};
-  for (const key of ["opening", "style", "sound"] as const) {
+  for (const key of SINGLE_KEYS) {
     const v = cleanText(src[key]);
     if (v) out[key] = v;
   }
@@ -92,17 +68,20 @@ export function cleanTags(input: unknown): SocialTags {
     if (topics.length) out.topics = topics;
   }
   for (const { key } of TAG_FLAGS) if (src[key] === true) out[key] = true;
+  if (src.by === "auto" || src.by === "you") out.by = src.by;
   return out;
 }
 
 /** Has anyone said what is in it? The flags alone don't count. */
 export function isTagged(tags: SocialTags): boolean {
-  return !!(tags.opening || tags.style || tags.sound || tags.topics?.length);
+  return SINGLE_KEYS.some((k) => !!tags[k]) || !!tags.topics?.length;
 }
 
 /** The picked tags as chips, in a fixed order. */
 export function tagLabels(tags: SocialTags): string[] {
   return [
+    tags.madeWith,
+    tags.format,
     tags.opening,
     tags.style,
     tags.sound,

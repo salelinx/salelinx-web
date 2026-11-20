@@ -1,5 +1,6 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { Planner } from "@/components/admin/social/Planner";
+import type { Brief } from "@/lib/social/brief";
 import {
   type PostThumb,
   type SocialAccount,
@@ -36,7 +37,7 @@ export default async function AdminPlannerPage({
   }>;
 }) {
   const supabase = await createServerClient();
-  const [postsRes, experimentsRes, accountsRes] = await Promise.all([
+  const [postsRes, experimentsRes, accountsRes, briefRes] = await Promise.all([
     supabase
       .from("social_posts")
       // Each post with its platforms, through the targets' foreign key.
@@ -48,7 +49,10 @@ export default async function AdminPlannerPage({
       .select("*")
       .order("created_at", { ascending: false }),
     supabase.rpc("admin_marketing_accounts"),
+    // Written by the Experiments page (061_social_auto.sql); missing is fine.
+    supabase.from("social_brief").select("brief").maybeSingle(),
   ]);
+  const bestHours = ((briefRes.data?.brief as Brief | undefined)?.bestHours ?? []).map((h) => h.hour);
 
   const posts = (postsRes.data as SocialPost[] | null) ?? [];
   const loadError = [postsRes, experimentsRes, accountsRes].find(
@@ -61,6 +65,7 @@ export default async function AdminPlannerPage({
       experiments={(experimentsRes.data as SocialExperimentRow[] | null) ?? []}
       accounts={(accountsRes.data as SocialAccount[] | null) ?? []}
       thumbs={await loadThumbs(supabase, posts)}
+      bestHours={bestHours}
       loadError={loadError ? loadError.message : null}
       notice={await searchParams}
     />

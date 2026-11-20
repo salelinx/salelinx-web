@@ -110,6 +110,7 @@ export function TagDrawer({
             {row.postId
               ? "Posted from the planner, so these tags cover every platform it went to."
               : "Tags for this one video. Dashed tags above are read automatically."}
+            {tags.by === "auto" && " Filled in automatically: change anything to make them yours."}
           </p>
           <TagEditor value={tags} onChange={setTags} options={options} />
           {error && <p className="text-xs text-red-700">{error}</p>}

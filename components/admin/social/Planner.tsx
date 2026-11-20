@@ -112,6 +112,7 @@ export function Planner({
   experiments,
   accounts,
   thumbs,
+  bestHours,
   loadError,
   notice,
 }: {
@@ -119,6 +120,8 @@ export function Planner({
   experiments: SocialExperimentRow[];
   accounts: SocialAccount[];
   thumbs: Record<string, PostThumb>;
+  // UK hours whose posts do best at 24 hours, from the weekly brief.
+  bestHours: number[];
   loadError: string | null;
   // ?connected= / ?error= from marketing-oauth sending the browser back.
   notice: {
@@ -766,10 +769,11 @@ export function Planner({
           initial={editing.state}
           experiments={experiments.filter(
             (e) =>
-              e.status === "running" || e.id === editing.state.experimentId,
+              (e.status === "running" && !e.dimension) || e.id === editing.state.experimentId,
           )}
           accounts={accounts}
           posts={shown}
+          bestHours={bestHours}
           tagOptions={tagOptions(posts.map((p) => cleanTags(p.tags)))}
           onClose={() => setEditing(null)}
           onDuplicate={

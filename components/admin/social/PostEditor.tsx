@@ -33,6 +33,7 @@ import {
   slotTaken,
   startOfDay,
   toLocalInput,
+  ukHourOn,
   usualTimes,
   whenLabel,
 } from "@/lib/social/calendar";
@@ -377,6 +378,7 @@ export function PostEditor({
   experiments,
   accounts,
   posts,
+  bestHours,
   tagOptions,
   onClose,
   onSaved,
@@ -388,6 +390,7 @@ export function PostEditor({
   accounts: SocialAccount[];
   // Every planned post, for the time shortcuts and "also that day".
   posts: SocialPost[];
+  bestHours: number[];
   tagOptions: Record<TagGroupKey, string[]>;
   onClose: () => void;
   onSaved: (message: string, postNow: boolean) => void | Promise<void>;
@@ -1470,6 +1473,22 @@ export function PostEditor({
                   your usual times
                   {day ? ` on ${dayName(day, new Date(nowMs))}` : " today"}
                 </span>
+                {bestHours.map((h) => {
+                  const at = ukHourOn(day ?? startOfDay(new Date(nowMs)), h);
+                  return (
+                    <button
+                      key={h}
+                      type="button"
+                      disabled={at.getTime() < nowMs}
+                      onClick={() => setWhen(at)}
+                      title="Our posts at this hour have done best at 24 hours over the last 90 days"
+                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs tabular-nums text-emerald-700 transition hover:border-emerald-300 disabled:opacity-40"
+                    >
+                      <IconSparkle size={12} /> {clockTime(at)}
+                    </button>
+                  );
+                })}
+                {bestHours.length > 0 && <span className="text-xs text-zinc-400">best for views</span>}
               </div>
               {sameDay.length > 0 && (
                 <ul className="mt-2.5 space-y-1 rounded-lg bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
