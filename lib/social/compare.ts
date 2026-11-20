@@ -224,6 +224,8 @@ export const DIMENSIONS: Dimension[] = [
     values: (v) => (v.caption ? [v.caption.callToAction ? "Call to action" : "No call to action"] : []),
     plain: true,
   },
+  { key: "madeWith", label: "Made with", values: (v) => one(v.tags.madeWith) },
+  { key: "format", label: "Format", values: (v) => one(v.tags.format) },
   { key: "opening", label: "Opening", values: (v) => one(v.tags.opening) },
   { key: "style", label: "Style", values: (v) => one(v.tags.style) },
   { key: "topic", label: "Topic", values: (v) => v.tags.topics ?? [] },

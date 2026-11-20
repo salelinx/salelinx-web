@@ -31,6 +31,7 @@ export function TagEditor({
   onChange: (next: SocialTags) => void;
   options: Record<TagGroupKey, string[]>;
 }) {
+  const set = (next: SocialTags) => onChange({ ...next, by: "you" });
   // Values added here before anything is saved with them.
   const [extra, setExtra] = useState<Partial<Record<TagGroupKey, string[]>>>({});
   const [adding, setAdding] = useState<TagGroupKey | null>(null);
@@ -47,9 +48,9 @@ export function TagEditor({
         : now.length < TAG_MAX_TOPICS
           ? [...now, option]
           : now;
-      onChange({ ...value, topics: topics.length ? topics : undefined });
+      set({ ...value, topics: topics.length ? topics : undefined });
     } else {
-      onChange({ ...value, [key]: value[key] === option ? undefined : option });
+      set({ ...value, [key]: value[key] === option ? undefined : option });
     }
   }
 
@@ -124,7 +125,7 @@ export function TagEditor({
             <input
               type="checkbox"
               checked={!!value[f.key]}
-              onChange={(e) => onChange({ ...value, [f.key]: e.target.checked || undefined })}
+              onChange={(e) => set({ ...value, [f.key]: e.target.checked || undefined })}
             />
             {f.label}
           </label>

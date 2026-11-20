@@ -1,0 +1,51 @@
+{
+  "groups": [
+    {
+      "key": "madeWith",
+      "label": "Made with",
+      "hint": "where the video came from",
+      "multi": false,
+      "options": ["Trend Remix", "Ad Kit", "Template", "Filmed"]
+    },
+    {
+      "key": "format",
+      "label": "Format",
+      "hint": "the formula it follows",
+      "multi": false,
+      "options": ["Simulation counter", "POV", "Story", "Tier list", "Explainer", "Skit"]
+    },
+    {
+      "key": "opening",
+      "label": "Opening",
+      "hint": "the first two seconds",
+      "multi": false,
+      "options": ["Demo first", "Question", "Bold claim", "Face to camera", "Before and after"]
+    },
+    {
+      "key": "style",
+      "label": "Style",
+      "hint": "how it looks",
+      "multi": false,
+      "options": ["Cartoon", "3D animation", "Kinetic text", "Screen recording", "Talking head", "Text on screen", "Time-lapse"]
+    },
+    {
+      "key": "topics",
+      "label": "Topic",
+      "hint": "pick any",
+      "multi": true,
+      "options": ["Crosslisting", "Offers", "Shipping", "Fees and money", "Selling tips"]
+    },
+    {
+      "key": "sound",
+      "label": "Sound",
+      "hint": "",
+      "multi": false,
+      "options": ["Two voices", "Original voiceover", "Trending sound", "Library music", "No sound"]
+    }
+  ],
+  "flags": [
+    { "key": "face", "label": "Face on screen" },
+    { "key": "hookText", "label": "Words on the first frame" },
+    { "key": "collab", "label": "Made with a seller" }
+  ]
+}

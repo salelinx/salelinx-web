@@ -97,7 +97,7 @@ export const METRIC_LABELS: Record<ExperimentMetric, string> = {
   engagement_7d: "Engagement at 7 days",
 };
 
-export type ExperimentVariant = { key: string; label: string };
+export type ExperimentVariant = { key: string; label: string; value?: string };
 
 export type SocialExperimentRow = {
   id: string;
@@ -108,6 +108,10 @@ export type SocialExperimentRow = {
   status: "running" | "concluded";
   winner: string | null;
   conclusion: string | null;
+  // 061_social_auto.sql: set for a rule experiment, whose members are worked out.
+  dimension?: string | null;
+  starts_at?: string | null;
+  target_per_variant?: number;
   created_at: string;
   updated_at: string;
 };

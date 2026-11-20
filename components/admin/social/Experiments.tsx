@@ -16,6 +16,8 @@ import {
   type ExperimentDraft,
 } from "@/app/admin/marketing/actions";
 import type { MarketingVideoRow } from "@/lib/admin/marketing";
+import type { Brief, RuleProgress } from "@/lib/social/brief";
+import { formatIndex } from "@/lib/social/overview";
 import {
   AGES_H,
   comparePlatform,
@@ -37,6 +39,8 @@ import { VARIANT_COLORS, ViewsCurveChart } from "./ViewsCurveChart";
 
 const KEYS = ["A", "B", "C", "D", "E"];
 
+export type RuleDimension = { key: string; label: string; values: string[] };
+
 const blank = (): ExperimentDraft => ({
   id: null,
   name: "",
@@ -49,6 +53,9 @@ const blank = (): ExperimentDraft => ({
   status: "running",
   winner: null,
   conclusion: "",
+  dimension: null,
+  startsOn: null,
+  target: 8,
 });
 
 const toDraft = (e: SocialExperimentRow): ExperimentDraft => ({
@@ -60,6 +67,9 @@ const toDraft = (e: SocialExperimentRow): ExperimentDraft => ({
   status: e.status,
   winner: e.winner,
   conclusion: e.conclusion ?? "",
+  dimension: e.dimension ?? null,
+  startsOn: e.starts_at?.slice(0, 10) ?? null,
+  target: e.target_per_variant ?? 8,
 });
 
 const count = (n: number | null) => (n === null ? "-" : Math.round(n).toLocaleString("en-GB"));
@@ -105,6 +115,9 @@ export function Experiments({
   curves,
   selectedId,
   loadError,
+  dimensions,
+  rules,
+  brief,
 }: {
   experiments: SocialExperimentRow[];
   members: ExperimentVideoRow[];
@@ -112,6 +125,9 @@ export function Experiments({
   curves: Record<string, VideoCurve>;
   selectedId: string | null;
   loadError: string | null;
+  dimensions: RuleDimension[];
+  rules: Record<string, { progress: RuleProgress; warnings: string[] }>;
+  brief: Brief;
 }) {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(selectedId ?? experiments[0]?.id ?? null);
@@ -199,8 +215,10 @@ export function Experiments({
     router.refresh();
   }
 
-  const setVariantLabel = (key: string, value: string) =>
-    setDraft({ ...draft, variants: draft.variants.map((v) => (v.key === key ? { ...v, label: value } : v)) });
+  const setVariant = (key: string, change: Partial<ExperimentDraft["variants"][number]>) =>
+    setDraft({ ...draft, variants: draft.variants.map((v) => (v.key === key ? { ...v, ...change } : v)) });
+  const dimension = dimensions.find((d) => d.key === draft.dimension);
+  const rule = draft.id ? rules[draft.id] : undefined;
 
   return (
     <div className="flex h-full flex-col">
@@ -237,8 +255,12 @@ export function Experiments({
                 >
                   {e.name}
                   <span className="block text-xs font-normal text-zinc-500">
-                    {e.status === "concluded" ? `Concluded${e.winner ? `, ${e.winner} won` : ""}` : "Running"} ·{" "}
-                    {members.filter((m) => m.experiment_id === e.id).length} videos
+                    {e.status === "concluded"
+                      ? `Concluded${e.winner ? `, ${e.winner} won` : ""}`
+                      : rules[e.id]?.progress.ready
+                        ? "Result ready"
+                        : "Running"}{" "}
+                    · {members.filter((m) => m.experiment_id === e.id).length} videos
                   </span>
                 </button>
               </li>
@@ -253,6 +275,8 @@ export function Experiments({
                 {loadError ? `Couldn't load: ${loadError}` : message}
               </p>
             )}
+
+            <BriefCard brief={brief} />
 
             <section className="space-y-3 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
               <div className="grid gap-3 md:grid-cols-2">
@@ -275,6 +299,42 @@ export function Experiments({
                 <span className="text-xs font-medium text-zinc-600">What we think will happen</span>
                 <textarea className={`${field} min-h-14`} value={draft.hypothesis ?? ""} onChange={(e) => setDraft({ ...draft, hypothesis: e.target.value })} />
               </label>
+              <div className="grid gap-3 md:grid-cols-3">
+                <label className="block space-y-1">
+                  <span className="text-xs font-medium text-zinc-600">Videos in it</span>
+                  <select
+                    className={field}
+                    value={draft.dimension ?? ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        dimension: e.target.value || null,
+                        startsOn: draft.startsOn ?? new Date().toISOString().slice(0, 10),
+                        variants: draft.variants.map((v) => ({ key: v.key, label: v.label })),
+                      })
+                    }
+                  >
+                    <option value="">Picked by hand</option>
+                    {dimensions.map((d) => (
+                      <option key={d.key} value={d.key}>
+                        Everything posted, by {d.label.toLowerCase()}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {draft.dimension && (
+                  <>
+                    <label className="block space-y-1">
+                      <span className="text-xs font-medium text-zinc-600">Counting posts from</span>
+                      <input type="date" className={field} value={draft.startsOn ?? ""} onChange={(e) => setDraft({ ...draft, startsOn: e.target.value || null })} />
+                    </label>
+                    <label className="block space-y-1">
+                      <span className="text-xs font-medium text-zinc-600">Posts per variant, per platform</span>
+                      <input type="number" min={2} max={100} className={field} value={draft.target} onChange={(e) => setDraft({ ...draft, target: Math.min(100, Math.max(2, Number(e.target.value) || 8)) })} />
+                    </label>
+                  </>
+                )}
+              </div>
               <div className="space-y-1">
                 <span className="text-xs font-medium text-zinc-600">Variants</span>
                 {draft.variants.map((v) => (
@@ -282,12 +342,22 @@ export function Experiments({
                     <span className="w-6 text-center font-semibold" style={{ color: VARIANT_COLORS[v.key] }}>
                       {v.key}
                     </span>
-                    <input className={field} value={v.label} onChange={(e) => setVariantLabel(v.key, e.target.value)} placeholder="What is different about it" />
+                    {dimension && (
+                      <select className={field} value={v.value ?? ""} onChange={(e) => setVariant(v.key, { value: e.target.value })}>
+                        <option value="">Pick a value</option>
+                        {dimension.values.map((x) => (
+                          <option key={x} value={x}>
+                            {x}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <input className={field} value={v.label} onChange={(e) => setVariant(v.key, { label: e.target.value })} placeholder="What is different about it" />
                   </div>
                 ))}
                 <div className="flex gap-3 text-xs">
                   {draft.variants.length < 5 && (
-                    <button type="button" onClick={() => setDraft({ ...draft, variants: [...draft.variants, { key: KEYS[draft.variants.length], label: "" }] })} className="text-zinc-600 hover:text-zinc-900">
+                    <button type="button" onClick={() => setDraft({ ...draft, variants: [...draft.variants, { key: KEYS[draft.variants.length], label: "", ...(dimension ? { value: "" } : {}) }] })} className="text-zinc-600 hover:text-zinc-900">
                       Add variant
                     </button>
                   )}
@@ -342,6 +412,28 @@ export function Experiments({
 
             {draft.id && (
               <>
+                {rule && (
+                  <section className="space-y-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
+                    <p className="font-medium">
+                      {rule.progress.ready
+                        ? "Result ready: every variant has enough measured posts."
+                        : `Runs itself: each post from ${draft.startsOn} joins the variant its ${dimension?.label.toLowerCase() ?? "value"} matches.`}
+                    </p>
+                    <p className="flex flex-wrap gap-x-4 text-xs text-zinc-600">
+                      {rule.progress.variants.map((v) => (
+                        <span key={v.key}>
+                          <strong style={{ color: VARIANT_COLORS[v.key] }}>{v.key}</strong> {v.measured} of {rule.progress.target} measured
+                          {v.posted > v.measured && `, ${v.posted - v.measured} waiting`}
+                        </span>
+                      ))}
+                    </p>
+                    {rule.warnings.map((w) => (
+                      <p key={w} className="text-xs text-amber-700">
+                        Also differs: {w}
+                      </p>
+                    ))}
+                  </section>
+                )}
                 {results.map((r) => {
                   const lines = mine
                     .filter((m) => m.platform === r.platform)
@@ -433,6 +525,11 @@ export function Experiments({
                                 </div>
                               </td>
                               <td className="px-3 py-2">
+                                {draft.dimension ? (
+                                  <span className="text-xs font-semibold" style={{ color: VARIANT_COLORS[m.variant] }}>
+                                    {m.variant}
+                                  </span>
+                                ) : (
                                 <select
                                   value={m.variant}
                                   onChange={(e) => void place(m.platform, m.external_id, e.target.value)}
@@ -445,6 +542,7 @@ export function Experiments({
                                     </option>
                                   ))}
                                 </select>
+                                )}
                               </td>
                               {AGES_H.map((h) => (
                                 <td key={h} className="px-3 py-2 text-right font-mono text-xs">
@@ -453,9 +551,11 @@ export function Experiments({
                               ))}
                               <td className="px-3 py-2 text-right font-mono text-xs">{pct(m.engagement7d)}</td>
                               <td className="px-3 py-2 text-right">
-                                <button type="button" onClick={() => void place(m.platform, m.external_id, null)} className="text-xs text-zinc-400 hover:text-red-700">
-                                  remove
-                                </button>
+                                {!draft.dimension && (
+                                  <button type="button" onClick={() => void place(m.platform, m.external_id, null)} className="text-xs text-zinc-400 hover:text-red-700">
+                                    remove
+                                  </button>
+                                )}
                               </td>
                             </tr>
                           ))}
@@ -464,6 +564,7 @@ export function Experiments({
                     </div>
                   )}
                   <div className="space-y-2 border-t border-[var(--admin-border)] px-4 py-3">
+                    {!draft.dimension && (
                     <div className="flex flex-wrap items-center gap-2">
                       <input className={`${field} min-w-40 flex-1 sm:w-72 sm:flex-none`} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Find a video to add by title" />
                       <span className="text-xs text-zinc-500">as</span>
@@ -475,7 +576,8 @@ export function Experiments({
                         ))}
                       </select>
                     </div>
-                    {candidates.map((v) => (
+                    )}
+                    {!draft.dimension && candidates.map((v) => (
                       <button
                         key={`${v.platform}:${v.external_id}`}
                         type="button"
@@ -502,5 +604,38 @@ export function Experiments({
         </div>
       </div>
     </div>
+  );
+}
+
+const hourText = (ukHour: number) => `${String(ukHour).padStart(2, "0")}:00`;
+
+function BriefCard({ brief }: { brief: Brief }) {
+  const { week } = brief;
+  return (
+    <details open className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 text-sm">
+      <summary className="cursor-pointer font-semibold">This week</summary>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-zinc-700">
+        <li>
+          {week.uploads} uploads across platforms in the last 7 days
+          {week.typical !== null && `, typically ${formatIndex(week.typical)} our usual views at 24 hours`}.
+          {week.best && ` Best: "${week.best.title}" on ${PLATFORM_NAMES[week.best.platform]} (${formatIndex(week.best.index)}).`}
+          {week.worst && ` Weakest: "${week.worst.title}" (${formatIndex(week.worst.index)}).`}
+        </li>
+        {brief.experiments.map((e) => (
+          <li key={e.id}>
+            {e.name}: {e.ready ? "result ready, open it to read the verdict." : `make ${e.needs.join(" and ") || "nothing more, waiting on stats"}.`}
+          </li>
+        ))}
+        {brief.working.map((w) => (
+          <li key={`${w.dimension}:${w.value}`}>
+            {w.dimension} {w.value}: {w.lift >= 0 ? "+" : ""}
+            {Math.round(w.lift * 100)}% at 24 hours over 90 days{w.often && ` (but most of them are also ${w.often})`}.
+          </li>
+        ))}
+        {brief.bestHours.length > 0 && (
+          <li>Best hours to post (UK): {brief.bestHours.map((h) => hourText(h.hour)).join(", ")}.</li>
+        )}
+      </ul>
+    </details>
   );
 }

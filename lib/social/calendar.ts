@@ -185,6 +185,15 @@ export function atTime(day: Date, hhmm: string): Date {
 
 export const DEFAULT_TIMES = ["09:00", "13:00", "18:00"];
 
+/** The moment a day's date reads `hour`:00 in London, which is how the brief's best hours are kept. */
+export function ukHourOn(day: Date, hour: number): Date {
+  const guess = Date.UTC(day.getFullYear(), day.getMonth(), day.getDate(), hour);
+  const london = Number(
+    new Date(guess).toLocaleString("en-GB", { timeZone: "Europe/London", hour: "2-digit", hourCycle: "h23" }),
+  );
+  return new Date(guess - (((london - hour + 24) % 24) * 3_600_000));
+}
+
 /**
  * The clock times we post at, earliest first: any time used by two or more
  * scheduled posts, up to four of the most used. Until there are two, the
