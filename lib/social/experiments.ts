@@ -1,28 +1,14 @@
-// Experiment arithmetic: a video's numbers at a given age after posting, read
-// off its snapshots, and a comparison of variants within one platform. Pure,
-// so tests can run it without a database (tests/social.test.ts).
+// A video's numbers at a given age after posting, read off its snapshots, and
+// the permutation test Compare uses. Pure, so tests can run it without a
+// database (tests/social.test.ts).
 //
 // Comparing at the same age is the point: a video posted on Monday always has
 // more lifetime views than one posted on Friday, which says nothing about
 // which was better. Videos on different platforms are never pooled either.
 
-import type {
-  ExperimentMetric,
-  ExperimentVariant,
-  HourlyRow,
-  SocialPlatform,
-} from "./types";
+import type { HourlyRow } from "./types";
 
 export const AGES_H = [1, 6, 24, 72, 168] as const;
-
-export const METRIC_HOURS: Record<ExperimentMetric, number> = {
-  views_1h: 1,
-  views_6h: 6,
-  views_24h: 24,
-  views_72h: 72,
-  views_7d: 168,
-  engagement_7d: 168,
-};
 
 const HOUR_MS = 3600_000;
 
@@ -63,54 +49,26 @@ export type AgeValues = Record<(typeof AGES_H)[number], number | null>;
 
 export type VideoCurve = {
   ages: AgeValues;
-  engagement7d: number | null;
   // Hours since posting against views, for the chart.
   curve: { h: number; views: number }[];
 };
 
 export function videoCurve(rows: HourlyRow[], publishedAt: string | null): VideoCurve {
   const empty = Object.fromEntries(AGES_H.map((h) => [h, null])) as AgeValues;
-  if (!publishedAt) return { ages: empty, engagement7d: null, curve: [] };
+  if (!publishedAt) return { ages: empty, curve: [] };
   const published = Date.parse(publishedAt);
-  const series = (key: "views" | "likes" | "comments" | "shares") =>
-    rows
-      .filter((r) => r[key] !== null)
-      .map((r) => ({ t: Date.parse(r.captured_at), v: r[key] as number }));
-  const views = series("views");
+  const views = rows
+    .filter((r) => r.views !== null)
+    .map((r) => ({ t: Date.parse(r.captured_at), v: r.views! }));
   const ages = Object.fromEntries(
     AGES_H.map((h) => [h, valueAtAge(views, published, h)]),
   ) as AgeValues;
-
-  const v7 = ages[168];
-  let engagement7d: number | null = null;
-  if (v7 !== null && v7 >= 100) {
-    const at = (k: "likes" | "comments" | "shares") =>
-      valueAtAge(series(k), published, 168) ?? 0;
-    engagement7d = (at("likes") + at("comments") + at("shares")) / v7;
-  }
 
   const curve = views
     .filter((p) => p.t >= published)
     .map((p) => ({ h: (p.t - published) / HOUR_MS, views: p.v }))
     .sort((a, b) => a.h - b.h);
-  return { ages, engagement7d, curve: [{ h: 0, views: 0 }, ...curve] };
-}
-
-export function metricValue(c: VideoCurve, metric: ExperimentMetric): number | null {
-  if (metric === "engagement_7d") return c.engagement7d;
-  return c.ages[METRIC_HOURS[metric] as (typeof AGES_H)[number]];
-}
-
-/**
- * The typical value of a variant: views are compared on a log scale (a
- * geometric mean), since one viral video should not swamp three ordinary
- * ones; engagement is a rate, so a plain mean.
- */
-export function typical(values: number[], metric: ExperimentMetric): number | null {
-  if (!values.length) return null;
-  if (metric === "engagement_7d") return values.reduce((a, b) => a + b, 0) / values.length;
-  const logMean = values.reduce((a, v) => a + Math.log1p(v), 0) / values.length;
-  return Math.expm1(logMean);
+  return { ages, curve: [{ h: 0, views: 0 }, ...curve] };
 }
 
 /** A small deterministic PRNG, so the same data always gives the same p. */
@@ -182,74 +140,6 @@ export function permutationP(a: number[], b: number[]): number {
     }
   }
   return extreme / tried;
-}
-
-export type ExperimentMember = {
-  platform: SocialPlatform;
-  external_id: string;
-  variant: string;
-  title: string | null;
-  url: string | null;
-  thumbnail_url: string | null;
-  published_at: string | null;
-} & VideoCurve & { value: number | null };
-
-export type VariantResult = {
-  key: string;
-  label: string;
-  videos: number;
-  // Videos old enough (and tracked closely enough) to have the metric.
-  measured: number;
-  typical: number | null;
-};
-
-export type PlatformResult = {
-  platform: SocialPlatform;
-  variants: VariantResult[];
-  leader: string | null;
-  // Leader's typical value over the runner-up's, minus one.
-  lift: number | null;
-  p: number | null;
-  verdict: "waiting" | "hint" | "inconclusive" | "significant";
-};
-
-export function comparePlatform(
-  platform: SocialPlatform,
-  members: ExperimentMember[],
-  variants: ExperimentVariant[],
-  metric: ExperimentMetric,
-): PlatformResult {
-  const mine = members.filter((m) => m.platform === platform);
-  const values = (key: string) =>
-    mine.filter((m) => m.variant === key && m.value !== null).map((m) => m.value!);
-  const results: VariantResult[] = variants.map((v) => {
-    const vals = values(v.key);
-    return {
-      key: v.key,
-      label: v.label,
-      videos: mine.filter((m) => m.variant === v.key).length,
-      measured: vals.length,
-      typical: typical(vals, metric),
-    };
-  });
-
-  const ranked = results
-    .filter((r) => r.typical !== null)
-    .sort((a, b) => b.typical! - a.typical!);
-  if (ranked.length < 2)
-    return { platform, variants: results, leader: null, lift: null, p: null, verdict: "waiting" };
-
-  const [first, second] = ranked;
-  const lift = second.typical! > 0 ? first.typical! / second.typical! - 1 : null;
-  const scale = (v: number) => (metric === "engagement_7d" ? v : Math.log1p(v));
-  const p = permutationP(values(first.key).map(scale), values(second.key).map(scale));
-  const verdict =
-    first.measured < 2 || second.measured < 2
-      ? "hint"
-      : p < 0.05
-        ? "significant"
-        : "inconclusive";
-  return { platform, variants: results, leader: first.key, lift, p, verdict };
 }
 
 /** Views at `h` hours along a curve, or null past its last snapshot. */

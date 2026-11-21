@@ -61,7 +61,7 @@ export const ADMIN_MODULES: AdminModule[] = [
   // Stats is a dropdown: Overview is each post against our typical one (plus
   // each video's detail page), and the pages under it are the deeper read of
   // the same snapshots, one per question. Planner schedules posts that
-  // marketing-publish sends; Experiments compares variants at the same age.
+  // marketing-publish sends; Experiments tests each tag's top two options.
   {
     key: "stats",
     label: "Stats",

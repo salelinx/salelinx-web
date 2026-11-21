@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { ruleMembers, ruleProgress, ruleWarnings, weeklyBrief } from "../lib/social/brief";
+import { autoTests, weeklyBrief } from "../lib/social/brief";
 import { ukHourOn } from "../lib/social/calendar";
 import { zeroGains, type InsightVideo } from "../lib/social/insights";
-import type { SocialExperimentRow } from "../lib/social/types";
 
 const NOW = Date.parse("2026-11-20T12:00:00Z");
 
@@ -38,67 +37,42 @@ function video(o: Partial<InsightVideo> & { key: string }): InsightVideo {
   };
 }
 
-const exp = {
-  id: "e1",
-  name: "POV vs Story",
-  metric: "views_24h",
-  status: "running",
-  dimension: "format",
-  starts_at: "2026-11-10T00:00:00Z",
-  target_per_variant: 2,
-  variants: [
-    { key: "A", label: "POV", value: "POV" },
-    { key: "B", label: "Story", value: "Story" },
-  ],
-} satisfies Partial<SocialExperimentRow> as SocialExperimentRow;
+describe("automatic tests", () => {
+  const posts = (format: string, indexes: number[]) =>
+    indexes.map((index, i) => video({ key: `${format}${i}`, tags: { format }, index: { 24: index, 168: null } }));
+  const format = (videos: InsightVideo[]) => autoTests(videos).find((t) => t.key === "format")!;
 
-describe("rule experiments", () => {
-  const videos = [
-    video({ key: "a1", tags: { format: "POV" } }),
-    video({ key: "a2", tags: { format: "POV" } }),
-    video({ key: "b1", tags: { format: "Story" } }),
-    video({ key: "b2", tags: { format: "Story" }, at: { 1: null, 6: null, 24: null, 72: null, 168: null } }),
-    video({ key: "old", tags: { format: "POV" }, publishedAt: "2026-11-01T12:00:00Z" }),
-    video({ key: "other", tags: { format: "Skit" } }),
-  ];
-
-  it("takes every post from the start whose value is a variant's", () => {
-    expect(ruleMembers(exp, videos).map((m) => `${m.external_id}:${m.variant}`)).toEqual([
-      "a1:A",
-      "a2:A",
-      "b1:B",
-      "b2:B",
-    ]);
+  it("puts the two most posted values head to head and says what each side needs", () => {
+    const t = format([...posts("POV", [2, 2, 2]), ...posts("Story", [1, 1]), ...posts("Skit", [9])]);
+    expect([t.a.value, t.b.value]).toEqual(["POV", "Story"]);
+    expect([t.a.median, t.b.median]).toEqual([2, 1]);
+    expect(t.status).toBe("testing");
+    expect(t.leader).toBe("POV");
+    expect(t.needs).toEqual(['5 more "POV"', '6 more "Story"']);
   });
 
-  it("is ready only once every variant has the target measured", () => {
-    const p = ruleProgress(exp, videos);
-    expect(p.variants.map((v) => [v.posted, v.measured])).toEqual([
-      [2, 2],
-      [2, 1],
-    ]);
-    expect(p.ready).toBe(false);
-    expect(ruleProgress({ ...exp, target_per_variant: 1 }, videos).ready).toBe(true);
+  it("calls a clean split a winner, and a full test with no gap even", () => {
+    const won = format([...posts("POV", [4, 5, 4, 5]), ...posts("Story", [1, 1.2, 1, 1.2])]);
+    expect(won.status).toBe("winner");
+    expect(won.lift).toBeCloseTo(3.09, 1);
+    expect(won.needs).toEqual([]);
+    const flat = Array(8).fill(1);
+    const even = format([...posts("POV", flat), ...posts("Story", flat)]);
+    expect(even.status).toBe("even");
+    expect(even.needs).toEqual([]);
   });
 
-  it("warns when one variant is mostly something else too", () => {
-    const evening = { day: "Sat" as const, part: "Evening" as const, hour: 19 };
-    const morning = { day: "Sat" as const, part: "Morning" as const, hour: 9 };
-    const mixed = [
-      ...["1", "2", "3"].map((k) => video({ key: `p${k}`, tags: { format: "POV" }, slot: evening })),
-      ...["1", "2", "3"].map((k) => video({ key: `s${k}`, tags: { format: "Story" }, slot: morning })),
-    ];
-    expect(ruleWarnings(exp, mixed).join(" ")).toMatch(/POV: 100% are/);
+  it("skips a tag with only one value", () => {
+    expect(autoTests(posts("POV", [1, 2])).some((t) => t.key === "format")).toBe(false);
   });
 });
 
 describe("weekly brief", () => {
-  it("lists best UK hours with at least 3 scored posts, and what a running test needs", () => {
+  it("lists best UK hours with at least 3 scored posts", () => {
     const at = (hour: number, index: number, key: string) =>
       video({ key, slot: { day: "Mon", part: "Evening", hour }, index: { 24: index, 168: null } });
     const brief = weeklyBrief(
       [at(18, 2, "x1"), at(18, 3, "x2"), at(18, 2, "x3"), at(9, 1, "y1"), at(9, 1, "y2"), at(9, 1, "y3"), at(13, 9, "z1")],
-      [exp],
       NOW,
     );
     expect(brief.bestHours).toEqual([
@@ -107,7 +81,6 @@ describe("weekly brief", () => {
     ]);
     expect(brief.week.uploads).toBe(7);
     expect(brief.week.best?.index).toBe(9);
-    expect(brief.experiments[0].needs).toEqual(['2 more "POV"', '2 more "Story"']);
   });
 });
 

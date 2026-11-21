@@ -3,9 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase/server";
 import { cleanTags, type SocialTags } from "@/lib/social/tags";
-import type { ExperimentMetric, ExperimentVariant, SocialPlatform } from "@/lib/social/types";
+import type { SocialPlatform } from "@/lib/social/types";
 
-// Server actions behind the Planner and Experiments pages. Every write goes
+// Server actions behind the Planner. Every write goes
 // through an is_admin()-gated RPC from 052_social.sql, which is the real
 // boundary and writes its own audit entry; these wrappers only marshal and
 // revalidate. Deleting a post's files runs as the admin too, under the
@@ -24,7 +24,6 @@ async function run(fn: string, args: Record<string, unknown>) {
 
 const refresh = () => {
   revalidatePath("/admin/marketing/planner");
-  revalidatePath("/admin/marketing/experiments");
 };
 
 export type PostDraft = {
@@ -36,8 +35,6 @@ export type PostDraft = {
   cover_path: string | null;
   schedule: boolean;
   scheduled_at: string | null;
-  experiment_id: string | null;
-  variant: string | null;
   notes: string | null;
   targets: {
     platform: SocialPlatform;
@@ -57,8 +54,8 @@ export async function saveSocialPost(draft: PostDraft): Promise<SocialResult> {
     p_cover_path: draft.cover_path,
     p_schedule: draft.schedule,
     p_scheduled_at: draft.scheduled_at,
-    p_experiment_id: draft.experiment_id,
-    p_variant: draft.experiment_id ? draft.variant : null,
+    p_experiment_id: null,
+    p_variant: null,
     p_notes: draft.notes?.trim() || null,
     p_targets: draft.targets,
   });
@@ -138,65 +135,5 @@ export async function setSocialTags(input: {
   });
   revalidatePath("/admin/marketing");
   refresh();
-  return { ok: result.ok, error: result.error };
-}
-
-export type ExperimentDraft = {
-  id: string | null;
-  name: string;
-  hypothesis: string | null;
-  metric: ExperimentMetric;
-  variants: ExperimentVariant[];
-  status: "running" | "concluded";
-  winner: string | null;
-  conclusion: string | null;
-  dimension: string | null;
-  // YYYY-MM-DD, from midnight UTC.
-  startsOn: string | null;
-  target: number;
-};
-
-export async function saveSocialExperiment(draft: ExperimentDraft): Promise<SocialResult> {
-  const rule = !!draft.dimension;
-  const { result } = await run("admin_save_social_experiment", {
-    p_id: draft.id,
-    p_name: draft.name.trim() || "Untitled experiment",
-    p_hypothesis: draft.hypothesis?.trim() || null,
-    p_metric: draft.metric,
-    p_variants: draft.variants.map((v) => ({
-      key: v.key,
-      label: v.label.trim(),
-      ...(rule ? { value: v.value ?? "" } : {}),
-    })),
-    p_status: draft.status,
-    p_winner: draft.status === "concluded" ? draft.winner : null,
-    p_conclusion: draft.conclusion?.trim() || null,
-    p_dimension: draft.dimension,
-    p_starts_at: rule && draft.startsOn ? `${draft.startsOn}T00:00:00Z` : null,
-    p_target_per_variant: draft.target,
-  });
-  refresh();
-  return { ok: result.ok, error: result.error, id: result.id as string | undefined };
-}
-
-export async function deleteSocialExperiment(id: string): Promise<SocialResult> {
-  const { result } = await run("admin_delete_social_experiment", { p_id: id });
-  refresh();
-  return { ok: result.ok, error: result.error };
-}
-
-export async function setExperimentVideo(
-  experimentId: string,
-  platform: SocialPlatform,
-  externalId: string,
-  variant: string | null,
-): Promise<SocialResult> {
-  const { result } = await run("admin_set_social_experiment_video", {
-    p_experiment_id: experimentId,
-    p_platform: platform,
-    p_external_id: externalId,
-    p_variant: variant,
-  });
-  revalidatePath("/admin/marketing/experiments");
   return { ok: result.ok, error: result.error };
 }

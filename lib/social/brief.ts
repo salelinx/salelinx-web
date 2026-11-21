@@ -1,87 +1,67 @@
-// A rule experiment (061_social_auto.sql) has no member list: every video
-// posted from its start whose value on its Compare dimension matches exactly
-// one variant is in.
-
-import { DIMENSIONS, findings, MEASURES, oftenWith } from "./compare";
-import { median, METRIC_HOURS } from "./experiments";
+import { compareTwo, DIMENSIONS, findings, MEASURES } from "./compare";
+import { median } from "./experiments";
 import type { InsightVideo } from "./insights";
-import {
-  type ExperimentMetric,
-  type ExperimentVideoRow,
-  type SocialExperimentRow,
-  type SocialPlatform,
-} from "./types";
+import type { SocialPlatform } from "./types";
 
-type Rule = Pick<SocialExperimentRow, "id" | "dimension" | "starts_at" | "variants">;
+const DAY_MS = 86_400_000;
+const WINDOW_DAYS = 90;
+// Posts per side before a test with no difference counts as finished.
+const TARGET = 8;
+const MIN_SLOT_POSTS = 3;
+const index24 = MEASURES.find((m) => m.key === "index24")!;
+const TESTED = DIMENSIONS.filter((d) => !["platform", "source", "gap"].includes(d.key));
 
-function ruleVariant(e: Rule, v: InsightVideo): string | null {
-  if (!e.dimension || !e.starts_at || !v.publishedAt) return null;
-  if (Date.parse(v.publishedAt) < Date.parse(e.starts_at)) return null;
-  const dim = DIMENSIONS.find((d) => d.key === e.dimension);
-  if (!dim) return null;
-  const values = dim.values(v);
-  const hits = e.variants.filter((x) => x.value && values.includes(x.value));
-  return hits.length === 1 ? hits[0].key : null;
-}
+type Side = { value: string; posts: number; median: number | null };
 
-export function ruleMembers(e: Rule, videos: InsightVideo[]): ExperimentVideoRow[] {
-  return videos.flatMap((v) => {
-    const variant = ruleVariant(e, v);
-    return variant
-      ? [{ experiment_id: e.id, platform: v.platform, external_id: v.external_id, variant, added_at: v.publishedAt! }]
-      : [];
-  });
-}
-
-// Something most of one variant shares and the others don't, which the test may be measuring instead.
-export function ruleWarnings(e: Rule, videos: InsightVideo[]): string[] {
-  if (!e.dimension) return [];
-  const byKey = new Map<string, InsightVideo[]>();
-  for (const v of videos) {
-    const k = ruleVariant(e, v);
-    if (k) byKey.set(k, [...(byKey.get(k) ?? []), v]);
-  }
-  const out: string[] = [];
-  for (const [key, mine] of byKey) {
-    const rest = [...byKey].filter(([k]) => k !== key).flatMap(([, vs]) => vs);
-    const often = oftenWith(mine, rest, e.dimension);
-    if (often)
-      out.push(
-        `${e.variants.find((x) => x.key === key)?.label || key}: ${Math.round(often.share * 100)}% are ${often.label}, against ${Math.round(often.restShare * 100)}% of the others.`,
-      );
-  }
-  return out.sort();
-}
-
-const atMetric = (v: InsightVideo, metric: ExperimentMetric) =>
-  v.at[METRIC_HOURS[metric] as keyof InsightVideo["at"]];
-
-export type RuleProgress = {
-  // Per variant, the fewest posted and measured on any platform it is on.
-  variants: { key: string; label: string; posted: number; measured: number }[];
-  target: number;
-  ready: boolean;
+export type AutoTest = {
+  key: string;
+  dimension: string;
+  a: Side;
+  b: Side;
+  status: "winner" | "leaning" | "even" | "testing";
+  leader: string | null;
+  // 0.5 = +50%.
+  lift: number | null;
+  needs: string[];
 };
 
-export function ruleProgress(
-  e: Rule & Pick<SocialExperimentRow, "metric" | "target_per_variant">,
-  videos: InsightVideo[],
-): RuleProgress {
-  const target = e.target_per_variant ?? 8;
-  const members = videos.filter((v) => ruleVariant(e, v));
-  const platforms = [...new Set(members.map((v) => v.platform))] as SocialPlatform[];
-  const variants = e.variants.map((x) => {
-    const mine = members.filter((v) => ruleVariant(e, v) === x.key);
-    const per = (f: (v: InsightVideo) => boolean) =>
-      platforms.length ? Math.min(...platforms.map((p) => mine.filter((v) => v.platform === p && f(v)).length)) : 0;
-    return {
-      key: x.key,
-      label: x.label || x.value || x.key,
-      posted: per(() => true),
-      measured: per((v) => atMetric(v, e.metric) !== null),
-    };
+export function autoTests(videos: InsightVideo[]): AutoTest[] {
+  const scored = videos.filter((v) => index24.value(v) !== null);
+  const tests = TESTED.flatMap((dim): AutoTest[] => {
+    const counts = new Map<string, number>();
+    for (const v of scored) for (const x of new Set(dim.values(v))) counts.set(x, (counts.get(x) ?? 0) + 1);
+    const [a, b] = [...counts].sort((x, y) => y[1] - x[1]).map(([x]) => x);
+    if (!b) return [];
+    const r = compareTwo(scored, dim, a, b, index24);
+    const side = (value: string, pts: { value: number }[]): Side => ({
+      value,
+      posts: pts.length,
+      median: median(pts.map((p) => p.value)),
+    });
+    const sa = side(a, r.a);
+    const sb = side(b, r.b);
+    const ahead = sa.median !== null && sb.median !== null && sa.median !== sb.median ? (sa.median > sb.median ? sa : sb) : null;
+    const behind = ahead === sa ? sb : sa;
+    const full = sa.posts >= TARGET && sb.posts >= TARGET;
+    const status = r.verdict === "real" ? "winner" : r.verdict === "leaning" ? "leaning" : full ? "even" : "testing";
+    return [
+      {
+        key: dim.key,
+        dimension: dim.label,
+        a: sa,
+        b: sb,
+        status,
+        leader: ahead?.value ?? null,
+        lift: ahead && behind.median ? ahead.median! / behind.median - 1 : null,
+        needs:
+          status === "winner" || status === "even"
+            ? []
+            : [sa, sb].filter((s) => s.posts < TARGET).map((s) => `${TARGET - s.posts} more "${s.value}"`),
+      },
+    ];
   });
-  return { variants, target, ready: platforms.length > 0 && variants.every((x) => x.measured >= target) };
+  const order = { winner: 0, leaning: 1, testing: 2, even: 3 };
+  return tests.sort((x, y) => order[x.status] - order[y.status] || (y.lift ?? 0) - (x.lift ?? 0));
 }
 
 type BriefPost = { title: string; platform: SocialPlatform; url: string | null; index: number };
@@ -89,21 +69,14 @@ type BriefPost = { title: string; platform: SocialPlatform; url: string | null; 
 export type Brief = {
   generatedAt: string;
   week: { uploads: number; typical: number | null; best: BriefPost | null; worst: BriefPost | null };
-  experiments: { id: string; name: string; ready: boolean; needs: string[] }[];
+  // Trend Remix's prompt reads experiments[].needs and working.
+  experiments: AutoTest[];
   working: { dimension: string; value: string; lift: number; often: string | null }[];
   // UK hours.
   bestHours: { hour: number; index: number; posts: number }[];
 };
 
-const DAY_MS = 86_400_000;
-const MIN_SLOT_POSTS = 3;
-const index24 = MEASURES.find((m) => m.key === "index24")!;
-
-export function weeklyBrief(
-  videos: InsightVideo[],
-  experiments: (Rule & Pick<SocialExperimentRow, "name" | "metric" | "status" | "target_per_variant">)[],
-  nowMs: number,
-): Brief {
+export function weeklyBrief(videos: InsightVideo[], nowMs: number): Brief {
   const since = (days: number) =>
     videos.filter((v) => v.publishedAt && Date.parse(v.publishedAt) >= nowMs - days * DAY_MS);
 
@@ -113,17 +86,7 @@ export function weeklyBrief(
     .map((v) => ({ title: v.title, platform: v.platform, url: v.url, index: v.index[24]! }))
     .sort((a, b) => b.index - a.index);
 
-  const recent = since(90);
-  const working = findings(recent, index24)
-    .filter((f) => f.row.verdict === "real")
-    .slice(0, 3)
-    .map((f) => ({
-      dimension: f.dimension.label,
-      value: f.row.value,
-      lift: f.row.lift ?? 0,
-      often: f.row.often?.label ?? null,
-    }));
-
+  const recent = since(WINDOW_DAYS);
   const hours = new Map<number, number[]>();
   for (const v of recent) {
     if (!v.slot || v.index[24] === null) continue;
@@ -143,22 +106,16 @@ export function weeklyBrief(
       best: scored[0] ?? null,
       worst: scored.length > 1 ? scored[scored.length - 1] : null,
     },
-    experiments: experiments
-      .filter((e) => e.status === "running" && e.dimension)
-      .map((e) => {
-        const progress = ruleProgress(e, videos);
-        return {
-          id: e.id,
-          name: e.name,
-          ready: progress.ready,
-          needs: progress.ready
-            ? []
-            : progress.variants
-                .filter((x) => x.posted < progress.target)
-                .map((x) => `${progress.target - x.posted} more "${x.label}"`),
-        };
-      }),
-    working,
+    experiments: autoTests(recent),
+    working: findings(recent, index24)
+      .filter((f) => f.row.verdict === "real")
+      .slice(0, 3)
+      .map((f) => ({
+        dimension: f.dimension.label,
+        value: f.row.value,
+        lift: f.row.lift ?? 0,
+        often: f.row.often?.label ?? null,
+      })),
     bestHours,
   };
 }

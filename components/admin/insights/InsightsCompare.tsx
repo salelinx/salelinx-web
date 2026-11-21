@@ -7,7 +7,6 @@
 // every dimension at once.
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import {
   compareGroups,
   compareTwo,
@@ -275,9 +274,6 @@ export function InsightsCompare({ load }: { load: InsightsLoad }) {
                   : `${a} against ${b}. A gap this size turns up by chance ${Math.max(1, Math.round((duel.p ?? 1) * 100))}% of the time with these posts.`}
                 {duel.both > 0 && ` ${duel.both} post${duel.both === 1 ? " is" : "s are"} in both and left out.`}
               </p>
-              <Link href="/admin/marketing/experiments" className="text-xs text-zinc-900 underline">
-                Test it properly with an experiment
-              </Link>
             </div>
           </div>
           <div className="mt-4">

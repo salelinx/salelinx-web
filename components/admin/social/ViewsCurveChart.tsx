@@ -1,25 +1,12 @@
 "use client";
 
-// Views against hours since posting, one 2px line per video. Lines are
-// coloured by experiment variant (fixed order, so B is always orange), or a
-// grey line marks the typical video on a video's own page. A vertical
-// crosshair snaps to the nearest hour and the tooltip lists every line there,
-// so nobody has to aim at a 2px line. The members table under each chart is
-// its table view.
+// Views against hours since posting, a video's line over the grey typical one.
+// The crosshair snaps to the nearest hour so nobody has to aim at a 2px line.
 
 import { useMemo, useRef, useState } from "react";
 import { curveAt } from "@/lib/social/experiments";
 
-// Categorical slots 1-5 of the reference palette, as CSS variables so the
-// dark theme can swap in its own steps (app/admin/admin.css). A variant keeps
-// its colour whatever else is shown.
-export const VARIANT_COLORS: Record<string, string> = {
-  A: "var(--viz-1)",
-  B: "var(--viz-2)",
-  C: "var(--viz-3)",
-  D: "var(--viz-4)",
-  E: "var(--viz-5)",
-};
+const LINE = "var(--viz-1)";
 const BENCHMARK = "var(--admin-chart-faint)";
 const GRID = "var(--admin-chart-grid)";
 const AXIS = "var(--admin-chart-axis)";
@@ -27,7 +14,6 @@ const AXIS = "var(--admin-chart-axis)";
 export type CurveLine = {
   id: string;
   label: string;
-  // A variant key, or "benchmark" for the typical-video line.
   series: string;
   curve: { h: number; views: number }[];
 };
@@ -53,7 +39,7 @@ export function ViewsCurveChart({
 }: {
   lines: CurveLine[];
   maxHours: number;
-  // Shown under the chart: one entry per series, e.g. A "Question hook".
+  // Shown under the chart: one entry per series.
   legend: { series: string; label: string }[];
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -69,7 +55,7 @@ export function ViewsCurveChart({
   const plotH = H - PAD.top - PAD.bottom;
   const x = (h: number) => PAD.left + (h / maxHours) * plotW;
   const y = (v: number) => PAD.top + plotH - (v / yMax) * plotH;
-  const color = (series: string) => (series === "benchmark" ? BENCHMARK : (VARIANT_COLORS[series] ?? BENCHMARK));
+  const color = (series: string) => (series === "benchmark" ? BENCHMARK : LINE);
 
   const xTicks = maxHours <= 72 ? [0, 6, 12, 24, 48, 72] : [0, 24, 48, 72, 96, 120, 144, 168];
   const yTicks = [0, yMax / 2, yMax];
