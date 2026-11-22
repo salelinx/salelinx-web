@@ -166,6 +166,7 @@ The Users module answers "what is this account actually doing", not just "what d
 | Surface | Shows | Source table |
 | --- | --- | --- |
 | Roster: `Linked` column | Which marketplaces are connected (D / V / E badges), filterable per marketplace, "Two or more" (the accounts crosslisting applies to) and "Nothing linked" | `linked_accounts` (001) |
+| Roster: `Followers` column | Total followers across the user's linked Depop and Vinted shops, sortable to find the biggest sellers. The extension writes each shop's count at most once a day when it reads the user's own profile; `-` until it has | `linked_accounts.followers` (062) |
 | Roster: `Last active` column | The more recent of last sign-in and freshest device heartbeat, sortable, with an activity filter (7 days / 30 days / dormant / never) | `auth.users` + `device_sessions` (015) |
 | Drawer: header | Joined, Last sign-in, Last seen, each with a relative age | same |
 | Drawer: Linked accounts | Per platform: username, marketplace account ID, linked date, and an "Open shop" link to the live profile | `linked_accounts` |
