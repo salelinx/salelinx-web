@@ -55,7 +55,7 @@ type Props = {
   tiers: TierConfig[];
 };
 
-type SortKey = "created_at" | "last_active" | "email" | "tier_id" | "status";
+type SortKey = "created_at" | "last_active" | "email" | "tier_id" | "status" | "followers";
 
 // Activity buckets, evaluated against the same "last active" value the column
 // shows. Thresholds match lib/admin/relative-time.ts's staleness buckets.
@@ -527,6 +527,8 @@ export function AdminUserTable({ initialUsers, deletedAccounts, hiddenUserIds, t
           const d = rank(a.status) - rank(b.status);
           return d !== 0 ? d : (a.email ?? "").localeCompare(b.email ?? "");
         }
+        case "followers":
+          return (b.followers ?? -1) - (a.followers ?? -1);
         case "last_active":
           return (
             mostRecent(b.last_sign_in_at, b.last_device_seen_at) ?? ""
@@ -609,6 +611,7 @@ export function AdminUserTable({ initialUsers, deletedAccounts, hiddenUserIds, t
               ["tier_id", "Tier"],
               ["status", "Status"],
               ["email", "Email"],
+              ["followers", "Followers"],
             ]}
             onChange={(v) => setSortKey(v as SortKey)}
             highlight={false}
@@ -786,6 +789,11 @@ export function AdminUserTable({ initialUsers, deletedAccounts, hiddenUserIds, t
                 />
                 <th className="px-3 py-2 font-medium">Linked</th>
                 <SortableTh
+                  label="Followers"
+                  active={sortKey === "followers"}
+                  onClick={() => setSortKey("followers")}
+                />
+                <SortableTh
                   label="Tier"
                   active={sortKey === "tier_id"}
                   onClick={() => setSortKey("tier_id")}
@@ -841,6 +849,13 @@ export function AdminUserTable({ initialUsers, deletedAccounts, hiddenUserIds, t
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
                       <PlatformTags platforms={u.linked_platforms ?? []} />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 tabular-nums text-zinc-700">
+                      {u.followers != null ? (
+                        u.followers.toLocaleString("en-GB")
+                      ) : (
+                        <span className="text-zinc-400">-</span>
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2">
                       <TierBadge tierId={u.tier_id} />
