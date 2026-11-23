@@ -112,6 +112,7 @@ function summary(l) {
     views: l.views ?? null,
     photos: images.map((i) => i.url_fullxfull ?? i.url_570xN).filter(Boolean),
     tags: l.tags ?? [],
+    hasVariations: !!l.has_variations,
     createdAt: l.created_timestamp ? l.created_timestamp * 1000 : null,
     updatedAt: l.updated_timestamp ? l.updated_timestamp * 1000 : null,
   };
@@ -134,6 +135,66 @@ async function listings(admin, userId: string) {
     }
   }
   return { listings: out, complete };
+}
+
+const getListing = (token: string, id: string) => api(token, `/listings/${id}?includes=Images`);
+
+async function update(admin, userId: string, body) {
+  const id = String(body.listingId ?? '');
+  if (!/^\d+$/.test(id)) throw new EtsyError('Bad listing id', 'bad_request', 400);
+  const { title, description, tags, state, price, quantity } = body.changes ?? {};
+  const { token, shopId } = await accessTokenFor(admin, userId);
+
+  // Reactivating an expired or draft listing renews it, which Etsy charges for.
+  if (state === 'active' && (await getListing(token, id)).state !== 'inactive') {
+    throw new EtsyError('Only a deactivated listing can be made active here. Renew it on Etsy.', 'renew', 409);
+  }
+
+  let inventory = null;
+  if (price !== undefined || quantity !== undefined) {
+    inventory = await api(token, `/listings/${id}/inventory`);
+    if (inventory.products.length !== 1) {
+      throw new EtsyError('This listing has variations. Change its price and quantity on Etsy.', 'variations', 409);
+    }
+  }
+
+  const form = new URLSearchParams();
+  if (title !== undefined) form.set('title', String(title));
+  if (description !== undefined) form.set('description', String(description));
+  if (Array.isArray(tags)) form.set('tags', tags.join(','));
+  if (state === 'active' || state === 'inactive') form.set('state', state);
+  if ([...form.keys()].length) {
+    await api(token, `/shops/${shopId}/listings/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+    });
+  }
+
+  if (inventory) {
+    const products = inventory.products.map(({ product_id, is_deleted, ...p }) => ({
+      ...p,
+      property_values: p.property_values.map(({ scale_name, ...v }) => v),
+      offerings: p.offerings.map(({ offering_id, is_deleted, ...o }) => ({
+        ...o,
+        price: price ?? o.price.amount / o.price.divisor,
+        quantity: quantity ?? o.quantity,
+      })),
+    }));
+    await api(token, `/listings/${id}/inventory`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        products,
+        price_on_property: inventory.price_on_property ?? [],
+        quantity_on_property: inventory.quantity_on_property ?? [],
+        sku_on_property: inventory.sku_on_property ?? [],
+        readiness_state_on_property: inventory.readiness_state_on_property ?? [],
+      }),
+    });
+  }
+
+  return { listing: summary(await getListing(token, id)) };
 }
 
 async function link(admin, userScoped, userId: string, body) {
@@ -248,6 +309,9 @@ Deno.serve(async (req: Request) => {
 
       case 'listings':
         return json(200, await listings(admin, user.id));
+
+      case 'update':
+        return json(200, await update(admin, user.id, body));
 
       case 'unlink': {
         await admin.from('etsy_tokens').delete().eq('user_id', user.id);
