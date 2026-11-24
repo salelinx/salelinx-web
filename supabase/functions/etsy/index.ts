@@ -139,6 +139,48 @@ async function listings(admin, userId: string) {
 
 const getListing = (token: string, id: string) => api(token, `/listings/${id}?includes=Images`);
 
+// Etsy's category tree changes rarely; one read per isolate.
+let taxonomy: Promise<Map<number, { name: string; path: number[] }>> | null = null;
+function taxonomyNodes(token: string) {
+  taxonomy ??= api(token, '/seller-taxonomy/nodes')
+    .then(({ results }) => {
+      const nodes = new Map();
+      const walk = (list) =>
+        list?.forEach((n) => {
+          nodes.set(n.id, { name: n.name, path: n.full_path_taxonomy_ids ?? [n.id] });
+          walk(n.children);
+        });
+      walk(results);
+      return nodes;
+    })
+    .catch((err) => {
+      taxonomy = null;
+      throw err;
+    });
+  return taxonomy;
+}
+
+async function item(admin, userId: string, body) {
+  const id = String(body.listingId ?? '');
+  if (!/^\d+$/.test(id)) throw new EtsyError('Bad listing id', 'bad_request', 400);
+  const { token, shopId } = await accessTokenFor(admin, userId);
+  const l = await getListing(token, id);
+  if (String(l.shop_id) !== shopId) throw new EtsyError('Not a listing in your shop', 'not_found', 404);
+  const [props, nodes] = await Promise.all([
+    api(token, `/shops/${shopId}/listings/${id}/properties`),
+    taxonomyNodes(token),
+  ]);
+  const path = nodes.get(l.taxonomy_id)?.path ?? [];
+  return {
+    ...summary(l),
+    category: path.map((t) => nodes.get(t)?.name).filter(Boolean).join(' > '),
+    properties: Object.fromEntries(
+      (props.results ?? []).map((p) => [p.property_name, p.values ?? []]),
+    ),
+    whoMade: l.who_made ?? null,
+  };
+}
+
 async function update(admin, userId: string, body) {
   const id = String(body.listingId ?? '');
   if (!/^\d+$/.test(id)) throw new EtsyError('Bad listing id', 'bad_request', 400);
@@ -309,6 +351,9 @@ Deno.serve(async (req: Request) => {
 
       case 'listings':
         return json(200, await listings(admin, user.id));
+
+      case 'item':
+        return json(200, await item(admin, user.id, body));
 
       case 'update':
         return json(200, await update(admin, user.id, body));
