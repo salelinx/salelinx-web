@@ -218,8 +218,9 @@ export const FAQ_GROUPS_EN: FAQGroup[] = [
         a: (
           <div className="space-y-2">
             <p>
-              The panel opens from the SaleLinx launcher in the bottom-right
-              corner of every Depop, Vinted and eBay page: click it, or press
+              The panel opens from the SaleLinx launcher in the bottom-left
+              corner of every Depop, Vinted and eBay page (or wherever you
+              last dragged it): click it, or press
               Alt+S (the default shortcut) on one of those tabs. The SaleLinx
               icon in Chrome&rsquo;s toolbar only opens a small window for
               signing in. If you can&rsquo;t see the launcher:
