@@ -308,7 +308,28 @@ export function facebookNext(
     return { kind: "published", externalId: null };
   const ageS = finishedAt ? (now - Date.parse(finishedAt)) / 1000 : 0;
   if (ageS > HOUR)
-    return { kind: "failed", error: "Facebook was still processing the Reel after an hour." };
+    return {
+      kind: "failed",
+      error:
+        "Facebook was still processing the Reel after an hour. Check the Page before retrying: it may have posted.",
+    };
+  return { kind: "wait", status: "processing", checkInSeconds: 60 };
+}
+
+/**
+ * When Facebook won't show a published Reel to the Page token, whether it is
+ * in the Page's Reels list decides instead. Not there yet: keep checking for
+ * an hour, then fail with a warning, since Retry would publish it again.
+ */
+export function facebookListedNext(listed: boolean, finishedAt: string | undefined, now: number): Next {
+  if (listed) return { kind: "published", externalId: null };
+  const ageS = finishedAt ? (now - Date.parse(finishedAt)) / 1000 : 0;
+  if (ageS > HOUR)
+    return {
+      kind: "failed",
+      error:
+        "Facebook took the Reel, but it still isn't on the Page after an hour. Check the Page before retrying: it may have posted.",
+    };
   return { kind: "wait", status: "processing", checkInSeconds: 60 };
 }
 

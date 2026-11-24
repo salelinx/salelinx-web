@@ -8,6 +8,7 @@ import {
 } from "../lib/social/experiments";
 import { hashtagCount, postWarnings, scheduleProblems, targetProblems } from "../lib/social/validate";
 import {
+  facebookListedNext,
   facebookNext,
   instagramNext,
   instagramTrialParams,
@@ -177,7 +178,26 @@ describe("publisher plans", () => {
     expect(
       facebookNext({ processing_phase: { status: "error", errors: [{ message: "Video too long" }] } }, at, T0),
     ).toEqual({ kind: "failed", error: "Facebook couldn't process the Reel: Video too long" });
-    expect(facebookNext({ video_status: "processing" }, at, T0 + 2 * H).kind).toBe("failed");
+    expect(facebookNext({ video_status: "processing" }, at, T0 + 2 * H)).toMatchObject({
+      kind: "failed",
+      error: expect.stringContaining("Check the Page before retrying"),
+    });
+  });
+
+  it("confirms a Facebook Reel from the Page's list when Facebook hides the Reel itself", () => {
+    const at = new Date(T0).toISOString();
+    expect(facebookListedNext(true, at, T0 + 60_000)).toEqual({ kind: "published", externalId: null });
+    // Listed late is still live, never a failure.
+    expect(facebookListedNext(true, at, T0 + 3 * H).kind).toBe("published");
+    expect(facebookListedNext(false, at, T0 + 60_000)).toEqual({
+      kind: "wait",
+      status: "processing",
+      checkInSeconds: 60,
+    });
+    expect(facebookListedNext(false, at, T0 + 2 * H)).toMatchObject({
+      kind: "failed",
+      error: expect.stringContaining("Check the Page before retrying"),
+    });
   });
 
   it("backs off and then gives up", () => {
