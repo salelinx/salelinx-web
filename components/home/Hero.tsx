@@ -143,6 +143,7 @@ export async function Hero() {
         <Reveal delay={420} className="mt-10 w-full max-w-3xl sm:mt-12">
           <YouTubeVideo
             id="9jv2Ppa6iNM"
+            poster="/videos/hero-thumbnail.webp"
             label={t("videoLabel")}
             className="rounded-2xl shadow-2xl ring-1 ring-black/10 dark:ring-white/10"
           />
