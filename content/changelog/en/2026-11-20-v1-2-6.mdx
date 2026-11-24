@@ -1,0 +1,104 @@
+export const metadata = {
+  title: "Auto-fill for Create listing, Send Offers on eBay, and eBay labels bought in the panel",
+  date: "2026-11-20",
+  summary:
+    "Version 1.2.6 fills in Create listing from your first photo, brings Send Offers to eBay, lets you buy and print eBay labels in the panel, sorts Messages into Open, Offers and Sold, and gathers each feature's settings under Advanced settings.",
+  tags: ["release"],
+};
+
+# Version 1.2.6
+
+Fill in a listing from a photo, send offers to eBay watchers, and buy eBay
+labels without leaving the panel.
+
+## Create listing: Auto-fill
+
+- **Auto-fill** reads your first photo and fills in the title, description,
+  brand, colours and category, plus eBay's item specifics once an eBay
+  category is picked.
+- **Only empty fields are filled,** so what you typed stays as it is. Check it
+  over before you create.
+- The photo's category is matched on your other marketplaces too.
+- The form fits without scrolling, and says which photos it couldn't add,
+  which you had already added, and which are very small.
+
+## Send Offers, now with eBay
+
+- **Auto-Offers is now Send Offers.**
+- **Scan Watchers** finds eBay listings with interested buyers and sends one
+  offer to every watcher. eBay allows one offer per listing every 48 hours,
+  so listings offered recently are skipped.
+- **All, Vinted or eBay.** All scans both at once.
+- **An optional message** sent with every offer.
+- Type the discount and minimum price, and see how many offers will go out and
+  what they are worth before you send.
+
+## eBay labels in the panel
+
+- **Buy label** buys the label from eBay without leaving the panel, and it is
+  then ready to print from the list. If eBay needs you to confirm the payment,
+  the panel links you to eBay.
+- **Print and email eBay labels** with the others, cropped to the label.
+- **Cancel labelled eBay orders,** with a Cancel pending badge until eBay
+  confirms.
+- A warning when a label costs more than the buyer paid, and the parcel size
+  and weight are remembered for each order.
+- **Message** on an eBay order opens the buyer's chat, or starts one.
+- Labels works with only eBay switched on.
+
+## Messages
+
+- **Open, Offers and Sold** replace All, Unread and Read.
+- **Photos in Vinted chats.** See the buyer's photos, and send your own.
+- **Offers in the chat,** with their price and how they ended.
+- **Delete your own Vinted messages.**
+- The time window starts at 7 days instead of 3.
+
+## Relist
+
+- **Follow every item.** Each row shows Waiting, Relisting, Relisted, Failed
+  or Skipped, and a summary of what wasn't done stays until you close it.
+- **Stop** shows during a run, and also clears relists still waiting in the
+  queue.
+- **A roomier Relist window** with bigger photos, the sale price on the price
+  line, and Relist as drafts.
+- New age filters: More than, Less than and Between.
+
+## Offers and Auto-Accept
+
+- **Auto-Accept in one place.** The Auto-Accept button in the Offers toolbar
+  opens its popup: Minimum offer, Price floor, Marketplaces and Check every,
+  with when it last checked and what it accepted.
+- **New defaults** for Auto-Accept: no marketplace ticked, and a check every 10
+  minutes.
+- **Counters are checked before they send,** so a counter above your asking
+  price or below the buyer's offer is caught first.
+- An eBay offer for several items says how many.
+
+## Improved
+
+- **Advanced settings.** Each feature's settings, from Grow to Linking, are
+  now a card in Settings, under Advanced settings.
+- **Crosslist finished** says which drafts were saved and where to finish
+  them. Searching keeps the items you ticked, and the tab works fully from the
+  keyboard.
+- **My Listings:** search finds words in any order, Select all can take every
+  match, Hide asks first, and a listing SaleLinx hasn't read yet shows a Sync
+  button.
+- Create listing says where the listing was made and what failed, with a
+  retry.
+- Sharper eBay listing photos, and smoother motion when you switch language.
+
+## Fixed
+
+- SaleLinx is temporarily down could flash when a single eBay request failed,
+  for example while crosslisting photos to eBay.
+- After the computer slept, accounts could show as not linked. They reconnect
+  by themselves now.
+- Refreshing Messages shows new Vinted messages straight away.
+- Vinted edits and deletes were undone by the next sync.
+- Skipped offers counted as sent in Send Offers.
+- The Offers time window did nothing.
+- Auto-Accept could act on an offer you had just answered yourself.
+- Photos in the Linking tab reloaded every 10 seconds, and editor thumbnails
+  flickered.

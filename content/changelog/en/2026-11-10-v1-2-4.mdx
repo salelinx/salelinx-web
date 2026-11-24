@@ -1,0 +1,94 @@
+export const metadata = {
+  title: "eBay orders in Labels, Create listing from a draft, and reworked Offers and Messages",
+  date: "2026-11-10",
+  summary:
+    "Version 1.2.4 brings eBay orders into the Labels tab with label prices, Mark posted and Cancel order, crops Vinted labels to the label itself, lets you start Create listing from a draft, and reworks the Offers and Messages tabs.",
+  tags: ["release"],
+};
+
+# Version 1.2.4
+
+Post eBay orders from the same list as Depop and Vinted.
+
+## eBay in Labels
+
+- **eBay orders waiting to be posted** sit in the same list as Depop and
+  Vinted, with an eBay filter and a countdown to eBay's post-by date.
+- **Label prices in the panel.** Get label shows eBay's drop-off services for
+  your parcel size and weight, with their prices, the buyer's pick first, the
+  arrival dates and what the buyer paid for postage. Open on eBay takes you to
+  eBay's own label page to buy it.
+- **Mark posted** tells eBay and the buyer the order is on its way, with a
+  carrier and tracking number if you have them.
+- **Cancel order** works on eBay orders too, with eBay's own reasons.
+
+## Better labels
+
+- **Vinted A4 labels are cropped** to the label itself for every carrier. This
+  also fixes blank InPost prints after Vinted moved the label on the sheet.
+  Relay QR codes print on a 4x6 slip.
+- **Faster downloads** when you print several Vinted labels.
+- Cropped labels carry a small SaleLinx mark under the label, as QR slips
+  already did.
+- The list shows 20, 50 or 100 orders a page, and the search box is bigger.
+
+## Create listing from a draft
+
+- **Start from a draft.** Select one draft in My Listings and click Create
+  listing. The form opens with the draft's title, description, price, brand,
+  condition, colours and photos, plus the category, size and parcel size of a
+  Vinted draft.
+- **Nothing lost.** If you had already started a listing, the form asks before
+  replacing it.
+- **The draft becomes the listing.** On Depop and Vinted the draft itself is
+  used and stays linked to the new copies. An eBay draft is replaced.
+
+## Offers
+
+- **A new card layout,** with the buyer first, then the offer beside your
+  crossed-out asking price and the percentage off.
+- **Sort offers** by Best offers, Newest first or Oldest first.
+- **Earlier** shows past offers and counters on Depop and Vinted.
+- A counter typed as 12,50 is read as 12.50.
+
+## Messages
+
+- Vinted conversations show once the buyer has written something.
+- Conversations about sold or deleted listings are left out.
+- Unread conversations load first.
+- A buyer who only says thanks or ok, or sends an emoji, is no longer marked
+  Needs reply.
+
+## Improved
+
+- **Counts in the side menu** for Offers, Messages and Labels.
+- **One Relist window for sold items** in My Listings, with Marketplaces,
+  Changes and Cloud save, plus Save as draft. A sold eBay listing can be
+  relisted with the rest of its linked group.
+- **A sold linked listing's notice** shows its photo, a View on button for
+  the marketplace it sold on, and a Take down button.
+- **My Listings:** Filter & Sort is now Advanced, with Presets inside it,
+  Hidden and Delayed sit behind a More statuses arrow, and photos have a Rotate
+  90° button. Save to Cloud takes drafts too.
+- **Post drafts** checks drafts faster, asks for a Depop size or brand when it
+  needs one, and shows Depop's reason when a post fails.
+- **Support** links to rating SaleLinx on the Chrome Web Store and reviewing
+  it on Trustpilot.
+- Brighter buttons and readable errors in dark mode, better keyboard and
+  screen reader support in Offers, Labels and Relist, and proper singular and
+  plural wording in every language.
+
+## Fixed
+
+- Depop drafts failed to save or post after a change on Depop's side.
+- Cancelling a Vinted order failed.
+- Label already ordered showed on every first Vinted label.
+- Vinted drafts lost their brand and size in My Listings, and CSV import
+  dropped the condition, size and brand on Vinted drafts.
+- After an update, Vinted actions such as bulk delete could do nothing.
+- A Depop description such as "Please ask for size" was read as a size.
+- Create listing now says why a price is refused.
+- The colour picker was cut off at the bottom of Create listing, and some
+  colours, such as Turquoise, were dropped.
+- New eBay orders could be hidden after a refresh, and missing photos showed
+  as broken images.

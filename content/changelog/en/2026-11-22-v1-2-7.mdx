@@ -1,0 +1,31 @@
+export const metadata = {
+  title: "Bug fixes for Vinted posting and Depop drafts",
+  date: "2026-11-22",
+  summary:
+    "Version 1.2.7 makes Vinted relists, crosslists and restocks post again, makes Depop drafts save again after a change on Depop's side, and shows how far a job got when you cancel it.",
+  tags: ["release"],
+};
+
+# Version 1.2.7
+
+A bug-fix release for Vinted posting and Depop drafts.
+
+## Fixed
+
+- **Vinted posting.** Relists, crosslists and restocks on Vinted could stop at
+  a draft with "Error uploading photo". They post again.
+- **Depop drafts.** Depop changed how drafts are saved, so crosslisting to
+  Depop, Create listing, Duplicate, Relist's Save as draft and CSV import
+  could not make Depop drafts. They work again.
+- Opening Create listing from a Depop draft keeps the draft's category, and
+  its size or a linked listing's.
+- "Baby blue", "baby pink" and "baby tee" in a title no longer put an item in
+  kidswear.
+
+## Improved
+
+- **Cancelling a running job** shows its progress and how many items are
+  still to do, with their photos. Anything already done stays done.
+- Create listing checks each marketplace's tab and sign-in as soon as you open
+  it, and a linked draft says which marketplaces it is already on.
+- The listing editor shows a Depop listing's size straight away.

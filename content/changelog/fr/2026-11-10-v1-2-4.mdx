@@ -1,0 +1,118 @@
+export const metadata = {
+  title: "Les commandes eBay dans Étiquettes, Créer une annonce depuis un brouillon, et Offres et Messages repensés",
+  date: "2026-11-10",
+  summary:
+    "La version 1.2.4 amène les commandes eBay dans l'onglet Étiquettes avec les prix des étiquettes, Marquer comme envoyé et Annuler la commande, recadre les étiquettes Vinted sur l'étiquette elle-même, permet de lancer Créer une annonce depuis un brouillon, et repense les onglets Offres et Messages.",
+  tags: ["release"],
+};
+
+# Version 1.2.4
+
+Expédiez vos commandes eBay depuis la même liste que Depop et Vinted.
+
+## eBay dans Étiquettes
+
+- **Les commandes eBay à expédier** apparaissent dans la même liste que Depop
+  et Vinted, avec un filtre eBay et un compte à rebours jusqu'à la date
+  d'envoi fixée par eBay.
+- **Les prix des étiquettes dans le panneau.** Obtenir l'étiquette affiche
+  les services de dépôt d'eBay pour la taille et le poids de votre colis,
+  avec leurs prix, le choix de l'acheteur en premier, les dates de livraison
+  et ce que l'acheteur a payé pour l'envoi. Ouvrir sur eBay vous mène à la
+  page d'étiquettes d'eBay pour l'acheter.
+- **Marquer comme envoyé** indique à eBay et à l'acheteur que la commande est
+  partie, avec un transporteur et un numéro de suivi si vous les avez.
+- **Annuler la commande** fonctionne aussi sur les commandes eBay, avec les
+  motifs d'eBay.
+
+## De meilleures étiquettes
+
+- **Les étiquettes Vinted au format A4 sont recadrées** sur l'étiquette
+  elle-même, pour tous les transporteurs. Cela corrige aussi les impressions
+  InPost vides depuis que Vinted a déplacé l'étiquette sur la feuille. Les
+  codes QR Relay s'impriment sur un bordereau 4x6.
+- **Des téléchargements plus rapides** quand vous imprimez plusieurs
+  étiquettes Vinted.
+- Les étiquettes recadrées portent une petite marque SaleLinx sous
+  l'étiquette, comme c'était déjà le cas des bordereaux QR.
+- La liste affiche 20, 50 ou 100 commandes par page, et le champ de recherche
+  est plus grand.
+
+## Créer une annonce depuis un brouillon
+
+- **Partez d'un brouillon.** Sélectionnez un seul brouillon dans Mes annonces
+  et cliquez sur Créer une annonce. Le formulaire s'ouvre avec le titre, la
+  description, le prix, la marque, l'état, les couleurs et les photos du
+  brouillon, plus la catégorie, la taille et la taille de colis d'un
+  brouillon Vinted.
+- **Rien ne se perd.** Si vous aviez déjà commencé une annonce, le formulaire
+  vous demande confirmation avant de la remplacer.
+- **Le brouillon devient l'annonce.** Sur Depop et Vinted, le brouillon
+  lui-même est utilisé et reste lié aux nouvelles copies. Un brouillon eBay
+  est remplacé.
+
+## Offres
+
+- **Une nouvelle présentation des cartes,** avec l'acheteur d'abord, puis
+  l'offre à côté de votre prix barré et du pourcentage de remise.
+- **Trier les offres** par Meilleures offres, Plus récentes ou Plus
+  anciennes.
+- **Une ligne Avant** affiche les offres et contre-offres passées sur Depop
+  et Vinted.
+- Une contre-offre saisie avec une virgule, comme 12,50, est maintenant bien
+  comprise.
+
+## Messages
+
+- Les conversations Vinted s'affichent dès que l'acheteur a écrit quelque
+  chose.
+- Les conversations sur des annonces vendues ou supprimées sont laissées de
+  côté.
+- Les conversations non lues se chargent en premier.
+- Un acheteur qui dit seulement merci ou ok, ou envoie un emoji, n'est plus
+  marqué À répondre.
+
+## Améliorations
+
+- **Des compteurs dans le menu latéral** pour Offres, Messages et
+  Étiquettes.
+- **Une seule fenêtre Republier pour les articles vendus** dans Mes annonces,
+  avec Plateformes, Modifications et Sauvegarde cloud, ainsi que l'option
+  Enregistrer en brouillon. Une annonce eBay vendue peut être republiée avec
+  le reste de son groupe lié.
+- **La notification de vente d'une annonce liée** affiche sa photo, un bouton
+  Voir sur la plateforme où elle s'est vendue, et un bouton Retirer.
+- **Mes annonces :** le menu de filtres et de tri devient Avancé, avec les
+  préréglages à l'intérieur, Masqués et Différés passent derrière une flèche
+  Plus de statuts, et les photos ont un bouton Pivoter 90°. Sauvegarder dans
+  le cloud accepte aussi les brouillons.
+- **Publier les brouillons** vérifie les brouillons plus vite, demande une
+  taille ou une marque Depop quand il en faut une, et affiche la raison donnée
+  par Depop quand une publication échoue.
+- **Support** propose de noter SaleLinx sur le Chrome Web Store et de laisser
+  un avis sur Trustpilot.
+- Des boutons plus lumineux et des erreurs lisibles en mode sombre, une
+  meilleure prise en charge du clavier et des lecteurs d'écran dans Offres,
+  Étiquettes et Republier, et des accords corrects au singulier et au pluriel
+  dans toutes les langues.
+
+## Corrections
+
+- Les brouillons Depop ne s'enregistraient plus ou ne se publiaient plus après
+  un changement côté Depop.
+- L'annulation d'une commande Vinted échouait.
+- Étiquette déjà commandée s'affichait dès la première demande de chaque
+  étiquette Vinted.
+- Les brouillons Vinted perdaient leur marque et leur taille dans Mes
+  annonces, et l'import CSV omettait l'état, la taille et la marque des
+  brouillons Vinted.
+- Après une mise à jour, des actions Vinted comme la suppression en masse
+  pouvaient rester sans effet.
+- Une description Depop comme « Please ask for size » était lue comme une
+  taille.
+- Créer une annonce indique maintenant pourquoi un prix est refusé.
+- Le sélecteur de couleur était coupé en bas de Créer une annonce, et
+  certaines couleurs, comme Turquoise, disparaissaient.
+- Les nouvelles commandes eBay pouvaient être masquées après une
+  actualisation, et les photos manquantes s'affichaient comme des images
+  cassées.

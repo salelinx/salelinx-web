@@ -1,0 +1,33 @@
+export const metadata = {
+  title: "Correcciones para la publicación en Vinted y los borradores de Depop",
+  date: "2026-11-22",
+  summary:
+    "La versión 1.2.7 hace que las republicaciones, los crosslists y las reposiciones de Vinted vuelvan a publicarse, que los borradores de Depop vuelvan a guardarse tras un cambio por parte de Depop, y muestra hasta dónde llegó una tarea cuando la cancelas.",
+  tags: ["release"],
+};
+
+# Versión 1.2.7
+
+Una versión que corrige la publicación en Vinted y los borradores de Depop.
+
+## Correcciones
+
+- **Publicar en Vinted.** Las republicaciones, los crosslists y las
+  reposiciones en Vinted podían quedarse en borrador con "Error uploading
+  photo". Vuelven a publicarse.
+- **Borradores de Depop.** Depop cambió la forma de guardar los borradores, así
+  que el crosslisting a Depop, Crear anuncio, Duplicar, Guardar como borrador
+  en Republicar y la importación CSV no podían crear borradores de Depop.
+  Vuelven a funcionar.
+- Abrir Crear anuncio desde un borrador de Depop conserva la categoría del
+  borrador, y su talla o la de un anuncio vinculado.
+- "Baby blue", "baby pink" y "baby tee" en un título ya no hacen que un
+  artículo acabe en ropa infantil.
+
+## Mejoras
+
+- **Cancelar una tarea en curso** muestra su progreso y cuántos artículos
+  quedan, con sus fotos. Lo que ya se ha hecho no se deshace.
+- Crear anuncio comprueba la pestaña y la sesión de cada plataforma en cuanto
+  lo abres, y un borrador vinculado dice en qué plataformas ya está.
+- El editor de anuncios muestra al momento la talla de un anuncio de Depop.

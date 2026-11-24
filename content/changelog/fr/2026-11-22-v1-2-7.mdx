@@ -1,0 +1,36 @@
+export const metadata = {
+  title: "Corrections pour la publication sur Vinted et les brouillons Depop",
+  date: "2026-11-22",
+  summary:
+    "La version 1.2.7 fait de nouveau aboutir les republications, crosslists et réassorts sur Vinted, rétablit l'enregistrement des brouillons Depop après un changement côté Depop, et montre où en était une tâche quand vous l'annulez.",
+  tags: ["release"],
+};
+
+# Version 1.2.7
+
+Une version corrective pour la publication sur Vinted et les brouillons
+Depop.
+
+## Corrections
+
+- **Publication sur Vinted.** Les republications, crosslists et réassorts sur
+  Vinted pouvaient rester bloqués au stade de brouillon avec l'erreur « Error
+  uploading photo ». Ils sont de nouveau publiés.
+- **Brouillons Depop.** Depop a changé la façon d'enregistrer les brouillons,
+  si bien que le crosslist vers Depop, Créer une annonce, Dupliquer, l'option
+  Enregistrer en brouillon de Republier et l'import CSV ne pouvaient plus
+  créer de brouillons Depop. Tout fonctionne de nouveau.
+- Ouvrir Créer une annonce depuis un brouillon Depop garde la catégorie du
+  brouillon, et sa taille ou celle d'une annonce liée.
+- « Baby blue », « baby pink » et « baby tee » dans un titre ne classent plus
+  un article dans les vêtements enfants.
+
+## Améliorations
+
+- **Annuler une tâche en cours** montre sa progression et le nombre
+  d'articles qu'il reste à traiter, avec leurs photos. Ce qui est déjà fait
+  reste fait.
+- Créer une annonce vérifie l'onglet et la connexion de chaque plateforme dès
+  l'ouverture, et un brouillon lié indique sur quelles plateformes il existe
+  déjà.
+- L'éditeur d'annonce affiche tout de suite la taille d'une annonce Depop.

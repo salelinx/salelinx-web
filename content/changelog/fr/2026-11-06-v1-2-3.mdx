@@ -1,0 +1,81 @@
+export const metadata = {
+  title: "Stock mort sur eBay, un nouveau tableau Stock mort et un interrupteur Mode sombre",
+  date: "2026-11-06",
+  summary:
+    "La version 1.2.3 amène Stock mort sur eBay et le transforme en tableau avec une colonne par étape, ajoute un interrupteur Mode sombre dans les Paramètres, et affiche des cartes de formules qui mènent directement au paiement.",
+  tags: ["release"],
+};
+
+# Version 1.2.3
+
+Voyez ce qui ne se vend pas sur un seul tableau, eBay compris.
+
+## Stock mort sur eBay
+
+- **Les annonces eBay à côté de Depop et Vinted.** Vos annonces eBay à prix
+  fixe sont analysées avec les autres, et un filtre eBay est disponible. Les
+  enchères sont exclues, car elles se terminent d'elles-mêmes.
+- **Des suivis au lieu des likes.** Les annonces eBay sont jugées sur leurs
+  suivis et leurs vues, et les vues couvrent les 90 derniers jours. Un tiret
+  signifie qu'eBay n'en a signalé aucune.
+- **Agissez depuis le panneau.** -10 % fonctionne sur les annonces eBay sans
+  variantes, Republier met fin à une annonce et la remet en vente comme
+  nouvelle, et Supprimer y met fin.
+- **eBay seul.** Si seul eBay est activé, l'onglet Stock mort s'ouvre au lieu
+  d'afficher Bientôt disponible.
+
+## Un nouveau tableau Stock mort
+
+- **Quatre colonnes :** Mort, Stagnant, Lent et Prix baissé, les plus
+  anciennes en premier. Un titre indique combien d'annonces ne se vendent pas,
+  avec l'argent immobilisé et l'âge de la plus ancienne.
+- **Une colonne entière d'un coup.** Tout republier, -10 % sur tout et Tout
+  supprimer agissent sur toutes les annonces d'une colonne, après
+  confirmation. Les annonces d'une plateforme sans onglet ouvert sont
+  laissées de côté, et la fenêtre le signale.
+- **Sélectionnez-en plusieurs** en faisant glisser la souris dessus ou avec
+  Maj + clic, puis appuyez sur Republier la sélection.
+- **Agissez depuis n'importe quelle page.** -10 %, Republier et Supprimer
+  fonctionnent sur toutes les plateformes, pas seulement celle que vous
+  parcourez.
+- **Réglages du stock mort.** Choisissez les jours en ligne, les likes (les
+  suivis sur eBay) et les vues pour chaque niveau et chaque plateforme, et si
+  un seul chiffre ou les deux doivent être bas. Enregistrez-les en
+  préréglages.
+
+## Améliorations
+
+- **Le mode sombre dans les Paramètres.** Un interrupteur Mode sombre sous
+  Affichage. Le bouton soleil et lune en haut du panneau fonctionne toujours.
+- **Les mises à jour s'installent toutes seules** dès que personne n'utilise
+  SaleLinx : quand rien n'est en cours et qu'aucun onglet de plateforme n'est
+  ouvert, ou après 5 minutes loin de l'ordinateur. Les onglets de plateforme
+  ouverts se rechargent ensuite, sauf une page où vous êtes en train de créer
+  une annonce.
+- **Les annonces eBay terminées dans Mes annonces** s'affichent comme
+  Supprimé ou Enchères terminées, et l'éditeur affiche Terminer au lieu de
+  Retirer.
+- **L'écran de liaison des comptes** utilise Continuer et Se connecter, et
+  indique ce qu'il reste à faire avant de poursuivre.
+
+## Corrections
+
+- Les annonces eBay supprimées pouvaient toutes réapparaître d'un coup dans
+  Mes annonces.
+- Une annonce eBay terminée pendant une republication qui échouait ensuite
+  pouvait disparaître de Mes annonces.
+- Les totaux de Stock mort comptaient les plateformes que vous aviez
+  désactivées.
+- Une réponse refusée dans Messages pour trop de photos envoyées garde
+  maintenant votre texte et vos photos, et indique quand réessayer.
+
+## Abonnement et facturation
+
+- **Des cartes de formules sur l'écran d'accueil.** Un nouveau compte voit
+  l'essai gratuit et Pro côte à côte, avec les quotas de chaque formule.
+  Quand une formule se termine, l'écran affiche Starter, Pro et Business.
+- **Directement au paiement.** Les boutons des formules ouvrent directement
+  le paiement, ou la page des tarifs si le paiement ne s'ouvre pas.
+- **Plus besoin d'actualiser.** Quand vous revenez sur l'onglet après le
+  paiement, le panneau se débloque tout seul. Actualiser indique maintenant
+  Aucune formule trouvée, ou Vérification impossible. Réessayez.

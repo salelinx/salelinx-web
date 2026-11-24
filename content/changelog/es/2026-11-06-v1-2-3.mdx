@@ -1,0 +1,79 @@
+export const metadata = {
+  title: "Stock muerto en eBay, un nuevo tablero de Stock muerto y un interruptor de Modo oscuro",
+  date: "2026-11-06",
+  summary:
+    "La versión 1.2.3 lleva Stock muerto a eBay y lo convierte en un tablero con una columna para cada etapa, añade un interruptor de Modo oscuro en Ajustes y muestra tarjetas de planes que llevan directamente al pago.",
+  tags: ["release"],
+};
+
+# Versión 1.2.3
+
+Mira lo que no se vende en un solo tablero, eBay incluido.
+
+## Stock muerto en eBay
+
+- **Los anuncios de eBay junto a los de Depop y Vinted.** Tus anuncios de eBay
+  a precio fijo se revisan con los demás, y hay un filtro de eBay. Las
+  subastas quedan fuera, porque terminan solas.
+- **Seguidores en lugar de me gusta.** Los anuncios de eBay se valoran por sus
+  seguidores y visitas, y las visitas cubren los últimos 90 días. Un guion
+  significa que eBay no ha informado de ninguna.
+- **Actúa desde el panel.** -10% funciona en los anuncios de eBay sin
+  variantes, Republicar finaliza un anuncio y lo vuelve a publicar como nuevo, y
+  Eliminar lo finaliza.
+- **Solo eBay.** Con solo eBay activado, la pestaña Stock muerto se abre en
+  lugar de mostrar Próximamente.
+
+## Un nuevo tablero de Stock muerto
+
+- **Cuatro columnas:** Muerto, Estancado, Lento y Precio rebajado, los más
+  antiguos primero. Un titular indica cuántos anuncios no se venden, cuánto
+  dinero tienes inmovilizado y cuánto tiempo lleva publicado el más antiguo.
+- **Una columna entera de una vez.** Republicar todos, -10% a todos y Eliminar
+  todos actúan sobre cada anuncio de la columna, y preguntan antes. Los
+  anuncios de una plataforma sin pestaña abierta quedan fuera, y la ventana
+  lo indica.
+- **Selecciona varios** arrastrando sobre ellos o con Mayús + clic, y pulsa
+  Republicar seleccionados.
+- **Actúa desde cualquier página.** -10%, Republicar y Eliminar funcionan en
+  todas las plataformas, no solo en la que estás viendo.
+- **Ajustes de stock muerto.** Elige los días de antigüedad, los me gusta
+  (seguidores en eBay) y las visitas de cada nivel y cada plataforma, y si
+  basta con que una de las dos cifras sea baja o tienen que serlo las dos.
+  Guárdalos como preajustes.
+
+## Mejoras
+
+- **Modo oscuro en Ajustes.** Un interruptor de Modo oscuro en la sección
+  Pantalla. El botón de sol y luna de la parte superior del panel también
+  sigue funcionando.
+- **Las actualizaciones se instalan solas** cuando nadie usa SaleLinx: cuando
+  no hay nada en marcha y no hay ninguna pestaña de plataforma abierta, o tras
+  5 minutos sin usar el ordenador. Las pestañas de plataforma abiertas se
+  recargan después, salvo una página en la que tengas un anuncio a medias.
+- **Los anuncios de eBay finalizados en Mis anuncios** aparecen como
+  Eliminado o Subasta finalizada, y el editor muestra Finalizar en lugar de
+  Retirar.
+- **La pantalla para vincular cuentas** usa Continuar e Iniciar sesión, y dice
+  lo que falta antes de seguir.
+
+## Correcciones
+
+- Los anuncios de eBay eliminados podían volver todos a la vez a Mis anuncios.
+- Un anuncio de eBay finalizado durante una republicación que luego fallaba
+  podía desaparecer de Mis anuncios.
+- Los totales de Stock muerto contaban las plataformas que habías
+  desactivado.
+- Una respuesta rechazada en Mensajes por enviar demasiadas fotos ahora
+  conserva tu texto y tus fotos, y dice cuándo puedes volver a intentarlo.
+
+## Planes y facturación
+
+- **Tarjetas de planes en la pantalla de bienvenida.** Una cuenta nueva ve la
+  prueba gratuita y Pro uno al lado del otro, con los límites de cada plan.
+  Cuando un plan termina, la pantalla muestra Starter, Pro y Business.
+- **Directamente al pago.** Los botones de los planes abren el pago
+  directamente, o la página de precios si el pago no se puede abrir.
+- **Ya no hace falta pulsar Comprobar.** Al volver a la pestaña después del
+  pago, el panel se desbloquea solo. Comprobar ahora dice Aún no hay ningún
+  plan o No se pudo comprobar. Inténtalo de nuevo.
