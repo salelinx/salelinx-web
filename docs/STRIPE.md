@@ -64,7 +64,7 @@ Customer Portal handles:
 
 - Change plan (upgrade / downgrade)
 - Update payment method
-- Cancel / resume subscription
+- Cancel / resume subscription (it asks why: the reason and optional comment land in the subscription's `cancellation_details` and show on `/admin/finance/cancellations`; which reasons it offers is set in the Stripe dashboard's Customer Portal settings)
 - Download invoices
 - Change billing address
 
