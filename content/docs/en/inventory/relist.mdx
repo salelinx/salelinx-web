@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'relist',
   order: 3,
-  updated: '2026-10-16',
+  updated: '2026-11-24',
   tags: ['relist', 'depop', 'vinted', 'ebay', 'presets'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -52,7 +52,7 @@ For each Depop or Vinted listing you relist, SaleLinx:
 3. Posts the new listing with the title, description and price
    changes you chose, or saves it as a draft if you asked for that.
 4. If the listing is saved to the cloud, moves its cloud copy (and any
-   link to its match on the other marketplace) over to the new
+   link to its matches on your other marketplaces) over to the new
    listing.
 5. Deletes the original.
 
@@ -60,26 +60,50 @@ Posting comes first and deleting second. If the new listing
 can&rsquo;t be created, the original is left alone and nothing is
 lost. If the new listing goes up but the original can&rsquo;t be
 deleted, you&rsquo;ll have both live, so check your shop and delete
-the old one by hand.
+the old one by hand. On Vinted the copy is made as a draft and then
+published, so if publishing fails you may find a leftover draft in
+your Vinted drafts.
+
+On eBay it works the other way round: the listing is ended first and
+then relisted. If that relist fails, the listing stays ended, and the
+activity log says so. Put it back on sale from
+[My Listings](/docs/inventory/listings).
+
+A photo that fails to download or upload is left out of the new
+listing. The relist only fails if none of the photos upload.
 
 ## Running a relist
 
 Open the **Relist** tab. It shows your live Depop, Vinted and eBay listings
-in one list, oldest first, with how long each has been listed.
+in one list, oldest first, with how long each has been listed: red for
+under 3 days, orange for 3 to 7 days and green after that.
+Marketplaces you&rsquo;ve switched off in Settings are left out. If a
+marketplace you sell on isn&rsquo;t open in a tab (eBay included), a
+popup asks you to open it.
 
 1. Narrow the list if you need to: **All**, Depop, Vinted or eBay, the
-   search box, and the age filter (**Any age**, older than, newer
-   than, or between two ages, in hours, days or weeks).
+   search box (it matches titles and brands), and the age filter:
+   **Any age**, **More than**, **Less than** or **Between**, in hours,
+   days or weeks.
 2. Tick the listings you want to relist. The box at the left of the
    search row ticks everything on the current page.
 3. Click **Relist**. The **Relist Confirmation** window opens.
-4. Check the photo, title, description and price options (below), and
-   whether to save as a draft.
-5. Click **Confirm Relist**.
+4. Check the options under **For every item** (below), then the row
+   for each listing under them, where you can leave a listing out or
+   change its options.
+5. Click **Relist**. It reads **Relist as drafts** with your count when
+   every item is set to save as a draft, and **Cancel bids and relist**
+   when an eBay auction you ticked has bids. It stays greyed out while
+   nothing is ticked or a price is invalid.
 
-A progress bar shows how far the run has got, and the listings being
-relisted are greyed out until they&rsquo;re done. Click **Stop** to
-end the run early.
+While it runs, a progress bar shows how far the run has got and about
+how long is left, and each listing in it shows **Waiting**,
+**Relisting&hellip;**, **Relisted**, **Failed** or **Skipped**. If
+another SaleLinx job is running, the bar says **Waiting in queue**
+until it finishes. When the run ends, a summary counts what was
+relisted, skipped, failed or not done. It stays until you close it or
+tick another listing. **Stop** ends the run early and also removes
+relists still waiting in the queue; SaleLinx asks first.
 
 The list is read live from your marketplaces, so it only shows
 listings that are on your shop right now. The reload button next to
@@ -96,12 +120,26 @@ cloud that are no longer live on the marketplace (**In cloud (not
 live)**). That view is for reference only; you can&rsquo;t relist from
 it.
 
-Sold items aren&rsquo;t in the Relist tab. If you saved a sold item to
-the cloud, relist it from **My Listings** instead: select it and use
-**Relist** in the selection toolbar. See
+Sold items, and listings you deleted, aren&rsquo;t in the Relist tab.
+If you saved one to the cloud, relist it from **My Listings** instead:
+select it and use **Relist** in the selection toolbar. See
 [Bulk editor](/docs/inventory/bulk-editor).
 
 ## The Relist Confirmation window
+
+The options sit under **For every item** and apply to every listing
+you ticked. Below them, each listing has its own row. Untick a row to
+leave that listing out, or use its icons to turn photo, title,
+description, price or draft on or off for that listing alone. Flipping
+a **For every item** switch changes every row you haven&rsquo;t
+changed yourself.
+
+eBay rows have no photo icon, and when every listing is on eBay the
+photo options are hidden. An eBay auction&rsquo;s row says it relists
+as an auction, with the same starting price, length and any Buy It Now
+price. If it has bids, the row warns that relisting ends the auction
+early and cancels them all. eBay won&rsquo;t end an auction with bids
+in its last 12 hours, so that one stays live.
 
 ### Photo Modifications
 
@@ -118,11 +156,11 @@ Every photo also gets a very slight colour shift and is saved again as
 a new JPEG file. A tiny zoom covers the corners a rotation would
 expose, so a sliver around the edges is trimmed. Photo order, and
 which photo leads, stay as they were. The **Before** and **After**
-preview shows a sample of the effect on your first photo; **Refresh
-preview** draws another random example.
+preview shows your first photo with half of each limit applied, and
+updates as you change the numbers.
 
-Turning **Photo Modifications** off removes the rotation, scale and
-brightness changes. Each photo still gets the slight colour shift, the
+Turning **Photo Modifications** off greys out its options and removes
+the rotation, scale and brightness changes. Each photo still gets the slight colour shift, the
 tiny zoom and a fresh save, so the new files are never exact copies
 of the originals.
 
@@ -130,7 +168,10 @@ of the originals.
 
 Both on by default. Each one swaps the case of the first letter of one
 random word (for example, `vintage` becomes `Vintage`), so the text
-isn&rsquo;t identical to the original. The window shows an example.
+isn&rsquo;t identical to the original. Both work on eBay too, where
+only the description&rsquo;s text changes, never its formatting. On
+eBay the text and price changes are made after the relist; if that
+step fails, the relist still counts but keeps the old text and price.
 
 Depop has no separate title field. On Depop, **Title Modifications**
 changes the first line of the description and **Description
@@ -138,26 +179,30 @@ Modifications** changes the rest.
 
 ### Price Modifications
 
-Off by default. Turn it on to change prices as you relist. **Apply to
-all** sets one change for every selected listing:
+Off by default. Turn it on to change prices as you relist, then pick
+one change for every listing, and the amount:
 
 - **No bulk change**
 - **Reduce by %** or **Increase by %**
 - **Reduce by fixed** or **Increase by fixed** (an amount in your shop
   currency)
 
-Below that, each selected listing has its own price box showing its
-new price. Pick the bulk change first, then type over any listing you
-want to price by hand; choosing a different bulk change afterwards
-overwrites the boxes. Depop doesn&rsquo;t accept prices under 1.00, so
-a change that lands lower is raised to 1.00 on Depop.
+Each listing&rsquo;s row then shows its new price in a box. Type over a
+box to price that listing by hand. Your price stays if you change the
+bulk change later, and the &#8634; button next to it puts the bulk
+price back. An empty or zero box turns red (**Enter a price above
+0**), and **Relist** stays greyed out until you fix it. An eBay
+auction&rsquo;s box starts from its starting price. Depop doesn&rsquo;t
+accept prices under 1.00, so a change that lands lower is raised to
+1.00 on Depop.
 
 ### Save as draft
 
-**Save as draft instead of publishing (you publish it yourself
-later)** creates the new copy as a draft on Depop or Vinted instead of
-a live listing. The original is still deleted, so the item is off sale
-until you publish the draft.
+**Save as draft** makes the new copy a draft instead of a live
+listing, on Depop, Vinted or eBay. The original is still deleted
+(ended on eBay), so the item is off sale until you publish the draft.
+An eBay draft is saved through an eBay tab, so keep one open and
+signed in; without one the run doesn&rsquo;t start.
 
 ## Sale discounts on Depop
 
@@ -175,9 +220,11 @@ the new listing stays at full price.
 
 ## Pacing
 
-**Relist settings**, the section at the top of the Relist tab, holds
-**Seconds between listings**: how long SaleLinx waits after each
-listing, on average. The default is 10 seconds and the minimum is 5.
+**Relist settings** is a card in the **Settings** tab, under
+**Advanced settings**. It holds **Seconds between listings**: how long
+SaleLinx waits after each Depop or Vinted listing, on average. The
+default is 10 seconds and the minimum is 5. eBay relists run one after
+another without this wait.
 The first few listings and the later ones in a long run get a little
 extra, and long runs take the odd longer break (the job queue shows
 **On break**), so a big run can sit idle for several minutes partway
@@ -192,10 +239,11 @@ the queue until the run finishes.
 ## Presets
 
 The preset picker at the top of **Relist settings** saves the relist
-settings as a named set: the seconds between listings, plus every
-option in the Relist Confirmation window (photo, title and description
-changes, the price change, and save as draft). Picking a preset fills
-in all of them at once. Two are built in:
+settings as a named set: the seconds between listings, plus the
+**For every item** options in the Relist Confirmation window (photo,
+title and description changes, the price change, and save as draft).
+Choices you make on single rows aren&rsquo;t saved. Picking a preset
+fills in all of them at once. Two are built in:
 
 - **Default** - 10 seconds between listings; photo modifications on,
   at &plusmn;2&deg; rotation, &plusmn;2% scale and &plusmn;1.8%
@@ -205,8 +253,10 @@ in all of them at once. Two are built in:
   a draft. Slower, and nothing goes live until you publish it (the
   originals are still deleted).
 
-Change any setting by hand and the picker marks the current values as
-unsaved; from there you can save them as a preset of your own. Saving
+Change any setting by hand and the picker keeps the preset&rsquo;s
+name with a dot next to it, to show the values have changed. Its menu
+then offers **Save as new&hellip;**, **Revert**, and, for one of your
+own presets, **Save changes**. Saving
 under the name of one of your existing presets asks before
 overwriting it, and the built-in names can&rsquo;t be reused. Your
 own presets can be deleted after a confirmation; the built-ins
@@ -224,7 +274,7 @@ There&rsquo;s no tab-level lock. What varies by plan is your monthly
 relist allowance; higher plans raise it. See [pricing](/pricing) for
 current numbers.
 
-- Each relist that goes through counts once, on either marketplace.
+- Each relist that goes through counts once, on any marketplace.
   Relists that fail don&rsquo;t count.
 - The allowance resets at the start of each calendar month (UTC).
 - If you select more listings than you have left, the run is cut to
