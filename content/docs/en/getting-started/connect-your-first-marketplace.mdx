@@ -5,7 +5,7 @@ export const metadata = {
   category: 'getting-started',
   slug: 'connect-your-first-marketplace',
   order: 2,
-  updated: '2026-10-16',
+  updated: '2026-11-24',
   tags: ['setup', 'depop', 'vinted', 'ebay'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -41,25 +41,32 @@ marketplace password.
 ## 2. Open the SaleLinx panel
 
 On any Depop, Vinted or eBay page, click the SaleLinx button in the
-bottom-left corner (on Depop and Vinted you can also press **Alt+S**). The
-panel only opens on Depop, Vinted and eBay pages, not from the toolbar
-icon. If you haven&rsquo;t signed in to SaleLinx or started a plan yet, see [Installing the SaleLinx extension](/docs/getting-started/install-the-extension)
+bottom-left corner (you can also press **Alt+S**, which you can change in
+**Settings** under **Panel shortcut**). The panel only opens on Depop,
+Vinted and eBay pages, not from the toolbar icon. On eBay, the button
+appears once you have let SaleLinx run on eBay pages (see *Connecting
+eBay* below). If you haven&rsquo;t signed in to SaleLinx or started a plan yet, see [Installing the SaleLinx extension](/docs/getting-started/install-the-extension)
 first.
 
 ## 3. Link your shops
 
-Until at least one account is linked, the panel shows the **Link your
+After you sign in and start a plan, the panel shows the **Link your
 shops** screen:
 
-1. Under **I sell on**, pick any of Depop, Vinted and eBay.
+1. Under **I sell on**, pick any of Depop, Vinted and eBay. All three
+   start picked; unpick the ones you don&rsquo;t use.
 2. Each marketplace row shows the account SaleLinx can see in your browser,
    with its photo and username. Click **Link** to connect it.
 3. If a row shows **Log in** instead of **Link**, you&rsquo;re not signed in
    to that marketplace. Click **Log in**, sign in on the marketplace, then
-   come back to the panel and link.
+   come back to the panel and link. The rows check again when you come
+   back.
+4. When at least one marketplace you picked is linked, click
+   **Continue**. Until then, the button stays off and says what&rsquo;s
+   missing.
 
-Once an account is linked, the panel opens on **My Listings**, which shows
-your items from every linked marketplace in one list.
+The panel then opens on **My Listings**, which shows your items from every
+linked marketplace in one list.
 
 ## Connecting eBay
 
@@ -69,24 +76,36 @@ sign-in page, not your browser session.
 1. On the **Link your shops** screen, or in **Settings > Marketplace
    accounts**, click **Link** on the eBay row. A small SaleLinx window
    opens.
-2. Click **Continue to eBay**, sign in on eBay&rsquo;s own page and agree to
-   let SaleLinx manage your listings. The window closes by itself and your
-   eBay account shows as linked.
+2. Click **Continue to eBay**. Chrome asks whether SaleLinx may run on eBay
+   pages. Allow it, so the panel opens on eBay and your eBay drafts can be
+   read.
+3. Sign in on eBay&rsquo;s own page and agree to let SaleLinx manage your
+   listings. The window says it&rsquo;s connecting, then closes by itself,
+   and your eBay account shows as linked. If it takes longer than about a
+   minute and a half, it says so: close the window and connect eBay again.
+
+If you said no to Chrome&rsquo;s question, eBay still links, but the panel
+won&rsquo;t open on eBay pages. Click **Allow** next to **Show SaleLinx on
+eBay** in **Settings > Marketplace accounts** to fix that.
 
 SaleLinx never sees your eBay password. You can remove its access at any
-time by clicking **Unlink** in Settings.
+time with **Unlink** in Settings, which asks whether to keep the cloud
+backup of that account&rsquo;s listings.
 
 Once linked, your eBay listings appear in **My Listings** and eBay becomes a
-source and target in [Crosslist](/docs/inventory/crosslist). eBay never
-needs a tab open.
+source and target in [Crosslist](/docs/inventory/crosslist). Most eBay
+features work through eBay&rsquo;s own connection, with no eBay tab open.
+Saving eBay drafts, eBay labels and the Crosslist, Relist and Linking tabs
+need an eBay tab open and signed in; the panel asks you to open one when it
+does.
 
 ## If you don&rsquo;t sell on all of them
 
 You don&rsquo;t have to use every marketplace. Pick any mix of **Depop**,
-**Vinted** and **eBay** on the **Link your shops** screen (or in the **Where
-do you sell?** box that appears after your first sign-in). You can change the
-answer any time in **Settings > Marketplaces**. Until you choose, SaleLinx
-assumes all three.
+**Vinted** and **eBay** under **I sell on** on the **Link your shops**
+screen. You can change it any time in **Settings > Marketplaces**: pick your
+marketplaces, then click **Apply**. Until you choose, SaleLinx assumes all
+three.
 
 Switching one off is not a display preference. SaleLinx hides that
 marketplace&rsquo;s tabs, filters and account row, stops asking you to link
@@ -108,13 +127,15 @@ After setup, linking and unlinking is in **Settings > Marketplace
 accounts** (called **Accounts** in versions before 1.1.12). Each
 marketplace has a row there showing the account it is
 linked to, with an **Unlink** button. When SaleLinx can see a marketplace
-account that isn&rsquo;t linked yet, the row asks whether to link it, with
-**Link** and **Not now** buttons. See [Settings](/docs/getting-started/settings)
+account that isn&rsquo;t linked yet, the row shows its username with a
+**Link** button. If you&rsquo;re signed out of that marketplace, it shows
+**Log in** instead. Some messages in the panel still call this section
+**Settings &rarr; Accounts**. See [Settings](/docs/getting-started/settings)
 for the rest of that tab.
 
 Don&rsquo;t confuse it with the [Linking tab](/docs/automate/linking), which
-does something different: that one pairs an individual Depop listing with its
-Vinted counterpart.
+does something different: that one pairs the same item&rsquo;s listings
+across your marketplaces.
 
 ## Troubleshooting
 

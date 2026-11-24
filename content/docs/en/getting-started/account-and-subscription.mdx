@@ -5,7 +5,7 @@ export const metadata = {
   category: 'getting-started',
   slug: 'account-and-subscription',
   order: 3,
-  updated: '2026-10-16',
+  updated: '2026-11-24',
   tags: ['billing', 'account', 'subscription', 'presets', 'sync'],
   marketplaces: [],
   status: 'published',
@@ -37,7 +37,10 @@ on from this computer. The other computer is then signed out of SaleLinx.
   SaleLinx toolbar icon takes you there too.
 - **Extension**: the **Membership** card in the panel&rsquo;s **Settings**
   tab shows your plan, and its **Manage** button opens your account page.
-  See [Settings](/docs/getting-started/settings) for the rest of that tab.
+  So does **Manage account on salelinx.com** under **SaleLinx account**
+  in the same tab, and **My Account** in the menu that opens when you
+  hover over the SaleLinx launcher. See
+  [Settings](/docs/getting-started/settings) for the rest of that tab.
 
 ## Plans at a glance
 
@@ -49,13 +52,14 @@ place, so what you see there is what you get.
 ## Seeing what you have used
 
 The **Membership** card in the panel&rsquo;s **Settings** tab shows your
-plan, its status, and the date it renews (or the date your trial or plan
-ends). Below that is a row for every allowance on your plan, such as
-**Crosslists this month** (crosslists to and from eBay count too) or
-**Refreshes today**. Each row has a bar showing
-how much you have used and how much is left, so you can tell at a glance
-whether you are about to run out. Plans that include cloud storage get a
-**Cloud storage** row too.
+plan, its status, and a date: **Renews**, **Trial ends** or **Ends**.
+During the trial the plan reads **Free trial**. Below that is a row for
+every allowance on your plan, such as **Crosslists this month**
+(crosslists to and from eBay count too) or **Refreshes today**, showing
+how much you have used out of your allowance. Capped rows also have a
+bar and say how many are left, so you can tell at a glance whether you
+are about to run out. Uncapped rows say **Unlimited**. Plans that
+include cloud storage get a **Cloud storage** row too.
 
 Daily allowances reset at midnight UTC, and monthly ones on the 1st of each
 month (UTC).
@@ -64,8 +68,9 @@ month (UTC).
 
 New accounts can start a 14-day free trial. It has the same features as
 Starter, with lower allowances. Start it with **Start free trial** on the
-panel&rsquo;s **Welcome to SaleLinx** screen or on the
-[pricing page](/pricing).
+panel&rsquo;s **Welcome to SaleLinx** screen, which opens Stripe Checkout
+straight away, or on the [pricing page](/pricing). The same screen also
+has **Get Pro** if you would rather start on Pro.
 
 A card is required to start the trial, but nothing is charged during it.
 When the 14 days are up, the trial converts to a paid Starter subscription
@@ -85,13 +90,19 @@ need an active Starter, Pro or Business subscription.
    buttons in the panel take you there too.
 2. Click **Subscribe** on the plan you want. If you aren&rsquo;t signed in on
    the website, it asks you to sign in first.
-3. Stripe Checkout opens. Complete payment.
+3. Stripe Checkout opens. Tick the box to confirm your plan starts now,
+   then complete payment.
+
+The plan buttons on the panel&rsquo;s **Welcome to SaleLinx** and **Your
+plan has ended** screens open Checkout directly.
 
 Your plan is active as soon as the payment goes through. You don&rsquo;t
 need to reinstall or sign in again: the panel picks up the new plan within a
 few minutes, the next time you load a Depop, Vinted or eBay page. If the
-panel is showing **Welcome to SaleLinx** or **Your plan has ended**, click
-the refresh link under the main button to check straight away.
+panel is showing **Welcome to SaleLinx** or **Your plan has ended**, it
+checks again by itself when you come back to the tab, or click **Already
+have a plan? Refresh** (or **Already upgraded? Refresh**) under the plans to
+check straight away.
 
 ## Upgrading during your trial
 
@@ -102,8 +113,9 @@ a **Start Starter now** button.
 
 Nothing happens until you confirm. A box explains that this ends your free
 trial, charges your card now and every month until you cancel, and that the
-new plan&rsquo;s limits apply straight away. The button to go ahead shows
-the amount you will be charged. If your card is declined, your plan stays as
+new plan&rsquo;s limits apply straight away. Tick the box to confirm you
+want the plan to start now. The button to go ahead (**Pay &hellip; and
+start**) shows the amount you will be charged. If your card is declined, your plan stays as
 it was and you can update your card and try again.
 
 ## Changing plans
@@ -125,12 +137,14 @@ billing portal. From there you can:
 
 Cancelling takes effect at the end of your current period. Until then, the
 panel works normally on your current plan, and your account page shows the
-date it is scheduled to end. You can resume any time before that date
+date it is scheduled to end, and the panel&rsquo;s **Membership** card
+shows **Ends** and the date. You can resume any time before that date
 through **Manage subscription**.
 
-When a plan ends, the panel shows **Your plan has ended** with a **See
-plans** button. Your listings, settings and cloud data stay in your account,
-ready for when you subscribe again.
+When a plan ends, the panel shows **Your plan has ended** with **Get
+Starter**, **Get Pro** and **Get Business** buttons that open Checkout.
+Your listings, settings and cloud data stay in your account, ready for when
+you subscribe again.
 
 ## What if a payment fails?
 
@@ -174,12 +188,15 @@ cannot be undone.
 
 ## Settings presets follow your account
 
-Several tabs in the panel let you save their settings as named presets:
-[Grow](/docs/inventory/bots), [Refresh](/docs/inventory/refresh),
-[Relist](/docs/inventory/relist) and the **Auto-Accept Offers** controls in
-[Offers](/docs/buyers/offers). Each ships with two built-in presets,
-**Default** and **Careful**, and the ones you save yourself are stored
-with your SaleLinx account rather than only in the browser. Syncing is part
+You can save named presets for [Grow](/docs/inventory/bots),
+[Refresh](/docs/inventory/refresh), [Relist](/docs/inventory/relist),
+[Crosslist](/docs/inventory/crosslist) and
+[Dead Stock](/docs/automate/dead-stock) (each in its own card under
+**Settings** &gt; **Advanced settings**), and for
+[Auto-Accept Offers](/docs/automate/auto-offers) (in its popup in the
+**Offers** tab). Each has a built-in **Default** preset, and all but Dead
+Stock also have **Careful**. The ones you save yourself are stored with
+your SaleLinx account rather than only in the browser. Syncing is part
 of every plan, including the trial; without an active plan your presets
 stay on the device you saved them on, and upload the next time a plan is
 active. While a plan is active:

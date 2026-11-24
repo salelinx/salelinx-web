@@ -5,7 +5,7 @@ export const metadata = {
   category: 'getting-started',
   slug: 'settings',
   order: 5,
-  updated: '2026-10-16',
+  updated: '2026-11-24',
   tags: ['settings', 'account', 'membership', 'usage', 'language', 'shortcut', 'ebay'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -17,7 +17,7 @@ export const metadata = {
 **Support** and **Refer &amp; Earn**, so you can always reach it. It holds
 your SaleLinx account, the Depop, Vinted and eBay accounts you&rsquo;ve
 linked, your plan and how much of it you&rsquo;ve used, which marketplaces
-you sell on, and a couple of display options.
+you sell on, display options, and the advanced settings for each feature.
 
 A few quick controls (language, theme, Pop out) live in the panel header
 instead. They&rsquo;re covered at the end of this page.
@@ -31,6 +31,9 @@ in with and two buttons:
   website, where you change your password or email and manage billing.
 - **Log Out** signs you out of the extension after a confirmation.
 
+Below them is your **User ID** with a **Copy** button, in case support
+asks for it.
+
 Logging out also cancels everything in the [queue](/docs/getting-started/queue)
 and clears its history, and removes the listings and saved presets SaleLinx
 kept in this browser, so the next person to sign in here can&rsquo;t see
@@ -39,24 +42,24 @@ when you sign in again.
 
 ## Marketplace accounts
 
-**Marketplace accounts** has a row each for Depop, Vinted and eBay. The
-Depop and Vinted rows show the linked shop&rsquo;s @username and a status:
+**Marketplace accounts** has a row each for Depop, Vinted and eBay. What
+the Depop and Vinted rows show depends on where you&rsquo;re signed in:
 
-- **Connected** - the shop is linked, or you&rsquo;re signed in there.
-- **Disconnected** or **Session expired** - SaleLinx can&rsquo;t see you
-  signed in there. An **Open Depop** (or **Open Vinted**) button appears
-  next to the status; sign in on the site that opens and the row recovers.
+- **@yourname** with a **Linked** badge and **Unlink** - the shop is
+  linked to your SaleLinx account.
+- **@yourname** with **Link** - you&rsquo;re signed in on a tab for that
+  marketplace, but haven&rsquo;t linked the shop yet.
+- **Not linked** with **Log in** - there&rsquo;s no tab open for that
+  marketplace. **Log in** opens the site; sign in there and the row
+  updates.
+- **Not logged in** with **Log in** - a tab is open but signed out.
+  **Log in** takes you to that tab.
 
-If you&rsquo;re signed in but haven&rsquo;t linked the shop yet, the row
-reads **Not linked** and offers to link it.
+While you&rsquo;re signed out of SaleLinx, the rows read **Not
+connected**.
 
 The eBay row works differently (see The eBay row below). Rows for
 marketplaces you&rsquo;ve switched off (see Marketplaces below) are hidden.
-
-<Callout>
-In version 1.1.11 and earlier, this section and the one above it are headed
-**Accounts** and **Account**.
-</Callout>
 
 ### Linking an account
 
@@ -65,15 +68,13 @@ one:
 
 1. Sign in on [depop.com](https://www.depop.com) or
    [vinted.com](https://www.vinted.com) in a normal tab.
-2. Open the SaleLinx panel on that site and go to **Settings**.
-3. Under the marketplace&rsquo;s row you&rsquo;ll see &ldquo;Link
-   @yourname (Depop) to your cloud?&rdquo;. Click **Link**.
+2. Open the SaleLinx panel and go to **Settings**. The marketplace&rsquo;s
+   row shows your @username with a **Link** button.
+3. Click **Link**.
 
-**Not now** hides the prompt for now.
-
-You can only link Depop or Vinted from a page on that marketplace. From a
-Depop tab, the Vinted row asks you to open Vinted and log in there, and the
-other way round. The full first-time walkthrough is in
+Linking Depop or Vinted needs a signed-in tab for that marketplace, in any
+window. Without one, the row shows **Log in** instead. The full first-time
+walkthrough is in
 [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace).
 
 If linking fails, the row says why. The common reasons:
@@ -121,16 +122,19 @@ Once eBay is linked, the row also has:
   business sellers can set an auto-accept price for offers, and private
   sellers on eBay UK see what the buyer will pay with eBay&rsquo;s Buyer
   Protection fee.
+- **eBay site** - the eBay site SaleLinx lists on. It starts on
+  **Automatic**, which follows where your listings are and names the site
+  it&rsquo;s using, for example **Automatic (ebay.co.uk)**. To choose one
+  yourself, pick ebay.co.uk, ebay.com, ebay.de, ebay.fr, ebay.it, ebay.es,
+  ebay.ie, ebay.nl, ebay.at, ebay.com.au or ebay.ca.
 - **Postage** - the postage, returns and item postcode SaleLinx adds to
   every listing it [crosslists](/docs/inventory/crosslist) to eBay. The row
   shows what&rsquo;s saved, **From your eBay business policies**, or **Asked
   for on your first crosslist**. **Edit** opens the form. What you save is
   stored with your SaleLinx account.
-
-## Account info
-
-**Account info** shows your **User ID** with a **Copy** button, in case
-support asks for it.
+- **Show SaleLinx on eBay**, with an **Allow** button, appears if you
+  didn&rsquo;t let SaleLinx run on eBay&rsquo;s sites when you linked.
+  eBay drafts and the panel on eBay pages need it.
 
 ## Membership
 
@@ -143,8 +147,9 @@ The **Membership** card shows:
 - **Manage**, which opens your account page on salelinx.com to change plan,
   update your card or cancel.
 
-While you&rsquo;re on the free trial, a countdown in the panel header also
-shows how long is left. Click it to open the pricing page.
+While you&rsquo;re on the free trial, the date reads **Trial ends** and the
+day it ends. Once the trial has ended, a **Trial ended** pill appears in
+the panel header. Click it to open the pricing page.
 
 ### Usage meters
 
@@ -183,7 +188,8 @@ name). Click a button to switch that marketplace on or off, then click
 Turning a marketplace off:
 
 - Hides its tabs, filters and account row. **Refresh** and **Shop
-  Designer** are Depop-only tabs, and **Auto-Offers** is Vinted-only.
+  Designer** are Depop-only tabs, and **Send Offers** needs Vinted or
+  eBay.
 - Stops its background work, and switches off its schedules: Auto-refresh
   when Depop is off, and automatic offer accepting for that marketplace.
 - Can leave **Crosslist** and **Linking** in the sidebar, but locked.
@@ -194,12 +200,12 @@ Turning a marketplace off:
 With only eBay switched on, the sidebar shows **My Listings**,
 **Crosslist** and **Linking** (both locked until you switch on a second
 marketplace), **Relist**, **Dead Stock**, **Price Drops**, **Offers**,
-**Messages**, **Settings**, **Support** and **Refer &amp; Earn**, with a
-**Coming soon** list of the features that don&rsquo;t work with eBay yet:
-Auto-Offers, the Restocker and shipping labels.
+**Send Offers**, **Messages**, **Labels**, **Settings**, **Support** and
+**Refer &amp; Earn**, with the Restocker under **Coming soon**, since it
+doesn&rsquo;t work with eBay yet.
 
 Your choice is saved to your SaleLinx account. SaleLinx asks the same
-question (&ldquo;Where do you sell?&rdquo;) the first time you sign in. If
+question (**I sell on**) the first time you sign in. If
 you chose your marketplaces before SaleLinx supported eBay, eBay starts
 switched off, and a one-time pop-up says eBay is here. Its **Go to
 Settings** button opens this tab.
@@ -209,14 +215,31 @@ banner offers **Turn on Depop** (or **Turn on Vinted**) and **Dismiss**.
 
 ## Display
 
+- **Dark mode** switches the panel between dark and light. Light is the
+  default. The sun and moon button at the top of the panel switches it
+  too.
 - **Page animations** switches the moving scenes at the top of each tab on
   or off. Turn them off if the panel feels slow. This setting is saved in
   this browser only.
+- **Tutorial popups** switches the tips that pop up while you work, such
+  as how to drag to select. They&rsquo;re on to start with. The info cards
+  at the top of each tab are a separate control, Tutorial mode in the
+  panel header.
 - **Panel shortcut** shows the keyboard shortcut that opens and closes the
   panel (**Alt+S** unless you&rsquo;ve changed it, or **Not set**). Chrome
   controls extension shortcuts, so **Change** opens Chrome&rsquo;s shortcuts
-  page, where you can pick a different key. The shortcut only works on a
-  Depop or Vinted tab.
+  page, where you can pick a different key. The shortcut works on a
+  Depop, Vinted or eBay tab.
+
+## Advanced settings
+
+**Advanced settings** holds how each feature runs: &ldquo;How each feature
+runs. The defaults suit most sellers.&rdquo; It has a card each for **Grow
+settings**, **Refresh settings**, **Relist settings**, **Crosslist
+settings**, **Dead Stock settings** and **Linking settings**. Auto-Accept
+has its own popup in the Offers tab instead. Click a card to open it. Most cards show the preset
+in use beside the title, and a card for a feature your plan doesn&rsquo;t
+include is hidden. Each feature&rsquo;s own page covers its settings.
 
 ## Controls in the panel header
 
@@ -229,8 +252,8 @@ These sit in the top-right corner of the panel on every tab:
 - Tutorial mode (the &ldquo;i&rdquo; icon): hides or shows the info
   cards at the top of each tab. Turning it back on also brings back any
   cards you closed one by one.
-- Theme (moon or sun): switches between light and dark. Light is the
-  default.
+- Theme (moon or sun): switches between light and dark, the same as
+  **Dark mode** in Display. Light is the default.
 - Log out: the same as **Log Out** in Settings.
 - **Pop out**: shrinks the panel into a window you can drag by its header
   and resize from any edge or corner, so the page underneath stays usable.
