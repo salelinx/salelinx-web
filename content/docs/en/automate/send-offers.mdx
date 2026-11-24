@@ -1,13 +1,13 @@
 export const metadata = {
   title: 'Send Offers',
   description:
-    'Send a discounted offer to everyone who liked your Vinted items, with a price floor you control so no offer goes below what you will accept.',
+    'Send a discounted offer to people who liked your Vinted items or are watching your eBay listings, with a price floor you control so no offer goes below what you will accept.',
   category: 'automate',
   slug: 'send-offers',
   order: 6,
-  updated: '2026-10-16',
-  tags: ['offers', 'auto-offers', 'likers', 'vinted', 'automation'],
-  marketplaces: ['vinted'],
+  updated: '2026-11-24',
+  tags: ['offers', 'auto-offers', 'likers', 'watchers', 'vinted', 'ebay', 'automation'],
+  marketplaces: ['vinted', 'ebay'],
   status: 'published',
 };
 
@@ -15,17 +15,18 @@ export const metadata = {
 
 Someone who liked an item is the warmest buyer you have: they have
 seen it, they want it, and something is holding them back. Usually
-it is the price. The **Auto-Offers** tab in the panel finds the people
-who liked your Vinted items and sends each of them an offer, so you
-turn likes into sales without messaging anyone by hand.
+it is the price. The **Send Offers** tab in the panel finds the people
+who liked your Vinted items, or who are watching your eBay listings,
+and sends each of them an offer, so you turn interest into sales
+without messaging anyone by hand.
 
 This is a different feature from
 [Auto-Accept Offers](/docs/automate/auto-offers), which accepts
-offers buyers send *you*. Auto-Offers is outgoing: you make the offer.
+offers buyers send *you*. Send Offers is outgoing: you make the offer.
 
 ## When to use it
 
-- An item has plenty of likes but no sales.
+- An item has plenty of likes or watchers but no sales.
 - You want to clear stock before a restock or a season change.
 - You would rather offer a small discount to interested buyers than
   drop the price for everyone with a
@@ -33,64 +34,85 @@ offers buyers send *you*. Auto-Offers is outgoing: you make the offer.
 
 ## How it works
 
-1. **Scan Likers.** SaleLinx reads your recent Vinted notifications
-   and groups the likes by item, so you see each item with the number
-   of new likers. Items whose likers have all had an offer already are
-   left out, and the items with the most new likers come first.
+1. **Scan.** If you sell on both Vinted and eBay, pick **All**,
+   **Vinted** or **eBay** at the top, then press the scan button
+   (**Scan Likers** for Vinted, **Scan Watchers** for eBay, **Scan**
+   for both). The choice is remembered.
+   - On Vinted, SaleLinx reads your recent notifications and groups
+     the likes by item, so you see each item with the number of new
+     likers. Items whose likers have all had an offer already are left
+     out, and the items with the most new likers come first.
+   - On eBay, SaleLinx asks eBay which listings have people watching
+     them or holding them in their basket, and shows how many are
+     watching each one. A listing you sent an offer on in the last 48
+     hours is left out.
 2. **Pick items.** Every item starts ticked. Untick the ones you want
    to leave out, or use **Select all** to tick or untick them all.
-3. **Set the price.** Choose a **Discount %** (5 to 50%, default 10%)
-   and a **Min price floor** (default 1). When SaleLinx knows an
-   item&rsquo;s price, its **Offer** box is filled in from those two
-   settings and updates as you change them. Type your own price into
-   any item&rsquo;s **Offer** box to override it for that item.
-4. **Send Offers.** SaleLinx sends one offer to each new liker of each
-   ticked item, in the background.
+3. **Set the price.** Choose a **Discount** (5 to 50%, default 10%)
+   and a **Min price** (default 1.00, and never below 1). When SaleLinx
+   knows an item&rsquo;s price, its **Offer** box is filled in from
+   those two settings and updates as you change them. Type your own
+   price into any item&rsquo;s **Offer** box to override it for that
+   item.
+4. **Add a message (optional).** Turn on **Message** and type a note
+   to send with every offer. On Vinted it goes in the chat, and on
+   eBay it goes to the watchers with the offer. The box starts empty,
+   so nothing is sent until you type something.
+5. **Send.** The button shows how many offers will go out, for example
+   **Send 12 offers**, and a summary shows what they are worth. On
+   Vinted that is one offer per new liker. On eBay it is one offer per
+   listing, which reaches everyone watching it.
 
 The offer is the item&rsquo;s price minus your discount, but never
-below your floor. If the discount would take an item under the floor,
-the offer goes out at the floor price instead, and the same goes for a
-price you typed yourself. If the offer would not
-be lower than the item&rsquo;s current price on Vinted (for example
-because the floor is at or above it), that liker is skipped.
+below your Min price. A price you type yourself must be at least your
+Min price and below the item&rsquo;s price; if it isn&rsquo;t, a note
+appears under the box and that item isn&rsquo;t sent. If your Min price
+is at or above an item&rsquo;s price, that item is left out too. If the
+price has changed by the time the offer goes out and the offer would no
+longer be a discount, that buyer is skipped.
 
-**Rescan** reads your notifications again and refreshes the list.
-While offers are going out, a progress bar shows how many have been
-sent and how many failed, and **Stop** ends the run.
+**Rescan** reads again and refreshes the list. While offers are going
+out, a progress bar shows how many were sent, skipped and failed, and
+**Stop** ends the run.
+
+Your discount, Min price and message are remembered in this browser
+the next time you open the tab. There are no presets for this tab.
 
 ## Built-in safeguards
 
 - **One offer per liker per item.** Someone who already received an
   offer on an item is not sent another for 30 days, however many
-  times you scan. A liker who was skipped because the offer would not
-  have been a discount is also left alone for 30 days. SaleLinx keeps
-  this record in your browser.
+  times you scan. SaleLinx keeps this record in your browser.
+- **eBay&rsquo;s own limits.** eBay allows one offer per listing every
+  48 hours. Its offers last 2 days, and buyers can&rsquo;t counter
+  them.
 - **Human pacing.** Offers go out one at a time with natural gaps,
   through the same queue as every other SaleLinx job, with regular
   breaks. If Vinted asks SaleLinx to slow down, the job pauses and
   picks up again once the wait is over.
 - **Runs in the background.** The job keeps going if you close the
   panel, and you can pause or cancel it from the queue. Keep a Vinted
-  tab open while it runs, because the offers are sent through it.
+  tab open while it runs, because Vinted offers are sent through it.
+  eBay offers need no eBay tab.
 
 ## Stats
 
 The top of the tab shows how the offers are doing:
 
-- **Offers sent** in the last 30 days.
+- **Offers sent** in the last 30 days. On eBay, each listing you sent
+  an offer on counts once.
 - **Items sold** among the items you sent offers on.
 - **Sell rate**, items sold as a share of offers sent.
 
-Below the **Scan Likers** button, **Recently sent** lists your latest
-offers with the buyer, the item&rsquo;s price and your offer.
+**Recently sent** lists your latest 30 offers with the buyer (on eBay,
+how many buyers it reached), the item&rsquo;s price and your offer.
 
 ## Plan and access
 
-Auto-Offers is Vinted only for now (eBay is on the &ldquo;Coming soon&rdquo;
-list), and needs
-your Vinted account linked in SaleLinx. It is included on **Pro and
-Business**; on Starter and the
-free trial the tab is locked.
+Send Offers works on Vinted and eBay, and needs your account on that
+marketplace linked in SaleLinx. If it isn&rsquo;t, the tab shows a
+**Link account** button. It is included on **Pro and Business**; on
+Starter and the free trial the tab is locked.
 
 ## Next steps
 
