@@ -205,8 +205,8 @@ export const FAQ_GROUPS_ZH: FAQGroup[] = [
         a: (
           <div className="space-y-2">
             <p>
-              面板从每个 Depop、Vinted 和 eBay 页面右下角的 SaleLinx 启动按钮
-              打开：点击它，或者在这些标签页里按 Alt+S（默认快捷键）。
+              面板从每个 Depop、Vinted 和 eBay 页面左下角（或你上次把它拖到的位置）的
+              SaleLinx 启动按钮打开：点击它，或者在这些标签页里按 Alt+S（默认快捷键）。
               Chrome 工具栏上的 SaleLinx 图标只会打开一个用于登录的小窗口。
               如果你看不到启动按钮：
             </p>

@@ -225,8 +225,9 @@ export const FAQ_GROUPS_FR: FAQGroup[] = [
         a: (
           <div className="space-y-2">
             <p>
-              Le panneau s'ouvre depuis le lanceur SaleLinx, en bas à droite de
-              chaque page Depop, Vinted et eBay : cliquez dessus, ou appuyez sur
+              Le panneau s'ouvre depuis le lanceur SaleLinx, en bas à gauche de
+              chaque page Depop, Vinted et eBay (ou là où vous l'avez déplacé en
+              dernier) : cliquez dessus, ou appuyez sur
               Alt+S (le raccourci par défaut) dans l'un de ces onglets.
               L'icône SaleLinx de la barre d'outils Chrome ouvre seulement une
               petite fenêtre pour se connecter. Si vous ne voyez pas le

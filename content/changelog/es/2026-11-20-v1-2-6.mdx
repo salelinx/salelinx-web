@@ -1,0 +1,115 @@
+export const metadata = {
+  title: "Autorrellenar en Crear anuncio, Enviar ofertas en eBay y etiquetas de eBay compradas en el panel",
+  date: "2026-11-20",
+  summary:
+    "La versión 1.2.6 rellena Crear anuncio a partir de tu primera foto, lleva Enviar ofertas a eBay, permite comprar e imprimir etiquetas de eBay en el panel, organiza Mensajes en Abiertos, Ofertas y Vendidos, y reúne los ajustes de cada función en Ajustes avanzados.",
+  tags: ["release"],
+};
+
+# Versión 1.2.6
+
+Rellena un anuncio a partir de una foto, envía ofertas a quienes siguen tus
+anuncios de eBay y compra etiquetas de eBay sin salir del panel.
+
+## Crear anuncio: Autorrellenar
+
+- **Autorrellenar** lee tu primera foto y rellena el título, la descripción,
+  la marca, los colores y la categoría, además de las características del
+  artículo de eBay en cuanto eliges una categoría de eBay.
+- **Solo se rellenan los campos vacíos,** así que lo que ya has escrito se
+  queda como está. Revísalo antes de crear.
+- La categoría de la foto también se asigna a su equivalente en tus otras
+  plataformas.
+- El formulario cabe en pantalla sin tener que desplazarte, y avisa de las
+  fotos que no pudo añadir, las que ya habías añadido y las que son muy
+  pequeñas.
+
+## Enviar ofertas, ahora con eBay
+
+- **Auto-Ofertas ahora se llama Enviar ofertas.**
+- **Escanear seguidores** busca anuncios de eBay con compradores interesados
+  y envía una oferta a cada uno. eBay permite una oferta por anuncio cada 48
+  horas, así que se omiten los anuncios con una oferta enviada hace poco.
+- **Todos, Vinted o eBay.** Todos escanea ambos a la vez.
+- **Un mensaje opcional** que se envía con cada oferta.
+- Escribe el descuento y el precio mínimo, y mira cuántas ofertas se enviarán
+  y cuánto valen antes de enviarlas.
+
+## Etiquetas de eBay en el panel
+
+- **Comprar etiqueta** compra la etiqueta a eBay sin salir del panel, y
+  después ya puedes imprimirla desde la lista. Si eBay necesita que confirmes
+  el pago, el panel te da un enlace a eBay.
+- **Imprime y envía por correo las etiquetas de eBay** con las demás,
+  recortadas para dejar solo la etiqueta.
+- **Cancela pedidos de eBay que ya tienen etiqueta,** con una insignia de
+  Cancelación pendiente hasta que eBay lo confirme.
+- Un aviso cuando una etiqueta cuesta más de lo que pagó el comprador, y el
+  tamaño y el peso del paquete se recuerdan para cada pedido.
+- **Mensaje** en un pedido de eBay abre la conversación con el comprador, o
+  empieza una.
+- Etiquetas funciona con solo eBay activado.
+
+## Mensajes
+
+- **Abiertos, Ofertas y Vendidos** sustituyen a Todo, No leídos y Leídos.
+- **Fotos en las conversaciones de Vinted.** Mira las fotos del comprador y
+  envía las tuyas.
+- **Las ofertas en la conversación,** con su precio y cómo terminaron.
+- **Elimina tus propios mensajes de Vinted.**
+- El periodo es ahora de 7 días por defecto, en lugar de 3.
+
+## Republicar
+
+- **Sigue el progreso de cada artículo.** Cada fila muestra En espera,
+  Republicando, Republicado, Error u Omitido, y un resumen de lo que no se
+  hizo se queda hasta que lo cierres.
+- **Parar** aparece durante una republicación, y también quita las
+  republicaciones que siguen esperando en la cola.
+- **Una ventana de Republicar más amplia** con fotos más grandes, el precio
+  rebajado en la línea del precio y Republicar como borradores.
+- Nuevos filtros de antigüedad: Más de, Menos de y Entre.
+
+## Ofertas y aceptación automática
+
+- **La aceptación automática en un solo sitio.** El botón Auto-aceptar de la
+  barra de Ofertas abre su ventana: Oferta mínima, Precio mínimo, Plataformas
+  y Comprobar cada, con la última comprobación y lo que aceptó.
+- **Nuevos valores por defecto** para la aceptación automática: ninguna
+  plataforma marcada y una comprobación cada 10 minutos.
+- **Las contraofertas se comprueban antes de enviarse,** así que una
+  contraoferta por encima de tu precio o por debajo de la oferta del
+  comprador se detecta antes.
+- Una oferta de eBay por varios artículos dice cuántos son.
+
+## Mejoras
+
+- **Ajustes avanzados.** Los ajustes de cada función, de Crecer a Vincular, son
+  ahora una tarjeta en Ajustes, dentro de Ajustes avanzados.
+- **La pantalla Publicación cruzada terminada** dice qué borradores se
+  guardaron y dónde completarlos. Al buscar se conservan los artículos
+  marcados, y la pestaña funciona por completo con el teclado.
+- **Mis anuncios:** la búsqueda encuentra palabras en cualquier orden, la
+  selección puede abarcar todos los resultados, Ocultar pregunta antes y un
+  anuncio que SaleLinx aún no ha leído muestra un botón Sincronizar.
+- Crear anuncio dice dónde se creó el anuncio y qué falló, con un botón para
+  reintentarlo.
+- Fotos de anuncios de eBay más nítidas y animaciones más suaves al cambiar de
+  idioma.
+
+## Correcciones
+
+- La pantalla "SaleLinx no está disponible temporalmente" podía aparecer un
+  instante cuando fallaba una sola petición a eBay, por ejemplo al subir las
+  fotos de un crosslist a eBay.
+- Después de que el ordenador entrara en reposo, las cuentas podían aparecer
+  como no vinculadas. Ahora se reconectan solas.
+- Actualizar Mensajes muestra al momento los mensajes nuevos de Vinted.
+- Las ediciones y eliminaciones en Vinted se deshacían con la siguiente
+  sincronización.
+- Las ofertas omitidas contaban como enviadas en Enviar ofertas.
+- El filtro de periodo de Ofertas no hacía nada.
+- La aceptación automática podía actuar sobre una oferta que acababas de
+  responder tú.
+- Las fotos de la pestaña Vincular se recargaban cada 10 segundos, y las
+  miniaturas del editor parpadeaban.

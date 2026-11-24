@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'bots',
   order: 2,
-  updated: '2026-10-13',
+  updated: '2026-11-24',
   tags: ['grow', 'follow', 'unfollow', 'bots', 'depop', 'vinted', 'audience', 'presets'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -31,18 +31,42 @@ open on.
 
 ## Picking a target
 
-The card at the top of the tab shows the **Target Profile**. SaleLinx
-picks it up from the page you&rsquo;re on:
+The tab has three parts: the profile card on the left, the follow
+options in the middle and the **Activity Log** on the right. The card
+shows the profile the tab works on, marked **From the page you&rsquo;re
+on**. SaleLinx picks it up from the page open behind the panel:
 
 - On someone&rsquo;s profile page, that account is the target.
 - On a Depop listing page, the seller is the target, and the listing
   is what **Likers** works on.
-- Anywhere else, the card reads **No profile detected**, and the
-  **Followers** and **Following** tiles stay greyed out until you open
-  a profile.
+- Anywhere else, the card reads **No profile open**. The **Followers**
+  and **Following** rows say **Open a profile**, and their buttons stay
+  off until you open one.
 
 There&rsquo;s no box to type a username in: browse to the profile you
-want, then open the panel. Your own profile works as a target too.
+want, then open the panel. Your own profile works as a target too; the
+card shows a **You** badge, and the rows become **Your followers** and
+**Accounts you follow**.
+
+You need to be logged in to the marketplace, with the account linked to
+SaleLinx. Otherwise every button is off, and hovering one tells you to
+log in. Hovering a button also says exactly what that run will do.
+Only one run goes at a time, so the buttons are off while one is
+running.
+
+## The options
+
+The options are grouped by whose people they reach:
+
+- **From a profile** (it shows the profile&rsquo;s name when someone
+  else&rsquo;s profile is open, and **From your profile** on yours):
+  **Followers** and **Following**, with each list&rsquo;s count. Also
+  **Reviewers** when someone else&rsquo;s shop is open.
+- **From your shop**: **Buyers**, and **Reviewers** of your own shop.
+- **From a listing**: **Likers**.
+
+Each row has its own **Unfollow** and **Follow** button. **Likers** has
+**Follow** only.
 
 ## Follow
 
@@ -58,7 +82,8 @@ want, then open the panel. Your own profile works as a target too.
   Needs a Depop listing page. Depop only.
 
 A follow run skips you, accounts you already follow and, on Depop,
-anyone on your blacklist.
+anyone on your blacklist. A **Likers** run also skips accounts
+you&rsquo;ve blocked or that block you.
 
 ## Unfollow
 
@@ -72,28 +97,30 @@ anyone on your blacklist.
   your own shop if no profile is showing. Depop only.
 
 Accounts you don&rsquo;t follow are skipped. There&rsquo;s no single
-&ldquo;unfollow everyone&rdquo; button: to unfollow the accounts you
-follow, open your own profile and use **Following** under
-**Unfollow**.
+&ldquo;unfollow everyone&rdquo; button: open your own profile and click
+**Unfollow** on the **Accounts you follow** row.
 
-On Vinted, only **Followers** and **Following** work, for both follow
-and unfollow.
+On Vinted, only **Followers** and **Following** appear, for both
+follow and unfollow.
 
 ## Blacklist (Depop)
 
-The **Blacklist** buttons build a list of accounts that Depop follow
-runs will never follow:
+The **Blacklist** group in **Settings** &gt; **Advanced settings** &gt;
+**Grow settings** builds a list of accounts that Depop follow runs
+will never follow:
 
-- **Blacklist Following** adds every account you follow right now.
-- **Blacklist Followers** adds every account that follows you.
+- **Add** next to **Skip everyone you follow** adds every account you
+  follow right now.
+- **Add** next to **Skip your followers** adds every account that
+  follows you.
 
 Each button reads your list from Depop and adds anyone who isn&rsquo;t
 already on the blacklist, so pressing it again is safe. The result
-shows in the Activity Log.
+shows in the Activity Log on the Grow tab.
 
-A common pattern: press **Blacklist Following** before you unfollow a
-batch of accounts, so later follow runs don&rsquo;t pick the same
-people up again.
+A common pattern: press **Add** next to **Skip everyone you follow**
+before you unfollow a batch of accounts, so later follow runs
+don&rsquo;t pick the same people up again.
 
 The blacklist is kept in this browser and there&rsquo;s no screen in
 the panel to view or edit it. It isn&rsquo;t used on Vinted, and
@@ -101,8 +128,11 @@ unfollow runs ignore it.
 
 ## Settings
 
-The **Settings** section under the tiles controls when a run stops and
-how fast it goes:
+These live in **Settings** &gt; **Advanced settings** &gt; **Grow
+settings**. The bottom of the Grow tab shows what the next run will
+use, for example &ldquo;Up to 70 per run&rdquo;, with a **Change**
+button that opens them. **Limits** sets when a run stops and
+**Pacing** sets how fast it goes:
 
 - **Stop after this many actions** - the run ends once this many
   people have been followed or unfollowed. Default 70.
@@ -114,11 +144,11 @@ how fast it goes:
   between the two numbers in **Wait between (seconds)**. Going faster
   raises the risk of a block.
 
-Your daily allowance can also end a run early (see below).
+Your daily allowance can also shorten a run (see below).
 
 ### Presets
 
-The preset picker at the top of **Settings** saves these as a named
+The preset picker at the top of **Grow settings** saves these as a named
 set: the maximum actions per run, the optional time limit, and the
 custom wait toggle with its minimum and maximum seconds. Picking a
 preset fills in all of them at once. Two are built in:
@@ -127,8 +157,10 @@ preset fills in all of them at once. Two are built in:
 - **Careful** - 40 actions per run, custom wait on at 10 to 15
   seconds. Slower, and does less per run.
 
-Change any setting by hand and the picker marks the current values as
-unsaved; from there you can save them as a preset of your own. Saving
+Change any setting by hand and the picker keeps the preset&rsquo;s
+name with a dot next to it, to show the values have changed. Its menu
+then offers **Save as new&hellip;**, **Revert**, and, for one of your
+own presets, **Save changes**. Saving
 under the name of one of your existing presets asks before
 overwriting it, and the built-in names can&rsquo;t be reused. Your
 own presets can be deleted after a confirmation; the built-ins
@@ -141,20 +173,26 @@ for how syncing, sign-out and per-device selection work.
 
 ## Pacing and safety
 
-**On Depop**, runs go at the steady pace above, without long breaks.
-If Depop rate-limits an action, SaleLinx waits 5 seconds and tries
-that account once more; if it&rsquo;s refused again, the run stops.
-The run also stops straight away if Depop says you&rsquo;ve hit its
-24-hour limit, or if it denies access. When that happens, give it a
-few hours before the next run, and if access was denied, sign out of
-Depop and back in first.
+**On Depop**, runs go at the steady pace above, with a short pause
+each time SaleLinx loads the next page of accounts. If Depop
+rate-limits an action, including its 24-hour limit, SaleLinx waits 5
+seconds and tries that account once more; if it&rsquo;s refused again,
+the run stops. The run stops straight away if Depop denies access.
+When that happens, give it a few hours before the next run, and if
+access was denied, sign out of Depop and back in first.
 
-**On Vinted**, runs go through SaleLinx&rsquo;s pacing engine, which
-starts a little slower and takes the odd longer break (the job queue
-shows **On break**). If Vinted pushes back, the run backs off and
-retries a few times, and stops if it keeps happening.
+**On Vinted**, runs go through SaleLinx&rsquo;s pacing engine: about 7
+seconds between actions, a little slower for the first few and
+gradually slower as the run goes on, with the odd short pause and a
+longer break of 5 to 30 minutes every 40 to 90 actions (the job queue
+shows **On break**). Choosing your own wait time changes the gap
+between actions, but the breaks still happen. If Vinted pushes back,
+the run backs off and retries a few times, and stops if it keeps
+happening.
 
-Click **Stop** under the tiles to end a run at any time.
+While a run is going, the bottom of the follow options shows its name,
+a progress bar and a **Stop** button. Click **Stop** to end it at any
+time.
 
 ## Depop&rsquo;s following limit
 
@@ -163,16 +201,17 @@ treats that limit as 7,500. Before any Depop follow run, SaleLinx
 checks how many accounts you follow. If you&rsquo;re at the limit, the
 run doesn&rsquo;t start; if you&rsquo;re close, the run is shortened
 to fit. To make room, unfollow some accounts first, for example with
-**Following** under **Unfollow** on your own profile.
+**Unfollow** on the **Accounts you follow** row of your own profile.
 
 SaleLinx doesn&rsquo;t check a following limit on Vinted.
 
 ## What you&rsquo;ll see
 
-The **Completed**, **Skipped** and **Failed** counters next to the
-target count up as the run goes. The **Activity Log** lists each
+The **Completed**, **Skipped** and **Failed** counters at the top of
+the **Activity Log** count up as the run goes. The log lists each
 account as it&rsquo;s followed, unfollowed or skipped, with the reason
-for a skip (for example, already following or blacklisted).
+for a skip (for example, already following or blacklisted). Starting a
+new run clears the log and the counters.
 
 ## Plan and allowance
 

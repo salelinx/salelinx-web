@@ -1,11 +1,11 @@
 export const metadata = {
   title: 'Dead Stock',
   description:
-    'Find listings that have been live too long with too little engagement, and choose what to do about each one from a single list.',
+    'Find listings that have been live too long with too little engagement, and choose what to do about each one from a single board.',
   category: 'automate',
   slug: 'dead-stock',
   order: 1,
-  updated: '2026-10-16',
+  updated: '2026-11-17',
   tags: ['dead stock', 'analytics', 'depop', 'vinted', 'ebay'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -14,10 +14,10 @@ export const metadata = {
 # Dead Stock
 
 The Dead Stock tab scores every active listing in your shop against
-its age, view count, and like count, then sorts them into four
-health tiers. It surfaces the items that are tying up capital
-without producing sales, so you can decide whether to drop the
-price, relist, or delete them.
+its age, view count, and like count, then sorts the ones that
+aren&rsquo;t selling onto a board. It surfaces the items that are
+tying up capital without producing sales, so you can decide whether
+to drop the price, relist, or delete them.
 
 Dead Stock works on Depop, Vinted and eBay listings.
 
@@ -36,24 +36,24 @@ Dead Stock works on Depop, Vinted and eBay listings.
 
 Each active listing is placed in one of four tiers. The thresholds
 differ by marketplace because each has different baseline
-engagement rates. These are the defaults; the tab&rsquo;s settings
-let you change them.
+engagement rates. These are the defaults; **Dead Stock settings**
+(see below) let you change them.
 
 **Depop**
 
-- **Dead Stock**: 21+ days old, and fewer than 5 likes or fewer than 30
+- **Dead**: 21+ days old, and fewer than 5 likes or fewer than 30
   views.
 - **Stale**: 10+ days old, and fewer than 5 likes or fewer than 30 views.
-- **Slow Mover**: 5+ days old, and fewer than 3 likes or fewer than 15
+- **Slow**: 5+ days old, and fewer than 3 likes or fewer than 15
   views.
 - **Healthy**: anything above those bars.
 
 **Vinted**
 
-- **Dead Stock**: 30+ days old, and fewer than 5 likes or fewer than 40
+- **Dead**: 30+ days old, and fewer than 5 likes or fewer than 40
   views.
 - **Stale**: 14+ days old, and fewer than 5 likes or fewer than 40 views.
-- **Slow Mover**: 7+ days old, and fewer than 3 likes or fewer than 20
+- **Slow**: 7+ days old, and fewer than 3 likes or fewer than 20
   views.
 - **Healthy**: anything above those bars.
 
@@ -61,13 +61,14 @@ let you change them.
 
 eBay listings run until they sell, so they take longer to count as
 old. eBay has watchers rather than likes, and its views cover the last
-90 days.
+90 days. Few buyers watch a listing, so on eBay both numbers have to
+be low.
 
-- **Dead Stock**: 60+ days old, and fewer than 2 watchers or fewer than
+- **Dead**: 60+ days old, and fewer than 2 watchers and fewer than
   60 views.
-- **Stale**: 30+ days old, and fewer than 2 watchers or fewer than 60
+- **Stale**: 30+ days old, and fewer than 2 watchers and fewer than 60
   views.
-- **Slow Mover**: 14+ days old, and fewer than 1 watcher or fewer than
+- **Slow**: 14+ days old, and fewer than 1 watcher and fewer than
   30 views.
 - **Healthy**: anything above those bars.
 
@@ -81,39 +82,43 @@ relisting creates a fresh listing.
 
 <Callout variant="tip" title="Why two thresholds (likes OR views)?">
 A listing with 50 views but zero likes is failing differently from
-one with 5 likes but no views. Either is a warning sign. The OR
-catches both failure modes.
+one with 5 likes but no views. Either is a warning sign. On Depop and
+Vinted the OR catches both failure modes. You can change this for
+each marketplace in Dead Stock settings.
 </Callout>
 
 ## Reading the tab
 
-The Dead Stock tab has four blocks, top to bottom:
+At the top, a headline says how many listings aren&rsquo;t selling,
+for example &ldquo;18 listings aren&rsquo;t selling&rdquo;, with how
+much money they tie up and the oldest one&rsquo;s age underneath,
+such as &ldquo;£420 tied up &middot; oldest 64 days&rdquo;. If you
+sell in more than one currency, you see one total per currency. When
+nothing is past your limits, it reads **Everything is selling fine**.
 
-1. The capital banner - how much money is tied up in flagged listings,
-   for example &ldquo;£420 stuck in 18 items &middot; oldest 64
-   days&rdquo;. The total is the combined price of every Dead Stock,
-   Stale and Slow Mover listing. If you sell in more than one
-   currency, you see one total per currency.
-2. **Inventory Health** - cards counting **Total Active** listings and
-   how many sit in each tier.
-3. **Worst Performers** - cards for your five worst-performing
-   listings, ordered first by tier (Dead Stock, then Stale, then Slow
-   Mover) and then by likes per day (lower is worse). Each card has a
-   **Relist** button.
-4. **All Flagged Listings** - every Dead Stock, Stale and Slow Mover
-   listing, with its photo, title, price, age, views, likes and tier
-   badge. Healthy listings are only counted, never listed.
+Below it, the board has four columns:
 
-The filters above the list narrow it by tier (**All**, **Dead**,
-**Stale**, **Slow**, **Price dropped**) and by marketplace. They only
-change the list. The capital total, the tier counts and the Worst
-Performers cards always cover every marketplace.
+- **Dead** - &ldquo;Old, with almost no attention. These need the
+  most help.&rdquo;
+- **Stale** - &ldquo;Getting old, and buyers are losing
+  interest.&rdquo;
+- **Slow** - &ldquo;Newer listings off to a quiet start.&rdquo;
+- **Price dropped** - listings resting after a **-10%**. See Price
+  dropped below.
 
-Double-click any card or row to open the listing on the marketplace.
+Each column shows how many listings it holds and what they add up to,
+with the oldest first. A card shows the listing&rsquo;s photo, title,
+price, age, views and likes (watchers on eBay). Healthy listings
+aren&rsquo;t on the board.
+
+The marketplace buttons above the board (**All**, or Depop, Vinted or
+eBay) narrow the whole page, headline included.
+
+Double-click any card to open the listing on the marketplace.
 
 ## Taking action
 
-Each row in the list has three buttons:
+Each card has three buttons:
 
 - **-10%** - lowers the listing&rsquo;s price on the marketplace by
   10% straight away. See &ldquo;Price dropped&rdquo; below.
@@ -127,28 +132,67 @@ Each row in the list has three buttons:
 **-10%** is not offered for eBay listings with variations.
 
 **-10%** and **Delete** change your real listings, so use them
-deliberately. All three only work on listings from the marketplace
-you are currently browsing. To act on the others, open the panel on
-the other marketplace.
+deliberately. Changes to Depop and Vinted listings go through an open
+tab for that marketplace, in any window.
 
-To relist several listings at once, tick their boxes (or click the
-rows) and press **Relist Selected** in the bar that appears at the
-bottom. Only listings from the marketplace you are browsing are
-relisted; the others are skipped with a message telling you to switch.
-**Clear** empties the selection.
+### A whole column
+
+When a column holds more than one listing, buttons at its top act on
+all of them, with the count on each: **Relist all**, **-10% all** and
+**Delete all**. Listings already waiting on another job are left out.
+
+- **Relist all** opens the Relist window with the column&rsquo;s
+  listings.
+- **-10% all** asks first (&ldquo;Take 10% off 18 listings?&rdquo;):
+  the new prices go live straight away, and the listings move to
+  **Price dropped** for 7 days. Click **Take 10% off** to go ahead.
+- **Delete all** asks first too, because the listings come off their
+  marketplaces for good.
+
+If the column spans several marketplaces, the window has a button for
+each so you can leave one out. Listings on a marketplace with no tab
+open are left out, and the window says to open a tab to include
+them. Both run in the background through the
+[queue](/docs/getting-started/queue).
+
+### Several listings
+
+Click a card to select it, drag across several, or Shift-click to
+select every one between. Then press **Relist Selected** in the bar
+that appears to open the Relist window with all of them. **Clear**
+empties the selection.
 
 ### Price dropped
 
-After a **-10%**, the listing leaves its tier and rests under the
-**Price dropped** filter for 7 days, so your to-do list visibly gets
-shorter. Its row shows a badge with the size of the drop and when it
-happened; hover over it to see the old and new prices and how many
-days are left. A second **-10%** inside those 7 days adds to the
-first (the badge then reads -19%) and restarts the 7 days.
+After a **-10%**, the listing leaves its column and rests in **Price
+dropped** for 7 days, so your to-do list visibly gets shorter. Its
+card shows a badge with the size of the drop and when it happened;
+hover over it to see the old and new prices and how many days are
+left. A second **-10%** inside those 7 days adds to the first (the
+badge then reads -19%) and restarts the 7 days.
 
-While it rests, the listing is left out of the tier counts, the
-capital total and the Worst Performers cards. If it still has not
-sold after 7 days, it returns to its tier.
+While it rests, the listing is left out of the headline and the money
+tied up. If it still has not sold after 7 days, it returns to its
+column.
+
+## Dead Stock settings
+
+**Dead Stock settings** is in **Settings**, under **Advanced
+settings**. It has a grid for each of Depop, Vinted and eBay, with a
+row each for **Dead**, **Stale** and **Slow** and these columns:
+
+- **Days listed** - how old a listing has to be.
+- **Likes under** (**Watchers under** on eBay) and **Views under** -
+  how low its numbers have to be.
+
+Under **Flag a listing when**, pick **Either number is low** or **Both
+numbers are low** for that marketplace. A listing takes the first
+level it matches, from Dead down. Leave the days empty to turn a level
+off (the box shows **Off**), or leave likes and views empty to flag on
+age alone.
+
+The **Default** preset holds the numbers above. Change any of them and
+you can save your own preset.
 
 ## How the data is gathered
 
@@ -159,7 +203,7 @@ If SaleLinx has not recorded view or like counts for a listing yet,
 it counts them as zero, so an older listing can show as flagged until
 the next sync fills them in.
 
-The **Reload listings** button above the list fetches fresh data from
+The **Reload listings** button above the board fetches fresh data from
 your marketplaces and re-classifies everything, rather than waiting
 for the background sync. Use it after a burst of sales or price
 changes, when the counts are behind what your shop actually looks
@@ -170,7 +214,7 @@ like.
 A weekly triage that uses the tab to drive other tools:
 
 1. Open the Dead Stock tab and check how much money is stuck.
-2. Filter to **Dead** items. For each:
+2. Start with the **Dead** column. For each:
    - If you still want to sell at the current price, **Relist** it to
      give it a fresh listing date.
    - If it&rsquo;s priced too high, press **-10%**, or add it to
@@ -178,7 +222,7 @@ A weekly triage that uses the tab to drive other tools:
      markdowns.
    - If you&rsquo;ve already tried both, **Delete** it and free the
      slot for new stock.
-3. Filter to **Stale** items and give them a lighter bump with
+3. Move on to the **Stale** column and give those a lighter bump with
    [Refresh](/docs/inventory/refresh).
 4. Leave **Slow** items alone until the next pass; they&rsquo;re too
    young to act on.

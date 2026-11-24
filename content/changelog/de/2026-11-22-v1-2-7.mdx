@@ -1,0 +1,37 @@
+export const metadata = {
+  title: "Fehlerbehebungen beim Posten auf Vinted und bei Depop-Entwürfen",
+  date: "2026-11-22",
+  summary:
+    "Version 1.2.7 sorgt dafür, dass Neueinstellungen, Crosslistings und Restocks auf Vinted wieder gepostet werden, dass sich Depop-Entwürfe nach einer Änderung bei Depop wieder speichern lassen, und zeigt beim Abbrechen, wie weit ein Auftrag gekommen ist.",
+  tags: ["release"],
+};
+
+# Version 1.2.7
+
+Ein Update mit Fehlerbehebungen beim Posten auf Vinted und bei
+Depop-Entwürfen.
+
+## Behoben
+
+- **Posten auf Vinted.** Neueinstellungen, Crosslistings und Restocks auf
+  Vinted konnten mit „Error uploading photo“ als Entwurf stehen bleiben. Sie
+  werden wieder gepostet.
+- **Depop-Entwürfe.** Depop hat geändert, wie Entwürfe gespeichert werden,
+  deshalb konnten Crosslistings zu Depop, Anzeige erstellen, Duplizieren,
+  Als Entwurf speichern beim Neueinstellen und der CSV-Import keine
+  Depop-Entwürfe anlegen. Das funktioniert wieder.
+- Wenn du Anzeige erstellen aus einem Depop-Entwurf öffnest, bleiben die
+  Kategorie des Entwurfs und seine Größe (oder die einer verknüpften Anzeige)
+  erhalten.
+- „Baby blue“, „baby pink“ und „baby tee“ im Titel ordnen einen Artikel nicht
+  mehr der Kinderkategorie zu.
+
+## Verbessert
+
+- **Beim Abbrechen eines laufenden Auftrags** siehst du seinen Fortschritt und
+  wie viele Artikel noch offen sind, mit ihren Fotos. Was schon erledigt ist,
+  bleibt erledigt.
+- Anzeige erstellen prüft Tab und Anmeldung jedes Marktplatzes, sobald du es
+  öffnest, und ein verknüpfter Entwurf sagt, auf welchen Marktplätzen er schon
+  eingestellt ist.
+- Der Anzeigen-Editor zeigt die Größe einer Depop-Anzeige sofort.

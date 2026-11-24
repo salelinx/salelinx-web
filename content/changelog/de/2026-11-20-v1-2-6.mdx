@@ -1,0 +1,116 @@
+export const metadata = {
+  title: "Automatisch ausfüllen in Anzeige erstellen, Angebote senden auf eBay und eBay-Etiketten im Panel kaufen",
+  date: "2026-11-20",
+  summary:
+    "Version 1.2.6 füllt das Formular Anzeige erstellen anhand deines ersten Fotos aus, bringt Angebote senden zu eBay, lässt dich eBay-Etiketten im Panel kaufen und drucken, sortiert Nachrichten in Offen, Angebote und Verkauft und sammelt die Einstellungen jeder Funktion unter Erweiterte Einstellungen.",
+  tags: ["release"],
+};
+
+# Version 1.2.6
+
+Fülle eine Anzeige anhand eines Fotos aus, sende Angebote an eBay-Beobachter
+und kaufe eBay-Etiketten, ohne das Panel zu verlassen.
+
+## Anzeige erstellen: Automatisch ausfüllen
+
+- **Automatisch ausfüllen** liest dein erstes Foto und füllt Titel,
+  Beschreibung, Marke, Farben und Kategorie aus, dazu die eBay-Artikelmerkmale,
+  sobald eine eBay-Kategorie gewählt ist.
+- **Nur leere Felder werden ausgefüllt,** was du eingegeben hast, bleibt also
+  unverändert. Prüfe alles, bevor du die Anzeige erstellst.
+- Die Kategorie des Fotos wird auch auf deinen anderen Marktplätzen
+  zugeordnet.
+- Das Formular kommt ohne Scrollen aus und sagt, welche Fotos es nicht
+  hinzufügen konnte, welche du schon hinzugefügt hattest und welche sehr klein
+  sind.
+
+## Angebote senden, jetzt mit eBay
+
+- **Auto-Angebote heißt jetzt Angebote senden.**
+- **Beobachter scannen** findet eBay-Anzeigen mit interessierten Käufern und
+  sendet jedem Beobachter ein Angebot. eBay erlaubt ein Angebot pro Anzeige
+  alle 48 Stunden. Anzeigen, für die kürzlich ein Angebot gesendet wurde,
+  werden deshalb übersprungen.
+- **Alle, Vinted oder eBay.** Alle scannt beide auf einmal.
+- **Eine optionale Nachricht,** die mit jedem Angebot gesendet wird.
+- Gib Rabatt und Mindestpreis ein und sieh, wie viele Angebote rausgehen und
+  was sie wert sind, bevor du sendest.
+
+## eBay-Etiketten im Panel
+
+- **Etikett kaufen** kauft das Etikett bei eBay, ohne das Panel zu verlassen,
+  danach ist es in der Liste druckbereit. Wenn eBay eine Bestätigung der
+  Zahlung braucht, verlinkt das Panel zu eBay.
+- **eBay-Etiketten drucken und per E-Mail senden,** zusammen mit den anderen
+  und auf das Etikett zugeschnitten.
+- **Bestellungen mit eBay-Etikett stornieren,** mit dem Hinweis Stornierung
+  ausstehend, bis eBay sie bestätigt.
+- Eine Warnung, wenn ein Etikett mehr kostet, als der Käufer bezahlt hat, und
+  Paketgröße und Gewicht werden für jede Bestellung gemerkt.
+- **Nachricht** bei einer eBay-Bestellung öffnet den Chat mit dem Käufer oder
+  startet einen.
+- Etiketten funktioniert auch, wenn nur eBay eingeschaltet ist.
+
+## Nachrichten
+
+- **Offen, Angebote und Verkauft** ersetzen Alle, Ungelesen und Gelesen.
+- **Fotos in Vinted-Chats.** Sieh die Fotos des Käufers und sende eigene.
+- **Angebote im Chat,** mit Preis und Ausgang.
+- **Lösche deine eigenen Vinted-Nachrichten.**
+- Der Zeitraum steht anfangs auf 7 statt 3 Tagen.
+
+## Neu einstellen
+
+- **Jeden Artikel verfolgen.** Jede Zeile zeigt ihren Status: Wartet, Wird
+  neu eingestellt, Neu eingestellt, Fehlgeschlagen oder Übersprungen. Eine
+  Übersicht, was nicht erledigt wurde, bleibt, bis du sie schließt.
+- **Stopp** erscheint während eines Laufs und entfernt auch Neueinstellungen,
+  die noch in der Warteschlange stehen.
+- **Ein geräumigeres Fenster zum Neueinstellen** mit größeren Fotos, dem
+  Sale-Preis in der Preiszeile und Als Entwürfe neu einstellen.
+- Neue Altersfilter: Mehr als, Weniger als und Zwischen.
+
+## Angebote und Auto-Annahme
+
+- **Auto-Annahme an einem Ort.** Der Button Auto-Annahme in der
+  Angebots-Werkzeugleiste öffnet sein Fenster mit Mindestangebot,
+  Preisuntergrenze, Marktplätze und Prüfen alle. Dort siehst du auch, wann
+  zuletzt geprüft und was angenommen wurde.
+- **Neue Standardwerte** für die Auto-Annahme: kein Marktplatz angehakt und
+  eine Prüfung alle 10 Minuten.
+- **Gegenangebote werden vor dem Senden geprüft,** ein Gegenangebot über
+  deinem Preis oder unter dem Angebot des Käufers fällt also vorher auf.
+- Ein eBay-Angebot für mehrere Artikel sagt, für wie viele.
+
+## Verbessert
+
+- **Erweiterte Einstellungen.** Jede Funktion, von Wachstum bis Verknüpfung,
+  hat ihre Einstellungen jetzt als Karte in den Einstellungen unter
+  Erweiterte Einstellungen.
+- **Crossposting abgeschlossen** sagt, welche Entwürfe gespeichert wurden und
+  wo du sie fertigstellst. Beim Suchen bleiben deine Häkchen erhalten, und
+  der Tab lässt sich vollständig per Tastatur bedienen.
+- **Meine Anzeigen:** Die Suche findet Wörter in beliebiger Reihenfolge, Alle
+  auswählen kann jeden Treffer erfassen, Verstecken fragt vorher nach, und
+  eine Anzeige, die SaleLinx noch nicht gelesen hat, zeigt einen Sync-Button.
+- Anzeige erstellen sagt, wo die Anzeige erstellt wurde und was
+  fehlgeschlagen ist, mit einem Button zum erneuten Versuch.
+- Schärfere Fotos von eBay-Anzeigen und flüssigere Animationen beim
+  Sprachwechsel.
+
+## Behoben
+
+- Die Meldung „SaleLinx ist vorübergehend nicht verfügbar“ konnte kurz
+  aufblitzen, wenn eine einzelne eBay-Anfrage fehlschlug, zum Beispiel beim
+  Hochladen der Fotos eines Crosslistings zu eBay.
+- Nach dem Ruhezustand des Computers konnten Konten als nicht verknüpft
+  erscheinen. Sie verbinden sich jetzt von selbst neu.
+- Aktualisieren in Nachrichten zeigt neue Vinted-Nachrichten sofort.
+- Bearbeitungen und Löschungen auf Vinted wurden von der nächsten
+  Synchronisierung rückgängig gemacht.
+- Übersprungene Angebote zählten in Angebote senden als gesendet.
+- Der Filter Zeitraum im Tab Angebote hatte keine Wirkung.
+- Die Auto-Annahme konnte auf ein Angebot reagieren, das du gerade selbst
+  beantwortet hattest.
+- Fotos im Tab Verknüpfung luden alle 10 Sekunden neu, und Vorschaubilder im
+  Editor flackerten.

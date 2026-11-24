@@ -1,0 +1,80 @@
+export const metadata = {
+  title: "Lagerhüter auf eBay, ein neues Lagerhüter-Board und ein Schalter für den Dunkelmodus",
+  date: "2026-11-06",
+  summary:
+    "Version 1.2.3 bringt Lagerhüter zu eBay und gestaltet den Tab als Board mit einer Spalte pro Stufe neu, ergänzt einen Dunkelmodus-Schalter in den Einstellungen und zeigt Tarifkarten, die direkt zum Bezahlen führen.",
+  tags: ["release"],
+};
+
+# Version 1.2.3
+
+Sieh auf einem Board, was sich nicht verkauft, eBay inklusive.
+
+## Lagerhüter auf eBay
+
+- **eBay-Anzeigen neben Depop und Vinted.** Deine eBay-Anzeigen zum Festpreis
+  werden mit den anderen geprüft, und es gibt einen eBay-Filter. Auktionen
+  bleiben außen vor, weil sie von selbst enden.
+- **Beobachter statt Likes.** eBay-Anzeigen werden nach Beobachtern und
+  Aufrufen bewertet, und die Aufrufe decken die letzten 90 Tage ab. Ein Strich
+  heißt, dass eBay keine gemeldet hat.
+- **Direkt im Panel handeln.** -10 % funktioniert bei eBay-Anzeigen ohne
+  Varianten, Neu einstellen beendet eine Anzeige und stellt sie als neue
+  wieder ein, und Löschen beendet sie.
+- **Nur eBay.** Wenn nur eBay eingeschaltet ist, öffnet sich der Tab
+  Lagerhüter, statt Demnächst anzuzeigen.
+
+## Ein neues Lagerhüter-Board
+
+- **Vier Spalten:** Lagerhüter, Veraltet, Langsam und Preis gesenkt, die
+  ältesten zuerst. Eine Überschrift zeigt, wie viele Anzeigen sich nicht
+  verkaufen, wie viel Geld darin gebunden ist und wie alt die älteste ist.
+- **Eine ganze Spalte auf einmal.** Alle neu einstellen, Alle -10 % und Alle
+  löschen wirken auf alle Anzeigen einer Spalte und fragen vorher nach.
+  Anzeigen auf einem Marktplatz ohne offenen Tab werden ausgelassen, und das
+  Fenster weist darauf hin.
+- **Wähle mehrere aus,** indem du mit der Maus über sie ziehst oder
+  Umschalt + Klick nutzt, und klicke dann auf Auswahl neu einstellen.
+- **Von jeder Seite aus.** -10 %, Neu einstellen und Löschen funktionieren auf
+  jedem Marktplatz, nicht nur auf dem, den du gerade ansiehst.
+- **Lagerhüter-Einstellungen.** Lege für jede Stufe und jeden Marktplatz die
+  Tage online, die Likes (auf eBay die Beobachter) und die Aufrufe fest, und
+  ob nur eine der beiden Zahlen oder beide niedrig sein müssen. Speichere sie
+  als Voreinstellungen.
+
+## Verbessert
+
+- **Dunkelmodus in den Einstellungen.** Ein Dunkelmodus-Schalter unter
+  Anzeige. Der Sonne-und-Mond-Button oben im Panel funktioniert weiterhin.
+- **Updates installieren sich selbst,** sobald niemand SaleLinx nutzt: wenn
+  nichts läuft und kein Marktplatz-Tab offen ist, oder nach 5 Minuten ohne
+  Aktivität am Computer. Offene Marktplatz-Tabs laden danach neu, außer einer
+  Seite, auf der du gerade eine Anzeige erstellst.
+- **Beendete eBay-Anzeigen in Meine Anzeigen** erscheinen als Gelöscht oder
+  Auktion beendet, und der Editor zeigt Beenden statt Deaktivieren.
+- **Der Bildschirm zum Verknüpfen der Konten** nutzt die Buttons Weiter und
+  Anmelden und sagt, was noch zu tun ist, bevor du weitermachen kannst.
+
+## Behoben
+
+- Gelöschte eBay-Anzeigen konnten alle auf einmal in Meine Anzeigen wieder
+  auftauchen.
+- Eine eBay-Anzeige, die während eines dann fehlgeschlagenen Neueinstellens
+  endete, konnte aus Meine Anzeigen verschwinden.
+- Die Summen bei Lagerhüter zählten Marktplätze mit, die du ausgeschaltet
+  hattest.
+- Wird eine Antwort in Nachrichten wegen zu vieler Fotos abgelehnt, bleiben
+  dein Text und deine Fotos jetzt erhalten, und du siehst, wann du es erneut
+  versuchen kannst.
+
+## Tarife und Abrechnung
+
+- **Tarifkarten auf dem Willkommensbildschirm.** Ein neues Konto sieht die
+  kostenlose Testphase und Pro nebeneinander, mit den Kontingenten jedes
+  Tarifs. Wenn ein Tarif endet, zeigt der Bildschirm Starter, Pro und
+  Business.
+- **Direkt zum Bezahlen.** Die Tarif-Buttons starten direkt den
+  Bezahlvorgang oder öffnen die Preisseite, wenn er sich nicht starten lässt.
+- **Kein Aktualisieren nötig.** Wenn du nach dem Bezahlen zum Tab
+  zurückkehrst, entsperrt sich das Panel von selbst. Aktualisieren zeigt jetzt
+  „Noch kein Plan gefunden“ oder „Prüfen fehlgeschlagen. Versuch es nochmal.“

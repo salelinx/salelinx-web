@@ -1,0 +1,111 @@
+export const metadata = {
+  title: "Pedidos de eBay en Etiquetas, Crear anuncio desde un borrador, y Ofertas y Mensajes renovados",
+  date: "2026-11-10",
+  summary:
+    "La versión 1.2.4 lleva los pedidos de eBay a la pestaña Etiquetas con precios de etiquetas, Marcar como enviado y Cancelar pedido, recorta las etiquetas A4 de Vinted para dejar solo la etiqueta, permite abrir Crear anuncio a partir de un borrador y renueva las pestañas Ofertas y Mensajes.",
+  tags: ["release"],
+};
+
+# Versión 1.2.4
+
+Envía los pedidos de eBay desde la misma lista que los de Depop y Vinted.
+
+## eBay en Etiquetas
+
+- **Los pedidos de eBay pendientes de envío** aparecen en la misma lista que
+  los de Depop y Vinted, con un filtro de eBay y una cuenta atrás hasta la
+  fecha límite de envío de eBay.
+- **Precios de etiquetas en el panel.** Obtener etiqueta muestra los servicios
+  de eBay para llevar el paquete a un punto de entrega, según su tamaño y su
+  peso, con sus precios, la elección del comprador primero, las fechas de
+  llegada y lo que pagó el comprador por el envío. Abrir en eBay te lleva a la
+  página de etiquetas de eBay para comprarla.
+- **Marcar como enviado** avisa a eBay y al comprador de que el pedido va en
+  camino, con un transportista y un número de seguimiento si los tienes.
+- **Cancelar pedido** también funciona en los pedidos de eBay, con los motivos
+  de eBay.
+
+## Mejores etiquetas
+
+- **Las etiquetas A4 de Vinted se recortan** para dejar solo la etiqueta, con
+  todos los transportistas. Esto también arregla las impresiones en blanco de
+  InPost desde que Vinted movió la etiqueta en la hoja. Los códigos QR de
+  Relay se imprimen en una hoja de 4x6.
+- **Descargas más rápidas** al imprimir varias etiquetas de Vinted.
+- Las etiquetas recortadas llevan una pequeña marca de SaleLinx bajo la
+  etiqueta, como ya pasaba con las hojas QR.
+- La lista muestra 20, 50 o 100 pedidos por página, y el buscador es más
+  grande.
+
+## Crear anuncio desde un borrador
+
+- **Empieza desde un borrador.** Selecciona un solo borrador en Mis anuncios y
+  haz clic en Crear anuncio. El formulario se abre con el título, la
+  descripción, el precio, la marca, el estado, los colores y las fotos del
+  borrador y, si es de Vinted, también con la categoría, la talla y el tamaño
+  del paquete.
+- **No se pierde nada.** Si ya habías empezado un anuncio, el formulario
+  pregunta antes de sustituirlo.
+- **El borrador se convierte en el anuncio.** En Depop y Vinted se usa el
+  propio borrador, que sigue vinculado a las nuevas copias. Un borrador de
+  eBay se sustituye.
+
+## Ofertas
+
+- **Un nuevo diseño de tarjetas,** con el comprador primero y después la
+  oferta junto a tu precio tachado y el porcentaje de descuento.
+- **Ordenar ofertas** por Mejores ofertas, Más recientes o Más antiguas.
+- **El apartado Antes** muestra las ofertas y contraofertas anteriores en
+  Depop y Vinted.
+- Una contraoferta escrita con coma decimal, como 12,50, ya se lee
+  correctamente.
+
+## Mensajes
+
+- Las conversaciones de Vinted aparecen cuando el comprador ya ha escrito
+  algo.
+- Las conversaciones sobre anuncios vendidos o eliminados quedan fuera.
+- Las conversaciones no leídas se cargan primero.
+- Un comprador que solo da las gracias, dice ok o envía un emoji ya no se
+  marca como Por responder.
+
+## Mejoras
+
+- **Contadores en el menú lateral** para Ofertas, Mensajes y Etiquetas.
+- **Una sola ventana de Republicar para artículos vendidos** en Mis anuncios,
+  con Plataformas, Cambios y Copia en la nube, además de Guardar como
+  borrador. Un anuncio de eBay vendido se puede republicar con el resto de su
+  grupo vinculado.
+- **El aviso de venta de un anuncio vinculado** muestra su foto, un botón Ver
+  en Depop, Vinted o eBay, según dónde se vendió, y un botón Retirar.
+- **Mis anuncios:** el menú de filtros y orden pasa a llamarse Avanzado, con
+  Preajustes dentro; Ocultos y Retrasados quedan tras una flecha Más estados,
+  y las fotos tienen un botón Girar 90°. Guardar en la nube también acepta
+  borradores.
+- **Publicar borradores** revisa los borradores más rápido, pide una talla o
+  una marca de Depop cuando hace falta y muestra el motivo que da Depop cuando
+  una publicación falla.
+- **Soporte** incluye enlaces para valorar SaleLinx en la Chrome Web Store y
+  dejar una reseña en Trustpilot.
+- Botones más claros y errores legibles en modo oscuro, mejor acceso con
+  teclado y lector de pantalla en Ofertas, Etiquetas y Republicar, y
+  singulares y plurales correctos en todos los idiomas.
+
+## Correcciones
+
+- Los borradores de Depop no se podían guardar ni publicar tras un cambio por
+  parte de Depop.
+- Cancelar un pedido de Vinted fallaba.
+- El aviso Etiqueta ya solicitada aparecía siempre al pedir por primera vez
+  una etiqueta de Vinted.
+- Los borradores de Vinted perdían la marca y la talla en Mis anuncios, y la
+  importación CSV omitía el estado, la talla y la marca de los borradores de
+  Vinted.
+- Tras una actualización, acciones de Vinted como el borrado en bloque podían
+  no hacer nada.
+- Una descripción de Depop como "Please ask for size" se leía como una talla.
+- Crear anuncio ahora dice por qué se rechaza un precio.
+- El selector de color se cortaba por abajo en Crear anuncio, y algunos
+  colores, como Turquesa, se perdían.
+- Los pedidos nuevos de eBay podían quedar ocultos tras actualizar, y las
+  fotos que faltaban aparecían como imágenes rotas.

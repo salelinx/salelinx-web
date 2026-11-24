@@ -5,7 +5,7 @@ export const metadata = {
   category: 'buyers',
   slug: 'messages',
   order: 2,
-  updated: '2026-10-16',
+  updated: '2026-11-17',
   tags: ['messages', 'conversations', 'depop', 'vinted', 'ebay'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -13,91 +13,115 @@ export const metadata = {
 
 # Messages
 
-The **Messages** tab puts your Depop, Vinted and eBay chats side by side
-in a column each, so you can read and reply without opening each
-marketplace&rsquo;s inbox. The column for the site you&rsquo;re on
-sits on the left. Messages covers Depop, Vinted and eBay.
+The **Messages** tab puts your Depop, Vinted and eBay chats in one
+inbox, so you can read and reply without opening each
+marketplace&rsquo;s inbox. The list of conversations sits on the left
+and the conversation you&rsquo;re reading on the right. Messages covers
+Depop, Vinted and eBay.
 
-Each card shows the other person&rsquo;s avatar and username, how
-long ago the last message was sent, a preview of that message, and
-the item the conversation is about. Conversations with unread
-messages carry an unread badge.
+Each row shows the item&rsquo;s photo with the marketplace logo on it,
+the other person&rsquo;s avatar and username, how long ago the last
+message was sent, a preview of that message, and the item the
+conversation is about. Conversations with unread messages carry an
+unread badge, and a **Needs reply** tag marks the ones where the other
+person spoke last and is waiting on you.
 
-## What the columns show
+## What the inbox shows
 
-Both columns list every conversation with a message inside the
-time window, read or unread, whether or not you&rsquo;ve already
-replied. The newest conversation sits at the top of each column.
+The inbox lists every conversation with a message inside the time
+window, read or unread, whether or not you&rsquo;ve already replied.
+Conversations waiting on you come first, under **Waiting on you**, then
+the rest under **Everything else**, each with the newest at the top.
+The first conversation waiting on you opens by itself.
 
-- **Time window.** The dropdown in the toolbar sets how far back to
-  look: 1, 3, 5, 7, 14 or 30 days. It starts at 3 days.
-- **Vinted** shows up to the 20 most recent conversations in the
-  window. SaleLinx loads each Vinted conversation one at a time,
-  because loading lots at once can get you temporarily blocked, so
-  this column takes longer to fill than the Depop one.
-  Conversations with no written messages (only an offer or an order
-  update, for example) are left out.
+- **Open**, **Offers** and **Sold.** These tabs above the list split
+  your conversations. **Open** holds your everyday chats and is where
+  the tab starts. **Offers** holds conversations that are only an
+  offer, with no words from the other person. **Sold** holds
+  conversations about a listing of yours that has sold.
+- **Marketplace filters.** **All**, then a button for each marketplace
+  you sell on. Click one to see only that marketplace, or several to
+  see them together. **All** shows every marketplace again. The row
+  only appears when you sell on two or more.
+- **Time window.** The buttons in the toolbar set how far back to
+  look: **1d**, **3d**, **5d**, **7d**, **14d** or **30d**. It starts
+  at **7d**.
+- **Vinted.** SaleLinx reads the 20 most recent Vinted conversations
+  in the window one at a time, because reading lots at once can get
+  you temporarily blocked, so Vinted takes longer to fill in than
+  Depop. Older Vinted conversations in the window are still listed,
+  and load when you open them.
 - **Depop** shows up to the 72 most recent conversations in the
   window.
 - **eBay** shows its conversations with the messages already loaded,
-  and needs no open eBay tab. Replies to eBay can be up to 2000
-  characters, and you can attach photos.
+  and needs no open eBay tab.
 
-The number in the toolbar is how many conversations are listed
-across both columns, and each column header shows its own count in
-brackets. It is not an unread count.
+The line above the list says how many buyers are waiting on you, for
+example **3 buyers waiting on you**, and the number beside it is how
+many conversations are listed. Neither counts offer or sold
+conversations, and neither is an unread count.
 
 From version 1.1.12, conversations where you are the buyer also
 appear, with a **Buying** chip, and the username on the card is the
 seller&rsquo;s. Earlier versions show only chats about your own
 listings.
 
-The **&times;** on a card hides it until the next refresh.
+The **&times;** on a row hides it until the next refresh.
 
 ## Opening a thread
 
-Click a card to open the thread inside it. Only one thread is open
-at a time: opening another closes the first. Vinted threads are
-already loaded, so they open straight away. Depop threads load when
-you open them, so the first open takes a moment.
+Click a row to open the conversation on the right. Vinted threads are
+usually already loaded, so they open straight away. Depop threads load
+when you open them, so the first open takes a moment.
+
+Photos the other person sends show in the thread. An offer shows as
+**Offer** with its price, followed by **Accepted** or **Declined** once
+it&rsquo;s answered. On Vinted, the menu on one of your own messages has
+**Delete**, which removes it from the chat.
 
 ## Replying
 
-The reply box sits under the open thread. Type your message, then
-press Enter or click the send button. The box is a single line, so
-you can&rsquo;t add line breaks.
+The reply box sits under the open conversation. Type your message, then
+press Enter or click the send button. Shift+Enter adds a new line.
+
+On Vinted and eBay, the attach button adds photos to a reply, up to 5
+in a message (JPEG, PNG or GIF). On eBay a photo needs a message with
+it. Depop replies are text only. Replies to eBay can be up to 2000
+characters.
 
 Replies jump ahead of any background work SaleLinx is doing on that
-marketplace. If a reply can&rsquo;t be sent, you&rsquo;ll see
-**Failed to send message.** and your text stays in the box so you
-can try again.
+marketplace. If a reply can&rsquo;t be sent, the conversation says so,
+for example **Vinted didn&rsquo;t take your reply. Check you&rsquo;re
+signed in there, then try again.**, and your text stays in the box so
+you can try again.
 
-The button next to send opens the chat on the marketplace (on Depop,
-your inbox) for anything the panel doesn&rsquo;t do, such as sending
-photos, blocking or reporting.
+**Open in Depop** (or **Open in Vinted**, **Open in eBay**) at the top
+of the conversation opens the chat on the marketplace for anything the
+panel doesn&rsquo;t do, such as blocking or reporting.
 
 ## Refreshing
 
 The tab loads when you open it. There&rsquo;s no automatic refresh
-on a timer. Coming back to the tab within two minutes reuses the
-last results instead of asking the marketplaces again.
+on a timer. Coming back to the tab within two minutes (five for eBay)
+reuses the last results instead of asking the marketplaces again.
 
 To fetch fresh results, click the refresh button in the toolbar or
-change the time window. Both columns clear to loading placeholders,
-and each one fills in as soon as its marketplace answers.
+change the time window. The list stays on screen while it reloads,
+and each marketplace updates as soon as it answers.
 
-## When a column is empty
+## When the list is empty
 
-- **No new messages** means nothing in that column falls inside the
-  time window. Try a longer window.
-- If a column can&rsquo;t reach its marketplace, it says so instead
-  of showing an empty list, for example when no tab for that
-  marketplace is open or you&rsquo;re signed out. Fix that, then
-  click refresh. For eBay, the column offers a **Reconnect** button
-  instead, because only reconnecting eBay in Settings can fix it.
-- A blurred column with a **Link account** button means you
-  haven&rsquo;t linked that marketplace yet. The button takes you to
-  Settings.
+- **No new messages** means nothing falls inside the time window. Try
+  a longer window. If your filters hide everything, the list says
+  **Nothing matches these filters.** and **Show all** clears them.
+- If SaleLinx can&rsquo;t reach a marketplace, it says so instead of
+  showing an empty list, for example when no tab for that marketplace
+  is open or you&rsquo;re signed out. Fix that, then click refresh. For
+  eBay, it says **Reconnect eBay to see your eBay messages here.** with
+  a **Reconnect** button, because only reconnecting eBay can fix it.
+- **Depop account not linked. Its items aren&rsquo;t shown here.** (or
+  the same for Vinted) with a **Link account** button means you
+  haven&rsquo;t linked that marketplace yet.
 
 ## Plan and access
 

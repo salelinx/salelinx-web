@@ -5,7 +5,7 @@ export const metadata = {
   category: 'inventory',
   slug: 'crosslist',
   order: 5,
-  updated: '2026-10-16',
+  updated: '2026-11-17',
   tags: ['crosslist', 'depop', 'vinted', 'ebay'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -19,10 +19,8 @@ the items, check them in a review step, and SaleLinx creates each copy in
 the background. There&rsquo;s no sell form to fill in twice and no tab to
 babysit.
 
-From version 1.1.12, every copy to Depop or Vinted is saved as a draft for
-you to check and publish. eBay has no drafts, so copies to eBay go live (see
-*Crosslisting to and from eBay* below). In version 1.1.11 an **Auto-post**
-switch on the tab could publish copies straight away instead.
+Every copy is saved as a draft for you to check and publish, on eBay too,
+unless you switch on **Post straight away** for an item in the review step.
 
 ## When to use it
 
@@ -40,18 +38,22 @@ switch on the tab could publish copies straight away instead.
 - **Two marketplaces linked to SaleLinx**, any two of Depop, Vinted and
   eBay, and switched on in **Settings &rarr; Marketplaces** (see
   [Connect your first marketplace](/docs/getting-started/connect-your-first-marketplace)).
-- **A tab open for each of Depop and Vinted you&rsquo;ve linked**, signed
-  in to those same accounts. SaleLinx works through those sites. eBay never
-  needs a tab. If a tab is missing, the Crosslist tab says so and offers a
-  button to open it.
+- **A tab open for each of Depop and Vinted you&rsquo;re crosslisting
+  between**, signed in to those same accounts. SaleLinx works through those
+  sites. Crosslisting to eBay also needs a tab open on your eBay site,
+  signed in, because eBay drafts are saved there. If a tab is missing, the
+  Crosslist tab says so and offers a button to open it.
 - **A plan with crosslists.** Every plan from the 14-day free trial up
   includes a monthly crosslist allowance.
 
 ## How Crosslist works
 
 The **How Crosslist works** card at the top of the tab sums it up in three
-steps: **Tick items**, **Press Crosslist**, **Drafts appear on the other
-site**. Close it with the &times; once you know the drill and it stays
+points: copy a listing between Vinted, Depop and eBay without filling out
+the sell form twice; select as many as you like, and they&rsquo;re copied
+one after another; copies are saved as drafts, unless you switch on **Post
+straight away**, and eBay&rsquo;s fees are shown before anything goes live
+there. Close it with the &times; once you know the drill and it stays
 hidden.
 
 ## Picking listings
@@ -67,9 +69,9 @@ Above the grid:
   the one you&rsquo;re copying to. One marketplace can&rsquo;t be on both
   sides, and the swap button between them flips the direction. eBay appears
   in both once it&rsquo;s linked.
-- **Link filter** - **All**, Linked or Unlinked. It starts on Unlinked,
-  which hides listings that are already linked to a partner on the other
-  marketplace.
+- **Link filter** - **All**, Linked or Unlinked. It starts on **All**.
+  Unlinked hides listings that are already linked to a listing on the
+  **To** marketplace.
 - **Status filter** - **All**, **Active** or **Drafts**. It starts on
   **All**: drafts can be crosslisted as well as live listings.
 - **Search**, **Refresh listings** (re-reads your listings from the
@@ -94,8 +96,9 @@ To crosslist something that isn&rsquo;t in the grid, add it by its link:
 1. Click **Add from URL**.
 2. Paste one or more listing links, one per line. If you opened the panel on
    a Vinted listing, you can leave the box empty to use that listing.
-3. Click **Fetch**. Each listing appears in a list where you can **Edit** or
-   **Remove** it. Any link that couldn&rsquo;t be fetched stays in the box.
+3. Click **Fetch**. Each listing appears in a list with its photo, title and
+   price, and an &times; to remove it. Any link that couldn&rsquo;t be
+   fetched stays in the box.
 4. Click **Add to List**. The listings go to the front of the grid, already
    ticked.
 
@@ -114,18 +117,49 @@ row per item.
   size come from the target marketplace&rsquo;s own lists, so you can fix a
   mapping before anything is sent. Click **Save** to keep your changes.
   Prices are in the source listing&rsquo;s currency.
-- **Remove** takes the item out of this batch.
+- The &times; (**Remove**) takes the item out of this batch.
 - A warning appears under an item when something looks off, such as a title
   that names a different category from the one picked, or a kids&rsquo; size
   that had to be estimated.
 
+At the top, under **For every item**, three switches set what happens to
+each copy:
+
+- **Post straight away** - off saves the copy as a draft for you to post
+  yourself. It starts off each time you open the review.
+- **Back up to the cloud** - keeps the original and the new listing in your
+  cloud backup, so you can relist or restock them later. On to start with.
+- **Link to the original** - links the copy to its original, so a sale on
+  one updates the other. It needs the backup on, and is on to start with.
+
+Each row has the same three as icons, so you can change them for one item.
+SaleLinx remembers what you set under **For every item** for next time,
+apart from **Post straight away**. Backing up and linking need a plan with
+cloud sync, and don&rsquo;t appear without one. If an item is already
+linked on the target marketplace, its row says so and leaves those two off,
+since the copy would be a second one there.
+
 When everything looks right, click **Crosslist to** with the target logo.
-The items join the crosslist queue.
+If an item going live on eBay has a fee, a window shows the total first,
+billed by eBay; click **Crosslist** to go ahead or **Go back**. The items
+join the crosslist queue.
 
 You can also crosslist straight from [My Listings](/docs/inventory/listings):
 select active listings from one marketplace and click **Crosslist** in the
 selection toolbar. That route skips the review step and copies between
-Depop and Vinted only. See [Bulk editor](/docs/inventory/bulk-editor).
+Depop and Vinted only, using what you last set under **For every item**.
+See [Bulk editor](/docs/inventory/bulk-editor).
+
+## Crosslist settings
+
+**Crosslist settings** is in **Settings**, under **Advanced settings**.
+**Seconds between listings** is how long to wait after a listing that goes
+live straight away before starting the next, give or take a little so runs
+look human. It starts at 30 seconds, and 0 never waits. Drafts don&rsquo;t
+wait. The same setting applies when you crosslist from My Listings.
+
+The **Default** preset uses 30 seconds and **Careful** 90. You can also save
+your own presets.
 
 ## How the crosslist runs
 
@@ -161,8 +195,8 @@ queued and the panel tells you how many made it.
 
 A batch:
 
-- Runs one item at a time, with pauses in between so the marketplaces
-  don&rsquo;t see a burst of activity.
+- Runs one item at a time. After an item that goes live straight away, it
+  waits the **Seconds between listings** from Crosslist settings.
 - Shows its progress in the panel&rsquo;s job queue, and keeps running if
   you close the panel.
 - Pauses if the browser restarts part-way through. Press **Resume** in the
@@ -172,33 +206,41 @@ A batch:
 - Re-reads the target marketplace as it goes, so the new copies show up in
   My Listings.
 
-From version 1.1.12, each copy is counted against your allowance as it is
-created and failed items don&rsquo;t count. If the allowance runs out
-part-way, the batch stops. In version 1.1.11 the batch is counted when it
-finishes, failed items included.
+Each copy is counted against your allowance as it is created, and failed
+items don&rsquo;t count. If the allowance runs out part-way, the batch
+stops.
+
+When the batch finishes, a **Crosslist finished** notice says what was
+made, for example &ldquo;Saved 3 drafts on Vinted. Finish and post them
+from My Listings.&rdquo;
 
 ## Copies are saved as drafts
 
-Every copy to Depop or Vinted lands as a **draft**, never as a live
-listing. Copies to eBay are the exception: they go live, after the review
-step has shown you eBay&rsquo;s fees. Any mapping mistake (wrong category,
-missing brand, a size left blank) sits in a draft you can check rather than
-on a listing buyers can see.
+Unless you switched on **Post straight away**, every copy lands as a
+**draft**, on eBay as well as Depop and Vinted. Any mapping mistake (wrong
+category, missing brand, a size left blank) sits in a draft you can check
+rather than on a listing buyers can see.
 
 Open the draft on the marketplace, fix anything that looks wrong and publish
-it. You can also publish drafts from My Listings with **Post**.
+it. You can also publish drafts from My Listings with **Post draft**.
 
-## The original and the copy aren&rsquo;t linked
+With **Post straight away** on, an eBay copy goes live at a fixed price. A
+Depop or Vinted copy is still made as a draft first, then posted
+afterwards in its own job, **Posting Drafts**, which posts in batches of 10
+with a 5-minute break between them.
 
-Crosslisting doesn&rsquo;t link the original and its copy, so the source
-listing stays under the Unlinked filter afterwards. Check before you
-crosslist the same item twice.
+## Linking the original and the copy
 
-To pair them, publish the copy, save both listings to the cloud, then link
-them in the [Linking tab](/docs/automate/linking), or select both in My
-Listings and click **Link**. Linked pairs are what the
-[Restocker](/docs/automate/restocker) works from. Cloud saving and the
-Linking tab are part of the Pro and Business plans.
+With **Back up to the cloud** and **Link to the original** on, which they
+are to start with, SaleLinx saves the original and its copy to the cloud
+and links them, so the original no longer shows under Unlinked for that
+marketplace. Linked listings are what the
+[Restocker](/docs/automate/restocker) works from.
+
+If you switched linking off, you can link them later in the
+[Linking tab](/docs/automate/linking), or select both in My Listings and
+click **Link**. Cloud saving and linking are part of the Pro and Business
+plans.
 
 ## Crosslisting to and from eBay
 
@@ -211,11 +253,13 @@ to Depop or Vinted.
 source category, fills in the item specifics eBay asks for (brand,
 colour, size, department and more), and uploads the photos.
 
-- **eBay listings go live straight away.** eBay has no drafts.
-- **You see eBay&rsquo;s fees first.** The review step checks every item
-  with eBay before anything is posted, and shows the fee and anything
-  eBay would refuse. A row eBay would refuse has a **Fill in** button
-  so you can add what&rsquo;s missing.
+- **eBay copies are saved as eBay drafts,** unless you switch on **Post
+  straight away** for an item, which lists it live at a fixed price.
+- **You see eBay&rsquo;s fees first.** For each item set to **Post straight
+  away**, the review step checks with eBay before anything is posted, and
+  shows the fee (or **Free to list on eBay**) and anything eBay would
+  refuse. A row eBay would refuse has a **Fill in** button so you can add
+  what&rsquo;s missing.
 - **Postage comes from SaleLinx or your eBay account.** SaleLinx uses
   the postage you saved in SaleLinx if there is one, otherwise the
   business policies on your eBay listings, otherwise the postage your eBay
@@ -241,9 +285,10 @@ To create listings from a spreadsheet instead, see
 
 ## Troubleshooting
 
-**&ldquo;Open every marketplace you crosslist between.&rdquo;** Use the
-button to open the missing site, or open it yourself. Make sure each tab is
-signed in to the account you linked to SaleLinx.
+**&ldquo;Open Vinted so you can crosslist here.&rdquo;** (or the same
+naming Depop or eBay) Use the **Open** button to open the missing site, or
+open it yourself. Make sure each tab is signed in to the account you linked
+to SaleLinx.
 
 **&ldquo;Both Depop and Vinted accounts must be linked before
 crosslisting.&rdquo;** (or the same message naming eBay) Link the missing
@@ -284,9 +329,9 @@ has been deleted or has sold can&rsquo;t be fetched. Check the link, click
 
 - [Bulk editor](/docs/inventory/bulk-editor) - crosslist, edit or delete
   listings in bulk from My Listings.
-- [Linking](/docs/automate/linking) - pair listings that exist on both
-  marketplaces.
-- [Restocker](/docs/automate/restocker) - uses linked pairs to repost
+- [Linking](/docs/automate/linking) - link listings that exist on more
+  than one marketplace.
+- [Restocker](/docs/automate/restocker) - uses linked listings to repost
   automatically when one side sells.
 - [CSV import](/docs/inventory/csv-import) - create listings from a
   spreadsheet.

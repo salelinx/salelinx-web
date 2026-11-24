@@ -1,0 +1,118 @@
+export const metadata = {
+  title: "Remplissage auto pour Créer une annonce, Envoyer des offres sur eBay, et étiquettes eBay achetées dans le panneau",
+  date: "2026-11-20",
+  summary:
+    "La version 1.2.6 remplit Créer une annonce à partir de votre première photo, amène Envoyer des offres sur eBay, permet d'acheter et d'imprimer les étiquettes eBay dans le panneau, répartit Messages entre Ouverts, Offres et Vendus, et regroupe les réglages de chaque fonction sous Réglages avancés.",
+  tags: ["release"],
+};
+
+# Version 1.2.6
+
+Remplissez une annonce à partir d'une photo, envoyez des offres aux acheteurs
+intéressés sur eBay, et achetez vos étiquettes eBay sans quitter le panneau.
+
+## Créer une annonce : Remplissage auto
+
+- **Remplissage auto** lit votre première photo et remplit le titre, la
+  description, la marque, les couleurs et la catégorie, plus les
+  caractéristiques de l'objet eBay une fois une catégorie eBay choisie.
+- **Seuls les champs vides sont remplis,** donc ce que vous avez saisi reste
+  tel quel. Vérifiez le tout avant de créer l'annonce.
+- La catégorie déduite de la photo trouve aussi son équivalent sur vos autres
+  plateformes.
+- Le formulaire tient à l'écran sans défilement, et signale les photos qu'il
+  n'a pas pu ajouter, celles que vous aviez déjà ajoutées et celles qui sont
+  très petites.
+
+## Envoyer des offres, maintenant avec eBay
+
+- **Offres auto s'appelle maintenant Envoyer des offres.**
+- **Scanner les intéressés** trouve les annonces eBay qui ont des acheteurs
+  intéressés et envoie une offre à chaque personne qui suit l'annonce. eBay
+  autorise une offre par annonce toutes les 48 heures, donc les annonces qui
+  ont reçu une offre récemment sont ignorées.
+- **Tous, Vinted ou eBay.** Avec Tous, les deux sont analysés à la fois.
+- **Un message facultatif** envoyé avec chaque offre.
+- Saisissez la remise et le prix minimum, et voyez combien d'offres partiront
+  et ce qu'elles valent avant d'envoyer.
+
+## Les étiquettes eBay dans le panneau
+
+- **Acheter l'étiquette** achète l'étiquette auprès d'eBay sans quitter le
+  panneau, et elle est ensuite prête à imprimer depuis la liste. Si eBay vous
+  demande de confirmer le paiement, le panneau vous renvoie vers eBay.
+- **Imprimez et envoyez par e-mail les étiquettes eBay** avec les autres,
+  recadrées sur l'étiquette.
+- **Annulez les commandes eBay qui ont déjà une étiquette,** avec un badge
+  Annulation en attente jusqu'à la confirmation d'eBay.
+- Un avertissement quand une étiquette coûte plus que ce que l'acheteur a
+  payé, et la taille et le poids du colis sont mémorisés pour chaque commande.
+- **Message** sur une commande eBay ouvre la conversation avec l'acheteur, ou
+  en démarre une.
+- Étiquettes fonctionne quand seul eBay est activé.
+
+## Messages
+
+- **Ouverts, Offres et Vendus** remplacent Tous, Non lus et Lus.
+- **Les photos dans les conversations Vinted.** Voyez les photos de
+  l'acheteur, et envoyez les vôtres.
+- **Les offres dans la conversation,** avec leur prix et leur issue.
+- **Supprimez vos propres messages Vinted.**
+- La période est désormais de 7 jours par défaut, au lieu de 3.
+
+## Republier
+
+- **Suivez chaque article.** Chaque ligne affiche son état (En attente,
+  Republication, Republié, Échec ou Ignoré), et un résumé de ce qui n'a pas
+  été fait reste affiché jusqu'à ce que vous le fermiez.
+- **Arrêter** s'affiche pendant une republication, et retire aussi les
+  republications encore en attente dans la file.
+- **Une fenêtre Republier plus spacieuse** avec de plus grandes photos, le
+  prix soldé sur la ligne du prix, et Republier en brouillons.
+- De nouveaux filtres d'âge : Plus de, Moins de et Entre.
+
+## Offres et acceptation automatique
+
+- **L'acceptation automatique au même endroit.** Le bouton Acceptation auto
+  de la barre d'outils d'Offres ouvre sa fenêtre, qui réunit Offre minimale,
+  Prix plancher, Plateformes et l'intervalle de vérification, avec l'heure de
+  sa dernière vérification et les offres qu'elle a acceptées.
+- **De nouvelles valeurs par défaut** pour l'acceptation automatique : aucune
+  plateforme cochée, et une vérification toutes les 10 minutes.
+- **Les contre-offres sont vérifiées avant l'envoi,** donc une contre-offre
+  au-dessus de votre prix ou sous l'offre de l'acheteur est repérée à temps.
+- Une offre eBay pour plusieurs articles en indique le nombre.
+
+## Améliorations
+
+- **Réglages avancés.** Les réglages de chaque fonction, de Croissance à
+  Liaison, ont désormais leur propre carte dans les Paramètres, sous Réglages
+  avancés.
+- **Publication croisée terminée** indique quels brouillons ont été
+  enregistrés et où les finaliser. La recherche garde les articles cochés, et
+  l'onglet s'utilise entièrement au clavier.
+- **Mes annonces :** la recherche trouve les mots dans n'importe quel ordre,
+  la sélection peut s'étendre à tous les résultats, Masquer demande
+  confirmation, et une annonce que SaleLinx n'a pas encore lue affiche un
+  bouton Synchroniser.
+- Créer une annonce indique où l'annonce a été créée et ce qui a échoué, avec
+  un bouton pour réessayer.
+- Des photos d'annonces eBay plus nettes, et des animations plus fluides
+  quand vous changez de langue.
+
+## Corrections
+
+- « SaleLinx est temporairement indisponible » pouvait s'afficher un instant
+  quand une seule requête eBay échouait, par exemple pendant l'envoi des
+  photos d'un crosslist vers eBay.
+- Après une mise en veille de l'ordinateur, des comptes pouvaient apparaître
+  comme non liés. Ils se reconnectent maintenant tout seuls.
+- Actualiser Messages affiche tout de suite les nouveaux messages Vinted.
+- Les modifications et suppressions Vinted étaient annulées par la
+  synchronisation suivante.
+- Les offres ignorées comptaient comme envoyées dans Envoyer des offres.
+- Le filtre de période d'Offres ne faisait rien.
+- L'acceptation automatique pouvait agir sur une offre à laquelle vous veniez
+  de répondre vous-même.
+- Les photos de l'onglet Liaison se rechargeaient toutes les 10 secondes, et
+  les miniatures de l'éditeur clignotaient.

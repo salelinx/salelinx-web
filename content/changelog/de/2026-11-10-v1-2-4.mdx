@@ -1,0 +1,108 @@
+export const metadata = {
+  title: "eBay-Bestellungen in Etiketten, Anzeige erstellen aus einem Entwurf und überarbeitete Angebote und Nachrichten",
+  date: "2026-11-10",
+  summary:
+    "Version 1.2.4 bringt eBay-Bestellungen in den Tab Etiketten, mit Etikettenpreisen, Als versendet markieren und Bestellung stornieren, schneidet Vinted-Etiketten auf das Etikett selbst zu, lässt dich einen Entwurf in Anzeige erstellen öffnen und überarbeitet die Tabs Angebote und Nachrichten.",
+  tags: ["release"],
+};
+
+# Version 1.2.4
+
+Versende eBay-Bestellungen aus derselben Liste wie Depop und Vinted.
+
+## eBay in Etiketten
+
+- **eBay-Bestellungen, die versendet werden müssen,** stehen in derselben
+  Liste wie Depop und Vinted, mit einem eBay-Filter und einem Countdown bis
+  zur Versandfrist von eBay.
+- **Etikettenpreise im Panel.** Etikett holen zeigt die Versanddienste von
+  eBay mit Abgabestelle für Größe und Gewicht deines Pakets, mit Preis und
+  Zustelldatum. Die vom Käufer gewählte Option steht oben, und du siehst, was
+  er für den Versand bezahlt hat. Auf eBay öffnen bringt dich zur
+  Etikettenseite von eBay, wo du das Etikett kaufst.
+- **Als versendet markieren** sagt eBay und dem Käufer, dass die Bestellung
+  unterwegs ist, mit Versanddienst und Sendungsnummer, wenn du sie hast.
+- **Bestellung stornieren** funktioniert auch bei eBay-Bestellungen, mit den
+  Stornogründen von eBay.
+
+## Bessere Etiketten
+
+- **Vinted-Etiketten im A4-Format** werden bei allen Versanddiensten auf das
+  eigentliche Etikett zugeschnitten. Das behebt auch leere InPost-Ausdrucke,
+  die auftraten, seit Vinted das Etikett auf dem Blatt verschoben hat.
+  QR-Codes von Relay werden auf einen 4x6-Zettel gedruckt.
+- **Schnellere Downloads,** wenn du mehrere Vinted-Etiketten druckst.
+- Zugeschnittene Etiketten tragen ein kleines SaleLinx-Zeichen unter dem
+  Etikett, wie bisher schon die QR-Zettel.
+- Die Liste zeigt 20, 50 oder 100 Bestellungen pro Seite, und das Suchfeld
+  ist größer.
+
+## Anzeige erstellen aus einem Entwurf
+
+- **Starte mit einem Entwurf.** Wähle in Meine Anzeigen einen Entwurf aus und
+  klicke auf Anzeige erstellen. Das Formular öffnet sich mit Titel,
+  Beschreibung, Preis, Marke, Zustand, Farben und Fotos des Entwurfs, dazu
+  Kategorie, Größe und Paketgröße eines Vinted-Entwurfs.
+- **Nichts geht verloren.** Wenn du schon eine Anzeige angefangen hattest,
+  fragt das Formular, bevor es sie ersetzt.
+- **Der Entwurf wird zur Anzeige.** Auf Depop und Vinted wird der Entwurf
+  selbst verwendet und bleibt mit den neuen Kopien verknüpft. Ein
+  eBay-Entwurf wird ersetzt.
+
+## Angebote
+
+- **Ein neues Kartenlayout,** zuerst der Käufer, dann das Angebot neben
+  deinem durchgestrichenen Preis und dem Rabatt in Prozent.
+- **Angebote sortieren** nach Beste Angebote, Neueste zuerst oder Älteste
+  zuerst.
+- **Vorher** zeigt frühere Angebote und Gegenangebote auf Depop und Vinted.
+- Gegenangebote mit Dezimalkomma wie 12,50 werden richtig erkannt.
+
+## Nachrichten
+
+- Vinted-Unterhaltungen erscheinen, sobald der Käufer etwas geschrieben hat.
+- Unterhaltungen zu verkauften oder gelöschten Anzeigen werden ausgelassen.
+- Ungelesene Unterhaltungen werden zuerst geladen.
+- Ein Käufer, der nur danke oder ok sagt oder ein Emoji schickt, wird nicht
+  mehr als Unbeantwortet markiert.
+
+## Verbessert
+
+- **Zähler im Seitenmenü** für Angebote, Nachrichten und Etiketten.
+- **Ein einziges Fenster zum Neueinstellen verkaufter Artikel** in Meine
+  Anzeigen, mit den Abschnitten Marktplätze, Änderungen und Cloud-Speicher
+  sowie Als Entwurf speichern. Eine verkaufte eBay-Anzeige kann mit dem Rest
+  ihrer verknüpften Gruppe neu eingestellt werden.
+- **Der Hinweis zum Verkauf einer verknüpften Anzeige** zeigt ihr Foto, einen
+  Button „Auf … ansehen“ für den Marktplatz, auf dem sie verkauft wurde, und
+  einen Button Entfernen.
+- **Meine Anzeigen:** Das Menü für Filter und Sortierung heißt jetzt
+  Erweitert und enthält die Voreinstellungen. Versteckt und Verzögert liegen
+  hinter einem Pfeil Weitere Status, und Fotos haben einen Button Um 90°
+  drehen. In der Cloud speichern funktioniert auch für Entwürfe.
+- **Entwürfe posten** prüft Entwürfe schneller, fragt nach einer Depop-Größe
+  oder -Marke, wenn eine fehlt, und zeigt den Grund von Depop, wenn das Posten
+  fehlschlägt.
+- **Support** hat Links, um SaleLinx im Chrome Web Store und auf Trustpilot
+  zu bewerten.
+- Hellere Buttons und lesbare Fehlermeldungen im Dunkelmodus, bessere
+  Bedienung per Tastatur und Screenreader in den Tabs Angebote, Etiketten und
+  Neu einstellen, und richtige Einzahl- und Mehrzahlformen in allen Sprachen.
+
+## Behoben
+
+- Depop-Entwürfe ließen sich nach einer Änderung bei Depop nicht mehr
+  speichern oder posten.
+- Das Stornieren einer Vinted-Bestellung schlug fehl.
+- Etikett bereits bestellt erschien bei jedem Vinted-Etikett schon beim
+  ersten Mal.
+- Vinted-Entwürfe verloren in Meine Anzeigen ihre Marke und Größe, und der
+  CSV-Import ließ bei Vinted-Entwürfen Zustand, Größe und Marke weg.
+- Nach einem Update konnten Vinted-Aktionen wie das Löschen mehrerer Anzeigen
+  wirkungslos bleiben.
+- Eine Depop-Beschreibung wie „Please ask for size“ wurde als Größe gelesen.
+- Anzeige erstellen sagt jetzt, warum ein Preis abgelehnt wird.
+- Die Farbauswahl war unten in Anzeige erstellen abgeschnitten, und manche
+  Farben wie Türkis gingen verloren.
+- Neue eBay-Bestellungen konnten nach dem Aktualisieren verborgen sein, und
+  fehlende Fotos erschienen als defekte Bilder.

@@ -5,7 +5,7 @@ export const metadata = {
   category: 'automate',
   slug: 'restocker',
   order: 4,
-  updated: '2026-10-16',
+  updated: '2026-11-24',
   tags: ['restocker', 'stock', 'depop', 'vinted'],
   marketplaces: ['depop', 'vinted'],
   status: 'published',
@@ -46,10 +46,17 @@ The **Restocker** tab in the panel is where you choose what to track:
 - **Export Stock** and **Import Stock** move your restock numbers in
   and out as a CSV file.
 - **Add Items** lists your cloud-saved listings that aren&rsquo;t
-  tracked yet.
+  tracked yet, sold ones included. A linked pair shows as one row with
+  both logos.
 - **Tracked Items** lists everything being tracked, with a
-  **Restocks** number on each row. You can search it and filter by
-  marketplace or by linked and unlinked items.
+  **Restocks** number on each row, an on/off switch and a &times;
+  button. Switching a row off takes it out of Tracked Items but keeps
+  its number, so it goes back to Add Items; &times; removes it and
+  resets the number. Both apply to its linked partner too. **Select
+  all** and **Remove selected** work on several rows at once.
+- Both lists can be searched and filtered by marketplace or by linked
+  and unlinked items. They only show listings on accounts linked to
+  SaleLinx.
 - **Drafts (locked)** appears when any of your cloud-saved listings
   are drafts (see below).
 
@@ -62,7 +69,9 @@ copy. Then either:
 - **From My Listings** - switch **Restock** on in an active
   listing&rsquo;s row and set the number of restocks in the **Qty**
   column. The two are separate: typing a number doesn&rsquo;t start
-  tracking until the **Restock** switch is on.
+  tracking until the **Restock** switch is on. The switch is off for a
+  row that includes an eBay listing, and a linked row needs every
+  listing in it to be live, not a draft.
 - **From the Restocker tab** - under **Add Items**, click **Add** next
   to a listing, or tick several and click **Add selected**. Items
   added this way start at 1 restock unless they already had a number
@@ -97,8 +106,10 @@ also accepts the CSV that **Export All** in My Listings produces.
 ## Running the Restocker
 
 1. In the **Restocker** tab, click **Open Restocker**. SaleLinx opens
-   your Vinted sold orders page in a new tab and shows the Restocker
-   there, with its status, settings and activity feed.
+   your Vinted sold orders page in a new tab, or switches to it if
+   it&rsquo;s already open, and shows the Restocker there: its status,
+   your tracked items and its settings. Once it&rsquo;s running, the
+   **Activity** feed takes their place.
 2. Click **Start Restocker**. You need a Vinted tab open, plus a Depop
    tab if any tracked item is on Depop or linked, both signed into the
    accounts linked to SaleLinx. If something is missing, the
@@ -115,8 +126,9 @@ Restocker, and so does Chrome or SaleLinx restarting (after an update,
 for example). Sales that happen while it is stopped are picked up the
 next time you press **Start Restocker**.
 
-While a repost runs, the page shows each step as it happens (waiting,
-fetching data, photos, creating the draft, publishing). The
+While a repost runs, the page shows each step as it happens:
+**Waiting** (only if you set a delay), **Fetching data**, **Photos**,
+**Creating draft**, **Publishing** and **Finalizing**. The
 **Activity** feed lists sales, restocks, stock updates and listings
 taken down.
 
@@ -159,12 +171,14 @@ the listing is hidden (the default, and reversible) or deleted.
 ## Settings
 
 The Restocker page has a **Settings** section. Changes save as you
-make them and apply to this browser only.
+make them and apply to this browser only. The section is hidden while
+the Restocker runs, so stop it to change a setting.
 
 - **Photo modifications** (on by default) - makes small random
   changes to each photo so every repost goes live as a fresh listing.
-  You can set the range for **Rotation (°)**, **Scale (%)** and
-  **Brightness (%)**.
+  You set how far each can go, as a &plusmn; maximum for **Rotation
+  (°)**, **Scale (%)** and **Brightness (%)** (2, 3 and 5 by default).
+  Each repost picks a random amount up to that.
 - **Text modifications** - **Toggle random letter case in title** and
   **Toggle random letter case in description** are both on by
   default. Each swaps the case of one random letter on every repost.
@@ -178,7 +192,9 @@ make them and apply to this browser only.
   (default) or **Delete the Vinted listing**. Hiding can be undone,
   deleting is permanent.
 - **Advanced** - **Publish as drafts** (off by default) saves each
-  repost as a Vinted draft for you to publish yourself.
+  repost as a Vinted draft for you to publish yourself. The restock
+  count still drops, and tracking picks up again once you publish the
+  draft.
 
 If you&rsquo;d rather each new listing looked completely different,
 use [Relist](/docs/inventory/relist) instead.
@@ -193,8 +209,9 @@ use [Relist](/docs/inventory/relist) instead.
   repost is cancelled.
 - **Won&rsquo;t repost on Depop.** Depop listings stay up through
   their quantity until they sell out.
-- **Won&rsquo;t act while stopped.** Nothing happens until you press
-  **Start Restocker**, and it then catches up on what it missed.
+- **Won&rsquo;t repost while stopped.** Nothing is reposted until you
+  press **Start Restocker**, and it then catches up on what it missed.
+  Linked listings still come down when one sells (see above).
 
 ## Plan and access
 
@@ -209,7 +226,8 @@ the reposted content) and, for cross-platform pairs,
 ## Next steps
 
 - [Linking](/docs/automate/linking) - pair the items the Restocker
-  acts on. Crosslisted copies aren&rsquo;t linked automatically.
+  acts on. A crosslisted copy is linked to its original automatically,
+  unless you switch off **Link to the original** when you crosslist.
 - [Cloud sync](/docs/inventory/cloud-sync) - the source of the
   reposted content.
 - [Relist](/docs/inventory/relist) - the heavier alternative when

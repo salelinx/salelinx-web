@@ -866,7 +866,7 @@
     "startStarterNow": "立即开通 Starter",
     "perMonth": "/月",
     "vatNote": "显示的价格就是你最终支付的金额，不额外收取增值税。可随时取消。在 14 天免费试用结束前取消，你无需支付任何费用。所有付款均不予退款。",
-    "ebayNote": "目前在 eBay 上，SaleLinx 支持跨平台上架和「我的商品」。其他功能适用于 Depop 和 Vinted，eBay 支持即将推出。",
+    "ebayNote": "大多数功能适用于 Depop、Vinted 和 eBay。关注、取消关注和库存同步仅适用于 Depop 和 Vinted，自动刷新和店铺设计器仅适用于 Depop。",
     "unlimited": "无限",
     "cloudStorage": "云端存储",
     "storageGb": "{value} GB",
