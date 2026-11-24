@@ -9,6 +9,7 @@ import {
   facebookListedNext,
   facebookNext,
   instagramNext,
+  parseGraphTime,
   instagramTrialParams,
   tiktokBusinessNext,
   tiktokChunks,
@@ -335,7 +336,7 @@ export async function stepInstagram(t: Claimed, ctx: Ctx): Promise<Outcome> {
 // Meta's own docs disagree on whether Reels can be scheduled ahead.
 // ---------------------------------------------------------------------------
 
-const FBG = "https://graph.facebook.com/v24.0";
+export const FBG = "https://graph.facebook.com/v24.0";
 
 export async function stepFacebook(t: Claimed, ctx: Ctx): Promise<Outcome> {
   const page = ctx.accountId;
@@ -410,19 +411,18 @@ export async function stepFacebook(t: Claimed, ctx: Ctx): Promise<Outcome> {
 }
 
 /** A live Reel, with its link and, from the Page's list, when it went up. */
-function facebookPublished(
+export function facebookPublished(
   job: Record<string, any>,
   permalink: string | null | undefined,
   createdTime: string | null | undefined,
   now: number,
-): Outcome {
+): Extract<Outcome, { status: "published" }> {
   const link = permalink
     ? String(permalink).startsWith("http")
       ? String(permalink)
       : `https://www.facebook.com${permalink}`
     : `https://www.facebook.com/reel/${job.video_id}`;
-  // Graph writes offsets as +0000, which Date.parse does not take everywhere.
-  const created = createdTime ? Date.parse(String(createdTime).replace(/([+-]\d{2})(\d{2})$/, "$1:$2")) : NaN;
+  const created = parseGraphTime(createdTime);
   return {
     status: "published",
     externalId: String(job.video_id),

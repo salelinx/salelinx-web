@@ -29,8 +29,18 @@ import {
   type MarketingPlatform,
 } from "../_shared/marketing-login.ts";
 import { PUBLIC_BUCKET } from "../_shared/tiktok-business.ts";
-import { publicCopyPath, retryIn, titleFrom, type Chunk } from "./plan.ts";
 import {
+  facebookMayBeLive,
+  findFailedReel,
+  publicCopyPath,
+  retryIn,
+  titleFrom,
+  type Chunk,
+  type PageReel,
+} from "./plan.ts";
+import {
+  FBG,
+  facebookPublished,
   stepFacebook,
   stepInstagram,
   stepTikTok,
@@ -314,6 +324,114 @@ async function runOne(t: Claimed, logins: Map<LoginKey, FreshLogin | null>): Pro
   }
 }
 
+// How long a failed Facebook post is still looked for on the Page.
+const RECHECK_DAYS = 7;
+
+/**
+ * Failed is final for posting, not for looking. A Facebook post that failed
+ * after its publish call (a lost answer, or a refused read of the new Reel)
+ * may be live, so each run looks for it in the Page's Reels list and marks it
+ * published if it is there. This only reads from Facebook, so it can never
+ * post twice; Retry stays the admin's call.
+ */
+async function recheckFailedFacebook(
+  logins: Map<LoginKey, FreshLogin | null>,
+): Promise<{ post_id: string; platform: string; result: string }[]> {
+  const since = new Date(Date.now() - RECHECK_DAYS * 86_400_000).toISOString();
+  const { data, error } = await admin
+    .from("social_post_targets")
+    .select(
+      "post_id, title, caption, options, job, attempts, error, updated_at, " +
+        "social_posts(name, scheduled_at, experiment_id, variant)",
+    )
+    .eq("platform", "facebook")
+    .eq("status", "failed")
+    .gte("updated_at", since)
+    .limit(20);
+  if (error) throw new Error(`failed targets: ${error.message}`);
+  // deno-lint-ignore no-explicit-any
+  const failed = ((data ?? []) as any[]).filter((r) => facebookMayBeLive(r.error));
+  if (!failed.length) return [];
+
+  if (!logins.has("facebook")) {
+    logins.set("facebook", await freshLogin(admin, "facebook").catch(() => null));
+  }
+  const login = logins.get("facebook");
+  if (!login?.externalId) return [];
+  const res = await fetch(
+    `${FBG}/${login.externalId}/video_reels?fields=id,description,permalink_url,created_time&limit=50&access_token=${login.token}`,
+  ).catch(() => null);
+  const list = res?.ok ? await res.json().catch(() => null) : null;
+  const reels: PageReel[] = list?.data ?? [];
+  if (!reels.length) return [];
+
+  const { data: credited } = await admin
+    .from("social_post_targets")
+    .select("external_id")
+    .eq("platform", "facebook")
+    .not("external_id", "is", null);
+  const taken = new Set((credited ?? []).map((r) => String(r.external_id)));
+
+  const results: { post_id: string; platform: string; result: string }[] = [];
+  for (const r of failed) {
+    const reel = findFailedReel(
+      { error: r.error, job: r.job, caption: r.caption, failedAt: r.updated_at },
+      reels,
+      taken,
+      String(login.externalId),
+    );
+    if (!reel) continue;
+    taken.add(String(reel.id));
+    const outcome = facebookPublished(
+      { ...r.job, video_id: String(reel.id), note: "Found on the Page after it had failed." },
+      reel.permalink_url,
+      reel.created_time,
+      Date.now(),
+    );
+    // Only while it is still failed: an admin's Retry in the meantime wins.
+    const { data: saved, error: saveError } = await admin
+      .from("social_post_targets")
+      .update({
+        status: "published",
+        job: outcome.job,
+        external_id: outcome.externalId,
+        url: outcome.url,
+        published_at: outcome.publishedAt,
+        error: null,
+        next_attempt_at: null,
+        locked_until: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("post_id", r.post_id)
+      .eq("platform", "facebook")
+      .eq("status", "failed")
+      .select("post_id");
+    if (saveError || !saved?.length) continue;
+    const post = r.social_posts ?? {};
+    const t = {
+      post_id: r.post_id,
+      platform: "facebook",
+      status: "processing",
+      title: r.title,
+      caption: r.caption,
+      options: r.options ?? {},
+      job: outcome.job,
+      attempts: r.attempts ?? 0,
+      scheduled_at: post.scheduled_at,
+      media_path: null,
+      media_bytes: null,
+      media_type: null,
+      cover_path: null,
+      post_name: post.name ?? "",
+      experiment_id: post.experiment_id ?? null,
+      variant: post.variant ?? null,
+    } as Claimed;
+    await linkVideo(t, outcome.externalId!, outcome.url, outcome.publishedAt);
+    results.push({ post_id: r.post_id, platform: "facebook", result: "published: found on the Page" });
+  }
+  return results;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
   if (req.method !== "POST")
@@ -346,6 +464,14 @@ Deno.serve(async (req) => {
       continue;
     }
     results.push({ post_id: t.post_id, platform: t.platform, result: await runOne(t, logins) });
+  }
+  if (Date.now() - started < START_BUDGET_MS) {
+    results.push(
+      ...(await recheckFailedFacebook(logins).catch((err) => {
+        console.error("[marketing-publish] recheck:", (err as Error).message);
+        return [];
+      })),
+    );
   }
   return json({ results });
 });
