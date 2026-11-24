@@ -37,12 +37,17 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Status overrides | Admin ID (`set_by`), public status note, timestamps (011_status_overrides.sql) | Admins | Legitimate interest (public incident communication) | Supabase `status_overrides` | Life of the override. `set_by` is `ON DELETE SET NULL`, not CASCADE, so deleting an admin anonymises the row without silently clearing a live incident notice |
 | Endpoint self-test runs | Admin ID (`run_by`), extension version, marketplace, per-endpoint outcomes (012_endpoint_selftest.sql; see the dedicated section below) | Admins | Legitimate interest (operating and debugging the service) | Supabase `endpoint_selftest_runs` / `endpoint_selftest_results` | 180 days via `prune_endpoint_selftest()`; cascades on account deletion |
 
-Anti-abuse tombstones: `trial_history` and `link_history` store only a salted
-SHA-256 hash of a marketplace account identity (no username, no email, nothing
-reversible) so trial eligibility survives account deletion. They deliberately
-have no FK to `auth.users`; deleting a user does not remove them, by design, and
-they hold nothing identifiable. Noted here so the deletion runbook does not add
-them. `deleted_accounts` is the same kind of exception but is NOT anonymous: an
+Anti-abuse tombstones: `trial_history` and `link_history` store a SHA-256 hash
+of a marketplace account identity (`platform_account_hash()`, 006), and
+`link_history` also the SaleLinx user ID it was linked to, so trial eligibility
+survives account deletion. The hash has no username or email in it, but its
+prefix (`slx-trial:`) is a fixed string in this public repo, not a secret, so
+anyone who knows a marketplace user ID can compute it: like `deleted_accounts`,
+this is pseudonymous personal data, not anonymous. They deliberately have no FK
+to `auth.users`; deleting a user does not remove them, by design. They are kept
+with no time limit (legitimate interest: one free trial per marketplace account)
+and the privacy policy's retention section says so. Noted here so the deletion
+runbook does not add them. `deleted_accounts` is the same kind of exception: an
 email hash can be matched by anyone who knows the address, so it is
 pseudonymous personal data with a 24-month limit and a privacy-policy line.
 
