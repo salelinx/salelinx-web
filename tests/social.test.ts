@@ -8,9 +8,13 @@ import {
 } from "../lib/social/experiments";
 import { hashtagCount, postWarnings, scheduleProblems, targetProblems } from "../lib/social/validate";
 import {
+  facebookListedNext,
+  facebookMayBeLive,
   facebookNext,
+  findFailedReel,
   instagramNext,
   instagramTrialParams,
+  parseGraphTime,
   publicCopyPath,
   retryIn,
   studioMatch,
@@ -177,7 +181,83 @@ describe("publisher plans", () => {
     expect(
       facebookNext({ processing_phase: { status: "error", errors: [{ message: "Video too long" }] } }, at, T0),
     ).toEqual({ kind: "failed", error: "Facebook couldn't process the Reel: Video too long" });
-    expect(facebookNext({ video_status: "processing" }, at, T0 + 2 * H).kind).toBe("failed");
+    expect(facebookNext({ video_status: "processing" }, at, T0 + 2 * H)).toMatchObject({
+      kind: "failed",
+      error: expect.stringContaining("Check the Page before retrying"),
+    });
+  });
+
+  it("confirms a Facebook Reel from the Page's list when Facebook hides the Reel itself", () => {
+    const at = new Date(T0).toISOString();
+    expect(facebookListedNext(true, at, T0 + 60_000)).toEqual({ kind: "published", externalId: null });
+    // Listed late is still live, never a failure.
+    expect(facebookListedNext(true, at, T0 + 3 * H).kind).toBe("published");
+    expect(facebookListedNext(false, at, T0 + 60_000)).toEqual({
+      kind: "wait",
+      status: "processing",
+      checkInSeconds: 60,
+    });
+    expect(facebookListedNext(false, at, T0 + 2 * H)).toMatchObject({
+      kind: "failed",
+      error: expect.stringContaining("Check the Page before retrying"),
+    });
+  });
+
+  describe("finding a failed Facebook post on the Page", () => {
+    const PAGE = "555";
+    const failedAt = new Date(T0).toISOString();
+    const refused =
+      "400 Unsupported get request. Object with ID '1509501291074631' does not exist, cannot be loaded due to missing permissions, or does not support this operation.";
+    const lost = "Publishing failed (network: reset). Check the Page before retrying: it may have posted.";
+    const reel = (id: string, description: string, at = T0 - 60_000) => ({
+      id,
+      description,
+      created_time: new Date(at).toISOString().replace(/\.\d{3}Z$/, "+0000"),
+      permalink_url: `/reel/${id}`,
+    });
+
+    it("reads Graph's +0000 times", () => {
+      expect(parseGraphTime("2026-11-24T09:00:12+0000")).toBe(Date.parse("2026-11-24T09:00:12Z"));
+      expect(parseGraphTime(null)).toBeNaN();
+    });
+
+    it("only looks for failures that may have posted", () => {
+      expect(facebookMayBeLive(refused)).toBe(true);
+      expect(facebookMayBeLive(lost)).toBe(true);
+      expect(facebookMayBeLive("Facebook couldn't process the Reel: Video too long")).toBe(false);
+      expect(facebookMayBeLive("Facebook isn't connected, or its login could not be renewed.")).toBe(false);
+      expect(facebookMayBeLive(null)).toBe(false);
+    });
+
+    it("matches the Reel id a refused read quoted, or the one in job", () => {
+      const reels = [reel("1509501291074631", "Page Forty"), reel("42", "Other")];
+      const t = { error: refused, job: {}, caption: "Page Forty", failedAt };
+      expect(findFailedReel(t, reels, new Set(), PAGE)?.id).toBe("1509501291074631");
+      const byJob = { error: lost, job: { video_id: "42" }, caption: "Something else", failedAt };
+      expect(findFailedReel(byJob, reels, new Set(), PAGE)?.id).toBe("42");
+    });
+
+    it("falls back to the caption near the failure time, once", () => {
+      const t = { error: lost, job: {}, caption: "Price  War\n#resale", failedAt };
+      expect(findFailedReel(t, [reel("7", "Price War #resale")], new Set(), PAGE)?.id).toBe("7");
+      // Too far from the failure.
+      expect(findFailedReel(t, [reel("7", "Price War #resale", T0 - 5 * H)], new Set(), PAGE)).toBeNull();
+      // Two candidates: leave it to a person.
+      expect(
+        findFailedReel(t, [reel("7", "Price War #resale"), reel("8", "Price War #resale")], new Set(), PAGE),
+      ).toBeNull();
+    });
+
+    it("never credits a Reel already linked to another post", () => {
+      const t = { error: refused, job: {}, caption: "Page Forty", failedAt };
+      expect(findFailedReel(t, [reel("1509501291074631", "Page Forty")], new Set(["1509501291074631"]), PAGE)).toBeNull();
+    });
+
+    it("doesn't guess when the refused id was the Page's own (nothing was posted)", () => {
+      const startFailed = `400 Unsupported post request. Object with ID '${PAGE}' does not exist, cannot be loaded due to missing permissions`;
+      const t = { error: startFailed, job: {}, caption: "Page Forty", failedAt };
+      expect(findFailedReel(t, [reel("9", "Page Forty")], new Set(), PAGE)).toBeNull();
+    });
   });
 
   it("backs off and then gives up", () => {

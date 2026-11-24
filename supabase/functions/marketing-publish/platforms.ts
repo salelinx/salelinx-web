@@ -6,8 +6,10 @@
 // twice.
 
 import {
+  facebookListedNext,
   facebookNext,
   instagramNext,
+  parseGraphTime,
   instagramTrialParams,
   tiktokBusinessNext,
   tiktokChunks,
@@ -334,7 +336,7 @@ export async function stepInstagram(t: Claimed, ctx: Ctx): Promise<Outcome> {
 // Meta's own docs disagree on whether Reels can be scheduled ahead.
 // ---------------------------------------------------------------------------
 
-const FBG = "https://graph.facebook.com/v24.0";
+export const FBG = "https://graph.facebook.com/v24.0";
 
 export async function stepFacebook(t: Claimed, ctx: Ctx): Promise<Outcome> {
   const page = ctx.accountId;
@@ -378,26 +380,56 @@ export async function stepFacebook(t: Claimed, ctx: Ctx): Promise<Outcome> {
     job = { video_id: videoId, finished_at: new Date(ctx.now).toISOString() };
   }
 
+  // The Reel is published from here on, so nothing below may fail the post on
+  // a read or throw: a failure offers Retry, and a throw in the run that
+  // published it sends the target back to pending. Both would post it twice.
+  const videoId = String(job.video_id);
   const v = await call(
-    `${FBG}/${job.video_id}?fields=status,permalink_url&access_token=${ctx.token}`,
-  );
-  const next = facebookNext(v.status, job.finished_at, ctx.now);
-  if (next.kind === "failed") return { status: "failed", error: next.error, job };
-  if (next.kind === "published") {
-    const link = v.permalink_url
-      ? String(v.permalink_url).startsWith("http")
-        ? v.permalink_url
-        : `https://www.facebook.com${v.permalink_url}`
-      : `https://www.facebook.com/reel/${job.video_id}`;
-    return {
-      status: "published",
-      externalId: String(job.video_id),
-      url: link,
-      publishedAt: new Date(ctx.now).toISOString(),
-      job,
-    };
+    `${FBG}/${videoId}?fields=status,permalink_url&access_token=${ctx.token}`,
+  ).catch(() => null);
+  if (v) {
+    const next = facebookNext(v.status, job.finished_at, ctx.now);
+    if (next.kind === "failed") return { status: "failed", error: next.error, job };
+    if (next.kind === "published") return facebookPublished(job, v.permalink_url, null, ctx.now);
+    return { status: "processing", job, checkInSeconds: next.kind === "wait" ? next.checkInSeconds : 60 };
   }
-  return { status: "processing", job, checkInSeconds: next.kind === "wait" ? next.checkInSeconds : 60 };
+
+  // Facebook often won't show a new Reel to the Page token at all ("Object
+  // with ID ... does not exist, cannot be loaded due to missing permissions").
+  // The Page's Reels list, which marketing-sync already reads with the same
+  // token, does show it once it is live.
+  const listed = await call(
+    `${FBG}/${page}/video_reels?fields=id,permalink_url,created_time&limit=25&access_token=${ctx.token}`,
+  )
+    .then((list) => (list.data ?? []).find((r: any) => String(r.id) === videoId) ?? null)
+    .catch(() => null);
+  const next = facebookListedNext(!!listed, job.finished_at, ctx.now);
+  if (next.kind === "failed") return { status: "failed", error: next.error, job };
+  if (next.kind === "published")
+    return facebookPublished(job, listed.permalink_url, listed.created_time, ctx.now);
+  return { status: "processing", job, checkInSeconds: 60 };
+}
+
+/** A live Reel, with its link and, from the Page's list, when it went up. */
+export function facebookPublished(
+  job: Record<string, any>,
+  permalink: string | null | undefined,
+  createdTime: string | null | undefined,
+  now: number,
+): Extract<Outcome, { status: "published" }> {
+  const link = permalink
+    ? String(permalink).startsWith("http")
+      ? String(permalink)
+      : `https://www.facebook.com${permalink}`
+    : `https://www.facebook.com/reel/${job.video_id}`;
+  const created = parseGraphTime(createdTime);
+  return {
+    status: "published",
+    externalId: String(job.video_id),
+    url: link,
+    publishedAt: new Date(Number.isNaN(created) ? now : created).toISOString(),
+    job,
+  };
 }
 
 // ---------------------------------------------------------------------------

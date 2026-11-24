@@ -308,8 +308,97 @@ export function facebookNext(
     return { kind: "published", externalId: null };
   const ageS = finishedAt ? (now - Date.parse(finishedAt)) / 1000 : 0;
   if (ageS > HOUR)
-    return { kind: "failed", error: "Facebook was still processing the Reel after an hour." };
+    return {
+      kind: "failed",
+      error:
+        "Facebook was still processing the Reel after an hour. Check the Page before retrying: it may have posted.",
+    };
   return { kind: "wait", status: "processing", checkInSeconds: 60 };
+}
+
+/**
+ * When Facebook won't show a published Reel to the Page token, whether it is
+ * in the Page's Reels list decides instead. Not there yet: keep checking for
+ * an hour, then fail with a warning, since Retry would publish it again.
+ */
+export function facebookListedNext(listed: boolean, finishedAt: string | undefined, now: number): Next {
+  if (listed) return { kind: "published", externalId: null };
+  const ageS = finishedAt ? (now - Date.parse(finishedAt)) / 1000 : 0;
+  if (ageS > HOUR)
+    return {
+      kind: "failed",
+      error:
+        "Facebook took the Reel, but it still isn't on the Page after an hour. Check the Page before retrying: it may have posted.",
+    };
+  return { kind: "wait", status: "processing", checkInSeconds: 60 };
+}
+
+/** Graph writes offsets as +0000, which Date.parse does not take everywhere. NaN if unreadable. */
+export function parseGraphTime(s: string | null | undefined): number {
+  return s ? Date.parse(String(s).replace(/([+-]\d{2})(\d{2})$/, "$1:$2")) : NaN;
+}
+
+/** A Reel from the Page's /video_reels list. */
+export type PageReel = {
+  id: string;
+  description?: string | null;
+  created_time?: string | null;
+  permalink_url?: string | null;
+};
+
+// A failed Facebook post whose Reel may be live after all: the publish call's
+// answer was lost ("may have posted"), or the read after it was refused
+// (quoting the Reel's id).
+const MAY_BE_LIVE = /may have posted|Object with ID '\d+'/;
+
+/** Whether a failed Facebook post is worth looking for on the Page. */
+export function facebookMayBeLive(error: string | null | undefined): boolean {
+  return !!error && MAY_BE_LIVE.test(error);
+}
+
+/**
+ * Finds a failed Facebook post's Reel on the Page, if it went live after all.
+ * First by id: the one saved in job, or the one a refused read quoted (unless
+ * that is the Page's own id, from a call that failed before anything posted).
+ * Otherwise, when publishing may have gone through, by caption: exactly one
+ * Reel with the same caption, posted within three hours of the failure.
+ * Reels already credited to another post are never matched.
+ */
+export function findFailedReel(
+  target: {
+    error: string | null;
+    job: Record<string, unknown> | null;
+    caption: string | null;
+    failedAt: string;
+  },
+  reels: PageReel[],
+  taken: Set<string>,
+  pageId: string,
+): PageReel | null {
+  if (!facebookMayBeLive(target.error)) return null;
+  const free = reels.filter((r) => !taken.has(String(r.id)));
+  const quoted = target.error?.match(/Object with ID '(\d+)'/)?.[1];
+  const refusedRead = !!quoted && quoted !== pageId;
+  const ids = new Set<string>();
+  if (target.job?.video_id) ids.add(String(target.job.video_id));
+  if (refusedRead) ids.add(quoted);
+  const byId = free.find((r) => ids.has(String(r.id)));
+  if (byId) return byId;
+
+  if (!refusedRead && !target.error?.includes("may have posted")) return null;
+  const caption = sameText(target.caption);
+  const failed = Date.parse(target.failedAt);
+  if (!caption || Number.isNaN(failed)) return null;
+  const near = free.filter((r) => {
+    const at = parseGraphTime(r.created_time);
+    return !Number.isNaN(at) && Math.abs(at - failed) <= 3 * HOUR * 1000 && sameText(r.description) === caption;
+  });
+  // Two Reels with the same caption that close together: leave it to a person.
+  return near.length === 1 ? near[0] : null;
+}
+
+function sameText(s: string | null | undefined): string {
+  return (s ?? "").replace(/\s+/g, " ").trim();
 }
 
 /** Back-off for a transient failure, or null once it has had its tries. */
