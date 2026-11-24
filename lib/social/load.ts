@@ -9,13 +9,13 @@ import { daysBefore, type MarketingFollowerRow, type MarketingStatRow } from "@/
 import { selectAll } from "./data";
 import { assembleInsights, HISTORY_DAYS, type InsightsData } from "./insights";
 import type { AgePointRow, PostForOverview, VideoRowWithTags } from "./overview";
-import type { SocialAccount } from "./types";
+import type { SocialAccount, SocialPlatform } from "./types";
 
 type Client = Awaited<ReturnType<typeof createServerClient>>;
 
 export type InsightsLoad = {
   data: InsightsData;
-  accounts: Pick<SocialAccount, "platform" | "handle" | "synced_at" | "last_error">[];
+  accounts: (Pick<SocialAccount, "handle" | "synced_at" | "last_error"> & { platform: SocialPlatform })[];
   error: string | null;
 };
 
@@ -78,12 +78,17 @@ export async function loadInsights(supabase: Client): Promise<InsightsLoad> {
     followers: followersRes.data,
   });
 
-  const accounts = ((accountsRes.data as SocialAccount[] | null) ?? []).map((a) => ({
-    platform: a.platform,
-    handle: a.handle,
-    synced_at: a.synced_at,
-    last_error: a.last_error,
-  }));
+  // The platforms Stats reads; TikTok's posting login (tiktok_business) only posts.
+  const accounts = ((accountsRes.data as SocialAccount[] | null) ?? []).flatMap((a) =>
+    a.platform === "tiktok_business"
+      ? []
+      : [{
+          platform: a.platform,
+          handle: a.handle,
+          synced_at: a.synced_at,
+          last_error: a.last_error,
+        }],
+  );
 
   return {
     data,

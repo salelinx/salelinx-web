@@ -39,12 +39,18 @@ export type InstagramOptions = {
   trial?: "off" | "manual" | "auto";
 };
 
+/** The labels TikTok shows on a post made through TikTok API for Business. */
+export type TikTokOptions = {
+  brandOrganic?: boolean;
+  aiGenerated?: boolean;
+};
+
 export type SocialTargetRow = {
   post_id: string;
   platform: SocialPlatform;
   title: string | null;
   caption: string | null;
-  options: YouTubeOptions & InstagramOptions;
+  options: YouTubeOptions & InstagramOptions & TikTokOptions;
   status: TargetStatus;
   attempts: number;
   next_attempt_at: string | null;
@@ -90,9 +96,16 @@ export type HourlyRow = {
   shares: number | null;
 };
 
+/**
+ * A login: one per platform, plus TikTok's posting login (tiktok_business,
+ * 060_social_tiktok_posting.sql), which posts publicly through TikTok API for
+ * Business while the tiktok login reads stats.
+ */
+export type AccountKey = SocialPlatform | "tiktok_business";
+
 /** The accounts as admin_marketing_accounts() returns them. */
 export type SocialAccount = {
-  platform: SocialPlatform;
+  platform: AccountKey;
   handle: string | null;
   connected_at: string;
   synced_at: string | null;
@@ -102,15 +115,34 @@ export type SocialAccount = {
 };
 
 /** Mirrors POSTING_SCOPE in supabase/functions/_shared/marketing-login.ts. */
-const POSTING_SCOPE: Record<SocialPlatform, string> = {
+const POSTING_SCOPE: Record<AccountKey, string> = {
   youtube: "youtube.upload",
   instagram: "instagram_content_publish",
   tiktok: "video.upload",
   facebook: "pages_manage_posts",
+  tiktok_business: "video.publish",
 };
 
 export function canPost(account: SocialAccount | undefined): boolean {
   return !!account?.logged_in && !!account.scopes?.includes(POSTING_SCOPE[account.platform]);
+}
+
+/** Whether TikTok posts go up publicly by themselves, rather than to the app's inbox. */
+export function tiktokDirect(accounts: SocialAccount[]): boolean {
+  return canPost(accounts.find((a) => a.platform === "tiktok_business"));
+}
+
+/**
+ * The login a platform posts with: for TikTok the posting login once it can
+ * post, else the stats login, which can only reach the app's inbox.
+ */
+export function postingAccount(
+  accounts: SocialAccount[],
+  platform: SocialPlatform,
+): SocialAccount | undefined {
+  if (platform === "tiktok" && tiktokDirect(accounts))
+    return accounts.find((a) => a.platform === "tiktok_business");
+  return accounts.find((a) => a.platform === platform);
 }
 
 /**

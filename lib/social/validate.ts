@@ -65,6 +65,9 @@ export function postWarnings(input: {
   seconds?: number | null;
   width?: number | null;
   height?: number | null;
+  // TikTok posts publicly by itself (its posting login is connected), rather
+  // than landing in the app's inbox.
+  tiktokDirect?: boolean;
 }): string[] {
   const out: string[] = [];
   const seconds = input.seconds ?? null;
@@ -85,10 +88,17 @@ export function postWarnings(input: {
   }
   if (input.platforms.includes("youtube") && seconds !== null && seconds > 180)
     out.push("Over 3 minutes, so YouTube treats it as a normal video rather than a Short.");
-  if (input.platforms.includes("tiktok"))
+  if (input.platforms.includes("tiktok") && !input.tiktokDirect)
     out.push(
       "TikTok arrives in the app's inbox at this time. Open TikTok, tap the notification, paste the caption and post.",
     );
+  if (
+    input.platforms.includes("tiktok") &&
+    input.tiktokDirect &&
+    seconds !== null &&
+    (seconds < 3 || seconds > 600)
+  )
+    out.push(`TikTok takes 3 seconds to 10 minutes through its API; this video is ${Math.round(seconds)} seconds.`);
   if (
     input.platforms.includes("youtube") &&
     input.scheduledAt &&

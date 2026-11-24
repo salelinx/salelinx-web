@@ -41,6 +41,7 @@ import {
   canPost,
   PLATFORM_NAMES,
   SOCIAL_PLATFORMS,
+  tiktokDirect,
   type PostThumb,
   type SocialAccount,
   type SocialPlatform,
@@ -402,21 +403,28 @@ export function Planner({
         <h1 className="text-sm font-semibold">Planner</h1>
         <div className="flex items-center gap-1" aria-label="Accounts">
           {SOCIAL_PLATFORMS.map((p) => {
-            const acc = accounts.find((a) => a.platform === p);
+            // TikTok's button is its posting login; Stats connects the one that reads.
+            const key = p === "tiktok" ? "tiktok_business" : p;
+            const acc = accounts.find((a) => a.platform === key);
             const ready = canPost(acc);
+            const as = acc?.handle ? ` as @${acc.handle.replace(/^@/, "")}` : "";
             return (
               <button
                 key={p}
                 type="button"
                 onClick={async () => {
-                  const err = await connectPlatform(p);
+                  const err = await connectPlatform(key);
                   if (err) push(err, "error");
                 }}
                 className={`relative flex items-center gap-1.5 rounded-full py-1 transition hover:bg-zinc-100 ${ready ? "px-1" : "border border-amber-300 pl-1 pr-2"}`}
                 title={
-                  ready
-                    ? `${PLATFORM_NAMES[p]} can post${acc?.handle ? ` as @${acc.handle.replace(/^@/, "")}` : ""}. Click to log in again.`
-                    : `Log in to ${PLATFORM_NAMES[p]} with the permission to post`
+                  p === "tiktok"
+                    ? ready
+                      ? `TikTok posts publicly${as}. Click to log in again.`
+                      : "TikTok posts go to the app's inbox for now. Connect to post them publicly by themselves."
+                    : ready
+                      ? `${PLATFORM_NAMES[p]} can post${as}. Click to log in again.`
+                      : `Log in to ${PLATFORM_NAMES[p]} with the permission to post`
                 }
               >
                 <PlatformLogo platform={p} size={16} />
@@ -737,10 +745,12 @@ export function Planner({
             <p className="text-xs leading-relaxed text-zinc-400">
               Posting runs every 5 minutes. YouTube uploads an hour early and
               goes public on time by itself; Instagram and Facebook post at the
-              time; TikTok posts are scheduled in TikTok Studio every morning at
-              8 (or now, with Schedule in Studio), and any it missed land in the
-              app&apos;s inbox at the time for you to post. Times are in your own time
-              zone. Keys: N new post, T today, arrows to step.
+              time;{" "}
+              {tiktokDirect(accounts)
+                ? "TikTok posts publicly at the time too, apart from any already scheduled in TikTok Studio (every morning at 8, or with Schedule in Studio)."
+                : "TikTok posts are scheduled in TikTok Studio every morning at 8 (or now, with Schedule in Studio), and any it missed land in the app's inbox at the time for you to post."}{" "}
+              Times are in your own time zone. Keys: N new post, T today,
+              arrows to step.
             </p>
           </div>
         </div>

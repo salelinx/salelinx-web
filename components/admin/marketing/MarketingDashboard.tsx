@@ -57,11 +57,13 @@ const NAMES: Record<MarketingPlatform, string> = {
   facebook: "Facebook",
 };
 
-// Mirrors POSTING_SCOPE in supabase/functions/_shared/marketing-login.ts.
+// Mirrors POSTING_SCOPE in supabase/functions/_shared/marketing-login.ts,
+// except TikTok: it posts with its own login (the planner's TikTok button,
+// tiktok_business), so this one only has to read.
 const POSTING_SCOPE: Record<MarketingPlatform, string> = {
   youtube: "youtube.upload",
   instagram: "instagram_content_publish",
-  tiktok: "video.upload",
+  tiktok: "video.list",
   facebook: "pages_manage_posts",
 };
 
