@@ -5,7 +5,8 @@
 // placeholders so the planned shape of the console is visible while the
 // section is still being built. All registered modules are live: Support,
 // Users, Finance (a dropdown of Overview and Cancellations), Search,
-// Configuration (tier limits, feature flags, roadmap), the Social group
+// Configuration (a dropdown of tier limits, feature flags, roadmap and
+// extension announcements), the Social group
 // (Stats as a dropdown of Overview, Totals, Posts, Compare, Timing,
 // Engagement, Growth and Lifecycle; Planner; Experiments), the Analytics group
 // (Feature adoption, Extension usage, Web usage, Endpoint health, Storage),
@@ -71,14 +72,20 @@ export const ADMIN_MODULES: AdminModule[] = [
   },
   // Clicks and impressions per sitemap page, from Google Search Console.
   { key: "search", label: "Search", href: "/admin/search", enabled: true },
-  // Tier limits, feature flags and the public roadmap, as tabs of one page
-  // (app/admin/(configuration)/layout.tsx).
+  // Tier limits, feature flags, the public roadmap and the extension
+  // announcements. A dropdown here, and tabs across the top of each of its
+  // pages too (app/admin/(configuration)/layout.tsx), so either way in works.
   {
     key: "configuration",
     label: "Configuration",
     href: "/admin/tiers",
-    also: ["/admin/flags", "/admin/roadmap"],
     enabled: true,
+    children: [
+      { key: "tiers", label: "Tier limits", href: "/admin/tiers", enabled: true },
+      { key: "flags", label: "Feature flags", href: "/admin/flags", enabled: true },
+      { key: "roadmap", label: "Roadmap", href: "/admin/roadmap", enabled: true },
+      { key: "announcements", label: "Announcements", href: "/admin/announcements", enabled: true },
+    ],
   },
 
   // Social: our own YouTube, Instagram, TikTok and Facebook (docs/SOCIAL.md).
