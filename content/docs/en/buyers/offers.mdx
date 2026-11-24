@@ -5,7 +5,7 @@ export const metadata = {
   category: 'buyers',
   slug: 'offers',
   order: 1,
-  updated: '2026-10-16',
+  updated: '2026-11-24',
   tags: ['offers', 'depop', 'vinted', 'ebay', 'presets'],
   marketplaces: ['depop', 'vinted', 'ebay'],
   status: 'published',
@@ -20,9 +20,11 @@ buyer&rsquo;s username, when the offer came in, the offer amount, your
 listed price and the discount the buyer is asking for, with three
 buttons: **Accept**, **Decline** and **Counter**.
 
-The tab also hosts the [Auto-Accept Offers](/docs/automate/auto-offers)
-block at the top, for accepting offers above a threshold without you
-clicking through.
+The toolbar shows how many offers are pending, and the same count sits
+next to **Offers** in the sidebar. Its **Auto-Accept** button opens
+[Auto-Accept Offers](/docs/automate/auto-offers), for accepting offers
+above a threshold without you clicking through. A green dot on the
+button means it&rsquo;s on.
 
 Offers covers Depop, Vinted and eBay. On eBay it shows Best Offers,
 which you can accept, decline or counter here. You still set eBay&rsquo;s
@@ -41,22 +43,29 @@ offer options on each listing in its editor in
   listing in My Listings.
 
 Bundle offers (several items in one Vinted offer) list each item in
-the bundle inside the card.
+the bundle inside the card. An eBay offer for more than one of an item
+says how many (**for 2**, for example). If the buyer has made offers
+before, **Earlier** on the card lists them, with your counters and
+whether each was accepted, declined or countered.
 
-A column with nothing waiting says **No new offers**. If SaleLinx
-couldn&rsquo;t reach a marketplace, for example because no tab is open
-for it, the column tells you that instead of showing an empty list.
-Open a tab for that marketplace and refresh. A column for a
-marketplace you haven&rsquo;t linked is blurred, with a prompt to link
-the account in Settings.
+A column with nothing waiting says **No new offers**. When you open
+the tab, SaleLinx checks that Depop and Vinted are open in a tab, and
+a popup asks you to open any that isn&rsquo;t. eBay needs no tab. If a
+marketplace still can&rsquo;t be reached, its column says so instead of
+showing an empty list. A column for a marketplace you haven&rsquo;t
+linked is blurred, with a prompt to link the account in Settings. A
+marketplace you&rsquo;ve switched off in Settings has no column.
 
-## Age filter (Vinted)
+## Time window and sorting
 
-The dropdown at the top of the tab sets how far back SaleLinx looks
-through your Vinted inbox: 1, 3, 5, 7, 14 or 30 days (default 3).
-Most sellers want to act on fresh offers; older ones are usually
-irrelevant. The filter applies to Vinted only. Depop always shows
-every offer still waiting for your answer.
+The **Time window** dropdown sets how far back SaleLinx looks: 1, 3,
+5, 7, 14 or 30 days (default 3). It applies to every column, but it
+matters most on Vinted, where old conversations pile up. Depop and
+eBay offers expire within a day or two anyway.
+
+**Sort offers** orders each column by **Newest first** (the default),
+**Oldest first** or **Best offers**, which puts the smallest discount
+first. Both go back to their defaults when the panel reloads.
 
 ## Acting on an offer
 
@@ -64,15 +73,16 @@ Each card has three buttons:
 
 - **Accept** - accepts the buyer&rsquo;s offer on the marketplace.
 - **Decline** - declines the offer.
-- **Counter** - opens a price box, already filled in halfway between
-  the offer and your listed price. Type your own price, or use a
-  quick-counter button: **-10%** fills in 10% off your listed price,
-  and **-£1** fills in 1 off it (in the offer&rsquo;s currency). Then
-  press **Send**. **Cancel** closes the box without sending.
+- **Counter** - opens a price box. Type a price above the
+  buyer&rsquo;s offer and no higher than your listed price, then press
+  **Send** (or Enter). **Cancel** closes the box without sending.
 
-After you act, the card stays where it is and shows the result:
-**Accepted**, **Declined**, or **Countered at** with your price.
-Answered offers drop off the list the next time it loads.
+After you act, the card shows the result for two seconds
+(**Accepted**, **Declined**, or **Countered at** with your price),
+then leaves the list. A short line at the bottom of the column keeps a
+record, and a column you&rsquo;ve cleared says **All caught up**. If
+the offer had already expired or been answered, the card says
+**Expired or already answered** instead.
 
 Offer actions go ahead of other SaleLinx jobs waiting on the same
 marketplace, so they go through promptly even while a bot is running.
@@ -80,10 +90,13 @@ marketplace, so they go through promptly even while a bot is running.
 ## Refreshing
 
 Offers load when you open the tab. The **Refresh** button (the
-circular arrow at the top of the tab) loads every marketplace again.
-There&rsquo;s no auto-refresh on a timer. To avoid repeat requests,
-SaleLinx reuses offers it fetched in the last two minutes, so a
-brand-new offer can take a couple of minutes to appear.
+circular arrow in the toolbar) loads every marketplace again. The tab
+doesn&rsquo;t reload on a timer while you&rsquo;re looking at it, but
+it does after Auto-Accept accepts an offer. While you&rsquo;re on
+another tab, SaleLinx checks every 5 minutes so the count next to
+**Offers** stays current. A brand-new Vinted conversation or eBay
+offer can take a couple of minutes to appear, because SaleLinx reuses
+those for two minutes to avoid repeat requests.
 
 ## Shared with Messages
 
@@ -99,16 +112,16 @@ card at a time, or leave the ones you don&rsquo;t want to expire.
 
 ## Auto-accept presets
 
-The [Auto-Accept Offers](/docs/automate/auto-offers) settings have a
-preset picker at the top. A preset saves the minimum percentage of the
-asking price, the price floor, which platforms (Depop, Vinted, eBay) to
-check, and how often to check. Picking a preset fills in every setting
-at once, and for auto-accept the picked preset is the live rule
-immediately. Two are built in:
+The [Auto-Accept Offers](/docs/automate/auto-offers) popup has a
+preset picker below its settings. A preset saves the minimum
+percentage of the asking price, the price floor, which marketplaces
+(Depop, Vinted, eBay) to check, and how often to check. Picking a
+preset fills in every setting at once, and for auto-accept the picked
+preset is the live rule immediately. Two are built in:
 
-- **Default** - 90% of asking, no price floor, Depop and Vinted,
-  checked every 15 minutes.
-- **Careful** - 95% of asking, no price floor, Depop and Vinted,
+- **Default** - 90% of asking, no price floor, no marketplace ticked,
+  checked every 10 minutes.
+- **Careful** - 95% of asking, no price floor, no marketplace ticked,
   checked every 30 minutes.
 
 A preset deliberately does not include the auto-accept on/off switch.
@@ -131,8 +144,8 @@ for how syncing, sign-out and per-device selection work.
 ## Plan and access
 
 The Offers tab is available on **Starter, Pro and Business**, and on
-the free trial. The [Auto-Accept Offers](/docs/automate/auto-offers)
-block at the top of the tab is **Pro and Business** only.
+the free trial. [Auto-Accept Offers](/docs/automate/auto-offers) (the
+**Auto-Accept** button in the toolbar) is **Pro and Business** only.
 
 ## Next steps
 
