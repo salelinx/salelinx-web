@@ -113,6 +113,9 @@ All in the shared Supabase project. Migrations live in this repo
 | `user_storage`           | both               | extension + storage triggers (`apply_storage_delta`) | Per-user cloud image storage usage, capped per tier              |
 | `release_notes`          | extension only     | SQL/dashboard only                            | Release notes shown in the extension's update banner                    |
 | `device_sessions`        | both               | `claim_device_session` RPC (extension heartbeat) | Concurrent-device cap; admin roster liveness. 30-day self-pruning    |
+| `announcements`          | web admin console; extension through `active_announcements()` | `admin_*_announcement` RPCs (`/admin/announcements`) | Messages shown in the extension, each with its own look, places (banner, popup, launcher card), how often, priority, audience (plan, marketplace, version, language, panel tab) and schedule; see `docs/ADMIN.md` "Announcements" |
+| `announcement_recipients` | web admin console (admin-only read) | `admin_save_announcement` | The specific users a targeted announcement is for; cascades with the announcement and with the user's account |
+| `announcement_signal`    | extension (Realtime) | triggers on `announcements` and `announcement_recipients` | One-row counter in the Realtime publication; the extension refetches announcements when it changes |
 
 See `docs/ENTITLEMENTS.md` for the entitlement model (features, limits,
 quotas, grandfathering via `tier_version`).
