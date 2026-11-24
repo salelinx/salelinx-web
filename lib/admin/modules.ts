@@ -4,7 +4,8 @@
 // Modules marked `enabled: false` render in the sidebar as disabled
 // placeholders so the planned shape of the console is visible while the
 // section is still being built. All registered modules are live: Support,
-// Users, Finance, Search, Configuration (tier limits, feature flags, roadmap), the Social group
+// Users, Finance (a dropdown of Overview and Cancellations), Search,
+// Configuration (tier limits, feature flags, roadmap), the Social group
 // (Stats as a dropdown of Overview, Totals, Posts, Compare, Timing,
 // Engagement, Growth and Lifecycle; Planner; Experiments), the Analytics group
 // (Feature adoption, Extension usage, Web usage, Endpoint health, Storage),
@@ -43,8 +44,31 @@ export const ADMIN_MODULES: AdminModule[] = [
   },
   { key: "support", label: "Support", href: "/admin/support", enabled: true },
   { key: "users", label: "Users", href: "/admin/users", enabled: true },
-  // Revenue, MRR and customer counts, read from Stripe (admin-finance-stats).
-  { key: "finance", label: "Finance", href: "/admin/finance", enabled: true },
+  // A dropdown, read from Stripe. Overview: revenue, MRR and customer counts
+  // (admin-finance-stats). Cancellations: why people leave, with the uninstall
+  // survey (admin-cancellation-stats). The key stays "finance" because the
+  // phone tab bar (AdminTabBar) looks it up.
+  {
+    key: "finance",
+    label: "Finance",
+    href: "/admin/finance",
+    enabled: true,
+    children: [
+      {
+        key: "finance-overview",
+        label: "Overview",
+        href: "/admin/finance",
+        enabled: true,
+        exact: true,
+      },
+      {
+        key: "finance-cancellations",
+        label: "Cancellations",
+        href: "/admin/finance/cancellations",
+        enabled: true,
+      },
+    ],
+  },
   // Clicks and impressions per sitemap page, from Google Search Console.
   { key: "search", label: "Search", href: "/admin/search", enabled: true },
   // Tier limits, feature flags and the public roadmap, as tabs of one page

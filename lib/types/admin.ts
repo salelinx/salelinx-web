@@ -327,3 +327,57 @@ export type AdminEndpointHealthRow = {
   top_status: number | null;
   last_seen: string;
 };
+
+// One subscription that ended or is set to end, from the
+// admin-cancellation-stats Edge Function (/admin/finance/cancellations).
+export type AdminCancellation = {
+  // Stripe subscription id.
+  id: string;
+  // The account that owns the Stripe customer, null when none matches.
+  user_id: string | null;
+  // Stripe's copy of the customer's email, null once the customer is deleted.
+  email: string | null;
+  tier: string;
+  // trial: asked to cancel inside the trial. paying: after paying, or with no
+  // trial. failed: Stripe ended it because payment failed or was disputed.
+  kind: "trial" | "paying" | "failed";
+  // scheduled: still running, set to end. ended: already over.
+  state: "scheduled" | "ended";
+  // cancellation_details.feedback, the reason picked in the Customer Portal.
+  // Null when none was picked, and always for a failed payment.
+  reason: string | null;
+  // The customer's own words. Personal data: never log or store it.
+  comment: string | null;
+  // When they asked to cancel (for a failed payment, when Stripe ended it).
+  requested_at: string;
+  // When it ended, or when it will.
+  ends_at: string;
+  // Whole days from the subscription's start to the request. Day 0 is the day
+  // it started.
+  day: number;
+  // The last full-price payment, per month, in `currency` minor units. Null for
+  // a trial and for anything that never paid.
+  mrr: number | null;
+};
+
+export type AdminCancellationStats = {
+  currency: string;
+  // The oldest subscription's start: how far back "All time" reaches.
+  since: string | null;
+  rows: AdminCancellation[];
+  // Every trial that is over, when it finished and whether it ever paid, so a
+  // period can say what share of finished trials ended unpaid.
+  trials_finished: { at: string; paid: boolean }[];
+  generated_at: string;
+};
+
+// Row of uninstall_feedback (migration 013), readable by admins since 063.
+// Anonymous by design: no user id, email or IP.
+export type AdminUninstallFeedback = {
+  id: string;
+  created_at: string;
+  reason: string;
+  comment: string | null;
+  version: string | null;
+  locale: string | null;
+};
