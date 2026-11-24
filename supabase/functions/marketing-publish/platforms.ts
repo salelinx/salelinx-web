@@ -9,15 +9,19 @@ import {
   facebookNext,
   instagramNext,
   instagramTrialParams,
+  tiktokBusinessNext,
   tiktokChunks,
+  tiktokPostInfo,
   studioMatch,
   tiktokNext,
   youtubeChunks,
   youtubeStatus,
   type Chunk,
   type InstagramOptions,
+  type TikTokOptions,
   type YouTubeOptions,
 } from "./plan.ts";
+import { TikTokBusinessError, ttBusiness } from "../_shared/tiktok-business.ts";
 
 export type Claimed = {
   post_id: string;
@@ -52,6 +56,10 @@ export type Ctx = {
   handle: string | null;
   media: () => Promise<Media>;
   cover: () => Promise<Media | null>;
+  // TikTok API for Business only: a public copy of the video for TikTok to
+  // fetch (060's social-public bucket), and its removal once TikTok has it.
+  publicCopy: () => Promise<{ url: string; path: string }>;
+  dropPublicCopy: (path: string | undefined) => Promise<void>;
   markSending: () => Promise<void>;
   now: number;
 };
@@ -393,10 +401,88 @@ export async function stepFacebook(t: Claimed, ctx: Ctx): Promise<Outcome> {
 }
 
 // ---------------------------------------------------------------------------
-// TikTok: uploaded to the app's inbox (video.upload), where someone taps Post.
-// TikTok rules out audited direct posting for a tool that posts to your own
-// accounts, and unaudited direct posts can only be private. The status check
-// follows it until it is public, for its id.
+// TikTok, posted publicly through TikTok API for Business with the posting
+// login (tiktok_business). TikTok fetches the video itself from a public copy
+// (ctx.publicCopy), so this step only sends the address and then follows the
+// post until TikTok gives its id. The copy is removed once TikTok is done.
+// ---------------------------------------------------------------------------
+
+export async function stepTikTokBusiness(t: Claimed, ctx: Ctx): Promise<Outcome> {
+  const business = ctx.accountId;
+  if (!business) return { status: "failed", error: "TikTok posting isn't connected. Connect it in the planner." };
+  const tt = (err: unknown) => {
+    if (err instanceof TikTokBusinessError && err.transient) throw new Transient(err.message);
+    throw err;
+  };
+
+  if (t.status === "pending") {
+    const copy = await ctx.publicCopy();
+    // Publishing has no idempotency key, so a lost answer must not be retried blind.
+    await ctx.markSending();
+    let shareId: string;
+    try {
+      const data = await ttBusiness("POST", "/business/video/publish/", {
+        token: ctx.token,
+        body: {
+          business_id: business,
+          video_url: copy.url,
+          post_info: tiktokPostInfo(t.caption, t.options as TikTokOptions),
+        },
+      });
+      shareId = String(data.share_id ?? "");
+      if (!shareId) throw new Error("TikTok gave no publish id");
+    } catch (err) {
+      const e = err instanceof TikTokBusinessError ? err : null;
+      // A rate limit turned it away before anything happened: try again later.
+      if (e && (e.code === 40100 || e.code === 429)) throw new Transient(e.message);
+      // A refusal with a code means nothing was posted; anything else may have.
+      const refused = !!e && e.code !== null && !e.transient;
+      if (refused) await ctx.dropPublicCopy(copy.path);
+      return {
+        status: "failed",
+        error: refused
+          ? `TikTok refused the post: ${(err as Error).message}`
+          : `Sending to TikTok got no clear answer (${(err as Error).message}). Check TikTok before retrying: it may have posted.`,
+      };
+    }
+    return {
+      status: "processing",
+      job: { share_id: shareId, public_path: copy.path, sent_at: new Date(ctx.now).toISOString() },
+      checkInSeconds: 60,
+    };
+  }
+
+  const data = await ttBusiness("GET", "/business/publish/status/", {
+    token: ctx.token,
+    query: { business_id: business, publish_id: String(t.job.share_id) },
+  }).catch(tt);
+  const next = tiktokBusinessNext(data, t.job.sent_at, ctx.now);
+  if (next.kind === "wait")
+    return { status: next.status, job: t.job, checkInSeconds: next.checkInSeconds };
+  // Done either way, so TikTok no longer needs the public copy.
+  await ctx.dropPublicCopy(t.job.public_path);
+  const job = { ...t.job, public_path: null };
+  if (next.kind === "failed") return { status: "failed", error: next.error, job };
+  if (next.kind === "published") {
+    const handle = ctx.handle ?? "";
+    return {
+      status: "published",
+      externalId: next.externalId,
+      url: next.externalId && handle ? `https://www.tiktok.com/${handle}/video/${next.externalId}` : null,
+      publishedAt: new Date(ctx.now).toISOString(),
+      job: { ...job, note: next.note ?? null },
+    };
+  }
+  return { status: "processing", job, checkInSeconds: 120 };
+}
+
+// ---------------------------------------------------------------------------
+// TikTok without the posting login (and posts already on their way this way):
+// uploaded to the app's inbox (video.upload) with TikTok's stats login, where
+// someone taps Post. That login's app can't post publicly: TikTok for
+// Developers won't audit a tool that posts to your own accounts. The status
+// check follows it until it is public, for its id. Posts scheduled in TikTok
+// Studio (job.studio_at) are only looked for.
 // ---------------------------------------------------------------------------
 
 const TT = "https://open.tiktokapis.com/v2";

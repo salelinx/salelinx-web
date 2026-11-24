@@ -13,10 +13,18 @@
 //              long-lived user token), so it is never renewed; it stops only
 //              if the person who connected it loses the Page or the password
 //              changes, and then Reconnect fixes it.
+//   TikTok posting (tiktok_business, migration 060)  the TikTok API for
+//              Business login that posts publicly: like TikTok, a day-long
+//              token renewed from a year-long refresh token, but through
+//              business-api.tiktok.com (_shared/tiktok-business.ts).
 
 import type { SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import { refreshLogin } from "./tiktok-business.ts";
 
 export type MarketingPlatform = "youtube" | "instagram" | "tiktok" | "facebook";
+
+/** A row in marketing_accounts: a platform, or TikTok's posting login. */
+export type LoginKey = MarketingPlatform | "tiktok_business";
 
 export type FreshLogin = {
   token: string;
@@ -27,16 +35,21 @@ export type FreshLogin = {
   scopes: string | null;
 };
 
-/** The scope each platform needs for marketing-publish to post. */
-export const POSTING_SCOPE: Record<MarketingPlatform, string> = {
+/**
+ * The scope each login needs for marketing-publish to post. TikTok's own
+ * login only reaches the app's inbox (video.upload); the posting login posts
+ * publicly (video.publish).
+ */
+export const POSTING_SCOPE: Record<LoginKey, string> = {
   youtube: "youtube.upload",
   instagram: "instagram_content_publish",
   tiktok: "video.upload",
   facebook: "pages_manage_posts",
+  tiktok_business: "video.publish",
 };
 
-export const canPost = (platform: MarketingPlatform, scopes: string | null) =>
-  !!scopes && scopes.includes(POSTING_SCOPE[platform]);
+export const canPost = (key: LoginKey, scopes: string | null) =>
+  !!scopes && scopes.includes(POSTING_SCOPE[key]);
 
 const HOUR_MS = 3600000;
 
@@ -59,9 +72,18 @@ async function postForm(url: string, form: Record<string, string>): Promise<any>
 const inSeconds = (s: number) => new Date(Date.now() + s * 1000).toISOString();
 
 async function renew(
-  platform: MarketingPlatform,
+  platform: LoginKey,
   row: { access_token: string; refresh_token: string | null },
 ): Promise<Record<string, string | null>> {
+  if (platform === "tiktok_business") {
+    const body = await refreshLogin(row.refresh_token ?? "");
+    return {
+      access_token: body.access_token,
+      access_expires_at: inSeconds(body.expires_in),
+      refresh_token: body.refresh_token,
+      refresh_expires_at: inSeconds(body.refresh_token_expires_in),
+    };
+  }
   if (platform === "tiktok") {
     const body = await postForm("https://open.tiktokapis.com/v2/oauth/token/", {
       client_key: Deno.env.get("TIKTOK_CLIENT_KEY") ?? "",
@@ -90,11 +112,12 @@ async function renew(
 }
 
 /** How long before expiry each platform's access token is renewed. */
-const RENEW_AHEAD_MS: Record<MarketingPlatform, number> = {
+const RENEW_AHEAD_MS: Record<LoginKey, number> = {
   instagram: 0,
   tiktok: HOUR_MS,
   youtube: 5 * 60 * 1000,
   facebook: 0,
+  tiktok_business: HOUR_MS,
 };
 
 /**
@@ -104,7 +127,7 @@ const RENEW_AHEAD_MS: Record<MarketingPlatform, number> = {
  */
 export async function freshLogin(
   admin: SupabaseClient,
-  platform: MarketingPlatform,
+  platform: LoginKey,
 ): Promise<FreshLogin | null> {
   const { data, error } = await admin
     .from("marketing_accounts")
