@@ -8,33 +8,17 @@ import { useEffect, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { ColumnChart } from "@/components/admin/analytics/ColumnChart";
 import { UserEmailLink } from "@/components/admin/UserEmailLink";
+import {
+  Box,
+  day,
+  money,
+  monthLabel,
+  RowTitle,
+  Stat,
+} from "@/components/admin/finance/FinanceParts";
 import type { AdminFinanceStats } from "@/lib/types/admin";
 
 type State = { stats: AdminFinanceStats } | { error: string } | null;
-
-function money(minor: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: currency.toUpperCase(),
-      maximumFractionDigits: minor % 100 === 0 ? 0 : 2,
-    }).format(minor / 100);
-  } catch {
-    return `${(minor / 100).toFixed(2)} ${currency.toUpperCase()}`;
-  }
-}
-
-function monthLabel(
-  key: string,
-  style: "short" | "full" | "year" = "short",
-): string {
-  const [y, m] = key.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, 1)).toLocaleString("en-GB", {
-    month: style === "short" ? "short" : "long",
-    timeZone: "UTC",
-    ...(style === "year" ? { year: "numeric" } : {}),
-  });
-}
 
 /** "+£48 on September", "-£12 on September", or "Same as September". */
 function versus(
@@ -47,13 +31,6 @@ function versus(
   const name = monthLabel(lastMonth, "full");
   if (diff === 0) return `Same as ${name}`;
   return `${diff > 0 ? "+" : "-"}${money(Math.abs(diff), currency)} on ${name}`;
-}
-
-function day(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-  });
 }
 
 function Table({
@@ -95,58 +72,6 @@ function Table({
         ))}
       </tbody>
     </table>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  note,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  // How the figure is worked out, on hover.
-  note: string;
-}) {
-  return (
-    <div
-      title={note}
-      className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3"
-    >
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-zinc-400">{hint}</p>}
-    </div>
-  );
-}
-
-function Box({
-  title,
-  hint,
-  children,
-}: {
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)]">
-      <div className="flex items-baseline justify-between gap-2 border-b border-[var(--admin-border)] px-4 py-2.5">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        {hint && <span className="text-xs text-zinc-400">{hint}</span>}
-      </div>
-      <div className="px-4 py-3">{children}</div>
-    </section>
-  );
-}
-
-function RowTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="pt-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-      {children}
-    </h2>
   );
 }
 
