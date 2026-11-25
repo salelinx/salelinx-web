@@ -5,7 +5,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import {
   ANNOUNCEMENT_FREQUENCIES,
   ANNOUNCEMENT_IMAGE_BUCKET,
-  ANNOUNCEMENT_EDITOR_PLACEMENTS,
+  ANNOUNCEMENT_SIGNED_IN_PLACEMENTS,
   ANNOUNCEMENT_PRESETS,
   announcementRpcData,
   imagePathOk,
@@ -125,7 +125,7 @@ export async function sendTestAnnouncement(options: TestOptions): Promise<Announ
     !ANNOUNCEMENT_PRESETS.some((p) => p.key === options.preset) ||
     !Array.isArray(options.places) ||
     options.places.length === 0 ||
-    !options.places.every((p) => (ANNOUNCEMENT_EDITOR_PLACEMENTS as readonly string[]).includes(p)) ||
+    !options.places.every((p) => (ANNOUNCEMENT_SIGNED_IN_PLACEMENTS as readonly string[]).includes(p)) ||
     !(ANNOUNCEMENT_FREQUENCIES as readonly string[]).includes(options.frequency)
   ) {
     return { ok: false, error: "invalid_test" };

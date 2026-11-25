@@ -1,8 +1,9 @@
 "use client";
 
 // A miniature of the extension, to see a message where users will: the panel
-// with the banner under its page header, the popup over the panel, or the
-// card above the launcher on a marketplace page. Drawn at the extension's own
+// with the banner under its page header, the popup over the panel, the card
+// above the launcher on a marketplace page, or the login screen that people
+// signed out see. Drawn at the extension's own
 // sizes with its panel colours, dark or light (salelinx-app
 // src/panel/css/base.css and announcements.css), so it does not follow the
 // console's theme. Admin text is only ever rendered as React text.
@@ -22,8 +23,14 @@ import {
 } from "@/lib/announcements/types";
 import { Glyph, KICKER, PLACE_SHORT, Segmented, alpha, hasGlyph } from "./parts";
 
-export type PreviewPlace = "banner" | "popup" | "launcher";
-const PREVIEW_PLACES: readonly PreviewPlace[] = ["banner", "popup", "launcher"];
+export type PreviewPlace = "banner" | "popup" | "launcher" | "login";
+const PREVIEW_PLACES: readonly PreviewPlace[] = ["banner", "popup", "launcher", "login"];
+
+// The panel's main button (--primary-strong and --primary-fg in base.css).
+const PRIMARY: Record<PanelTheme, { bg: string; fg: string }> = {
+  dark: { bg: "#10b981", fg: "#052e1c" },
+  light: { bg: "#047857", fg: "#ffffff" },
+};
 
 // What the preview needs of the editor's form.
 export type PreviewMessage = {
@@ -161,13 +168,15 @@ export function Preview({
         className="relative overflow-hidden rounded-xl border border-[var(--admin-border)] shadow-sm"
         style={{ ...FONT, backgroundColor: "#f4f4f5" }}
       >
-        <MarketplacePage tiles={shown !== "banner" && shown !== "popup"} />
+        <MarketplacePage tiles={shown === "launcher" || shown === undefined} />
         {shown === undefined ? (
           <div className="relative flex min-h-[440px] items-center justify-center bg-[#ffffffbf] p-6 text-center text-xs text-[#52525b]">
             Tick at least one place under Where it shows to see it here.
           </div>
         ) : shown === "launcher" ? (
           <LauncherScene m={message} w={words} accent={accent} c={c} />
+        ) : shown === "login" ? (
+          <LoginScene m={message} w={words} accent={accent} c={c} primary={PRIMARY[theme]} />
         ) : (
           <PanelScene m={message} w={words} accent={accent} c={c} popup={shown === "popup"} />
         )}
@@ -305,6 +314,76 @@ function PanelScene({
             <Popup m={m} w={w} accent={accent} c={c} />
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// The login screen, which covers the panel while signed out: the brand, the
+// banner above the sign-in form, and the form itself (login-screen.ts and
+// login.css in the extension).
+function LoginScene({
+  m,
+  w,
+  accent,
+  c,
+  primary,
+}: {
+  m: PreviewMessage;
+  w: Words;
+  accent: string;
+  c: Palette;
+  primary: { bg: string; fg: string };
+}) {
+  const field: CSSProperties = {
+    height: 32,
+    borderRadius: 8,
+    border: `1px solid ${c.border}`,
+    backgroundColor: c.canvas,
+  };
+  const label: CSSProperties = { fontSize: 11, fontWeight: 500, color: c.secondary, marginBottom: 5 };
+  return (
+    <div className="relative px-3 pb-3 pt-12">
+      <div
+        className="flex min-h-[400px] items-center justify-center overflow-hidden rounded-[10px] p-4 shadow-xl"
+        style={{ backgroundColor: c.canvas, border: `1px solid ${c.border}` }}
+      >
+        <div
+          className="w-full max-w-[300px] space-y-3.5 rounded-xl px-6 pb-6 pt-7"
+          style={{ backgroundColor: c.surface, border: `1px solid ${c.border}` }}
+        >
+          <div aria-hidden="true" className="flex items-center justify-center gap-2">
+            <span className="h-6 w-6 rounded-md" style={{ backgroundColor: c.text, opacity: 0.9 }} />
+            <span style={{ color: c.text, fontSize: 18, fontWeight: 700 }}>SaleLinx</span>
+          </div>
+          <Banner m={m} w={w} accent={accent} c={c} />
+          <div aria-hidden="true" className="space-y-3">
+            <div>
+              <div style={label}>Email</div>
+              <div style={field} />
+            </div>
+            <div>
+              <div style={label}>Password</div>
+              <div style={field} />
+            </div>
+            <div
+              className="flex items-center justify-center"
+              style={{
+                height: 36,
+                borderRadius: 8,
+                backgroundColor: primary.bg,
+                color: primary.fg,
+                fontSize: 12.5,
+                fontWeight: 600,
+              }}
+            >
+              Log In
+            </div>
+            <div className="text-center" style={{ fontSize: 11, color: c.muted }}>
+              Don&apos;t have an account? <span style={{ color: primary.bg }}>Sign up</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -28,6 +28,7 @@ import {
   ANNOUNCEMENT_LOCALES,
   ANNOUNCEMENT_LOCALE_LABEL,
   ANNOUNCEMENT_PLACEMENT_LABEL,
+  ANNOUNCEMENT_SIGNED_IN_PLACEMENTS,
   ANNOUNCEMENT_PRESETS,
   ANNOUNCEMENT_PRIORITY_LABEL,
   ANNOUNCEMENT_THEME_COLOR,
@@ -351,7 +352,8 @@ function QuickTest({
         <div>
           <span className="mb-1.5 block text-xs font-medium text-zinc-700">Where it shows</span>
           <div className="flex flex-wrap gap-1.5">
-            {ANNOUNCEMENT_EDITOR_PLACEMENTS.map((p) => (
+            {/* A test is sent to you, signed in, so never to the login screen. */}
+            {ANNOUNCEMENT_SIGNED_IN_PLACEMENTS.map((p) => (
               <ChipToggle
                 key={p}
                 checked={places.includes(p)}

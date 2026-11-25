@@ -36,19 +36,44 @@ export const ANNOUNCEMENT_ICONS = [
 ] as const;
 export type AnnouncementIcon = (typeof ANNOUNCEMENT_ICONS)[number];
 
-export const ANNOUNCEMENT_PLACEMENTS = ['banner', 'popup', 'launcher', 'badge', 'toolbar'] as const;
+export const ANNOUNCEMENT_PLACEMENTS = [
+  'banner',
+  'popup',
+  'launcher',
+  'login',
+  'badge',
+  'toolbar',
+] as const;
 export type AnnouncementPlacement = (typeof ANNOUNCEMENT_PLACEMENTS)[number];
 
 // Places that exist inside the panel, the only ones a tab-targeted message
-// may use (the launcher card, badge and toolbar popup have no tab).
+// may use (the launcher card, login screen, badge and toolbar popup have no
+// tab).
 export const ANNOUNCEMENT_PANEL_PLACEMENTS: readonly AnnouncementPlacement[] = ['banner', 'popup'];
 
 // The places the editor offers; a message can use any mix of them. The table
 // also allows 'badge' and 'toolbar' (the toolbar icon and its popup) from the
 // first design, but nobody looks there, so they are not offered and the
 // extension ignores them.
-export const ANNOUNCEMENT_EDITOR_PLACEMENTS = ['banner', 'popup', 'launcher'] as const;
+export const ANNOUNCEMENT_EDITOR_PLACEMENTS = ['banner', 'popup', 'launcher', 'login'] as const;
 export type AnnouncementEditorPlacement = (typeof ANNOUNCEMENT_EDITOR_PLACEMENTS)[number];
+
+// The login screen is what people signed out of SaleLinx see (it covers the
+// panel), and the only place they see: the extension gives someone signed out
+// only 'login' and someone signed in every place but 'login'. These are the
+// places for people signed in, which is all a quick test (sent to you, so
+// signed in) can use.
+export const ANNOUNCEMENT_SIGNED_IN_PLACEMENTS = ['banner', 'popup', 'launcher'] as const;
+
+// Plans, panel tabs and specific people only ever match someone signed in, so
+// a message for any of them cannot use the login screen.
+export function loginScreenAllowed(a: {
+  audience_tiers: readonly string[];
+  audience_tabs: readonly string[];
+  recipients: readonly string[];
+}): boolean {
+  return !a.audience_tiers.length && !a.audience_tabs.length && !a.recipients.length;
+}
 
 export const ANNOUNCEMENT_FREQUENCIES = ['until_closed', 'once', 'every_open', 'always'] as const;
 export type AnnouncementFrequency = (typeof ANNOUNCEMENT_FREQUENCIES)[number];
@@ -179,12 +204,14 @@ export const ANNOUNCEMENT_PLACEMENT_LABEL: Record<AnnouncementEditorPlacement, s
   banner: 'Banner in the panel',
   popup: 'Popup over the panel',
   launcher: 'Card by the launcher',
+  login: 'Login screen',
 };
 
 export const ANNOUNCEMENT_PLACEMENT_HINT: Record<AnnouncementEditorPlacement, string> = {
-  banner: 'At the top of every tab, and on the login screen when signed out.',
+  banner: 'At the top of every tab.',
   popup: 'Over the panel, the next time it is open.',
   launcher: 'A small card by the launcher button while the panel is closed.',
+  login: 'Above the sign-in form, for people signed out of SaleLinx. Only they see it here.',
 };
 
 // The offered places a stored message uses, in a fixed order. A banner when it
@@ -792,7 +819,8 @@ export function validateAnnouncementDraft(
 // ---------------------------------------------------------------------------
 
 // "Everyone", or e.g. "Pro, Business · Vinted · French · Crosslist tab ·
-// v1.5.0 to 1.6.1 · signed in · 3 people".
+// v1.5.0 to 1.6.1 · 3 people". Signed in or out follows from the places (the
+// login screen is the one for people signed out), so it is not repeated here.
 export function audienceSummary(
   a: Pick<
     AnnouncementDraft,
@@ -802,7 +830,6 @@ export function audienceSummary(
     | 'audience_tabs'
     | 'min_version'
     | 'max_version'
-    | 'signed_in_only'
     | 'recipients'
   >,
 ): string {
@@ -828,7 +855,6 @@ export function audienceSummary(
   else if (min) parts.push(`v${min} and later`);
   else if (max) parts.push(`up to v${max}`);
 
-  if (a.signed_in_only) parts.push(parts.length ? 'signed in' : 'Signed in');
   if (a.recipients.length) {
     const n = a.recipients.length;
     parts.push(n === 1 ? '1 person' : `${n} people`);
