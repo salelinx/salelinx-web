@@ -58,7 +58,7 @@ Consequences:
 | Tier limits module | `app/admin/(configuration)/tiers/page.tsx` + `components/admin/tiers/*` |
 | Feature flags module | `app/admin/(configuration)/flags/page.tsx` + `components/admin/flags/*` |
 | Roadmap module | `app/admin/(configuration)/roadmap/page.tsx` + `actions.ts` + `components/admin/roadmap/AdminRoadmap.tsx`; types and footer logic in `lib/roadmap/types.ts` (tested in `tests/roadmap.test.ts`), loaders in `lib/roadmap/data.ts` |
-| Announcements module | `app/admin/(configuration)/announcements/page.tsx` + `actions.ts` + `components/admin/announcements/AdminAnnouncements.tsx`; types and pure helpers (button URL allowlist, version checks, audience summary, draft validation) in `lib/announcements/types.ts` (tested in `tests/announcements.test.ts`), loader in `lib/announcements/data.ts` |
+| Announcements module | `app/admin/(configuration)/announcements/page.tsx` + `actions.ts` + `components/admin/announcements/` (`AdminAnnouncements.tsx` the page and list, `AnnouncementEditor.tsx` the editor sheet, `AnnouncementPreview.tsx` the extension preview, `parts.tsx` shared controls); types and pure helpers (button URL allowlist, version checks, audience summary, draft validation) in `lib/announcements/types.ts` (tested in `tests/announcements.test.ts`), loader in `lib/announcements/data.ts` |
 | Extension usage module | `app/admin/usage/page.tsx` + `components/admin/usage/AdminUserUsageGroups.tsx` |
 | Extension feature roster | `lib/admin/extension-features.ts` (keep in step with salelinx-app usage-tracking.ts) |
 | Analytics dashboard | `app/admin/analytics/page.tsx` + `components/admin/analytics/AdminAnalyticsDashboard.tsx` (boxes live in that file until one outgrows it) |
@@ -362,12 +362,22 @@ broken, we're on it", "please update to 1.6.2", a new feature, an offer, a tip.
 Migration `064_announcements.sql`. The extension draws and targets them
 (salelinx-app `docs/technical/ANNOUNCEMENTS.md`); this module stores them.
 
-- **The editor.** "Start from" (Outage, Warning, News, New feature, Offer, Tip)
-  fills in the look, place, how often and priority; everything can still be
-  changed. A live preview beside the form shows the message as a banner, popup,
-  or launcher card, in each language.
-- **Quick test.** The header's "Quick test" opens a strip: pick a starting
-  point, the places and how often, then "Send to me". It saves a real message
+- **The list.** Live now, Scheduled and Ended (closed by default). Each row
+  reads like the message: its colour, icon, title and the start of its text,
+  then where it shows, who sees it, how often and when, with Edit, End now and
+  Delete (which asks first).
+- **The editor.** A sheet with the form on the left, in the order an admin
+  thinks of it: a template (Outage, Warning, News, New feature, Offer, Tip,
+  which fills in the look, places, how often and priority), the message and
+  its buttons and image, the look, where it shows, how often, priority, who
+  sees it and when. On the right, a live preview draws the message at the
+  extension's own sizes and colours (dark or light panel) where users will see
+  it: a banner under the panel's page header, a popup over the panel, or a
+  card above the launcher on a marketplace page, in each language. Under it, a
+  plain summary of where, who, when and how often. The save button says what
+  happens: Publish now, Schedule or Save changes.
+- **Send me a test.** The header button opens a strip: pick a template, the
+  places and how often, then "Send to me". It saves a real message
   (`sendTestAnnouncement`, sample copy in `lib/announcements/test-messages.ts`,
   English and French) through `admin_save_announcement`, aimed at the signed-in
   admin's own email only and ending an hour later, so it tests the whole path
