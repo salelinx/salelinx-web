@@ -618,8 +618,8 @@ function FunnelBox({ stages }: { stages: FunnelStage[] }) {
     <Box
       title="Signup funnel"
       hint="all time"
-      href="/admin/users"
-      linkLabel="Users"
+      href="/admin/analytics/funnel"
+      linkLabel="Funnel"
     >
       {accounts === 0 ? (
         <p className="text-sm text-zinc-500">No accounts yet.</p>

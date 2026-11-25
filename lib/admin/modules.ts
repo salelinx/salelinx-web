@@ -9,8 +9,8 @@
 // extension announcements), the Social group
 // (Stats as a dropdown of Overview, Totals, Posts, Compare, Timing,
 // Engagement, Growth and Lifecycle; Planner; Experiments), the Analytics group
-// (Feature adoption, Extension usage, Web usage, Endpoint health, Storage),
-// Audit log.
+// (Dashboard, Funnel, Feature adoption, Extension usage, Web usage, Endpoint
+// health, Storage), Audit log.
 
 export type AdminModule = {
   key: string;
@@ -145,6 +145,14 @@ export const ADMIN_MODULES: AdminModule[] = [
     href: "/admin/analytics",
     enabled: true,
     exact: true,
+    section: "Analytics",
+  },
+  // Signup to paying, by source, device and month (migration 065).
+  {
+    key: "funnel",
+    label: "Funnel",
+    href: "/admin/analytics/funnel",
+    enabled: true,
     section: "Analytics",
   },
   {

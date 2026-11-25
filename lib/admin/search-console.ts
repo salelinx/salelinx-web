@@ -25,7 +25,10 @@ function base64url(input: string | Buffer): string {
   return Buffer.from(input).toString("base64url");
 }
 
-async function accessToken(): Promise<string> {
+// A token for the service account in GOOGLE_SERVICE_ACCOUNT_JSON. Search
+// Console by default; the Funnel page also asks for the Chrome Web Store's
+// read-only scope with the same account (lib/admin/before-signup.ts).
+export async function googleAccessToken(scope = SCOPE): Promise<string> {
   let key: { client_email: string; private_key: string };
   try {
     key = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "");
@@ -38,7 +41,7 @@ async function accessToken(): Promise<string> {
   const unsigned = `${base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }))}.${base64url(
     JSON.stringify({
       iss: key.client_email,
-      scope: SCOPE,
+      scope,
       aud: TOKEN_URL,
       iat: now,
       exp: now + 600,
@@ -83,7 +86,7 @@ export async function fetchSearchConsole(
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${await accessToken()}`,
+        Authorization: `Bearer ${await googleAccessToken()}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
