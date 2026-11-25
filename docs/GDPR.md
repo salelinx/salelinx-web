@@ -36,6 +36,8 @@ a data flow, update this file, the policy, and the record below in the same PR.
 | Deleted-account tombstones | User UUID, SHA-256 of the lowercased email (`deleted_email_hash()`, prefix `slx-deleted:`), signup and deletion time, last plan and status, country, signup source (043_deleted_accounts.sql). Written by a BEFORE DELETE trigger on `auth.users`, so every deletion path records one | Former users | Legitimate interest (record of closed accounts in `/admin/users`; spotting delete-and-resignup abuse) | Supabase `deleted_accounts` (no client policies; read via `admin_list_deleted_accounts()`) | 24 months, pruned nightly by `prune_deleted_accounts()` |
 | Admin audit log | Admin ID, action, target IDs | Admins | Legitimate interest | Supabase `admin_audit_log` | Indefinite (contains no ticket content or user IDs by design) |
 | Status overrides | Admin ID (`set_by`), public status note, timestamps (011_status_overrides.sql) | Admins | Legitimate interest (public incident communication) | Supabase `status_overrides` | Life of the override. `set_by` is `ON DELETE SET NULL`, not CASCADE, so deleting an admin anonymises the row without silently clearing a live incident notice |
+| Extension announcements | Admin ID of the author (`created_by`), the message copy, image, audience and schedule (064_announcements.sql) | Admins | Legitimate interest (telling users about outages, updates and the product) | Supabase `announcements` (admin-only read; the extension's read, `active_announcements()`, leaves `created_by` out), images in the public `announcement-images` bucket | Until an admin deletes the row (its image goes with it when no other message uses it). `created_by` is `ON DELETE SET NULL`, like `set_by` above, so deleting an admin anonymises the row without taking down a live notice |
+| Announcement recipients | User ID of each user a targeted announcement is sent to (`announcement_recipients`, 064_announcements.sql) | Users an admin picked by email | Legitimate interest (telling a specific user or group about something that concerns them) | Supabase `announcement_recipients` (admin-only read; the extension's read only tells a user that a message is meant for them, never who else it is for). Audit entries record how many recipients a message had, never who | Until the announcement is deleted; cascades on account deletion |
 | Endpoint self-test runs | Admin ID (`run_by`), extension version, marketplace, per-endpoint outcomes (012_endpoint_selftest.sql; see the dedicated section below) | Admins | Legitimate interest (operating and debugging the service) | Supabase `endpoint_selftest_runs` / `endpoint_selftest_results` | 180 days via `prune_endpoint_selftest()`; cascades on account deletion |
 
 Anti-abuse tombstones: `trial_history` and `link_history` store a SHA-256 hash
@@ -304,8 +306,10 @@ On request from the account email:
    referrer or referee; redact the OTHER party's UUID before sending - it is
    someone else's personal data) (SQL editor, export as CSV or JSON).
    For an ADMIN data subject, also include their `endpoint_selftest_runs`
-   (and cascaded results) keyed by `run_by`, and any `status_overrides` rows
-   keyed by `set_by`.
+   (and cascaded results) keyed by `run_by`, any `status_overrides` rows
+   keyed by `set_by`, and any `announcements` rows keyed by `created_by`.
+   For any data subject, also include the `announcement_recipients` rows for
+   their `user_id`, with each announcement's copy (what was sent to them).
 3. Storage: download `listing-images/{userId}/` if they want the images.
 4. Do not export `platform_credentials` content (it is encrypted client-side
    and useless outside their device); note its existence instead. The same
