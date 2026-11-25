@@ -1,4 +1,4 @@
-// Quick test messages for /admin/announcements: one click builds a real
+// "Send me a test" on /admin/announcements: one click builds a real
 // announcement aimed only at the admin who sent it, with sample copy for a
 // starting point, in the places and frequency picked, ending an hour later. It
 // goes through admin_save_announcement like any other, so it tests the whole
