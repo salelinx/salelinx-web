@@ -24,6 +24,7 @@ export const PLACE_SHORT: Record<AnnouncementPlacement, string> = {
   banner: "Banner",
   popup: "Popup",
   launcher: "Launcher card",
+  login: "Login screen",
   badge: "Badge",
   toolbar: "Toolbar popup",
 };
@@ -139,7 +140,8 @@ export function GlyphTile({
 }
 
 // A sketch of where a place sits: the panel with a banner under its header, a
-// popup over the panel, or a card above the launcher on the marketplace page.
+// popup over the panel, a card above the launcher on the marketplace page, or
+// the banner above the sign-in form on the login screen.
 // Outlines take the text colour; the message itself is drawn in its colour.
 export function PlaceDiagram({
   place,
@@ -161,7 +163,17 @@ export function PlaceDiagram({
       strokeLinecap="round"
     >
       <rect x="1" y="1" width="70" height="46" rx="5" {...line} />
-      {place === "launcher" ? (
+      {place === "login" ? (
+        <>
+          <rect x="29" y="4.5" width="14" height="3" rx="1.5" {...faint} />
+          <rect x="16" y="11" width="40" height="8" rx="2.5" fill={accent} fillOpacity={0.18} />
+          <rect x="16" y="11" width="40" height="8" rx="2.5" stroke={accent} strokeOpacity={0.7} />
+          <rect x="20" y="14" width="18" height="2" rx="1" fill={accent} />
+          <rect x="16" y="23" width="40" height="5" rx="2" {...faint} />
+          <rect x="16" y="31" width="40" height="5" rx="2" {...faint} />
+          <rect x="16" y="39" width="40" height="5" rx="2" fill="currentColor" fillOpacity={0.45} />
+        </>
+      ) : place === "launcher" ? (
         <>
           <rect x="9" y="8" width="54" height="4" rx="2" {...faint} />
           <rect x="9" y="16" width="16" height="10" rx="2" {...faint} />

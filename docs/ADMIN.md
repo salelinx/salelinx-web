@@ -19,7 +19,7 @@ The internal staff console at `/admin`. It is a dedicated, English-only tool, de
 | Configuration: Tier limits | `/admin/tiers` | Live, read/write | Edit the numeric caps in `tier_limits.limits` for active tier versions (jsonb_set via RPC). |
 | Configuration: Feature flags | `/admin/flags` | Live, read/write | Toggle the boolean gates in `tier_limits.features` for active tier versions. |
 | Configuration: Roadmap | `/admin/roadmap` | Live, read/write | Edit the public roadmap shown on `/roadmap` and at the bottom of the homepage (`roadmap_items`, migrations `032_roadmap_items.sql` + `033_roadmap_sync_main.sql`): create, copy, edit, hide, archive, delete, reorder within a column, move between Exploring / Building / Shipped. English copy required, other locales optional. See "Roadmap" below. |
-| Configuration: Announcements | `/admin/announcements` | Live, read/write | Messages shown in users' SaleLinx extension (`announcements`, migration `064_announcements.sql`), about anything. Each picks its look (colour, icon or emoji, image), where it shows (any of banner, popup and launcher card), how often, a priority, up to two allowlisted buttons, an audience (plan, marketplace, version range, signed in, language, panel tab, or specific users by email) and a start and end, with a live preview. Create, edit, end now, delete. English copy required, French, Spanish and German optional. See "Announcements" below. |
+| Configuration: Announcements | `/admin/announcements` | Live, read/write | Messages shown in users' SaleLinx extension (`announcements`, migrations `064_announcements.sql` and `065_announcement_login_place.sql`), about anything. Each picks its look (colour, icon or emoji, image), where it shows (any of banner, popup, launcher card and the login screen, the only place people signed out see), how often, a priority, up to two allowlisted buttons, an audience (plan, marketplace, version range, language, panel tab, or specific users by email) and a start and end, with a live preview. Create, edit, end now, delete. English copy required, French, Spanish and German optional. See "Announcements" below. |
 | Extension usage | `/admin/usage` | Live, read-only | Extension feature usage for a selectable period (current period by default; last 5 / 15 / 30 minutes, last 1 / 2 / 12 / 24 / 48 / 72 hours, last 7 / 30 days, all time, or a custom from/to range of UTC hours via `?range=` / `?from=&to=` URL params; the resolver also still accepts day-shaped `?from=YYYY-MM-DD&to=YYYY-MM-DD` for old links, but the picker only offers hours), grouped by user: one collapsible card per user whose body lists the FULL feature roster (`lib/admin/extension-features.ts`) with counts, zero included. On the current-period view the five tier-metered verbs (crosslist, relist, refresh, follow, unfollow) also show their `tier_limits` cap and percent (near-limit badge on the collapsed header); range views drop caps/percent because caps are per-period. Day ranges sum day buckets plus every month bucket touched, and monthly counters only exist as month buckets, so a range partially covering a month includes that whole month's count for them. Trailing presets (`?range=` with one of `5m`, `15m`, `30m`, `1h`, `2h`, `12h`, `24h`, `48h`, `72h`) are exact windows ending now, answered from `usage_events` (migration 017; see "Usage events" below), so "last hour" at 15:42 is 14:42 to 15:42. Custom hour ranges (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, UTC) sum the server-derived hour buckets only, which are exact for every counter but exist only from `HOUR_EPOCH` and for `HOUR_RETENTION_DAYS` (60 days) in `lib/admin/period.ts`; a request outside that window is clamped and the header shows a "(clamped)" marker with the reason. See "Hour buckets" below. The rest are uncapped activity counters recorded by the extension (salelinx-app `src/entitlements/usage-tracking.ts`). Users sorted by total actions. |
 | Analytics dashboard | `/admin/analytics` | Live, read-only | Landing page for the Analytics sidebar group: a grid of one-glance boxes fixed to the current month (last month as comparison), each linking to the module with the detail. Boxes: Top features (three most used by distinct users, with share of active users, actions, change vs last month), Top users (three most active accounts by total actions, with tier, features touched and top feature; emails resolved for just those ids), Active users (six-month column chart of distinct active users, `components/admin/analytics/ColumnChart.tsx`, with delta vs last month and the prior three-month average), Movers (largest gains and drops in users per feature vs last month, `featureMovers` in `lib/admin/adoption.ts`), Churn watch (paying users with `cancel_at_period_end` set, and paying users with no extension activity for 30+ days judged by `usage_counters.updated_at`; `lib/admin/retention.ts`, tested in `tests/retention.test.ts`), Signup funnel (accounts, linked a shop, ran an action, paying, each as a share of all accounts), Marketplace health (broken / degraded feature counts from the same `loadHealthRows(24)` the health module uses). The page reads usage rows once via `loadAnalyticsSource` and folds them for every usage-derived box; it is `force-dynamic`. Add a box by loading its data in the page's `Promise.all` and dropping a component into the grid (`components/admin/analytics/AdminAnalyticsDashboard.tsx`). |
 | Feature adoption | `/admin/usage/features` | Live, read-only | The per-feature cut of the same extension counters. Three kinds of window: a run of whole months (one / 3 / 6 / all time via `?months=`, anchored by `?to=YYYY-MM`), the same exact trailing presets as the usage pages (`?range=5m` to `72h`, read from `usage_events`), or a custom UTC hour range (`?from=YYYY-MM-DDTHH&to=YYYY-MM-DDTHH`, read from the hour buckets). In every kind each of the 28 roster features shows distinct users, share of a selectable base (`?base=active` users with any extension activity, `paid`, or `all` accounts), change in users against the preceding window of equal length, actions, median actions per user, and a 6-month sparkline of users. A second table splits adoption by plan, greying out cells the plan cannot use (via the counter-to-gate map in `lib/admin/adoption.ts`). The sparkline is per month for month windows and per hour for hour ranges; trailing presets have no per-bucket breakdown, so it is hidden for them. Months before 26 Aug 2026 are flagged as unmeasured for the activity counters. Windows reaching before the hour or event epochs are clamped with a "(clamped)" marker. See "Feature adoption" below. |
@@ -359,7 +359,8 @@ meant every column move was a deploy.
 `/admin/announcements` (under Configuration in the sidebar) writes the messages users see in
 their SaleLinx extension. They can be about anything: "Vinted crosslisting is
 broken, we're on it", "please update to 1.6.2", a new feature, an offer, a tip.
-Migration `064_announcements.sql`. The extension draws and targets them
+Migrations `064_announcements.sql` and `065_announcement_login_place.sql` (the
+login screen place). The extension draws and targets them
 (salelinx-app `docs/technical/ANNOUNCEMENTS.md`); this module stores them.
 
 - **The list.** Live now, Scheduled and Ended (closed by default). Each row
@@ -398,8 +399,19 @@ Migration `064_announcements.sql`. The extension draws and targets them
   (`buttons`, a JSON array of `{label, url}`); the first is drawn as the main
   one. Plain text only (the extension escapes it).
 - **Where it shows** (`placements`, at least one, any mix): `banner` (top of
-  the panel, and the login screen when signed out), `popup` (over the panel)
-  and `launcher` (a card by the launcher button while the panel is closed).
+  the panel), `popup` (over the panel), `launcher` (a card by the launcher
+  button while the panel is closed) and `login` (above the sign-in form on the
+  extension's login screen, added by 065). The login screen is the one place
+  people signed out of SaleLinx see, and people signed in never see it: the
+  extension gives someone signed out only `login` and someone signed in every
+  place but `login`. So ticking the login screen alone reaches only people
+  signed out. It cannot go with panel tabs (the table's tab rule), and the
+  editor leaves it out while plans or specific people are chosen, since those
+  only match people signed in (`loginScreenAllowed`). There is no separate
+  sign-in switch any more: the editor saves `signed_in_only` as "not on the
+  login screen", so an extension build that does not know `login` still keeps
+  every other message off that screen. A quick test never offers it (it is
+  sent to you, signed in, `ANNOUNCEMENT_SIGNED_IN_PLACEMENTS`).
   The table also allows `badge` (a "!" on the toolbar icon) and `toolbar` (the
   toolbar popup) from the first design. Nobody looks at the toolbar popup, so
   the editor does not offer them (`ANNOUNCEMENT_EDITOR_PLACEMENTS`, checked by
@@ -415,8 +427,8 @@ Migration `064_announcements.sql`. The extension draws and targets them
   a user matches with any of them switched on), `audience_locales` (the
   extension's display language), `audience_tabs` (panel tab ids; such a message
   only shows inside the panel, on those tabs, so only as a banner or popup),
-  each empty for everyone, plus an inclusive `min_version` / `max_version` and
-  `signed_in_only`. **Specific users**: pasted emails, matched to accounts
+  each empty for everyone, plus an inclusive `min_version` / `max_version`.
+  **Specific users**: pasted emails, matched to accounts
   without regard to case ("Just me" fills in the admin's own, for a test); an
   email with no account is refused with the list of unknown ones. At most 1000.
   Stored in `announcement_recipients`. `active_announcements()` returns such a

@@ -130,7 +130,8 @@ export function buildTestDraft(options: TestOptions, email: string, nowMs: numbe
     audience_tabs: [],
     min_version: null,
     max_version: null,
-    signed_in_only: false,
+    // Sent to you, so never on the login screen.
+    signed_in_only: true,
     starts_at: null,
     ends_at: new Date(nowMs + TEST_LIFETIME_MS).toISOString(),
     recipients: [email.trim().toLowerCase()],

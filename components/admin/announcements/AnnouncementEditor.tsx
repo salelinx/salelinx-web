@@ -72,6 +72,7 @@ import {
   charCount,
   ctaUrlOk,
   editorPlacements,
+  loginScreenAllowed,
   emailLooksOk,
   emojiOk,
   fromLocalInput,
@@ -149,7 +150,6 @@ type Form = {
   tabs: string[];
   minVersion: string;
   maxVersion: string;
-  signedInOnly: boolean;
   recipients: string;
   startMode: "now" | "at";
   startAt: string;
@@ -178,7 +178,6 @@ function formFrom(a: AnnouncementRow | null): Form {
       tabs: [],
       minVersion: "",
       maxVersion: "",
-      signedInOnly: false,
       recipients: "",
       startMode: "now",
       startAt: "",
@@ -205,7 +204,6 @@ function formFrom(a: AnnouncementRow | null): Form {
     tabs: [...a.audience_tabs],
     minVersion: a.min_version ?? "",
     maxVersion: a.max_version ?? "",
-    signedInOnly: a.signed_in_only,
     recipients: a.recipients.join("\n"),
     // An existing one keeps its own start time unless "Now" is picked.
     startMode: "at",
@@ -230,6 +228,8 @@ function draftFrom(
   if (form.startMode === "at" && !startsAt) return "missing_start";
   const endsAt = form.endMode === "never" ? null : fromLocalInput(form.endAt);
   if (form.endMode === "at" && !endsAt) return "missing_end";
+  const recipients = parseRecipientEmails(form.recipients);
+  const placements = placesFor(form, recipients);
 
   return {
     id,
@@ -245,7 +245,7 @@ function draftFrom(
     buttons: form.buttons
       .map((b) => ({ label: b.label, url: trimText(b.url) }))
       .filter((b) => b.url || !labelBlank(b.label)),
-    placements: form.placements,
+    placements,
     frequency: form.frequency,
     audience_tiers: form.tiers,
     audience_platforms: form.platforms,
@@ -253,11 +253,24 @@ function draftFrom(
     audience_tabs: form.tabs,
     min_version: trimText(form.minVersion) || null,
     max_version: trimText(form.maxVersion) || null,
-    signed_in_only: form.signedInOnly,
+    // Not on the login screen means signed in only, so an extension that does
+    // not know the login place still keeps the message off it.
+    signed_in_only: !placements.includes("login"),
     starts_at: startsAt,
     ends_at: endsAt,
-    recipients: parseRecipientEmails(form.recipients),
+    recipients,
   };
+}
+
+// The places it will be saved with: the login screen left out while plans,
+// panel tabs or specific people are chosen, which only match people signed in.
+function placesFor(form: Form, recipients: string[]): AnnouncementPlacement[] {
+  const ok = loginScreenAllowed({
+    audience_tiers: form.tiers,
+    audience_tabs: form.tabs,
+    recipients,
+  });
+  return ok ? form.placements : form.placements.filter((p) => p !== "login");
 }
 
 // Copy with every value trimmed and blank ones left out, the shape
@@ -359,7 +372,7 @@ export function Editor({
   const [dragging, setDragging] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
   const [moreFilters, setMoreFilters] = useState(
-    () => startForm.signedInOnly || Boolean(startForm.minVersion || startForm.maxVersion),
+    () => Boolean(startForm.minVersion || startForm.maxVersion),
   );
   // Blob URLs of the files picked in this editor, by bucket path.
   const [localImages, setLocalImages] = useState<Record<string, string>>({});
@@ -554,6 +567,13 @@ export function Editor({
         })
       : [];
   const tabsChosen = form.tabs.length > 0;
+  const loginOk = loginScreenAllowed({
+    audience_tiers: form.tiers,
+    audience_tabs: form.tabs,
+    recipients,
+  });
+  // What is shown and previewed: the places it will be saved with.
+  const savedPlaces = placesFor(form, recipients);
   const extraTabs = [...new Set([...(initial?.audience_tabs ?? []), ...form.tabs])].filter(
     (t) => !(ANNOUNCEMENT_TABS as readonly string[]).includes(t),
   );
@@ -565,7 +585,6 @@ export function Editor({
     audience_tabs: form.tabs,
     min_version: min,
     max_version: max,
-    signed_in_only: form.signedInOnly,
     recipients,
   });
   const accent = ANNOUNCEMENT_THEME_COLOR[form.theme] ?? ANNOUNCEMENT_THEME_COLOR.blue;
@@ -580,7 +599,7 @@ export function Editor({
       : { label: "Schedule", busy: "Scheduling..." };
 
   // The plain-words summary under the preview.
-  const places = ANNOUNCEMENT_EDITOR_PLACEMENTS.filter((p) => form.placements.includes(p)).map(
+  const places = ANNOUNCEMENT_EDITOR_PLACEMENTS.filter((p) => savedPlaces.includes(p)).map(
     (p, i) => (i === 0 ? PLACE_SHORT[p] : PLACE_SHORT[p].toLowerCase()),
   );
   const startWords =
@@ -1111,16 +1130,24 @@ export function Editor({
             <EditorSection
               id="announcement-where"
               title="Where it shows"
-              description="Pick one or more. The preview shows each one."
+              description="Pick one or more. The preview shows each one. People signed out only ever see the login screen, and people signed in never do."
             >
-              <div className="grid gap-2.5 sm:grid-cols-3">
+              <div className="grid gap-2.5 sm:grid-cols-2">
                 {ANNOUNCEMENT_EDITOR_PLACEMENTS.map((p) => {
-                  const blocked = tabsChosen && !ANNOUNCEMENT_PANEL_PLACEMENTS.includes(p);
-                  const on = form.placements.includes(p);
+                  const tabBlocked = tabsChosen && !ANNOUNCEMENT_PANEL_PLACEMENTS.includes(p);
+                  const loginBlocked = p === "login" && !loginOk;
+                  const blocked = tabBlocked || loginBlocked;
+                  const on = savedPlaces.includes(p);
                   return (
                     <label
                       key={p}
-                      title={blocked ? "Not for a message tied to panel tabs" : undefined}
+                      title={
+                        tabBlocked
+                          ? "Not for a message tied to panel tabs"
+                          : loginBlocked
+                            ? "Only for people signed out, so not with plans or specific people"
+                            : undefined
+                      }
                       className={`relative flex flex-col rounded-lg border p-3 transition-colors ${cardChoice(on)} ${
                         blocked ? "cursor-not-allowed opacity-40" : "cursor-pointer"
                       }`}
@@ -1158,13 +1185,19 @@ export function Editor({
                   );
                 })}
               </div>
-              {form.placements.length === 0 && (
+              {savedPlaces.length === 0 && (
                 <p className={errorClass}>Tick at least one place.</p>
               )}
               {tabsChosen && (
                 <p className={hintClass}>
                   It is for certain panel tabs (under Who sees it), so it can only show inside
                   the panel: as a banner or a popup.
+                </p>
+              )}
+              {!tabsChosen && !loginOk && (
+                <p className={hintClass}>
+                  It is for certain plans or people (under Who sees it), who are signed in, so
+                  it cannot show on the login screen.
                 </p>
               )}
             </EditorSection>
@@ -1336,7 +1369,7 @@ export function Editor({
                       size={14}
                       className={`transition-transform ${moreFilters ? "" : "-rotate-90"}`}
                     />
-                    Version and sign-in
+                    Versions
                   </button>
                   {moreFilters && (
                     <div className="mt-4 space-y-4">
@@ -1372,14 +1405,6 @@ export function Editor({
                           </span>
                         </div>
                         {versionError && <span className={errorClass}>{versionError}</span>}
-                      </FilterRow>
-                      <FilterRow label="Sign-in">
-                        <ChipToggle
-                          checked={form.signedInOnly}
-                          onChange={(on) => set("signedInOnly", on)}
-                        >
-                          Signed-in users only
-                        </ChipToggle>
                       </FilterRow>
                     </div>
                   )}
@@ -1487,7 +1512,7 @@ export function Editor({
                 hasImage: form.imagePath !== null,
                 imageSrc,
                 closable: form.frequency !== "always",
-                placements: form.placements,
+                placements: savedPlaces,
               }}
               locale={previewLocale}
               onLocale={setPreviewLocale}

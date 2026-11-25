@@ -41,6 +41,8 @@ import {
   toLocalInput,
   editorPlacements,
   togglePlacement,
+  loginScreenAllowed,
+  ANNOUNCEMENT_SIGNED_IN_PLACEMENTS,
   validateAnnouncementDraft,
   versionOk,
   type Announcement,
@@ -52,12 +54,17 @@ const MIGRATION = readFileSync(
   path.resolve(__dirname, '../supabase/migrations/064_announcements.sql'),
   'utf8',
 );
+// Adds the login place: replaces the placements CHECK and admin_save_announcement.
+const LOGIN_MIGRATION = readFileSync(
+  path.resolve(__dirname, '../supabase/migrations/065_announcement_login_place.sql'),
+  'utf8',
+);
 
-// The quoted strings of one `name CONSTANT TEXT[] := ARRAY[...]` in the
-// migration.
-function sqlArray(name: string): string[] {
-  const m = new RegExp(`${name} CONSTANT TEXT\\[\\] := ARRAY\\[([^\\]]*)\\]`).exec(MIGRATION);
-  if (!m) throw new Error(`${name} not found in 064_announcements.sql`);
+// The quoted strings of one `name CONSTANT TEXT[] := ARRAY[...]` in a
+// migration (064 unless another is given).
+function sqlArray(name: string, sql = MIGRATION): string[] {
+  const m = new RegExp(`${name} CONSTANT TEXT\\[\\] := ARRAY\\[([^\\]]*)\\]`).exec(sql);
+  if (!m) throw new Error(`${name} not found in the migration`);
   return [...m[1].matchAll(/'([^']*)'/g)].map((x) => x[1]);
 }
 
@@ -207,9 +214,18 @@ describe('migration parity', () => {
     expect(sqlArray('c_tiers')).toEqual([...ANNOUNCEMENT_TIERS]);
     expect(sqlArray('c_platforms')).toEqual([...ANNOUNCEMENT_PLATFORMS]);
     expect(sqlArray('c_locales')).toEqual([...ANNOUNCEMENT_LOCALES]);
-    expect(sqlArray('c_placements')).toEqual([...ANNOUNCEMENT_PLACEMENTS]);
+    expect(sqlArray('c_placements', LOGIN_MIGRATION)).toEqual([...ANNOUNCEMENT_PLACEMENTS]);
     expect(sqlArray('c_themes')).toEqual([...ANNOUNCEMENT_THEMES]);
     expect(sqlArray('c_icons')).toEqual([...ANNOUNCEMENT_ICONS]);
+  });
+
+  it('065 changes only the places in admin_save_announcement and the table', () => {
+    const save = (sql: string) =>
+      /CREATE OR REPLACE FUNCTION public\.admin_save_announcement\([\s\S]*?\n\$\$;/.exec(sql)![0];
+    const without = (sql: string) => save(sql).replace(/ {2}c_placements CONSTANT[^\n]*\n/, '');
+    expect(without(LOGIN_MIGRATION)).toBe(without(MIGRATION));
+    const list = ANNOUNCEMENT_PLACEMENTS.map((p) => `'${p}'`).join(', ');
+    expect(LOGIN_MIGRATION).toContain(`placements <@ ARRAY[${list}]::TEXT[]`);
   });
 
   it('matches the table CHECKs', () => {
@@ -273,8 +289,8 @@ describe('icons and presets', () => {
 });
 
 describe('placements', () => {
-  it('offers the banner, popup and launcher card', () => {
-    expect([...ANNOUNCEMENT_EDITOR_PLACEMENTS]).toEqual(['banner', 'popup', 'launcher']);
+  it('offers the banner, popup, launcher card and login screen', () => {
+    expect([...ANNOUNCEMENT_EDITOR_PLACEMENTS]).toEqual(['banner', 'popup', 'launcher', 'login']);
     for (const p of ANNOUNCEMENT_EDITOR_PLACEMENTS) expect(ANNOUNCEMENT_PLACEMENTS).toContain(p);
   });
 
@@ -303,6 +319,30 @@ describe('placements', () => {
     ]);
     expect(placementsForTabs(['launcher', 'toolbar'], ['offers'])).toEqual(['banner']);
     expect(placementsForTabs(['launcher', 'toolbar'], [])).toEqual(['launcher', 'toolbar']);
+    expect(placementsForTabs(['banner', 'login'], ['offers'])).toEqual(['banner']);
+    expect(placementsForTabs(['login'], ['offers'])).toEqual(['banner']);
+  });
+
+  it('offers the login screen on its own, and never with a panel tab', () => {
+    expect(togglePlacement([], 'login', true, [])).toEqual(['login']);
+    expect(togglePlacement(['login'], 'banner', true, [])).toEqual(['banner', 'login']);
+    expect(togglePlacement(['banner'], 'login', true, ['offers'])).toEqual(['banner']);
+    expect(editorPlacements(['login', 'badge'])).toEqual(['login']);
+    expect(validateAnnouncementDraft(draft({ placements: ['login'] }), NOW)).toBeNull();
+    expect(validateAnnouncementDraft(draft({ placements: ['login'], audience_tabs: ['offers'] }), NOW)).toBe(
+      'invalid_tabs',
+    );
+  });
+
+  it('keeps the login screen to messages someone signed out can match', () => {
+    expect(loginScreenAllowed(draft({}))).toBe(true);
+    expect(loginScreenAllowed(draft({ audience_platforms: ['depop'], min_version: '1.2' }))).toBe(true);
+    expect(loginScreenAllowed(draft({ audience_tiers: ['none'] }))).toBe(false);
+    expect(loginScreenAllowed(draft({ audience_tabs: ['offers'] }))).toBe(false);
+    expect(loginScreenAllowed(draft({ recipients: ['a@b.co'] }))).toBe(false);
+    expect([...ANNOUNCEMENT_SIGNED_IN_PLACEMENTS]).toEqual(
+      ANNOUNCEMENT_EDITOR_PLACEMENTS.filter((p) => p !== 'login'),
+    );
   });
 });
 
@@ -481,15 +521,13 @@ describe('audienceSummary', () => {
           recipients: ['a@b.co', 'c@d.co'],
         }),
       ),
-    ).toBe(
-      'Pro, Business · Vinted · French, German · Crosslist tab · v1.5.0 to 1.6.1 · signed in · 2 people',
-    );
+    ).toBe('Pro, Business · Vinted · French, German · Crosslist tab · v1.5.0 to 1.6.1 · 2 people');
   });
 
   it('words one-sided version ranges, lone filters and unknown tabs', () => {
     expect(audienceSummary(draft({ min_version: '1.6' }))).toBe('v1.6 and later');
     expect(audienceSummary(draft({ max_version: '1.6' }))).toBe('up to v1.6');
-    expect(audienceSummary(draft({ signed_in_only: true }))).toBe('Signed in');
+    expect(audienceSummary(draft({ signed_in_only: true }))).toBe('Everyone');
     expect(audienceSummary(draft({ recipients: ['a@b.co'] }))).toBe('1 person');
     expect(audienceSummary(draft({ audience_tabs: ['offers', 'oldtab'] }))).toBe('Offers, oldtab tabs');
   });
@@ -572,9 +610,9 @@ describe('datetime-local values', () => {
 describe('quick test messages', () => {
   it('builds a valid message for every starting point, place and frequency', () => {
     for (const preset of ANNOUNCEMENT_PRESETS) {
-      // Every non-empty mix of the three places.
-      for (let mask = 1; mask < 8; mask++) {
-        const places = ANNOUNCEMENT_EDITOR_PLACEMENTS.filter((_, i) => mask & (1 << i));
+      // Every non-empty mix of the places for people signed in.
+      for (let mask = 1; mask < 1 << ANNOUNCEMENT_SIGNED_IN_PLACEMENTS.length; mask++) {
+        const places = ANNOUNCEMENT_SIGNED_IN_PLACEMENTS.filter((_, i) => mask & (1 << i));
         for (const frequency of ANNOUNCEMENT_FREQUENCIES) {
           const d = buildTestDraft({ preset: preset.key, places, frequency }, 'Me@Example.com', NOW);
           const what = `${preset.key}/${places.join('+')}/${frequency}`;
@@ -594,6 +632,7 @@ describe('quick test messages', () => {
     expect(Date.parse(d.ends_at!)).toBe(NOW + TEST_LIFETIME_MS);
     for (const title of Object.values(d.title)) expect(title.startsWith(TEST_TITLE_PREFIX)).toBe(true);
     expect(d.title.fr).toBeTruthy();
+    expect(d.signed_in_only).toBe(true);
   });
 });
 
