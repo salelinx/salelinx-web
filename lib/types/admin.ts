@@ -57,6 +57,27 @@ export type AdminUserRow = {
   followers: number | null;
 };
 
+// Row from admin_funnel_accounts() (migration 065): whether one account EVER
+// reached each funnel step. No email; admin accounts are left out.
+export type AdminFunnelAccount = {
+  user_id: string;
+  signed_up_at: string;
+  confirmed: boolean;
+  // First-touch source, campaign and device, as signup_source above.
+  source: string | null;
+  campaign: string | null;
+  device: string | null;
+  installed: boolean;
+  linked: boolean;
+  // Every usage_counters feature with a count, web counters included.
+  features: string[];
+  // First Stripe subscription (trial or paid) and first real payment.
+  subscribed_at: string | null;
+  first_paid_at: string | null;
+  in_trial_now: boolean;
+  paying_now: boolean;
+};
+
 // Row from admin_list_subscriptions(): a full subscriptions row.
 // admin_list_deleted_accounts() (migration 043). No email: only its hash.
 export type AdminDeletedAccount = {
