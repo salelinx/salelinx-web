@@ -1035,6 +1035,8 @@ Deno.serve(async (req: Request) => {
           await accessTokenFor(admin, user.id),
           `<CreateTimeFrom>${from.toISOString()}</CreateTimeFrom><CreateTimeTo>${now.toISOString()}</CreateTimeTo>` +
             '<OrderRole>Seller</OrderRole><OrderStatus>Completed</OrderStatus>' +
+            // Each line's final value fee, so the extension's Analytics can take eBay's cut off.
+            '<IncludeFinalValueFee>true</IncludeFinalValueFee>' +
             '<Pagination><EntriesPerPage>100</EntriesPerPage><PageNumber>1</PageNumber></Pagination>',
         );
         return json(200, { orders: openOrdersFromResponse(res) });

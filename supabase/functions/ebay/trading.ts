@@ -586,6 +586,18 @@ const delivered = (o) =>
     (t) => t.ShippingServiceSelected?.ShippingPackageInfo?.ActualDeliveryTime,
   );
 
+/**
+ * eBay's final value fee on an order: its lines' `FinalValueFee` added up (sent because the
+ * request sets `IncludeFinalValueFee`). Null when no line carries one, so "no fee read" and a
+ * zero fee (a UK private seller) stay apart.
+ */
+function orderFee(lines) {
+  const fees = lines.map((t) => money(t.FinalValueFee)).filter((f) => f && Number.isFinite(f.value));
+  if (!fees.length) return { fee: null, feeCurrency: null };
+  const total = fees.reduce((sum, f) => sum + f.value, 0);
+  return { fee: Math.round(total * 100) / 100, feeCurrency: fees[0].currency };
+}
+
 /** GetOrders: paid orders not posted yet, or posted with tracking (an eBay label) and not delivered. eBay sends no photos; the extension has them. */
 export function openOrdersFromResponse(body) {
   return (body.OrderArray?.Order ?? [])
@@ -608,6 +620,7 @@ export function openOrdersFromResponse(body) {
         buyerName: o.ShippingAddress?.Name ?? '',
         total: total?.value ?? 0,
         currency: total?.currency ?? null,
+        ...orderFee(lines),
         service: o.ShippingServiceSelected?.ShippingService ?? null,
         shipBy: lines[0]?.ShippingServiceSelected?.ShippingPackageInfo?.HandleByTime ?? null,
         items: lines.map((t) => ({
