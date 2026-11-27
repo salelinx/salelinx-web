@@ -635,6 +635,7 @@ const ORDERS = `<?xml version="1.0" encoding="UTF-8"?>
           <Item><ItemID>110551234567</ItemID><Title>Levi's 501 W32</Title></Item>
           <QuantityPurchased>1</QuantityPurchased>
           <TransactionPrice currencyID="GBP">28.00</TransactionPrice>
+          <FinalValueFee currencyID="GBP">3.64</FinalValueFee>
           <ShippingServiceSelected><ShippingPackageInfo><HandleByTime>2026-11-06T23:59:59.000Z</HandleByTime></ShippingPackageInfo></ShippingServiceSelected>
         </Transaction>
       </TransactionArray>
@@ -691,6 +692,8 @@ Deno.test('GetOrders keeps paid orders not yet posted, and labelled ones until d
       buyerName: 'Sam Buyer',
       total: 31.5,
       currency: 'GBP',
+      fee: 3.64,
+      feeCurrency: 'GBP',
       service: 'UK_RoyalMailSecondClassStandard',
       shipBy: '2026-11-06T23:59:59.000Z',
       items: [{ itemId: '110551234567', title: "Levi's 501 W32", quantity: 1, price: 28 }],
@@ -705,6 +708,8 @@ Deno.test('GetOrders keeps paid orders not yet posted, and labelled ones until d
       buyerName: '',
       total: 12,
       currency: 'GBP',
+      fee: null,
+      feeCurrency: null,
       service: null,
       shipBy: null,
       items: [{ itemId: '110550000003', title: 'Tee', quantity: 1, price: 12 }],
