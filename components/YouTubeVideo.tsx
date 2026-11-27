@@ -28,7 +28,7 @@ export function YouTubeVideo({
       style={{ backgroundImage: `url(${poster})` }}
     >
       <span className="grid h-16 w-16 place-items-center rounded-full bg-black/70 text-white transition group-hover:bg-black">
-        <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+        <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
       </span>
     </button>
   );
