@@ -913,7 +913,8 @@
       "offers": "Offers",
       "auto_markdown": "Price drops",
       "account_linking": "Listing linking",
-      "preset_sync": "Settings presets sync"
+      "preset_sync": "Settings presets sync",
+      "custom_dashboards": "Custom Analytics pages"
     }
   },
   "Docs": {

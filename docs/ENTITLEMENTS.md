@@ -140,7 +140,7 @@ see "Former extension-repo migrations" in `supabase/migrations/README.md`.
 
 ## Seed data (v1)
 
-See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. `preset_sync` (the cloud copy of the extension's settings presets; on every live plan including the trial row, off only on the retired free row) was added afterwards by `022_preset_sync_feature.sql`; the extension gates it silently and has no fallback for the key, so this seed alone decides who syncs. Summary:
+See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `usage_counters`, plus the `increment_usage_counter` RPC and seeds tier v1 with the full feature set: `account_linking` Pro+, `auto_markdown` Business, `dead_stock` / `shop_designer` / `messages` / `offers` Starter+, `auto_accept_offers` Pro+, `shipping_label_email` Business). Auto-offers (`auto_offer`) stays Pro+. `preset_sync` (the cloud copy of the extension's settings presets; on every live plan including the trial row, off only on the retired free row) was added afterwards by `022_preset_sync_feature.sql`; the extension gates it silently and has no fallback for the key, so this seed alone decides who syncs. `custom_dashboards` (the extension's Analytics custom pages, Pro+) was added by `066_custom_dashboards_feature.sql` (live since 26 Nov 2026); the panel gates it with the Pro padlock and the built-in Analytics pages stay on every plan. Summary:
 
 | Label                       | JSON key                 | Free | Starter | Pro       | Business  |
 | --------------------------- | ------------------------ | ---- | ------- | --------- | --------- |
@@ -156,6 +156,7 @@ See migration `002_billing_tiers.sql` (creates `subscriptions`, `tier_limits`, `
 | Cloud sync                  | `cloud_sync`             | ✗    | ✗       | ✓         | ✓         |
 | Shipping labels             | `shipping_labels`        | ✗    | ✗       | ✓         | ✓         |
 | Account linking             | `account_linking`        | ✗    | ✗       | ✓         | ✓         |
+| Custom Analytics pages      | `custom_dashboards`      | ✗    | ✗       | ✓         | ✓         |
 | Auto-offers                 | `auto_offer`             | ✗    | ✗       | ✓         | ✓         |
 | Offers (incoming)           | `offers`                 | ✗    | ✓       | ✓         | ✓         |
 | Messages                    | `messages`               | ✗    | ✓       | ✓         | ✓         |
