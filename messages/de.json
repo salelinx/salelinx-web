@@ -913,7 +913,8 @@
       "offers": "Angebote",
       "auto_markdown": "Preissenkungen",
       "account_linking": "Inserate verknüpfen",
-      "preset_sync": "Synchronisation der Voreinstellungen"
+      "preset_sync": "Synchronisation der Voreinstellungen",
+      "custom_dashboards": "Eigene Statistik-Seiten"
     }
   },
   "Docs": {

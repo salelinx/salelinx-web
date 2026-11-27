@@ -913,7 +913,8 @@
       "offers": "报价",
       "auto_markdown": "降价",
       "account_linking": "商品关联",
-      "preset_sync": "设置预设同步"
+      "preset_sync": "设置预设同步",
+      "custom_dashboards": "自定义数据分析页面"
     }
   },
   "Docs": {

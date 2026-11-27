@@ -51,6 +51,7 @@ const FEATURE_ICONS: Record<string, IconName> = {
   auto_markdown: "sparkle",
   account_linking: "link",
   preset_sync: "sync",
+  custom_dashboards: "grid",
 };
 
 const LIMIT_ORDER = [
@@ -74,6 +75,7 @@ const FEATURE_ORDER = [
   "auto_refresh",
   "account_linking",
   "shipping_labels",
+  "custom_dashboards",
   "restocker",
   "auto_markdown",
 ] as const;
